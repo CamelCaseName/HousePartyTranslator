@@ -39,8 +39,31 @@ namespace HousePartyTranslator
 
         private void SelectFileLeftClick(object sender, EventArgs e)
         {
-
+            string filePath = SelectFileFromSystem(true);
+            if (filePath != "") 
+            {
+                //Load file here
+                Console.WriteLine("Selected path is " + filePath);
+                TranslationManager.main.SourceFilePath = filePath;
+            }
         }
+
+        private string SelectFileFromSystem(bool isEnglishFile)
+        {
+            OpenFileDialog selectFileDialog = new OpenFileDialog();
+            string title = isEnglishFile ? "Choose a source file for translation" : "Choose a target file for translation";
+            selectFileDialog.Title = title;
+            selectFileDialog.Filter = "Text files (*.txt)|*.txt";
+            selectFileDialog.InitialDirectory = @"C:\Users\%USER%\Documents";
+
+            if (selectFileDialog.ShowDialog() == DialogResult.OK) 
+            {
+                return selectFileDialog.FileName;
+            }
+
+            return "";
+        }
+        
 
         private void SaveFileLeftClick(object sender, EventArgs e)
         {
@@ -54,7 +77,13 @@ namespace HousePartyTranslator
 
         private void SelectFileRightClick(object sender, EventArgs e)
         {
-
+            string filePath = SelectFileFromSystem(false);
+            if (filePath != "")
+            {
+                //Load file here
+                TranslationManager.main.SourceFilePath = filePath;
+                Console.WriteLine("Selected path is " + filePath);
+            }
         }
 
         private void SaveFileRightClick(object sender, EventArgs e)
