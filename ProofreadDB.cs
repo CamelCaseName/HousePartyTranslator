@@ -27,6 +27,7 @@ namespace HousePartyTranslator
         {
             string insertCommand = @"INSERT INTO dbo.Translations VALUES(@id, @story, @fileName, @translated, @approved, @language, @comments)";
             insertApproved.CommandText = insertCommand;
+            insertApproved.Parameters.Clear();
             insertApproved.Parameters.AddWithValue("@id", story + fileName + id);
             insertApproved.Parameters.AddWithValue("@story", story);
             insertApproved.Parameters.AddWithValue("@fileName", fileName);

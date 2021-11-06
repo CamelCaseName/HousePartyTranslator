@@ -34,10 +34,23 @@ namespace HousePartyTranslator
 
         private void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
-            int CurrentLine = TextBoxRight.GetLineFromCharIndex(TextBoxRight.GetFirstCharIndexOfCurrentLine());
+            int selectionStart = TextBoxRight.GetFirstCharIndexOfCurrentLine();
+            int CurrentLine = TextBoxRight.GetLineFromCharIndex(selectionStart);
             Console.WriteLine(CurrentLine.ToString());
-            TextBoxLeft.SelectionStart = TextBoxRight.SelectionStart;
+            //move left box to same line
+            TextBoxLeft.SelectionStart = TextBoxLeft.GetFirstCharIndexFromLine(CurrentLine);
             TextBoxLeft.ScrollToCaret();
+
+            int selectionEnd = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine + 1) - 1;
+            string approvedString = "";
+            if (selectionEnd - selectionStart > 0) { approvedString = TextBoxRight.Text.Substring(selectionStart, selectionEnd); }
+            else { approvedString = TextBoxRight.Text.Substring(selectionStart, TextBoxRight.Text.Length); }
+
+            if (approvedString.Contains('|'))
+            {
+                string ID = approvedString.Split('|')[0];
+                ApproveTranslationButton.Text = $"Approve string {ID}";
+            }
         }
 
         private void SelectFileLeftClick(object sender, EventArgs e)
@@ -153,7 +166,7 @@ namespace HousePartyTranslator
             {
                 int CurrentLine = TextBoxRight.GetLineFromCharIndex(TextBoxRight.GetFirstCharIndexOfCurrentLine());
                 int selectionStart = TextBoxRight.GetFirstCharIndexOfCurrentLine();
-                int selectionEnd = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine + 1);
+                int selectionEnd = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine + 1) - 1;
 
                 TextBoxRight.SelectionStart = selectionStart;
                 if (selectionEnd - selectionStart > 0) { TextBoxRight.SelectionLength = selectionEnd - selectionStart; }
