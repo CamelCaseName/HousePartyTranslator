@@ -34,17 +34,21 @@ namespace HousePartyTranslator
 
         private void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
-
+            int CurrentLine = TextBoxRight.GetLineFromCharIndex(TextBoxRight.GetFirstCharIndexOfCurrentLine());
+            Console.WriteLine(CurrentLine.ToString());
+            TextBoxLeft.SelectionStart = TextBoxRight.SelectionStart;
+            TextBoxLeft.ScrollToCaret();
         }
 
         private void SelectFileLeftClick(object sender, EventArgs e)
         {
             string filePath = SelectFileFromSystem(true);
-            if (filePath != "") 
+            if (filePath != "")
             {
-                //Load file here
                 Console.WriteLine("Selected path is " + filePath);
                 TranslationManager.main.SourceFilePath = filePath;
+                TranslationManager.main.TemplateFileString = System.IO.File.ReadAllText(filePath);
+                TextBoxLeft.Text = TranslationManager.main.TemplateFileString;
             }
         }
 
@@ -56,14 +60,14 @@ namespace HousePartyTranslator
             selectFileDialog.Filter = "Text files (*.txt)|*.txt";
             selectFileDialog.InitialDirectory = @"C:\Users\%USER%\Documents";
 
-            if (selectFileDialog.ShowDialog() == DialogResult.OK) 
+            if (selectFileDialog.ShowDialog() == DialogResult.OK)
             {
                 return selectFileDialog.FileName;
             }
 
             return "";
         }
-        
+
 
         private void SaveFileLeftClick(object sender, EventArgs e)
         {
@@ -83,6 +87,8 @@ namespace HousePartyTranslator
                 //Load file here
                 TranslationManager.main.SourceFilePath = filePath;
                 Console.WriteLine("Selected path is " + filePath);
+                TranslationManager.main.TranslationFileString = System.IO.File.ReadAllText(filePath);
+                TextBoxRight.Text = TranslationManager.main.TranslationFileString;
             }
         }
 
@@ -134,6 +140,32 @@ namespace HousePartyTranslator
         private void SafeFileAsDialogRight_FileOk(object sender, CancelEventArgs e)
         {
 
+        }
+
+        private void TextBoxRight_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ApproveTranslationButton_CheckedChanged(object sender, EventArgs e)
+        {
+            int CurrentLine = TextBoxRight.GetLineFromCharIndex(TextBoxRight.GetFirstCharIndexOfCurrentLine());
+            int selectionStart = TextBoxRight.GetFirstCharIndexOfCurrentLine();
+            int selectionEnd = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine + 1);
+
+            TextBoxRight.SelectionStart = selectionStart;
+            if (selectionEnd - selectionStart > 0) { TextBoxRight.SelectionLength = selectionEnd - selectionStart; }
+            else { TextBoxRight.SelectionLength = TextBoxRight.Text.Length - 1 - selectionStart; }
+
+            string approvedString = TextBoxRight.SelectedText;
+            if (approvedString.Contains('|'))
+            {
+                string ID = approvedString.Split('|')[0];
+                if (!ProofreadDB.SetStringAccepted(ID, TranslationManager.main.FileName, "OS"))
+                {
+                    Console.WriteLine($"Could not approve string {ID}");
+                }
+            }
         }
     }
 }

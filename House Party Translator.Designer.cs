@@ -46,6 +46,7 @@ namespace HousePartyTranslator
             this.OpenFileDialogRight = new System.Windows.Forms.OpenFileDialog();
             this.SaveFileAsDialogLeft = new System.Windows.Forms.SaveFileDialog();
             this.SafeFileAsDialogRight = new System.Windows.Forms.SaveFileDialog();
+            this.ApproveTranslationButton = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -68,6 +69,7 @@ namespace HousePartyTranslator
             // 
             // MainContainer.Panel2
             // 
+            this.MainContainer.Panel2.Controls.Add(this.ApproveTranslationButton);
             this.MainContainer.Panel2.Controls.Add(this.WordsTranslated);
             this.MainContainer.Panel2.Controls.Add(this.ProgressbarTranslated);
             this.MainContainer.Panel2.Controls.Add(this.SelectedFileRight);
@@ -75,8 +77,8 @@ namespace HousePartyTranslator
             this.MainContainer.Panel2.Controls.Add(this.TextBoxRight);
             this.MainContainer.Panel2.Controls.Add(this.SaveFileRight);
             this.MainContainer.Panel2.Controls.Add(this.OpenFileRight);
-            this.MainContainer.Size = new System.Drawing.Size(805, 453);
-            this.MainContainer.SplitterDistance = 375;
+            this.MainContainer.Size = new System.Drawing.Size(1257, 624);
+            this.MainContainer.SplitterDistance = 585;
             this.MainContainer.TabIndex = 0;
             // 
             // SelectedFileLeft
@@ -95,7 +97,7 @@ namespace HousePartyTranslator
             this.SaveFileAsLeft.Name = "SaveFileAsLeft";
             this.SaveFileAsLeft.Size = new System.Drawing.Size(75, 23);
             this.SaveFileAsLeft.TabIndex = 3;
-            this.SaveFileAsLeft.Text = "Select file as";
+            this.SaveFileAsLeft.Text = "Save file as";
             this.SaveFileAsLeft.UseVisualStyleBackColor = true;
             this.SaveFileAsLeft.Click += new System.EventHandler(this.SaveFileAsLeftClick);
             // 
@@ -124,21 +126,22 @@ namespace HousePartyTranslator
             this.TextBoxLeft.BackColor = System.Drawing.SystemColors.ControlLight;
             this.TextBoxLeft.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TextBoxLeft.ImeMode = System.Windows.Forms.ImeMode.On;
-            this.TextBoxLeft.Location = new System.Drawing.Point(3, 69);
+            this.TextBoxLeft.Location = new System.Drawing.Point(33, 64);
             this.TextBoxLeft.Multiline = true;
             this.TextBoxLeft.Name = "TextBoxLeft";
             this.TextBoxLeft.ReadOnly = true;
             this.TextBoxLeft.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TextBoxLeft.Size = new System.Drawing.Size(360, 381);
+            this.TextBoxLeft.Size = new System.Drawing.Size(539, 334);
             this.TextBoxLeft.TabIndex = 0;
-            this.TextBoxLeft.Text = "Nicht editierbar, aber scriolling und so halt";
+            this.TextBoxLeft.Text = "Nicht editierbar, aber scrolling und so halt";
+            this.TextBoxLeft.WordWrap = false;
             this.TextBoxLeft.TextChanged += new System.EventHandler(this.TextBoxLeft_TextChanged);
             // 
             // WordsTranslated
             // 
             this.WordsTranslated.AutoSize = true;
             this.WordsTranslated.BackColor = System.Drawing.Color.Transparent;
-            this.WordsTranslated.Location = new System.Drawing.Point(246, 22);
+            this.WordsTranslated.Location = new System.Drawing.Point(316, 17);
             this.WordsTranslated.Name = "WordsTranslated";
             this.WordsTranslated.Size = new System.Drawing.Size(78, 13);
             this.WordsTranslated.TabIndex = 7;
@@ -147,10 +150,11 @@ namespace HousePartyTranslator
             // 
             // ProgressbarTranslated
             // 
-            this.ProgressbarTranslated.Location = new System.Drawing.Point(165, 38);
+            this.ProgressbarTranslated.Location = new System.Drawing.Point(246, 12);
             this.ProgressbarTranslated.Name = "ProgressbarTranslated";
-            this.ProgressbarTranslated.Size = new System.Drawing.Size(247, 13);
+            this.ProgressbarTranslated.Size = new System.Drawing.Size(247, 23);
             this.ProgressbarTranslated.TabIndex = 8;
+            this.ProgressbarTranslated.Value = 50;
             this.ProgressbarTranslated.Click += new System.EventHandler(this.ProgressbarTranslated_Click);
             // 
             // SelectedFileRight
@@ -168,7 +172,7 @@ namespace HousePartyTranslator
             this.SaveFileAsRight.Name = "SaveFileAsRight";
             this.SaveFileAsRight.Size = new System.Drawing.Size(75, 23);
             this.SaveFileAsRight.TabIndex = 6;
-            this.SaveFileAsRight.Text = "Select file as";
+            this.SaveFileAsRight.Text = "Save file as";
             this.SaveFileAsRight.UseVisualStyleBackColor = true;
             this.SaveFileAsRight.Click += new System.EventHandler(this.SaveFileAsRightClick);
             // 
@@ -180,13 +184,15 @@ namespace HousePartyTranslator
             this.TextBoxRight.BackColor = System.Drawing.SystemColors.ControlLight;
             this.TextBoxRight.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TextBoxRight.ImeMode = System.Windows.Forms.ImeMode.On;
-            this.TextBoxRight.Location = new System.Drawing.Point(3, 69);
+            this.TextBoxRight.Location = new System.Drawing.Point(35, 64);
             this.TextBoxRight.Multiline = true;
             this.TextBoxRight.Name = "TextBoxRight";
             this.TextBoxRight.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TextBoxRight.Size = new System.Drawing.Size(409, 381);
+            this.TextBoxRight.Size = new System.Drawing.Size(621, 334);
             this.TextBoxRight.TabIndex = 0;
             this.TextBoxRight.Text = "editierbar und scroll mit links synchronisiert";
+            this.TextBoxRight.WordWrap = false;
+            this.TextBoxRight.Click += new System.EventHandler(this.TextBoxRight_Click);
             this.TextBoxRight.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
             // 
             // SaveFileRight
@@ -227,11 +233,22 @@ namespace HousePartyTranslator
             // 
             this.SafeFileAsDialogRight.FileOk += new System.ComponentModel.CancelEventHandler(this.SafeFileAsDialogRight_FileOk);
             // 
+            // ApproveTranslationButton
+            // 
+            this.ApproveTranslationButton.AutoSize = true;
+            this.ApproveTranslationButton.Location = new System.Drawing.Point(461, 41);
+            this.ApproveTranslationButton.Name = "ApproveTranslationButton";
+            this.ApproveTranslationButton.Size = new System.Drawing.Size(128, 17);
+            this.ApproveTranslationButton.TabIndex = 9;
+            this.ApproveTranslationButton.Text = "Approve selected line";
+            this.ApproveTranslationButton.UseVisualStyleBackColor = true;
+            this.ApproveTranslationButton.CheckedChanged += new System.EventHandler(this.ApproveTranslationButton_CheckedChanged);
+            // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(805, 453);
+            this.ClientSize = new System.Drawing.Size(1257, 624);
             this.Controls.Add(this.MainContainer);
             this.Name = "Fenster";
             this.Text = "HP Translator Helper";
@@ -265,6 +282,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.Label SelectedFileRight;
         private System.Windows.Forms.ProgressBar ProgressbarTranslated;
         private System.Windows.Forms.Label WordsTranslated;
+        private System.Windows.Forms.CheckBox ApproveTranslationButton;
     }
 }
 
