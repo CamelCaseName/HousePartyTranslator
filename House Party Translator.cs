@@ -149,22 +149,29 @@ namespace HousePartyTranslator
 
         private void ApproveTranslationButton_CheckedChanged(object sender, EventArgs e)
         {
-            int CurrentLine = TextBoxRight.GetLineFromCharIndex(TextBoxRight.GetFirstCharIndexOfCurrentLine());
-            int selectionStart = TextBoxRight.GetFirstCharIndexOfCurrentLine();
-            int selectionEnd = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine + 1);
-
-            TextBoxRight.SelectionStart = selectionStart;
-            if (selectionEnd - selectionStart > 0) { TextBoxRight.SelectionLength = selectionEnd - selectionStart; }
-            else { TextBoxRight.SelectionLength = TextBoxRight.Text.Length - 1 - selectionStart; }
-
-            string approvedString = TextBoxRight.SelectedText;
-            if (approvedString.Contains('|'))
+            if (ApproveTranslationButton.Checked)
             {
-                string ID = approvedString.Split('|')[0];
-                if (!ProofreadDB.SetStringAccepted(ID, TranslationManager.main.FileName, "OS"))
+                int CurrentLine = TextBoxRight.GetLineFromCharIndex(TextBoxRight.GetFirstCharIndexOfCurrentLine());
+                int selectionStart = TextBoxRight.GetFirstCharIndexOfCurrentLine();
+                int selectionEnd = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine + 1);
+
+                TextBoxRight.SelectionStart = selectionStart;
+                if (selectionEnd - selectionStart > 0) { TextBoxRight.SelectionLength = selectionEnd - selectionStart; }
+                else { TextBoxRight.SelectionLength = TextBoxRight.Text.Length - 1 - selectionStart; }
+
+                string approvedString = TextBoxRight.SelectedText;
+                if (approvedString.Contains('|'))
                 {
-                    Console.WriteLine($"Could not approve string {ID}");
+                    string ID = approvedString.Split('|')[0];
+                    if (!ProofreadDB.SetStringAccepted(ID, TranslationManager.main.FileName, "OS", ""))
+                    {
+                        Console.WriteLine($"Could not approve string {ID}");
+                    }
                 }
+            }
+            else
+            {
+
             }
         }
     }
