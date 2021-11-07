@@ -35,6 +35,7 @@ namespace HousePartyTranslator
             this.SaveFileLeft = new System.Windows.Forms.Button();
             this.OpenFileLeft = new System.Windows.Forms.Button();
             this.TextBoxLeft = new System.Windows.Forms.TextBox();
+            this.ApproveTranslationButton = new System.Windows.Forms.CheckBox();
             this.WordsTranslated = new System.Windows.Forms.Label();
             this.ProgressbarTranslated = new System.Windows.Forms.ProgressBar();
             this.SelectedFileRight = new System.Windows.Forms.Label();
@@ -46,7 +47,7 @@ namespace HousePartyTranslator
             this.OpenFileDialogRight = new System.Windows.Forms.OpenFileDialog();
             this.SaveFileAsDialogLeft = new System.Windows.Forms.SaveFileDialog();
             this.SafeFileAsDialogRight = new System.Windows.Forms.SaveFileDialog();
-            this.ApproveTranslationButton = new System.Windows.Forms.CheckBox();
+            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -69,6 +70,7 @@ namespace HousePartyTranslator
             // 
             // MainContainer.Panel2
             // 
+            this.MainContainer.Panel2.Controls.Add(this.checkedListBox1);
             this.MainContainer.Panel2.Controls.Add(this.ApproveTranslationButton);
             this.MainContainer.Panel2.Controls.Add(this.WordsTranslated);
             this.MainContainer.Panel2.Controls.Add(this.ProgressbarTranslated);
@@ -136,6 +138,17 @@ namespace HousePartyTranslator
             this.TextBoxLeft.Text = "Nicht editierbar, aber scrolling und so halt";
             this.TextBoxLeft.WordWrap = false;
             this.TextBoxLeft.TextChanged += new System.EventHandler(this.TextBoxLeft_TextChanged);
+            // 
+            // ApproveTranslationButton
+            // 
+            this.ApproveTranslationButton.AutoSize = true;
+            this.ApproveTranslationButton.Location = new System.Drawing.Point(461, 41);
+            this.ApproveTranslationButton.Name = "ApproveTranslationButton";
+            this.ApproveTranslationButton.Size = new System.Drawing.Size(128, 17);
+            this.ApproveTranslationButton.TabIndex = 9;
+            this.ApproveTranslationButton.Text = "Approve selected line";
+            this.ApproveTranslationButton.UseVisualStyleBackColor = true;
+            this.ApproveTranslationButton.CheckedChanged += new System.EventHandler(this.ApproveTranslationButton_CheckedChanged);
             // 
             // WordsTranslated
             // 
@@ -233,16 +246,13 @@ namespace HousePartyTranslator
             // 
             this.SafeFileAsDialogRight.FileOk += new System.ComponentModel.CancelEventHandler(this.SafeFileAsDialogRight_FileOk);
             // 
-            // ApproveTranslationButton
+            // checkedListBox1
             // 
-            this.ApproveTranslationButton.AutoSize = true;
-            this.ApproveTranslationButton.Location = new System.Drawing.Point(461, 41);
-            this.ApproveTranslationButton.Name = "ApproveTranslationButton";
-            this.ApproveTranslationButton.Size = new System.Drawing.Size(128, 17);
-            this.ApproveTranslationButton.TabIndex = 9;
-            this.ApproveTranslationButton.Text = "Approve selected line";
-            this.ApproveTranslationButton.UseVisualStyleBackColor = true;
-            this.ApproveTranslationButton.CheckedChanged += new System.EventHandler(this.ApproveTranslationButton_CheckedChanged);
+            this.checkedListBox1.FormattingEnabled = true;
+            this.checkedListBox1.Location = new System.Drawing.Point(106, 460);
+            this.checkedListBox1.Name = "checkedListBox1";
+            this.checkedListBox1.Size = new System.Drawing.Size(120, 94);
+            this.checkedListBox1.TabIndex = 10;
             // 
             // Fenster
             // 
@@ -283,6 +293,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ProgressBar ProgressbarTranslated;
         private System.Windows.Forms.Label WordsTranslated;
         private System.Windows.Forms.CheckBox ApproveTranslationButton;
+        private System.Windows.Forms.CheckedListBox checkedListBox1;
     }
 }
 
