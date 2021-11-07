@@ -23,9 +23,9 @@ namespace HousePartyTranslator
             Console.WriteLine("DB opened");
         }
 
-        public static bool SetStringAccepted(string id, string fileName = " ", string story = " ", string comments = " ")
+        public static bool SetStringAccepted(string id, string fileName = " ", string story = " ", string comments = " ", string english = "")
         {
-            string insertCommand = @"INSERT INTO dbo.Translations VALUES(@id, @story, @fileName, @translated, @approved, @language, @comments)";
+            string insertCommand = @"INSERT INTO dbo.Translations VALUES(@id, @story, @fileName, @translated, @approved, @language, @comments, @english)";
             insertApproved.CommandText = insertCommand;
             insertApproved.Parameters.Clear();
             insertApproved.Parameters.AddWithValue("@id", story + fileName + id);
@@ -34,18 +34,19 @@ namespace HousePartyTranslator
             insertApproved.Parameters.AddWithValue("@translated", 1);
             insertApproved.Parameters.AddWithValue("@approved", 1);
             insertApproved.Parameters.AddWithValue("@language", "de");
-            insertApproved.Parameters.AddWithValue("@comments", " ");
-
+            insertApproved.Parameters.AddWithValue("@comments", comments);
+            insertApproved.Parameters.AddWithValue("@english", english);
 
             if (insertApproved.ExecuteNonQuery() == 1)
             {
                 Console.WriteLine("inserted row");
+                return true;
             }
             else
             {
                 Console.WriteLine("sth broken");
+                return false;
             }
-            return false;
         }
     }
 }

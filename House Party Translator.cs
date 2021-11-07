@@ -36,16 +36,19 @@ namespace HousePartyTranslator
         {
             int selectionStart = TextBoxRight.GetFirstCharIndexOfCurrentLine();
             int CurrentLine = TextBoxRight.GetLineFromCharIndex(selectionStart);
-            Console.WriteLine(CurrentLine.ToString());
+
             //move left box to same line
-            TextBoxLeft.SelectionStart = TextBoxLeft.GetFirstCharIndexFromLine(CurrentLine);
+            TextBoxLeft.SelectionStart = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine);
             TextBoxLeft.ScrollToCaret();
 
+            //get end of line
             int selectionEnd = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine + 1) - 1;
             string approvedString = "";
+            //extract string of current line
             if (selectionEnd - selectionStart > 0) { approvedString = TextBoxRight.Text.Substring(selectionStart, selectionEnd); }
             else { approvedString = TextBoxRight.Text.Substring(selectionStart, TextBoxRight.Text.Length); }
 
+            //extract id
             if (approvedString.Contains('|'))
             {
                 string ID = approvedString.Split('|')[0];
@@ -176,7 +179,7 @@ namespace HousePartyTranslator
                 if (approvedString.Contains('|'))
                 {
                     string ID = approvedString.Split('|')[0];
-                    if (!ProofreadDB.SetStringAccepted(ID, TranslationManager.main.FileName, "OS", ""))
+                    if (!ProofreadDB.SetStringAccepted(ID, TranslationManager.main.FileName, "OS", "", approvedString.Split('|')[1]))
                     {
                         Console.WriteLine($"Could not approve string {ID}");
                     }
