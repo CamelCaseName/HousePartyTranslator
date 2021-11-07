@@ -16,11 +16,14 @@ namespace HousePartyTranslator
         public Fenster()
         {
             InitializeComponent();
+            //initialize and open db connection (should not take too long)
+            Cursor = Cursors.WaitCursor;
+            ProofreadDB.InitializeDB();
+            Cursor = Cursors.Default;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e)
@@ -60,7 +63,8 @@ namespace HousePartyTranslator
                 TranslationManager.main.TemplateFileString = System.IO.File.ReadAllText(filePath);
                 TranslationManager.main.TranslationData.Clear();
 
-                foreach(string line in System.IO.File.ReadAllLines(filePath)){
+                foreach (string line in System.IO.File.ReadAllLines(filePath))
+                {
                     if (line.Contains('|'))
                     {
                         string[] Splitted = line.Split('|');
@@ -69,7 +73,7 @@ namespace HousePartyTranslator
                 }
 
                 CheckListBoxLeft.Items.Clear();
-                foreach(LineData lineD in TranslationManager.main.TranslationData)
+                foreach (LineData lineD in TranslationManager.main.TranslationData)
                 {
                     CheckListBoxLeft.Items.Add(lineD.ID, false);
                 }
@@ -78,10 +82,12 @@ namespace HousePartyTranslator
 
         private string SelectFileFromSystem()
         {
-            OpenFileDialog selectFileDialog = new OpenFileDialog();
-            selectFileDialog.Title = "Choose a template file for translation";
-            selectFileDialog.Filter = "Text files (*.txt)|*.txt";
-            selectFileDialog.InitialDirectory = @"C:\Users\%USER%\Documents";
+            OpenFileDialog selectFileDialog = new OpenFileDialog
+            {
+                Title = "Choose a template file for translation",
+                Filter = "Text files (*.txt)|*.txt",
+                InitialDirectory = @"C:\Users\%USER%\Documents"
+            };
 
             if (selectFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -123,7 +129,10 @@ namespace HousePartyTranslator
 
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-
+            string ID = TranslationManager.main.TranslationData[CheckListBoxLeft.SelectedIndex].ID;
+            string Story = TranslationManager.main.SourceFilePath.Split('\\')[TranslationManager.main.SourceFilePath.Split('\\').Length - 2];
+            string FileName = TranslationManager.main.FileName;
+            ProofreadDB.SetStringAccepted(Story + FileName + ID, FileName, Story);
         }
 
         /*private void ApproveTranslationButton_CheckedChanged(object sender, EventArgs e)
