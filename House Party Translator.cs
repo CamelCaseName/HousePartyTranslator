@@ -129,10 +129,13 @@ namespace HousePartyTranslator
 
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            string ID = TranslationManager.main.TranslationData[CheckListBoxLeft.SelectedIndex].ID;
-            string Story = TranslationManager.main.SourceFilePath.Split('\\')[TranslationManager.main.SourceFilePath.Split('\\').Length - 2];
-            string FileName = TranslationManager.main.FileName;
-            ProofreadDB.SetStringAccepted(ID, FileName, Story);
+            if (CheckListBoxLeft.GetItemChecked(CheckListBoxLeft.SelectedIndex))
+            {
+                string ID = TranslationManager.main.TranslationData[CheckListBoxLeft.SelectedIndex].ID;
+                string Story = TranslationManager.main.SourceFilePath.Split('\\')[TranslationManager.main.SourceFilePath.Split('\\').Length - 2];
+                string FileName = TranslationManager.main.FileName;
+                ProofreadDB.SetStringAccepted(ID, FileName, Story);
+            }
         }
 
         /*private void ApproveTranslationButton_CheckedChanged(object sender, EventArgs e)
