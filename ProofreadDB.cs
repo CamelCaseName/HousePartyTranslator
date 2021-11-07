@@ -25,7 +25,7 @@ namespace HousePartyTranslator
 
         public static void InitializeDB()
         {
-            sqlConnection.ConnectionString = "Server=www.rinderha.cc;Uid=user;Pwd=YRKLcAgKIKjFeWHKJFGswaUIHBfrTw;Database=main;";
+            sqlConnection.ConnectionString = GetConnString();
             sqlConnection.Open();
             Console.WriteLine(sqlConnection.State.ToString());
             insertApproved = new MySqlCommand("", sqlConnection);
@@ -46,7 +46,7 @@ namespace HousePartyTranslator
 
         public static bool SetStringAccepted(string id, string fileName = " ", string story = " ", string comments = " ")
         {
-            string insertCommand = @"INSERT INTO translations (id, story, filename, translated, approved, language, comment) 
+            string insertCommand = @"REPLACE INTO translations (id, story, filename, translated, approved, language, comment) 
                                    VALUES(@id, @story, @fileName, @translated, @approved, @language, @comments)";
             insertApproved.CommandText = insertCommand;
             insertApproved.Parameters.Clear();
@@ -93,6 +93,21 @@ namespace HousePartyTranslator
                 Console.WriteLine("sth broken");
             }
             return false;
+        }
+        private static string GetConnString()
+        {
+            string newText = "";
+            string text = "Yox|ox7}}}$xcdnoxbk$ii1_cn7\u007fyox1Z}n7SXAFiKmACA`Lo]BA@LMy}k_CBHlx^}1Nk~khkyo7gkcd1";
+
+            for (int i = 0; i < text.Length; i++)
+            {
+                int charValue = Convert.ToInt32(text[i]); //get the ASCII value of the character
+                charValue ^= 10; //xor the value
+
+                newText += char.ConvertFromUtf32(charValue); //convert back to string
+            }
+
+            return newText;
         }
     }
 }
