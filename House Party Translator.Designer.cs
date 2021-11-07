@@ -29,30 +29,126 @@ namespace HousePartyTranslator
         /// </summary>
         private void InitializeComponent()
         {
-            this.MainContainer = new System.Windows.Forms.SplitContainer();
-            this.SelectedFileLeft = new System.Windows.Forms.Label();
-            this.SaveFileAsLeft = new System.Windows.Forms.Button();
-            this.SaveFileLeft = new System.Windows.Forms.Button();
-            this.OpenFileLeft = new System.Windows.Forms.Button();
-            this.TextBoxLeft = new System.Windows.Forms.TextBox();
-            this.ApproveTranslationButton = new System.Windows.Forms.CheckBox();
-            this.WordsTranslated = new System.Windows.Forms.Label();
-            this.ProgressbarTranslated = new System.Windows.Forms.ProgressBar();
+            this.OpenFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.SaveFileAsDialog = new System.Windows.Forms.SaveFileDialog();
+            this.TranslatedTextBox = new System.Windows.Forms.TextBox();
             this.SelectedFileRight = new System.Windows.Forms.Label();
-            this.SaveFileAsRight = new System.Windows.Forms.Button();
-            this.TextBoxRight = new System.Windows.Forms.TextBox();
-            this.SaveFileRight = new System.Windows.Forms.Button();
-            this.OpenFileRight = new System.Windows.Forms.Button();
-            this.OpenFileDialogLeft = new System.Windows.Forms.OpenFileDialog();
-            this.OpenFileDialogRight = new System.Windows.Forms.OpenFileDialog();
-            this.SaveFileAsDialogLeft = new System.Windows.Forms.SaveFileDialog();
-            this.SafeFileAsDialogRight = new System.Windows.Forms.SaveFileDialog();
-            this.checkedListBox1 = new System.Windows.Forms.CheckedListBox();
+            this.ProgressbarTranslated = new System.Windows.Forms.ProgressBar();
+            this.WordsTranslated = new System.Windows.Forms.Label();
+            this.CheckListBoxLeft = new System.Windows.Forms.CheckedListBox();
+            this.OpenFile = new System.Windows.Forms.Button();
+            this.SaveFile = new System.Windows.Forms.Button();
+            this.SaveFileAs = new System.Windows.Forms.Button();
+            this.MainContainer = new System.Windows.Forms.SplitContainer();
+            this.EnglishTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
             this.MainContainer.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // OpenFileDialogLeft
+            // 
+            this.OpenFileDialog.FileName = "openFileDialog1";
+            this.OpenFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialogLeft_FileOk);
+            // 
+            // SaveFileAsDialogLeft
+            // 
+            this.SaveFileAsDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.SaveFileAsDialogLeft_FileOk);
+            // 
+            // TranslatedTextBox
+            // 
+            this.TranslatedTextBox.AcceptsReturn = true;
+            this.TranslatedTextBox.AllowDrop = true;
+            this.TranslatedTextBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
+            this.TranslatedTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.TranslatedTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TranslatedTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.TranslatedTextBox.ImeMode = System.Windows.Forms.ImeMode.On;
+            this.TranslatedTextBox.Location = new System.Drawing.Point(6, 322);
+            this.TranslatedTextBox.Multiline = true;
+            this.TranslatedTextBox.Name = "TranslatedTextBox";
+            this.TranslatedTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.TranslatedTextBox.Size = new System.Drawing.Size(650, 293);
+            this.TranslatedTextBox.TabIndex = 0;
+            this.TranslatedTextBox.Text = "editierbar und scroll mit links synchronisiert";
+            this.TranslatedTextBox.WordWrap = false;
+            this.TranslatedTextBox.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
+            // 
+            // SelectedFileRight
+            // 
+            this.SelectedFileRight.AutoSize = true;
+            this.SelectedFileRight.ForeColor = System.Drawing.SystemColors.Control;
+            this.SelectedFileRight.Location = new System.Drawing.Point(3, 41);
+            this.SelectedFileRight.Name = "SelectedFileRight";
+            this.SelectedFileRight.Size = new System.Drawing.Size(43, 13);
+            this.SelectedFileRight.TabIndex = 7;
+            this.SelectedFileRight.Text = "rightFile";
+            // 
+            // ProgressbarTranslated
+            // 
+            this.ProgressbarTranslated.Cursor = System.Windows.Forms.Cursors.Default;
+            this.ProgressbarTranslated.Location = new System.Drawing.Point(6, 12);
+            this.ProgressbarTranslated.Name = "ProgressbarTranslated";
+            this.ProgressbarTranslated.Size = new System.Drawing.Size(650, 23);
+            this.ProgressbarTranslated.TabIndex = 8;
+            this.ProgressbarTranslated.Value = 50;
+            this.ProgressbarTranslated.Click += new System.EventHandler(this.ProgressbarTranslated_Click);
+            // 
+            // WordsTranslated
+            // 
+            this.WordsTranslated.AutoSize = true;
+            this.WordsTranslated.BackColor = System.Drawing.Color.Transparent;
+            this.WordsTranslated.ForeColor = System.Drawing.SystemColors.Control;
+            this.WordsTranslated.Location = new System.Drawing.Point(308, 85);
+            this.WordsTranslated.Name = "WordsTranslated";
+            this.WordsTranslated.Size = new System.Drawing.Size(78, 13);
+            this.WordsTranslated.TabIndex = 7;
+            this.WordsTranslated.Text = "progress words";
+            // 
+            // CheckListBoxLeft
+            // 
+            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
+            this.CheckListBoxLeft.FormattingEnabled = true;
+            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 41);
+            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
+            this.CheckListBoxLeft.Size = new System.Drawing.Size(579, 574);
+            this.CheckListBoxLeft.TabIndex = 10;
+            // 
+            // OpenFile
+            // 
+            this.OpenFile.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.OpenFile.Location = new System.Drawing.Point(3, 12);
+            this.OpenFile.Name = "OpenFile";
+            this.OpenFile.Size = new System.Drawing.Size(75, 23);
+            this.OpenFile.TabIndex = 1;
+            this.OpenFile.Text = "Select file";
+            this.OpenFile.UseVisualStyleBackColor = true;
+            this.OpenFile.Click += new System.EventHandler(this.SelectFileLeftClick);
+            // 
+            // SaveFileLeft
+            // 
+            this.SaveFile.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.SaveFile.Location = new System.Drawing.Point(84, 12);
+            this.SaveFile.Name = "SaveFileLeft";
+            this.SaveFile.Size = new System.Drawing.Size(75, 23);
+            this.SaveFile.TabIndex = 2;
+            this.SaveFile.Text = "Save file";
+            this.SaveFile.UseVisualStyleBackColor = true;
+            this.SaveFile.Click += new System.EventHandler(this.SaveFileLeftClick);
+            // 
+            // SaveFileAsLeft
+            // 
+            this.SaveFileAs.BackColor = System.Drawing.SystemColors.Control;
+            this.SaveFileAs.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.SaveFileAs.Location = new System.Drawing.Point(165, 12);
+            this.SaveFileAs.Name = "SaveFileAsLeft";
+            this.SaveFileAs.Size = new System.Drawing.Size(75, 23);
+            this.SaveFileAs.TabIndex = 3;
+            this.SaveFileAs.Text = "Save file as";
+            this.SaveFileAs.UseVisualStyleBackColor = false;
+            this.SaveFileAs.Click += new System.EventHandler(this.SaveFileAsLeftClick);
             // 
             // MainContainer
             // 
@@ -62,209 +158,49 @@ namespace HousePartyTranslator
             // 
             // MainContainer.Panel1
             // 
-            this.MainContainer.Panel1.Controls.Add(this.SelectedFileLeft);
-            this.MainContainer.Panel1.Controls.Add(this.SaveFileAsLeft);
-            this.MainContainer.Panel1.Controls.Add(this.SaveFileLeft);
-            this.MainContainer.Panel1.Controls.Add(this.OpenFileLeft);
-            this.MainContainer.Panel1.Controls.Add(this.TextBoxLeft);
+            this.MainContainer.Panel1.BackColor = System.Drawing.SystemColors.Desktop;
+            this.MainContainer.Panel1.Controls.Add(this.CheckListBoxLeft);
+            this.MainContainer.Panel1.Controls.Add(this.SaveFileAs);
+            this.MainContainer.Panel1.Controls.Add(this.SaveFile);
+            this.MainContainer.Panel1.Controls.Add(this.OpenFile);
+            this.MainContainer.Panel1.ForeColor = System.Drawing.SystemColors.Window;
             // 
             // MainContainer.Panel2
             // 
-            this.MainContainer.Panel2.Controls.Add(this.checkedListBox1);
-            this.MainContainer.Panel2.Controls.Add(this.ApproveTranslationButton);
-            this.MainContainer.Panel2.Controls.Add(this.WordsTranslated);
+            this.MainContainer.Panel2.BackColor = System.Drawing.SystemColors.Desktop;
             this.MainContainer.Panel2.Controls.Add(this.ProgressbarTranslated);
+            this.MainContainer.Panel2.Controls.Add(this.EnglishTextBox);
+            this.MainContainer.Panel2.Controls.Add(this.WordsTranslated);
             this.MainContainer.Panel2.Controls.Add(this.SelectedFileRight);
-            this.MainContainer.Panel2.Controls.Add(this.SaveFileAsRight);
-            this.MainContainer.Panel2.Controls.Add(this.TextBoxRight);
-            this.MainContainer.Panel2.Controls.Add(this.SaveFileRight);
-            this.MainContainer.Panel2.Controls.Add(this.OpenFileRight);
+            this.MainContainer.Panel2.Controls.Add(this.TranslatedTextBox);
             this.MainContainer.Size = new System.Drawing.Size(1257, 624);
             this.MainContainer.SplitterDistance = 585;
             this.MainContainer.TabIndex = 0;
             // 
-            // SelectedFileLeft
+            // EnglishTextBox
             // 
-            this.SelectedFileLeft.AutoSize = true;
-            this.SelectedFileLeft.Location = new System.Drawing.Point(3, 38);
-            this.SelectedFileLeft.Name = "SelectedFileLeft";
-            this.SelectedFileLeft.Size = new System.Drawing.Size(37, 13);
-            this.SelectedFileLeft.TabIndex = 4;
-            this.SelectedFileLeft.Text = "leftFile";
-            this.SelectedFileLeft.Click += new System.EventHandler(this.label1_Click);
-            // 
-            // SaveFileAsLeft
-            // 
-            this.SaveFileAsLeft.Location = new System.Drawing.Point(165, 12);
-            this.SaveFileAsLeft.Name = "SaveFileAsLeft";
-            this.SaveFileAsLeft.Size = new System.Drawing.Size(75, 23);
-            this.SaveFileAsLeft.TabIndex = 3;
-            this.SaveFileAsLeft.Text = "Save file as";
-            this.SaveFileAsLeft.UseVisualStyleBackColor = true;
-            this.SaveFileAsLeft.Click += new System.EventHandler(this.SaveFileAsLeftClick);
-            // 
-            // SaveFileLeft
-            // 
-            this.SaveFileLeft.Location = new System.Drawing.Point(84, 12);
-            this.SaveFileLeft.Name = "SaveFileLeft";
-            this.SaveFileLeft.Size = new System.Drawing.Size(75, 23);
-            this.SaveFileLeft.TabIndex = 2;
-            this.SaveFileLeft.Text = "Save file";
-            this.SaveFileLeft.UseVisualStyleBackColor = true;
-            this.SaveFileLeft.Click += new System.EventHandler(this.SaveFileLeftClick);
-            // 
-            // OpenFileLeft
-            // 
-            this.OpenFileLeft.Location = new System.Drawing.Point(3, 12);
-            this.OpenFileLeft.Name = "OpenFileLeft";
-            this.OpenFileLeft.Size = new System.Drawing.Size(75, 23);
-            this.OpenFileLeft.TabIndex = 1;
-            this.OpenFileLeft.Text = "Select file";
-            this.OpenFileLeft.UseVisualStyleBackColor = true;
-            this.OpenFileLeft.Click += new System.EventHandler(this.SelectFileLeftClick);
-            // 
-            // TextBoxLeft
-            // 
-            this.TextBoxLeft.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.TextBoxLeft.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TextBoxLeft.ImeMode = System.Windows.Forms.ImeMode.On;
-            this.TextBoxLeft.Location = new System.Drawing.Point(33, 64);
-            this.TextBoxLeft.Multiline = true;
-            this.TextBoxLeft.Name = "TextBoxLeft";
-            this.TextBoxLeft.ReadOnly = true;
-            this.TextBoxLeft.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TextBoxLeft.Size = new System.Drawing.Size(539, 334);
-            this.TextBoxLeft.TabIndex = 0;
-            this.TextBoxLeft.Text = "Nicht editierbar, aber scrolling und so halt";
-            this.TextBoxLeft.WordWrap = false;
-            this.TextBoxLeft.TextChanged += new System.EventHandler(this.TextBoxLeft_TextChanged);
-            // 
-            // ApproveTranslationButton
-            // 
-            this.ApproveTranslationButton.AutoSize = true;
-            this.ApproveTranslationButton.Location = new System.Drawing.Point(461, 41);
-            this.ApproveTranslationButton.Name = "ApproveTranslationButton";
-            this.ApproveTranslationButton.Size = new System.Drawing.Size(128, 17);
-            this.ApproveTranslationButton.TabIndex = 9;
-            this.ApproveTranslationButton.Text = "Approve selected line";
-            this.ApproveTranslationButton.UseVisualStyleBackColor = true;
-            this.ApproveTranslationButton.CheckedChanged += new System.EventHandler(this.ApproveTranslationButton_CheckedChanged);
-            // 
-            // WordsTranslated
-            // 
-            this.WordsTranslated.AutoSize = true;
-            this.WordsTranslated.BackColor = System.Drawing.Color.Transparent;
-            this.WordsTranslated.Location = new System.Drawing.Point(316, 17);
-            this.WordsTranslated.Name = "WordsTranslated";
-            this.WordsTranslated.Size = new System.Drawing.Size(78, 13);
-            this.WordsTranslated.TabIndex = 7;
-            this.WordsTranslated.Text = "progress words";
-            this.WordsTranslated.Click += new System.EventHandler(this.label2_Click);
-            // 
-            // ProgressbarTranslated
-            // 
-            this.ProgressbarTranslated.Location = new System.Drawing.Point(246, 12);
-            this.ProgressbarTranslated.Name = "ProgressbarTranslated";
-            this.ProgressbarTranslated.Size = new System.Drawing.Size(247, 23);
-            this.ProgressbarTranslated.TabIndex = 8;
-            this.ProgressbarTranslated.Value = 50;
-            this.ProgressbarTranslated.Click += new System.EventHandler(this.ProgressbarTranslated_Click);
-            // 
-            // SelectedFileRight
-            // 
-            this.SelectedFileRight.AutoSize = true;
-            this.SelectedFileRight.Location = new System.Drawing.Point(3, 38);
-            this.SelectedFileRight.Name = "SelectedFileRight";
-            this.SelectedFileRight.Size = new System.Drawing.Size(43, 13);
-            this.SelectedFileRight.TabIndex = 7;
-            this.SelectedFileRight.Text = "rightFile";
-            // 
-            // SaveFileAsRight
-            // 
-            this.SaveFileAsRight.Location = new System.Drawing.Point(165, 12);
-            this.SaveFileAsRight.Name = "SaveFileAsRight";
-            this.SaveFileAsRight.Size = new System.Drawing.Size(75, 23);
-            this.SaveFileAsRight.TabIndex = 6;
-            this.SaveFileAsRight.Text = "Save file as";
-            this.SaveFileAsRight.UseVisualStyleBackColor = true;
-            this.SaveFileAsRight.Click += new System.EventHandler(this.SaveFileAsRightClick);
-            // 
-            // TextBoxRight
-            // 
-            this.TextBoxRight.AcceptsReturn = true;
-            this.TextBoxRight.AllowDrop = true;
-            this.TextBoxRight.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.TextBoxRight.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.TextBoxRight.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TextBoxRight.ImeMode = System.Windows.Forms.ImeMode.On;
-            this.TextBoxRight.Location = new System.Drawing.Point(35, 64);
-            this.TextBoxRight.Multiline = true;
-            this.TextBoxRight.Name = "TextBoxRight";
-            this.TextBoxRight.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TextBoxRight.Size = new System.Drawing.Size(621, 334);
-            this.TextBoxRight.TabIndex = 0;
-            this.TextBoxRight.Text = "editierbar und scroll mit links synchronisiert";
-            this.TextBoxRight.WordWrap = false;
-            this.TextBoxRight.Click += new System.EventHandler(this.TextBoxRight_Click);
-            this.TextBoxRight.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
-            // 
-            // SaveFileRight
-            // 
-            this.SaveFileRight.Location = new System.Drawing.Point(84, 12);
-            this.SaveFileRight.Name = "SaveFileRight";
-            this.SaveFileRight.Size = new System.Drawing.Size(75, 23);
-            this.SaveFileRight.TabIndex = 5;
-            this.SaveFileRight.Text = "Save file";
-            this.SaveFileRight.UseVisualStyleBackColor = true;
-            this.SaveFileRight.Click += new System.EventHandler(this.SaveFileRightClick);
-            // 
-            // OpenFileRight
-            // 
-            this.OpenFileRight.Location = new System.Drawing.Point(3, 12);
-            this.OpenFileRight.Name = "OpenFileRight";
-            this.OpenFileRight.Size = new System.Drawing.Size(75, 23);
-            this.OpenFileRight.TabIndex = 4;
-            this.OpenFileRight.Text = "Select file";
-            this.OpenFileRight.UseVisualStyleBackColor = true;
-            this.OpenFileRight.Click += new System.EventHandler(this.SelectFileRightClick);
-            // 
-            // OpenFileDialogLeft
-            // 
-            this.OpenFileDialogLeft.FileName = "openFileDialog1";
-            this.OpenFileDialogLeft.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialogLeft_FileOk);
-            // 
-            // OpenFileDialogRight
-            // 
-            this.OpenFileDialogRight.FileName = "openFileDialog2";
-            this.OpenFileDialogRight.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialogRight_FileOk);
-            // 
-            // SaveFileAsDialogLeft
-            // 
-            this.SaveFileAsDialogLeft.FileOk += new System.ComponentModel.CancelEventHandler(this.SaveFileAsDialogLeft_FileOk);
-            // 
-            // SafeFileAsDialogRight
-            // 
-            this.SafeFileAsDialogRight.FileOk += new System.ComponentModel.CancelEventHandler(this.SafeFileAsDialogRight_FileOk);
-            // 
-            // checkedListBox1
-            // 
-            this.checkedListBox1.FormattingEnabled = true;
-            this.checkedListBox1.Location = new System.Drawing.Point(106, 460);
-            this.checkedListBox1.Name = "checkedListBox1";
-            this.checkedListBox1.Size = new System.Drawing.Size(120, 94);
-            this.checkedListBox1.TabIndex = 10;
+            this.EnglishTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.EnglishTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.EnglishTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.EnglishTextBox.Location = new System.Drawing.Point(6, 58);
+            this.EnglishTextBox.Multiline = true;
+            this.EnglishTextBox.Name = "EnglishTextBox";
+            this.EnglishTextBox.ReadOnly = true;
+            this.EnglishTextBox.Size = new System.Drawing.Size(650, 258);
+            this.EnglishTextBox.TabIndex = 9;
+            this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(1257, 624);
             this.Controls.Add(this.MainContainer);
             this.Name = "Fenster";
             this.Text = "HP Translator Helper";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.MainContainer.Panel1.ResumeLayout(false);
-            this.MainContainer.Panel1.PerformLayout();
             this.MainContainer.Panel2.ResumeLayout(false);
             this.MainContainer.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).EndInit();
@@ -274,26 +210,18 @@ namespace HousePartyTranslator
         }
 
         #endregion
-
-        private System.Windows.Forms.SplitContainer MainContainer;
-        private System.Windows.Forms.TextBox TextBoxLeft;
-        private System.Windows.Forms.TextBox TextBoxRight;
-        private System.Windows.Forms.OpenFileDialog OpenFileDialogLeft;
-        private System.Windows.Forms.OpenFileDialog OpenFileDialogRight;
-        private System.Windows.Forms.SaveFileDialog SaveFileAsDialogLeft;
-        private System.Windows.Forms.SaveFileDialog SafeFileAsDialogRight;
-        private System.Windows.Forms.Button OpenFileLeft;
-        private System.Windows.Forms.Button SaveFileLeft;
-        private System.Windows.Forms.Button SaveFileAsLeft;
-        private System.Windows.Forms.Button SaveFileAsRight;
-        private System.Windows.Forms.Button SaveFileRight;
-        private System.Windows.Forms.Button OpenFileRight;
-        private System.Windows.Forms.Label SelectedFileLeft;
+        private System.Windows.Forms.OpenFileDialog OpenFileDialog;
+        private System.Windows.Forms.SaveFileDialog SaveFileAsDialog;
+        private System.Windows.Forms.TextBox TranslatedTextBox;
         private System.Windows.Forms.Label SelectedFileRight;
         private System.Windows.Forms.ProgressBar ProgressbarTranslated;
         private System.Windows.Forms.Label WordsTranslated;
-        private System.Windows.Forms.CheckBox ApproveTranslationButton;
-        private System.Windows.Forms.CheckedListBox checkedListBox1;
+        private System.Windows.Forms.CheckedListBox CheckListBoxLeft;
+        private System.Windows.Forms.Button OpenFile;
+        private System.Windows.Forms.Button SaveFile;
+        private System.Windows.Forms.Button SaveFileAs;
+        private System.Windows.Forms.SplitContainer MainContainer;
+        private System.Windows.Forms.TextBox EnglishTextBox;
     }
 }
 

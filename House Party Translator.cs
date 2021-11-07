@@ -34,22 +34,18 @@ namespace HousePartyTranslator
 
         private void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
-            int selectionStart = TextBoxRight.GetFirstCharIndexOfCurrentLine();
-            int CurrentLine = TextBoxRight.GetLineFromCharIndex(selectionStart);
+            int selectionStart = TranslatedTextBox.GetFirstCharIndexOfCurrentLine();
+            int CurrentLine = TranslatedTextBox.GetLineFromCharIndex(selectionStart);
             Console.WriteLine(CurrentLine.ToString());
-            //move left box to same line
-            TextBoxLeft.SelectionStart = TextBoxLeft.GetFirstCharIndexFromLine(CurrentLine);
-            TextBoxLeft.ScrollToCaret();
 
-            int selectionEnd = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine + 1) - 1;
+            int selectionEnd = TranslatedTextBox.GetFirstCharIndexFromLine(CurrentLine + 1) - 1;
             string approvedString = "";
-            if (selectionEnd - selectionStart > 0) { approvedString = TextBoxRight.Text.Substring(selectionStart, selectionEnd); }
-            else { approvedString = TextBoxRight.Text.Substring(selectionStart, TextBoxRight.Text.Length); }
+            if (selectionEnd - selectionStart > 0) { approvedString = TranslatedTextBox.Text.Substring(selectionStart, selectionEnd); }
+            else { approvedString = TranslatedTextBox.Text.Substring(selectionStart, TranslatedTextBox.Text.Length); }
 
             if (approvedString.Contains('|'))
             {
                 string ID = approvedString.Split('|')[0];
-                ApproveTranslationButton.Text = $"Approve string {ID}";
             }
         }
 
@@ -61,7 +57,7 @@ namespace HousePartyTranslator
                 Console.WriteLine("Selected path is " + filePath);
                 TranslationManager.main.SourceFilePath = filePath;
                 TranslationManager.main.TemplateFileString = System.IO.File.ReadAllText(filePath);
-                TextBoxLeft.Text = TranslationManager.main.TemplateFileString;
+                //TextBoxLeft.Text = TranslationManager.main.TemplateFileString;
             }
         }
 
@@ -92,44 +88,6 @@ namespace HousePartyTranslator
 
         }
 
-        private void SelectFileRightClick(object sender, EventArgs e)
-        {
-            string filePath = SelectFileFromSystem(false);
-            if (filePath != "")
-            {
-                //Load file here
-                TranslationManager.main.SourceFilePath = filePath;
-                Console.WriteLine("Selected path is " + filePath);
-                TranslationManager.main.TranslationFileString = System.IO.File.ReadAllText(filePath);
-                TextBoxRight.Text = TranslationManager.main.TranslationFileString;
-            }
-        }
-
-        private void SaveFileRightClick(object sender, EventArgs e)
-        {
-
-        }
-
-        private void SaveFileAsRightClick(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void ProgressbarTranslated_Click(object sender, EventArgs e)
         {
 
@@ -140,39 +98,24 @@ namespace HousePartyTranslator
 
         }
 
-        private void OpenFileDialogRight_FileOk(object sender, CancelEventArgs e)
-        {
-
-        }
-
         private void SaveFileAsDialogLeft_FileOk(object sender, CancelEventArgs e)
         {
 
         }
 
-        private void SafeFileAsDialogRight_FileOk(object sender, CancelEventArgs e)
-        {
-
-        }
-
-        private void TextBoxRight_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void ApproveTranslationButton_CheckedChanged(object sender, EventArgs e)
+        /*private void ApproveTranslationButton_CheckedChanged(object sender, EventArgs e)
         {
             if (ApproveTranslationButton.Checked)
             {
-                int CurrentLine = TextBoxRight.GetLineFromCharIndex(TextBoxRight.GetFirstCharIndexOfCurrentLine());
-                int selectionStart = TextBoxRight.GetFirstCharIndexOfCurrentLine();
-                int selectionEnd = TextBoxRight.GetFirstCharIndexFromLine(CurrentLine + 1) - 1;
+                int CurrentLine = TranslatedTextBox.GetLineFromCharIndex(TranslatedTextBox.GetFirstCharIndexOfCurrentLine());
+                int selectionStart = TranslatedTextBox.GetFirstCharIndexOfCurrentLine();
+                int selectionEnd = TranslatedTextBox.GetFirstCharIndexFromLine(CurrentLine + 1) - 1;
 
-                TextBoxRight.SelectionStart = selectionStart;
-                if (selectionEnd - selectionStart > 0) { TextBoxRight.SelectionLength = selectionEnd - selectionStart; }
-                else { TextBoxRight.SelectionLength = TextBoxRight.Text.Length - 1 - selectionStart; }
+                TranslatedTextBox.SelectionStart = selectionStart;
+                if (selectionEnd - selectionStart > 0) { TranslatedTextBox.SelectionLength = selectionEnd - selectionStart; }
+                else { TranslatedTextBox.SelectionLength = TranslatedTextBox.Text.Length - 1 - selectionStart; }
 
-                string approvedString = TextBoxRight.SelectedText;
+                string approvedString = TranslatedTextBox.SelectedText;
                 if (approvedString.Contains('|'))
                 {
                     string ID = approvedString.Split('|')[0];
@@ -187,5 +130,6 @@ namespace HousePartyTranslator
 
             }
         }
+        */
     }
 }
