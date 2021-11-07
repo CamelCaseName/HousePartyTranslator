@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-class LineData
+public class LineData
 {
-    public string key;
+    public string ID;
     public bool isTranslated;
     public bool isApproved;
     public string english;
@@ -15,20 +15,20 @@ class LineData
 
     public LineData(string key, string english)
     {
-        this.key = key;
+        this.ID = key;
         this.english = english;
     }
 
     public LineData(string key, string english, string translation)
     {
-        this.key = key;
+        this.ID = key;
         this.english = english;
         this.translation = translation;
     }
 
     public LineData(string key, string english, string translation, bool isTranslated, bool isApproved, string[] comments)
     {
-        this.key = key;
+        this.ID = key;
         this.english = english;
         this.translation = translation;
         this.isTranslated = isTranslated;
@@ -57,7 +57,7 @@ class LineData
 
     public override string ToString()
     {
-        string value = key + "|" + isTranslated + "|" + isApproved + "|";
+        string value = ID + "|" + isTranslated + "|" + isApproved + "|";
         for (int i = 0; i < comments.Length; i++)
         {
             value += comments[i];

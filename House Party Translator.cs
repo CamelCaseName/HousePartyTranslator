@@ -12,6 +12,7 @@ namespace HousePartyTranslator
 {
     public partial class Fenster : Form
     {
+
         public Fenster()
         {
             InitializeComponent();
@@ -51,21 +52,34 @@ namespace HousePartyTranslator
 
         private void SelectFileLeftClick(object sender, EventArgs e)
         {
-            string filePath = SelectFileFromSystem(true);
+            string filePath = SelectFileFromSystem();
             if (filePath != "")
             {
                 Console.WriteLine("Selected path is " + filePath);
                 TranslationManager.main.SourceFilePath = filePath;
                 TranslationManager.main.TemplateFileString = System.IO.File.ReadAllText(filePath);
-                //TextBoxLeft.Text = TranslationManager.main.TemplateFileString;
+                TranslationManager.main.TranslationData.Clear();
+
+                foreach(string line in System.IO.File.ReadAllLines(filePath)){
+                    if (line.Contains('|'))
+                    {
+                        string[] Splitted = line.Split('|');
+                        TranslationManager.main.TranslationData.Add(new LineData(Splitted[0], Splitted[1]));
+                    }
+                }
+
+                CheckListBoxLeft.Items.Clear();
+                foreach(LineData lineD in TranslationManager.main.TranslationData)
+                {
+                    CheckListBoxLeft.Items.Add(lineD.ID, false);
+                }
             }
         }
 
-        private string SelectFileFromSystem(bool isEnglishFile)
+        private string SelectFileFromSystem()
         {
             OpenFileDialog selectFileDialog = new OpenFileDialog();
-            string title = isEnglishFile ? "Choose a source file for translation" : "Choose a target file for translation";
-            selectFileDialog.Title = title;
+            selectFileDialog.Title = "Choose a template file for translation";
             selectFileDialog.Filter = "Text files (*.txt)|*.txt";
             selectFileDialog.InitialDirectory = @"C:\Users\%USER%\Documents";
 
@@ -73,7 +87,6 @@ namespace HousePartyTranslator
             {
                 return selectFileDialog.FileName;
             }
-
             return "";
         }
 
@@ -99,6 +112,16 @@ namespace HousePartyTranslator
         }
 
         private void SaveFileAsDialogLeft_FileOk(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            EnglishTextBox.Text = TranslationManager.main.TranslationData[CheckListBoxLeft.SelectedIndex].english;
+        }
+
+        private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
         {
 
         }

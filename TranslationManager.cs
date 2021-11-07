@@ -5,6 +5,7 @@ using System.IO;
 public class TranslationManager
 {
     public static TranslationManager main;
+    public List<LineData> TranslationData = new List<LineData>();
 
     public string SourceFilePath
     {
@@ -74,7 +75,6 @@ public class TranslationManager
     }
     private string storyName = "";
 
-    private Dictionary<string, LineData> lineDataDict = new Dictionary<string, LineData>();
 
     public TranslationManager()
     {
@@ -89,28 +89,6 @@ public class TranslationManager
     {
         string folderPath = Path.GetDirectoryName(path);
         FileName = Path.GetFileNameWithoutExtension(path);
-        string checkFilePath = Path.Combine(folderPath, FileName + "_checkFile.txt");
-
-        string[] lines = File.ReadAllLines(path);
-
-        if (!File.Exists(checkFilePath))
-        {
-            Console.WriteLine("Check file is missing, creating it");
-            FileStream checkFileStream = File.Create(checkFilePath);
-            StreamWriter checkFileWriter = new StreamWriter(checkFileStream);
-            foreach (string line in lines)
-            {
-                if (line.Contains("|"))
-                {
-                    string[] parts = line.Split('|');
-                    checkFileWriter.WriteLine(parts[0] + "|false|false|");
-                }
-                else
-                {
-                    checkFileWriter.WriteLine(line);
-                }
-            }
-            checkFileWriter.Flush();
-        }
+        
     }
 }

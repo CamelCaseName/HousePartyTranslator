@@ -47,12 +47,12 @@ namespace HousePartyTranslator
             this.MainContainer.SuspendLayout();
             this.SuspendLayout();
             // 
-            // OpenFileDialogLeft
+            // OpenFileDialog
             // 
             this.OpenFileDialog.FileName = "openFileDialog1";
             this.OpenFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialogLeft_FileOk);
             // 
-            // SaveFileAsDialogLeft
+            // SaveFileAsDialog
             // 
             this.SaveFileAsDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.SaveFileAsDialogLeft_FileOk);
             // 
@@ -72,7 +72,6 @@ namespace HousePartyTranslator
             this.TranslatedTextBox.Size = new System.Drawing.Size(650, 293);
             this.TranslatedTextBox.TabIndex = 0;
             this.TranslatedTextBox.Text = "editierbar und scroll mit links synchronisiert";
-            this.TranslatedTextBox.WordWrap = false;
             this.TranslatedTextBox.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
             // 
             // SelectedFileRight
@@ -115,6 +114,8 @@ namespace HousePartyTranslator
             this.CheckListBoxLeft.Name = "CheckListBoxLeft";
             this.CheckListBoxLeft.Size = new System.Drawing.Size(579, 574);
             this.CheckListBoxLeft.TabIndex = 10;
+            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
+            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
             // 
             // OpenFile
             // 
@@ -127,23 +128,23 @@ namespace HousePartyTranslator
             this.OpenFile.UseVisualStyleBackColor = true;
             this.OpenFile.Click += new System.EventHandler(this.SelectFileLeftClick);
             // 
-            // SaveFileLeft
+            // SaveFile
             // 
             this.SaveFile.ForeColor = System.Drawing.SystemColors.WindowText;
             this.SaveFile.Location = new System.Drawing.Point(84, 12);
-            this.SaveFile.Name = "SaveFileLeft";
+            this.SaveFile.Name = "SaveFile";
             this.SaveFile.Size = new System.Drawing.Size(75, 23);
             this.SaveFile.TabIndex = 2;
             this.SaveFile.Text = "Save file";
             this.SaveFile.UseVisualStyleBackColor = true;
             this.SaveFile.Click += new System.EventHandler(this.SaveFileLeftClick);
             // 
-            // SaveFileAsLeft
+            // SaveFileAs
             // 
             this.SaveFileAs.BackColor = System.Drawing.SystemColors.Control;
             this.SaveFileAs.ForeColor = System.Drawing.SystemColors.WindowText;
             this.SaveFileAs.Location = new System.Drawing.Point(165, 12);
-            this.SaveFileAs.Name = "SaveFileAsLeft";
+            this.SaveFileAs.Name = "SaveFileAs";
             this.SaveFileAs.Size = new System.Drawing.Size(75, 23);
             this.SaveFileAs.TabIndex = 3;
             this.SaveFileAs.Text = "Save file as";
