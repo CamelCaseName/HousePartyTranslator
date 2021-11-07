@@ -35,7 +35,6 @@ namespace HousePartyTranslator
             this.SaveFileLeft = new System.Windows.Forms.Button();
             this.OpenFileLeft = new System.Windows.Forms.Button();
             this.TextBoxLeft = new System.Windows.Forms.TextBox();
-            this.ApproveTranslationButton = new System.Windows.Forms.CheckBox();
             this.WordsTranslated = new System.Windows.Forms.Label();
             this.ProgressbarTranslated = new System.Windows.Forms.ProgressBar();
             this.SelectedFileRight = new System.Windows.Forms.Label();
@@ -47,6 +46,7 @@ namespace HousePartyTranslator
             this.OpenFileDialogRight = new System.Windows.Forms.OpenFileDialog();
             this.SaveFileAsDialogLeft = new System.Windows.Forms.SaveFileDialog();
             this.SafeFileAsDialogRight = new System.Windows.Forms.SaveFileDialog();
+            this.ApproveTranslationButton = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -136,17 +136,6 @@ namespace HousePartyTranslator
             this.TextBoxLeft.Text = "Nicht editierbar, aber scrolling und so halt";
             this.TextBoxLeft.WordWrap = false;
             this.TextBoxLeft.TextChanged += new System.EventHandler(this.TextBoxLeft_TextChanged);
-            // 
-            // ApproveTranslationButton
-            // 
-            this.ApproveTranslationButton.AutoSize = true;
-            this.ApproveTranslationButton.Location = new System.Drawing.Point(461, 41);
-            this.ApproveTranslationButton.Name = "ApproveTranslationButton";
-            this.ApproveTranslationButton.Size = new System.Drawing.Size(128, 17);
-            this.ApproveTranslationButton.TabIndex = 9;
-            this.ApproveTranslationButton.Text = "Approve selected line";
-            this.ApproveTranslationButton.UseVisualStyleBackColor = true;
-            this.ApproveTranslationButton.CheckedChanged += new System.EventHandler(this.ApproveTranslationButton_CheckedChanged);
             // 
             // WordsTranslated
             // 
@@ -243,6 +232,17 @@ namespace HousePartyTranslator
             // SafeFileAsDialogRight
             // 
             this.SafeFileAsDialogRight.FileOk += new System.ComponentModel.CancelEventHandler(this.SafeFileAsDialogRight_FileOk);
+            // 
+            // ApproveTranslationButton
+            // 
+            this.ApproveTranslationButton.AutoSize = true;
+            this.ApproveTranslationButton.Location = new System.Drawing.Point(461, 41);
+            this.ApproveTranslationButton.Name = "ApproveTranslationButton";
+            this.ApproveTranslationButton.Size = new System.Drawing.Size(128, 17);
+            this.ApproveTranslationButton.TabIndex = 9;
+            this.ApproveTranslationButton.Text = "Approve selected line";
+            this.ApproveTranslationButton.UseVisualStyleBackColor = true;
+            this.ApproveTranslationButton.CheckedChanged += new System.EventHandler(this.ApproveTranslationButton_CheckedChanged);
             // 
             // Fenster
             // 
