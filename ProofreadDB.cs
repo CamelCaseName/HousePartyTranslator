@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
+using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
     static class ProofreadDB
     {
-        private static SqlConnection sqlConnection;
-        private static SqlCommand insertApproved;
-        private static string dbPath;
+        private static MySqlConnection sqlConnection;
+        private static MySqlCommand insertApproved;
+        //private static string dbPath;
+        private static readonly string SoftwareVersion = "0.20";
 
         static ProofreadDB()
         {
@@ -25,13 +27,26 @@ namespace HousePartyTranslator
         {
             sqlConnection.ConnectionString = GetConnString();
             sqlConnection.Open();
-            insertApproved = new SqlCommand("", sqlConnection);
+            Console.WriteLine(sqlConnection.State.ToString());
+            insertApproved = new MySqlCommand("", sqlConnection);
             Console.WriteLine("DB opened");
+
+            //checking template version
+            MySqlCommand getVersion = new MySqlCommand("SELECT STORY FROM translations WHERE ID = \"version\";", sqlConnection);
+            MySqlDataReader reader = getVersion.ExecuteReader();
+            reader.Read();
+            string DBVersion = reader.GetString(0);
+            reader.Close();
+            if (DBVersion != SoftwareVersion)
+            {
+                MessageBox.Show($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
+                    $" You may acquire the latest version of this program");
+            }
         }
 
         public static bool SetStringAccepted(string id, string fileName = " ", string story = " ", string comments = " ")
         {
-            string insertCommand = @"INSERT INTO translations (id, story, filename, translated, approved, language, comment) 
+            string insertCommand = @"REPLACE INTO translations (id, story, filename, translated, approved, language, comment) 
                                    VALUES(@id, @story, @fileName, @translated, @approved, @language, @comments)";
             insertApproved.CommandText = insertCommand;
             insertApproved.Parameters.Clear();
@@ -66,6 +81,7 @@ namespace HousePartyTranslator
             insertApproved.Parameters.AddWithValue("@approved", 1);
             insertApproved.Parameters.AddWithValue("@language", "de");
             insertApproved.Parameters.AddWithValue("@comments", " ");
+            insertApproved.Parameters.AddWithValue("@english", english);
 
 
             if (insertApproved.ExecuteNonQuery() == 1)
