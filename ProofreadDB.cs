@@ -1,9 +1,6 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -11,7 +8,7 @@ namespace HousePartyTranslator
     static class ProofreadDB
     {
         private static MySqlConnection sqlConnection;
-        private static MySqlCommand insertApproved;
+        private static MySqlCommand MainCommand;
         private static readonly string SoftwareVersion = "0.20";
         private static string DBVersion;
 
@@ -26,7 +23,7 @@ namespace HousePartyTranslator
             sqlConnection.ConnectionString = GetConnString();
             sqlConnection.Open();
             Console.WriteLine(sqlConnection.State.ToString());
-            insertApproved = new MySqlCommand("", sqlConnection);
+            MainCommand = new MySqlCommand("", sqlConnection);
             Console.WriteLine("DB opened");
 
             //checking template version
@@ -55,16 +52,16 @@ namespace HousePartyTranslator
         {
             string insertCommand = @"REPLACE INTO translations (id, story, filename, translated, approved, language) 
                                    VALUES(@id, @story, @fileName, @translated, @approved, @language)";
-            insertApproved.CommandText = insertCommand;
-            insertApproved.Parameters.Clear();
-            insertApproved.Parameters.AddWithValue("@id", story + fileName + id);
-            insertApproved.Parameters.AddWithValue("@story", story);
-            insertApproved.Parameters.AddWithValue("@fileName", fileName);
-            insertApproved.Parameters.AddWithValue("@translated", 1);
-            insertApproved.Parameters.AddWithValue("@approved", isApproved ? 1 : 0);
-            insertApproved.Parameters.AddWithValue("@language", language);
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@translated", 1);
+            MainCommand.Parameters.AddWithValue("@approved", isApproved ? 1 : 0);
+            MainCommand.Parameters.AddWithValue("@language", language);
 
-            return insertApproved.ExecuteNonQuery() == 1;
+            return MainCommand.ExecuteNonQuery() == 1;
         }
 
         public static bool GetStringApprovedState(string id, string fileName, string story, string language = "de")
@@ -93,25 +90,28 @@ namespace HousePartyTranslator
             return false;
         }
 
-        //comments seperated by ";"
         public static bool AddTranslationComment(string id, string fileName, string story, string comment, string language = "de")
         {
             return false;
         }
 
-        //comments seperated by ";"
         public static bool SetTranslationComments(string id, string fileName, string story, string[] comments, string language = "de")
         {
             return false;
         }
 
-        //comments seperated by ";"
         public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
         {
+            //comments seperated by ";"
             comments = "";
             return false;
         }
 
+        public static bool GetTranslationComments(string id, string fileName, string story, out string[] comments, string language = "de")
+        {
+            comments = null;
+            return false;
+        }
 
         public static bool GetAllTranslatedStringForFile(string id, string fileName, string story, out List<LineData> translations, string language = "de")
         {
@@ -123,15 +123,15 @@ namespace HousePartyTranslator
         {
             string insertCommand = @"REPLACE INTO translations (id, story, filename, english) 
                                                         VALUES(@id, @story, @fileName, @english)";
-            insertApproved.CommandText = insertCommand;
-            insertApproved.Parameters.Clear();
-            insertApproved.Parameters.AddWithValue("@id", story + fileName + id);
-            insertApproved.Parameters.AddWithValue("@story", story);
-            insertApproved.Parameters.AddWithValue("@fileName", fileName);
-            insertApproved.Parameters.AddWithValue("@english", template);
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@english", template);
 
             //return if at least ione row was changed
-            return insertApproved.ExecuteNonQuery() > 0;
+            return MainCommand.ExecuteNonQuery() > 0;
         }
 
         public static bool GetStringTemplate(string id, string fileName, string story, out string template)
@@ -140,16 +140,23 @@ namespace HousePartyTranslator
             return false;
         }
 
+        public static void ExecuteCustomCommand(string command, out MySqlDataReader ResultReader)
+        {
+            MainCommand.Parameters.Clear();
+            MainCommand.CommandText = command;
+            ResultReader = MainCommand.ExecuteReader();
+        }
+
         public static bool UpdateDBVersion()
         {
             string insertCommand = @"UPDATE translations SET story = @story WHERE ID = @version;";
-            insertApproved.CommandText = insertCommand;
-            insertApproved.Parameters.Clear();
-            insertApproved.Parameters.AddWithValue("@story", "0." + (int.Parse(DBVersion.Split('.')[1]) + 1).ToString());
-            insertApproved.Parameters.AddWithValue("@version", "version");
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@story", "0." + (int.Parse(DBVersion.Split('.')[1]) + 1).ToString());
+            MainCommand.Parameters.AddWithValue("@version", "version");
 
             //return if at least ione row was changed
-            return insertApproved.ExecuteNonQuery() > 0;
+            return MainCommand.ExecuteNonQuery() > 0;
         }
 
         private static string GetConnString()
