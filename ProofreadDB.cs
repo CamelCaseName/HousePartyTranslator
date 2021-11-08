@@ -176,9 +176,9 @@ namespace HousePartyTranslator
 
         }
 
+        /// use # for comment seperator
         public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
         {
-            //use # for comment seperator
             string insertCommand = @"SELECT comment FROM translations WHERE id = @id AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
