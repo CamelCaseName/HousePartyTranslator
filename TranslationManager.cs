@@ -28,6 +28,7 @@ public class TranslationManager
         }
     }
     private string sourceFilePath = "";
+
     public string TemplateFileString
     {
         get
@@ -40,6 +41,7 @@ public class TranslationManager
         }
     }
     private string templateFileString = "";
+
     public string TranslationFileString
     {
         get
@@ -78,7 +80,6 @@ public class TranslationManager
         }
     }
     private string storyName = "";
-
 
     public TranslationManager()
     {
