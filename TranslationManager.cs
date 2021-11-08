@@ -6,6 +6,7 @@ public class TranslationManager
 {
     public static TranslationManager main;
     public List<LineData> TranslationData = new List<LineData>();
+    public bool IsUpToDate = false;
 
     public string SourceFilePath
     {
@@ -89,6 +90,5 @@ public class TranslationManager
     {
         string folderPath = Path.GetDirectoryName(path);
         FileName = Path.GetFileNameWithoutExtension(path);
-        
     }
 }

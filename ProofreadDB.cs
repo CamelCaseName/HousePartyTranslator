@@ -14,6 +14,7 @@ namespace HousePartyTranslator
         private static MySqlCommand insertApproved;
         //private static string dbPath;
         private static readonly string SoftwareVersion = "0.20";
+        private static string DBVersion;
 
         static ProofreadDB()
         {
@@ -35,16 +36,19 @@ namespace HousePartyTranslator
             MySqlCommand getVersion = new MySqlCommand("SELECT STORY FROM translations WHERE ID = \"version\";", sqlConnection);
             MySqlDataReader reader = getVersion.ExecuteReader();
             reader.Read();
-            string DBVersion = reader.GetString(0);
+            DBVersion = reader.GetString(0);
             reader.Close();
-            if (DBVersion != SoftwareVersion)
+            //set global variable for later actions
+            TranslationManager.main.IsUpToDate = DBVersion == SoftwareVersion;
+            if (!TranslationManager.main.IsUpToDate)
             {
                 MessageBox.Show($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
-                    $" You may acquire the latest version of this program");
+                    $" You may acquire the latest version of this program. " +
+                    $"If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
             }
         }
 
-        public static bool SetStringAccepted(string id, string fileName = " ", string story = " ", string comments = " ")
+        public static bool SetStringAccepted(string id, string fileName = " ", string story = " ", string language = "de", string comments = " ")
         {
             string insertCommand = @"REPLACE INTO translations (id, story, filename, translated, approved, language, comment) 
                                    VALUES(@id, @story, @fileName, @translated, @approved, @language, @comments)";
@@ -55,8 +59,8 @@ namespace HousePartyTranslator
             insertApproved.Parameters.AddWithValue("@fileName", fileName);
             insertApproved.Parameters.AddWithValue("@translated", 1);
             insertApproved.Parameters.AddWithValue("@approved", 1);
-            insertApproved.Parameters.AddWithValue("@language", "de");
-            insertApproved.Parameters.AddWithValue("@comments", " ");
+            insertApproved.Parameters.AddWithValue("@language", language);
+            insertApproved.Parameters.AddWithValue("@comments", comments);
 
 
             if (insertApproved.ExecuteNonQuery() == 1)
@@ -69,31 +73,34 @@ namespace HousePartyTranslator
             }
         }
 
-        public static bool AddTemplateString(string id, string fileName = " ", string story = " ", string language = "de", string english = " ")
+        public static bool AddTemplateString(string id, string story, string fileName, string english, string language = "de")
         {
-            string insertCommand = @"REPLACE INTO translations VALUES(@id, @story, @fileName, @translated, @approved, @language, @comments, @english)";
+            string insertCommand = @"REPLACE INTO translations (id, story, filename, language, english) 
+                                                        VALUES(@id, @story, @fileName, @language, @english)";
             insertApproved.CommandText = insertCommand;
             insertApproved.Parameters.Clear();
             insertApproved.Parameters.AddWithValue("@id", story + fileName + id);
             insertApproved.Parameters.AddWithValue("@story", story);
             insertApproved.Parameters.AddWithValue("@fileName", fileName);
-            insertApproved.Parameters.AddWithValue("@translated", 1);
-            insertApproved.Parameters.AddWithValue("@approved", 1);
-            insertApproved.Parameters.AddWithValue("@language", "de");
-            insertApproved.Parameters.AddWithValue("@comments", " ");
+            insertApproved.Parameters.AddWithValue("@language", language);
             insertApproved.Parameters.AddWithValue("@english", english);
 
-
-            if (insertApproved.ExecuteNonQuery() == 1)
-            {
-                Console.WriteLine("inserted row");
-            }
-            else
-            {
-                Console.WriteLine("sth broken");
-            }
-            return false;
+            //return if at least ione row was changed
+            return insertApproved.ExecuteNonQuery() > 0;
         }
+
+        public static bool UpdateDBVersion()
+        {
+            string insertCommand = @"UPDATE translations SET story = @story WHERE ID = @version;";
+            insertApproved.CommandText = insertCommand;
+            insertApproved.Parameters.Clear();
+            insertApproved.Parameters.AddWithValue("@story", "0." + (int.Parse(DBVersion.Split('.')[1]) + 1).ToString());
+            insertApproved.Parameters.AddWithValue("@version", "version");
+
+            //return if at least ione row was changed
+            return insertApproved.ExecuteNonQuery() > 0;
+        }
+
         private static string GetConnString()
         {
             string newText = "";

@@ -62,20 +62,67 @@ namespace HousePartyTranslator
                 TranslationManager.main.SourceFilePath = filePath;
                 TranslationManager.main.TemplateFileString = System.IO.File.ReadAllText(filePath);
                 TranslationManager.main.TranslationData.Clear();
+                string Story = TranslationManager.main.SourceFilePath.Split('\\')[TranslationManager.main.SourceFilePath.Split('\\').Length - 2];
+                string FileName = TranslationManager.main.FileName;
 
                 foreach (string line in System.IO.File.ReadAllLines(filePath))
                 {
                     if (line.Contains('|'))
                     {
                         string[] Splitted = line.Split('|');
-                        TranslationManager.main.TranslationData.Add(new LineData(Splitted[0], Splitted[1]));
+                        TranslationManager.main.TranslationData.Add(new LineData(Splitted[0], Splitted[1], Story, FileName));
                     }
                 }
 
                 CheckListBoxLeft.Items.Clear();
-                foreach (LineData lineD in TranslationManager.main.TranslationData)
+
+                //is up to date, so we can start translation
+                if (TranslationManager.main.IsUpToDate)
                 {
-                    CheckListBoxLeft.Items.Add(lineD.ID, false);
+                    foreach (LineData lineD in TranslationManager.main.TranslationData)
+                    {
+                        CheckListBoxLeft.Items.Add(lineD.ID, false);
+
+                    }
+                }
+                else // not up to date, so we need to add all strings if they come from the template folder
+                {
+                    string ParentFolder = TranslationManager.main.SourceFilePath.Split('\\')[TranslationManager.main.SourceFilePath.Split('\\').Length - 3];
+                    if (ParentFolder == "TEMPLATE")
+                    {
+                        //upload all new strings
+                        Cursor = Cursors.WaitCursor;
+                        foreach (LineData lineD in TranslationManager.main.TranslationData)
+                        {
+                            ProofreadDB.AddTemplateString(lineD.ID, lineD.Story, lineD.FileName, lineD.EnglishString, "de");
+                        }
+                        Cursor = Cursors.Default;
+
+                        MessageBox.Show("Operation complete, you may now select the next file.", "Updating string database");
+                        DialogResult result = MessageBox.Show("Was this the last file? If you are unsure, select cancel and contact us on discord. " +
+                            "If it was the last file, please select YES. ELSE NO. BE VERY CAREFUL!",
+                            "Updating string database",
+                            MessageBoxButtons.YesNoCancel,
+                            MessageBoxIcon.Warning,
+                            MessageBoxDefaultButton.Button2);
+
+                        if (result == DialogResult.Yes)
+                        {
+                            if (ProofreadDB.UpdateDBVersion())
+                            {
+                                TranslationManager.main.IsUpToDate = true;
+                            }
+                        }
+                        else if (result == DialogResult.Cancel)
+                        {
+                            Application.Exit();
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Please select a template file with its second parent folder as 'TEMPLATE' so we can upload them. " +
+                            $"Your Current Folder shows as {ParentFolder}.", "Updating string database");
+                    }
                 }
             }
         }
@@ -124,7 +171,7 @@ namespace HousePartyTranslator
 
         private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            EnglishTextBox.Text = TranslationManager.main.TranslationData[CheckListBoxLeft.SelectedIndex].english;
+            EnglishTextBox.Text = TranslationManager.main.TranslationData[CheckListBoxLeft.SelectedIndex].EnglishString;
         }
 
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
