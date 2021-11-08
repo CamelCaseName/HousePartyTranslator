@@ -144,7 +144,7 @@ public class TranslationManager
                 Application.UseWaitCursor = true;
                 foreach (LineData lineD in TranslationData)
                 {
-                    ProofreadDB.AddTemplateString(lineD.ID, lineD.Story, lineD.FileName, lineD.EnglishString, "de");
+                    ProofreadDB.SetStringTemplate(lineD.ID, lineD.Story, lineD.FileName, lineD.EnglishString);
                 }
                 Application.UseWaitCursor = false;
 
@@ -182,7 +182,7 @@ public class TranslationManager
         {
             string ID = TranslationData[CheckedListBoxLeft.SelectedIndex].ID;
             string Story = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 2];
-            ProofreadDB.SetStringAccepted(ID, FileName, Story);
+            ProofreadDB.SetStringApprovedState(ID, FileName, Story, true);
         }
     }
 
