@@ -27,7 +27,7 @@ namespace HousePartyTranslator
             Console.WriteLine("DB opened");
 
             //checking template version
-            MySqlCommand getVersion = new MySqlCommand("SELECT STORY FROM translations WHERE ID = \"version\";", sqlConnection);
+            MySqlCommand getVersion = new MySqlCommand("SELECT story FROM translations WHERE ID = \"version\";", sqlConnection);
             MySqlDataReader reader = getVersion.ExecuteReader();
             reader.Read();
             DBVersion = reader.GetString(0);
@@ -51,7 +51,7 @@ namespace HousePartyTranslator
         public static bool SetStringApprovedState(string id, string fileName, string story, bool isApproved, string language = "de")
         {
             string insertCommand = @"REPLACE INTO translations (id, story, filename, translated, approved, language) 
-                                   VALUES(@id, @story, @fileName, @translated, @approved, @language)";
+                                   VALUES(@id, @story, @fileName, @translated, @approved, @language);";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
@@ -66,63 +66,171 @@ namespace HousePartyTranslator
 
         public static bool GetStringApprovedState(string id, string fileName, string story, string language = "de")
         {
-            return false;
+            string insertCommand = @"SELECT approved FROM translations WHERE id = @id AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MySqlDataReader reader = MainCommand.ExecuteReader();
+            reader.Read();
+            int isApproved = reader.GetInt32(0);
+            return isApproved == 1;
         }
 
         public static bool SetStringTranslatedState(string id, string fileName, string story, bool isTranslated, string language = "de")
         {
-            return false;
+            string insertCommand = @"REPLACE INTO translations (id, story, filename, translated, language) 
+                                   VALUES(@id, @story, @fileName, @translated, @language);";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@translated", isTranslated ? 1 : 0);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            return MainCommand.ExecuteNonQuery() == 1;
         }
 
         public static bool GetStringTranslatedState(string id, string fileName, string story, string language = "de")
         {
-            return false;
+            string insertCommand = @"SELECT translated FROM translations WHERE id = @id AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MySqlDataReader reader = MainCommand.ExecuteReader();
+            reader.Read();
+            int isTranslated = reader.GetInt32(0);
+            return isTranslated == 1;
         }
-        
+
         public static bool SetStringTranslation(string id, string fileName, string story, string translation, string language = "de")
         {
-            return false;
+            string insertCommand = @"REPLACE INTO translations (id, translated, language, translation) 
+                                   VALUES(@id, @translated, @language, @translation);";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@translated", 1);
+            MainCommand.Parameters.AddWithValue("@language", language);
+            MainCommand.Parameters.AddWithValue("@translation", translation);
+
+            return MainCommand.ExecuteNonQuery() == 1;
         }
 
         public static bool GetStringTranslation(string id, string fileName, string story, out string translation, string language = "de")
         {
-            translation = "";
-            return false;
+            string insertCommand = @"SELECT translation FROM translations WHERE id = @id AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MySqlDataReader reader = MainCommand.ExecuteReader();
+            reader.Read();
+            translation = reader.GetString(0);
+            return translation != "";
         }
 
         public static bool AddTranslationComment(string id, string fileName, string story, string comment, string language = "de")
         {
-            return false;
+            //use # for comment seperator
+            GetTranslationComments(id, fileName, story, out string internalComment, language);
+
+            internalComment += ("#" + comment);
+
+            string insertCommand = @"UPDATE translations SET COMMENT = @comment WHERE id = @id AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@language", language);
+            MainCommand.Parameters.AddWithValue("@comment", internalComment);
+
+            return MainCommand.ExecuteNonQuery() == 1;
         }
 
         public static bool SetTranslationComments(string id, string fileName, string story, string[] comments, string language = "de")
         {
-            return false;
+            //use # for comment seperator
+            string internalComment = "";
+            foreach (string scomment in comments)
+            {
+                internalComment += (scomment + "#");
+            }
+            //remove last #
+            internalComment.Remove(internalComment.Length - 1, 1);
+
+            string insertCommand = @"REPLACE INTO translations (id, language, comment) 
+                                                        VALUES(@id, @language, @comment);";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@language", language);
+            MainCommand.Parameters.AddWithValue("@comment", internalComment);
+
+            //return if at least ione row was changed
+            return MainCommand.ExecuteNonQuery() > 0;
+
         }
 
         public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
         {
-            //comments seperated by ";"
-            comments = "";
-            return false;
+            //use # for comment seperator
+            string insertCommand = @"SELECT comment FROM translations WHERE id = @id AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MySqlDataReader reader = MainCommand.ExecuteReader();
+            reader.Read();
+            comments = reader.GetString(0);
+            return comments != "";
         }
 
         public static bool GetTranslationComments(string id, string fileName, string story, out string[] comments, string language = "de")
         {
-            comments = null;
-            return false;
+            //use # for comment seperator
+            string commentString;
+            if (GetTranslationComments(id, fileName, story, out commentString, language))
+            {
+                comments = commentString.Split('#');
+                return true;
+            }
+            else
+            {
+                comments = new string[0] { };
+                return false;
+            }
         }
 
-        public static bool GetAllTranslatedStringForFile(string id, string fileName, string story, out List<LineData> translations, string language = "de")
+        public static bool GetAllTranslatedStringForFile(string fileName, string story, out List<LineData> translations, string language = "de")
         {
+            string insertCommand = @"SELECT id, translation FROM translations WHERE filename = @filename AND story = @story AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@filename", fileName);
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MySqlDataReader reader = MainCommand.ExecuteReader();
             translations = new List<LineData>();
-            return false;
+
+            while (reader.Read())
+            {
+                translations.Add(new LineData(reader.GetString("id"),"",story,fileName,reader.GetString("translation")));
+            }
+
+            return translations.Count > 0;
         }
 
         public static bool SetStringTemplate(string id, string story, string fileName, string template)
         {
             string insertCommand = @"REPLACE INTO translations (id, story, filename, english) 
-                                                        VALUES(@id, @story, @fileName, @english)";
+                                                        VALUES(@id, @story, @fileName, @english);";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
@@ -136,8 +244,16 @@ namespace HousePartyTranslator
 
         public static bool GetStringTemplate(string id, string fileName, string story, out string template)
         {
-            template = "";
-            return false;
+            string insertCommand = @"SELECT english FROM translations WHERE id = @id AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
+            MainCommand.Parameters.AddWithValue("@language", "en");
+
+            MySqlDataReader reader = MainCommand.ExecuteReader();
+            reader.Read();
+            template = reader.GetString(0);
+            return template != "";
         }
 
         public static void ExecuteCustomCommand(string command, out MySqlDataReader ResultReader)
