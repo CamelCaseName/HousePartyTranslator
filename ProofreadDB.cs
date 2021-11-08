@@ -12,20 +12,17 @@ namespace HousePartyTranslator
     {
         private static MySqlConnection sqlConnection;
         private static MySqlCommand insertApproved;
-        //private static string dbPath;
         private static readonly string SoftwareVersion = "0.20";
         private static string DBVersion;
 
         static ProofreadDB()
         {
             sqlConnection = new MySqlConnection();
-            //dbPath = Path.GetFullPath(".\\ProofreadDB.mdf");
-            //sqlConnection.ConnectionString = $"Data Source=(LocalDB)\\MSSQLLocalDB;AttachDbFilename={dbPath};Integrated Security=True;";
-
         }
 
-        public static void InitializeDB()
+        public static void InitializeDB(Fenster mainWindow)
         {
+            Application.UseWaitCursor = true;
             sqlConnection.ConnectionString = GetConnString();
             sqlConnection.Open();
             Console.WriteLine(sqlConnection.State.ToString());
@@ -46,6 +43,12 @@ namespace HousePartyTranslator
                     $" You may acquire the latest version of this program. " +
                     $"If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
             }
+            else
+            {
+                mainWindow.Text += " (Software Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ")";
+                mainWindow.Update();
+            }
+            Application.UseWaitCursor = false;
         }
 
         public static bool SetStringAccepted(string id, string fileName = " ", string story = " ", string language = "de", string comments = " ")
