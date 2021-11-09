@@ -93,20 +93,6 @@ public class TranslationManager
 
     public void UpdateTranslationString(TextBox t)
     {
-        /*
-        int selectionStart = t.GetFirstCharIndexOfCurrentLine();
-        int CurrentLine = t.GetLineFromCharIndex(selectionStart);
-        Console.WriteLine(CurrentLine.ToString());
-
-        int selectionEnd = t.GetFirstCharIndexFromLine(CurrentLine + 1) - 1;
-        string approvedString = "";
-        if (selectionEnd - selectionStart > 0) { approvedString = t.Text.Substring(selectionStart, selectionEnd); }
-        else { approvedString = t.Text.Substring(selectionStart, t.Text.Length); }
-
-        if (approvedString.Contains('|'))
-        {
-            string ID = approvedString.Split('|')[0];
-        }*/
     }
 
     //Open

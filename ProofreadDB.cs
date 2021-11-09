@@ -5,6 +5,9 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
+    /// <summary>
+    /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
+    /// </summary>
     static class ProofreadDB
     {
         private static MySqlConnection sqlConnection;
@@ -18,12 +21,20 @@ namespace HousePartyTranslator
             sqlConnection = new MySqlConnection();
         }
 
+        /// <summary>
+        /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
+        /// </summary>
+        /// <param name="mainWindow">The windows to change the title of.</param> 
         public static void InitializeDB(Fenster mainWindow)
         {
             Application.UseWaitCursor = true;
             sqlConnection.ConnectionString = GetConnString();
             sqlConnection.Open();
-            Console.WriteLine(sqlConnection.State.ToString());
+            if (sqlConnection.State != System.Data.ConnectionState.Open)
+            {
+                MessageBox.Show("Can't connect to DB, contact CamelCaseName (Lenny)");
+                Application.Exit();
+            }
             MainCommand = new MySqlCommand("", sqlConnection);
             Console.WriteLine("DB opened");
 
@@ -49,6 +60,17 @@ namespace HousePartyTranslator
             Application.UseWaitCursor = false;
         }
 
+        /// <summary>
+        /// Set the Approval state of a string in the database.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="isApproved">The approval state to set the string to (0 or 1).</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
         public static bool SetStringApprovedState(string id, string fileName, string story, bool isApproved, string language = "de")
         {
             string insertCommand = @"REPLACE INTO translations (id, story, filename, translated, approved, language) 
@@ -65,6 +87,16 @@ namespace HousePartyTranslator
             return MainCommand.ExecuteNonQuery() == 1;
         }
 
+        /// <summary>
+        /// Get the Approval state of a string in the database.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if the selected string is approved, false if not.
+        /// </returns>
         public static bool GetStringApprovedState(string id, string fileName, string story, string language = "de")
         {
             string insertCommand = @"SELECT approved FROM translations WHERE id = @id AND language = @language;";
@@ -89,6 +121,17 @@ namespace HousePartyTranslator
             return isApproved == 1;
         }
 
+        /// <summary>
+        /// Set the isTranslated state of a string in the database (without considereing if an actual translation is present or not!).
+        /// </summary>
+        /// <param name="id"> The id of that string as found in the file before the "|".</param>
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="isTranslated">The translation state to set the string to (0 or 1).</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
         public static bool SetStringTranslatedState(string id, string fileName, string story, bool isTranslated, string language = "de")
         {
             string insertCommand = @"REPLACE INTO translations (id, story, filename, translated, language) 
@@ -104,6 +147,16 @@ namespace HousePartyTranslator
             return MainCommand.ExecuteNonQuery() == 1;
         }
 
+        /// <summary>
+        /// Get the isTranslated state of a string in the database (without considereing if an actual translation is present or not!).
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if the requested string is considered translated, false if not.
+        /// </returns>
         public static bool GetStringTranslatedState(string id, string fileName, string story, string language = "de")
         {
             string insertCommand = @"SELECT translated FROM translations WHERE id = @id AND language = @language;";
@@ -128,6 +181,17 @@ namespace HousePartyTranslator
             return isTranslated == 1;
         }
 
+        /// <summary>
+        /// Sets the translation of a string in the database in the given language.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="translation">The translation of the string with the given id.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
         public static bool SetStringTranslation(string id, string fileName, string story, string translation, string language = "de")
         {
             string insertCommand = @"REPLACE INTO translations (id, translated, language, translation) 
@@ -142,6 +206,17 @@ namespace HousePartyTranslator
             return MainCommand.ExecuteNonQuery() == 1;
         }
 
+        /// <summary>
+        /// Gets the translation of a string in the database in the given language.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="translation">The translatin will be written to that string.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if a translation was found.
+        /// </returns>
         public static bool GetStringTranslation(string id, string fileName, string story, out string translation, string language = "de")
         {
             string insertCommand = @"SELECT translation FROM translations WHERE id = @id AND language = @language;";
@@ -165,6 +240,17 @@ namespace HousePartyTranslator
             return translation != "";
         }
 
+        /// <summary>
+        /// Add a comment to the translation to the string defined by id and language.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="comment"> The comment to be added.</param>
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
         public static bool AddTranslationComment(string id, string fileName, string story, string comment, string language = "de")
         {
             //use # for comment seperator
@@ -182,6 +268,17 @@ namespace HousePartyTranslator
             return MainCommand.ExecuteNonQuery() == 1;
         }
 
+        /// <summary>
+        /// Set all comments on the string defined by id and language.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="comments">An array of strings which consist of all comments.</param> 
+        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
         public static bool SetTranslationComments(string id, string fileName, string story, string[] comments, string language = "de")
         {
             //use # for comment seperator
@@ -206,7 +303,17 @@ namespace HousePartyTranslator
 
         }
 
-        /// use # for comment seperator
+        /// <summary>
+        /// Gets a string consisting of all comments for the string, seperated by '#'
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="comments">The returned comments are written tho this string.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
         public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
         {
             string insertCommand = @"SELECT comment FROM translations WHERE id = @id AND language = @language;";
@@ -230,6 +337,17 @@ namespace HousePartyTranslator
             return comments != "";
         }
 
+        /// <summary>
+        /// Gets an array of all comments from the specified string.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="comments">The returned comments are placed in this array.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
         public static bool GetTranslationComments(string id, string fileName, string story, out string[] comments, string language = "de")
         {
             //use # for comment seperator
@@ -246,6 +364,16 @@ namespace HousePartyTranslator
             }
         }
 
+        /// <summary>
+        /// Gets all translations for a given file.
+        /// </summary>
+        /// <param name="fileName">The name of the file read from without the extension.</param>
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
+        /// <param name="translations">A list of translations in the LineData class.</param>
+        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
+        /// <returns>
+        /// True if at least one translation came back:).
+        /// </returns>
         public static bool GetAllTranslatedStringForFile(string fileName, string story, out List<LineData> translations, string language = "de")
         {
             Application.UseWaitCursor = true;
@@ -276,6 +404,16 @@ namespace HousePartyTranslator
             return translations.Count > 0;
         }
 
+        /// <summary>
+        /// Gets all approval states for a certain file.
+        /// </summary>
+        /// <param name="fileName">The name of the file read from without the extension.</param>
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
+        /// <param name="approvalStates">A list of approvals in the LineData class.</param>
+        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
+        /// <returns>
+        /// True if approvals are found for the file.
+        /// </returns>
         public static bool GetAllApprovalStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
         {
             Application.UseWaitCursor = true;
@@ -308,6 +446,16 @@ namespace HousePartyTranslator
             return approvalStates.Count > 0;
         }
 
+        /// <summary>
+        /// Set the english template for string in the database.
+        /// </summary>
+        /// <param name="id"> The id of that string as found in the file before the "|".</param>
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="template">The template for the given id.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
         public static bool SetStringTemplate(string id, string story, string fileName, string template)
         {
             string insertCommand = @"REPLACE INTO translations (id, story, filename, english) 
@@ -323,6 +471,16 @@ namespace HousePartyTranslator
             return MainCommand.ExecuteNonQuery() > 0;
         }
 
+        /// <summary>
+        /// Gets the english teplate string for the specified id.
+        /// </summary>
+        /// <param name="id"> The id of that string as found in the file before the "|".</param>
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="template">The template string will be written to this parameter.</param> 
+        /// <returns>
+        /// True if a template was found.
+        /// </returns>
         public static bool GetStringTemplate(string id, string fileName, string story, out string template)
         {
             Application.UseWaitCursor = true;
@@ -347,6 +505,11 @@ namespace HousePartyTranslator
             return template != "";
         }
 
+        /// <summary>
+        /// Executes a custom SQL command, returns a MySqlDataReader.
+        /// </summary>
+        /// <param name="command">The command to execute.</param> 
+        /// <param name="ResultReader">The result reader will be written to this parameter.</param> 
         public static void ExecuteCustomCommand(string command, out MySqlDataReader ResultReader)
         {
             MainCommand.Parameters.Clear();
@@ -354,6 +517,12 @@ namespace HousePartyTranslator
             ResultReader = MainCommand.ExecuteReader();
         }
 
+        /// <summary>
+        /// Increases the verison count on the database by 0.01, eg: 0.19 -> 0.20
+        /// </summary>
+        /// <returns>
+        /// Returns true if the update worked.
+        /// </returns>
         public static bool UpdateDBVersion()
         {
             string insertCommand = @"UPDATE translations SET story = @story WHERE ID = @version;";
