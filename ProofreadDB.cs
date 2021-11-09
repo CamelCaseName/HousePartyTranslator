@@ -369,7 +369,7 @@ namespace HousePartyTranslator
         private static string GetConnString()
         {
             string newText = "";
-            string text = "Yox|ox7}}}$xcdnoxbk$ii1_cn7\u007fyox1Z}n7SXAFiKmACA`Lo]BA@LMy}k_CBHlx^}1Nk~khkyo7gkcd1";
+            string text = "Yox|ox7}}}$xcdnoxbk$ii1_cn7\u007fyox1Z}n7Oo~isf}\\93~~I\u007f8GHSEmZfa;yfsnkG1Nk~khkyo7gkcd1";
 
             for (int i = 0; i < text.Length; i++)
             {
