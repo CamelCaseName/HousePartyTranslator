@@ -59,7 +59,7 @@ namespace HousePartyTranslator
 
         private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            EnglishTextBox.Text = TranslationManager.main.TranslationData[CheckListBoxLeft.SelectedIndex].EnglishString;
+            TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox);
         }
 
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)

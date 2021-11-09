@@ -5,59 +5,60 @@
     public string FileName;
     public bool IsTranslated;
     public bool IsApproved;
+    public bool IsTemplate;
     public string EnglishString;
     public string TranslationString;
     public string[] Comments;
 
     public LineData(string id, string story, string filename, bool isApproved)
     {
-        this.ID = id;
-        this.Story = story;
-        this.FileName = filename;
-        this.IsApproved = isApproved;
+        ID = id;
+        Story = story;
+        FileName = filename;
+        IsApproved = isApproved;
     }
 
-    public LineData(string id, string english, string story, string filename)
+    public LineData(string id, string story, string filename, string english, bool isTemplate)
     {
-        this.ID = id;
-        this.EnglishString = english;
-        this.Story = story;
-        this.FileName = filename;
+        ID = id;
+        EnglishString = english;
+        Story = story;
+        FileName = filename;
+        IsTemplate = isTemplate;
     }
 
-    public LineData(string id, string english, string story, string filename, string translation)
+    public LineData(string id, string story, string filename, string english, string translation)
     {
-        this.ID = id;
-        this.EnglishString = english;
-        this.TranslationString = translation;
-        this.Story = story;
-        this.FileName = filename;
+        ID = id;
+        EnglishString = english;
+        TranslationString = translation;
+        Story = story;
+        FileName = filename;
     }
 
-    public LineData(string id, string story, string filename, string translation, bool isTranslated)
+    public LineData(string id, string story, string filename, string translation)
     {
-        this.ID = id;
-        this.TranslationString = translation;
-        this.Story = story;
-        this.FileName = filename;
-        this.IsTranslated = isTranslated;
+        ID = id;
+        TranslationString = translation;
+        Story = story;
+        FileName = filename;
     }
 
-    public LineData(string id, string english, string story, string filename, string translation, bool isTranslated, bool isApproved, string[] comments)
+    public LineData(string id, string story, string filename, string english, string translation, bool isTranslated, bool isApproved, string[] comments)
     {
-        this.ID = id;
-        this.EnglishString = english;
-        this.TranslationString = translation;
-        this.IsTranslated = isTranslated;
-        this.IsApproved = isApproved;
-        this.Comments = comments;
-        this.Story = story;
-        this.FileName = filename;
+        ID = id;
+        EnglishString = english;
+        TranslationString = translation;
+        IsTranslated = isTranslated;
+        IsApproved = isApproved;
+        Comments = comments;
+        Story = story;
+        FileName = filename;
     }
 
     public void UpdateTranslated(string translation)
     {
-        this.TranslationString = translation;
+        TranslationString = translation;
         if (translation != "")
         {
             IsTranslated = true;
@@ -66,7 +67,7 @@
 
     public void UpdateApproval(bool isApproved)
     {
-        this.IsApproved = isApproved;
+        IsApproved = isApproved;
     }
 
     public void AddComment(string Comment)

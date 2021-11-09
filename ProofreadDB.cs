@@ -9,6 +9,7 @@ namespace HousePartyTranslator
     {
         private static MySqlConnection sqlConnection;
         private static MySqlCommand MainCommand;
+        private static MySqlDataReader MainReader;
         private static readonly string SoftwareVersion = "0.20";
         private static string DBVersion;
 
@@ -28,10 +29,10 @@ namespace HousePartyTranslator
 
             //checking template version
             MySqlCommand getVersion = new MySqlCommand("SELECT story FROM translations WHERE ID = \"version\";", sqlConnection);
-            MySqlDataReader reader = getVersion.ExecuteReader();
-            reader.Read();
-            DBVersion = reader.GetString(0);
-            reader.Close();
+            MainReader = getVersion.ExecuteReader();
+            MainReader.Read();
+            DBVersion = MainReader.GetString(0);
+            MainReader.Close();
             //set global variable for later actions
             TranslationManager.main.IsUpToDate = DBVersion == SoftwareVersion;
             if (!TranslationManager.main.IsUpToDate)
@@ -72,9 +73,19 @@ namespace HousePartyTranslator
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
             MainCommand.Parameters.AddWithValue("@language", language);
 
-            MySqlDataReader reader = MainCommand.ExecuteReader();
-            reader.Read();
-            int isApproved = reader.GetInt32(0);
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+            int isApproved;
+            if (MainReader.HasRows)
+            {
+                isApproved = MainReader.GetInt32(0);
+            }
+            else
+            {
+                isApproved = 0;
+                MessageBox.Show("Approval state can't be loaded");
+            }
+            MainReader.Close();
             return isApproved == 1;
         }
 
@@ -101,9 +112,19 @@ namespace HousePartyTranslator
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
             MainCommand.Parameters.AddWithValue("@language", language);
 
-            MySqlDataReader reader = MainCommand.ExecuteReader();
-            reader.Read();
-            int isTranslated = reader.GetInt32(0);
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+            int isTranslated;
+            if (MainReader.HasRows)
+            {
+                isTranslated = MainReader.GetInt32(0);
+            }
+            else
+            {
+                isTranslated = 0;
+                MessageBox.Show("Translation state can't be loaded");
+            }
+            MainReader.Close();
             return isTranslated == 1;
         }
 
@@ -129,9 +150,18 @@ namespace HousePartyTranslator
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
             MainCommand.Parameters.AddWithValue("@language", language);
 
-            MySqlDataReader reader = MainCommand.ExecuteReader();
-            reader.Read();
-            translation = reader.GetString(0);
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+
+            if (MainReader.HasRows)
+            {
+                translation = MainReader.GetString(0);
+            }
+            else
+            {
+                translation = "**Translation can't be loaded**";
+            }
+            MainReader.Close();
             return translation != "";
         }
 
@@ -185,9 +215,18 @@ namespace HousePartyTranslator
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
             MainCommand.Parameters.AddWithValue("@language", language);
 
-            MySqlDataReader reader = MainCommand.ExecuteReader();
-            reader.Read();
-            comments = reader.GetString(0);
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+
+            if (MainReader.HasRows)
+            {
+                comments = MainReader.GetString(0);
+            }
+            else
+            {
+                comments = "**Comments can't be loaded**";
+            }
+            MainReader.Close();
             return comments != "";
         }
 
@@ -209,6 +248,7 @@ namespace HousePartyTranslator
 
         public static bool GetAllTranslatedStringForFile(string fileName, string story, out List<LineData> translations, string language = "de")
         {
+            Application.UseWaitCursor = true;
             string insertCommand = @"SELECT id, translation FROM translations WHERE filename = @filename AND story = @story AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
@@ -216,19 +256,29 @@ namespace HousePartyTranslator
             MainCommand.Parameters.AddWithValue("@story", story);
             MainCommand.Parameters.AddWithValue("@language", language);
 
-            MySqlDataReader reader = MainCommand.ExecuteReader();
+            MainReader = MainCommand.ExecuteReader();
             translations = new List<LineData>();
 
-            while (reader.Read())
+            if (MainReader.HasRows)
             {
-                translations.Add(new LineData(reader.GetString("id"), story, fileName, reader.GetString("translation"), true));
+                while (MainReader.Read())
+                {
+                    translations.Add(new LineData(MainReader.GetString("id"), story, fileName, MainReader.GetString("translation")));
+                }
             }
+            else
+            {
+                MessageBox.Show("Translations can't be loaded");
+            }
+            MainReader.Close();
 
+            Application.UseWaitCursor = false;
             return translations.Count > 0;
         }
 
         public static bool GetAllApprovalStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
         {
+            Application.UseWaitCursor = true;
             string insertCommand = @"SELECT id, approved FROM translations WHERE filename = @filename AND story = @story AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
@@ -236,16 +286,25 @@ namespace HousePartyTranslator
             MainCommand.Parameters.AddWithValue("@story", story);
             MainCommand.Parameters.AddWithValue("@language", language);
 
-            MySqlDataReader reader = MainCommand.ExecuteReader();
+            MainReader = MainCommand.ExecuteReader();
             approvalStates = new List<LineData>();
             bool internalIsApproved;
 
-            while (reader.Read())
+            if (MainReader.HasRows)
             {
-                internalIsApproved = reader.GetInt32("approved") == 1 ? true : false;
-                approvalStates.Add(new LineData(reader.GetString("id"), story, fileName, internalIsApproved));
+                while (MainReader.Read())
+                {
+                    internalIsApproved = MainReader.GetInt32("approved") == 1 ? true : false;
+                    approvalStates.Add(new LineData(MainReader.GetString("id"), story, fileName, internalIsApproved));
+                }
             }
+            else
+            {
+                MessageBox.Show("States can't be loaded");
+            }
+            MainReader.Close();
 
+            Application.UseWaitCursor = false;
             return approvalStates.Count > 0;
         }
 
@@ -266,15 +325,25 @@ namespace HousePartyTranslator
 
         public static bool GetStringTemplate(string id, string fileName, string story, out string template)
         {
+            Application.UseWaitCursor = true;
             string insertCommand = @"SELECT english FROM translations WHERE id = @id AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id);
             MainCommand.Parameters.AddWithValue("@language", "en");
 
-            MySqlDataReader reader = MainCommand.ExecuteReader();
-            reader.Read();
-            template = reader.GetString(0);
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+            if (MainReader.HasRows)
+            {
+                template = MainReader.GetString(0);
+            }
+            else
+            {
+                template = "**Template can't be loaded**";
+            }
+            MainReader.Close();
+            Application.UseWaitCursor = false;
             return template != "";
         }
 

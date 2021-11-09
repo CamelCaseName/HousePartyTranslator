@@ -10,6 +10,7 @@ public class TranslationManager
     public static TranslationManager main;
     public List<LineData> TranslationData = new List<LineData>();
     public bool IsUpToDate = false;
+    public bool isTemplate = false;
 
     public string SourceFilePath
     {
@@ -92,6 +93,7 @@ public class TranslationManager
 
     public void UpdateTranslationString(TextBox t)
     {
+        /*
         int selectionStart = t.GetFirstCharIndexOfCurrentLine();
         int CurrentLine = t.GetLineFromCharIndex(selectionStart);
         Console.WriteLine(CurrentLine.ToString());
@@ -104,7 +106,7 @@ public class TranslationManager
         if (approvedString.Contains('|'))
         {
             string ID = approvedString.Split('|')[0];
-        }
+        }*/
     }
 
     //Open
@@ -113,19 +115,37 @@ public class TranslationManager
         SourceFilePath = filePath;
         TemplateFileString = File.ReadAllText(filePath);
         TranslationData.Clear();
-        string Story = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 2];
+        CheckedListBoxLeft.Items.Clear();
+        StoryName = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 2];
+        string ParentFolder = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 3];
+
+        //set whether we have a template or translation
+        isTemplate = ParentFolder == "TEMPLATE";
 
         //read in all strings with IDs
-        foreach (string line in File.ReadAllLines(filePath))
+        if (isTemplate)
         {
-            if (line.Contains('|'))
+            foreach (string line in File.ReadAllLines(filePath))
             {
-                string[] Splitted = line.Split('|');
-                TranslationData.Add(new LineData(Splitted[0], Splitted[1], Story, FileName));
+                if (line.Contains('|'))
+                {
+                    string[] Splitted = line.Split('|');
+                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, Splitted[1], true));
+                }
             }
         }
-
-        CheckedListBoxLeft.Items.Clear();
+        else //read in translations
+        {
+            foreach (string line in File.ReadAllLines(filePath))
+            {
+                if (line.Contains('|'))
+                {
+                    string[] Splitted = line.Split('|');
+                    //add new translation
+                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, Splitted[1]));
+                }
+            }
+        }
 
         //is up to date, so we can start translation
         if (IsUpToDate)
@@ -136,54 +156,75 @@ public class TranslationManager
                 CheckedListBoxLeft.Items.Add(lineD.ID, false);
             }
         }
-        else // not up to date, so we need to add all strings if they come from the template folder
+        else if (isTemplate) // not up to date, so we need to add all strings if they come from the template folder
         {
-            string ParentFolder = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 3];
-            if (ParentFolder == "TEMPLATE")
+
+            //upload all new strings
+            Application.UseWaitCursor = true;
+            foreach (LineData lineD in TranslationData)
             {
-                //upload all new strings
-                Application.UseWaitCursor = true;
-                foreach (LineData lineD in TranslationData)
-                {
-                    ProofreadDB.SetStringTemplate(lineD.ID, lineD.Story, lineD.FileName, lineD.EnglishString);
-                }
-                Application.UseWaitCursor = false;
+                ProofreadDB.SetStringTemplate(lineD.ID, lineD.Story, lineD.FileName, lineD.EnglishString);
+            }
+            Application.UseWaitCursor = false;
 
-                MessageBox.Show("Operation complete, you may now select the next file.", "Updating string database");
-                DialogResult result = MessageBox.Show("Was this the last file? If you are unsure, select cancel and contact us on discord. " +
-                    "If it was the last file, please select YES. ELSE NO. BE VERY CAREFUL!",
-                    "Updating string database",
-                    MessageBoxButtons.YesNoCancel,
-                    MessageBoxIcon.Warning,
-                    MessageBoxDefaultButton.Button2);
+            MessageBox.Show("Operation complete, you may now select the next file.", "Updating string database");
+            DialogResult result = MessageBox.Show("Was this the last file? If you are unsure, select cancel and contact us on discord. " +
+                "If it was the last file, please select YES. ELSE NO. BE VERY CAREFUL!",
+                "Updating string database",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
 
-                if (result == DialogResult.Yes)
+            if (result == DialogResult.Yes)
+            {
+                if (ProofreadDB.UpdateDBVersion())
                 {
-                    if (ProofreadDB.UpdateDBVersion())
-                    {
-                        IsUpToDate = true;
-                    }
+                    IsUpToDate = true;
                 }
-                else if (result == DialogResult.Cancel)
-                {
-                    Application.Exit();
-                }
+            }
+            else if (result == DialogResult.Cancel)
+            {
+                Application.Exit();
+            }
+        }
+        else
+        {
+            MessageBox.Show($"Please select a template file with its second parent folder as 'TEMPLATE' so we can upload them. " +
+                $"Your Current Folder shows as {ParentFolder}.", "Updating string database");
+        }
+    }
+
+    public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable)
+    {
+        int currentIndex = CheckedListBoxLeft.SelectedIndex;
+        if (currentIndex >= 0)
+        {
+            if (isTemplate)
+            {
+                TextBoxReadOnly.Text = TranslationData[currentIndex].EnglishString;
             }
             else
             {
-                MessageBox.Show($"Please select a template file with its second parent folder as 'TEMPLATE' so we can upload them. " +
-                    $"Your Current Folder shows as {ParentFolder}.", "Updating string database");
+                TextBoxEditable.Text = TranslationData[currentIndex].TranslationString;
+                if (ProofreadDB.GetStringTemplate(TranslationData[currentIndex].ID, FileName, StoryName, out string templateString))
+                {
+                    TextBoxReadOnly.Text = templateString;
+                }
             }
         }
     }
 
     public void ApproveIfPossible(CheckedListBox CheckedListBoxLeft)
     {
-        if (CheckedListBoxLeft.GetItemChecked(CheckedListBoxLeft.SelectedIndex))
+        int currentIndex = CheckedListBoxLeft.SelectedIndex;
+        if (currentIndex >= 0)
         {
-            string ID = TranslationData[CheckedListBoxLeft.SelectedIndex].ID;
-            string Story = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 2];
-            ProofreadDB.SetStringApprovedState(ID, FileName, Story, true);
+            if (CheckedListBoxLeft.GetItemChecked(currentIndex))
+            {
+                string ID = TranslationData[currentIndex].ID;
+                string Story = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 2];
+                ProofreadDB.SetStringApprovedState(ID, FileName, Story, true);
+            }
         }
     }
 
