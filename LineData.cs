@@ -9,6 +9,14 @@
     public string TranslationString;
     public string[] Comments;
 
+    public LineData(string id, string story, string filename, bool isApproved)
+    {
+        this.ID = id;
+        this.Story = story;
+        this.FileName = filename;
+        this.IsApproved = isApproved;
+    }
+
     public LineData(string id, string english, string story, string filename)
     {
         this.ID = id;
@@ -24,6 +32,15 @@
         this.TranslationString = translation;
         this.Story = story;
         this.FileName = filename;
+    }
+
+    public LineData(string id, string story, string filename, string translation, bool isTranslated)
+    {
+        this.ID = id;
+        this.TranslationString = translation;
+        this.Story = story;
+        this.FileName = filename;
+        this.IsTranslated = isTranslated;
     }
 
     public LineData(string id, string english, string story, string filename, string translation, bool isTranslated, bool isApproved, string[] comments)

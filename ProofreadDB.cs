@@ -221,10 +221,32 @@ namespace HousePartyTranslator
 
             while (reader.Read())
             {
-                translations.Add(new LineData(reader.GetString("id"),"",story,fileName,reader.GetString("translation")));
+                translations.Add(new LineData(reader.GetString("id"), story, fileName, reader.GetString("translation"), true));
             }
 
             return translations.Count > 0;
+        }
+
+        public static bool GetAllApprovalStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
+        {
+            string insertCommand = @"SELECT id, approved FROM translations WHERE filename = @filename AND story = @story AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@filename", fileName);
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MySqlDataReader reader = MainCommand.ExecuteReader();
+            approvalStates = new List<LineData>();
+            bool internalIsApproved;
+
+            while (reader.Read())
+            {
+                internalIsApproved = reader.GetInt32("approved") == 1 ? true : false;
+                approvalStates.Add(new LineData(reader.GetString("id"), story, fileName, internalIsApproved));
+            }
+
+            return approvalStates.Count > 0;
         }
 
         public static bool SetStringTemplate(string id, string story, string fileName, string template)
