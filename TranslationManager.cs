@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 
 public class TranslationManager
@@ -29,32 +30,6 @@ public class TranslationManager
         }
     }
     private string sourceFilePath = "";
-
-    public string TemplateFileString
-    {
-        get
-        {
-            return templateFileString;
-        }
-        set
-        {
-            templateFileString = value;
-        }
-    }
-    private string templateFileString = "";
-
-    public string TranslationFileString
-    {
-        get
-        {
-            return translationFileString;
-        }
-        set
-        {
-            translationFileString = value;
-        }
-    }
-    private string translationFileString = "";
 
     public string FileName
     {
@@ -91,93 +66,57 @@ public class TranslationManager
         main = this;
     }
 
-    public void UpdateTranslationString(TextBox t)
+    public void UpdateTranslationString(TextBox EditorTextBox, CheckedListBox CheckedListBoxLeft)
     {
+        int internalIndex = CheckedListBoxLeft.SelectedIndex;
+        if (internalIndex >= 0)
+        {
+            TranslationData[internalIndex].TranslationString = EditorTextBox.Text;
+        }
     }
 
-    //Open
-    public void LoadFileIntoProgram(string filePath, CheckedListBox CheckedListBoxLeft)
+    public void LoadFileIntoProgram(CheckedListBox CheckedListBoxLeft)
     {
-        SourceFilePath = filePath;
-        TemplateFileString = File.ReadAllText(filePath);
         TranslationData.Clear();
         CheckedListBoxLeft.Items.Clear();
-        StoryName = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 2];
-        string ParentFolder = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 3];
 
-        //set whether we have a template or translation
-        isTemplate = ParentFolder == "TEMPLATE";
-
-        //read in all strings with IDs
-        if (isTemplate)
-        {
-            foreach (string line in File.ReadAllLines(filePath))
-            {
-                if (line.Contains('|'))
-                {
-                    string[] Splitted = line.Split('|');
-                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, Splitted[1], true));
-                }
-            }
-        }
-        else //read in translations
-        {
-            foreach (string line in File.ReadAllLines(filePath))
-            {
-                if (line.Contains('|'))
-                {
-                    string[] Splitted = line.Split('|');
-                    //add new translation
-                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, Splitted[1]));
-                }
-            }
-        }
-
-        //is up to date, so we can start translation
+        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
         if (IsUpToDate)
         {
-            //add all strings to translate to the checklistbox
-            foreach (LineData lineD in TranslationData)
+            SourceFilePath = SelectFileFromSystem();
+            if (SourceFilePath != "")
             {
-                CheckedListBoxLeft.Items.Add(lineD.ID, false);
-            }
-        }
-        else if (isTemplate) // not up to date, so we need to add all strings if they come from the template folder
-        {
 
-            //upload all new strings
-            Application.UseWaitCursor = true;
-            foreach (LineData lineD in TranslationData)
-            {
-                ProofreadDB.SetStringTemplate(lineD.ID, lineD.Story, lineD.FileName, lineD.EnglishString);
-            }
-            Application.UseWaitCursor = false;
+                string[] paths = SourceFilePath.Split('\\');
+                //get parent folder name
+                StoryName = paths[paths.Length - 2];
+                ReadStringsFromFile();
 
-            MessageBox.Show("Operation complete, you may now select the next file.", "Updating string database");
-            DialogResult result = MessageBox.Show("Was this the last file? If you are unsure, select cancel and contact us on discord. " +
-                "If it was the last file, please select YES. ELSE NO. BE VERY CAREFUL!",
-                "Updating string database",
-                MessageBoxButtons.YesNoCancel,
-                MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2);
-
-            if (result == DialogResult.Yes)
-            {
-                if (ProofreadDB.UpdateDBVersion())
-                {
-                    IsUpToDate = true;
-                }
-            }
-            else if (result == DialogResult.Cancel)
-            {
-                Application.Exit();
+                //is up to date, so we can start translation
+                HandleTranslationLoading(CheckedListBoxLeft);
             }
         }
         else
         {
-            MessageBox.Show($"Please select a template file with its second parent folder as 'TEMPLATE' so we can upload them. " +
-                $"Your Current Folder shows as {ParentFolder}.", "Updating string database");
+            string folderPath = SelectFolderFromSystem();
+            string templateFolderName = folderPath.Split('\\')[folderPath.Split('\\').Length - 1];
+            if (templateFolderName == "TEMPLATE")
+            {
+                isTemplate = true;
+                HandleTemplateLoading(folderPath);
+            }
+            else
+            {
+                isTemplate = false;
+                MessageBox.Show(
+                    $"Please the template folder named 'TEMPLATE' so we can upload them. " +
+                    $"Your Current Folder shows as {templateFolderName}.",
+                    "Updating string database"
+                    );
+            }
         }
+
+        CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
     public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable)
@@ -205,18 +144,146 @@ public class TranslationManager
         int currentIndex = CheckedListBoxLeft.SelectedIndex;
         if (currentIndex >= 0)
         {
-            if (CheckedListBoxLeft.GetItemChecked(currentIndex))
+            string ID = TranslationData[currentIndex].ID;
+            if (!ProofreadDB.SetStringApprovedState(ID, FileName, StoryName, !CheckedListBoxLeft.GetItemChecked(currentIndex), "de"))
             {
-                string ID = TranslationData[currentIndex].ID;
-                string Story = SourceFilePath.Split('\\')[SourceFilePath.Split('\\').Length - 2];
-                ProofreadDB.SetStringApprovedState(ID, FileName, Story, true);
+                MessageBox.Show("Could not set approved state of string " + ID);
             }
+        }
+    }
+
+    private void ReadStringsFromFile()
+    {
+        //read in all strings with IDs
+        if (isTemplate)
+        {
+            foreach (string line in File.ReadAllLines(SourceFilePath))
+            {
+                if (line.Contains('|'))
+                {
+                    string[] Splitted = line.Split('|');
+                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, Splitted[1], true));
+                }
+            }
+        }
+        else //read in translations
+        {
+            foreach (string line in File.ReadAllLines(SourceFilePath))
+            {
+                if (line.Contains('|'))
+                {
+                    string[] Splitted = line.Split('|');
+                    //add new translation
+                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, Splitted[1]));
+                }
+            }
+        }
+    }
+
+    private void HandleTranslationLoading(CheckedListBox CheckedListBoxLeft)
+    {
+        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+        HandleTranslationApprovalLoading(CheckedListBoxLeft);
+        CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+        //foreach (LineData lineD in TranslationData)
+        //{
+        //    CheckedListBoxLeft.Items.Add(lineD.ID, false);
+        //}
+        //dont want to do cross thread ui calls :puke:
+        //Thread loadApprovalThread = new Thread(() => HandleTranslationApprovalLoading(CheckedListBoxLeft)) { Name = "ApprovalLoadingThread" };
+        //loadApprovalThread.Start();
+
+    }
+
+    private static void HandleTranslationApprovalLoading(CheckedListBox CheckedListBoxLeft)
+    {
+        bool lineIsApproved;
+        foreach (LineData lineD in main.TranslationData)
+        {
+            lineIsApproved = ProofreadDB.GetStringApprovedState(lineD.ID, main.FileName, main.StoryName, "de");
+            CheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
+            lineD.IsApproved = lineIsApproved;
+        }
+    }
+
+    private void HandleTemplateLoading(string folderPath)
+    {
+        //upload all new strings
+        try
+        {
+            DirectoryInfo templateDir = new DirectoryInfo(folderPath);
+            if (templateDir != null)
+            {
+                DirectoryInfo[] storyDirs = templateDir.GetDirectories();
+                if (storyDirs != null)
+                {
+                    foreach (DirectoryInfo storyDir in storyDirs)
+                    {
+                        if (storyDir != null)
+                        {
+                            StoryName = storyDir.Name;
+                            FileInfo[] templateFiles = storyDir.GetFiles();
+                            if (templateFiles != null)
+                            {
+                                foreach (FileInfo templateFile in templateFiles)
+                                {
+                                    if (templateFile != null)
+                                    {
+                                        SourceFilePath = templateFile.FullName;
+                                        FileName = Path.GetFileNameWithoutExtension(SourceFilePath);
+                                        ReadStringsFromFile();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (UnauthorizedAccessException e)
+        {
+            MessageBox.Show("Encountered " + e.Message);
+        }
+
+        MessageBox.Show(
+            "This is going to take some time(15+ minutes), get a tea or sth.\n" +
+            "A Message will appear once it is done.\n" +
+            "Click OK if you want to start.",
+            "Updating string database...",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Asterisk
+            );
+
+        foreach (LineData lineD in TranslationData)
+        {
+            ProofreadDB.SetStringTemplate(lineD.ID, lineD.Story, lineD.FileName, lineD.EnglishString);
+        }
+
+        DialogResult result = MessageBox.Show(
+            "This should be done uploading. It should be :)\n" +
+            "If you are done uploading, please select YES. ELSE NO. Be wise please!",
+            "Updating string database...",
+            MessageBoxButtons.YesNoCancel,
+            MessageBoxIcon.Warning,
+            MessageBoxDefaultButton.Button2
+            );
+
+        if (result == DialogResult.Yes)
+        {
+            if (ProofreadDB.UpdateDBVersion())
+            {
+                IsUpToDate = true;
+                isTemplate = false;
+            }
+        }
+        else if (result == DialogResult.Cancel)
+        {
+            Application.Exit();
         }
     }
 
     private void LoadSourceFile(string path)
     {
-        string folderPath = Path.GetDirectoryName(path);
         FileName = Path.GetFileNameWithoutExtension(path);
     }
 
@@ -232,6 +299,21 @@ public class TranslationManager
         if (selectFileDialog.ShowDialog() == DialogResult.OK)
         {
             return selectFileDialog.FileName;
+        }
+        return "";
+    }
+
+    public static string SelectFolderFromSystem()
+    {
+        FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
+        {
+            Description = "Please select the 'TEMPLATE' folder like in the repo",
+            RootFolder = Environment.SpecialFolder.MyComputer
+        };
+
+        if (selectFolderDialog.ShowDialog() == DialogResult.OK)
+        {
+            return selectFolderDialog.SelectedPath;
         }
         return "";
     }

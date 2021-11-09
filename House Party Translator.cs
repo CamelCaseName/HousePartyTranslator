@@ -20,16 +20,12 @@ namespace HousePartyTranslator
 
         private void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
-            TranslationManager.main.UpdateTranslationString(TranslatedTextBox);
+            TranslationManager.main.UpdateTranslationString(TranslatedTextBox, CheckListBoxLeft);
         }
 
         private void SelectFileLeftClick(object sender, EventArgs e)
         {
-            string filePath = TranslationManager.SelectFileFromSystem();
-            if (filePath != "")
-            {
-                TranslationManager.main.LoadFileIntoProgram(filePath, CheckListBoxLeft);
-            }
+            TranslationManager.main.LoadFileIntoProgram(CheckListBoxLeft);
         }
 
         private void SaveFileLeftClick(object sender, EventArgs e)

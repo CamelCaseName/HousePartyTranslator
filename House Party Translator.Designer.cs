@@ -29,8 +29,6 @@ namespace HousePartyTranslator
         /// </summary>
         private void InitializeComponent()
         {
-            this.OpenFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.SaveFileAsDialog = new System.Windows.Forms.SaveFileDialog();
             this.TranslatedTextBox = new System.Windows.Forms.TextBox();
             this.SelectedFileRight = new System.Windows.Forms.Label();
             this.ProgressbarTranslated = new System.Windows.Forms.ProgressBar();
@@ -46,15 +44,6 @@ namespace HousePartyTranslator
             this.MainContainer.Panel2.SuspendLayout();
             this.MainContainer.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // OpenFileDialog
-            // 
-            this.OpenFileDialog.FileName = "openFileDialog1";
-            this.OpenFileDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.OpenFileDialogLeft_FileOk);
-            // 
-            // SaveFileAsDialog
-            // 
-            this.SaveFileAsDialog.FileOk += new System.ComponentModel.CancelEventHandler(this.SaveFileAsDialogLeft_FileOk);
             // 
             // TranslatedTextBox
             // 
@@ -211,8 +200,6 @@ namespace HousePartyTranslator
         }
 
         #endregion
-        private System.Windows.Forms.OpenFileDialog OpenFileDialog;
-        private System.Windows.Forms.SaveFileDialog SaveFileAsDialog;
         private System.Windows.Forms.TextBox TranslatedTextBox;
         private System.Windows.Forms.Label SelectedFileRight;
         private System.Windows.Forms.ProgressBar ProgressbarTranslated;
