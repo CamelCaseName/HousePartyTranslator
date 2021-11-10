@@ -145,11 +145,22 @@ public class TranslationManager
         if (currentIndex >= 0)
         {
             string ID = TranslationData[currentIndex].ID;
+            ProofreadDB.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].TranslationString, "de");
             if (!ProofreadDB.SetStringApprovedState(ID, FileName, StoryName, !CheckedListBoxLeft.GetItemChecked(currentIndex), "de"))
             {
                 MessageBox.Show("Could not set approved state of string " + ID);
             }
         }
+    }
+
+    public void SaveFile(CheckedListBox CheckedListBoxLeft)
+    {
+        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+
+
+
+
+        CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
     private void ReadStringsFromFile()
@@ -193,17 +204,6 @@ public class TranslationManager
         //Thread loadApprovalThread = new Thread(() => HandleTranslationApprovalLoading(CheckedListBoxLeft)) { Name = "ApprovalLoadingThread" };
         //loadApprovalThread.Start();
 
-    }
-
-    private static void HandleTranslationApprovalLoading(CheckedListBox CheckedListBoxLeft)
-    {
-        bool lineIsApproved;
-        foreach (LineData lineD in main.TranslationData)
-        {
-            lineIsApproved = ProofreadDB.GetStringApprovedState(lineD.ID, main.FileName, main.StoryName, "de");
-            CheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
-            lineD.IsApproved = lineIsApproved;
-        }
     }
 
     private void HandleTemplateLoading(string folderPath)
@@ -285,6 +285,23 @@ public class TranslationManager
     private void LoadSourceFile(string path)
     {
         FileName = Path.GetFileNameWithoutExtension(path);
+    }
+
+    private static void HandleTranslationApprovalLoading(CheckedListBox CheckedListBoxLeft)
+    {
+        bool lineIsApproved = false;
+        bool gotApprovedStates = ProofreadDB.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, "de");
+
+        foreach (LineData lineD in main.TranslationData)
+        {
+            if (gotApprovedStates)
+            {
+                lineIsApproved = internalLines.Exists(predicateLine => predicateLine.ID == lineD.ID);
+            }
+
+            CheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
+            lineD.IsApproved = lineIsApproved;
+        }
     }
 
     public static string SelectFileFromSystem()

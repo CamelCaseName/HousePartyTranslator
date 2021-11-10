@@ -77,14 +77,15 @@
 
     public override string ToString()
     {
-        string value = ID + "|" + IsTranslated + "|" + IsApproved + "|";
-        for (int i = 0; i < Comments.Length; i++)
+        string value = "";
+        if (TranslationString != "")
         {
-            value += Comments[i];
-            if (i < Comments.Length - 1)
-            {
-                value += ":";
-            }
+            value = ID + "|" + TranslationString;
+
+        }
+        else
+        {
+            value = ID + "|" + EnglishString;
         }
         return value;
     }

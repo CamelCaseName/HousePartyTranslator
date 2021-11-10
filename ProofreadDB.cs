@@ -393,7 +393,10 @@ namespace HousePartyTranslator
             {
                 while (MainReader.Read())
                 {
-                    translations.Add(new LineData(MainReader.GetString("id"), story, fileName, MainReader.GetString("translation")));
+                    string sqlID = MainReader.GetString("id");
+                    string tempID = sqlID.Substring((story + fileName).Length);
+                    string shortID = tempID.Remove(tempID.Length - 2);
+                    translations.Add(new LineData(shortID, story, fileName, MainReader.GetString("translation")));
                 }
             }
             else
@@ -434,8 +437,11 @@ namespace HousePartyTranslator
             {
                 while (MainReader.Read())
                 {
+                    string sqlID = MainReader.GetString("id");
+                    string tempID = sqlID.Substring((story + fileName).Length);
+                    string shortID = tempID.Remove(tempID.Length - 2);
                     internalIsApproved = MainReader.GetInt32("approved") == 1 ? true : false;
-                    approvalStates.Add(new LineData(MainReader.GetString("id"), story, fileName, internalIsApproved));
+                    approvalStates.Add(new LineData(shortID, story, fileName, internalIsApproved));
                 }
             }
             else
