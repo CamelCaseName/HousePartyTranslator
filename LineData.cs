@@ -1,8 +1,11 @@
-﻿public class LineData
+﻿using HousePartyTranslator;
+
+public class LineData
 {
     public string ID;
     public string Story;
     public string FileName;
+    public StringCategory Category;
     public bool IsTranslated;
     public bool IsApproved;
     public bool IsTemplate;
@@ -10,50 +13,55 @@
     public string TranslationString;
     public string[] Comments;
 
-    public LineData(string id, string story, string filename, bool isApproved)
+    public LineData(string id, string story, string filename, StringCategory category, bool isApproved)
     {
         ID = id;
         Story = story;
         FileName = filename;
+        Category = category;
         IsApproved = isApproved;
     }
 
-    public LineData(string id, string story, string filename, string english, bool isTemplate)
+    public LineData(string id, string story, string filename, StringCategory category, string english, bool isTemplate)
     {
         ID = id;
         EnglishString = english;
         Story = story;
         FileName = filename;
+        Category = category;
         IsTemplate = isTemplate;
     }
 
-    public LineData(string id, string story, string filename, string english, string translation)
+    public LineData(string id, string story, string filename, StringCategory category, string english, string translation)
     {
         ID = id;
+        Story = story;
+        FileName = filename;
+        Category = category;
         EnglishString = english;
         TranslationString = translation;
-        Story = story;
-        FileName = filename;
     }
 
-    public LineData(string id, string story, string filename, string translation)
+    public LineData(string id, string story, string filename, StringCategory category, string translation)
     {
         ID = id;
+        Story = story;
+        FileName = filename;
+        Category = category;
         TranslationString = translation;
-        Story = story;
-        FileName = filename;
     }
 
-    public LineData(string id, string story, string filename, string english, string translation, bool isTranslated, bool isApproved, string[] comments)
+    public LineData(string id, string story, string filename, StringCategory category, string english, string translation, bool isTranslated, bool isApproved, string[] comments)
     {
         ID = id;
+        Story = story;
+        FileName = filename;
+        Category = category;
         EnglishString = english;
         TranslationString = translation;
         IsTranslated = isTranslated;
         IsApproved = isApproved;
         Comments = comments;
-        Story = story;
-        FileName = filename;
     }
 
     public void UpdateTranslated(string translation)

@@ -39,7 +39,9 @@ namespace HousePartyTranslator
             Console.WriteLine("DB opened");
 
             //checking template version
-            MySqlCommand getVersion = new MySqlCommand("SELECT story FROM translations WHERE ID = \"version\";", sqlConnection);
+            MySqlCommand getVersion = new MySqlCommand("SELECT story " +
+                                                       "FROM translations " +
+                                                       "WHERE ID = \"version\";", sqlConnection);
             MainReader = getVersion.ExecuteReader();
             MainReader.Read();
             DBVersion = MainReader.GetString(0);
@@ -69,16 +71,17 @@ namespace HousePartyTranslator
         /// <returns>
         /// True if at least one row was returned.
         /// </returns>
-        public static bool SetStringApprovedState(string id, string fileName, string story, bool isApproved, string language = "de")
+        public static bool SetStringApprovedState(string id, string fileName, string story, StringCategory category, bool isApproved, string language = "de")
         {
-            string insertCommand = @"INSERT INTO translations (id, story, filename, translated, approved, language) 
-                                     VALUES(@id, @story, @fileName, @translated, @approved, @language)
+            string insertCommand = @"INSERT INTO translations (id, story, filename, category, translated, approved, language) 
+                                     VALUES(@id, @story, @fileName, @category, @translated, @approved, @language)
                                      ON DUPLICATE KEY UPDATE approved = @approved;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
             MainCommand.Parameters.AddWithValue("@story", story);
             MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@category", (int)category);
             MainCommand.Parameters.AddWithValue("@translated", 1);
             MainCommand.Parameters.AddWithValue("@approved", isApproved ? 1 : 0);
             MainCommand.Parameters.AddWithValue("@language", language);
@@ -98,7 +101,9 @@ namespace HousePartyTranslator
         /// </returns>
         public static bool GetStringApprovedState(string id, string fileName, string story, string language = "de")
         {
-            string insertCommand = @"SELECT approved FROM translations WHERE id = @id;";
+            string insertCommand = @"SELECT approved 
+                                     FROM translations 
+                                     WHERE id = @id;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
@@ -129,16 +134,17 @@ namespace HousePartyTranslator
         /// <returns>
         /// True if at least one row was set.
         /// </returns>
-        public static bool SetStringTranslatedState(string id, string fileName, string story, bool isTranslated, string language = "de")
+        public static bool SetStringTranslatedState(string id, string fileName, string story, StringCategory category, bool isTranslated, string language = "de")
         {
-            string insertCommand = @"INSERT INTO translations (id, story, filename, translated, language) 
-                                     VALUES(@id, @story, @fileName, @translated, @language)
+            string insertCommand = @"INSERT INTO translations (id, story, filename, category, translated, language) 
+                                     VALUES(@id, @story, @fileName, @category, @translated, @language)
                                      ON DUPLICATE KEY UPDATE translated = @translated;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
             MainCommand.Parameters.AddWithValue("@story", story);
             MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@category", (int)category);
             MainCommand.Parameters.AddWithValue("@translated", isTranslated ? 1 : 0);
             MainCommand.Parameters.AddWithValue("@language", language);
 
@@ -157,7 +163,9 @@ namespace HousePartyTranslator
         /// </returns>
         public static bool GetStringTranslatedState(string id, string fileName, string story, string language = "de")
         {
-            string insertCommand = @"SELECT translated FROM translations WHERE id = @id AND language = @language;";
+            string insertCommand = @"SELECT translated 
+                                     FROM translations 
+                                     WHERE id = @id AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
@@ -190,16 +198,17 @@ namespace HousePartyTranslator
         /// <returns>
         /// True if at least one row was set, false if it was not the case.
         /// </returns>
-        public static bool SetStringTranslation(string id, string fileName, string story, string translation, string language = "de")
+        public static bool SetStringTranslation(string id, string fileName, string story, StringCategory category, string translation, string language = "de")
         {
-            string insertCommand = @"INSERT INTO translations (id, story, filename, translated, language, translation) 
-                                     VALUES(@id, @story, @filename, @translated, @language, @translation);
+            string insertCommand = @"INSERT INTO translations (id, story, filename, category, translated, language, translation) 
+                                     VALUES(@id, @story, @filename, @category, @translated, @language, @translation)
                                      ON DUPLICATE KEY UPDATE translation = @translation;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
             MainCommand.Parameters.AddWithValue("@story", story);
             MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@category", (int)category);
             MainCommand.Parameters.AddWithValue("@translated", 1);
             MainCommand.Parameters.AddWithValue("@language", language);
             MainCommand.Parameters.AddWithValue("@translation", translation);
@@ -220,7 +229,9 @@ namespace HousePartyTranslator
         /// </returns>
         public static bool GetStringTranslation(string id, string fileName, string story, out string translation, string language = "de")
         {
-            string insertCommand = @"SELECT translation FROM translations WHERE id = @id AND language = @language;";
+            string insertCommand = @"SELECT translation 
+                                     FROM translations 
+                                     WHERE id = @id AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
@@ -259,7 +270,9 @@ namespace HousePartyTranslator
 
             internalComment += ("#" + comment);
 
-            string insertCommand = @"UPDATE translations SET COMMENT = @comment WHERE id = @id AND language = @language;";
+            string insertCommand = @"UPDATE translations 
+                                     SET COMMENT = @comment 
+                                     WHERE id = @id AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
@@ -318,7 +331,9 @@ namespace HousePartyTranslator
         /// </returns>
         public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
         {
-            string insertCommand = @"SELECT comment FROM translations WHERE id = @id AND language = @language;";
+            string insertCommand = @"SELECT comment 
+                                     FROM translations 
+                                     WHERE id = @id AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
@@ -379,7 +394,9 @@ namespace HousePartyTranslator
         public static bool GetAllTranslatedStringForFile(string fileName, string story, out List<LineData> translations, string language = "de")
         {
             Application.UseWaitCursor = true;
-            string insertCommand = @"SELECT id, translation FROM translations WHERE filename = @filename AND story = @story AND language = @language;";
+            string insertCommand = @"SELECT id, category, translation 
+                                     FROM translations 
+                                     WHERE filename = @filename AND story = @story AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@filename", fileName);
@@ -396,7 +413,7 @@ namespace HousePartyTranslator
                     string sqlID = MainReader.GetString("id");
                     string tempID = sqlID.Substring((story + fileName).Length);
                     string shortID = tempID.Remove(tempID.Length - 2);
-                    translations.Add(new LineData(shortID, story, fileName, MainReader.GetString("translation")));
+                    translations.Add(new LineData(shortID, story, fileName, (StringCategory)MainReader.GetInt32("category"), MainReader.GetString("translation")));
                 }
             }
             else
@@ -422,7 +439,9 @@ namespace HousePartyTranslator
         public static bool GetAllApprovalStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
         {
             Application.UseWaitCursor = true;
-            string insertCommand = @"SELECT id, approved FROM translations WHERE filename = @filename AND story = @story AND language = @language;";
+            string insertCommand = @"SELECT id, category, approved 
+                                     FROM translations 
+                                     WHERE filename = @filename AND story = @story AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@filename", fileName);
@@ -441,12 +460,12 @@ namespace HousePartyTranslator
                     string tempID = sqlID.Substring((story + fileName).Length);
                     string shortID = tempID.Remove(tempID.Length - 2);
                     internalIsApproved = MainReader.GetInt32("approved") == 1 ? true : false;
-                    approvalStates.Add(new LineData(shortID, story, fileName, internalIsApproved));
+                    approvalStates.Add(new LineData(shortID, story, fileName, (StringCategory)MainReader.GetInt32("category"), internalIsApproved));
                 }
             }
             else
             {
-                MessageBox.Show("Approval states can't be loaded");
+                MessageBox.Show("Approval states can't be loaded, or no string is approved so far.");
             }
             MainReader.Close();
 
@@ -464,16 +483,17 @@ namespace HousePartyTranslator
         /// <returns>
         /// True if exactly one row was set, false if it was not the case.
         /// </returns>
-        public static bool SetStringTemplate(string id, string story, string fileName, string template)
+        public static bool SetStringTemplate(string id, string fileName, string story, StringCategory category, string template)
         {
-            string insertCommand = @"INSERT INTO translations (id, story, filename, english) 
-                                     VALUES(@id, @story, @fileName, @english);
+            string insertCommand = @"INSERT INTO translations (id, story, filename, category, english) 
+                                     VALUES(@id, @story, @fileName, @category, @english)
                                      ON DUPLICATE KEY UPDATE english = @english;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + "template");
             MainCommand.Parameters.AddWithValue("@story", story);
             MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@category", (int)category);
             MainCommand.Parameters.AddWithValue("@english", template);
 
             //return if at least ione row was changed
@@ -493,7 +513,9 @@ namespace HousePartyTranslator
         public static bool GetStringTemplate(string id, string fileName, string story, out string template)
         {
             Application.UseWaitCursor = true;
-            string insertCommand = @"SELECT english FROM translations WHERE id = @id";
+            string insertCommand = @"SELECT english 
+                                     FROM translations 
+                                     WHERE id = @id";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + "template");
@@ -533,10 +555,30 @@ namespace HousePartyTranslator
         /// </returns>
         public static bool UpdateDBVersion()
         {
-            string insertCommand = @"UPDATE translations SET story = @story WHERE ID = @version;";
+            string insertCommand = @"UPDATE translations 
+                                     SET story = @story 
+                                     WHERE ID = @version;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@story", "0." + (int.Parse(DBVersion.Split('.')[1]) + 1).ToString());
+            MainCommand.Parameters.AddWithValue("@version", "version");
+
+            //return if at least ione row was changed
+            return MainCommand.ExecuteNonQuery() > 0;
+        }
+
+        /// <summary>
+        /// MUST NOT USE ESLEWHERE THAN THE TEMPLATE UPLOADER IN THE BEGINNING
+        /// </summary>
+        /// <returns>
+        /// True if it worked.
+        /// </returns>
+        public static bool ClearDBofAllStrings()
+        {
+            string insertCommand = @"DELETE FROM translations 
+                                     WHERE NOT ID = @version;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@version", "version");
 
             //return if at least ione row was changed

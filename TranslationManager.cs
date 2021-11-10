@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Windows.Forms;
 
 public class TranslationManager
@@ -145,8 +144,8 @@ public class TranslationManager
         if (currentIndex >= 0)
         {
             string ID = TranslationData[currentIndex].ID;
-            ProofreadDB.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].TranslationString, "de");
-            if (!ProofreadDB.SetStringApprovedState(ID, FileName, StoryName, !CheckedListBoxLeft.GetItemChecked(currentIndex), "de"))
+            ProofreadDB.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, "de");
+            if (!ProofreadDB.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !CheckedListBoxLeft.GetItemChecked(currentIndex), "de"))
             {
                 MessageBox.Show("Could not set approved state of string " + ID);
             }
@@ -166,6 +165,7 @@ public class TranslationManager
     private void ReadStringsFromFile()
     {
         //read in all strings with IDs
+        StringCategory internalCategory = StringCategory.General;
         if (isTemplate)
         {
             foreach (string line in File.ReadAllLines(SourceFilePath))
@@ -173,7 +173,15 @@ public class TranslationManager
                 if (line.Contains('|'))
                 {
                     string[] Splitted = line.Split('|');
-                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, Splitted[1], true));
+                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, internalCategory, Splitted[1], true));
+                }
+                else
+                {
+                    StringCategory tempCategory = getStringCategory(line);
+                    if (tempCategory != StringCategory.Neither)
+                    {
+                        internalCategory = tempCategory;
+                    }
                 }
             }
         }
@@ -185,7 +193,15 @@ public class TranslationManager
                 {
                     string[] Splitted = line.Split('|');
                     //add new translation
-                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, Splitted[1]));
+                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, internalCategory, Splitted[1]));
+                }
+                else
+                {
+                    StringCategory tempCategory = getStringCategory(line);
+                    if (tempCategory != StringCategory.Neither)
+                    {
+                        internalCategory = tempCategory;
+                    }
                 }
             }
         }
@@ -196,10 +212,6 @@ public class TranslationManager
         CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
         HandleTranslationApprovalLoading(CheckedListBoxLeft);
         CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
-        //foreach (LineData lineD in TranslationData)
-        //{
-        //    CheckedListBoxLeft.Items.Add(lineD.ID, false);
-        //}
         //dont want to do cross thread ui calls :puke:
         //Thread loadApprovalThread = new Thread(() => HandleTranslationApprovalLoading(CheckedListBoxLeft)) { Name = "ApprovalLoadingThread" };
         //loadApprovalThread.Start();
@@ -254,9 +266,16 @@ public class TranslationManager
             MessageBoxIcon.Asterisk
             );
 
+        //clear db of all old strings
+        //if (ProofreadDB.ClearDBofAllStrings())
+        //{
+        //    Console.WriteLine("Cleared old strings");
+        //}
+
+        //add all the new strings
         foreach (LineData lineD in TranslationData)
         {
-            ProofreadDB.SetStringTemplate(lineD.ID, lineD.Story, lineD.FileName, lineD.EnglishString);
+            ProofreadDB.SetStringTemplate(lineD.ID, lineD.FileName, lineD.Story, lineD.Category, lineD.EnglishString);
         }
 
         DialogResult result = MessageBox.Show(
@@ -268,6 +287,7 @@ public class TranslationManager
             MessageBoxDefaultButton.Button2
             );
 
+        //update if successfull
         if (result == DialogResult.Yes)
         {
             if (ProofreadDB.UpdateDBVersion())
@@ -280,6 +300,55 @@ public class TranslationManager
         {
             Application.Exit();
         }
+    }
+
+    private StringCategory getStringCategory(string line)
+    {
+        StringCategory internalCategory = StringCategory.Neither;
+        if (line.Contains("["))
+        {
+            if (line == "[General]")
+            {
+                internalCategory = StringCategory.General;
+            }
+            else if (line == "[Dialogues]")
+            {
+                internalCategory = StringCategory.Dialogue;
+            }
+            else if (line == "[Responses]")
+            {
+                internalCategory = StringCategory.Response;
+            }
+            else if (line == "[Quests]")
+            {
+                internalCategory = StringCategory.Quest;
+            }
+            else if (line == "[Events]")
+            {
+                internalCategory = StringCategory.Event;
+            }
+            else if (line == "[Background Chatter]")
+            {
+                internalCategory = StringCategory.BGC;
+            }
+            else if (line == "[Item Names]")
+            {
+                internalCategory = StringCategory.ItemName;
+            }
+            else if (line == "[Item Actions]")
+            {
+                internalCategory = StringCategory.ItemAction;
+            }
+            else if (line == "[Item Group Actions]")
+            {
+                internalCategory = StringCategory.ItemGroupAction;
+            }
+            else if (line == "[Achievements]")
+            {
+                internalCategory = StringCategory.Achievement;
+            }
+        }
+        return internalCategory;
     }
 
     private void LoadSourceFile(string path)
