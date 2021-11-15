@@ -12,6 +12,23 @@ public class TranslationManager
     public bool IsUpToDate = false;
     public bool isTemplate = false;
 
+    public string Language
+    {
+        get
+        {
+            if (language.Length == 0)
+            {
+                MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
+            }
+            return language;
+        }
+        set
+        {
+            language = value;
+        }
+    }
+    private string language = "";
+
     public string SourceFilePath
     {
         get
@@ -74,7 +91,7 @@ public class TranslationManager
         }
     }
 
-    public void LoadFileIntoProgram(CheckedListBox CheckedListBoxLeft)
+    public void LoadFileIntoProgram(CheckedListBox CheckedListBoxLeft, Label SelectedFile)
     {
         TranslationData.Clear();
         CheckedListBoxLeft.Items.Clear();
@@ -85,11 +102,13 @@ public class TranslationManager
             SourceFilePath = SelectFileFromSystem();
             if (SourceFilePath != "")
             {
-
+                
                 string[] paths = SourceFilePath.Split('\\');
                 //get parent folder name
                 StoryName = paths[paths.Length - 2];
                 ReadStringsFromFile();
+
+                SelectedFile.Text = "File: " + FileName + ".txt";
 
                 //is up to date, so we can start translation
                 HandleTranslationLoading(CheckedListBoxLeft);
@@ -138,14 +157,27 @@ public class TranslationManager
         }
     }
 
+    public void SetLanguage(ComboBox LanguageBox)
+    {
+        if (LanguageBox.FindStringExact(LanguageBox.Text) > -1)
+        {
+            Language = LanguageBox.Text;
+        }
+        else if (LanguageBox.SelectedIndex > -1)
+        {
+            Language = LanguageBox.GetItemText(LanguageBox.SelectedItem);
+        }
+        _ = Language;
+    }
+
     public void ApproveIfPossible(CheckedListBox CheckedListBoxLeft)
     {
         int currentIndex = CheckedListBoxLeft.SelectedIndex;
         if (currentIndex >= 0)
         {
             string ID = TranslationData[currentIndex].ID;
-            ProofreadDB.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, "de");
-            if (!ProofreadDB.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !CheckedListBoxLeft.GetItemChecked(currentIndex), "de"))
+            ProofreadDB.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, main.Language);
+            if (!ProofreadDB.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !CheckedListBoxLeft.GetItemChecked(currentIndex), main.Language))
             {
                 MessageBox.Show("Could not set approved state of string " + ID);
             }
@@ -247,6 +279,7 @@ public class TranslationManager
             {
                 if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1]));
             }
+            TranslationData.RemoveAt(0);
         }
     }
 
@@ -398,7 +431,7 @@ public class TranslationManager
     private static void HandleTranslationApprovalLoading(CheckedListBox CheckedListBoxLeft)
     {
         bool lineIsApproved = false;
-        bool gotApprovedStates = ProofreadDB.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, "de");
+        bool gotApprovedStates = ProofreadDB.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
 
         foreach (LineData lineD in main.TranslationData)
         {

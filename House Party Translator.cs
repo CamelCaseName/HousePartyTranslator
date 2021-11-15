@@ -25,7 +25,8 @@ namespace HousePartyTranslator
 
         private void SelectFileLeftClick(object sender, EventArgs e)
         {
-            TranslationManager.main.LoadFileIntoProgram(CheckListBoxLeft);
+            TranslationManager.main.LoadFileIntoProgram(CheckListBoxLeft, SelectedFile);
+            TranslationManager.main.SetLanguage(LanguageBox);
         }
 
         private void SaveFileLeftClick(object sender, EventArgs e)
@@ -43,16 +44,6 @@ namespace HousePartyTranslator
 
         }
 
-        private void OpenFileDialogLeft_FileOk(object sender, CancelEventArgs e)
-        {
-
-        }
-
-        private void SaveFileAsDialogLeft_FileOk(object sender, CancelEventArgs e)
-        {
-
-        }
-
         private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
             TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox);
@@ -61,6 +52,11 @@ namespace HousePartyTranslator
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             TranslationManager.main.ApproveIfPossible(CheckListBoxLeft);
+        }
+
+        private void LanguageBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            TranslationManager.main.SetLanguage(LanguageBox);
         }
     }
 }

@@ -30,7 +30,7 @@ namespace HousePartyTranslator
         private void InitializeComponent()
         {
             this.TranslatedTextBox = new System.Windows.Forms.TextBox();
-            this.SelectedFileRight = new System.Windows.Forms.Label();
+            this.SelectedFile = new System.Windows.Forms.Label();
             this.ProgressbarTranslated = new System.Windows.Forms.ProgressBar();
             this.WordsTranslated = new System.Windows.Forms.Label();
             this.CheckListBoxLeft = new System.Windows.Forms.CheckedListBox();
@@ -39,6 +39,7 @@ namespace HousePartyTranslator
             this.SaveFileAs = new System.Windows.Forms.Button();
             this.MainContainer = new System.Windows.Forms.SplitContainer();
             this.EnglishTextBox = new System.Windows.Forms.TextBox();
+            this.LanguageBox = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -60,18 +61,18 @@ namespace HousePartyTranslator
             this.TranslatedTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.TranslatedTextBox.Size = new System.Drawing.Size(650, 293);
             this.TranslatedTextBox.TabIndex = 0;
-            this.TranslatedTextBox.Text = "editierbar und scroll mit links synchronisiert";
+            this.TranslatedTextBox.Text = "edit here";
             this.TranslatedTextBox.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
             // 
-            // SelectedFileRight
+            // SelectedFile
             // 
-            this.SelectedFileRight.AutoSize = true;
-            this.SelectedFileRight.ForeColor = System.Drawing.SystemColors.Control;
-            this.SelectedFileRight.Location = new System.Drawing.Point(3, 41);
-            this.SelectedFileRight.Name = "SelectedFileRight";
-            this.SelectedFileRight.Size = new System.Drawing.Size(43, 13);
-            this.SelectedFileRight.TabIndex = 7;
-            this.SelectedFileRight.Text = "rightFile";
+            this.SelectedFile.AutoSize = true;
+            this.SelectedFile.ForeColor = System.Drawing.SystemColors.Control;
+            this.SelectedFile.Location = new System.Drawing.Point(3, 41);
+            this.SelectedFile.Name = "SelectedFile";
+            this.SelectedFile.Size = new System.Drawing.Size(98, 13);
+            this.SelectedFile.TabIndex = 7;
+            this.SelectedFile.Text = "Selected File: none";
             // 
             // ProgressbarTranslated
             // 
@@ -88,7 +89,7 @@ namespace HousePartyTranslator
             this.WordsTranslated.AutoSize = true;
             this.WordsTranslated.BackColor = System.Drawing.Color.Transparent;
             this.WordsTranslated.ForeColor = System.Drawing.SystemColors.Control;
-            this.WordsTranslated.Location = new System.Drawing.Point(308, 85);
+            this.WordsTranslated.Location = new System.Drawing.Point(330, 41);
             this.WordsTranslated.Name = "WordsTranslated";
             this.WordsTranslated.Size = new System.Drawing.Size(78, 13);
             this.WordsTranslated.TabIndex = 7;
@@ -149,6 +150,7 @@ namespace HousePartyTranslator
             // MainContainer.Panel1
             // 
             this.MainContainer.Panel1.BackColor = System.Drawing.SystemColors.Desktop;
+            this.MainContainer.Panel1.Controls.Add(this.LanguageBox);
             this.MainContainer.Panel1.Controls.Add(this.CheckListBoxLeft);
             this.MainContainer.Panel1.Controls.Add(this.SaveFileAs);
             this.MainContainer.Panel1.Controls.Add(this.SaveFile);
@@ -161,7 +163,7 @@ namespace HousePartyTranslator
             this.MainContainer.Panel2.Controls.Add(this.ProgressbarTranslated);
             this.MainContainer.Panel2.Controls.Add(this.EnglishTextBox);
             this.MainContainer.Panel2.Controls.Add(this.WordsTranslated);
-            this.MainContainer.Panel2.Controls.Add(this.SelectedFileRight);
+            this.MainContainer.Panel2.Controls.Add(this.SelectedFile);
             this.MainContainer.Panel2.Controls.Add(this.TranslatedTextBox);
             this.MainContainer.Size = new System.Drawing.Size(1257, 624);
             this.MainContainer.SplitterDistance = 585;
@@ -179,6 +181,35 @@ namespace HousePartyTranslator
             this.EnglishTextBox.Size = new System.Drawing.Size(650, 258);
             this.EnglishTextBox.TabIndex = 9;
             this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
+            // 
+            // LanguageBox
+            // 
+            this.LanguageBox.AllowDrop = true;
+            this.LanguageBox.FormattingEnabled = true;
+            this.LanguageBox.Items.AddRange(new object[] {
+            "cs",
+            "da",
+            "de",
+            "es",
+            "esmx",
+            "fi",
+            "fr",
+            "hu",
+            "it",
+            "ja",
+            "ko",
+            "nl",
+            "pl",
+            "pt",
+            "ptrb",
+            "ru",
+            "tr"});
+            this.LanguageBox.Location = new System.Drawing.Point(247, 13);
+            this.LanguageBox.Name = "LanguageBox";
+            this.LanguageBox.Size = new System.Drawing.Size(60, 21);
+            this.LanguageBox.TabIndex = 11;
+            this.LanguageBox.SelectedIndexChanged += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
+            this.LanguageBox.SelectionChangeCommitted += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
             // 
             // Fenster
             // 
@@ -201,7 +232,7 @@ namespace HousePartyTranslator
 
         #endregion
         private System.Windows.Forms.TextBox TranslatedTextBox;
-        private System.Windows.Forms.Label SelectedFileRight;
+        private System.Windows.Forms.Label SelectedFile;
         private System.Windows.Forms.ProgressBar ProgressbarTranslated;
         private System.Windows.Forms.Label WordsTranslated;
         private System.Windows.Forms.CheckedListBox CheckListBoxLeft;
@@ -210,6 +241,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.Button SaveFileAs;
         private System.Windows.Forms.SplitContainer MainContainer;
         private System.Windows.Forms.TextBox EnglishTextBox;
+        private System.Windows.Forms.ComboBox LanguageBox;
     }
 }
 
