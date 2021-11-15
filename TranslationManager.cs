@@ -125,14 +125,14 @@ public class TranslationManager
         {
             if (isTemplate)
             {
-                TextBoxReadOnly.Text = TranslationData[currentIndex].EnglishString;
+                TextBoxReadOnly.Text = TranslationData[currentIndex].EnglishString.Replace("\n", Environment.NewLine);
             }
             else
             {
-                TextBoxEditable.Text = TranslationData[currentIndex].TranslationString;
+                TextBoxEditable.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine); ;
                 if (ProofreadDB.GetStringTemplate(TranslationData[currentIndex].ID, FileName, StoryName, out string templateString))
                 {
-                    TextBoxReadOnly.Text = templateString;
+                    TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
                 }
             }
         }
@@ -154,6 +154,7 @@ public class TranslationManager
 
     public void SaveFile(CheckedListBox CheckedListBoxLeft)
     {
+        //IMPORTANT remove all \r so only \n!!
         CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
 
 
