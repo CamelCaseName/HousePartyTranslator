@@ -158,7 +158,6 @@ public class TranslationManager
 
 
 
-
         CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
@@ -168,41 +167,84 @@ public class TranslationManager
         StringCategory internalCategory = StringCategory.General;
         if (isTemplate)
         {
+            string multiLineCollector = "";
+            string[] lastLine = { };
             foreach (string line in File.ReadAllLines(SourceFilePath))
             {
                 if (line.Contains('|'))
                 {
-                    string[] Splitted = line.Split('|');
-                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, internalCategory, Splitted[1], true));
+                    //if we reach a new id, we can add the old string to the translation manager
+                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector, true));
+
+                    //get current line
+                    lastLine = line.Split('|');
+
+                    //reset multiline collector
+                    multiLineCollector = "";
                 }
                 else
                 {
                     StringCategory tempCategory = getStringCategory(line);
-                    if (tempCategory != StringCategory.Neither)
+                    if (tempCategory == StringCategory.Neither)
                     {
+                        //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
+                        multiLineCollector += "\n" + line;
+                    }
+                    else
+                    {
+                        //if we reach a category, we can add the old string to the translation manager
+                        if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector, true));
+
+                        multiLineCollector = "";
                         internalCategory = tempCategory;
                     }
                 }
             }
+            //add last line (if it does not exist)
+            if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
+            {
+                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1], true));
+            }
         }
         else //read in translations
         {
+            string multiLineCollector = "";
+            string[] lastLine = { };
             foreach (string line in File.ReadAllLines(SourceFilePath))
             {
                 if (line.Contains('|'))
                 {
-                    string[] Splitted = line.Split('|');
-                    //add new translation
-                    TranslationData.Add(new LineData(Splitted[0], StoryName, FileName, internalCategory, Splitted[1]));
+                    //if we reach a new id, we can add the old string to the translation manager
+                    if(lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector));
+
+                    //get current line
+                    lastLine = line.Split('|');
+
+                    //reset multiline collector
+                    multiLineCollector = "";
                 }
                 else
                 {
                     StringCategory tempCategory = getStringCategory(line);
-                    if (tempCategory != StringCategory.Neither)
+                    if (tempCategory == StringCategory.Neither)
                     {
+                        //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
+                        multiLineCollector += "\n" + line;
+                    }
+                    else
+                    {
+                        //if we reach a category, we can add the old string to the translation manager
+                        if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector));
+
+                        multiLineCollector = "";
                         internalCategory = tempCategory;
                     }
                 }
+            }
+            //add last line (if it does not exist)
+            if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
+            {
+                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1]));
             }
         }
     }
@@ -212,10 +254,6 @@ public class TranslationManager
         CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
         HandleTranslationApprovalLoading(CheckedListBoxLeft);
         CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
-        //dont want to do cross thread ui calls :puke:
-        //Thread loadApprovalThread = new Thread(() => HandleTranslationApprovalLoading(CheckedListBoxLeft)) { Name = "ApprovalLoadingThread" };
-        //loadApprovalThread.Start();
-
     }
 
     private void HandleTemplateLoading(string folderPath)
