@@ -10,7 +10,7 @@ namespace HousePartyTranslator
     /// </summary>
     static class ProofreadDB
     {
-        private static MySqlConnection sqlConnection;
+        private static readonly MySqlConnection sqlConnection;
         private static MySqlCommand MainCommand;
         private static MySqlDataReader MainReader;
         private static readonly string SoftwareVersion = "0.20";
@@ -368,8 +368,7 @@ namespace HousePartyTranslator
         public static bool GetTranslationComments(string id, string fileName, string story, out string[] comments, string language = "de")
         {
             //use # for comment seperator
-            string commentString;
-            if (GetTranslationComments(id, fileName, story, out commentString, language))
+            if (GetTranslationComments(id, fileName, story, out string commentString, language))
             {
                 comments = commentString.Split('#');
                 return true;
@@ -410,10 +409,13 @@ namespace HousePartyTranslator
             {
                 while (MainReader.Read())
                 {
-                    string sqlID = MainReader.GetString("id");
-                    string tempID = sqlID.Substring((story + fileName).Length);
-                    string shortID = tempID.Remove(tempID.Length - 2);
-                    translations.Add(new LineData(shortID, story, fileName, (StringCategory)MainReader.GetInt32("category"), MainReader.GetString("translation")));
+                    translations.Add(
+                        new LineData(
+                            CleanId(MainReader.GetString("id"), story, fileName),
+                            story, 
+                            fileName, 
+                            (StringCategory)MainReader.GetInt32("category"), 
+                            MainReader.GetString("translation")));
                 }
             }
             else
@@ -450,17 +452,18 @@ namespace HousePartyTranslator
 
             MainReader = MainCommand.ExecuteReader();
             approvalStates = new List<LineData>();
-            bool internalIsApproved;
 
             if (MainReader.HasRows)
             {
                 while (MainReader.Read())
                 {
-                    string sqlID = MainReader.GetString("id");
-                    string tempID = sqlID.Substring((story + fileName).Length);
-                    string shortID = tempID.Remove(tempID.Length - 2);
-                    internalIsApproved = MainReader.GetInt32("approved") == 1 ? true : false;
-                    approvalStates.Add(new LineData(shortID, story, fileName, (StringCategory)MainReader.GetInt32("category"), internalIsApproved));
+                    approvalStates.Add(
+                        new LineData(
+                            CleanId(MainReader.GetString("id"), story, fileName),
+                            story,
+                            fileName,
+                            (StringCategory)MainReader.GetInt32("category"),
+                            MainReader.GetInt32("approved") == 1));
                 }
             }
             else
@@ -471,6 +474,54 @@ namespace HousePartyTranslator
 
             Application.UseWaitCursor = false;
             return approvalStates.Count > 0;
+        }
+
+        /// <summary>
+        /// Returns a list of all ids and categorys for the given file in a list of LineData.
+        /// </summary>
+        /// <param name="fileName">The name of the file read from without the extension.</param>
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
+        /// <param name="LineDataList">A list of all ids and categorys in LineData objects.</param>
+        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
+        /// <returns>
+        /// True if ids are found for this file.
+        /// </returns>
+        public static bool GetAllLineDataBasicForFile(string fileName, string story, out List<LineData> LineDataList, string language = "de")
+        {
+            Application.UseWaitCursor = true;
+            string insertCommand = @"SELECT id, category 
+                                     FROM translations 
+                                     WHERE filename = @filename AND story = @story AND language = @language
+                                     ORDER BY category ASC;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@filename", fileName);
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MainReader = MainCommand.ExecuteReader();
+            LineDataList = new List<LineData>();
+
+            if (MainReader.HasRows)
+            {
+                while (MainReader.Read())
+                {
+                    LineDataList.Add(
+                        new LineData(
+                            CleanId(MainReader.GetString("id"), story, fileName),
+                            story,
+                            fileName,
+                            (StringCategory)MainReader.GetInt32("category")));
+                }
+            }
+            else
+            {
+                MessageBox.Show("Ids can't be loaded");
+            }
+            MainReader.Close();
+
+            Application.UseWaitCursor = false;
+            return LineDataList.Count > 0;
         }
 
         /// <summary>
@@ -599,6 +650,12 @@ namespace HousePartyTranslator
             }
 
             return newText;
+        }
+
+        private static string CleanId(string DataBaseId, string story, string fileName)
+        {
+            string tempID = DataBaseId.Substring((story + fileName).Length);
+            return tempID.Remove(tempID.Length - 2);
         }
     }
 }

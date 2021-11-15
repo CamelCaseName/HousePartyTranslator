@@ -87,7 +87,7 @@ public class TranslationManager
         int internalIndex = CheckedListBoxLeft.SelectedIndex;
         if (internalIndex >= 0)
         {
-            TranslationData[internalIndex].TranslationString = EditorTextBox.Text;
+            TranslationData[internalIndex].TranslationString = EditorTextBox.Text.Replace(Environment.NewLine, "\n");
         }
     }
 
@@ -102,7 +102,7 @@ public class TranslationManager
             SourceFilePath = SelectFileFromSystem();
             if (SourceFilePath != "")
             {
-                
+
                 string[] paths = SourceFilePath.Split('\\');
                 //get parent folder name
                 StoryName = paths[paths.Length - 2];
@@ -186,7 +186,6 @@ public class TranslationManager
 
     public void SaveFile(CheckedListBox CheckedListBoxLeft)
     {
-        //IMPORTANT remove all \r so only \n!!
         CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
 
 
@@ -217,7 +216,7 @@ public class TranslationManager
                 }
                 else
                 {
-                    StringCategory tempCategory = getStringCategory(line);
+                    StringCategory tempCategory = GetCategoryFromString(line);
                     if (tempCategory == StringCategory.Neither)
                     {
                         //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
@@ -248,7 +247,7 @@ public class TranslationManager
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if(lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector));
+                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector));
 
                     //get current line
                     lastLine = line.Split('|');
@@ -258,7 +257,7 @@ public class TranslationManager
                 }
                 else
                 {
-                    StringCategory tempCategory = getStringCategory(line);
+                    StringCategory tempCategory = GetCategoryFromString(line);
                     if (tempCategory == StringCategory.Neither)
                     {
                         //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
@@ -374,7 +373,7 @@ public class TranslationManager
         }
     }
 
-    private StringCategory getStringCategory(string line)
+    private StringCategory GetCategoryFromString(string line)
     {
         StringCategory internalCategory = StringCategory.Neither;
         if (line.Contains("["))
@@ -421,6 +420,51 @@ public class TranslationManager
             }
         }
         return internalCategory;
+    }
+
+    private string GetStringFromCategory(StringCategory category)
+    {
+        string returnedString = "";
+        switch (category)
+        {
+            case StringCategory.General:
+                returnedString = "[General]";
+                break;
+            case StringCategory.Dialogue:
+                returnedString = "[Dialogues]";
+                break;
+            case StringCategory.Response:
+                returnedString = "[Responses]";
+                break;
+            case StringCategory.Quest:
+                returnedString = "[Quests]";
+                break;
+            case StringCategory.Event:
+                returnedString = "[Events]";
+                break;
+            case StringCategory.BGC:
+                returnedString = "[Background Chatter]";
+                break;
+            case StringCategory.ItemName:
+                returnedString = "[Item Names]";
+                break;
+            case StringCategory.ItemAction:
+                returnedString = "[Item Actions]";
+                break;
+            case StringCategory.ItemGroupAction:
+                returnedString = "[Item Group Actions]";
+                break;
+            case StringCategory.Achievement:
+                returnedString = "[Achievements]";
+                break;
+            case StringCategory.Neither:
+                //do nothing hehehehe
+                break;
+            default:
+                //do nothing hehehehe
+                break;
+        }
+        return returnedString;
     }
 
     private void LoadSourceFile(string path)

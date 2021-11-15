@@ -22,6 +22,14 @@ public class LineData
         IsApproved = isApproved;
     }
 
+    public LineData(string id, string story, string filename, StringCategory category)
+    {
+        ID = id;
+        Story = story;
+        FileName = filename;
+        Category = category;
+    }
+
     public LineData(string id, string story, string filename, StringCategory category, string english, bool isTemplate)
     {
         ID = id;
