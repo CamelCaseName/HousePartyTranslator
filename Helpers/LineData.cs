@@ -88,7 +88,20 @@ public class LineData
 
     public void AddComment(string Comment)
     {
-        Comments[Comments.Length] = Comment;
+        if (Comments != null)
+        {
+            string[] tempArray = Comments;
+            Comments = new string[tempArray.Length + 1];
+            for (int i = 0; i < tempArray.Length; i++)
+            {
+                Comments[i] = tempArray[i];
+            }
+            Comments[tempArray.Length] = Comment;
+        }
+        else
+        {
+            Comments = new string[1] {Comment };
+        }
     }
 
     public override string ToString()
