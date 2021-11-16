@@ -67,24 +67,6 @@
         }
     }
 
-    class IntegerSetting : Setting
-    {
-        public IntegerSetting(string key, int value) : base(key, value)
-        {
-
-        }
-
-        public void UpdateValue(int value)
-        {
-            UpdateValue(value as object);
-        }
-
-        public new int GetValue()
-        {
-            return (int)base.GetValue();
-        }
-    }
-
     class FloatSetting : Setting
     {
         public FloatSetting(string key, float value) : base(key, value)

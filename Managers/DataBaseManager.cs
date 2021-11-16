@@ -29,8 +29,22 @@ namespace HousePartyTranslator
                 string connString = GetConnString();
                 if (connString == "")
                 {
-                    //Pasword has to be set first time
 
+                    Application.UseWaitCursor = false;
+                    //Pasword has to be set first time
+                    Password Passwordbox = new Password();
+                    DialogResult passwordResult = Passwordbox.ShowDialog(mainWindow);
+                    if (passwordResult == DialogResult.OK)
+                    {
+                        ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "dbPassword")).UpdateValue(Passwordbox.GetPassword());
+                        SettingsManager.main.UpdateSettings();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Invalid password", "Wrong password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                    Application.UseWaitCursor = true;
                 }
                 else
                 {
@@ -60,7 +74,7 @@ namespace HousePartyTranslator
             DBVersion = MainReader.GetString(0);
             MainReader.Close();
 
-            string fileVersion = ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "version")).GetValue();
+            string fileVersion = SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "version").GetValue().ToString();
             if (fileVersion == "")
             {
                 // get software version from db
@@ -68,17 +82,23 @@ namespace HousePartyTranslator
                 ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "version")).UpdateValue(SoftwareVersion);
                 SettingsManager.main.UpdateSettings();
             }
-            else if(float.Parse(DBVersion) > float.Parse(SoftwareVersion))
-            {
-                //update local software version from db
-                SoftwareVersion = DBVersion;
-                ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "version")).UpdateValue(SoftwareVersion);
-                SettingsManager.main.UpdateSettings();
-            }
             else
             {
-                //set version from settings
-                SoftwareVersion = fileVersion;
+                //add 0. if it is missing
+                if (!fileVersion.Contains(".")) fileVersion = "0." + fileVersion;
+
+                if (float.Parse(DBVersion) > float.Parse(fileVersion))
+                {
+                    //update local software version from db
+                    SoftwareVersion = DBVersion;
+                    ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "version")).UpdateValue(SoftwareVersion);
+                    SettingsManager.main.UpdateSettings();
+                }
+                else
+                {
+                    //set version from settings
+                    SoftwareVersion = fileVersion;
+                }
             }
 
             //set global variable for later actions

@@ -110,19 +110,28 @@
     <Compile Include="Managers\SettingsManager.cs" />
     <Compile Include="Helpers\StringCategory.cs" />
     <Compile Include="Helpers\ContextProvider.cs" />
-    <Compile Include="House Party Translator.cs">
+    <Compile Include="MainForm\House Party Translator.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="House Party Translator.Designer.cs">
+    <Compile Include="MainForm\House Party Translator.Designer.cs">
       <DependentUpon>House Party Translator.cs</DependentUpon>
     </Compile>
     <Compile Include="Helpers\LineData.cs" />
+    <Compile Include="PasswordForm\PasswordBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PasswordForm\PasswordBox.Designer.cs">
+      <DependentUpon>PasswordBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Managers\DataBaseManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Managers\TranslationManager.cs" />
-    <EmbeddedResource Include="House Party Translator.resx">
+    <EmbeddedResource Include="MainForm\House Party Translator.resx">
       <DependentUpon>House Party Translator.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="PasswordForm\PasswordBox.resx">
+      <DependentUpon>PasswordBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

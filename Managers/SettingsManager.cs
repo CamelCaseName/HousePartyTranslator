@@ -78,11 +78,7 @@ namespace HousePartyTranslator
             // Read all the settings in the cfgList
             foreach (string[] settingStringArray in splitSettingArrayList)
             {
-                if (int.TryParse(settingStringArray[1], out int outputInt))
-                {
-                    main.Settings.Add(new IntegerSetting(settingStringArray[0], outputInt));
-                }
-                else if (bool.TryParse(settingStringArray[1], out bool outputBool))
+                if (bool.TryParse(settingStringArray[1], out bool outputBool))
                 {
                     main.Settings.Add(new BooleanSetting(settingStringArray[0], outputBool));
                 }
