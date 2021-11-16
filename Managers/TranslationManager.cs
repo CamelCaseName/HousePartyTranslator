@@ -25,6 +25,8 @@ public class TranslationManager
         set
         {
             language = value;
+            ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "language")).UpdateValue(language);
+            SettingsManager.main.UpdateSettings();
         }
     }
     private string language = "";
@@ -159,15 +161,20 @@ public class TranslationManager
 
     public void SetLanguage(ComboBox LanguageBox)
     {
-        if (LanguageBox.FindStringExact(LanguageBox.Text) > -1)
-        {
-            Language = LanguageBox.Text;
-        }
-        else if (LanguageBox.SelectedIndex > -1)
+        if (LanguageBox.SelectedIndex > -1)
         {
             Language = LanguageBox.GetItemText(LanguageBox.SelectedItem);
         }
-        _ = Language;
+        else if (SettingsManager.main.Settings.Exists(predicateSetting => predicateSetting.GetKey() == "language"))
+        {
+            string languageFromFile = ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "language")).GetValue();
+            if (languageFromFile != "")
+            {
+                Language = languageFromFile;
+                LanguageBox.Text = Language;
+            }
+        }
+        LanguageBox.Text = Language;
     }
 
     public void ApproveIfPossible(CheckedListBox CheckedListBoxLeft)

@@ -106,19 +106,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="StringCategory.cs" />
-    <Compile Include="ContextProvider.cs" />
+    <Compile Include="Helpers\Setting.cs" />
+    <Compile Include="Managers\SettingsManager.cs" />
+    <Compile Include="Helpers\StringCategory.cs" />
+    <Compile Include="Helpers\ContextProvider.cs" />
     <Compile Include="House Party Translator.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="House Party Translator.Designer.cs">
       <DependentUpon>House Party Translator.cs</DependentUpon>
     </Compile>
-    <Compile Include="LineData.cs" />
+    <Compile Include="Helpers\LineData.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="ProofreadDB.cs" />
+    <Compile Include="Managers\DataBaseManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TranslationManager.cs" />
+    <Compile Include="Managers\TranslationManager.cs" />
     <EmbeddedResource Include="House Party Translator.resx">
       <DependentUpon>House Party Translator.cs</DependentUpon>
     </EmbeddedResource>
@@ -157,5 +159,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

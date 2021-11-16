@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -11,7 +10,9 @@ namespace HousePartyTranslator
         {
             InitializeComponent();
             //initialize and open db connection (should not take too long)
-            ProofreadDB.InitializeDB(this);
+            DataBaseManager.InitializeDB(this);
+            SettingsManager.LoadSettings();
+            TranslationManager.main.SetLanguage(LanguageBox);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -31,7 +32,7 @@ namespace HousePartyTranslator
 
         private void SaveFileLeftClick(object sender, EventArgs e)
         {
-
+            TranslationManager.main.SaveFile(CheckListBoxLeft);
         }
 
         private void SaveFileAsLeftClick(object sender, EventArgs e)
