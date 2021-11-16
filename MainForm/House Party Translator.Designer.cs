@@ -38,8 +38,8 @@ namespace HousePartyTranslator
             this.SaveFile = new System.Windows.Forms.Button();
             this.SaveFileAs = new System.Windows.Forms.Button();
             this.MainContainer = new System.Windows.Forms.SplitContainer();
-            this.EnglishTextBox = new System.Windows.Forms.TextBox();
             this.LanguageBox = new System.Windows.Forms.ComboBox();
+            this.EnglishTextBox = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -169,19 +169,6 @@ namespace HousePartyTranslator
             this.MainContainer.SplitterDistance = 585;
             this.MainContainer.TabIndex = 0;
             // 
-            // EnglishTextBox
-            // 
-            this.EnglishTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.EnglishTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.EnglishTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.EnglishTextBox.Location = new System.Drawing.Point(6, 58);
-            this.EnglishTextBox.Multiline = true;
-            this.EnglishTextBox.Name = "EnglishTextBox";
-            this.EnglishTextBox.ReadOnly = true;
-            this.EnglishTextBox.Size = new System.Drawing.Size(650, 258);
-            this.EnglishTextBox.TabIndex = 9;
-            this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
-            // 
             // LanguageBox
             // 
             this.LanguageBox.AllowDrop = true;
@@ -211,6 +198,19 @@ namespace HousePartyTranslator
             this.LanguageBox.SelectedIndexChanged += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
             this.LanguageBox.SelectionChangeCommitted += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
             // 
+            // EnglishTextBox
+            // 
+            this.EnglishTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.EnglishTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.EnglishTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.EnglishTextBox.Location = new System.Drawing.Point(6, 58);
+            this.EnglishTextBox.Multiline = true;
+            this.EnglishTextBox.Name = "EnglishTextBox";
+            this.EnglishTextBox.ReadOnly = true;
+            this.EnglishTextBox.Size = new System.Drawing.Size(650, 258);
+            this.EnglishTextBox.TabIndex = 9;
+            this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
+            // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -219,6 +219,7 @@ namespace HousePartyTranslator
             this.ClientSize = new System.Drawing.Size(1257, 624);
             this.Controls.Add(this.MainContainer);
             this.Name = "Fenster";
+            this.ShowIcon = false;
             this.Text = "HP Translator Helper";
             this.Load += new System.EventHandler(this.Form1_Load);
             this.MainContainer.Panel1.ResumeLayout(false);

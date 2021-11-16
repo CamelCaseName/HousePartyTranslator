@@ -466,7 +466,7 @@ namespace HousePartyTranslator
                 {
                     translations.Add(
                         new LineData(
-                            CleanId(MainReader.GetString("id"), story, fileName),
+                            CleanId(MainReader.GetString("id"), story, fileName, false),
                             story,
                             fileName,
                             (StringCategory)MainReader.GetInt32("category"),
@@ -514,7 +514,7 @@ namespace HousePartyTranslator
                 {
                     approvalStates.Add(
                         new LineData(
-                            CleanId(MainReader.GetString("id"), story, fileName),
+                            CleanId(MainReader.GetString("id"), story, fileName, false),
                             story,
                             fileName,
                             (StringCategory)MainReader.GetInt32("category"),
@@ -562,7 +562,7 @@ namespace HousePartyTranslator
                 {
                     LineDataList.Add(
                         new LineData(
-                            CleanId(MainReader.GetString("id"), story, fileName),
+                            CleanId(MainReader.GetString("id"), story, fileName, true),
                             story,
                             fileName,
                             (StringCategory)MainReader.GetInt32("category"),
@@ -707,10 +707,10 @@ namespace HousePartyTranslator
             return returnString;
         }
 
-        private static string CleanId(string DataBaseId, string story, string fileName)
+        private static string CleanId(string DataBaseId, string story, string fileName, bool isTemplate)
         {
             string tempID = DataBaseId.Substring((story + fileName).Length);
-            return tempID.Remove(tempID.Length - 2);
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : 2));
         }
     }
 }

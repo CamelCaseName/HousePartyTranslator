@@ -9,6 +9,7 @@ public class TranslationManager
 {
     public static TranslationManager main;
     public List<LineData> TranslationData = new List<LineData>();
+    public List<StringCategory> CategoriesInFile = new List<StringCategory>();
     public bool IsUpToDate = false;
     public bool isTemplate = false;
 
@@ -194,11 +195,15 @@ public class TranslationManager
     public void SaveFile(CheckedListBox CheckedListBoxLeft)
     {
         CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
-        List<List<LineData>> CategorizedStrings = (from StringCategory category in Enum.GetValues(typeof(StringCategory))
-                                                   select new List<LineData>()).ToList();//add a list for every category, so we can then add the strings to these.
+        List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
 
-        string OutFileString = "";
-        ;
+        foreach (StringCategory category in CategoriesInFile)
+        {//add a list for every category we have in the file, so we can then add the strings to these.
+            CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
+        }
+
+        StreamWriter OutputWriter = new StreamWriter(SourceFilePath + ".debug");
+
         DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
 
         foreach (LineData item in IdsToExport)
@@ -207,27 +212,39 @@ public class TranslationManager
             if (lineDataResult != null)
             {
                 //add translation to the list in the correct category if present
-                CategorizedStrings[(int)item.Category].Add(lineDataResult);
+                CategorizedStrings[(int)item.Category].Item1.Add(lineDataResult);
             }
-            else
+            else// if id is not found
             {
                 //add template to list if no translation is in the file
-                CategorizedStrings[(int)item.Category].Add(item);
+                DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out string templateString);
+                item.TranslationString = templateString;
+                CategorizedStrings[(int)item.Category].Item1.Add(item);
             }
         }
 
-        foreach (List<LineData> lineDatas in CategorizedStrings)
+        foreach (Tuple<List<LineData>, StringCategory> CategorizedLines in CategorizedStrings)
         {
-            //remove empty lists for empty categories
-            if (lineDatas.Count == 0)
+            //write category plus newline
+            if (CategorizedLines.Item1.Count == 0)
             {
-                CategorizedStrings.Remove(lineDatas);
+                OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.Item2));
             }
-            else
+            else //write category with no newline
             {
+                OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.Item2));
+            }
 
+            //iterate through each and print them
+            foreach (LineData line in CategorizedLines.Item1)
+            {
+                OutputWriter.WriteLine(line.ToString());
             }
+            //newline after each category
+            OutputWriter.WriteLine();
         }
+
+        OutputWriter.Close();
 
         CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
@@ -235,7 +252,7 @@ public class TranslationManager
     private void ReadStringsFromFile()
     {
         //read in all strings with IDs
-        StringCategory internalCategory = StringCategory.General;
+        StringCategory currentCategory = StringCategory.General;
         if (isTemplate)
         {
             string multiLineCollector = "";
@@ -245,7 +262,7 @@ public class TranslationManager
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector, true));
+                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
 
                     //get current line
                     lastLine = line.Split('|');
@@ -264,17 +281,17 @@ public class TranslationManager
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector, true));
+                        if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
 
                         multiLineCollector = "";
-                        internalCategory = tempCategory;
+                        currentCategory = tempCategory;
                     }
                 }
             }
             //add last line (if it does not exist)
             if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
             {
-                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1], true));
+                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
             }
         }
         else //read in translations
@@ -286,7 +303,7 @@ public class TranslationManager
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector));
+                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector));
 
                     //get current line
                     lastLine = line.Split('|');
@@ -305,19 +322,45 @@ public class TranslationManager
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1] + multiLineCollector));
-
+                        if (lastLine.Length != 0)
+                        {
+                            if (multiLineCollector.Length > 2)
+                            {//write last string with id polus all lines after taht minus the last new line char
+                                TranslationData.Add(
+                                  new LineData(
+                                      lastLine[0],
+                                      StoryName,
+                                      FileName,
+                                      currentCategory,
+                                      lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
+                            }
+                            else
+                            {//write last line with id if no real line of text is afterwards
+                                TranslationData.Add(
+                                  new LineData(
+                                      lastLine[0],
+                                      StoryName,
+                                      FileName,
+                                      currentCategory,
+                                      lastLine[1]));
+                            }
+                        }
+                        lastLine = new string[0];
                         multiLineCollector = "";
-                        internalCategory = tempCategory;
+                        currentCategory = tempCategory;
+                        CategoriesInFile.Add(currentCategory);
                     }
                 }
             }
-            //add last line (if it does not exist)
-            if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
+            if (lastLine.Length > 0)
             {
-                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, internalCategory, lastLine[1]));
+                //add last line (if it does not exist)
+                if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
+                {
+                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
+                }
             }
-            TranslationData.RemoveAt(0);
+            // TranslationData.RemoveAt(1);
         }
     }
 
