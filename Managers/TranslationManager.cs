@@ -366,8 +366,19 @@ public class TranslationManager
 
     private void HandleTranslationLoading(CheckedListBox CheckedListBoxLeft)
     {
-        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
-        HandleTranslationApprovalLoading(CheckedListBoxLeft);
+        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor; bool lineIsApproved = false;
+        bool gotApprovedStates = DataBaseManager.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
+
+        foreach (LineData lineD in main.TranslationData)
+        {
+            if (gotApprovedStates)
+            {
+                lineIsApproved = internalLines.Exists(predicateLine => predicateLine.ID == lineD.ID);
+            }
+
+            CheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
+            lineD.IsApproved = lineIsApproved;
+        }
         CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
@@ -552,23 +563,6 @@ public class TranslationManager
     private void LoadSourceFile(string path)
     {
         FileName = Path.GetFileNameWithoutExtension(path);
-    }
-
-    private static void HandleTranslationApprovalLoading(CheckedListBox CheckedListBoxLeft)
-    {
-        bool lineIsApproved = false;
-        bool gotApprovedStates = DataBaseManager.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
-
-        foreach (LineData lineD in main.TranslationData)
-        {
-            if (gotApprovedStates)
-            {
-                lineIsApproved = internalLines.Exists(predicateLine => predicateLine.ID == lineD.ID);
-            }
-
-            CheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
-            lineD.IsApproved = lineIsApproved;
-        }
     }
 
     public static string SelectFileFromSystem()
