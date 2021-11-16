@@ -10,9 +10,10 @@ namespace HousePartyTranslator
         {
             InitializeComponent();
             //initialize and open db connection (should not take too long)
-            DataBaseManager.InitializeDB(this);
             SettingsManager.LoadSettings();
             TranslationManager.main.SetLanguage(LanguageBox);
+            //Settings have to be loaded before the Database can be connected with
+            DataBaseManager.InitializeDB(this);
         }
 
         private void Form1_Load(object sender, EventArgs e)

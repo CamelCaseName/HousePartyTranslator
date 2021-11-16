@@ -23,12 +23,21 @@ namespace HousePartyTranslator
         public static void InitializeDB(Fenster mainWindow)
         {
             Application.UseWaitCursor = true;
-            sqlConnection.ConnectionString = GetConnString();
-            sqlConnection.Open();
-            if (sqlConnection.State != System.Data.ConnectionState.Open)
+            bool isConnected = false;
+            while (!isConnected)
             {
-                MessageBox.Show("Can't connect to DB, contact CamelCaseName (Lenny)");
-                Application.Exit();
+                sqlConnection.ConnectionString = GetConnString();
+                sqlConnection.Open();
+                if (sqlConnection.State != System.Data.ConnectionState.Open)
+                {
+                    //change password
+                    MessageBox.Show("Can't connect to DB, contact CamelCaseName (Lenny)");
+                    Application.Exit();
+                }
+                else
+                {
+                    isConnected = true;
+                }
             }
             MainCommand = new MySqlCommand("", sqlConnection);
             Console.WriteLine("DB opened");
@@ -407,9 +416,9 @@ namespace HousePartyTranslator
                     translations.Add(
                         new LineData(
                             CleanId(MainReader.GetString("id"), story, fileName),
-                            story, 
-                            fileName, 
-                            (StringCategory)MainReader.GetInt32("category"), 
+                            story,
+                            fileName,
+                            (StringCategory)MainReader.GetInt32("category"),
                             MainReader.GetString("translation")));
                 }
             }
@@ -506,7 +515,7 @@ namespace HousePartyTranslator
                             story,
                             fileName,
                             (StringCategory)MainReader.GetInt32("category"),
-                            MainReader.GetString("english"), 
+                            MainReader.GetString("english"),
                             true));
                 }
             }
@@ -634,18 +643,17 @@ namespace HousePartyTranslator
 
         private static string GetConnString()
         {
-            string newText = "";
-            string text = "Yox|ox7}}}$xcdnoxbk$ii1_cn7\u007fyox1Z}n7Oo~isf}\\93~~I\u007f8GHSEmZfa;yfsnkG1Nk~khkyo7gkcd1";
-
-            for (int i = 0; i < text.Length; i++)
+            string password = ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "dbPassword")).GetValue();
+            string returnString;
+            if (password != "")
             {
-                int charValue = Convert.ToInt32(text[i]); //get the ASCII value of the character
-                charValue ^= 10; //xor the value
-
-                newText += char.ConvertFromUtf32(charValue); //convert back to string
+                returnString = "Server=www.rinderha.cc;Uid=user;Pwd=" + password + ";Database=main;";
             }
-
-            return newText;
+            else
+            {
+                returnString = "";
+            }
+            return returnString;
         }
 
         private static string CleanId(string DataBaseId, string story, string fileName)
