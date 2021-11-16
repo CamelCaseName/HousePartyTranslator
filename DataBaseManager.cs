@@ -8,18 +8,13 @@ namespace HousePartyTranslator
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    static class ProofreadDB
+    static class DataBaseManager
     {
-        private static readonly MySqlConnection sqlConnection;
+        private static MySqlConnection sqlConnection = new MySqlConnection();
         private static MySqlCommand MainCommand;
         private static MySqlDataReader MainReader;
         private static readonly string SoftwareVersion = "0.20";
         private static string DBVersion;
-
-        static ProofreadDB()
-        {
-            sqlConnection = new MySqlConnection();
-        }
 
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
@@ -486,18 +481,17 @@ namespace HousePartyTranslator
         /// <returns>
         /// True if ids are found for this file.
         /// </returns>
-        public static bool GetAllLineDataBasicForFile(string fileName, string story, out List<LineData> LineDataList, string language = "de")
+        public static bool GetAllLineDataBasicForFile(string fileName, string story, out List<LineData> LineDataList)
         {
             Application.UseWaitCursor = true;
-            string insertCommand = @"SELECT id, category 
+            string insertCommand = @"SELECT id, category, english 
                                      FROM translations 
-                                     WHERE filename = @filename AND story = @story AND language = @language
+                                     WHERE filename = @filename AND story = @story AND language IS NULL
                                      ORDER BY category ASC;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@filename", fileName);
             MainCommand.Parameters.AddWithValue("@story", story);
-            MainCommand.Parameters.AddWithValue("@language", language);
 
             MainReader = MainCommand.ExecuteReader();
             LineDataList = new List<LineData>();
@@ -511,7 +505,9 @@ namespace HousePartyTranslator
                             CleanId(MainReader.GetString("id"), story, fileName),
                             story,
                             fileName,
-                            (StringCategory)MainReader.GetInt32("category")));
+                            (StringCategory)MainReader.GetInt32("category"),
+                            MainReader.GetString("english"), 
+                            true));
                 }
             }
             else
