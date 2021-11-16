@@ -13,7 +13,7 @@ namespace HousePartyTranslator
         private static MySqlConnection sqlConnection = new MySqlConnection();
         private static MySqlCommand MainCommand;
         private static MySqlDataReader MainReader;
-        private static readonly string SoftwareVersion = "0.20";
+        private static string SoftwareVersion;
         private static string DBVersion;
 
         /// <summary>
@@ -26,17 +26,26 @@ namespace HousePartyTranslator
             bool isConnected = false;
             while (!isConnected)
             {
-                sqlConnection.ConnectionString = GetConnString();
-                sqlConnection.Open();
-                if (sqlConnection.State != System.Data.ConnectionState.Open)
+                string connString = GetConnString();
+                if (connString == "")
                 {
-                    //change password
-                    MessageBox.Show("Can't connect to DB, contact CamelCaseName (Lenny)");
-                    Application.Exit();
+                    //Pasword has to be set first time
+
                 }
                 else
                 {
-                    isConnected = true;
+                    sqlConnection.ConnectionString = connString;
+                    sqlConnection.Open();
+                    if (sqlConnection.State != System.Data.ConnectionState.Open)
+                    {
+                        //password may have to be changed
+                        MessageBox.Show("Can't connect to DB, contact CamelCaseName (Lenny)");
+                        Application.Exit();
+                    }
+                    else
+                    {
+                        isConnected = true;
+                    }
                 }
             }
             MainCommand = new MySqlCommand("", sqlConnection);
@@ -50,6 +59,28 @@ namespace HousePartyTranslator
             MainReader.Read();
             DBVersion = MainReader.GetString(0);
             MainReader.Close();
+
+            string fileVersion = ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "version")).GetValue();
+            if (fileVersion == "")
+            {
+                // get software version from db
+                SoftwareVersion = DBVersion;
+                ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "version")).UpdateValue(SoftwareVersion);
+                SettingsManager.main.UpdateSettings();
+            }
+            else if(float.Parse(DBVersion) > float.Parse(SoftwareVersion))
+            {
+                //update local software version from db
+                SoftwareVersion = DBVersion;
+                ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "version")).UpdateValue(SoftwareVersion);
+                SettingsManager.main.UpdateSettings();
+            }
+            else
+            {
+                //set version from settings
+                SoftwareVersion = fileVersion;
+            }
+
             //set global variable for later actions
             TranslationManager.main.IsUpToDate = DBVersion == SoftwareVersion;
             if (!TranslationManager.main.IsUpToDate)
