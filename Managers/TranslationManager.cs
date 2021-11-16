@@ -149,7 +149,7 @@ public class TranslationManager
             else
             {
                 TextBoxEditable.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine); ;
-                if (ProofreadDB.GetStringTemplate(TranslationData[currentIndex].ID, FileName, StoryName, out string templateString))
+                if (DataBaseManager.GetStringTemplate(TranslationData[currentIndex].ID, FileName, StoryName, out string templateString))
                 {
                     TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
                 }
@@ -176,8 +176,8 @@ public class TranslationManager
         if (currentIndex >= 0)
         {
             string ID = TranslationData[currentIndex].ID;
-            ProofreadDB.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, main.Language);
-            if (!ProofreadDB.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !CheckedListBoxLeft.GetItemChecked(currentIndex), main.Language))
+            DataBaseManager.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, main.Language);
+            if (!DataBaseManager.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !CheckedListBoxLeft.GetItemChecked(currentIndex), main.Language))
             {
                 MessageBox.Show("Could not set approved state of string " + ID);
             }
@@ -187,8 +187,40 @@ public class TranslationManager
     public void SaveFile(CheckedListBox CheckedListBoxLeft)
     {
         CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+        List<List<LineData>> CategorizedStrings = (from StringCategory category in Enum.GetValues(typeof(StringCategory))
+                                                   select new List<LineData>()).ToList();//add a list for every category, so we can then add the strings to these.
 
+        string OutFileString = "";
+        ;
+        DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
 
+        foreach (LineData item in IdsToExport)
+        {
+            LineData lineDataResult = TranslationData.Find(predicateLine => predicateLine.ID == item.ID);
+            if (lineDataResult != null)
+            {
+                //add translation to the list in the correct category if present
+                CategorizedStrings[(int)item.Category].Add(lineDataResult);
+            }
+            else
+            {
+                //add template to list if no translation is in the file
+                CategorizedStrings[(int)item.Category].Add(item);
+            }
+        }
+
+        foreach (List<LineData> lineDatas in CategorizedStrings)
+        {
+            //remove empty lists for empty categories
+            if (lineDatas.Count == 0)
+            {
+                CategorizedStrings.Remove(lineDatas);
+            }
+            else
+            {
+
+            }
+        }
 
         CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
@@ -338,7 +370,7 @@ public class TranslationManager
             );
 
         //clear db of all old strings
-        //if (ProofreadDB.ClearDBofAllStrings())
+        //if (DataBaseManager.ClearDBofAllStrings())
         //{
         //    Console.WriteLine("Cleared old strings");
         //}
@@ -346,7 +378,7 @@ public class TranslationManager
         //add all the new strings
         foreach (LineData lineD in TranslationData)
         {
-            ProofreadDB.SetStringTemplate(lineD.ID, lineD.FileName, lineD.Story, lineD.Category, lineD.EnglishString);
+            DataBaseManager.SetStringTemplate(lineD.ID, lineD.FileName, lineD.Story, lineD.Category, lineD.EnglishString);
         }
 
         DialogResult result = MessageBox.Show(
@@ -361,7 +393,7 @@ public class TranslationManager
         //update if successfull
         if (result == DialogResult.Yes)
         {
-            if (ProofreadDB.UpdateDBVersion())
+            if (DataBaseManager.UpdateDBVersion())
             {
                 IsUpToDate = true;
                 isTemplate = false;
@@ -475,7 +507,7 @@ public class TranslationManager
     private static void HandleTranslationApprovalLoading(CheckedListBox CheckedListBoxLeft)
     {
         bool lineIsApproved = false;
-        bool gotApprovedStates = ProofreadDB.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
+        bool gotApprovedStates = DataBaseManager.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
 
         foreach (LineData lineD in main.TranslationData)
         {
