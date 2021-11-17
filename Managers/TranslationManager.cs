@@ -231,7 +231,7 @@ public class TranslationManager
             CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
         }
 
-        StreamWriter OutputWriter = new StreamWriter(SourceFilePath + ".debug");
+        StreamWriter OutputWriter = new StreamWriter(SourceFilePath);
 
         DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
 
