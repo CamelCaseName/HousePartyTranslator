@@ -475,7 +475,7 @@ namespace HousePartyTranslator
             }
             else
             {
-                MessageBox.Show("Translations can't be loaded");
+                MessageBox.Show("Translations can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
             MainReader.Close();
 
@@ -523,7 +523,7 @@ namespace HousePartyTranslator
             }
             else
             {
-                MessageBox.Show("Approval states can't be loaded, or no string is approved so far.");
+                MessageBox.Show("Approval states can't be loaded, or no string is approved so far.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
             MainReader.Close();
 
@@ -572,7 +572,7 @@ namespace HousePartyTranslator
             }
             else
             {
-                MessageBox.Show("Ids can't be loaded");
+                MessageBox.Show("Ids can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
             MainReader.Close();
 

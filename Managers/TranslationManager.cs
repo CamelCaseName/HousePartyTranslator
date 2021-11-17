@@ -194,6 +194,7 @@ public class TranslationManager
 
     public void SaveFile(CheckedListBox CheckedListBoxLeft)
     {
+        System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
         CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
         List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
 
@@ -227,14 +228,21 @@ public class TranslationManager
 
         foreach (Tuple<List<LineData>, StringCategory> CategorizedLines in CategorizedStrings)
         {
-            //write category plus newline
-            if (CategorizedLines.Item1.Count == 0)
-            {
-                OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.Item2));
+            //write category 
+            OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.Item2));
+
+            //sort strings depending on category
+            if (CategorizedLines.Item2 == StringCategory.Dialogue)
+            {//hints have to be sortet a bit different because the numbers can contain a u
+                CategorizedLines.Item1.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
             }
-            else //write category with no newline
+            else if (CategorizedLines.Item2 == StringCategory.BGC)
             {
-                OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.Item2));
+
+            }
+            else if (CategorizedLines.Item2 == StringCategory.General)
+            {
+
             }
 
             //iterate through each and print them
