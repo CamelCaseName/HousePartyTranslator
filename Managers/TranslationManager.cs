@@ -15,6 +15,7 @@ public class TranslationManager
     public bool isTemplate = false;
     public bool AutoSave = true;
     private int LastIndex = -1;
+    private bool isSaveAs = false;
 
     public string Language
     {
@@ -48,7 +49,7 @@ public class TranslationManager
                 //TODO close opened file here
             }
             sourceFilePath = value;
-            FileName = Path.GetFileNameWithoutExtension(value);
+            if (!isSaveAs) FileName = Path.GetFileNameWithoutExtension(value);
         }
     }
     private string sourceFilePath = "";
@@ -222,75 +223,93 @@ public class TranslationManager
 
     public void SaveFile(CheckedListBox CheckedListBoxLeft)
     {
-        System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
-        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
-        List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
-
-        foreach (StringCategory category in CategoriesInFile)
-        {//add a list for every category we have in the file, so we can then add the strings to these.
-            CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
-        }
-
-        StreamWriter OutputWriter = new StreamWriter(SourceFilePath);
-
-        DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
-
-        foreach (LineData item in IdsToExport)
+        if (SourceFilePath != "")
         {
-            LineData lineDataResult = TranslationData.Find(predicateLine => predicateLine.ID == item.ID);
-            if (lineDataResult != null)
-            {
-                //add translation to the list in the correct category if present
-                int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-                CategorizedStrings[intCategory].Item1.Add(lineDataResult);
-            }
-            else// if id is not found
-            {
-                //add template to list if no translation is in the file
-                DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out string templateString);
-                item.TranslationString = templateString;
-                int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-                CategorizedStrings[intCategory].Item1.Add(item);
-            }
-        }
+            System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
+            CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+            List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
 
-        foreach (Tuple<List<LineData>, StringCategory> CategorizedLines in CategorizedStrings)
+            foreach (StringCategory category in CategoriesInFile)
+            {//add a list for every category we have in the file, so we can then add the strings to these.
+                CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
+            }
+
+            StreamWriter OutputWriter = new StreamWriter(SourceFilePath);
+
+            DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
+
+            foreach (LineData item in IdsToExport)
+            {
+                LineData lineDataResult = TranslationData.Find(predicateLine => predicateLine.ID == item.ID);
+                if (lineDataResult != null)
+                {
+                    //add translation to the list in the correct category if present
+                    int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
+                    CategorizedStrings[intCategory].Item1.Add(lineDataResult);
+                }
+                else// if id is not found
+                {
+                    //add template to list if no translation is in the file
+                    DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out string templateString);
+                    item.TranslationString = templateString;
+                    int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
+                    CategorizedStrings[intCategory].Item1.Add(item);
+                }
+            }
+
+            foreach (Tuple<List<LineData>, StringCategory> CategorizedLines in CategorizedStrings)
+            {
+                //write category 
+                OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.Item2));
+
+                //sort strings depending on category
+                if (CategorizedLines.Item2 == StringCategory.Dialogue)
+                {
+                    CategorizedLines.Item1.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
+                }
+                else if (CategorizedLines.Item2 == StringCategory.BGC)
+                {
+                    //sort using custom IComparer
+                    CategorizedLines.Item1.Sort(new BGCComparer());
+                }
+                else if (CategorizedLines.Item2 == StringCategory.General)
+                {
+                    //hints have to be sortet a bit different because the numbers can contain a u
+                    CategorizedLines.Item1.Sort(new GeneralComparer());
+                }
+                else if (CategorizedLines.Item2 == StringCategory.Quest || CategorizedLines.Item2 == StringCategory.Achievement)
+                {
+                    CategorizedLines.Item1.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
+                }
+
+                //iterate through each and print them
+                foreach (LineData line in CategorizedLines.Item1)
+                {
+                    OutputWriter.WriteLine(line.ToString());
+                }
+                //newline after each category
+                OutputWriter.WriteLine();
+            }
+
+            OutputWriter.Close();
+
+            CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+
+        }
+    }
+
+    public void SaveFileAs(CheckedListBox CheckedListBoxLeft)
+    {
+        if (SourceFilePath != "")
         {
-            //write category 
-            OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.Item2));
-
-            //sort strings depending on category
-            if (CategorizedLines.Item2 == StringCategory.Dialogue)
-            {
-                CategorizedLines.Item1.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
-            }
-            else if (CategorizedLines.Item2 == StringCategory.BGC)
-            {
-                //sort using custom IComparer
-                CategorizedLines.Item1.Sort(new BGCComparer());
-            }
-            else if (CategorizedLines.Item2 == StringCategory.General)
-            {
-                //hints have to be sortet a bit different because the numbers can contain a u
-                CategorizedLines.Item1.Sort(new GeneralComparer());
-            }
-            else if (CategorizedLines.Item2 == StringCategory.Quest || CategorizedLines.Item2 == StringCategory.Achievement)
-            {
-                CategorizedLines.Item1.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
-            }
-
-            //iterate through each and print them
-            foreach (LineData line in CategorizedLines.Item1)
-            {
-                OutputWriter.WriteLine(line.ToString());
-            }
-            //newline after each category
-            OutputWriter.WriteLine();
+            isSaveAs = true;
+            string oldFile = main.SourceFilePath;
+            string SaveFile = SaveFileOnSystem();
+            main.SourceFilePath = SaveFile;
+            main.SaveFile(CheckedListBoxLeft);
+            main.SourceFilePath = oldFile;
+            isSaveAs = false;
         }
-
-        OutputWriter.Close();
-
-        CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
     private void HandleStringReadingFromFile(CheckedListBox checkedListBoxleft)
@@ -302,7 +321,7 @@ public class TranslationManager
         }
         else //read in translations
         {
-            ReadStringsTranslationsFromFile(checkedListBoxleft);
+            ReadStringsTranslationsFromFile();
         }
     }
 
@@ -349,7 +368,7 @@ public class TranslationManager
         }
     }
 
-    private void ReadStringsTranslationsFromFile(CheckedListBox checkedListBoxLeft)
+    private void ReadStringsTranslationsFromFile()
     {
         StringCategory currentCategory = StringCategory.General;
         string multiLineCollector = "";
@@ -671,6 +690,27 @@ public class TranslationManager
         if (selectFolderDialog.ShowDialog() == DialogResult.OK)
         {
             return selectFolderDialog.SelectedPath;
+        }
+        return "";
+    }
+
+    public static string SaveFileOnSystem()
+    {
+        SaveFileDialog saveFileDialog = new SaveFileDialog
+        {
+            Title = "Choose a file to save the translations to",
+            AddExtension = true,
+            DefaultExt = "txt",
+            CheckPathExists = true,
+            CreatePrompt = true,
+            OverwritePrompt = true,
+            FileName = main.FileName,
+            InitialDirectory = main.SourceFilePath
+        };
+
+        if (saveFileDialog.ShowDialog() == DialogResult.OK)
+        {
+            return saveFileDialog.FileName;
         }
         return "";
     }

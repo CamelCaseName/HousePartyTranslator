@@ -38,7 +38,7 @@ namespace HousePartyTranslator
 
         private void SaveFileAsLeftClick(object sender, EventArgs e)
         {
-
+            TranslationManager.main.SaveFileAs(CheckListBoxLeft);
         }
 
         private void ProgressbarTranslated_Click(object sender, EventArgs e)
