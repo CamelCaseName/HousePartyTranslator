@@ -1,4 +1,5 @@
 ﻿using HousePartyTranslator;
+using HousePartyTranslator.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -233,16 +234,20 @@ public class TranslationManager
 
             //sort strings depending on category
             if (CategorizedLines.Item2 == StringCategory.Dialogue)
-            {//hints have to be sortet a bit different because the numbers can contain a u
+            {
                 CategorizedLines.Item1.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
             }
             else if (CategorizedLines.Item2 == StringCategory.BGC)
             {
-
+                CategorizedLines.Item1.Sort(new BGCComparer());
             }
             else if (CategorizedLines.Item2 == StringCategory.General)
+            {//hints have to be sortet a bit different because the numbers can contain a u
+                CategorizedLines.Item1.Sort(new GeneralComparer());
+            }
+            else if (CategorizedLines.Item2 == StringCategory.Quest || CategorizedLines.Item2 == StringCategory.Achievement)
             {
-
+                CategorizedLines.Item1.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
             }
 
             //iterate through each and print them
@@ -386,6 +391,9 @@ public class TranslationManager
                 if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
             }
         }
+
+        //set categories if file is a hint file
+        if (StoryName == "Hints") CategoriesInFile = new List<StringCategory>() { StringCategory.General };
 
         if (IdsToExport.Count != TranslationData.Count)
         {//inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
