@@ -45,7 +45,7 @@ public class TranslationManager
                 //TODO close opened file here
             }
             sourceFilePath = value;
-            LoadSourceFile(value);
+            FileName = Path.GetFileNameWithoutExtension(value);
         }
     }
     private string sourceFilePath = "";
@@ -94,12 +94,12 @@ public class TranslationManager
         }
     }
 
-    public void LoadFileIntoProgram(CheckedListBox CheckedListBoxLeft, Label SelectedFile)
+    public void LoadFileIntoProgram(CheckedListBox checkedListBoxLeft, Label SelectedFile)
     {
         TranslationData.Clear();
-        CheckedListBoxLeft.Items.Clear();
+        checkedListBoxLeft.Items.Clear();
 
-        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+        checkedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
         if (IsUpToDate)
         {
             SourceFilePath = SelectFileFromSystem();
@@ -109,12 +109,12 @@ public class TranslationManager
                 string[] paths = SourceFilePath.Split('\\');
                 //get parent folder name
                 StoryName = paths[paths.Length - 2];
-                ReadStringsFromFile();
+                HandleStringReadingFromFile(checkedListBoxLeft);
 
                 SelectedFile.Text = "File: " + FileName + ".txt";
 
                 //is up to date, so we can start translation
-                HandleTranslationLoading(CheckedListBoxLeft);
+                HandleTranslationLoading(checkedListBoxLeft);
             }
         }
         else
@@ -124,7 +124,7 @@ public class TranslationManager
             if (templateFolderName == "TEMPLATE")
             {
                 isTemplate = true;
-                HandleTemplateLoading(folderPath);
+                HandleTemplateLoading(folderPath, checkedListBoxLeft);
             }
             else
             {
@@ -137,7 +137,7 @@ public class TranslationManager
             }
         }
 
-        CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+        checkedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
     public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable)
@@ -212,14 +212,16 @@ public class TranslationManager
             if (lineDataResult != null)
             {
                 //add translation to the list in the correct category if present
-                CategorizedStrings[(int)item.Category].Item1.Add(lineDataResult);
+                int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
+                CategorizedStrings[intCategory].Item1.Add(lineDataResult);
             }
             else// if id is not found
             {
                 //add template to list if no translation is in the file
                 DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out string templateString);
                 item.TranslationString = templateString;
-                CategorizedStrings[(int)item.Category].Item1.Add(item);
+                int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
+                CategorizedStrings[intCategory].Item1.Add(item);
             }
         }
 
@@ -249,118 +251,156 @@ public class TranslationManager
         CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
-    private void ReadStringsFromFile()
+    private void HandleStringReadingFromFile(CheckedListBox checkedListBoxleft)
     {
         //read in all strings with IDs
-        StringCategory currentCategory = StringCategory.General;
-        if (isTemplate)
+        if (isTemplate)//read in templates
         {
-            string multiLineCollector = "";
-            string[] lastLine = { };
-            foreach (string line in File.ReadAllLines(SourceFilePath))
-            {
-                if (line.Contains('|'))
-                {
-                    //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
-
-                    //get current line
-                    lastLine = line.Split('|');
-
-                    //reset multiline collector
-                    multiLineCollector = "";
-                }
-                else
-                {
-                    StringCategory tempCategory = GetCategoryFromString(line);
-                    if (tempCategory == StringCategory.Neither)
-                    {
-                        //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
-                        multiLineCollector += "\n" + line;
-                    }
-                    else
-                    {
-                        //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
-
-                        multiLineCollector = "";
-                        currentCategory = tempCategory;
-                    }
-                }
-            }
-            //add last line (if it does not exist)
-            if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
-            {
-                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
-            }
+            ReadStringsTemplateFromFile();
         }
         else //read in translations
         {
-            string multiLineCollector = "";
-            string[] lastLine = { };
-            foreach (string line in File.ReadAllLines(SourceFilePath))
+            ReadStringsTranslationsFromFile(checkedListBoxleft);
+        }
+    }
+
+    private void ReadStringsTemplateFromFile()
+    {
+        StringCategory currentCategory = StringCategory.General;
+        string multiLineCollector = "";
+        string[] lastLine = { };
+        foreach (string line in File.ReadAllLines(SourceFilePath))
+        {
+            if (line.Contains('|'))
             {
-                if (line.Contains('|'))
+                //if we reach a new id, we can add the old string to the translation manager
+                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+
+                //get current line
+                lastLine = line.Split('|');
+
+                //reset multiline collector
+                multiLineCollector = "";
+            }
+            else
+            {
+                StringCategory tempCategory = GetCategoryFromString(line);
+                if (tempCategory == StringCategory.Neither)
                 {
-                    //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector));
-
-                    //get current line
-                    lastLine = line.Split('|');
-
-                    //reset multiline collector
-                    multiLineCollector = "";
+                    //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
+                    multiLineCollector += "\n" + line;
                 }
                 else
                 {
-                    StringCategory tempCategory = GetCategoryFromString(line);
-                    if (tempCategory == StringCategory.Neither)
-                    {
-                        //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
-                        multiLineCollector += "\n" + line;
-                    }
-                    else
-                    {
-                        //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0)
-                        {
-                            if (multiLineCollector.Length > 2)
-                            {//write last string with id polus all lines after taht minus the last new line char
-                                TranslationData.Add(
-                                  new LineData(
-                                      lastLine[0],
-                                      StoryName,
-                                      FileName,
-                                      currentCategory,
-                                      lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
-                            }
-                            else
-                            {//write last line with id if no real line of text is afterwards
-                                TranslationData.Add(
-                                  new LineData(
-                                      lastLine[0],
-                                      StoryName,
-                                      FileName,
-                                      currentCategory,
-                                      lastLine[1]));
-                            }
-                        }
-                        lastLine = new string[0];
-                        multiLineCollector = "";
-                        currentCategory = tempCategory;
-                        CategoriesInFile.Add(currentCategory);
-                    }
+                    //if we reach a category, we can add the old string to the translation manager
+                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+
+                    multiLineCollector = "";
+                    currentCategory = tempCategory;
                 }
             }
-            if (lastLine.Length > 0)
+        }
+        //add last line (if it does not exist)
+        if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
+        {
+            if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
+        }
+    }
+
+    private void ReadStringsTranslationsFromFile(CheckedListBox checkedListBoxLeft)
+    {
+        StringCategory currentCategory = StringCategory.General;
+        string multiLineCollector = "";
+        string[] lastLine = { };
+
+        DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
+
+        foreach (string line in File.ReadAllLines(SourceFilePath))
+        {
+            if (line.Contains('|'))
             {
-                //add last line (if it does not exist)
-                if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
+                //if we reach a new id, we can add the old string to the translation manager
+                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector));
+
+                //get current line
+                lastLine = line.Split('|');
+
+                //reset multiline collector
+                multiLineCollector = "";
+            }
+            else
+            {
+                StringCategory tempCategory = GetCategoryFromString(line);
+                if (tempCategory == StringCategory.Neither)
                 {
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
+                    //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
+                    multiLineCollector += "\n" + line;
+                }
+                else
+                {
+                    //if we reach a category, we can add the old string to the translation manager
+                    if (lastLine.Length != 0)
+                    {
+                        if (multiLineCollector.Length > 2)
+                        {//write last string with id plus all lines after that minus the last new line char
+                            TranslationData.Add(
+                              new LineData(
+                                  lastLine[0],
+                                  StoryName,
+                                  FileName,
+                                  currentCategory,
+                                  lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
+                        }
+                        else
+                        {//write last line with id if no real line of text is afterwards
+                            TranslationData.Add(
+                              new LineData(
+                                  lastLine[0],
+                                  StoryName,
+                                  FileName,
+                                  currentCategory,
+                                  lastLine[1]));
+                        }
+                    }
+                    lastLine = new string[0];
+                    multiLineCollector = "";
+                    currentCategory = tempCategory;
+                    CategoriesInFile.Add(currentCategory);
                 }
             }
-            // TranslationData.RemoveAt(1);
+        }
+
+        if (lastLine.Length > 0)
+        {
+            //add last line (if it does not exist)
+            if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
+            {
+                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
+            }
+        }
+
+        if (IdsToExport.Count != TranslationData.Count)
+        {//inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
+         //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
+            MessageBox.Show(
+                @"Some strings are missing from your translation, they will be added with the english version when you first save the file!",
+                "Some strings missing",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Asterisk);
+            /*DialogResult ReloadResult = MessageBox.Show(
+                @"Some strings are missing from your translation, they will be added with the english version when you first save the file!
+
+                If you select YES, the application will autosave the file and reload it automatically.
+                If you select NO, it will do nothing right now, but add them when you save manually.", 
+                "Some strings missing", 
+                MessageBoxButtons.YesNo, 
+                MessageBoxIcon.Asterisk);
+
+            if(ReloadResult == DialogResult.Yes)
+            {
+                SaveFile(checkedListBoxLeft);
+                ReadStringsTranslationsFromFile(checkedListBoxLeft);
+            }*/
         }
     }
 
@@ -382,39 +422,12 @@ public class TranslationManager
         CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
-    private void HandleTemplateLoading(string folderPath)
+    private void HandleTemplateLoading(string folderPath, CheckedListBox checkedListBoxLeft)
     {
         //upload all new strings
         try
         {
-            DirectoryInfo templateDir = new DirectoryInfo(folderPath);
-            if (templateDir != null)
-            {
-                DirectoryInfo[] storyDirs = templateDir.GetDirectories();
-                if (storyDirs != null)
-                {
-                    foreach (DirectoryInfo storyDir in storyDirs)
-                    {
-                        if (storyDir != null)
-                        {
-                            StoryName = storyDir.Name;
-                            FileInfo[] templateFiles = storyDir.GetFiles();
-                            if (templateFiles != null)
-                            {
-                                foreach (FileInfo templateFile in templateFiles)
-                                {
-                                    if (templateFile != null)
-                                    {
-                                        SourceFilePath = templateFile.FullName;
-                                        FileName = Path.GetFileNameWithoutExtension(SourceFilePath);
-                                        ReadStringsFromFile();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            IterativeReadFiles(folderPath, checkedListBoxLeft);
         }
         catch (UnauthorizedAccessException e)
         {
@@ -429,12 +442,6 @@ public class TranslationManager
             MessageBoxButtons.OK,
             MessageBoxIcon.Asterisk
             );
-
-        //clear db of all old strings
-        //if (DataBaseManager.ClearDBofAllStrings())
-        //{
-        //    Console.WriteLine("Cleared old strings");
-        //}
 
         //add all the new strings
         foreach (LineData lineD in TranslationData)
@@ -463,6 +470,38 @@ public class TranslationManager
         else if (result == DialogResult.Cancel)
         {
             Application.Exit();
+        }
+    }
+
+    private void IterativeReadFiles(string folderPath, CheckedListBox checkedListBoxLeft)
+    {
+        DirectoryInfo templateDir = new DirectoryInfo(folderPath);
+        if (templateDir != null)
+        {
+            DirectoryInfo[] storyDirs = templateDir.GetDirectories();
+            if (storyDirs != null)
+            {
+                foreach (DirectoryInfo storyDir in storyDirs)
+                {
+                    if (storyDir != null)
+                    {
+                        StoryName = storyDir.Name;
+                        FileInfo[] templateFiles = storyDir.GetFiles();
+                        if (templateFiles != null)
+                        {
+                            foreach (FileInfo templateFile in templateFiles)
+                            {
+                                if (templateFile != null)
+                                {
+                                    SourceFilePath = templateFile.FullName;
+                                    FileName = Path.GetFileNameWithoutExtension(SourceFilePath);
+                                    HandleStringReadingFromFile(checkedListBoxLeft);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -558,11 +597,6 @@ public class TranslationManager
                 break;
         }
         return returnedString;
-    }
-
-    private void LoadSourceFile(string path)
-    {
-        FileName = Path.GetFileNameWithoutExtension(path);
     }
 
     public static string SelectFileFromSystem()
