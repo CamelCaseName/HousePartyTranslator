@@ -13,6 +13,8 @@ public class TranslationManager
     public List<StringCategory> CategoriesInFile = new List<StringCategory>();
     public bool IsUpToDate = false;
     public bool isTemplate = false;
+    public bool AutoSave = true;
+    private int LastIndex = -1;
 
     public string Language
     {
@@ -144,6 +146,31 @@ public class TranslationManager
     public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable)
     {
         int currentIndex = CheckedListBoxLeft.SelectedIndex;
+        if (LastIndex < 0)
+        {
+            //sets index the first time/when we click elsewhere
+            LastIndex = currentIndex;
+        }
+        else
+        {
+            //if we changed the eselction and have autsave enabled
+            if (LastIndex != currentIndex && AutoSave)
+            {
+                TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
+
+                //update translation in the database
+                DataBaseManager.SetStringTranslation(
+                    TranslationData[LastIndex].ID,
+                    FileName,
+                    StoryName,
+                    TranslationData[LastIndex].Category,
+                    TranslationData[LastIndex].TranslationString,
+                    Language);
+                LastIndex = currentIndex;
+
+                TextBoxReadOnly.FindForm().Cursor = Cursors.Default;
+            }
+        }
         if (currentIndex >= 0)
         {
             if (isTemplate)
@@ -239,10 +266,12 @@ public class TranslationManager
             }
             else if (CategorizedLines.Item2 == StringCategory.BGC)
             {
+                //sort using custom IComparer
                 CategorizedLines.Item1.Sort(new BGCComparer());
             }
             else if (CategorizedLines.Item2 == StringCategory.General)
-            {//hints have to be sortet a bit different because the numbers can contain a u
+            {
+                //hints have to be sortet a bit different because the numbers can contain a u
                 CategorizedLines.Item1.Sort(new GeneralComparer());
             }
             else if (CategorizedLines.Item2 == StringCategory.Quest || CategorizedLines.Item2 == StringCategory.Achievement)

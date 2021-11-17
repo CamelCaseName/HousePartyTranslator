@@ -255,8 +255,8 @@ namespace HousePartyTranslator
         /// </returns>
         public static bool SetStringTranslation(string id, string fileName, string story, StringCategory category, string translation, string language = "de")
         {
-            string insertCommand = @"INSERT INTO translations (id, story, filename, category, translated, language, translation) 
-                                     VALUES(@id, @story, @filename, @category, @translated, @language, @translation)
+            string insertCommand = @"INSERT INTO translations (id, story, filename, category, translated, approved, language, translation) 
+                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @translation)
                                      ON DUPLICATE KEY UPDATE translation = @translation;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
@@ -265,6 +265,7 @@ namespace HousePartyTranslator
             MainCommand.Parameters.AddWithValue("@fileName", fileName);
             MainCommand.Parameters.AddWithValue("@category", (int)category);
             MainCommand.Parameters.AddWithValue("@translated", 1);
+            MainCommand.Parameters.AddWithValue("@approved", 0);
             MainCommand.Parameters.AddWithValue("@language", language);
             MainCommand.Parameters.AddWithValue("@translation", translation);
 
