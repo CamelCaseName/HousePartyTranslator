@@ -288,6 +288,7 @@ namespace HousePartyTranslator
             string insertCommand = @"SELECT translation 
                                      FROM translations 
                                      WHERE id = @id AND language = @language;";
+            bool wasSuccessfull = false;
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
@@ -298,14 +299,15 @@ namespace HousePartyTranslator
 
             if (MainReader.HasRows)
             {
-                translation = MainReader.GetString(0);
+                translation = MainReader.GetString("translation");
+                wasSuccessfull = true;
             }
             else
             {
                 translation = "**Translation can't be loaded**";
             }
             MainReader.Close();
-            return translation != "";
+            return wasSuccessfull;
         }
 
         /// <summary>

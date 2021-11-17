@@ -102,6 +102,7 @@ public class TranslationManager
     {
         TranslationData.Clear();
         checkedListBoxLeft.Items.Clear();
+        CategoriesInFile.Clear();
 
         checkedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
         if (IsUpToDate)
@@ -180,9 +181,17 @@ public class TranslationManager
             }
             else
             {
+                //read latest version from the database
+                if (DataBaseManager.GetStringTranslation(TranslationData[currentIndex].ID, FileName, StoryName, out string translation, Language))
+                {
+                    //replace older one in file by new one from database
+                    TranslationData[currentIndex].TranslationString = translation;
+                }
+                //display the string in the editable window
                 TextBoxEditable.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine); ;
                 if (DataBaseManager.GetStringTemplate(TranslationData[currentIndex].ID, FileName, StoryName, out string templateString))
                 {
+                    //read the template form the db and display it if it exists
                     TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
                 }
             }
@@ -210,6 +219,7 @@ public class TranslationManager
             CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }
     }
+
     public void SetLanguage(ComboBox LanguageBox)
     {
         if (LanguageBox.SelectedIndex > -1)
@@ -491,14 +501,17 @@ public class TranslationManager
 
     private void HandleTranslationLoading(CheckedListBox CheckedListBoxLeft)
     {
-        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor; bool lineIsApproved = false;
+        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+
+        bool lineIsApproved = false;
         bool gotApprovedStates = DataBaseManager.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
 
         foreach (LineData lineD in main.TranslationData)
         {
             if (gotApprovedStates)
             {
-                lineIsApproved = internalLines.Exists(predicateLine => predicateLine.ID == lineD.ID);
+                LineData tempLine = internalLines.Find(predicateLine => predicateLine.ID == lineD.ID);
+                if (tempLine != null) lineIsApproved = tempLine.IsApproved;
             }
 
             CheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
