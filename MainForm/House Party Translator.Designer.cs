@@ -40,6 +40,7 @@ namespace HousePartyTranslator
             this.MainContainer = new System.Windows.Forms.SplitContainer();
             this.LanguageBox = new System.Windows.Forms.ComboBox();
             this.EnglishTextBox = new System.Windows.Forms.TextBox();
+            this.SaveCurrentString = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -150,6 +151,7 @@ namespace HousePartyTranslator
             // MainContainer.Panel1
             // 
             this.MainContainer.Panel1.BackColor = System.Drawing.SystemColors.Desktop;
+            this.MainContainer.Panel1.Controls.Add(this.SaveCurrentString);
             this.MainContainer.Panel1.Controls.Add(this.LanguageBox);
             this.MainContainer.Panel1.Controls.Add(this.CheckListBoxLeft);
             this.MainContainer.Panel1.Controls.Add(this.SaveFileAs);
@@ -211,6 +213,17 @@ namespace HousePartyTranslator
             this.EnglishTextBox.TabIndex = 9;
             this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
+            // button1
+            // 
+            this.SaveCurrentString.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.SaveCurrentString.Location = new System.Drawing.Point(486, 13);
+            this.SaveCurrentString.Name = "button1";
+            this.SaveCurrentString.Size = new System.Drawing.Size(96, 23);
+            this.SaveCurrentString.TabIndex = 12;
+            this.SaveCurrentString.Text = "Save this string";
+            this.SaveCurrentString.UseVisualStyleBackColor = true;
+            this.SaveCurrentString.Click += new System.EventHandler(this.SaveCurrentString_Click);
+            // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -243,6 +256,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.SplitContainer MainContainer;
         private System.Windows.Forms.TextBox EnglishTextBox;
         private System.Windows.Forms.ComboBox LanguageBox;
+        private System.Windows.Forms.Button SaveCurrentString;
     }
 }
 

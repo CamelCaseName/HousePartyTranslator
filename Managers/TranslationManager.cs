@@ -189,6 +189,27 @@ public class TranslationManager
         }
     }
 
+    public void SaveCurrentString(CheckedListBox CheckedListBoxLeft)
+    {
+        int currentIndex = CheckedListBoxLeft.SelectedIndex;
+
+        //if we changed the eselction and have autsave enabled
+        if (currentIndex >= 0)
+        {
+            CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+
+            //update translation in the database
+            DataBaseManager.SetStringTranslation(
+                TranslationData[LastIndex].ID,
+                FileName,
+                StoryName,
+                TranslationData[LastIndex].Category,
+                TranslationData[LastIndex].TranslationString,
+                Language);
+
+            CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+        }
+    }
     public void SetLanguage(ComboBox LanguageBox)
     {
         if (LanguageBox.SelectedIndex > -1)

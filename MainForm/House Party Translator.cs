@@ -14,6 +14,14 @@ namespace HousePartyTranslator
             TranslationManager.main.SetLanguage(LanguageBox);
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
+            //save last string edited
+            //AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
+        }
+
+        //doesnt really work because the form is already gone when this is called :(
+        private void OnProcessExit(object sender, EventArgs e)
+        {
+            CheckListBoxLeft.SelectedIndex = 0;
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -59,6 +67,11 @@ namespace HousePartyTranslator
         private void LanguageBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             TranslationManager.main.SetLanguage(LanguageBox);
+        }
+
+        private void SaveCurrentString_Click(object sender, EventArgs e)
+        {
+            TranslationManager.main.SaveCurrentString(CheckListBoxLeft);
         }
     }
 }
