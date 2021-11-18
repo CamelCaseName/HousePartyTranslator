@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -15,6 +12,7 @@ namespace HousePartyTranslator
         [STAThread]
         static void Main()
         {
+            TranslationManager tManager = new TranslationManager();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Fenster());
