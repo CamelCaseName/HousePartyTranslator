@@ -4,6 +4,9 @@ using System.IO;
 
 namespace HousePartyTranslator
 {
+    /// <summary>
+    /// A class to create, load and manage settings in a file in the appdata folder.
+    /// </summary>
     class SettingsManager
     {
         private static readonly string APPDATA_PATH = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); // AppData Local folder (different for every user)
@@ -13,6 +16,9 @@ namespace HousePartyTranslator
         public static SettingsManager main = new SettingsManager();
         public List<Setting> Settings = new List<Setting>();
 
+        /// <summary>
+        /// The constructor for a semi static instance
+        /// </summary>
         public SettingsManager()
         {
             if (main != null)
@@ -22,11 +28,14 @@ namespace HousePartyTranslator
             main = this;
         }
 
+        /// <summary>
+        /// Call this method to initialize the settings and begin loading them. Will create the file if missing.
+        /// </summary>
         public static void LoadSettings()
         {
             // Does the Settings folder not exist?
             if (!Directory.Exists(CFGFOLDER_PATH))
-                Directory.CreateDirectory(CFGFOLDER_PATH); // Create the Settings File Exmaple folder
+                Directory.CreateDirectory(CFGFOLDER_PATH); // Create the Settings folder
 
             // Does Settings.txt not exist?
             if (!File.Exists(CFGFILE_PATH))
@@ -35,6 +44,9 @@ namespace HousePartyTranslator
             ReadSettings();
         }
 
+        /// <summary>
+        /// Creates the settings file and populates it with all settings we need
+        /// </summary>
         private static void CreateSettings()
         {
             StreamWriter settingsWriter = File.CreateText(CFGFILE_PATH);
@@ -52,12 +64,16 @@ namespace HousePartyTranslator
 
             settingsWriter.Close();
         }
+
+        /// <summary>
+        /// Reads in the settings from the settings file and populate the list of settings with the correct objects
+        /// </summary>
         private static void ReadSettings()
         {
             StreamReader settingsReader = File.OpenText(CFGFILE_PATH);
             string settingLine;                     // String that holds the text read from Settings file
             string[] splitSettingArray; // String array that holds the split settingLine string
-            List<string[]> splitSettingArrayList = new List<string[]>(); // List that holds all the cfgSettingArr objects
+            List<string[]> splitSettingArrayList = new List<string[]>(); // List that holds all the strings
 
             // Read the Settings file until the end of the file
             for (int index = 0; !settingsReader.EndOfStream; index++)
@@ -67,10 +83,10 @@ namespace HousePartyTranslator
                 // Does the line contain text?
                 if (!string.IsNullOrWhiteSpace(settingLine))
                 {
-                    // Split the read text into cfgSettingArr
+                    // Split the read text into the setting string array
                     splitSettingArray = settingLine.Split(new char[] { CFG_STR_DELIM }, StringSplitOptions.None);
 
-                    // Add to the cfgList
+                    // Add to the list
                     splitSettingArrayList.Add(splitSettingArray);
                 }
             }
@@ -78,6 +94,7 @@ namespace HousePartyTranslator
             // Read all the settings in the cfgList
             foreach (string[] settingStringArray in splitSettingArrayList)
             {
+                //try and find the corresponding type of setting.
                 if (bool.TryParse(settingStringArray[1], out bool outputBool))
                 {
                     main.Settings.Add(new BooleanSetting(settingStringArray[0], outputBool));
@@ -98,10 +115,14 @@ namespace HousePartyTranslator
             settingsReader.Close();
         }
 
+        /// <summary>
+        /// Updates the settings to the file on disk. AKA saving the settings.
+        /// </summary>
         public void UpdateSettings()
         {
             StreamWriter cfgUpdater = new StreamWriter(CFGFILE_PATH);
 
+            //write all settings as strings to file
             foreach (var setting in main.Settings)
                 cfgUpdater.WriteLine(setting.ToString());
 
