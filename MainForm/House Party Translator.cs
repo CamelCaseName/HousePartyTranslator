@@ -56,7 +56,7 @@ namespace HousePartyTranslator
 
         private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox);
+            TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox, CommentTextBox);
         }
 
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
@@ -72,6 +72,11 @@ namespace HousePartyTranslator
         private void SaveCurrentString_Click(object sender, EventArgs e)
         {
             TranslationManager.main.SaveCurrentString(CheckListBoxLeft);
+        }
+
+        private void SaveCommentsButton_Click(object sender, EventArgs e)
+        {
+            TranslationManager.main.SaveCurrentComment(CheckListBoxLeft, CommentTextBox);
         }
     }
 }

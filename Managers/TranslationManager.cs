@@ -114,7 +114,7 @@ public class TranslationManager
                 string[] paths = SourceFilePath.Split('\\');
                 //get parent folder name
                 StoryName = paths[paths.Length - 2];
-                HandleStringReadingFromFile(checkedListBoxLeft);
+                HandleStringReadingFromFile();
 
                 SelectedFile.Text = "File: " + FileName + ".txt";
 
@@ -129,7 +129,7 @@ public class TranslationManager
             if (templateFolderName == "TEMPLATE")
             {
                 isTemplate = true;
-                HandleTemplateLoading(folderPath, checkedListBoxLeft);
+                HandleTemplateLoading(folderPath);
             }
             else
             {
@@ -145,8 +145,9 @@ public class TranslationManager
         checkedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
-    public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable)
+    public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox)
     {
+        TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
         int currentIndex = CheckedListBoxLeft.SelectedIndex;
         if (LastIndex < 0)
         {
@@ -158,7 +159,6 @@ public class TranslationManager
             //if we changed the eselction and have autsave enabled
             if (LastIndex != currentIndex && AutoSave)
             {
-                TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
 
                 //update translation in the database
                 DataBaseManager.SetStringTranslation(
@@ -168,11 +168,23 @@ public class TranslationManager
                     TranslationData[LastIndex].Category,
                     TranslationData[LastIndex].TranslationString,
                     Language);
+
+                //upload comment on change
+                DataBaseManager.SetTranslationComments(
+                    TranslationData[LastIndex].ID,
+                    FileName,
+                    StoryName,
+                    CommentBox.Lines,
+                    Language
+                    );
+
                 LastIndex = currentIndex;
 
-                TextBoxReadOnly.FindForm().Cursor = Cursors.Default;
+                //clear comment after save
+                CommentBox.Lines = new string[0];
             }
         }
+
         if (currentIndex >= 0)
         {
             if (isTemplate)
@@ -181,21 +193,27 @@ public class TranslationManager
             }
             else
             {
+                string id = TranslationData[currentIndex].ID;
                 //read latest version from the database
-                if (DataBaseManager.GetStringTranslation(TranslationData[currentIndex].ID, FileName, StoryName, out string translation, Language))
+                if (DataBaseManager.GetStringTranslation(id, FileName, StoryName, out string translation, Language))
                 {
                     //replace older one in file by new one from database
                     TranslationData[currentIndex].TranslationString = translation;
                 }
                 //display the string in the editable window
                 TextBoxEditable.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine); ;
-                if (DataBaseManager.GetStringTemplate(TranslationData[currentIndex].ID, FileName, StoryName, out string templateString))
+                if (DataBaseManager.GetStringTemplate(id, FileName, StoryName, out string templateString))
                 {
                     //read the template form the db and display it if it exists
                     TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
                 }
+                if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
+                {
+                    CommentBox.Lines = comments;
+                }
             }
         }
+        TextBoxReadOnly.FindForm().Cursor = Cursors.Default;
     }
 
     public void SaveCurrentString(CheckedListBox CheckedListBoxLeft)
@@ -215,6 +233,28 @@ public class TranslationManager
                 TranslationData[LastIndex].Category,
                 TranslationData[LastIndex].TranslationString,
                 Language);
+
+            CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+        }
+    }
+
+    public void SaveCurrentComment(CheckedListBox CheckedListBoxLeft, TextBox CommentBox)
+    {
+        int currentIndex = CheckedListBoxLeft.SelectedIndex;
+
+        //if we changed the eselction and have autsave enabled
+        if (currentIndex >= 0)
+        {
+            CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+
+            //upload comment
+            DataBaseManager.SetTranslationComments(
+                TranslationData[currentIndex].ID,
+                FileName,
+                StoryName,
+                CommentBox.Lines,
+                Language
+                );
 
             CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }
@@ -343,7 +383,7 @@ public class TranslationManager
         }
     }
 
-    private void HandleStringReadingFromFile(CheckedListBox checkedListBoxleft)
+    private void HandleStringReadingFromFile()
     {
         //read in all strings with IDs
         if (isTemplate)//read in templates
@@ -520,12 +560,12 @@ public class TranslationManager
         CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
-    private void HandleTemplateLoading(string folderPath, CheckedListBox checkedListBoxLeft)
+    private void HandleTemplateLoading(string folderPath)
     {
         //upload all new strings
         try
         {
-            IterativeReadFiles(folderPath, checkedListBoxLeft);
+            IterativeReadFiles(folderPath);
         }
         catch (UnauthorizedAccessException e)
         {
@@ -571,7 +611,7 @@ public class TranslationManager
         }
     }
 
-    private void IterativeReadFiles(string folderPath, CheckedListBox checkedListBoxLeft)
+    private void IterativeReadFiles(string folderPath)
     {
         DirectoryInfo templateDir = new DirectoryInfo(folderPath);
         if (templateDir != null)
@@ -593,7 +633,7 @@ public class TranslationManager
                                 {
                                     SourceFilePath = templateFile.FullName;
                                     FileName = Path.GetFileNameWithoutExtension(SourceFilePath);
-                                    HandleStringReadingFromFile(checkedListBoxLeft);
+                                    HandleStringReadingFromFile();
                                 }
                             }
                         }

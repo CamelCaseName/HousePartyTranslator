@@ -297,7 +297,7 @@ namespace HousePartyTranslator
             MainReader = MainCommand.ExecuteReader();
             MainReader.Read();
 
-            if (MainReader.HasRows)
+            if (MainReader.HasRows && !MainReader.IsDBNull(0))
             {
                 translation = MainReader.GetString("translation");
                 wasSuccessfull = true;
@@ -357,22 +357,31 @@ namespace HousePartyTranslator
             string internalComment = "";
             foreach (string scomment in comments)
             {
-                internalComment += (scomment + "#");
+                internalComment += scomment + "#";
             }
-            //remove last #
-            internalComment.Remove(internalComment.Length - 1, 1);
 
-            string insertCommand = @"INSERT INTO translations (id, language, comment) 
-                                     VALUES(@id, @language, @comment);
-                                     ON DUPLICATE KEY UPDATE comment = @comment;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
-            MainCommand.Parameters.AddWithValue("@language", language);
-            MainCommand.Parameters.AddWithValue("@comment", internalComment);
+            if (internalComment.Length > 0)
+            {
+                //remove last #
+                internalComment = internalComment.Remove(internalComment.Length - 1, 1);
+                internalComment = internalComment.Replace(Environment.NewLine, "");
 
-            //return if at least ione row was changed
-            return MainCommand.ExecuteNonQuery() > 0;
+                string insertCommand = @"INSERT INTO translations (id, language, comment) 
+                                        VALUES(@id, @language, @comment)
+                                        ON DUPLICATE KEY UPDATE comment = @comment;";
+                MainCommand.CommandText = insertCommand;
+                MainCommand.Parameters.Clear();
+                MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+                MainCommand.Parameters.AddWithValue("@language", language);
+                MainCommand.Parameters.AddWithValue("@comment", internalComment);
+
+                //return if at least ione row was changed
+                return MainCommand.ExecuteNonQuery() > 0;
+            }
+            else
+            {
+                return false;
+            }
 
         }
 
@@ -400,13 +409,13 @@ namespace HousePartyTranslator
             MainReader = MainCommand.ExecuteReader();
             MainReader.Read();
 
-            if (MainReader.HasRows)
+            if (MainReader.HasRows && !MainReader.IsDBNull(0))
             {
-                comments = MainReader.GetString(0);
+                comments = MainReader.GetString("comment");
             }
             else
             {
-                comments = "**Comments can't be loaded**";
+                comments = "";
             }
             MainReader.Close();
             return comments != "";
