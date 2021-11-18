@@ -364,24 +364,22 @@ namespace HousePartyTranslator
             {
                 //remove last #
                 internalComment = internalComment.Remove(internalComment.Length - 1, 1);
-                internalComment = internalComment.Replace(Environment.NewLine, "");
+            }
 
-                string insertCommand = @"INSERT INTO translations (id, language, comment) 
+            internalComment = internalComment.Replace(Environment.NewLine, "");
+
+            string insertCommand = @"INSERT INTO translations (id, language, comment) 
                                         VALUES(@id, @language, @comment)
                                         ON DUPLICATE KEY UPDATE comment = @comment;";
-                MainCommand.CommandText = insertCommand;
-                MainCommand.Parameters.Clear();
-                MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
-                MainCommand.Parameters.AddWithValue("@language", language);
-                MainCommand.Parameters.AddWithValue("@comment", internalComment);
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+            MainCommand.Parameters.AddWithValue("@language", language);
+            MainCommand.Parameters.AddWithValue("@comment", internalComment);
 
-                //return if at least ione row was changed
-                return MainCommand.ExecuteNonQuery() > 0;
-            }
-            else
-            {
-                return false;
-            }
+            //return if at least ione row was changed
+            return MainCommand.ExecuteNonQuery() > 0;
+
 
         }
 
