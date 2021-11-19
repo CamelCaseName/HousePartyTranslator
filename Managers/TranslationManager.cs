@@ -103,6 +103,7 @@ public class TranslationManager
         TranslationData.Clear();
         checkedListBoxLeft.Items.Clear();
         CategoriesInFile.Clear();
+        LastIndex = -1;
 
         checkedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
         if (IsUpToDate)
