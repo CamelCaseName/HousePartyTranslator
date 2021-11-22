@@ -157,6 +157,11 @@
         {
             return (float)base.GetValue();
         }
+
+        public override string ToString()
+        {
+            return GetKey() + SettingsManager.CFG_STR_DELIM + ((float)base.GetValue()).ToString("0.00",System.Globalization.NumberFormatInfo.InvariantInfo);
+        }
     }
 
     /// <summary>

@@ -12,7 +12,7 @@ namespace HousePartyTranslator
         [STAThread]
         static void Main()
         {
-            TranslationManager tManager = new TranslationManager();
+            _ = new TranslationManager();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Fenster());

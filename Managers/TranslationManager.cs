@@ -30,7 +30,7 @@ public class TranslationManager
         set
         {
             language = value;
-            ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "language")).UpdateValue(language);
+            ((StringSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "language")).UpdateValue(language);
             SettingsManager.main.UpdateSettings();
         }
     }
@@ -267,9 +267,9 @@ public class TranslationManager
         {
             Language = LanguageBox.GetItemText(LanguageBox.SelectedItem);
         }
-        else if (SettingsManager.main.Settings.Exists(predicateSetting => predicateSetting.GetKey() == "language"))
+        else if (SettingsManager.main.Settings.Exists(pS => pS.GetKey() == "language"))
         {
-            string languageFromFile = ((StringSetting)SettingsManager.main.Settings.Find(predicateSetting => predicateSetting.GetKey() == "language")).GetValue();
+            string languageFromFile = ((StringSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "language")).GetValue();
             if (languageFromFile != "")
             {
                 Language = languageFromFile;
