@@ -52,7 +52,7 @@ namespace HousePartyTranslator
             StreamWriter settingsWriter = File.CreateText(CFGFILE_PATH);
 
             List<Setting> defaultSettings = new List<Setting>() {
-                new StringSetting("version", ""),
+                new StringSetting("version", "0.0"),
                 new StringSetting("dbPassword", ""),
                 new StringSetting("language", ""),
                 new BooleanSetting("NewTemplatesNeeded", false)};
@@ -99,7 +99,7 @@ namespace HousePartyTranslator
                 {
                     main.Settings.Add(new BooleanSetting(settingStringArray[0], outputBool));
                 }
-                else if (float.TryParse(settingStringArray[1], out float outputFloat))
+                else if (float.TryParse(settingStringArray[1], System.Globalization.NumberStyles.AllowDecimalPoint, System.Globalization.NumberFormatInfo.InvariantInfo, out float outputFloat))
                 {
                     main.Settings.Add(new FloatSetting(settingStringArray[0], outputFloat));
                 }
