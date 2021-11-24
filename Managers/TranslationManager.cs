@@ -89,12 +89,13 @@ public class TranslationManager
         main = this;
     }
 
-    public void UpdateTranslationString(TextBox EditorTextBox, CheckedListBox CheckedListBoxLeft)
+    public void UpdateTranslationString(TextBox EditorTextBox, TextBox TemplateTextBox, CheckedListBox CheckedListBoxLeft, Label CharacterCountLabel)
     {
         int internalIndex = CheckedListBoxLeft.SelectedIndex;
         if (internalIndex >= 0)
         {
             TranslationData[internalIndex].TranslationString = EditorTextBox.Text.Replace(Environment.NewLine, "\n");
+            CharacterCountLabel.Text = $"Template: {TemplateTextBox.Text.Count()} | Translation: {EditorTextBox.Text.Count()}";
         }
     }
 
@@ -146,7 +147,7 @@ public class TranslationManager
         checkedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
-    public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox)
+    public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel)
     {
         TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
         int currentIndex = CheckedListBoxLeft.SelectedIndex;
@@ -212,6 +213,8 @@ public class TranslationManager
                 {
                     CommentBox.Lines = comments;
                 }
+
+                CharacterCountLabel.Text = $"Template: {TextBoxReadOnly.Text.Count()} | Translation: {TextBoxEditable.Text.Count()}";
             }
         }
         TextBoxReadOnly.FindForm().Cursor = Cursors.Default;

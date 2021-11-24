@@ -39,11 +39,12 @@ namespace HousePartyTranslator
             this.SaveFileAs = new System.Windows.Forms.Button();
             this.MainContainer = new System.Windows.Forms.SplitContainer();
             this.LanguageBox = new System.Windows.Forms.ComboBox();
+            this.CharacterCountLabel = new System.Windows.Forms.Label();
+            this.SaveCommentsButton = new System.Windows.Forms.Button();
             this.CommentLabel = new System.Windows.Forms.Label();
             this.CommentTextBox = new System.Windows.Forms.TextBox();
             this.SaveCurrentString = new System.Windows.Forms.Button();
             this.EnglishTextBox = new System.Windows.Forms.TextBox();
-            this.SaveCommentsButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -82,9 +83,9 @@ namespace HousePartyTranslator
             // 
             this.ProgressbarTranslated.Cursor = System.Windows.Forms.Cursors.Default;
             this.ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.Window;
-            this.ProgressbarTranslated.Location = new System.Drawing.Point(108, 13);
+            this.ProgressbarTranslated.Location = new System.Drawing.Point(282, 13);
             this.ProgressbarTranslated.Name = "ProgressbarTranslated";
-            this.ProgressbarTranslated.Size = new System.Drawing.Size(601, 23);
+            this.ProgressbarTranslated.Size = new System.Drawing.Size(427, 23);
             this.ProgressbarTranslated.TabIndex = 8;
             this.ProgressbarTranslated.Value = 50;
             this.ProgressbarTranslated.Visible = false;
@@ -95,7 +96,7 @@ namespace HousePartyTranslator
             this.WordsTranslated.AutoSize = true;
             this.WordsTranslated.BackColor = System.Drawing.Color.Transparent;
             this.WordsTranslated.ForeColor = System.Drawing.SystemColors.Control;
-            this.WordsTranslated.Location = new System.Drawing.Point(542, 16);
+            this.WordsTranslated.Location = new System.Drawing.Point(516, 17);
             this.WordsTranslated.Name = "WordsTranslated";
             this.WordsTranslated.Size = new System.Drawing.Size(78, 13);
             this.WordsTranslated.TabIndex = 7;
@@ -168,6 +169,7 @@ namespace HousePartyTranslator
             // MainContainer.Panel2
             // 
             this.MainContainer.Panel2.BackColor = System.Drawing.SystemColors.Desktop;
+            this.MainContainer.Panel2.Controls.Add(this.CharacterCountLabel);
             this.MainContainer.Panel2.Controls.Add(this.SaveCommentsButton);
             this.MainContainer.Panel2.Controls.Add(this.CommentLabel);
             this.MainContainer.Panel2.Controls.Add(this.CommentTextBox);
@@ -207,6 +209,26 @@ namespace HousePartyTranslator
             this.LanguageBox.TabIndex = 11;
             this.LanguageBox.SelectedIndexChanged += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
             this.LanguageBox.SelectionChangeCommitted += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
+            // 
+            // CharacterCountLabel
+            // 
+            this.CharacterCountLabel.AutoSize = true;
+            this.CharacterCountLabel.ForeColor = System.Drawing.SystemColors.Window;
+            this.CharacterCountLabel.Location = new System.Drawing.Point(108, 17);
+            this.CharacterCountLabel.Name = "CharacterCountLabel";
+            this.CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
+            this.CharacterCountLabel.TabIndex = 16;
+            this.CharacterCountLabel.Text = "Template: xx | Translation: xx";
+            // 
+            // SaveCommentsButton
+            // 
+            this.SaveCommentsButton.Location = new System.Drawing.Point(81, 557);
+            this.SaveCommentsButton.Name = "SaveCommentsButton";
+            this.SaveCommentsButton.Size = new System.Drawing.Size(93, 22);
+            this.SaveCommentsButton.TabIndex = 15;
+            this.SaveCommentsButton.Text = "Save comments";
+            this.SaveCommentsButton.UseVisualStyleBackColor = true;
+            this.SaveCommentsButton.Click += new System.EventHandler(this.SaveCommentsButton_Click);
             // 
             // CommentLabel
             // 
@@ -254,16 +276,6 @@ namespace HousePartyTranslator
             this.EnglishTextBox.TabIndex = 9;
             this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
-            // SaveCommentsButton
-            // 
-            this.SaveCommentsButton.Location = new System.Drawing.Point(81, 557);
-            this.SaveCommentsButton.Name = "SaveCommentsButton";
-            this.SaveCommentsButton.Size = new System.Drawing.Size(93, 22);
-            this.SaveCommentsButton.TabIndex = 15;
-            this.SaveCommentsButton.Text = "Save comments";
-            this.SaveCommentsButton.UseVisualStyleBackColor = true;
-            this.SaveCommentsButton.Click += new System.EventHandler(this.SaveCommentsButton_Click);
-            // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -301,6 +313,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.Label CommentLabel;
         private System.Windows.Forms.TextBox CommentTextBox;
         private System.Windows.Forms.Button SaveCommentsButton;
+        private System.Windows.Forms.Label CharacterCountLabel;
     }
 }
 

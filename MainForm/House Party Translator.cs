@@ -30,7 +30,7 @@ namespace HousePartyTranslator
 
         private void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
-            TranslationManager.main.UpdateTranslationString(TranslatedTextBox, CheckListBoxLeft);
+            TranslationManager.main.UpdateTranslationString(TranslatedTextBox, EnglishTextBox, CheckListBoxLeft, CharacterCountLabel);
         }
 
         private void SelectFileLeftClick(object sender, EventArgs e)
@@ -56,7 +56,7 @@ namespace HousePartyTranslator
 
         private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox, CommentTextBox);
+            TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox, CommentTextBox, CharacterCountLabel);
         }
 
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
