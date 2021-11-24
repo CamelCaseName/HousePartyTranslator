@@ -290,6 +290,10 @@ public class TranslationManager
             {
                 MessageBox.Show("Could not set approved state of string " + ID);
             }
+            if (!CheckedListBoxLeft.GetItemChecked(currentIndex))
+            {
+                if (currentIndex < CheckedListBoxLeft.Items.Count - 1) CheckedListBoxLeft.SelectedIndex = currentIndex + 1;
+            }
         }
     }
 
