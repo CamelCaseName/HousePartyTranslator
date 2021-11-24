@@ -20,7 +20,7 @@ namespace HousePartyTranslator.Helpers
                     e.Index,
                     e.State,
                     e.ForeColor,
-                    CheckedIndices.Contains(e.Index) ? Color.DarkGreen : Color.DarkRed
+                    CheckedIndices.Contains(e.Index) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
                 );
 
             base.OnDrawItem(e2);
