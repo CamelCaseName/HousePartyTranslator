@@ -147,7 +147,7 @@ public class TranslationManager
         checkedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
-    public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel)
+    public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel, Label ApprovedStringLabel)
     {
         TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
         int currentIndex = CheckedListBoxLeft.SelectedIndex;
@@ -215,26 +215,10 @@ public class TranslationManager
                 }
 
                 UpdateCharacterCountLabel(TextBoxReadOnly.Text.Count(), TextBoxEditable.Text.Count(), CharacterCountLabel);
+                UpdateApprovedCountLabel(CheckedListBoxLeft.CheckedIndices.Count, CheckedListBoxLeft.Items.Count, ApprovedStringLabel);
             }
         }
         TextBoxReadOnly.FindForm().Cursor = Cursors.Default;
-    }
-
-    private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount, Label CharacterCountLabel)
-    {
-        if (TemplateCount >= TranslationCount)
-        {
-            CharacterCountLabel.ForeColor = System.Drawing.Color.LawnGreen;
-        }//if bigger by no more than 15 percent
-        else if ((TranslationCount - TemplateCount) < (TemplateCount / 15))
-        {
-            CharacterCountLabel.ForeColor = System.Drawing.Color.DarkOrange;
-        }
-        else
-        {
-            CharacterCountLabel.ForeColor = System.Drawing.Color.Red;
-        }
-        CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
     }
 
     public void SaveCurrentString(CheckedListBox CheckedListBoxLeft)
@@ -299,7 +283,7 @@ public class TranslationManager
         LanguageBox.Text = Language;
     }
 
-    public void ApproveIfPossible(CheckedListBox CheckedListBoxLeft)
+    public void ApproveIfPossible(CheckedListBox CheckedListBoxLeft, Label ApprovedCountLabel)
     {
         int currentIndex = CheckedListBoxLeft.SelectedIndex;
         if (currentIndex >= 0)
@@ -314,6 +298,8 @@ public class TranslationManager
             {
                 if (currentIndex < CheckedListBoxLeft.Items.Count - 1) CheckedListBoxLeft.SelectedIndex = currentIndex + 1;
             }
+
+            UpdateApprovedCountLabel(CheckedListBoxLeft.CheckedIndices.Count, CheckedListBoxLeft.Items.Count, ApprovedCountLabel);
         }
     }
 
@@ -406,6 +392,27 @@ public class TranslationManager
             main.SourceFilePath = oldFile;
             isSaveAs = false;
         }
+    }
+    private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount, Label CharacterCountLabel)
+    {
+        if (TemplateCount >= TranslationCount)
+        {
+            CharacterCountLabel.ForeColor = System.Drawing.Color.LawnGreen;
+        }//if bigger by no more than 20 percent
+        else if ((TranslationCount - TemplateCount) < (TemplateCount / 20))
+        {
+            CharacterCountLabel.ForeColor = System.Drawing.Color.DarkOrange;
+        }
+        else
+        {
+            CharacterCountLabel.ForeColor = System.Drawing.Color.Red;
+        }
+        CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
+    }
+
+    private void UpdateApprovedCountLabel(int Approved, int Total, Label ApprovedCountLabel)
+    {
+        ApprovedCountLabel.Text = $"Approved: {Approved} / {Total}";
     }
 
     private void HandleStringReadingFromFile()

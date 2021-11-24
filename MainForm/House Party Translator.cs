@@ -56,12 +56,12 @@ namespace HousePartyTranslator
 
         private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox, CommentTextBox, CharacterCountLabel);
+            TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox, CommentTextBox, CharacterCountLabel, WordsTranslated);
         }
 
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            TranslationManager.main.ApproveIfPossible(CheckListBoxLeft);
+            TranslationManager.main.ApproveIfPossible(CheckListBoxLeft, WordsTranslated);
         }
 
         private void LanguageBox_SelectedIndexChanged(object sender, EventArgs e)
