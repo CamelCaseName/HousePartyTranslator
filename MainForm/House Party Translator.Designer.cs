@@ -33,11 +33,11 @@ namespace HousePartyTranslator
             this.SelectedFile = new System.Windows.Forms.Label();
             this.ProgressbarTranslated = new System.Windows.Forms.ProgressBar();
             this.WordsTranslated = new System.Windows.Forms.Label();
-            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
             this.OpenFile = new System.Windows.Forms.Button();
             this.SaveFile = new System.Windows.Forms.Button();
             this.SaveFileAs = new System.Windows.Forms.Button();
             this.MainContainer = new System.Windows.Forms.SplitContainer();
+            this.SearchBox = new System.Windows.Forms.TextBox();
             this.LanguageBox = new System.Windows.Forms.ComboBox();
             this.CharacterCountLabel = new System.Windows.Forms.Label();
             this.SaveCommentsButton = new System.Windows.Forms.Button();
@@ -45,6 +45,7 @@ namespace HousePartyTranslator
             this.CommentTextBox = new System.Windows.Forms.TextBox();
             this.SaveCurrentString = new System.Windows.Forms.Button();
             this.EnglishTextBox = new System.Windows.Forms.TextBox();
+            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -102,18 +103,6 @@ namespace HousePartyTranslator
             this.WordsTranslated.TabIndex = 7;
             this.WordsTranslated.Text = "progress words";
             // 
-            // CheckListBoxLeft
-            // 
-            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
-            this.CheckListBoxLeft.FormattingEnabled = true;
-            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 41);
-            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
-            this.CheckListBoxLeft.Size = new System.Drawing.Size(617, 694);
-            this.CheckListBoxLeft.TabIndex = 10;
-            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
-            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
-            // 
             // OpenFile
             // 
             this.OpenFile.ForeColor = System.Drawing.SystemColors.WindowText;
@@ -157,6 +146,7 @@ namespace HousePartyTranslator
             // MainContainer.Panel1
             // 
             this.MainContainer.Panel1.BackColor = System.Drawing.SystemColors.Desktop;
+            this.MainContainer.Panel1.Controls.Add(this.SearchBox);
             this.MainContainer.Panel1.Controls.Add(this.LanguageBox);
             this.MainContainer.Panel1.Controls.Add(this.CheckListBoxLeft);
             this.MainContainer.Panel1.Controls.Add(this.SaveFileAs);
@@ -177,9 +167,17 @@ namespace HousePartyTranslator
             this.MainContainer.Panel2.Controls.Add(this.ProgressbarTranslated);
             this.MainContainer.Panel2.Controls.Add(this.EnglishTextBox);
             this.MainContainer.Panel2.Controls.Add(this.TranslatedTextBox);
-            this.MainContainer.Size = new System.Drawing.Size(1339, 741);
+            this.MainContainer.Size = new System.Drawing.Size(1339, 748);
             this.MainContainer.SplitterDistance = 623;
             this.MainContainer.TabIndex = 0;
+            // 
+            // SearchBox
+            // 
+            this.SearchBox.Location = new System.Drawing.Point(3, 40);
+            this.SearchBox.Name = "SearchBox";
+            this.SearchBox.Size = new System.Drawing.Size(499, 20);
+            this.SearchBox.TabIndex = 12;
+            this.SearchBox.TextChanged += new System.EventHandler(this.SearchBox_TextChanged);
             // 
             // LanguageBox
             // 
@@ -276,12 +274,24 @@ namespace HousePartyTranslator
             this.EnglishTextBox.TabIndex = 9;
             this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
+            // CheckListBoxLeft
+            // 
+            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
+            this.CheckListBoxLeft.FormattingEnabled = true;
+            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 66);
+            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
+            this.CheckListBoxLeft.Size = new System.Drawing.Size(617, 679);
+            this.CheckListBoxLeft.TabIndex = 10;
+            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
+            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
+            // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ClientSize = new System.Drawing.Size(1339, 741);
+            this.ClientSize = new System.Drawing.Size(1339, 748);
             this.Controls.Add(this.MainContainer);
             this.Name = "Fenster";
             this.ShowIcon = false;
@@ -314,6 +324,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.TextBox CommentTextBox;
         private System.Windows.Forms.Button SaveCommentsButton;
         private System.Windows.Forms.Label CharacterCountLabel;
+        private System.Windows.Forms.TextBox SearchBox;
     }
 }
 

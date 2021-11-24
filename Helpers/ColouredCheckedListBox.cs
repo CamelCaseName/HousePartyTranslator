@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Helpers
@@ -9,6 +10,7 @@ namespace HousePartyTranslator.Helpers
     /// </summary>
     public class ColouredCheckedListBox : CheckedListBox
     {
+        public List<int> SearchResults = new List<int>(); //list containing all indices that are part of the search result
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
             DrawItemEventArgs e2 =
@@ -19,10 +21,9 @@ namespace HousePartyTranslator.Helpers
                     new Rectangle(e.Bounds.Location, e.Bounds.Size),
                     e.Index,
                     e.State,
-                    e.ForeColor,
-                    CheckedIndices.Contains(e.Index) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
+                    e.ForeColor, //colour yellow if it is part of the search, else colour normally
+                    SearchResults.Contains(e.Index) ? Color.DarkOrange : CheckedIndices.Contains(e.Index) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
                 );
-
             base.OnDrawItem(e2);
         }
     }

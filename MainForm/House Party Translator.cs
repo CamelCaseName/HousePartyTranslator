@@ -78,5 +78,10 @@ namespace HousePartyTranslator
         {
             TranslationManager.main.SaveCurrentComment(CheckListBoxLeft, CommentTextBox);
         }
+
+        private void SearchBox_TextChanged(object sender, EventArgs e)
+        {
+            TranslationManager.main.Search(CheckListBoxLeft, SearchBox);
+        }
     }
 }

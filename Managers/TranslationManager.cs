@@ -288,6 +288,8 @@ public class TranslationManager
         int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
         if (currentIndex >= 0)
         {
+            UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedCountLabel);
+
             string ID = TranslationData[currentIndex].ID;
             DataBaseManager.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, main.Language);
             if (!DataBaseManager.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !ColouredCheckedListBoxLeft.GetItemChecked(currentIndex), main.Language))
@@ -392,6 +394,24 @@ public class TranslationManager
             main.SourceFilePath = oldFile;
             isSaveAs = false;
         }
+    }
+
+    public void Search(ColouredCheckedListBox CheckedListBox, TextBox SearchBox)
+    {
+        //reset list if no search is performed
+        if (SearchBox.TextLength != 0)
+        {
+            //clear results
+            CheckedListBox.SearchResults.Clear();
+            //methodolgy: highlight items which fulfill search and show count
+            TranslationData.Where(a => a.TranslationString.IndexOf(SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0).ToList().ForEach(b => CheckedListBox.SearchResults.Add(TranslationData.IndexOf(b)));
+        }
+        else
+        {
+            CheckedListBox.SearchResults.Clear();
+        }
+
+        CheckedListBox.Invalidate(CheckedListBox.Region);
     }
 
     private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount, Label CharacterCountLabel)
