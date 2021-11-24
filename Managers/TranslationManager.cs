@@ -95,7 +95,7 @@ public class TranslationManager
         if (internalIndex >= 0)
         {
             TranslationData[internalIndex].TranslationString = EditorTextBox.Text.Replace(Environment.NewLine, "\n");
-            CharacterCountLabel.Text = $"Template: {TemplateTextBox.Text.Count()} | Translation: {EditorTextBox.Text.Count()}";
+            UpdateCharacterCountLabel(TemplateTextBox.Text.Count(), EditorTextBox.Text.Count(), CharacterCountLabel);
         }
     }
 
@@ -214,10 +214,27 @@ public class TranslationManager
                     CommentBox.Lines = comments;
                 }
 
-                CharacterCountLabel.Text = $"Template: {TextBoxReadOnly.Text.Count()} | Translation: {TextBoxEditable.Text.Count()}";
+                UpdateCharacterCountLabel(TextBoxReadOnly.Text.Count(), TextBoxEditable.Text.Count(), CharacterCountLabel);
             }
         }
         TextBoxReadOnly.FindForm().Cursor = Cursors.Default;
+    }
+
+    private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount, Label CharacterCountLabel)
+    {
+        if (TemplateCount >= TranslationCount)
+        {
+            CharacterCountLabel.ForeColor = System.Drawing.Color.LawnGreen;
+        }//if bigger by no more than 15 percent
+        else if ((TranslationCount - TemplateCount) < (TemplateCount / 15))
+        {
+            CharacterCountLabel.ForeColor = System.Drawing.Color.DarkOrange;
+        }
+        else
+        {
+            CharacterCountLabel.ForeColor = System.Drawing.Color.Red;
+        }
+        CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
     }
 
     public void SaveCurrentString(CheckedListBox CheckedListBoxLeft)
