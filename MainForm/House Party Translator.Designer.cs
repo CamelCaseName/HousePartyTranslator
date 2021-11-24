@@ -33,7 +33,7 @@ namespace HousePartyTranslator
             this.SelectedFile = new System.Windows.Forms.Label();
             this.ProgressbarTranslated = new System.Windows.Forms.ProgressBar();
             this.WordsTranslated = new System.Windows.Forms.Label();
-            this.CheckListBoxLeft = new System.Windows.Forms.CheckedListBox();
+            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
             this.OpenFile = new System.Windows.Forms.Button();
             this.SaveFile = new System.Windows.Forms.Button();
             this.SaveFileAs = new System.Windows.Forms.Button();
@@ -302,7 +302,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.Label SelectedFile;
         private System.Windows.Forms.ProgressBar ProgressbarTranslated;
         private System.Windows.Forms.Label WordsTranslated;
-        private System.Windows.Forms.CheckedListBox CheckListBoxLeft;
+        private HousePartyTranslator.Helpers.ColouredCheckedListBox CheckListBoxLeft;
         private System.Windows.Forms.Button OpenFile;
         private System.Windows.Forms.Button SaveFile;
         private System.Windows.Forms.Button SaveFileAs;

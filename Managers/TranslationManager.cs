@@ -89,9 +89,9 @@ public class TranslationManager
         main = this;
     }
 
-    public void UpdateTranslationString(TextBox EditorTextBox, TextBox TemplateTextBox, CheckedListBox CheckedListBoxLeft, Label CharacterCountLabel)
+    public void UpdateTranslationString(TextBox EditorTextBox, TextBox TemplateTextBox, ColouredCheckedListBox ColouredCheckedListBoxLeft, Label CharacterCountLabel)
     {
-        int internalIndex = CheckedListBoxLeft.SelectedIndex;
+        int internalIndex = ColouredCheckedListBoxLeft.SelectedIndex;
         if (internalIndex >= 0)
         {
             TranslationData[internalIndex].TranslationString = EditorTextBox.Text.Replace(Environment.NewLine, "\n");
@@ -99,14 +99,14 @@ public class TranslationManager
         }
     }
 
-    public void LoadFileIntoProgram(CheckedListBox checkedListBoxLeft, Label SelectedFile)
+    public void LoadFileIntoProgram(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label SelectedFile)
     {
         TranslationData.Clear();
-        checkedListBoxLeft.Items.Clear();
+        ColouredCheckedListBoxLeft.Items.Clear();
         CategoriesInFile.Clear();
         LastIndex = -1;
 
-        checkedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+        ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
         if (IsUpToDate)
         {
             SourceFilePath = SelectFileFromSystem();
@@ -121,7 +121,7 @@ public class TranslationManager
                 SelectedFile.Text = "File: " + FileName + ".txt";
 
                 //is up to date, so we can start translation
-                HandleTranslationLoading(checkedListBoxLeft);
+                HandleTranslationLoading(ColouredCheckedListBoxLeft);
             }
         }
         else
@@ -144,13 +144,13 @@ public class TranslationManager
             }
         }
 
-        checkedListBoxLeft.FindForm().Cursor = Cursors.Default;
+        ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
-    public void PopulateTextBoxes(CheckedListBox CheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel, Label ApprovedStringLabel)
+    public void PopulateTextBoxes(ColouredCheckedListBox ColouredCheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel, Label ApprovedStringLabel)
     {
         TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
-        int currentIndex = CheckedListBoxLeft.SelectedIndex;
+        int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
         if (LastIndex < 0)
         {
             //sets index the first time/when we click elsewhere
@@ -158,7 +158,7 @@ public class TranslationManager
         }
         else
         {
-            //if we changed the eselction and have autsave enabled
+            //if we changed the selection and have autsave enabled
             if (LastIndex != currentIndex && AutoSave)
             {
 
@@ -215,20 +215,20 @@ public class TranslationManager
                 }
 
                 UpdateCharacterCountLabel(TextBoxReadOnly.Text.Count(), TextBoxEditable.Text.Count(), CharacterCountLabel);
-                UpdateApprovedCountLabel(CheckedListBoxLeft.CheckedIndices.Count, CheckedListBoxLeft.Items.Count, ApprovedStringLabel);
+                UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedStringLabel);
             }
         }
         TextBoxReadOnly.FindForm().Cursor = Cursors.Default;
     }
 
-    public void SaveCurrentString(CheckedListBox CheckedListBoxLeft)
+    public void SaveCurrentString(ColouredCheckedListBox ColouredCheckedListBoxLeft)
     {
-        int currentIndex = CheckedListBoxLeft.SelectedIndex;
+        int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
 
         //if we changed the eselction and have autsave enabled
         if (currentIndex >= 0)
         {
-            CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+            ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
 
             //update translation in the database
             DataBaseManager.SetStringTranslation(
@@ -239,18 +239,18 @@ public class TranslationManager
                 TranslationData[LastIndex].TranslationString,
                 Language);
 
-            CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+            ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }
     }
 
-    public void SaveCurrentComment(CheckedListBox CheckedListBoxLeft, TextBox CommentBox)
+    public void SaveCurrentComment(ColouredCheckedListBox ColouredCheckedListBoxLeft, TextBox CommentBox)
     {
-        int currentIndex = CheckedListBoxLeft.SelectedIndex;
+        int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
 
         //if we changed the eselction and have autsave enabled
         if (currentIndex >= 0)
         {
-            CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+            ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
 
             //upload comment
             DataBaseManager.SetTranslationComments(
@@ -261,7 +261,7 @@ public class TranslationManager
                 Language
                 );
 
-            CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+            ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }
     }
 
@@ -283,32 +283,32 @@ public class TranslationManager
         LanguageBox.Text = Language;
     }
 
-    public void ApproveIfPossible(CheckedListBox CheckedListBoxLeft, Label ApprovedCountLabel)
+    public void ApproveIfPossible(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label ApprovedCountLabel)
     {
-        int currentIndex = CheckedListBoxLeft.SelectedIndex;
+        int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
         if (currentIndex >= 0)
         {
             string ID = TranslationData[currentIndex].ID;
             DataBaseManager.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, main.Language);
-            if (!DataBaseManager.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !CheckedListBoxLeft.GetItemChecked(currentIndex), main.Language))
+            if (!DataBaseManager.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !ColouredCheckedListBoxLeft.GetItemChecked(currentIndex), main.Language))
             {
                 MessageBox.Show("Could not set approved state of string " + ID);
             }
-            if (!CheckedListBoxLeft.GetItemChecked(currentIndex))
+            if (!ColouredCheckedListBoxLeft.GetItemChecked(currentIndex))
             {
-                if (currentIndex < CheckedListBoxLeft.Items.Count - 1) CheckedListBoxLeft.SelectedIndex = currentIndex + 1;
+                if (currentIndex < ColouredCheckedListBoxLeft.Items.Count - 1) ColouredCheckedListBoxLeft.SelectedIndex = currentIndex + 1;
             }
 
-            UpdateApprovedCountLabel(CheckedListBoxLeft.CheckedIndices.Count, CheckedListBoxLeft.Items.Count, ApprovedCountLabel);
+            UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedCountLabel);
         }
     }
 
-    public void SaveFile(CheckedListBox CheckedListBoxLeft)
+    public void SaveFile(ColouredCheckedListBox ColouredCheckedListBoxLeft)
     {
         if (SourceFilePath != "")
         {
             System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
-            CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+            ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
             List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
 
             foreach (StringCategory category in CategoriesInFile)
@@ -375,12 +375,12 @@ public class TranslationManager
 
             OutputWriter.Close();
 
-            CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+            ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
 
         }
     }
 
-    public void SaveFileAs(CheckedListBox CheckedListBoxLeft)
+    public void SaveFileAs(ColouredCheckedListBox ColouredCheckedListBoxLeft)
     {
         if (SourceFilePath != "")
         {
@@ -388,11 +388,12 @@ public class TranslationManager
             string oldFile = main.SourceFilePath;
             string SaveFile = SaveFileOnSystem();
             main.SourceFilePath = SaveFile;
-            main.SaveFile(CheckedListBoxLeft);
+            main.SaveFile(ColouredCheckedListBoxLeft);
             main.SourceFilePath = oldFile;
             isSaveAs = false;
         }
     }
+
     private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount, Label CharacterCountLabel)
     {
         if (TemplateCount >= TranslationCount)
@@ -565,15 +566,15 @@ public class TranslationManager
 
             if(ReloadResult == DialogResult.Yes)
             {
-                SaveFile(checkedListBoxLeft);
-                ReadStringsTranslationsFromFile(checkedListBoxLeft);
+                SaveFile(ColouredCheckedListBoxLeft);
+                ReadStringsTranslationsFromFile(ColouredCheckedListBoxLeft);
             }*/
         }
     }
 
-    private void HandleTranslationLoading(CheckedListBox CheckedListBoxLeft)
+    private void HandleTranslationLoading(ColouredCheckedListBox ColouredCheckedListBoxLeft)
     {
-        CheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+        ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
 
         bool lineIsApproved = false;
         bool gotApprovedStates = DataBaseManager.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
@@ -583,13 +584,16 @@ public class TranslationManager
             if (gotApprovedStates)
             {
                 LineData tempLine = internalLines.Find(predicateLine => predicateLine.ID == lineD.ID);
-                if (tempLine != null) lineIsApproved = tempLine.IsApproved;
+                if (tempLine != null)
+                {
+                    lineIsApproved = tempLine.IsApproved;
+                }
             }
 
-            CheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
+            ColouredCheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
             lineD.IsApproved = lineIsApproved;
         }
-        CheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+        ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
     }
 
     private void HandleTemplateLoading(string folderPath)
