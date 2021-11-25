@@ -111,6 +111,7 @@
     </Compile>
     <Compile Include="Helpers\LineComparer.cs" />
     <Compile Include="Helpers\Setting.cs" />
+    <Compile Include="Managers\LogManager.cs" />
     <Compile Include="Managers\SettingsManager.cs" />
     <Compile Include="Helpers\StringCategory.cs" />
     <Compile Include="Helpers\ContextProvider.cs" />

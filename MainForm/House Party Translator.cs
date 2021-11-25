@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HousePartyTranslator.Managers;
+using System;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -33,11 +34,13 @@ namespace HousePartyTranslator
 
         private void ThreadExceptionHandler(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
+            LogManager.LogEvent(e.Exception.ToString());
             TranslationManager.DisplayExceptionMessage(e.Exception.Message);
         }
 
         private void FensterUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
+            LogManager.LogEvent(e.ExceptionObject.ToString());
             try //casting the object into an exception
             {
                 TranslationManager.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);

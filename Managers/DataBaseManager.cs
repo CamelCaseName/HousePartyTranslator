@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace HousePartyTranslator
+namespace HousePartyTranslator.Managers
 {
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
@@ -293,8 +293,6 @@ namespace HousePartyTranslator
         /// </returns>
         public static bool GetStringTranslation(string id, string fileName, string story, out string translation, string language = "de")
         {
-            throw new InvalidOperationException();
-
             string insertCommand = @"SELECT translation 
                                      " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
                                      WHERE id = @id AND language = @language;";
