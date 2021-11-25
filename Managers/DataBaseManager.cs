@@ -293,6 +293,8 @@ namespace HousePartyTranslator
         /// </returns>
         public static bool GetStringTranslation(string id, string fileName, string story, out string translation, string language = "de")
         {
+            throw new InvalidOperationException();
+
             string insertCommand = @"SELECT translation 
                                      " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
                                      WHERE id = @id AND language = @language;";

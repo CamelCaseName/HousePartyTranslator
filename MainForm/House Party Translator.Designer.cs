@@ -90,7 +90,6 @@ namespace HousePartyTranslator
             this.ProgressbarTranslated.TabIndex = 8;
             this.ProgressbarTranslated.Value = 50;
             this.ProgressbarTranslated.Visible = false;
-            this.ProgressbarTranslated.Click += new System.EventHandler(this.ProgressbarTranslated_Click);
             // 
             // WordsTranslated
             // 
@@ -283,6 +282,7 @@ namespace HousePartyTranslator
             this.CheckListBoxLeft.Name = "CheckListBoxLeft";
             this.CheckListBoxLeft.Size = new System.Drawing.Size(617, 679);
             this.CheckListBoxLeft.TabIndex = 10;
+            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
             this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
             this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
             // 

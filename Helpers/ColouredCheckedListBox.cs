@@ -11,6 +11,9 @@ namespace HousePartyTranslator.Helpers
     public class ColouredCheckedListBox : CheckedListBox
     {
         public List<int> SearchResults = new List<int>(); //list containing all indices that are part of the search result
+
+        protected new bool DoubleBuffered = true;
+
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
             DrawItemEventArgs e2 =

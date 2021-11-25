@@ -5,7 +5,6 @@ namespace HousePartyTranslator
 {
     public partial class Fenster : Form
     {
-
         public Fenster()
         {
             InitializeComponent();
@@ -14,18 +13,44 @@ namespace HousePartyTranslator
             TranslationManager.main.SetLanguage(LanguageBox);
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
-            //save last string edited
-            //AppDomain.CurrentDomain.ProcessExit += new EventHandler(OnProcessExit);
+
+            //custom exception handlers to handle mysql exceptions
+            AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
+            Application.ThreadException += ThreadExceptionHandler;
         }
 
-        //doesnt really work because the form is already gone when this is called :(
-        private void OnProcessExit(object sender, EventArgs e)
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            CheckListBoxLeft.SelectedIndex = 0;
+            if (TranslationManager.main.HandleKeyPressMainForm(ref msg, keyData, SearchBox, TranslatedTextBox, CheckListBoxLeft))
+            {
+                return true;
+            }
+            else
+            {
+                return base.ProcessCmdKey(ref msg, keyData);
+            }
+        }
+
+        private void ThreadExceptionHandler(object sender, System.Threading.ThreadExceptionEventArgs e)
+        {
+            TranslationManager.DisplayExceptionMessage(e.Exception.Message);
+        }
+
+        private void FensterUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        {
+            try //casting the object into an exception
+            {
+                TranslationManager.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
+            }
+            catch //dirty dirty me... can't cast into an exception :)
+            {
+                TranslationManager.DisplayExceptionMessage(e.ExceptionObject.ToString());
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+
         }
 
         private void TextBoxRight_TextChanged(object sender, EventArgs e)
@@ -47,11 +72,6 @@ namespace HousePartyTranslator
         private void SaveFileAsLeftClick(object sender, EventArgs e)
         {
             TranslationManager.main.SaveFileAs(CheckListBoxLeft);
-        }
-
-        private void ProgressbarTranslated_Click(object sender, EventArgs e)
-        {
-
         }
 
         private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)

@@ -16,6 +16,7 @@ public class TranslationManager
     public bool AutoSave = true;
     private int LastIndex = -1;
     private bool isSaveAs = false;
+    private int ExceptionCount = 0;
 
     public string Language
     {
@@ -404,7 +405,18 @@ public class TranslationManager
             //clear results
             CheckedListBox.SearchResults.Clear();
             //methodolgy: highlight items which fulfill search and show count
-            TranslationData.Where(a => a.TranslationString.IndexOf(SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0).ToList().ForEach(b => CheckedListBox.SearchResults.Add(TranslationData.IndexOf(b)));
+            //TranslationData.Where(a => a.TranslationString.IndexOf(SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0||a.ID.IndexOf(SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0).ToList().ForEach(b => CheckedListBox.SearchResults.Add(TranslationData.IndexOf(b)));
+
+            TranslationData.Where(/*Get a list of all strings where*/
+                a => a.TranslationString.IndexOf(/*the text contains what is searched*/
+                    SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0
+                ||/*or*/
+                a.ID.IndexOf(/*the id contains what is searched*/
+                    SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0
+                ).ToList().ForEach(/*then for all the result items add the index of the item in the main translation data list to the list of result indices*/
+                    b => CheckedListBox.SearchResults.Add(TranslationData.IndexOf(b)
+                )
+            );
         }
         else
         {
@@ -412,6 +424,70 @@ public class TranslationManager
         }
 
         CheckedListBox.Invalidate(CheckedListBox.Region);
+    }
+
+    public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, TextBox SearchBox, TextBox EditorBox, ColouredCheckedListBox checkedListBox)
+    {
+        switch (keyData)
+        {
+            //set selected string as search string and place cursor in search box
+            case (Keys.Control | Keys.F):
+                if (EditorBox.SelectedText.Length > 0)
+                {
+                    SearchBox.Text = EditorBox.SelectedText;
+                }
+                SearchBox.Focus();
+                return true;
+
+            //save current file
+            case (Keys.Control | Keys.S):
+                SaveFile(checkedListBox);
+                return true;
+
+            //save current string
+            case (Keys.Control | Keys.Shift | Keys.S):
+                SaveCurrentString(checkedListBox);
+                return true;
+
+            //
+            case (Keys.Control | Keys.R):
+                ReloadFile(checkedListBox);
+                return true;
+
+            default:
+                return false;
+        }
+    }
+
+    public static void DisplayExceptionMessage(string message)
+    {
+        main.ExceptionCount++;
+        MessageBox.Show(
+            $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
+            $"Anyways, here is what happened: \n\n{message}\n\n " +
+            $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
+            $"Some Error found (Nr. {main.ExceptionCount})",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error
+        );
+
+        Application.OpenForms[0].Cursor = Cursors.Default;
+
+        if (main.ExceptionCount > 3)
+        {
+            Application.Exit();
+        }
+    }
+
+    private void ReloadFile(ColouredCheckedListBox checkedListBox)
+    {
+        TranslationData.Clear();
+        checkedListBox.Items.Clear();
+        CategoriesInFile.Clear();
+        LastIndex = -1;
+        ReadStringsTranslationsFromFile();
+        //is up to date, so we can start translation
+        HandleTranslationLoading(checkedListBox);
     }
 
     private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount, Label CharacterCountLabel)
@@ -575,20 +651,6 @@ public class TranslationManager
                 "Some strings missing",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Asterisk);
-            /*DialogResult ReloadResult = MessageBox.Show(
-                @"Some strings are missing from your translation, they will be added with the english version when you first save the file!
-
-                If you select YES, the application will autosave the file and reload it automatically.
-                If you select NO, it will do nothing right now, but add them when you save manually.", 
-                "Some strings missing", 
-                MessageBoxButtons.YesNo, 
-                MessageBoxIcon.Asterisk);
-
-            if(ReloadResult == DialogResult.Yes)
-            {
-                SaveFile(ColouredCheckedListBoxLeft);
-                ReadStringsTranslationsFromFile(ColouredCheckedListBoxLeft);
-            }*/
         }
     }
 
