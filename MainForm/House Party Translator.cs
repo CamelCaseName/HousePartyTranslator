@@ -1,6 +1,7 @@
 ﻿using HousePartyTranslator.Managers;
 using System;
 using System.Windows.Forms;
+using System.Drawing;
 
 namespace HousePartyTranslator
 {
@@ -53,7 +54,7 @@ namespace HousePartyTranslator
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            LogManager.LogEvent("Application started! hi there :D");
         }
 
         private void TextBoxRight_TextChanged(object sender, EventArgs e)
@@ -63,7 +64,7 @@ namespace HousePartyTranslator
 
         private void SelectFileLeftClick(object sender, EventArgs e)
         {
-            TranslationManager.main.LoadFileIntoProgram(CheckListBoxLeft, SelectedFile);
+            TranslationManager.main.LoadFileIntoProgram(CheckListBoxLeft, SelectedFile, WordsTranslated, ProgressbarTranslated);
             TranslationManager.main.SetLanguage(LanguageBox);
         }
 
@@ -79,12 +80,12 @@ namespace HousePartyTranslator
 
         private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox, CommentTextBox, CharacterCountLabel, WordsTranslated);
+            TranslationManager.main.PopulateTextBoxes(CheckListBoxLeft, EnglishTextBox, TranslatedTextBox, CommentTextBox, CharacterCountLabel, WordsTranslated, ProgressbarTranslated);
         }
 
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            TranslationManager.main.ApproveIfPossible(CheckListBoxLeft, WordsTranslated);
+            TranslationManager.main.ApproveIfPossible(CheckListBoxLeft, WordsTranslated, ProgressbarTranslated);
         }
 
         private void LanguageBox_SelectedIndexChanged(object sender, EventArgs e)

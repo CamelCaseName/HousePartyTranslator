@@ -1,5 +1,4 @@
-﻿using HousePartyTranslator.Managers;
-using HousePartyTranslator.Helpers;
+﻿using HousePartyTranslator.Helpers;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -102,7 +101,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        public void LoadFileIntoProgram(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label SelectedFile)
+        public void LoadFileIntoProgram(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label SelectedFile, Label ApprovedCountLabel, NoAnimationBar NoProgressBar)
         {
             TranslationData.Clear();
             ColouredCheckedListBoxLeft.Items.Clear();
@@ -125,6 +124,7 @@ namespace HousePartyTranslator.Managers
 
                     //is up to date, so we can start translation
                     HandleTranslationLoading(ColouredCheckedListBoxLeft);
+                    UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedCountLabel, NoProgressBar);
                 }
             }
             else
@@ -150,7 +150,7 @@ namespace HousePartyTranslator.Managers
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }
 
-        public void PopulateTextBoxes(ColouredCheckedListBox ColouredCheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel, Label ApprovedStringLabel)
+        public void PopulateTextBoxes(ColouredCheckedListBox ColouredCheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel, Label ApprovedStringLabel, NoAnimationBar NoProgressbar)
         {
             TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
             int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
@@ -205,12 +205,20 @@ namespace HousePartyTranslator.Managers
                         //replace older one in file by new one from database
                         TranslationData[currentIndex].TranslationString = translation;
                     }
+
                     //display the string in the editable window
-                    TextBoxEditable.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine); ;
+                    TextBoxEditable.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine);
+
                     if (DataBaseManager.GetStringTemplate(id, FileName, StoryName, out string templateString))
                     {
                         //read the template form the db and display it if it exists
                         TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
+
+                        //clear text box if it is the template (not translated yet)
+                        if(TextBoxReadOnly.Text == TextBoxEditable.Text)
+                        {
+                            TextBoxEditable.Clear();
+                        }
                     }
                     if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
                     {
@@ -218,7 +226,7 @@ namespace HousePartyTranslator.Managers
                     }
 
                     UpdateCharacterCountLabel(TextBoxReadOnly.Text.Count(), TextBoxEditable.Text.Count(), CharacterCountLabel);
-                    UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedStringLabel);
+                    UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedStringLabel, NoProgressbar);
                 }
             }
             TextBoxReadOnly.FindForm().Cursor = Cursors.Default;
@@ -286,12 +294,12 @@ namespace HousePartyTranslator.Managers
             LanguageBox.Text = Language;
         }
 
-        public void ApproveIfPossible(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label ApprovedCountLabel)
+        public void ApproveIfPossible(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label ApprovedCountLabel, NoAnimationBar NoProgressbar)
         {
             int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
             if (currentIndex >= 0)
             {
-                UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedCountLabel);
+                //UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedCountLabel, NoProgressbar);
 
                 string ID = TranslationData[currentIndex].ID;
                 DataBaseManager.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, main.Language);
@@ -299,12 +307,15 @@ namespace HousePartyTranslator.Managers
                 {
                     MessageBox.Show("Could not set approved state of string " + ID);
                 }
+
+                //move one string down if possible
                 if (!ColouredCheckedListBoxLeft.GetItemChecked(currentIndex))
                 {
                     if (currentIndex < ColouredCheckedListBoxLeft.Items.Count - 1) ColouredCheckedListBoxLeft.SelectedIndex = currentIndex + 1;
                 }
 
-                UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedCountLabel);
+                UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedCountLabel, NoProgressbar);
+                NoProgressbar.Update();
             }
         }
 
@@ -451,9 +462,30 @@ namespace HousePartyTranslator.Managers
                     SaveCurrentString(checkedListBox);
                     return true;
 
-                //
+                //reload currently loaded file
                 case (Keys.Control | Keys.R):
                     ReloadFile(checkedListBox);
+                    return true;
+
+                //select string above current selection
+                case (Keys.Control | Keys.Up):
+                    if(checkedListBox.SelectedIndex > 0) checkedListBox.SelectedIndex--;
+                    return true;
+
+                //select string below current selection
+                case (Keys.Control | Keys.Down):
+                    if (checkedListBox.SelectedIndex < checkedListBox.Items.Count - 1) checkedListBox.SelectedIndex++;
+                    return true;
+
+                //save translation and move down one
+                case (Keys.Control | Keys.Enter):
+                    SaveCurrentString(checkedListBox);
+                    if (checkedListBox.SelectedIndex < checkedListBox.Items.Count - 1) checkedListBox.SelectedIndex++;
+                    return true;
+
+                //save translation, approve and move down one
+                case (Keys.Control | Keys.Shift | Keys.Enter):
+                    checkedListBox.SetItemChecked(checkedListBox.SelectedIndex, true);
                     return true;
 
                 default:
@@ -510,9 +542,11 @@ namespace HousePartyTranslator.Managers
             CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
         }
 
-        private void UpdateApprovedCountLabel(int Approved, int Total, Label ApprovedCountLabel)
+        private void UpdateApprovedCountLabel(int Approved, int Total, Label ApprovedCountLabel, NoAnimationBar NoProgressbar)
         {
             ApprovedCountLabel.Text = $"Approved: {Approved} / {Total}";
+            NoProgressbar.Value = (int)((float)Approved / (float)Total * 100);
+            NoProgressbar.Invalidate();
         }
 
         private void HandleStringReadingFromFile()

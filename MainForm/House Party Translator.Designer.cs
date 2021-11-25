@@ -1,5 +1,4 @@
-﻿
-namespace HousePartyTranslator
+﻿namespace HousePartyTranslator
 {
     partial class Fenster
     {
@@ -31,7 +30,7 @@ namespace HousePartyTranslator
         {
             this.TranslatedTextBox = new System.Windows.Forms.TextBox();
             this.SelectedFile = new System.Windows.Forms.Label();
-            this.ProgressbarTranslated = new System.Windows.Forms.ProgressBar();
+            this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
             this.WordsTranslated = new System.Windows.Forms.Label();
             this.OpenFile = new System.Windows.Forms.Button();
             this.SaveFile = new System.Windows.Forms.Button();
@@ -39,13 +38,13 @@ namespace HousePartyTranslator
             this.MainContainer = new System.Windows.Forms.SplitContainer();
             this.SearchBox = new System.Windows.Forms.TextBox();
             this.LanguageBox = new System.Windows.Forms.ComboBox();
+            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
             this.CharacterCountLabel = new System.Windows.Forms.Label();
             this.SaveCommentsButton = new System.Windows.Forms.Button();
             this.CommentLabel = new System.Windows.Forms.Label();
             this.CommentTextBox = new System.Windows.Forms.TextBox();
             this.SaveCurrentString = new System.Windows.Forms.Button();
             this.EnglishTextBox = new System.Windows.Forms.TextBox();
-            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -82,14 +81,16 @@ namespace HousePartyTranslator
             // 
             // ProgressbarTranslated
             // 
+            this.ProgressbarTranslated.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ProgressbarTranslated.Cursor = System.Windows.Forms.Cursors.Default;
-            this.ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.Window;
+            this.ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.ProgressbarTranslated.Location = new System.Drawing.Point(282, 13);
             this.ProgressbarTranslated.Name = "ProgressbarTranslated";
-            this.ProgressbarTranslated.Size = new System.Drawing.Size(427, 23);
+            this.ProgressbarTranslated.Size = new System.Drawing.Size(418, 21);
+            this.ProgressbarTranslated.Step = 1;
+            this.ProgressbarTranslated.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.ProgressbarTranslated.TabIndex = 8;
             this.ProgressbarTranslated.Value = 50;
-            this.ProgressbarTranslated.Visible = false;
             // 
             // WordsTranslated
             // 
@@ -207,6 +208,19 @@ namespace HousePartyTranslator
             this.LanguageBox.SelectedIndexChanged += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
             this.LanguageBox.SelectionChangeCommitted += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
             // 
+            // CheckListBoxLeft
+            // 
+            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
+            this.CheckListBoxLeft.FormattingEnabled = true;
+            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 66);
+            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
+            this.CheckListBoxLeft.Size = new System.Drawing.Size(617, 679);
+            this.CheckListBoxLeft.TabIndex = 10;
+            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
+            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
+            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
+            // 
             // CharacterCountLabel
             // 
             this.CharacterCountLabel.AutoSize = true;
@@ -246,7 +260,7 @@ namespace HousePartyTranslator
             this.CommentTextBox.Multiline = true;
             this.CommentTextBox.Name = "CommentTextBox";
             this.CommentTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.CommentTextBox.Size = new System.Drawing.Size(703, 155);
+            this.CommentTextBox.Size = new System.Drawing.Size(703, 165);
             this.CommentTextBox.TabIndex = 13;
             // 
             // SaveCurrentString
@@ -273,19 +287,6 @@ namespace HousePartyTranslator
             this.EnglishTextBox.TabIndex = 9;
             this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
-            // CheckListBoxLeft
-            // 
-            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
-            this.CheckListBoxLeft.FormattingEnabled = true;
-            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 66);
-            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
-            this.CheckListBoxLeft.Size = new System.Drawing.Size(617, 679);
-            this.CheckListBoxLeft.TabIndex = 10;
-            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
-            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
-            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
-            // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -310,7 +311,7 @@ namespace HousePartyTranslator
         #endregion
         private System.Windows.Forms.TextBox TranslatedTextBox;
         private System.Windows.Forms.Label SelectedFile;
-        private System.Windows.Forms.ProgressBar ProgressbarTranslated;
+        private HousePartyTranslator.Helpers.NoAnimationBar ProgressbarTranslated;
         private System.Windows.Forms.Label WordsTranslated;
         private HousePartyTranslator.Helpers.ColouredCheckedListBox CheckListBoxLeft;
         private System.Windows.Forms.Button OpenFile;

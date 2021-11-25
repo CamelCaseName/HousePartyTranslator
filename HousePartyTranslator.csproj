@@ -110,6 +110,9 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Helpers\LineComparer.cs" />
+    <Compile Include="Helpers\NoAnimationBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Helpers\Setting.cs" />
     <Compile Include="Managers\LogManager.cs" />
     <Compile Include="Managers\SettingsManager.cs" />
