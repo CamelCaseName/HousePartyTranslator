@@ -150,7 +150,7 @@ namespace HousePartyTranslator.Managers
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }
 
-        public void PopulateTextBoxes(ColouredCheckedListBox ColouredCheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel, Label ApprovedStringLabel, NoAnimationBar NoProgressbar)
+        public void PopulateTextBoxes(ColouredCheckedListBox ColouredCheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel, Label ApprovedStringLabel, NoAnimationBar NoProgressbar, CheckBox ApprovedBox)
         {
             TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
             int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
@@ -220,10 +220,13 @@ namespace HousePartyTranslator.Managers
                             TextBoxEditable.Clear();
                         }
                     }
+
                     if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
                     {
                         CommentBox.Lines = comments;
                     }
+
+                    ApprovedBox.Checked = ColouredCheckedListBoxLeft.GetItemChecked(currentIndex);
 
                     UpdateCharacterCountLabel(TextBoxReadOnly.Text.Count(), TextBoxEditable.Text.Count(), CharacterCountLabel);
                     UpdateApprovedCountLabel(ColouredCheckedListBoxLeft.CheckedIndices.Count, ColouredCheckedListBoxLeft.Items.Count, ApprovedStringLabel, NoProgressbar);
@@ -294,7 +297,7 @@ namespace HousePartyTranslator.Managers
             LanguageBox.Text = Language;
         }
 
-        public void ApproveIfPossible(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label ApprovedCountLabel, NoAnimationBar NoProgressbar)
+        public void ApproveIfPossible(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label ApprovedCountLabel, NoAnimationBar NoProgressbar, bool SelectNewAfter, CheckBox ApprovedBox)
         {
             int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
             if (currentIndex >= 0)
@@ -308,8 +311,11 @@ namespace HousePartyTranslator.Managers
                     MessageBox.Show("Could not set approved state of string " + ID);
                 }
 
+                //set checkbox state
+                ApprovedBox.Checked = !ColouredCheckedListBoxLeft.GetItemChecked(currentIndex);
+
                 //move one string down if possible
-                if (!ColouredCheckedListBoxLeft.GetItemChecked(currentIndex))
+                if (!ColouredCheckedListBoxLeft.GetItemChecked(currentIndex) && SelectNewAfter)
                 {
                     if (currentIndex < ColouredCheckedListBoxLeft.Items.Count - 1) ColouredCheckedListBoxLeft.SelectedIndex = currentIndex + 1;
                 }
@@ -486,6 +492,7 @@ namespace HousePartyTranslator.Managers
                 //save translation, approve and move down one
                 case (Keys.Control | Keys.Shift | Keys.Enter):
                     checkedListBox.SetItemChecked(checkedListBox.SelectedIndex, true);
+                    if (checkedListBox.SelectedIndex < checkedListBox.Items.Count - 1) checkedListBox.SelectedIndex++;
                     return true;
 
                 default:

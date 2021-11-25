@@ -30,7 +30,6 @@
         {
             this.TranslatedTextBox = new System.Windows.Forms.TextBox();
             this.SelectedFile = new System.Windows.Forms.Label();
-            this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
             this.WordsTranslated = new System.Windows.Forms.Label();
             this.OpenFile = new System.Windows.Forms.Button();
             this.SaveFile = new System.Windows.Forms.Button();
@@ -38,13 +37,15 @@
             this.MainContainer = new System.Windows.Forms.SplitContainer();
             this.SearchBox = new System.Windows.Forms.TextBox();
             this.LanguageBox = new System.Windows.Forms.ComboBox();
-            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
             this.CharacterCountLabel = new System.Windows.Forms.Label();
             this.SaveCommentsButton = new System.Windows.Forms.Button();
             this.CommentLabel = new System.Windows.Forms.Label();
             this.CommentTextBox = new System.Windows.Forms.TextBox();
             this.SaveCurrentString = new System.Windows.Forms.Button();
             this.EnglishTextBox = new System.Windows.Forms.TextBox();
+            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
+            this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
+            this.ApprovedBox = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.MainContainer)).BeginInit();
             this.MainContainer.Panel1.SuspendLayout();
             this.MainContainer.Panel2.SuspendLayout();
@@ -73,24 +74,11 @@
             // 
             this.SelectedFile.AutoSize = true;
             this.SelectedFile.ForeColor = System.Drawing.SystemColors.Control;
-            this.SelectedFile.Location = new System.Drawing.Point(313, 16);
+            this.SelectedFile.Location = new System.Drawing.Point(313, 18);
             this.SelectedFile.Name = "SelectedFile";
             this.SelectedFile.Size = new System.Drawing.Size(98, 13);
             this.SelectedFile.TabIndex = 7;
             this.SelectedFile.Text = "Selected File: none";
-            // 
-            // ProgressbarTranslated
-            // 
-            this.ProgressbarTranslated.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ProgressbarTranslated.Cursor = System.Windows.Forms.Cursors.Default;
-            this.ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.ProgressbarTranslated.Location = new System.Drawing.Point(282, 13);
-            this.ProgressbarTranslated.Name = "ProgressbarTranslated";
-            this.ProgressbarTranslated.Size = new System.Drawing.Size(418, 21);
-            this.ProgressbarTranslated.Step = 1;
-            this.ProgressbarTranslated.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.ProgressbarTranslated.TabIndex = 8;
-            this.ProgressbarTranslated.Value = 50;
             // 
             // WordsTranslated
             // 
@@ -146,6 +134,7 @@
             // MainContainer.Panel1
             // 
             this.MainContainer.Panel1.BackColor = System.Drawing.SystemColors.Desktop;
+            this.MainContainer.Panel1.Controls.Add(this.ApprovedBox);
             this.MainContainer.Panel1.Controls.Add(this.SearchBox);
             this.MainContainer.Panel1.Controls.Add(this.LanguageBox);
             this.MainContainer.Panel1.Controls.Add(this.CheckListBoxLeft);
@@ -207,19 +196,6 @@
             this.LanguageBox.TabIndex = 11;
             this.LanguageBox.SelectedIndexChanged += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
             this.LanguageBox.SelectionChangeCommitted += new System.EventHandler(this.LanguageBox_SelectedIndexChanged);
-            // 
-            // CheckListBoxLeft
-            // 
-            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
-            this.CheckListBoxLeft.FormattingEnabled = true;
-            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 66);
-            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
-            this.CheckListBoxLeft.Size = new System.Drawing.Size(617, 679);
-            this.CheckListBoxLeft.TabIndex = 10;
-            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
-            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
-            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
             // 
             // CharacterCountLabel
             // 
@@ -287,6 +263,43 @@
             this.EnglishTextBox.TabIndex = 9;
             this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
+            // CheckListBoxLeft
+            // 
+            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
+            this.CheckListBoxLeft.FormattingEnabled = true;
+            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 66);
+            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
+            this.CheckListBoxLeft.Size = new System.Drawing.Size(617, 679);
+            this.CheckListBoxLeft.TabIndex = 10;
+            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
+            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
+            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
+            // 
+            // ProgressbarTranslated
+            // 
+            this.ProgressbarTranslated.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.ProgressbarTranslated.Cursor = System.Windows.Forms.Cursors.Default;
+            this.ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.ProgressbarTranslated.Location = new System.Drawing.Point(282, 13);
+            this.ProgressbarTranslated.Name = "ProgressbarTranslated";
+            this.ProgressbarTranslated.Size = new System.Drawing.Size(418, 21);
+            this.ProgressbarTranslated.Step = 1;
+            this.ProgressbarTranslated.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.ProgressbarTranslated.TabIndex = 8;
+            this.ProgressbarTranslated.Value = 50;
+            // 
+            // ApprovedBox
+            // 
+            this.ApprovedBox.AutoSize = true;
+            this.ApprovedBox.Location = new System.Drawing.Point(522, 42);
+            this.ApprovedBox.Name = "ApprovedBox";
+            this.ApprovedBox.Size = new System.Drawing.Size(72, 17);
+            this.ApprovedBox.TabIndex = 13;
+            this.ApprovedBox.Text = "Approved";
+            this.ApprovedBox.UseVisualStyleBackColor = true;
+            this.ApprovedBox.CheckedChanged += new System.EventHandler(this.ApprovedBox_CheckedChanged);
+            // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -326,6 +339,7 @@
         private System.Windows.Forms.Button SaveCommentsButton;
         private System.Windows.Forms.Label CharacterCountLabel;
         private System.Windows.Forms.TextBox SearchBox;
+        private System.Windows.Forms.CheckBox ApprovedBox;
     }
 }
 
