@@ -215,7 +215,7 @@ namespace HousePartyTranslator.Managers
                         TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
 
                         //clear text box if it is the template (not translated yet)
-                        if(TextBoxReadOnly.Text == TextBoxEditable.Text)
+                        if(TextBoxReadOnly.Text == TextBoxEditable.Text && TranslationData[currentIndex].ID != "Name")
                         {
                             TextBoxEditable.Clear();
                         }

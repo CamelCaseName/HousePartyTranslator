@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Windows;
 
 namespace HousePartyTranslator.Helpers
 {
@@ -28,6 +30,32 @@ namespace HousePartyTranslator.Helpers
                     SearchResults.Contains(e.Index) ? Color.DarkOrange : CheckedIndices.Contains(e.Index) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
                 );
             base.OnDrawItem(e2);
+        }
+
+        //Hack to get exactly the behaviour we want (https://stackoverflow.com/a/3897126) adapted and expanded
+        protected override void WndProc(ref Message m)
+        {
+            // Filter WM_LBUTTONDBLCLK and MW_LBUTTONDOWN and MW_LBUTTONUP
+            if (m.Msg != 0x203 && m.Msg != 0x201)
+            {
+                base.WndProc(ref m);
+            }
+            else if (m.Msg == 0x201) //our own handle
+            {
+                //get mouse cursor position from message https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-lbuttondown
+                byte[] bytes = BitConverter.GetBytes(m.LParam.ToInt64());
+                short x = BitConverter.ToInt16(bytes, 0);
+                short y = BitConverter.ToInt16(bytes, 2);
+
+                //create point from cursor pos. low word is x, high word is y
+                Point CursorPosition = new Point(x, y);
+
+                //if a new item would be selected, we can do that. or if the cursor is on one of the check marks. but else we do nothing
+                if (SelectedIndex != IndexFromPoint(CursorPosition) || x < 14)
+                {
+                    base.WndProc(ref m);
+                }
+            }
         }
     }
 }
