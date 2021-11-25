@@ -1,6 +1,7 @@
 ﻿using HousePartyTranslator.Helpers;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -518,6 +519,27 @@ namespace HousePartyTranslator.Managers
             if (main.ExceptionCount > 3)
             {
                 Application.Exit();
+            }
+        }
+
+        public static void ApprovedButtonHandler(Fenster F, CheckBox ApprovedBox, ColouredCheckedListBox CheckListBox)
+        { 
+            //get title bar height
+            Rectangle ScreenRectangle = F.RectangleToScreen(F.ClientRectangle);
+            int TitleHeight = ScreenRectangle.Top - F.Top;
+
+            //check whether cursor is on approved button or not
+            int deltaX = Cursor.Position.X - ApprovedBox.Location.X - F.Location.X;
+            int deltaY = Cursor.Position.Y - ApprovedBox.Location.Y - F.Location.Y - TitleHeight;
+            bool isInX = 0 <= deltaX && deltaX <= ApprovedBox.Width;
+            bool isInY = 0 <= deltaY && deltaY <= ApprovedBox.Height;
+
+            //actually do the checking state change
+            if (isInX && isInY)
+            {
+                int Index = CheckListBox.SelectedIndex;
+                //inverse checked state at the selected index
+                CheckListBox.SetItemChecked(Index, !CheckListBox.GetItemChecked(Index));
             }
         }
 

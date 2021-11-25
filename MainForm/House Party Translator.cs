@@ -118,23 +118,7 @@ namespace HousePartyTranslator
 
         private void ApprovedBox_CheckedChanged(object sender, EventArgs e)
         {
-            //get title bar height
-            Rectangle ScreenRectangle = RectangleToScreen(ClientRectangle);
-            int TitleHeight = ScreenRectangle.Top - Top;
-
-            //check whether cursor is on approved button or not
-            int deltaX = Cursor.Position.X - ApprovedBox.Location.X - Location.X;
-            int deltaY = Cursor.Position.Y - ApprovedBox.Location.Y - Location.Y - TitleHeight;
-            bool isInX = 0 <= deltaX && deltaX <= ApprovedBox.Width;
-            bool isInY = 0 <= deltaY && deltaY <= ApprovedBox.Height;
-
-            //actually do the checking state change
-            if (isInX && isInY)
-            {
-                int Index = CheckListBoxLeft.SelectedIndex;
-                //inverse checked state at the selected index
-                CheckListBoxLeft.SetItemChecked(Index, !CheckListBoxLeft.GetItemChecked(Index));
-            }
+            TranslationManager.ApprovedButtonHandler(this, ApprovedBox, CheckListBoxLeft);
         }
     }
 }
