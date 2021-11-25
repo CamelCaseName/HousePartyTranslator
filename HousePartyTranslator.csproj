@@ -37,6 +37,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -46,6 +47,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
@@ -106,8 +108,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\ColouredCheckedListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Helpers\LineComparer.cs" />
+    <Compile Include="Helpers\NoAnimationBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Helpers\Setting.cs" />
+    <Compile Include="Managers\LogManager.cs" />
     <Compile Include="Managers\SettingsManager.cs" />
     <Compile Include="Helpers\StringCategory.cs" />
     <Compile Include="Helpers\ContextProvider.cs" />
