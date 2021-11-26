@@ -1,22 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
+    /// <summary>
+    /// A Class providing a Popup Form with a password field and a Submit button whcih returns an Button.OK state when clicked.
+    /// </summary>
     public partial class Password : Form
     {
+        /// <summary>
+        /// The default constructor. Takes no arguments.
+        /// </summary>
         public Password()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Returns the password entered into the field.
+        /// </summary>
+        /// <returns></returns>
         public string GetPassword()
         {
             return PasswordTextBox.Text;

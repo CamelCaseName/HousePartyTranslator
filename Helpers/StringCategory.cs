@@ -1,5 +1,8 @@
 ﻿namespace HousePartyTranslator
 {
+    /// <summary>
+    /// An enum consisting of all types of strings used in the House Party game.
+    /// </summary>
     public enum StringCategory
     {
         General,

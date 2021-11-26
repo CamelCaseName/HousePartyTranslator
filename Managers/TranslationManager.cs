@@ -8,6 +8,9 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
+    /// <summary>
+    /// A class providing functions for loading, approving, and workign with strings to be translated. Heavily integrated in all other parts of this application.
+    /// </summary>
     public class TranslationManager
     {
         public static TranslationManager main;
@@ -20,6 +23,9 @@ namespace HousePartyTranslator.Managers
         private bool isSaveAs = false;
         private int ExceptionCount = 0;
 
+        /// <summary>
+        /// The Language of the current translation.
+        /// </summary>
         public string Language
         {
             get
@@ -39,6 +45,9 @@ namespace HousePartyTranslator.Managers
         }
         private string language = "";
 
+        /// <summary>
+        /// The path to the file currently loaded.
+        /// </summary>
         public string SourceFilePath
         {
             get
@@ -57,6 +66,9 @@ namespace HousePartyTranslator.Managers
         }
         private string sourceFilePath = "";
 
+        /// <summary>
+        /// The Name of the file laoded, without the extension.
+        /// </summary>
         public string FileName
         {
             get
@@ -70,6 +82,9 @@ namespace HousePartyTranslator.Managers
         }
         private string fileName = "";
 
+        /// <summary>
+        /// The name of the parent folder of the loaded file, MUST BE the story it is from.
+        /// </summary>
         public string StoryName
         {
             get
@@ -83,6 +98,9 @@ namespace HousePartyTranslator.Managers
         }
         private string storyName = "";
 
+        /// <summary>
+        /// 
+        /// </summary>
         public TranslationManager()
         {
             if (main != null)
