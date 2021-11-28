@@ -534,13 +534,13 @@ namespace HousePartyTranslator.Managers
         /// <param name="EditorBox">The TextBox to read the string from.</param>
         /// <param name="checkedListBox">The list of strings.</param>
         /// <returns></returns>
-        public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, TextBox SearchBox, TextBox EditorBox, ColouredCheckedListBox checkedListBox)
+        public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, TextBox SearchBox, TextBox EditorBox, ColouredCheckedListBox checkedListBox, TextBox CommentBox)
         {
             switch (keyData)
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
                 case (Keys.Enter):
-                    if (!EditorBox.Focused)
+                    if (!EditorBox.Focused || !CommentBox.Focused)
                     {
                         if (SelectedSearchResult < checkedListBox.SearchResults.Count)
                         {
