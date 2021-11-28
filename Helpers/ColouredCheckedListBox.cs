@@ -16,6 +16,10 @@ namespace HousePartyTranslator.Helpers
 
         protected new bool DoubleBuffered = true;
 
+        /// <summary>
+        /// A Override for the default OnDrawItem which replaces the background with a coloured rectangle given a List of indices
+        /// </summary>
+        /// <param name="e">The DrawItemEventArgs which will be manipulated</param>
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
             DrawItemEventArgs e2 =
@@ -32,7 +36,11 @@ namespace HousePartyTranslator.Helpers
             base.OnDrawItem(e2);
         }
 
-        //Hack to get exactly the behaviour we want (https://stackoverflow.com/a/3897126) adapted and expanded
+        /// <summary>
+        /// Hack to get exactly the behaviour we want (https://stackoverflow.com/a/3897126) adapted and expanded.
+        /// Only allows double clicks on the far left of the control, or only single clicks elsewhere.
+        /// </summary>
+        /// <param name="m"> The windows Message to be used</param>
         protected override void WndProc(ref Message m)
         {
             // Filter WM_LBUTTONDBLCLK and MW_LBUTTONDOWN and MW_LBUTTONUP
