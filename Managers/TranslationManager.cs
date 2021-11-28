@@ -22,6 +22,7 @@ namespace HousePartyTranslator.Managers
         private int LastIndex = -1;
         private bool isSaveAs = false;
         private int ExceptionCount = 0;
+        private int SelectedSearchResult = 0;
 
         /// <summary>
         /// The Language of the current translation.
@@ -99,7 +100,7 @@ namespace HousePartyTranslator.Managers
         private string storyName = "";
 
         /// <summary>
-        /// 
+        /// The Constructor for this class. Takes no arguments.
         /// </summary>
         public TranslationManager()
         {
@@ -110,6 +111,13 @@ namespace HousePartyTranslator.Managers
             main = this;
         }
 
+        /// <summary>
+        /// Update the currently selected translation string in the TranslationData.
+        /// </summary>
+        /// <param name="EditorTextBox">The TextBox to read the string from.</param>
+        /// <param name="TemplateTextBox">The TexBox containing the template.</param>
+        /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
+        /// <param name="CharacterCountLabel">The Label with the character count.</param>
         public void UpdateTranslationString(TextBox EditorTextBox, TextBox TemplateTextBox, ColouredCheckedListBox ColouredCheckedListBoxLeft, Label CharacterCountLabel)
         {
             int internalIndex = ColouredCheckedListBoxLeft.SelectedIndex;
@@ -120,6 +128,13 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
+        /// <param name="SelectedFile">A label to display the selected file.</param>
+        /// <param name="ApprovedCountLabel">A label displaying a ration of approved strings to normal strings.</param>
+        /// <param name="NoProgressBar">The progressbar to show approval progress.</param>
         public void LoadFileIntoProgram(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label SelectedFile, Label ApprovedCountLabel, NoAnimationBar NoProgressBar)
         {
             TranslationData.Clear();
@@ -169,6 +184,17 @@ namespace HousePartyTranslator.Managers
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
+        /// <param name="TextBoxReadOnly">The TexBox containing the template.</param>
+        /// <param name="TextBoxEditable">The TextBox to read the string from.</param>
+        /// <param name="CommentBox">The TextBox containing the comments for the current string.</param>
+        /// <param name="CharacterCountLabel">The Label with the character count.</param>
+        /// <param name="ApprovedStringLabel">A label displaying a ration of approved strings to normal strings.</param>
+        /// <param name="NoProgressbar">The progressbar to show approval progress.</param>
+        /// <param name="ApprovedBox">The Button in the top to approve strings with. synced to the selected item checked state.</param>
         public void PopulateTextBoxes(ColouredCheckedListBox ColouredCheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel, Label ApprovedStringLabel, NoAnimationBar NoProgressbar, CheckBox ApprovedBox)
         {
             TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
@@ -234,7 +260,7 @@ namespace HousePartyTranslator.Managers
                         TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
 
                         //clear text box if it is the template (not translated yet)
-                        if(TextBoxReadOnly.Text == TextBoxEditable.Text && TranslationData[currentIndex].ID != "Name")
+                        if (TextBoxReadOnly.Text == TextBoxEditable.Text && TranslationData[currentIndex].ID != "Name")
                         {
                             TextBoxEditable.Clear();
                         }
@@ -254,6 +280,10 @@ namespace HousePartyTranslator.Managers
             TextBoxReadOnly.FindForm().Cursor = Cursors.Default;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         public void SaveCurrentString(ColouredCheckedListBox ColouredCheckedListBoxLeft)
         {
             int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
@@ -276,6 +306,11 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
+        /// <param name="CommentBox">The TextBox containing the comments for the current string.</param>
         public void SaveCurrentComment(ColouredCheckedListBox ColouredCheckedListBoxLeft, TextBox CommentBox)
         {
             int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
@@ -298,6 +333,10 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="LanguageBox">The dropdown selection box for the language.</param>
         public void SetLanguage(ComboBox LanguageBox)
         {
             if (LanguageBox.SelectedIndex > -1)
@@ -316,6 +355,14 @@ namespace HousePartyTranslator.Managers
             LanguageBox.Text = Language;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
+        /// <param name="ApprovedCountLabel">A label displaying a ration of approved strings to normal strings.</param>
+        /// <param name="NoProgressbar">The progressbar to show approval progress.</param>
+        /// <param name="SelectNewAfter">A bool to determine if a new string should be selected after approval.</param>
+        /// <param name="ApprovedBox">The Button in the top to approve strings with. synced to the selected item checked state.</param>
         public void ApproveIfPossible(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label ApprovedCountLabel, NoAnimationBar NoProgressbar, bool SelectNewAfter, CheckBox ApprovedBox)
         {
             int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
@@ -344,6 +391,10 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         public void SaveFile(ColouredCheckedListBox ColouredCheckedListBoxLeft)
         {
             if (SourceFilePath != "")
@@ -421,6 +472,10 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         public void SaveFileAs(ColouredCheckedListBox ColouredCheckedListBoxLeft)
         {
             if (SourceFilePath != "")
@@ -435,6 +490,11 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="CheckedListBox">The list of strings.</param>
+        /// <param name="SearchBox">The Textbox to search with.</param>
         public void Search(ColouredCheckedListBox CheckedListBox, TextBox SearchBox)
         {
             //reset list if no search is performed
@@ -459,15 +519,45 @@ namespace HousePartyTranslator.Managers
             else
             {
                 CheckedListBox.SearchResults.Clear();
+                SelectedSearchResult = 0;
             }
 
             CheckedListBox.Invalidate(CheckedListBox.Region);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="msg">Windows message contaning the info on the event.</param>
+        /// <param name="keyData">Keydata containing all currently pressed keys.</param>
+        /// <param name="SearchBox">The Textbox to search with.</param>
+        /// <param name="EditorBox">The TextBox to read the string from.</param>
+        /// <param name="checkedListBox">The list of strings.</param>
+        /// <returns></returns>
         public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, TextBox SearchBox, TextBox EditorBox, ColouredCheckedListBox checkedListBox)
         {
             switch (keyData)
             {
+                //handle enter as jumping to first search result if searched something, and focus is not on text editor.
+                case (Keys.Enter):
+                    if (!EditorBox.Focused)
+                    {
+                        if (SelectedSearchResult < checkedListBox.SearchResults.Count)
+                        {
+                            checkedListBox.SelectedIndex = checkedListBox.SearchResults[SelectedSearchResult++];
+                        }
+                        else
+                        {
+                            SelectedSearchResult = 0;
+                            checkedListBox.SelectedIndex = checkedListBox.SearchResults[SelectedSearchResult++];
+                        }
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+
                 //set selected string as search string and place cursor in search box
                 case (Keys.Control | Keys.F):
                     if (EditorBox.SelectedText.Length > 0)
@@ -494,7 +584,7 @@ namespace HousePartyTranslator.Managers
 
                 //select string above current selection
                 case (Keys.Control | Keys.Up):
-                    if(checkedListBox.SelectedIndex > 0) checkedListBox.SelectedIndex--;
+                    if (checkedListBox.SelectedIndex > 0) checkedListBox.SelectedIndex--;
                     return true;
 
                 //select string below current selection
@@ -519,6 +609,10 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message">The error message to display</param>
         public static void DisplayExceptionMessage(string message)
         {
             main.ExceptionCount++;
@@ -540,15 +634,21 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        public static void ApprovedButtonHandler(Fenster F, CheckBox ApprovedBox, ColouredCheckedListBox CheckListBox)
-        { 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="FensterRef"></param>
+        /// <param name="ApprovedBox">The Button in the top to approve strings with. synced to the selected item checked state.</param>
+        /// <param name="CheckListBox">The list of strings.</param>
+        public static void ApprovedButtonHandler(Fenster FensterRef, CheckBox ApprovedBox, ColouredCheckedListBox CheckListBox)
+        {
             //get title bar height
-            Rectangle ScreenRectangle = F.RectangleToScreen(F.ClientRectangle);
-            int TitleHeight = ScreenRectangle.Top - F.Top;
+            Rectangle ScreenRectangle = FensterRef.RectangleToScreen(FensterRef.ClientRectangle);
+            int TitleHeight = ScreenRectangle.Top - FensterRef.Top;
 
             //check whether cursor is on approved button or not
-            int deltaX = Cursor.Position.X - ApprovedBox.Location.X - F.Location.X;
-            int deltaY = Cursor.Position.Y - ApprovedBox.Location.Y - F.Location.Y - TitleHeight;
+            int deltaX = Cursor.Position.X - ApprovedBox.Location.X - FensterRef.Location.X;
+            int deltaY = Cursor.Position.Y - ApprovedBox.Location.Y - FensterRef.Location.Y - TitleHeight;
             bool isInX = 0 <= deltaX && deltaX <= ApprovedBox.Width;
             bool isInY = 0 <= deltaY && deltaY <= ApprovedBox.Height;
 
@@ -561,6 +661,10 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="checkedListBox">The list of strings.</param>
         private void ReloadFile(ColouredCheckedListBox checkedListBox)
         {
             TranslationData.Clear();
@@ -572,6 +676,12 @@ namespace HousePartyTranslator.Managers
             HandleTranslationLoading(checkedListBox);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="TemplateCount">The number of chars in the template string.</param>
+        /// <param name="TranslationCount">The number of chars in the translated string.</param>
+        /// <param name="CharacterCountLabel">The Label with the character count.</param>
         private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount, Label CharacterCountLabel)
         {
             if (TemplateCount >= TranslationCount)
@@ -589,6 +699,13 @@ namespace HousePartyTranslator.Managers
             CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Approved">The number of approved strings.</param>
+        /// <param name="Total">The total number of strings.</param>
+        /// <param name="ApprovedCountLabel">A label displaying a ration of approved strings to normal strings.</param>
+        /// <param name="NoProgressbar">The progressbar to show approval progress.</param>
         private void UpdateApprovedCountLabel(int Approved, int Total, Label ApprovedCountLabel, NoAnimationBar NoProgressbar)
         {
             ApprovedCountLabel.Text = $"Approved: {Approved} / {Total}";
@@ -596,6 +713,9 @@ namespace HousePartyTranslator.Managers
             NoProgressbar.Invalidate();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void HandleStringReadingFromFile()
         {
             //read in all strings with IDs
@@ -609,6 +729,9 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ReadStringsTemplateFromFile()
         {
             StringCategory currentCategory = StringCategory.General;
@@ -652,6 +775,9 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         private void ReadStringsTranslationsFromFile()
         {
             StringCategory currentCategory = StringCategory.General;
@@ -738,6 +864,10 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         private void HandleTranslationLoading(ColouredCheckedListBox ColouredCheckedListBoxLeft)
         {
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
@@ -762,6 +892,10 @@ namespace HousePartyTranslator.Managers
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="folderPath"></param>
         private void HandleTemplateLoading(string folderPath)
         {
             //upload all new strings
@@ -813,6 +947,10 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="folderPath"></param>
         private void IterativeReadFiles(string folderPath)
         {
             DirectoryInfo templateDir = new DirectoryInfo(folderPath);
@@ -845,6 +983,11 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="line"></param>
+        /// <returns></returns>
         private StringCategory GetCategoryFromString(string line)
         {
             StringCategory internalCategory = StringCategory.Neither;
@@ -894,6 +1037,11 @@ namespace HousePartyTranslator.Managers
             return internalCategory;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
         private string GetStringFromCategory(StringCategory category)
         {
             string returnedString = "";
@@ -939,6 +1087,10 @@ namespace HousePartyTranslator.Managers
             return returnedString;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static string SelectFileFromSystem()
         {
             OpenFileDialog selectFileDialog = new OpenFileDialog
@@ -955,6 +1107,10 @@ namespace HousePartyTranslator.Managers
             return "";
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static string SelectFolderFromSystem()
         {
             FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
@@ -970,6 +1126,10 @@ namespace HousePartyTranslator.Managers
             return "";
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public static string SaveFileOnSystem()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
