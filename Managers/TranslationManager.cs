@@ -424,11 +424,23 @@ namespace HousePartyTranslator.Managers
                     }
                     else// if id is not found
                     {
+                        string templateString = "";
                         //add template to list if no translation is in the file
-                        DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out string templateString);
+                        if (!DataBaseManager.GetStringTranslation(item.ID, FileName, StoryName, out templateString, Language))
+                        {
+                            DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out templateString);
+                        }
                         item.TranslationString = templateString;
                         int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-                        CategorizedStrings[intCategory].Item1.Add(item);
+                        if (intCategory < CategorizedStrings.Count && intCategory >= 0)
+                        {
+                            CategorizedStrings[intCategory].Item1.Add(item);
+                        }
+                        else
+                        {
+                            CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), StringCategory.Neither));
+                            CategorizedStrings.Last().Item1.Add(item);
+                        }
                     }
                 }
 
