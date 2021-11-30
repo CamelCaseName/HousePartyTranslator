@@ -23,7 +23,7 @@ namespace HousePartyTranslator
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (TranslationManager.main.HandleKeyPressMainForm(ref msg, keyData, SearchBox, TranslatedTextBox, CheckListBoxLeft))
+            if (TranslationManager.main.HandleKeyPressMainForm(ref msg, keyData, SearchBox, TranslatedTextBox, CheckListBoxLeft, CommentTextBox))
             {
                 return true;
             }

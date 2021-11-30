@@ -141,6 +141,7 @@ namespace HousePartyTranslator.Managers
             ColouredCheckedListBoxLeft.Items.Clear();
             CategoriesInFile.Clear();
             LastIndex = -1;
+            SelectedSearchResult = 0;
 
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
             if (IsUpToDate)
@@ -534,24 +535,31 @@ namespace HousePartyTranslator.Managers
         /// <param name="EditorBox">The TextBox to read the string from.</param>
         /// <param name="checkedListBox">The list of strings.</param>
         /// <returns></returns>
-        public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, TextBox SearchBox, TextBox EditorBox, ColouredCheckedListBox checkedListBox)
+        public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, TextBox SearchBox, TextBox EditorBox, ColouredCheckedListBox checkedListBox, TextBox CommentBox)
         {
             switch (keyData)
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
                 case (Keys.Enter):
-                    if (!EditorBox.Focused)
+                    if (!EditorBox.Focused || !CommentBox.Focused)
                     {
-                        if (SelectedSearchResult < checkedListBox.SearchResults.Count)
+                        if (checkedListBox.SearchResults.Any())
                         {
-                            checkedListBox.SelectedIndex = checkedListBox.SearchResults[SelectedSearchResult++];
+                            if (SelectedSearchResult < checkedListBox.SearchResults.Count)
+                            {
+                                checkedListBox.SelectedIndex = checkedListBox.SearchResults[SelectedSearchResult++];
+                            }
+                            else
+                            {
+                                SelectedSearchResult = 0;
+                                checkedListBox.SelectedIndex = checkedListBox.SearchResults[SelectedSearchResult++];
+                            }
+                            return true;
                         }
                         else
                         {
-                            SelectedSearchResult = 0;
-                            checkedListBox.SelectedIndex = checkedListBox.SearchResults[SelectedSearchResult++];
+                            return false;
                         }
-                        return true;
                     }
                     else
                     {
@@ -657,7 +665,7 @@ namespace HousePartyTranslator.Managers
             {
                 int Index = CheckListBox.SelectedIndex;
                 //inverse checked state at the selected index
-                CheckListBox.SetItemChecked(Index, !CheckListBox.GetItemChecked(Index));
+                if (Index >= 0) CheckListBox.SetItemChecked(Index, !CheckListBox.GetItemChecked(Index));
             }
         }
 
@@ -709,7 +717,15 @@ namespace HousePartyTranslator.Managers
         private void UpdateApprovedCountLabel(int Approved, int Total, Label ApprovedCountLabel, NoAnimationBar NoProgressbar)
         {
             ApprovedCountLabel.Text = $"Approved: {Approved} / {Total}";
-            NoProgressbar.Value = (int)((float)Approved / (float)Total * 100);
+            int ProgressValue = (int)((float)Approved / (float)Total * 100);
+            if (ProgressValue > 0 && ProgressValue < 100)
+            {
+                NoProgressbar.Value = ProgressValue;
+            }
+            else
+            {
+                NoProgressbar.Value = 0;
+            }
             NoProgressbar.Invalidate();
         }
 
