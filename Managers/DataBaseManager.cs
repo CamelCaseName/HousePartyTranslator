@@ -562,10 +562,21 @@ namespace HousePartyTranslator.Managers
         public static bool GetAllLineDataBasicForFile(string fileName, string story, out List<LineData> LineDataList)
         {
             Application.UseWaitCursor = true;
-            string insertCommand = @"SELECT id, category, english 
+            string insertCommand = "";
+            if (story == "Hints")
+            {
+                insertCommand = @"SELECT id, category, english 
+                                    " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
+                                    WHERE story = @story AND language IS NULL
+                                    ORDER BY category ASC;";
+            }
+            else
+            {
+                insertCommand = @"SELECT id, category, english 
                                     " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
                                     WHERE filename = @filename AND story = @story AND language IS NULL
                                     ORDER BY category ASC;";
+            }
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@filename", fileName);
@@ -638,6 +649,10 @@ namespace HousePartyTranslator.Managers
         public static bool GetStringTemplate(string id, string fileName, string story, out string template)
         {
             Application.UseWaitCursor = true;
+            if (story == "Hints")
+            {
+                fileName = "English";
+            }
             string insertCommand = @"SELECT english 
                                      " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
                                      WHERE id = @id";
@@ -727,6 +742,7 @@ namespace HousePartyTranslator.Managers
 
         private static string CleanId(string DataBaseId, string story, string fileName, bool isTemplate)
         {
+            if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId.Substring((story + fileName).Length);
             return tempID.Remove(tempID.Length - (isTemplate ? 8 : 2));
         }
