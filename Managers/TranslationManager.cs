@@ -137,11 +137,10 @@ namespace HousePartyTranslator.Managers
         /// <param name="NoProgressBar">The progressbar to show approval progress.</param>
         public void LoadFileIntoProgram(ColouredCheckedListBox ColouredCheckedListBoxLeft, Label SelectedFile, Label ApprovedCountLabel, NoAnimationBar NoProgressBar)
         {
-            TranslationData.Clear();
-            ColouredCheckedListBoxLeft.Items.Clear();
-            CategoriesInFile.Clear();
-            LastIndex = -1;
-            SelectedSearchResult = 0;
+            ResetTranslationManager(ColouredCheckedListBoxLeft);
+
+            //register load
+            LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
             if (IsUpToDate)
@@ -186,7 +185,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Populates the Editor/Template text boxes and does some basic set/reset logic.
         /// </summary>
         /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         /// <param name="TextBoxReadOnly">The TexBox containing the template.</param>
@@ -196,7 +195,14 @@ namespace HousePartyTranslator.Managers
         /// <param name="ApprovedStringLabel">A label displaying a ration of approved strings to normal strings.</param>
         /// <param name="NoProgressbar">The progressbar to show approval progress.</param>
         /// <param name="ApprovedBox">The Button in the top to approve strings with. synced to the selected item checked state.</param>
-        public void PopulateTextBoxes(ColouredCheckedListBox ColouredCheckedListBoxLeft, TextBox TextBoxReadOnly, TextBox TextBoxEditable, TextBox CommentBox, Label CharacterCountLabel, Label ApprovedStringLabel, NoAnimationBar NoProgressbar, CheckBox ApprovedBox)
+        public void PopulateTextBoxes(ColouredCheckedListBox ColouredCheckedListBoxLeft,
+            TextBox TextBoxReadOnly,
+            TextBox TextBoxEditable,
+            TextBox CommentBox,
+            Label CharacterCountLabel,
+            Label ApprovedStringLabel,
+            NoAnimationBar NoProgressbar,
+            CheckBox ApprovedBox)
         {
             TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
             int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
@@ -404,6 +410,12 @@ namespace HousePartyTranslator.Managers
                 ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
                 List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
 
+                //we need to check whether the file has any strings at all, expecially the categories, if no, add them first or shit breaks.
+                if (CategoriesInFile.Count == 0)
+                {
+                    GenerateCategories();
+                }
+
                 foreach (StringCategory category in CategoriesInFile)
                 {//add a list for every category we have in the file, so we can then add the strings to these.
                     CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
@@ -411,7 +423,9 @@ namespace HousePartyTranslator.Managers
 
                 StreamWriter OutputWriter = new StreamWriter(SourceFilePath);
 
+                //can take some time
                 DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
+                DataBaseManager.GetAllTranslatedStringForFile(FileName, StoryName, out List<LineData> TranslationsFromDatabase, Language);
 
                 foreach (LineData item in IdsToExport)
                 {
@@ -425,10 +439,28 @@ namespace HousePartyTranslator.Managers
                     else// if id is not found
                     {
                         //add template to list if no translation is in the file
-                        DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out string templateString);
-                        item.TranslationString = templateString;
+                        LineData TempResult = TranslationsFromDatabase.Find(pL => pL.ID == item.ID);
+
+                        if (TempResult == null)
+                        {
+                            DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out item.TranslationString);
+                        }
+                        else
+                        {
+                            item.TranslationString = TempResult.TranslationString;
+                        }
+
                         int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-                        CategorizedStrings[intCategory].Item1.Add(item);
+
+                        if (intCategory < CategorizedStrings.Count && intCategory >= 0)
+                        {
+                            CategorizedStrings[intCategory].Item1.Add(item);
+                        }
+                        else
+                        {
+                            CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), StringCategory.Neither));
+                            CategorizedStrings.Last().Item1.Add(item);
+                        }
                     }
                 }
 
@@ -469,7 +501,6 @@ namespace HousePartyTranslator.Managers
                 OutputWriter.Close();
 
                 ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
-
             }
         }
 
@@ -675,10 +706,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="checkedListBox">The list of strings.</param>
         private void ReloadFile(ColouredCheckedListBox checkedListBox)
         {
-            TranslationData.Clear();
-            checkedListBox.Items.Clear();
-            CategoriesInFile.Clear();
-            LastIndex = -1;
+            ResetTranslationManager(checkedListBox);
             ReadStringsTranslationsFromFile();
             //is up to date, so we can start translation
             HandleTranslationLoading(checkedListBox);
@@ -727,6 +755,37 @@ namespace HousePartyTranslator.Managers
                 NoProgressbar.Value = 0;
             }
             NoProgressbar.Invalidate();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private void GenerateCategories()
+        {
+            if (StoryName == "UI" || StoryName == "Hints")
+            {
+                CategoriesInFile = new List<StringCategory>() { StringCategory.General };
+            }
+            else if (FileName == StoryName)
+            {
+                CategoriesInFile = new List<StringCategory>() {
+                            StringCategory.General,
+                            StringCategory.ItemName,
+                            StringCategory.ItemAction,
+                            StringCategory.ItemGroupAction,
+                            StringCategory.Event,
+                            StringCategory.Achievement };
+            }
+            else
+            {
+                CategoriesInFile = new List<StringCategory>() {
+                            StringCategory.General,
+                            StringCategory.Dialogue,
+                            StringCategory.Response,
+                            StringCategory.Quest,
+                            StringCategory.Event,
+                            StringCategory.BGC};
+            }
         }
 
         /// <summary>
@@ -997,6 +1056,19 @@ namespace HousePartyTranslator.Managers
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="CblLeft"></param>
+        private void ResetTranslationManager(ColouredCheckedListBox CblLeft)
+        {
+            TranslationData.Clear();
+            CblLeft.Items.Clear();
+            CategoriesInFile.Clear();
+            LastIndex = -1;
+            SelectedSearchResult = 0;
         }
 
         /// <summary>
