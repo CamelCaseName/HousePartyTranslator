@@ -139,8 +139,6 @@ namespace HousePartyTranslator.Managers
         {
             ResetTranslationManager(ColouredCheckedListBoxLeft);
 
-            //register load
-            LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
             if (IsUpToDate)
@@ -180,6 +178,8 @@ namespace HousePartyTranslator.Managers
                         );
                 }
             }
+            //register load
+            LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }
@@ -265,12 +265,6 @@ namespace HousePartyTranslator.Managers
                     {
                         //read the template form the db and display it if it exists
                         TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
-
-                        //clear text box if it is the template (not translated yet)
-                        if (TextBoxReadOnly.Text == TextBoxEditable.Text && TranslationData[currentIndex].ID != "Name")
-                        {
-                            TextBoxEditable.Clear();
-                        }
                     }
 
                     if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
