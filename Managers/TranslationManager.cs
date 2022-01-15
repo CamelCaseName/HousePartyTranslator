@@ -174,7 +174,9 @@ namespace HousePartyTranslator.Managers
                     MessageBox.Show(
                         $"Please the template folder named 'TEMPLATE' so we can upload them. " +
                         $"Your Current Folder shows as {templateFolderName}.",
-                        "Updating string database"
+                        "Updating string database",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
                         );
                 }
             }
@@ -560,7 +562,11 @@ namespace HousePartyTranslator.Managers
         /// <param name="EditorBox">The TextBox to read the string from.</param>
         /// <param name="checkedListBox">The list of strings.</param>
         /// <returns></returns>
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable IDE0060 // Remove unused parameter
         public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, TextBox SearchBox, TextBox EditorBox, ColouredCheckedListBox checkedListBox, TextBox CommentBox)
+#pragma warning restore IDE0079 // Remove unnecessary suppression
+#pragma warning restore IDE0060 // Remove unused parameter
         {
             switch (keyData)
             {
@@ -799,14 +805,20 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// tldr: magic
         /// </summary>
         private void ReadStringsTemplateFromFile()
         {
             StringCategory currentCategory = StringCategory.General;
             string multiLineCollector = "";
             string[] lastLine = { };
-            foreach (string line in File.ReadAllLines(SourceFilePath))
+            //string[] lastLastLine = { };
+            //read in lines
+            List<string> LinesFromFile = File.ReadAllLines(SourceFilePath).ToList();
+            //remove last if empty, breaks line lioading for the last
+            while (LinesFromFile.Last() == "") LinesFromFile.Remove(LinesFromFile.Last());
+            //load lines and their data and split accordingly
+            foreach (string line in LinesFromFile)
             {
                 if (line.Contains('|'))
                 {
@@ -837,11 +849,8 @@ namespace HousePartyTranslator.Managers
                     }
                 }
             }
-            //add last line (if it does not exist)
-            if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
-            {
-                if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
-            }
+            //add last line (dont care about duplicates because sql will get rid of them)
+            if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
         }
 
         /// <summary>
@@ -855,7 +864,12 @@ namespace HousePartyTranslator.Managers
 
             DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
 
-            foreach (string line in File.ReadAllLines(SourceFilePath))
+            //read in lines
+            List<string> LinesFromFile = File.ReadAllLines(SourceFilePath).ToList();
+            //remove last if empty, breaks line lioading for the last
+            while (LinesFromFile.Last() == "") LinesFromFile.RemoveAt(LinesFromFile.Count - 1);
+            //load lines and their data and split accordingly
+            foreach (string line in LinesFromFile)
             {
                 if (line.Contains('|'))
                 {
@@ -912,11 +926,8 @@ namespace HousePartyTranslator.Managers
 
             if (lastLine.Length > 0)
             {
-                //add last line (if it does not exist)
-                if (!TranslationData.Exists(predicateLine => predicateLine.ID == lastLine[0]))
-                {
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
-                }
+                //add last line (dont care about duplicates because sql will get rid of them)
+                TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
             }
 
             //set categories if file is a hint file
@@ -964,7 +975,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="folderPath"></param>
+        /// <param name="folderPath">The path to the folders to load the templates from.</param>
         private void HandleTemplateLoading(string folderPath)
         {
             //upload all new strings
@@ -974,7 +985,8 @@ namespace HousePartyTranslator.Managers
             }
             catch (UnauthorizedAccessException e)
             {
-                MessageBox.Show("Encountered " + e.Message);
+                LogManager.LogEvent(e.ToString());
+                DisplayExceptionMessage(e.ToString());
             }
 
             MessageBox.Show(
@@ -989,7 +1001,10 @@ namespace HousePartyTranslator.Managers
             //add all the new strings
             foreach (LineData lineD in TranslationData)
             {
-                DataBaseManager.SetStringTemplate(lineD.ID, lineD.FileName, lineD.Story, lineD.Category, lineD.EnglishString);
+                if (lineD.EnglishString != "")
+                {
+                    DataBaseManager.SetStringTemplate(lineD.ID, lineD.FileName, lineD.Story, lineD.Category, lineD.EnglishString);
+                }
             }
 
             DialogResult result = MessageBox.Show(
@@ -1019,7 +1034,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="folderPath"></param>
+        /// <param name="folderPath">The path to the folder to find all files in (iterative).</param>
         private void IterativeReadFiles(string folderPath)
         {
             DirectoryInfo templateDir = new DirectoryInfo(folderPath);
@@ -1055,7 +1070,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="CblLeft"></param>
+        /// <param name="CblLeft">The coloured Checkes List Box to reset.</param>
         private void ResetTranslationManager(ColouredCheckedListBox CblLeft)
         {
             TranslationData.Clear();
@@ -1068,7 +1083,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="line"></param>
+        /// <param name="line">The line to parse.</param>
         /// <returns></returns>
         private StringCategory GetCategoryFromString(string line)
         {
@@ -1122,7 +1137,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="category"></param>
+        /// <param name="category">The Category to parse.</param>
         /// <returns></returns>
         private string GetStringFromCategory(StringCategory category)
         {
@@ -1172,7 +1187,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Opens a select file dialogue and returns the selected file as a path.</returns>
         public static string SelectFileFromSystem()
         {
             OpenFileDialog selectFileDialog = new OpenFileDialog
@@ -1192,7 +1207,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Opens a select folder dialogue and returns the selected folder as a path.</returns>
         public static string SelectFolderFromSystem()
         {
             FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
@@ -1211,7 +1226,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Opens a save file dialogue and returns the selected file as a path.</returns>
         public static string SaveFileOnSystem()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
