@@ -16,9 +16,15 @@ namespace HousePartyTranslator.Managers
         private static string SoftwareVersion;
         private static string DBVersion;
 #if DEBUG 
-        private static readonly bool isRelease = false;
+        private static readonly string FROM = "FROM debug ";
+        private static readonly string INSERT = "INSERT INTO debug ";
+        private static readonly string UPDATE = "UPDATE debug ";
+        private static readonly string DELETE = "DELETE FROM debug ";
 #else
-        private static readonly bool isRelease = true;
+        private static readonly string FROM = "FROM translations ";
+        private static readonly string INSERT = "INSERT INTO translations ";
+        private static readonly string UPDATE = "UPDATE translations ";
+        private static readonly string DELETE = "DELETE FROM translations ";
 #endif
 
         /// <summary>
@@ -72,7 +78,7 @@ namespace HousePartyTranslator.Managers
 
             //checking template version
             MySqlCommand getVersion = new MySqlCommand("SELECT story " +
-                                                       (isRelease ? "FROM translations " : "FROM debug ") +
+                                                       FROM +
                                                        "WHERE ID = \"version\";", sqlConnection);
             MainReader = getVersion.ExecuteReader();
             MainReader.Read();
@@ -114,8 +120,12 @@ namespace HousePartyTranslator.Managers
             if (!TranslationManager.main.IsUpToDate)
             {
                 MessageBox.Show($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
-                    $" You may acquire the latest version of this program. " +
-                    $"If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
+                            $" You may acquire the latest version of this program. " +
+                            $"If you know that you have newer strings, you may select the template files to upload the new versions!",
+                            "Updating string database",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                        );
             }
             mainWindow.Text += " (Software Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ")";
             mainWindow.Update();
@@ -136,9 +146,9 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool SetStringApprovedState(string id, string fileName, string story, StringCategory category, bool isApproved, string language = "de")
         {
-            string insertCommand = (isRelease ? "INSERT INTO translations " : "INSERT INTO debug ") + @" (id, story, filename, category, translated, approved, language) 
-                                     VALUES(@id, @story, @fileName, @category, @translated, @approved, @language)
-                                     ON DUPLICATE KEY UPDATE approved = @approved;";
+            string insertCommand = INSERT + @" (id, story, filename, category, translated, approved, language) 
+VALUES(@id, @story, @fileName, @category, @translated, @approved, @language)
+ON DUPLICATE KEY UPDATE approved = @approved;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
@@ -165,7 +175,7 @@ namespace HousePartyTranslator.Managers
         public static bool GetStringApprovedState(string id, string fileName, string story, string language = "de")
         {
             string insertCommand = @"SELECT approved 
-                                     " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
+                                     " + FROM + @" 
                                      WHERE id = @id;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
@@ -199,7 +209,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool SetStringTranslatedState(string id, string fileName, string story, StringCategory category, bool isTranslated, string language = "de")
         {
-            string insertCommand = (isRelease ? "INSERT INTO translations " : "INSERT INTO debug ") + @" (id, story, filename, category, translated, language) 
+            string insertCommand = FROM + @" (id, story, filename, category, translated, language) 
                                      VALUES(@id, @story, @fileName, @category, @translated, @language)
                                      ON DUPLICATE KEY UPDATE translated = @translated;";
             MainCommand.CommandText = insertCommand;
@@ -227,7 +237,7 @@ namespace HousePartyTranslator.Managers
         public static bool GetStringTranslatedState(string id, string fileName, string story, string language = "de")
         {
             string insertCommand = @"SELECT translated 
-                                     " + (isRelease ? "FROM translations " : "FROM debug ") + @"  
+                                     " + FROM + @"  
                                      WHERE id = @id AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
@@ -263,7 +273,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool SetStringTranslation(string id, string fileName, string story, StringCategory category, string translation, string language = "de")
         {
-            string insertCommand = (isRelease ? "INSERT INTO translations " : "INSERT INTO debug ") + @" (id, story, filename, category, translated, approved, language, translation) 
+            string insertCommand = INSERT + @" (id, story, filename, category, translated, approved, language, translation) 
                                      VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @translation)
                                      ON DUPLICATE KEY UPDATE translation = @translation;";
             MainCommand.CommandText = insertCommand;
@@ -294,7 +304,7 @@ namespace HousePartyTranslator.Managers
         public static bool GetStringTranslation(string id, string fileName, string story, out string translation, string language = "de")
         {
             string insertCommand = @"SELECT translation 
-                                     " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
+                                     " + FROM + @" 
                                      WHERE id = @id AND language = @language;";
             bool wasSuccessfull = false;
             MainCommand.CommandText = insertCommand;
@@ -336,7 +346,7 @@ namespace HousePartyTranslator.Managers
 
             internalComment += ("#" + comment);
 
-            string insertCommand = (isRelease ? "UPDATE translations " : "UPDATE debug ") + @"
+            string insertCommand = UPDATE + @"
                                      SET COMMENT = @comment 
                                      WHERE id = @id AND language = @language;";
             MainCommand.CommandText = insertCommand;
@@ -376,7 +386,7 @@ namespace HousePartyTranslator.Managers
 
             internalComment = internalComment.Replace(Environment.NewLine, "");
 
-            string insertCommand = (isRelease ? "INSERT INTO translations " : "INSERT INTO debug ") + @" (id, language, comment) 
+            string insertCommand = INSERT + @" (id, language, comment) 
                                         VALUES(@id, @language, @comment)
                                         ON DUPLICATE KEY UPDATE comment = @comment;";
             MainCommand.CommandText = insertCommand;
@@ -405,7 +415,7 @@ namespace HousePartyTranslator.Managers
         public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
         {
             string insertCommand = @"SELECT comment 
-                                     " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
+                                     " + FROM + @" 
                                      WHERE id = @id AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
@@ -467,7 +477,7 @@ namespace HousePartyTranslator.Managers
         {
             Application.UseWaitCursor = true;
             string insertCommand = @"SELECT id, category, translation 
-                                     " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
+                                     " + FROM + @" 
                                      WHERE filename = @filename AND story = @story AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
@@ -515,7 +525,7 @@ namespace HousePartyTranslator.Managers
         {
             Application.UseWaitCursor = true;
             string insertCommand = @"SELECT id, category, approved 
-                                     " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
+                                     " + FROM + @" 
                                      WHERE filename = @filename AND story = @story AND language = @language;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
@@ -562,18 +572,18 @@ namespace HousePartyTranslator.Managers
         public static bool GetAllLineDataBasicForFile(string fileName, string story, out List<LineData> LineDataList)
         {
             Application.UseWaitCursor = true;
-            string insertCommand = "";
+            string insertCommand;
             if (story == "Hints")
             {
                 insertCommand = @"SELECT id, category, english 
-                                    " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
+                                    " + FROM + @" 
                                     WHERE story = @story AND language IS NULL
                                     ORDER BY category ASC;";
             }
             else
             {
                 insertCommand = @"SELECT id, category, english 
-                                    " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
+                                    " + FROM + @" 
                                     WHERE filename = @filename AND story = @story AND language IS NULL
                                     ORDER BY category ASC;";
             }
@@ -621,7 +631,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool SetStringTemplate(string id, string fileName, string story, StringCategory category, string template)
         {
-            string insertCommand = (isRelease ? "INSERT INTO translations " : "INSERT INTO debug ") + @" (id, story, filename, category, english) 
+            string insertCommand = INSERT + @" (id, story, filename, category, english) 
                                      VALUES(@id, @story, @fileName, @category, @english)
                                      ON DUPLICATE KEY UPDATE english = @english;";
             MainCommand.CommandText = insertCommand;
@@ -654,7 +664,7 @@ namespace HousePartyTranslator.Managers
                 fileName = "English";
             }
             string insertCommand = @"SELECT english 
-                                     " + (isRelease ? "FROM translations " : "FROM debug ") + @" 
+                                     " + FROM + @" 
                                      WHERE id = @id";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
@@ -695,7 +705,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool UpdateDBVersion()
         {
-            string insertCommand = (isRelease ? "UPDATE translations " : "UPDATE debug ") + @"
+            string insertCommand = UPDATE + @"
                                      SET story = @story 
                                      WHERE ID = @version;";
             MainCommand.CommandText = insertCommand;
@@ -715,7 +725,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool ClearDBofAllStrings()
         {
-            string insertCommand = (isRelease ? "DELETE FROM translations " : "DELETE FROM debug ") + @" 
+            string insertCommand = DELETE + @" 
                                      WHERE NOT ID = @version;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
