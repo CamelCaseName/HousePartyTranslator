@@ -267,6 +267,17 @@ namespace HousePartyTranslator.Managers
                     {
                         //read the template form the db and display it if it exists
                         TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
+
+                        //clear text box if it is the template (not translated yet)
+                        if (TextBoxReadOnly.Text == TextBoxEditable.Text && TranslationData[currentIndex].Category != StringCategory.General)
+                        {
+                            ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
+                            //TranslationData[currentIndex].IsTranslated = false;
+                        }
+                        else
+                        {
+                            if (ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
+                        }
                     }
 
                     if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
@@ -305,7 +316,10 @@ namespace HousePartyTranslator.Managers
                     TranslationData[LastIndex].TranslationString,
                     Language);
 
+                if (ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
+
                 ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
+                
             }
         }
 
@@ -956,7 +970,8 @@ namespace HousePartyTranslator.Managers
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
 
             bool lineIsApproved = false;
-            bool gotApprovedStates = DataBaseManager.GetAllApprovalStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
+            bool gotApprovedStates = DataBaseManager.GetAllStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
+            int currentIndex = 0;
 
             foreach (LineData lineD in main.TranslationData)
             {
@@ -966,11 +981,26 @@ namespace HousePartyTranslator.Managers
                     if (tempLine != null)
                     {
                         lineIsApproved = tempLine.IsApproved;
+                        lineD.IsTranslated = tempLine.IsTranslated;
+                        lineD.EnglishString = tempLine.EnglishString;
                     }
                 }
 
                 ColouredCheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
+
                 lineD.IsApproved = lineIsApproved;
+
+                //colour string if similar to the english one
+                if (lineD.TranslationString.Trim().Length < 2 
+                    || (!lineD.IsTranslated && !lineD.IsApproved && lineD.Category != StringCategory.General) 
+                    || (lineD.TranslationString == lineD.EnglishString))
+                {
+                    ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
+                }
+
+                //increase index to aid colouring
+                currentIndex++;
+                lineIsApproved = false;
             }
             ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
         }

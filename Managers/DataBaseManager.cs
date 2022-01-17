@@ -521,10 +521,10 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
         /// <returns>
         /// True if approvals are found for the file.
         /// </returns>
-        public static bool GetAllApprovalStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
+        public static bool GetAllStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
         {
             Application.UseWaitCursor = true;
-            string insertCommand = @"SELECT id, category, approved 
+            string insertCommand = @"SELECT id, category, approved, translated, translation, english 
                                      " + FROM + @" 
                                      WHERE filename = @filename AND story = @story AND language = @language;";
             MainCommand.CommandText = insertCommand;
@@ -546,7 +546,10 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
                             story,
                             fileName,
                             (StringCategory)MainReader.GetInt32("category"),
-                            MainReader.GetInt32("approved") == 1));
+                            MainReader.GetInt32("approved") == 1,
+                            "",
+                            MainReader.GetString("translation")
+                            ));
                 }
             }
             else

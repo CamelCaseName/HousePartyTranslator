@@ -22,6 +22,16 @@ public class LineData
         IsApproved = isApproved;
     }
 
+    public LineData(string id, string story, string filename, StringCategory category, bool isApproved, bool isTranslated)
+    {
+        ID = id;
+        Story = story;
+        FileName = filename;
+        Category = category;
+        IsApproved = isApproved;
+        IsTranslated = isTranslated;
+    }
+
     public LineData(string id, string story, string filename, StringCategory category)
     {
         ID = id;
@@ -48,6 +58,19 @@ public class LineData
         Category = category;
         EnglishString = english;
         TranslationString = translation;
+        IsTranslated = translation.Length > 1;
+    }
+
+    public LineData(string id, string story, string filename, StringCategory category, bool isApproved, string english, string translation)
+    {
+        ID = id;
+        Story = story;
+        FileName = filename;
+        Category = category;
+        IsApproved = isApproved;
+        EnglishString = english;
+        TranslationString = translation;
+        IsTranslated = translation.Length > 1;
     }
 
     public LineData(string id, string story, string filename, StringCategory category, string translation)
@@ -59,7 +82,7 @@ public class LineData
         TranslationString = translation;
     }
 
-    public LineData(string id, string story, string filename, StringCategory category, string english, string translation, bool isTranslated, bool isApproved, string[] comments)
+    public LineData(string id, string story, string filename, StringCategory category, string english, string translation, bool isApproved, bool isTranslated, string[] comments)
     {
         ID = id;
         Story = story;
@@ -100,7 +123,7 @@ public class LineData
         }
         else
         {
-            Comments = new string[1] {Comment };
+            Comments = new string[1] { Comment };
         }
     }
 
