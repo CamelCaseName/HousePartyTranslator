@@ -129,7 +129,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Loads a file into the program and calls all helper routines
         /// </summary>
         /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         /// <param name="SelectedFile">A label to display the selected file.</param>
@@ -284,7 +284,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Saves the current string to the db
         /// </summary>
         /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         public void SaveCurrentString(ColouredCheckedListBox ColouredCheckedListBoxLeft)
@@ -310,7 +310,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Saves the current comment to the db
         /// </summary>
         /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         /// <param name="CommentBox">The TextBox containing the comments for the current string.</param>
@@ -337,7 +337,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Sets the language the translation is associated with
         /// </summary>
         /// <param name="LanguageBox">The dropdown selection box for the language.</param>
         public void SetLanguage(ComboBox LanguageBox)
@@ -359,7 +359,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Approves the string in the db, if possible. Also updates UI.
         /// </summary>
         /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         /// <param name="ApprovedCountLabel">A label displaying a ration of approved strings to normal strings.</param>
@@ -395,7 +395,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Saves all strings to the file we read from.
         /// </summary>
         /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         public void SaveFile(ColouredCheckedListBox ColouredCheckedListBoxLeft)
@@ -501,7 +501,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Saves all strings to a specified file location.
         /// </summary>
         /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         public void SaveFileAs(ColouredCheckedListBox ColouredCheckedListBoxLeft)
@@ -519,7 +519,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Performs a search through all lines currently loaded.
         /// </summary>
         /// <param name="CheckedListBox">The list of strings.</param>
         /// <param name="SearchBox">The Textbox to search with.</param>
@@ -554,7 +554,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Detects for hotkeys used, else with the return value the defualt WndPrc is called.
         /// </summary>
         /// <param name="msg">Windows message contaning the info on the event.</param>
         /// <param name="keyData">Keydata containing all currently pressed keys.</param>
@@ -565,8 +565,8 @@ namespace HousePartyTranslator.Managers
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
         public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, TextBox SearchBox, TextBox EditorBox, ColouredCheckedListBox checkedListBox, TextBox CommentBox)
-#pragma warning restore IDE0079 // Remove unnecessary suppression
 #pragma warning restore IDE0060 // Remove unused parameter
+#pragma warning restore IDE0079 // Remove unnecessary suppression
         {
             switch (keyData)
             {
@@ -649,11 +649,13 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Displays a window with the necessary info about the exception.
         /// </summary>
         /// <param name="message">The error message to display</param>
         public static void DisplayExceptionMessage(string message)
         {
+            LogManager.LogEvent("Exception message shown: " + message);
+            LogManager.LogEvent("Current exceptioon count: " + main.ExceptionCount + 1);
             main.ExceptionCount++;
             MessageBox.Show(
                 $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
@@ -674,9 +676,9 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Depending on the cursor location the line is approved or not (on checkbox or not).
         /// </summary>
-        /// <param name="FensterRef"></param>
+        /// <param name="FensterRef">The window of type fenster</param>
         /// <param name="ApprovedBox">The Button in the top to approve strings with. synced to the selected item checked state.</param>
         /// <param name="CheckListBox">The list of strings.</param>
         public static void ApprovedButtonHandler(Fenster FensterRef, CheckBox ApprovedBox, ColouredCheckedListBox CheckListBox)
@@ -701,19 +703,18 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Reloads the file into the program as if it were selected.
         /// </summary>
         /// <param name="checkedListBox">The list of strings.</param>
         private void ReloadFile(ColouredCheckedListBox checkedListBox)
         {
             ResetTranslationManager(checkedListBox);
             ReadStringsTranslationsFromFile();
-            //is up to date, so we can start translation
             HandleTranslationLoading(checkedListBox);
         }
 
         /// <summary>
-        /// 
+        /// Updates the label displaying the character count
         /// </summary>
         /// <param name="TemplateCount">The number of chars in the template string.</param>
         /// <param name="TranslationCount">The number of chars in the translated string.</param>
@@ -722,21 +723,21 @@ namespace HousePartyTranslator.Managers
         {
             if (TemplateCount >= TranslationCount)
             {
-                CharacterCountLabel.ForeColor = System.Drawing.Color.LawnGreen;
+                CharacterCountLabel.ForeColor = Color.LawnGreen;
             }//if bigger by no more than 20 percent
             else if ((TranslationCount - TemplateCount) < (TemplateCount / 20))
             {
-                CharacterCountLabel.ForeColor = System.Drawing.Color.DarkOrange;
+                CharacterCountLabel.ForeColor = Color.DarkOrange;
             }
             else
             {
-                CharacterCountLabel.ForeColor = System.Drawing.Color.Red;
+                CharacterCountLabel.ForeColor = Color.Red;
             }
             CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
         }
 
         /// <summary>
-        /// 
+        /// Updates the label schowing the number lines approved so far
         /// </summary>
         /// <param name="Approved">The number of approved strings.</param>
         /// <param name="Total">The total number of strings.</param>
@@ -758,7 +759,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Generates a list of all string categories depending on the filename.
         /// </summary>
         private void GenerateCategories()
         {
@@ -789,7 +790,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Reads the strings depending on whether its a template or not.
         /// </summary>
         private void HandleStringReadingFromFile()
         {
@@ -806,6 +807,8 @@ namespace HousePartyTranslator.Managers
 
         /// <summary>
         /// tldr: magic
+        /// 
+        /// loads all the strings from the selected file into a list of LineData elements.
         /// </summary>
         private void ReadStringsTemplateFromFile()
         {
@@ -854,7 +857,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// loads all the strings from the selected file into a list of LineData elements.
         /// </summary>
         private void ReadStringsTranslationsFromFile()
         {
@@ -945,7 +948,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
         /// <param name="ColouredCheckedListBoxLeft">The list of strings.</param>
         private void HandleTranslationLoading(ColouredCheckedListBox ColouredCheckedListBoxLeft)
@@ -973,7 +976,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Loads the templates by combining all lines from all files into one, then sending them one by one to the db.
         /// </summary>
         /// <param name="folderPath">The path to the folders to load the templates from.</param>
         private void HandleTemplateLoading(string folderPath)
@@ -1032,7 +1035,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Reads all files in all subfolders below the given path.
         /// </summary>
         /// <param name="folderPath">The path to the folder to find all files in (iterative).</param>
         private void IterativeReadFiles(string folderPath)
@@ -1068,7 +1071,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Resets the translation manager.
         /// </summary>
         /// <param name="CblLeft">The coloured Checkes List Box to reset.</param>
         private void ResetTranslationManager(ColouredCheckedListBox CblLeft)
@@ -1081,10 +1084,10 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Tries to parse a line into the category it indicates.
         /// </summary>
         /// <param name="line">The line to parse.</param>
-        /// <returns></returns>
+        /// <returns>The category representing the string, or none.</returns>
         private StringCategory GetCategoryFromString(string line)
         {
             StringCategory internalCategory = StringCategory.Neither;
@@ -1135,10 +1138,10 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Returns the string representatio of a category.
         /// </summary>
         /// <param name="category">The Category to parse.</param>
-        /// <returns></returns>
+        /// <returns>The string representing the category.</returns>
         private string GetStringFromCategory(StringCategory category)
         {
             string returnedString = "";
@@ -1185,9 +1188,9 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Opens a select file dialogue and returns the selected file as a path.
         /// </summary>
-        /// <returns>Opens a select file dialogue and returns the selected file as a path.</returns>
+        /// <returns>The path to the selected file.</returns>
         public static string SelectFileFromSystem()
         {
             OpenFileDialog selectFileDialog = new OpenFileDialog
@@ -1205,9 +1208,9 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Opens a select folder dialogue and returns the selected folder as a path.
         /// </summary>
-        /// <returns>Opens a select folder dialogue and returns the selected folder as a path.</returns>
+        /// <returns>The folder path selected.</returns>
         public static string SelectFolderFromSystem()
         {
             FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
@@ -1224,9 +1227,9 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// 
+        /// Opens a save file dialogue and returns the selected file as a path.
         /// </summary>
-        /// <returns>Opens a save file dialogue and returns the selected file as a path.</returns>
+        /// <returns>The path to the file to save to.</returns>
         public static string SaveFileOnSystem()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
