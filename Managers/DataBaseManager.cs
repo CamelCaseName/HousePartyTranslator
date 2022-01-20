@@ -64,7 +64,7 @@ namespace HousePartyTranslator.Managers
                     if (sqlConnection.State != System.Data.ConnectionState.Open)
                     {
                         //password may have to be changed
-                        MessageBox.Show("Can't connect to DB, contact CamelCaseName (Lenny)");
+                        MessageBox.Show("Can't connect to the database, contact CamelCaseName (Lenny)");
                         Application.Exit();
                     }
                     else
@@ -521,10 +521,10 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
         /// <returns>
         /// True if approvals are found for the file.
         /// </returns>
-        public static bool GetAllApprovalStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
+        public static bool GetAllStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
         {
             Application.UseWaitCursor = true;
-            string insertCommand = @"SELECT id, category, approved 
+            string insertCommand = @"SELECT id, category, approved, translated, translation, english 
                                      " + FROM + @" 
                                      WHERE filename = @filename AND story = @story AND language = @language;";
             MainCommand.CommandText = insertCommand;
@@ -546,12 +546,15 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
                             story,
                             fileName,
                             (StringCategory)MainReader.GetInt32("category"),
-                            MainReader.GetInt32("approved") == 1));
+                            MainReader.GetInt32("approved") == 1,
+                            "",
+                            MainReader.GetString("translation")
+                            ));
                 }
             }
             else
             {
-                MessageBox.Show("Approval states can't be loaded, or no string is approved so far.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                MessageBox.Show("No string is approved so far.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
             MainReader.Close();
 

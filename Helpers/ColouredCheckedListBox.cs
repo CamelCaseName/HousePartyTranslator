@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Windows;
 
 namespace HousePartyTranslator.Helpers
 {
@@ -13,6 +12,7 @@ namespace HousePartyTranslator.Helpers
     public class ColouredCheckedListBox : CheckedListBox
     {
         public List<int> SearchResults = new List<int>(); //list containing all indices that are part of the search result
+        public List<int> SimilarStringsToEnglish = new List<int>(); //list containing all indices that are duplicates fo the english string
 
         protected new bool DoubleBuffered = true;
 
@@ -31,7 +31,7 @@ namespace HousePartyTranslator.Helpers
                     e.Index,
                     e.State,
                     e.ForeColor, //colour yellow if it is part of the search, else colour normally
-                    SearchResults.Contains(e.Index) ? Color.DarkOrange : CheckedIndices.Contains(e.Index) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
+                    SearchResults.Contains(e.Index) ? Color.DarkOrange : SimilarStringsToEnglish.Contains(e.Index) ? Color.FromArgb(130, 80, 130) : CheckedIndices.Contains(e.Index) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
                 );
             base.OnDrawItem(e2);
         }

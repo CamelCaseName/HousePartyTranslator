@@ -310,7 +310,7 @@
             this.Name = "Fenster";
             this.ShowIcon = false;
             this.Text = "HP Translator Helper";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.Window_Load);
             this.MainContainer.Panel1.ResumeLayout(false);
             this.MainContainer.Panel1.PerformLayout();
             this.MainContainer.Panel2.ResumeLayout(false);

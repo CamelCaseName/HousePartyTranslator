@@ -55,7 +55,10 @@ namespace HousePartyTranslator
                 new StringSetting("version", "0.0"),
                 new StringSetting("dbPassword", ""),
                 new StringSetting("language", ""),
-                new BooleanSetting("NewTemplatesNeeded", false)};
+                new BooleanSetting("NewTemplatesNeeded", false),
+                new StringSetting("template_path", "C:\\Users\\"),
+                new StringSetting("translation_path", "C:\\Users\\")
+        };
 
             foreach (Setting setting in defaultSettings)
             {
