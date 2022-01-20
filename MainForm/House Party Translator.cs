@@ -51,7 +51,7 @@ namespace HousePartyTranslator
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private void Window_Load(object sender, EventArgs e)
         {
             LogManager.LogEvent("Application started! hi there :D");
         }

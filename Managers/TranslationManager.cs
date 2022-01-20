@@ -206,6 +206,7 @@ namespace HousePartyTranslator.Managers
             NoAnimationBar NoProgressbar,
             CheckBox ApprovedBox)
         {
+            //TODO add interface for these functions so we dont have that many parameters (gotta learn that stuff first xD)
             TextBoxReadOnly.FindForm().Cursor = Cursors.WaitCursor;
             int currentIndex = ColouredCheckedListBoxLeft.SelectedIndex;
             if (LastIndex < 0)
@@ -269,6 +270,8 @@ namespace HousePartyTranslator.Managers
                         TextBoxReadOnly.Text = templateString.Replace("\n", Environment.NewLine);
 
                         //clear text box if it is the template (not translated yet)
+                        // TODO make this work by changing the way strings are loaded/sent, maybe even prepare for offline access.
+                        //  sql makes this easy, can just write all commands to a file that have not been sent, then send all on connection resume.
                         if (TextBoxReadOnly.Text == TextBoxEditable.Text && TranslationData[currentIndex].Category != StringCategory.General)
                         {
                             ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
@@ -319,7 +322,7 @@ namespace HousePartyTranslator.Managers
                 if (ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
 
                 ColouredCheckedListBoxLeft.FindForm().Cursor = Cursors.Default;
-                
+
             }
         }
 
@@ -981,19 +984,17 @@ namespace HousePartyTranslator.Managers
                     if (tempLine != null)
                     {
                         lineIsApproved = tempLine.IsApproved;
-                        lineD.IsTranslated = tempLine.IsTranslated;
-                        lineD.EnglishString = tempLine.EnglishString;
+                        lineD.IsTranslated = tempLine.TranslationString.Trim().Length > 1;
                     }
                 }
 
                 ColouredCheckedListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
 
+                //do after adding or it will trigger reset
                 lineD.IsApproved = lineIsApproved;
 
                 //colour string if similar to the english one
-                if (lineD.TranslationString.Trim().Length < 2 
-                    || (!lineD.IsTranslated && !lineD.IsApproved && lineD.Category != StringCategory.General) 
-                    || (lineD.TranslationString == lineD.EnglishString))
+                if (!lineD.IsTranslated && !lineD.IsApproved)
                 {
                     ColouredCheckedListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
                 }
@@ -1243,15 +1244,22 @@ namespace HousePartyTranslator.Managers
         /// <returns>The folder path selected.</returns>
         public static string SelectFolderFromSystem()
         {
+            StringSetting templatePath = (StringSetting)SettingsManager.main.Settings.Find(s => s.GetKey() == "template_path");
             FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
             {
                 Description = "Please select the 'TEMPLATE' folder like in the repo",
-                RootFolder = Environment.SpecialFolder.MyComputer
+                SelectedPath = templatePath == null ? Environment.SpecialFolder.UserProfile.ToString() : templatePath.GetValue(),
             };
 
             if (selectFolderDialog.ShowDialog() == DialogResult.OK)
             {
-                return selectFolderDialog.SelectedPath;
+                string t = selectFolderDialog.SelectedPath;
+                if (templatePath != null)
+                {
+                    templatePath.UpdateValue(t);
+                    SettingsManager.main.UpdateSettings();
+                }
+                return t;
             }
             return "";
         }

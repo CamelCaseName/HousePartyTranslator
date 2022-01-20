@@ -64,7 +64,7 @@ namespace HousePartyTranslator.Managers
                     if (sqlConnection.State != System.Data.ConnectionState.Open)
                     {
                         //password may have to be changed
-                        MessageBox.Show("Can't connect to DB, contact CamelCaseName (Lenny)");
+                        MessageBox.Show("Can't connect to the database, contact CamelCaseName (Lenny)");
                         Application.Exit();
                     }
                     else
@@ -554,7 +554,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             }
             else
             {
-                MessageBox.Show("Approval states can't be loaded, or no string is approved so far.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                MessageBox.Show("No string is approved so far.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
             MainReader.Close();
 
