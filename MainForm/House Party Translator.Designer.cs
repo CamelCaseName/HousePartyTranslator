@@ -1,4 +1,6 @@
-﻿namespace HousePartyTranslator
+﻿using HousePartyTranslator.Helpers;
+
+namespace HousePartyTranslator
 {
     partial class Fenster
     {
@@ -172,24 +174,7 @@
             // 
             this.LanguageBox.AllowDrop = true;
             this.LanguageBox.FormattingEnabled = true;
-            this.LanguageBox.Items.AddRange(new object[] {
-            "cs",
-            "da",
-            "de",
-            "es",
-            "esmx",
-            "fi",
-            "fr",
-            "hu",
-            "it",
-            "ja",
-            "ko",
-            "nl",
-            "pl",
-            "pt",
-            "ptrb",
-            "ru",
-            "tr"});
+            this.LanguageBox.Items.AddRange(LanguageHelper.ShortLanguages);
             this.LanguageBox.Location = new System.Drawing.Point(247, 13);
             this.LanguageBox.Name = "LanguageBox";
             this.LanguageBox.Size = new System.Drawing.Size(60, 21);

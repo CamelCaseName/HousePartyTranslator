@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
+//TODO add tests?
 namespace HousePartyTranslator.Managers
 {
     /// <summary>
@@ -119,6 +120,8 @@ namespace HousePartyTranslator.Managers
             int internalIndex = ColouredCheckedListBoxLeft.SelectedIndex;
             if (internalIndex >= 0)
             {
+                //remove pipe to not break saving/export
+                EditorTextBox.Text.Replace('|', ' ');
                 TranslationData[internalIndex].TranslationString = EditorTextBox.Text.Replace(Environment.NewLine, "\n");
                 UpdateCharacterCountLabel(TemplateTextBox.Text.Count(), EditorTextBox.Text.Count(), CharacterCountLabel);
             }
@@ -397,7 +400,6 @@ namespace HousePartyTranslator.Managers
                 if (languageFromFile != "")
                 {
                     Language = languageFromFile;
-                    LanguageBox.Text = Language;
                 }
             }
             LanguageBox.Text = Language;
