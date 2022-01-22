@@ -12,8 +12,6 @@ namespace HousePartyTranslator
         public Fenster()
         {
             InitializeComponent();
-            //initialize and open db connection (should not take too long)
-            SettingsManager.LoadSettings();
 
             //create propertyhelper
             MainProperties = new PropertyHelper(
@@ -134,6 +132,12 @@ namespace HousePartyTranslator
         private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
             TranslationManager.main.Search(MainProperties);
+        }
+
+        private void Fenster_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //save settings
+            Properties.Settings.Default.Save();
         }
     }
 }

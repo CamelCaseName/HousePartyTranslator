@@ -7,6 +7,10 @@ using System.Linq;
 using System.Windows.Forms;
 
 //TODO add tests?
+//TODO move settings to builtin settings to make them more robust
+//TODO create local db in ressources to download the tempaltes to
+//TODO create a task queue for the database in case of internet outage
+
 namespace HousePartyTranslator.Managers
 {
     /// <summary>
@@ -43,8 +47,8 @@ namespace HousePartyTranslator.Managers
                 else
                 {
                     language = value;
-                    ((StringSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "language")).UpdateValue(language);
-                    SettingsManager.main.UpdateSettings();
+                    Properties.Settings.Default.language = value;
+                    Properties.Settings.Default.Save();
                 }
             }
         }
@@ -283,7 +287,6 @@ namespace HousePartyTranslator.Managers
                         helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
 
                         //clear text box if it is the template (not translated yet)
-                        // TODO make this work by changing the way strings are loaded/sent, maybe even prepare for offline access.
                         //  sql makes this easy, can just write all commands to a file that have not been sent, then send all on connection resume.
                         if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && TranslationData[currentIndex].Category != StringCategory.General)
                         {
@@ -375,9 +378,9 @@ namespace HousePartyTranslator.Managers
             {
                 Language = helper.LanguageBox.Text;
             }
-            else if (SettingsManager.main.Settings.Exists(pS => pS.GetKey() == "language"))
+            else if (Properties.Settings.Default.language != "")
             {
-                string languageFromFile = ((StringSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "language")).GetValue();
+                string languageFromFile = Properties.Settings.Default.language;
                 if (languageFromFile != "")
                 {
                     Language = languageFromFile;
@@ -1248,11 +1251,11 @@ namespace HousePartyTranslator.Managers
         /// <returns>The folder path selected.</returns>
         public static string SelectFolderFromSystem()
         {
-            StringSetting templatePath = (StringSetting)SettingsManager.main.Settings.Find(s => s.GetKey() == "template_path");
+            string templatePath = Properties.Settings.Default.template_path;
             FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
             {
                 Description = "Please select the 'TEMPLATE' folder like in the repo",
-                SelectedPath = templatePath == null ? Environment.SpecialFolder.UserProfile.ToString() : templatePath.GetValue(),
+                SelectedPath = templatePath == "" ? Environment.SpecialFolder.UserProfile.ToString() : templatePath,
             };
 
             if (selectFolderDialog.ShowDialog() == DialogResult.OK)
@@ -1260,8 +1263,8 @@ namespace HousePartyTranslator.Managers
                 string t = selectFolderDialog.SelectedPath;
                 if (templatePath != null)
                 {
-                    templatePath.UpdateValue(t);
-                    SettingsManager.main.UpdateSettings();
+                    Properties.Settings.Default.template_path = t;
+                    Properties.Settings.Default.Save();
                 }
                 return t;
             }

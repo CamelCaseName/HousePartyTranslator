@@ -47,8 +47,8 @@ namespace HousePartyTranslator.Managers
                     DialogResult passwordResult = Passwordbox.ShowDialog(mainWindow);
                     if (passwordResult == DialogResult.OK)
                     {
-                        ((StringSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "dbPassword")).UpdateValue(Passwordbox.GetPassword());
-                        SettingsManager.main.UpdateSettings();
+                        Properties.Settings.Default.dbPassword = Passwordbox.GetPassword();
+                        Properties.Settings.Default.Save();
                     }
                     else
                     {
@@ -85,12 +85,12 @@ namespace HousePartyTranslator.Managers
             DBVersion = MainReader.GetString(0);
             MainReader.Close();
 
-            string fileVersion = ((FloatSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "version")).GetValue().ToString("0.00", System.Globalization.NumberFormatInfo.InvariantInfo);
+            string fileVersion = Properties.Settings.Default.version;
             if (fileVersion == "")
             {
                 // get software version from db
                 SoftwareVersion = DBVersion;
-                ((FloatSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "version")).UpdateValue(float.Parse(SoftwareVersion, System.Globalization.NumberFormatInfo.InvariantInfo));
+                Properties.Settings.Default.version = DBVersion;
             }
             else
             {
@@ -98,14 +98,14 @@ namespace HousePartyTranslator.Managers
                 if (!fileVersion.Contains("."))
                 {
                     fileVersion = "0." + fileVersion;
-                    ((FloatSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "version")).UpdateValue(float.Parse(fileVersion, System.Globalization.NumberFormatInfo.InvariantInfo));
+                    Properties.Settings.Default.version = fileVersion;
                 }
 
                 if (float.Parse(DBVersion) > float.Parse(fileVersion))
                 {
                     //update local software version from db
                     SoftwareVersion = DBVersion;
-                    ((FloatSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "version")).UpdateValue(float.Parse(SoftwareVersion, System.Globalization.NumberFormatInfo.InvariantInfo));
+                    Properties.Settings.Default.version = fileVersion;
                 }
                 else
                 {
@@ -113,7 +113,7 @@ namespace HousePartyTranslator.Managers
                     SoftwareVersion = fileVersion;
                 }
             }
-            SettingsManager.main.UpdateSettings();
+            Properties.Settings.Default.Save();
 
             //set global variable for later actions
             TranslationManager.main.IsUpToDate = DBVersion == SoftwareVersion;
@@ -731,7 +731,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
         public static bool ClearDBofAllStrings()
         {
             string insertCommand = DELETE + @" 
-                                     WHERE NOT ID = @version;";
+                                     WHERE NOT ID = @version AND LANGUAGE IS NULL;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
             MainCommand.Parameters.AddWithValue("@version", "version");
@@ -742,7 +742,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
 
         private static string GetConnString()
         {
-            string password = ((StringSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "dbPassword")).GetValue();
+            string password = Properties.Settings.Default.dbPassword;
             string returnString;
             if (password != "")
             {

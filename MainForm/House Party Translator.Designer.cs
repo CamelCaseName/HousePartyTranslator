@@ -52,10 +52,10 @@ namespace HousePartyTranslator
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.CommentGroup = new System.Windows.Forms.GroupBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
             this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.MainMenu.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.CommentGroup.SuspendLayout();
@@ -73,11 +73,11 @@ namespace HousePartyTranslator
             this.TranslatedTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.TranslatedTextBox.ForeColor = System.Drawing.SystemColors.Window;
             this.TranslatedTextBox.ImeMode = System.Windows.Forms.ImeMode.On;
-            this.TranslatedTextBox.Location = new System.Drawing.Point(677, 293);
+            this.TranslatedTextBox.Location = new System.Drawing.Point(695, 307);
             this.TranslatedTextBox.Multiline = true;
             this.TranslatedTextBox.Name = "TranslatedTextBox";
             this.TranslatedTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TranslatedTextBox.Size = new System.Drawing.Size(668, 273);
+            this.TranslatedTextBox.Size = new System.Drawing.Size(686, 288);
             this.TranslatedTextBox.TabIndex = 0;
             this.TranslatedTextBox.Text = "edit here";
             this.TranslatedTextBox.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
@@ -88,11 +88,11 @@ namespace HousePartyTranslator
             this.EnglishTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.EnglishTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.EnglishTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.EnglishTextBox.Location = new System.Drawing.Point(677, 33);
+            this.EnglishTextBox.Location = new System.Drawing.Point(695, 33);
             this.EnglishTextBox.Multiline = true;
             this.EnglishTextBox.Name = "EnglishTextBox";
             this.EnglishTextBox.ReadOnly = true;
-            this.EnglishTextBox.Size = new System.Drawing.Size(668, 254);
+            this.EnglishTextBox.Size = new System.Drawing.Size(686, 268);
             this.EnglishTextBox.TabIndex = 9;
             this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
@@ -106,7 +106,7 @@ namespace HousePartyTranslator
             this.CommentTextBox.Multiline = true;
             this.CommentTextBox.Name = "CommentTextBox";
             this.CommentTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.CommentTextBox.Size = new System.Drawing.Size(662, 104);
+            this.CommentTextBox.Size = new System.Drawing.Size(680, 111);
             this.CommentTextBox.TabIndex = 13;
             // 
             // CharacterCountLabel
@@ -115,7 +115,7 @@ namespace HousePartyTranslator
             this.CharacterCountLabel.AutoSize = true;
             this.CharacterCountLabel.BackColor = System.Drawing.SystemColors.Desktop;
             this.CharacterCountLabel.ForeColor = System.Drawing.SystemColors.Control;
-            this.CharacterCountLabel.Location = new System.Drawing.Point(522, 6);
+            this.CharacterCountLabel.Location = new System.Drawing.Point(540, 6);
             this.CharacterCountLabel.Name = "CharacterCountLabel";
             this.CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
             this.CharacterCountLabel.TabIndex = 16;
@@ -137,7 +137,7 @@ namespace HousePartyTranslator
             this.WordsTranslated.AutoSize = true;
             this.WordsTranslated.BackColor = System.Drawing.Color.Transparent;
             this.WordsTranslated.ForeColor = System.Drawing.SystemColors.Control;
-            this.WordsTranslated.Location = new System.Drawing.Point(296, 6);
+            this.WordsTranslated.Location = new System.Drawing.Point(305, 6);
             this.WordsTranslated.Name = "WordsTranslated";
             this.WordsTranslated.Size = new System.Drawing.Size(78, 13);
             this.WordsTranslated.TabIndex = 7;
@@ -165,7 +165,7 @@ namespace HousePartyTranslator
             this.languageToolStripComboBox});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
-            this.MainMenu.Size = new System.Drawing.Size(1348, 27);
+            this.MainMenu.Size = new System.Drawing.Size(1384, 27);
             this.MainMenu.TabIndex = 17;
             // 
             // fileToolStripMenuItem
@@ -293,7 +293,7 @@ namespace HousePartyTranslator
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 38.94275F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 41.86569F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 19.19156F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1348, 698);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(1384, 734);
             this.tableLayoutPanel1.TabIndex = 18;
             // 
             // CommentGroup
@@ -301,33 +301,12 @@ namespace HousePartyTranslator
             this.CommentGroup.Controls.Add(this.CommentTextBox);
             this.CommentGroup.Dock = System.Windows.Forms.DockStyle.Fill;
             this.CommentGroup.ForeColor = System.Drawing.SystemColors.Window;
-            this.CommentGroup.Location = new System.Drawing.Point(677, 572);
+            this.CommentGroup.Location = new System.Drawing.Point(695, 601);
             this.CommentGroup.Name = "CommentGroup";
-            this.CommentGroup.Size = new System.Drawing.Size(668, 123);
+            this.CommentGroup.Size = new System.Drawing.Size(686, 130);
             this.CommentGroup.TabIndex = 11;
             this.CommentGroup.TabStop = false;
             this.CommentGroup.Text = "Comments";
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.SelectedFile);
-            this.panel1.Controls.Add(this.WordsTranslated);
-            this.panel1.Controls.Add(this.ProgressbarTranslated);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(668, 24);
-            this.panel1.TabIndex = 12;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.ApprovedBox);
-            this.panel2.Controls.Add(this.CharacterCountLabel);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(677, 3);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(668, 24);
-            this.panel2.TabIndex = 13;
             // 
             // CheckListBoxLeft
             // 
@@ -338,11 +317,22 @@ namespace HousePartyTranslator
             this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
             this.CheckListBoxLeft.Name = "CheckListBoxLeft";
             this.tableLayoutPanel1.SetRowSpan(this.CheckListBoxLeft, 3);
-            this.CheckListBoxLeft.Size = new System.Drawing.Size(668, 662);
+            this.CheckListBoxLeft.Size = new System.Drawing.Size(686, 698);
             this.CheckListBoxLeft.TabIndex = 10;
             this.CheckListBoxLeft.ThreeDCheckBoxes = true;
             this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
             this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.SelectedFile);
+            this.panel1.Controls.Add(this.WordsTranslated);
+            this.panel1.Controls.Add(this.ProgressbarTranslated);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(3, 3);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(686, 24);
+            this.panel1.TabIndex = 12;
             // 
             // ProgressbarTranslated
             // 
@@ -352,23 +342,34 @@ namespace HousePartyTranslator
             this.ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.ProgressbarTranslated.Location = new System.Drawing.Point(0, 0);
             this.ProgressbarTranslated.Name = "ProgressbarTranslated";
-            this.ProgressbarTranslated.Size = new System.Drawing.Size(668, 24);
+            this.ProgressbarTranslated.Size = new System.Drawing.Size(686, 24);
             this.ProgressbarTranslated.Step = 1;
             this.ProgressbarTranslated.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.ProgressbarTranslated.TabIndex = 8;
             this.ProgressbarTranslated.Value = 50;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.ApprovedBox);
+            this.panel2.Controls.Add(this.CharacterCountLabel);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(695, 3);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(686, 24);
+            this.panel2.TabIndex = 13;
             // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Desktop;
-            this.ClientSize = new System.Drawing.Size(1348, 725);
+            this.ClientSize = new System.Drawing.Size(1384, 761);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.MainMenu);
             this.Name = "Fenster";
             this.ShowIcon = false;
             this.Text = "HP Translator Helper";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Fenster_FormClosing);
             this.Load += new System.EventHandler(this.Window_Load);
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();
