@@ -32,17 +32,20 @@ namespace HousePartyTranslator.Managers
         {
             get
             {
-                if (language.Length == 0)
-                {
-                    MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
-                }
                 return language;
             }
             set
             {
-                language = value;
-                ((StringSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "language")).UpdateValue(language);
-                SettingsManager.main.UpdateSettings();
+                if (value.Length == 0)
+                {
+                    MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
+                }
+                else
+                {
+                    language = value;
+                    ((StringSetting)SettingsManager.main.Settings.Find(pS => pS.GetKey() == "language")).UpdateValue(language);
+                    SettingsManager.main.UpdateSettings();
+                }
             }
         }
         private string language = "";
@@ -368,9 +371,9 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void SetLanguage(PropertyHelper helper)
         {
-            if (helper.LanguageBox.SelectedIndex > -1)
+            if (helper.LanguageBox.SelectedIndex >= 0)
             {
-                Language = helper.LanguageBox.GetItemText(helper.LanguageBox.SelectedItem);
+                Language = helper.LanguageBox.Text;
             }
             else if (SettingsManager.main.Settings.Exists(pS => pS.GetKey() == "language"))
             {

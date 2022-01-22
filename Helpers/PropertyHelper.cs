@@ -9,13 +9,13 @@ namespace HousePartyTranslator.Helpers
     {
         public readonly CheckBox ApprovedBox;
         public readonly ColouredCheckedListBox CheckListBoxLeft;
-        public readonly ComboBox LanguageBox;
+        public readonly ToolStripComboBox LanguageBox;
         public readonly Label ApprovedCountLabel;
         public readonly Label CharacterCountLabel;
         public readonly Label SelectedFileLabel;
         public readonly NoAnimationBar NoProgressbar;
         public readonly TextBox CommentBox;
-        public readonly TextBox SearchBox;
+        public readonly ToolStripTextBox SearchBox;
         public readonly TextBox TemplateTextBox;
         public readonly TextBox TranslationTextBox;
 
@@ -36,13 +36,13 @@ namespace HousePartyTranslator.Helpers
         public PropertyHelper(
             CheckBox ApprovedBox, 
             ColouredCheckedListBox CheckListBoxLeft, 
-            ComboBox LanguageBox,
+            ToolStripComboBox LanguageBox,
             Label ApprovedCountLabel,
             Label CharacterCountLabel,
             Label SelectedFileLabel,
             NoAnimationBar NoProgressbar,
             TextBox CommentBox,
-            TextBox SearchBox,
+            ToolStripTextBox SearchBox,
             TextBox TemplateTextBox,
             TextBox TranslationTextBox
             )
