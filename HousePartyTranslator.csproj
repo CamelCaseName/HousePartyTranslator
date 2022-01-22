@@ -111,6 +111,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\ColouredCheckedListBox.cs">
       <SubType>Component</SubType>
     </Compile>

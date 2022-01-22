@@ -148,11 +148,27 @@ namespace HousePartyTranslator.Managers
                 {
 
                     string[] paths = SourceFilePath.Split('\\');
+                    
                     //get parent folder name
-                    StoryName = paths[paths.Length - 2];
+                    string tempStoryName = paths[paths.Length - 2];
+                    //get language text representation
+                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
+                    //compare
+                    if (tempStoryName == languageAsText && gotLanguage)
+                    {
+                        //get foler one more up
+                        tempStoryName = paths[paths.Length - 3];
+                    }
+
+                    StoryName = tempStoryName;
+
+                    //actually load all strings into the program
                     HandleStringReadingFromFile();
 
-                    SelectedFile.Text = "File: " + FileName + ".txt";
+                    //update UI (cut folder name short if it is too long)
+                    string storyNameToDisplay = StoryName.Length > 10 ? StoryName.Substring(0, 10).Trim() + "..." : StoryName;
+                    string fileNameToDisplay = FileName.Length > 15 ? FileName.Substring(0, 15).Trim() + "..." : FileName;
+                    SelectedFile.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
 
                     //is up to date, so we can start translation
                     HandleTranslationLoading(ColouredCheckedListBoxLeft);
