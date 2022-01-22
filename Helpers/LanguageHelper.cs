@@ -5,13 +5,13 @@ namespace HousePartyTranslator.Helpers
     /// <summary>
     /// A Class providing a list of all short keys for languages, as well the String representation of it.
     /// </summary>
-    static class LanguageHelper
+    internal static class LanguageHelper
     {
         /// <summary>
         /// A list of all currently supported languages in short form
         /// </summary>
         //place new languages here, plus add string representation
-        public readonly static string[] ShortLanguages = {
+        public static readonly string[] ShortLanguages = {
             "cs",
             "da",
             "de",
@@ -32,7 +32,7 @@ namespace HousePartyTranslator.Helpers
         /// <summary>
         /// A Dictionary with all String representations of the languages given in short form as the key
         /// </summary>
-        public readonly static Dictionary<string, string> Languages = new Dictionary<string, string>() {
+        public static readonly Dictionary<string, string> Languages = new Dictionary<string, string>() {
             {ShortLanguages[0],"Czech" },
             {ShortLanguages[1],"Danish" },
             {ShortLanguages[2],"German" },

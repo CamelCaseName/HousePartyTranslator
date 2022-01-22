@@ -5,7 +5,7 @@ namespace HousePartyTranslator.Helpers
     /// <summary>
     /// This class provides a Compare() method to compare LineData objects with a BGC ID
     /// </summary>
-    class BGCComparer : IComparer<LineData>
+    internal class BGCComparer : IComparer<LineData>
     {
         /// <summary>
         /// Compares the id of line1 and line2 and returns an indication
@@ -25,10 +25,10 @@ namespace HousePartyTranslator.Helpers
     }
 
     /// <summary>
-    /// This class provides a Compare() methiod for LineData objects with a seminumeric ID, especially hints. 
+    /// This class provides a Compare() methiod for LineData objects with a seminumeric ID, especially hints.
     /// Intended for hint sorting, everythin else will be sorted albhabetically.
     /// </summary>
-    class GeneralComparer : IComparer<LineData>
+    internal class GeneralComparer : IComparer<LineData>
     {
         /// <summary>
         /// Compares the id of line1 and line2 and returns an indication
