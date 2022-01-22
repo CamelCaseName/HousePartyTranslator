@@ -57,10 +57,6 @@ namespace HousePartyTranslator.Managers
             }
             set
             {
-                if (sourceFilePath != "")
-                {
-                    //TODO close opened file here
-                }
                 sourceFilePath = value;
                 if (!isSaveAs) FileName = Path.GetFileNameWithoutExtension(value);
             }
@@ -148,7 +144,7 @@ namespace HousePartyTranslator.Managers
                 {
 
                     string[] paths = SourceFilePath.Split('\\');
-                    
+
                     //get parent folder name
                     string tempStoryName = paths[paths.Length - 2];
                     //get language text representation
@@ -160,14 +156,30 @@ namespace HousePartyTranslator.Managers
                         tempStoryName = paths[paths.Length - 3];
                     }
 
+                    if (tempStoryName == "Languages")
+                    {
+                        //get foler one more up
+                        tempStoryName = "UI";
+                    }
+
                     StoryName = tempStoryName;
 
                     //actually load all strings into the program
                     HandleStringReadingFromFile();
 
                     //update UI (cut folder name short if it is too long)
-                    string storyNameToDisplay = StoryName.Length > 10 ? StoryName.Substring(0, 10).Trim() + "..." : StoryName;
-                    string fileNameToDisplay = FileName.Length > 15 ? FileName.Substring(0, 15).Trim() + "..." : FileName;
+                    int lengthOfFileName = FileName.Length, lengthOfStoryName = StoryName.Length;
+                    if (FileName.Length > 15)
+                    {
+                        lengthOfFileName = 15;
+                    }
+                    if (StoryName.Length > 15)
+                    {
+                        lengthOfStoryName = 15;
+                    }
+
+                    string storyNameToDisplay = StoryName.Length > lengthOfStoryName ? StoryName.Substring(0, lengthOfStoryName).Trim() + "..." : StoryName;
+                    string fileNameToDisplay = FileName.Length > lengthOfFileName ? FileName.Substring(0, lengthOfFileName).Trim() + "..." : FileName;
                     SelectedFile.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
 
                     //is up to date, so we can start translation
@@ -1126,6 +1138,7 @@ namespace HousePartyTranslator.Managers
             TranslationData.Clear();
             CblLeft.Items.Clear();
             CategoriesInFile.Clear();
+            CblLeft.SimilarStringsToEnglish.Clear();
             LastIndex = -1;
             SelectedSearchResult = 0;
         }

@@ -503,7 +503,8 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             }
             else
             {
-                MessageBox.Show("Translations can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                //also useless because it also shows when nothing is translated
+                //MessageBox.Show("Translations can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
             MainReader.Close();
 
@@ -554,7 +555,8 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             }
             else
             {
-                MessageBox.Show("No string is approved so far.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                //its annoying and useless by now
+                //MessageBox.Show("No string is approved so far.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
             MainReader.Close();
 
