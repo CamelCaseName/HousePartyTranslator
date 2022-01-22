@@ -4,7 +4,7 @@ using HousePartyTranslator.Managers;
 
 namespace HousePartyTranslator
 {
-    static class Program
+    static class App
     {
 
         /// <summary>

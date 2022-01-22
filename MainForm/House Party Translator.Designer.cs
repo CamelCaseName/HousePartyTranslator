@@ -249,7 +249,7 @@ namespace HousePartyTranslator
             this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
             this.searchToolStripTextBox.Size = new System.Drawing.Size(300, 23);
-            this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.searchToolStripTextBox_TextChanged);
+            this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
             // 
             // languageToolStripComboBox
             // 

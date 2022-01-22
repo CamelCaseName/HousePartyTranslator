@@ -131,7 +131,7 @@ namespace HousePartyTranslator
             TranslationManager.main.SetLanguage(MainProperties);
         }
 
-        private void searchToolStripTextBox_TextChanged(object sender, EventArgs e)
+        private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
             TranslationManager.main.Search(MainProperties);
         }

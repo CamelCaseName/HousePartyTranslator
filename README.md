@@ -1,4 +1,7 @@
 # HousePartyTranslator
+## Donwload
+You can get the latest release [here](https://github.com/CamelCaseName/HousePartyTranslator/releases).
+
 ## Usage
 Just start the .exe file. On your first launch it will ask you for a password, 
 you can get that from @CamelCaseName. 
