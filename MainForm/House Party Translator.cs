@@ -1,4 +1,5 @@
-﻿using HousePartyTranslator.Managers;
+﻿using HousePartyTranslator.Helpers;
+using HousePartyTranslator.Managers;
 using System;
 using System.Windows.Forms;
 
@@ -6,12 +7,30 @@ namespace HousePartyTranslator
 {
     public partial class Fenster : Form
     {
+        private readonly PropertyHelper MainProperties;
+
         public Fenster()
         {
             InitializeComponent();
             //initialize and open db connection (should not take too long)
             SettingsManager.LoadSettings();
-            TranslationManager.main.SetLanguage(LanguageBox);
+
+            //create propertyhelper
+            MainProperties = new PropertyHelper(
+                ApprovedBox,
+                CheckListBoxLeft,
+                languageToolStripComboBox,
+                WordsTranslated,
+                CharacterCountLabel,
+                SelectedFile,
+                ProgressbarTranslated,
+                CommentTextBox,
+                searchToolStripTextBox,
+                EnglishTextBox,
+                TranslatedTextBox
+                );
+
+            TranslationManager.main.SetLanguage(MainProperties);
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
 
@@ -22,7 +41,7 @@ namespace HousePartyTranslator
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (TranslationManager.main.HandleKeyPressMainForm(ref msg, keyData, SearchBox, TranslatedTextBox, CheckListBoxLeft, CommentTextBox))
+            if (TranslationManager.main.HandleKeyPressMainForm(ref msg, keyData, MainProperties))
             {
                 return true;
             }
@@ -58,66 +77,63 @@ namespace HousePartyTranslator
 
         private void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
-            TranslationManager.main.UpdateTranslationString(TranslatedTextBox, EnglishTextBox, CheckListBoxLeft, CharacterCountLabel);
-        }
-
-        private void SelectFileLeftClick(object sender, EventArgs e)
-        {
-            TranslationManager.main.LoadFileIntoProgram(CheckListBoxLeft, SelectedFile, WordsTranslated, ProgressbarTranslated);
-            TranslationManager.main.SetLanguage(LanguageBox);
-        }
-
-        private void SaveFileLeftClick(object sender, EventArgs e)
-        {
-            TranslationManager.main.SaveFile(CheckListBoxLeft);
-        }
-
-        private void SaveFileAsLeftClick(object sender, EventArgs e)
-        {
-            TranslationManager.main.SaveFileAs(CheckListBoxLeft);
+            TranslationManager.main.UpdateTranslationString(MainProperties);
         }
 
         private void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TranslationManager.main.PopulateTextBoxes(
-                CheckListBoxLeft,
-                EnglishTextBox,
-                TranslatedTextBox,
-                CommentTextBox,
-                CharacterCountLabel,
-                WordsTranslated,
-                ProgressbarTranslated,
-                ApprovedBox);
+            TranslationManager.main.PopulateTextBoxes(MainProperties);
         }
 
         private void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            TranslationManager.main.ApproveIfPossible(CheckListBoxLeft, WordsTranslated, ProgressbarTranslated, false, ApprovedBox);
-        }
-
-        private void LanguageBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            TranslationManager.main.SetLanguage(LanguageBox);
-        }
-
-        private void SaveCurrentString_Click(object sender, EventArgs e)
-        {
-            TranslationManager.main.SaveCurrentString(CheckListBoxLeft);
-        }
-
-        private void SaveCommentsButton_Click(object sender, EventArgs e)
-        {
-            TranslationManager.main.SaveCurrentComment(CheckListBoxLeft, CommentTextBox);
-        }
-
-        private void SearchBox_TextChanged(object sender, EventArgs e)
-        {
-            TranslationManager.main.Search(CheckListBoxLeft, SearchBox);
+            TranslationManager.main.ApproveIfPossible(MainProperties, false);
         }
 
         private void ApprovedBox_CheckedChanged(object sender, EventArgs e)
         {
-            TranslationManager.ApprovedButtonHandler(this, ApprovedBox, CheckListBoxLeft);
+            TranslationManager.ApprovedButtonHandler(this, MainProperties);
+        }
+
+        private void SaveCurrentStringToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslationManager.main.SaveCurrentString(MainProperties);
+        }
+
+        private void SaveCommentsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            TranslationManager.main.SaveCurrentComment(MainProperties);
+        }
+
+        private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslationManager.main.LoadFileIntoProgram(MainProperties);
+            TranslationManager.main.SetLanguage(MainProperties);
+        }
+
+        private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslationManager.main.SaveFile(MainProperties);
+        }
+
+        private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TranslationManager.main.SaveFileAs(MainProperties);
+        }
+
+        private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            TranslationManager.main.SetLanguage(MainProperties);
+        }
+
+        private void searchToolStripTextBox_TextChanged(object sender, EventArgs e)
+        {
+            TranslationManager.main.Search(MainProperties);
         }
     }
 }

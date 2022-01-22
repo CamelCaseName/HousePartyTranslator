@@ -133,7 +133,6 @@ public class LineData
         if (TranslationString != "" && TranslationString != null)
         {
             value = ID + "|" + TranslationString;
-
         }
         else
         {

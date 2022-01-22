@@ -111,6 +111,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\ColouredCheckedListBox.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -118,6 +119,7 @@
     <Compile Include="Helpers\NoAnimationBar.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Helpers\Setting.cs" />
     <Compile Include="Managers\LogManager.cs" />
     <Compile Include="Managers\SettingsManager.cs" />

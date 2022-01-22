@@ -60,7 +60,7 @@
     /// <summary>
     /// An extension of the Settings class to be used for boolean values.
     /// </summary>
-    class BooleanSetting : Setting
+    internal class BooleanSetting : Setting
     {
         /// <summary>
         /// The constructor of the extended class.
@@ -69,7 +69,6 @@
         /// <param name="value">The value for this setting, as a bool</param>
         public BooleanSetting(string key, bool value) : base(key, value)
         {
-
         }
 
         /// <summary>
@@ -94,7 +93,7 @@
     /// <summary>
     /// An extension of the Settings class to be used for string values.
     /// </summary>
-    class StringSetting : Setting
+    internal class StringSetting : Setting
     {
         /// <summary>
         /// The constructor of the extended class.
@@ -103,7 +102,6 @@
         /// <param name="value">The value for this setting, as a string</param>
         public StringSetting(string key, string value) : base(key, value)
         {
-
         }
 
         /// <summary>
@@ -128,7 +126,7 @@
     /// <summary>
     /// An extension of the Settings class to be used for float values.
     /// </summary>
-    class FloatSetting : Setting
+    internal class FloatSetting : Setting
     {
         /// <summary>
         /// The constructor of the extended class.
@@ -137,7 +135,6 @@
         /// <param name="value">The value for this setting, as a float</param>
         public FloatSetting(string key, float value) : base(key, value)
         {
-
         }
 
         /// <summary>
@@ -160,14 +157,14 @@
 
         public override string ToString()
         {
-            return GetKey() + SettingsManager.CFG_STR_DELIM + ((float)base.GetValue()).ToString("0.00",System.Globalization.NumberFormatInfo.InvariantInfo);
+            return GetKey() + SettingsManager.CFG_STR_DELIM + ((float)base.GetValue()).ToString("0.00", System.Globalization.NumberFormatInfo.InvariantInfo);
         }
     }
 
     /// <summary>
     /// An extension of the Settings class to be used for values of type T.
     /// </summary>
-    class CustomSetting : Setting
+    internal class CustomSetting : Setting
     {
         /// <summary>
         /// The constructor of the extended class.
@@ -176,7 +173,6 @@
         /// <param name="value">The value for this setting, as a an object of custom type</param>
         public CustomSetting(string key, object value) : base(key, value)
         {
-
         }
 
         /// <summary>
