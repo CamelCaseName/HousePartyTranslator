@@ -82,5 +82,17 @@ namespace HousePartyTranslator.Properties {
                 this["translation_path"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string story_path {
+            get {
+                return ((string)(this["story_path"]));
+            }
+            set {
+                this["story_path"] = value;
+            }
+        }
     }
 }

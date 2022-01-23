@@ -30,7 +30,7 @@ namespace HousePartyTranslator
                     OpenFileDialog selectFileDialog = new OpenFileDialog
                     {
                         Title = "Choose the story file you want to explore",
-                        Filter = "Text files (*.txt)|*.txt",
+                        Filter = "Story Files (*.story)|*.story",
                         InitialDirectory = @"C:\Users\%USER%\Documents"
                     };
 
@@ -51,7 +51,14 @@ namespace HousePartyTranslator
         {
             DrawingPanel = DrawingSpace;
             this.DrawingSpace = DrawingPanel.CreateGraphics();
-            this.StoryFilePath = StoryFilePath;
+            if (Properties.Settings.Default.story_path != "")
+            {
+                this.StoryFilePath = Properties.Settings.Default.story_path;
+            }
+            else
+            {
+                this.StoryFilePath = StoryFilePath;
+            }
         }
 
         public bool ParseFile()
@@ -59,7 +66,10 @@ namespace HousePartyTranslator
             if (File.Exists(StoryFilePath))
             {
                 string fileString = File.ReadAllText(StoryFilePath);
-                List<StoryItem> items = JsonConvert.DeserializeObject<List<StoryItem>>(fileString);
+                //save path
+                Properties.Settings.Default.story_path = StoryFilePath;
+
+                MainStory story = JsonConvert.DeserializeObject<MainStory>(fileString);
 
                 return true;
             }

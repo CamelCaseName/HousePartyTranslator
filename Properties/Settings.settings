@@ -17,5 +17,8 @@
     <Setting Name="translation_path" Type="System.String" Scope="User">
       <Value Profile="(Default)">C:\\Users\\</Value>
     </Setting>
+    <Setting Name="story_path" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>
