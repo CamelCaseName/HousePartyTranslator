@@ -50,6 +50,7 @@ namespace HousePartyTranslator
             this.saveCommentsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
+            this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.CommentGroup = new System.Windows.Forms.GroupBox();
             this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
@@ -162,7 +163,8 @@ namespace HousePartyTranslator
             this.saveCurrentStringToolStripMenuItem,
             this.saveCommentsToolStripMenuItem1,
             this.searchToolStripTextBox,
-            this.languageToolStripComboBox});
+            this.languageToolStripComboBox,
+            this.storyExplorerStripMenuItem1});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
             this.MainMenu.Size = new System.Drawing.Size(1384, 27);
@@ -273,6 +275,15 @@ namespace HousePartyTranslator
             this.languageToolStripComboBox.Name = "languageToolStripComboBox";
             this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
             this.languageToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.LanguageToolStripComboBox_SelectedIndexChanged);
+            // 
+            // storyExplorerStripMenuItem1
+            // 
+            this.storyExplorerStripMenuItem1.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.storyExplorerStripMenuItem1.Name = "storyExplorerStripMenuItem1";
+            this.storyExplorerStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
+            this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(121, 23);
+            this.storyExplorerStripMenuItem1.Text = "Open Story&Explorer";
+            this.storyExplorerStripMenuItem1.Click += new System.EventHandler(this.StoryExplorerStripMenuItem1_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -413,6 +424,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.GroupBox CommentGroup;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
+        private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
         //private System.Windows.Forms.SplitContainer MainContainer;
     }
 }

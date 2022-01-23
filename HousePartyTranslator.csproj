@@ -71,6 +71,9 @@
     <Reference Include="MySql.Data, Version=8.0.27.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <HintPath>packages\MySql.Data.8.0.27\lib\net452\MySql.Data.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.13.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System">
       <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
     </Reference>
@@ -112,15 +115,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers\LanguageHelper.cs" />
+    <Compile Include="Helpers\Items.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="StoryExplorer\StoryExplorer.cs">
+    <Compile Include="StoryExplorerForm\StoryExplorer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StoryExplorer\StoryExplorer.Designer.cs">
+    <Compile Include="StoryExplorerForm\StoryExplorer.Designer.cs">
       <DependentUpon>StoryExplorer.cs</DependentUpon>
     </Compile>
     <Compile Include="UIComponents\ColouredCheckedListBox.cs">
@@ -133,7 +137,7 @@
     <Compile Include="Helpers\PropertyHelper.cs" />
     <Compile Include="Managers\LogManager.cs" />
     <Compile Include="Helpers\StringCategory.cs" />
-    <Compile Include="StoryExplorer\ContextProvider.cs" />
+    <Compile Include="StoryExplorerForm\ContextProvider.cs" />
     <Compile Include="MainForm\House Party Translator.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -166,10 +170,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="StoryExplorer\StoryExplorer.resx">
+    <EmbeddedResource Include="StoryExplorerForm\StoryExplorer.resx">
       <DependentUpon>StoryExplorer.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Ressources\packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

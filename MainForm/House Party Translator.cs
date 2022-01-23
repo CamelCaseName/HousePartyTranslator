@@ -1,5 +1,6 @@
 ﻿using HousePartyTranslator.Helpers;
 using HousePartyTranslator.Managers;
+using HousePartyTranslator.StoryExplorerForm;
 using System;
 using System.Windows.Forms;
 
@@ -138,6 +139,12 @@ namespace HousePartyTranslator
         {
             //save settings
             Properties.Settings.Default.Save();
+        }
+
+        private void StoryExplorerStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            StoryExplorer explorer = new StoryExplorer();
+            if (!explorer.IsDisposed) explorer.Show();
         }
     }
 }
