@@ -23,20 +23,19 @@ namespace HousePartyTranslator.Helpers
         public string ID;
         public string Text;
         public NodeType Type;
-        public int Weight;
+        public int Mass;
         public List<Node> ParentNodes;
         public List<Node> ChildNodes;
-        public bool visited = false;
-        public bool childsVisited = false;
-        public bool parentsVisited = false;
+        public bool Visited = false;
+        public bool ChildsVisited = false;
+        public bool ParentsVisited = false;
 
-
-        public Node(string iD, NodeType type, int weight, string text, List<Node> parentNodes, List<Node> childNodes)
+        public Node(string iD, NodeType type, int mass, string text, List<Node> parentNodes, List<Node> childNodes)
         {
             ID = iD;
             Text = text;
             Type = type;
-            Weight = weight;
+            Mass = mass;
             ParentNodes = parentNodes;
             ChildNodes = childNodes;
         }
@@ -47,7 +46,7 @@ namespace HousePartyTranslator.Helpers
             ID = iD;
             Text = text;
             Type = type;
-            Weight = weight;
+            Mass = weight;
             ParentNodes = parentNodes;
             ChildNodes = childNodes;
         }
@@ -57,7 +56,7 @@ namespace HousePartyTranslator.Helpers
             ID = iD;
             Text = text;
             Type = type;
-            Weight = weight;
+            Mass = weight;
             ParentNodes = parentNodes;
             ChildNodes = new List<Node>();
         }
@@ -67,7 +66,7 @@ namespace HousePartyTranslator.Helpers
             ID = iD;
             Text = text;
             Type = type;
-            Weight = weight;
+            Mass = weight;
             ParentNodes = new List<Node>() { parentNodes };
             ChildNodes = childNodes;
         }
@@ -77,7 +76,7 @@ namespace HousePartyTranslator.Helpers
             ID = iD;
             Text = text;
             Type = type;
-            Weight = weight;
+            Mass = weight;
             ParentNodes = new List<Node>() { parentNode };
             ChildNodes = new List<Node>();
         }
@@ -87,7 +86,7 @@ namespace HousePartyTranslator.Helpers
             ID = iD;
             Text = text;
             Type = type;
-            Weight = weight;
+            Mass = weight;
             ParentNodes = new List<Node>() { parentNode };
             ChildNodes = new List<Node>() { childNode };
         }
@@ -98,7 +97,7 @@ namespace HousePartyTranslator.Helpers
             ID = iD;
             Text = text;
             Type = type;
-            Weight = weight;
+            Mass = weight;
             ParentNodes = new List<Node>();
             ChildNodes = new List<Node>();
         }
@@ -142,6 +141,11 @@ namespace HousePartyTranslator.Helpers
         public override string ToString()
         {
             return $"{Type} | parents: {ParentNodes.Count} | childs: {ChildNodes.Count} | {ID} | {Text}";
+        }
+
+        public void CalculateMass()
+        {
+            Mass = ChildNodes.Count + ParentNodes.Count;
         }
     }
 }

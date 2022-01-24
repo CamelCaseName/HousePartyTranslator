@@ -134,13 +134,90 @@ namespace HousePartyTranslator
             Nodes = CalculateStartingPositions(Nodes);
 
             //render and do the force driven calculation thingies
+            Nodes = CalculateForceDirectedLayout(Nodes, 100);
 
             CriteriaInFile.Clear();
         }
 
+        private List<Node> CalculateForceDirectedLayout(List<Node> nodes, int iterations)
+        {
+            int desiredDistance = 40;
+            double gravitationMultiplier = 0.1;
+            double distanceMultiplier = 0.1;
+            double spacialMultiplier = 0.1;
+            //It's fairly easy to code, you just need to think about the 3 separate forces acting on each node,
+            //add them together and divide that by the mass of the node to get the movement of each node.
+
+            //Gravity, put a simple force acting towards the centre of the canvas so the nodes dont launch themselves out of frame
+            // f = r
+
+            //Node-Node replusion, You can either use coulombs force(which describes particle-particle repulsion)
+            //or use the gravitational attraction equation and just reverse it
+            //f = m1*m2/r^2 where r is the distance 
+
+            //Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
+            //when the actual distance between them is different from the defined distance,
+            //add a force in the direction of the connection multiplied by the difference between the defined and the actual distance
+            //f = 1* actual - desired, direction is towards child
+            for (int i = 0; i < iterations; i++)
+            {
+                foreach (Node node in nodes)
+                {
+                    int accelerationX = 0;
+                    int accelerationY = 0;
+
+                    //gravitational force (distance to 0 times constant)
+                    accelerationX += (int)((0 - node.Position.X) * gravitationMultiplier);
+                    accelerationY += (int)((0 - node.Position.Y) * gravitationMultiplier);
+
+                    //spacial force
+                    foreach (Node nodeForSpacialForce in nodes)
+                    {
+                        if (node != nodeForSpacialForce)
+                        {
+                            //mass times mass divided by r^2, just like coloumb force
+                            if (nodeForSpacialForce.Position.X - node.Position.X != 0)
+                            {
+                                accelerationX += (int)(((node.Mass * nodeForSpacialForce.Mass) / (nodeForSpacialForce.Position.X - node.Position.X) ^ 2) * spacialMultiplier);
+                            }
+                            else
+                            {
+
+                                accelerationX += 2;
+                            }
+                            //same 0 check for y acceleration
+                            if ((nodeForSpacialForce.Position.Y - node.Position.Y) != 0)
+                            {
+                                accelerationY += (int)(((node.Mass * nodeForSpacialForce.Mass) / (nodeForSpacialForce.Position.Y - node.Position.Y) ^ 2) * spacialMultiplier);
+                            }
+                            else
+                            {
+
+                                accelerationY += 2;
+                            }
+                        }
+                    }
+
+                    //connection force
+                    foreach (Node child in node.ChildNodes)
+                    {
+                        accelerationX += (int)((child.Position.X - node.Position.X - desiredDistance) * distanceMultiplier);
+                        accelerationY += (int)((child.Position.Y - node.Position.Y - desiredDistance) * distanceMultiplier);
+                    }
+
+                    //actually move node
+                    node.Position.X += accelerationX;
+                    node.Position.Y += accelerationY;
+                }
+            }
+            return nodes;
+        }
+
         private List<Node> CalculateStartingPositions(List<Node> nodes)
         {
+            int step = 100;
             int runningTotal = 0;
+            //~sidelength of the most square layout we can achieve witrh the number of nodes we have
             int sideLength = (int)(Math.Sqrt(nodes.Count) + 0.5);
             foreach (Node node in nodes)
             {
@@ -151,7 +228,9 @@ namespace HousePartyTranslator
                 //increments after runningtotal increments sidelength times
                 //offset by halfe sidelength to center y
                 int y = (runningTotal / sideLength) - sideLength / 2;
-                node.SetPosition(new Point(x, y));
+                //set position
+                node.SetPosition(new Point(x * step, y * step));
+                //increase running total
                 runningTotal++;
             }
             return nodes;
@@ -166,21 +245,21 @@ namespace HousePartyTranslator
             foreach (Node node in nodes)
             {
                 //call method again on all parents if they have not yet been added to the list
-                if (node.ParentNodes.Count > 0 && !node.parentsVisited)
+                if (node.ParentNodes.Count > 0 && !node.ParentsVisited)
                 {
                     //set visited to true so we dont end up in infitiy
-                    node.parentsVisited = true;
+                    node.ParentsVisited = true;
                     //get combined parent nodes recursively
                     tempNodes.AddRange(CombineNodes(node.ParentNodes));
                 }
                 //as long as there are children we can go further,
                 //and if we have not yet visited them
-                else if (node.ChildNodes.Count > 0 && !node.childsVisited)
+                else if (node.ChildNodes.Count > 0 && !node.ChildsVisited)
                 {
                     //basically the same as all parent nodes,
                     //we set them visited before we go into the recursion,
                     //else we end up in an infinite loop easily
-                    node.childsVisited = true;
+                    node.ChildsVisited = true;
                     //get combined children nodes recuirsively
                     tempNodes.AddRange(CombineNodes(node.ChildNodes));
                 }
@@ -196,6 +275,8 @@ namespace HousePartyTranslator
                         //aka fusion
                         criterionInFile.ChildNodes.AddRange(node.ChildNodes);
                         criterionInFile.ParentNodes.AddRange(node.ParentNodes);
+                        //recalculate mass for later use
+                        criterionInFile.CalculateMass();
                     }
                     else//node not yet visited, add to list of criteria
                     {
@@ -205,11 +286,13 @@ namespace HousePartyTranslator
                         tempNodes.Add(node);
                     }
                 }
-                else if (!node.visited)//if we have not yet seen this node, we can add it to the final list
+                else if (!node.Visited)//if we have not yet seen this node, we can add it to the final list
                 {
                     //set recusrion end conditional so we dont run forever
-                    node.visited = true;
-                    //ad it to the final list
+                    node.Visited = true;
+                    //calculate mass for later use
+                    node.CalculateMass();
+                    //add it to the final list
                     tempNodes.Add(node);
                 }
 
