@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Helpers
         ItemGroup,
         Action,
         Event,
-        Criteria,
+        Criterion,
         Response,
         Dialogue,
         Quest,

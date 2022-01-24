@@ -145,49 +145,63 @@ namespace HousePartyTranslator
 
         private List<Node> CombineNodes(List<Node> nodes)
         {
+            //temporary list so we dont manipulate the list we read from in the for loops
             List<Node> tempNodes = new List<Node>();
 
             //go through all given root nodes (considered root as this stage)
             foreach (Node node in nodes)
             {
+                //call method again on all parents if they have not yet been added to the list
                 if (node.ParentNodes.Count > 0 && !node.parentsVisited)
                 {
-                    //get combined parent nodes
+                    //set visited to true so we dont end up in infitiy
                     node.parentsVisited = true;
+                    //get combined parent nodes recursively
                     tempNodes.AddRange(CombineNodes(node.ParentNodes));
                 }
-                //as long as there are children we can go further
+                //as long as there are children we can go further,
+                //and if we have not yet visited them
                 else if (node.ChildNodes.Count > 0 && !node.childsVisited)
                 {
-                    //get combined children nodes
+                    //basically the same as all parent nodes,
+                    //we set them visited before we go into the recursion,
+                    //else we end up in an infinite loop easily
                     node.childsVisited = true;
+                    //get combined children nodes recuirsively
                     tempNodes.AddRange(CombineNodes(node.ChildNodes));
                 }
-                //actually add node
-                if (node.Type == NodeType.Criteria)
+
+                //actually adding the node
+                if (node.Type == NodeType.Criterion)//if it is a criterion, else is after this bit
                 {
-                    //node.visited = true;
-                    //if in file
+                    //if the criterion has already been seen before
                     Node criterionInFile = CriteriaInFile.Find(n => n.ID == node.ID);
-                    if (criterionInFile != null)
+                    if (criterionInFile != null)//has been seen before
                     {
-                        //add our parents/childs to existing node
+                        //add the childs and parents of this instance of the criterion to the first instance of this criterion
+                        //aka fusion
                         criterionInFile.ChildNodes.AddRange(node.ChildNodes);
                         criterionInFile.ParentNodes.AddRange(node.ParentNodes);
                     }
-                    else//no node yet, add to list
+                    else//node not yet visited, add to list of criteria
                     {
+                        //add it to the list of criteria so we can fuse all other instances of this criterion
                         CriteriaInFile.Add(node);
+                        //add it to the list of all nodes because it is not on there yet.
                         tempNodes.Add(node);
                     }
                 }
-                else if (!node.visited)
+                else if (!node.visited)//if we have not yet seen this node, we can add it to the final list
                 {
+                    //set recusrion end conditional so we dont run forever
                     node.visited = true;
+                    //ad it to the final list
                     tempNodes.Add(node);
                 }
 
             }
+
+            //return final list of all nodes in the story
             return tempNodes;
         }
 
@@ -211,7 +225,7 @@ namespace HousePartyTranslator
                         {
                             if (criterion.CompareType == "State")
                             {
-                                currentEvent.AddParentNode(CreateCriteriaNode(criterion, currentEvent)); 
+                                currentEvent.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
                             }
                         }
                         //add action to item
@@ -235,51 +249,65 @@ namespace HousePartyTranslator
 
         private List<Node> GetAchievements(MainStory story)
         {
+            //list to collect all achievement nodes
             List<Node> nodes = new List<Node>();
+            //go through all of them
             foreach (Achievement achievement in story.Achievements)
             {
+                //node to add the description as child to, needs reference to parent, hence can't be anonymous
                 Node node = new Node(achievement.Id, NodeType.Achievement, 1, achievement.Name);
                 node.AddChildNode(new Node(achievement.Id + "Description", NodeType.Achievement, 1, achievement.Description, node));
+                //add achievement with description child to list
                 nodes.Add(node);
             }
 
+            //return list of achievements
             return nodes;
         }
 
         private List<Node> GetItemGroups(MainStory story)
         {
+            //list to collect all item group nodes in the end
             List<Node> nodes = new List<Node>();
+            //go through all item groups to find events
             foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors)
             {
-                //add items to list
+                //create item group node to add events/criteria to
                 Node currentGroup = new Node(itemGroupBehaviour.Id, NodeType.ItemGroup, 1, itemGroupBehaviour.Name);
                 //get actions for item
                 foreach (ItemAction itemAction in itemGroupBehaviour.ItemActions)
                 {
+                    //node to addevents to
                     Node currentAction = new Node(itemAction.ActionName, NodeType.Action, 1, itemAction.ActionName, currentGroup);
 
                     //add text that is shown when item is taken
                     foreach (OnTakeActionEvent onTakeActionEvent in itemAction.OnTakeActionEvents)
                     {
+                        //node to add criteria to the event
                         Node currentEvent = new Node(onTakeActionEvent.Id, NodeType.Event, 1, onTakeActionEvent.Value, currentAction);
 
                         //add criteria that influence this item
                         foreach (Criterion criterion in onTakeActionEvent.Criteria)
                         {
+                            //only if state dialogue comparison
                             if (criterion.CompareType == "State")
                             {
+                                //add criterion to event
                                 currentAction.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
                             }
                         }
 
+                        //add event to action, can be executed when item is taken
                         currentAction.AddChildNode(currentEvent);
                     }
 
                     //add criteria that influence this item
                     foreach (Criterion criterion in itemAction.Criteria)
                     {
+                        //only if state dialogue comparison
                         if (criterion.CompareType == "State")
                         {
+                            //add criterion to action
                             currentAction.AddParentNode(CreateCriteriaNode(criterion, currentAction));
                         }
                     }
@@ -288,15 +316,19 @@ namespace HousePartyTranslator
                     currentGroup.AddChildNode(currentAction);
                 }
 
+                //add item gruop with everything to collecting list
                 nodes.Add(currentGroup);
             }
 
+            //return list of all item groups
             return nodes;
         }
 
         private List<Node> GetItemOverrides(MainStory story)
         {
+            //list to store all found root nodes
             List<Node> nodes = new List<Node>();
+            //go through all nodes to search them for actions
             foreach (ItemOverride itemOverride in story.ItemOverrides)
             {
                 //add items to list
@@ -304,6 +336,7 @@ namespace HousePartyTranslator
                 //get actions for item
                 foreach (ItemAction itemAction in itemOverride.ItemActions)
                 {
+                    //create action node to add criteria and events to
                     Node currentAction = new Node(itemAction.ActionName, NodeType.Action, 1, itemAction.ActionName, currentItem);
 
                     //add text that is shown when item is taken
@@ -312,17 +345,21 @@ namespace HousePartyTranslator
                         //only if correct type
                         if (onTakeActionEvent.EventType == 10)
                         {
+                            //create event node to add criteria to
                             Node currentEvent = new Node(onTakeActionEvent.Id, NodeType.Event, 1, onTakeActionEvent.Value, currentAction);
 
                             //add criteria that influence this item
                             foreach (Criterion criterion in onTakeActionEvent.Criteria)
                             {
+                                //only if state dialogue comparison
                                 if (criterion.CompareType == "State")
                                 {
-                                    currentAction.AddParentNode(CreateCriteriaNode(criterion, currentEvent)); 
+                                    //add to event as criterion
+                                    currentAction.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
                                 }
                             }
 
+                            //add event to action as child
                             currentAction.AddChildNode(currentEvent);
                         }
                     }
@@ -330,9 +367,11 @@ namespace HousePartyTranslator
                     //add criteria that influence this item
                     foreach (Criterion criterion in itemAction.Criteria)
                     {
+                        //only if state dialogue comparison, dont care about game vars
                         if (criterion.CompareType == "State")
                         {
-                            currentAction.AddParentNode(CreateCriteriaNode(criterion, currentAction)); 
+                            //add to action as criterion
+                            currentAction.AddParentNode(CreateCriteriaNode(criterion, currentAction));
                         }
                     }
 
@@ -340,15 +379,18 @@ namespace HousePartyTranslator
                     currentItem.AddChildNode(currentAction);
                 }
 
+                //add item with all child nodes to collector list
                 nodes.Add(currentItem);
             }
 
+            //duh
             return nodes;
         }
 
         private Node CreateCriteriaNode(Criterion criterion, Node node)
         {
-            return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criteria, 1, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
+            //create all criteria nodes the same way so they can possibly be replaced by the actual text later
+            return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, 1, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
         }
     }
 }
