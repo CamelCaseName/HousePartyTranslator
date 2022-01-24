@@ -1,24 +1,23 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace HousePartyTranslator.StoryExplorerForm
 {
     public partial class StoryExplorer : Form
     {
         private readonly ContextProvider Context;
-        public StoryExplorer()
+        public StoryExplorer(bool IsStory)
         {
             InitializeComponent();
-            Context = new ContextProvider("", ExplorerPanel);
-            Context.ParseFile();
+            Context = new ContextProvider("", ExplorerPanel, IsStory, false);
+            if (Context.ParseFile())
+            {
+                //go on displaying graph
+            }
+            else
+            {
+                //else we quit
+                Close();
+            }
         }
     }
 }

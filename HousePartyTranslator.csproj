@@ -116,6 +116,7 @@
   <ItemGroup>
     <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\Items.cs" />
+    <Compile Include="Helpers\Node.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>

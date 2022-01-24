@@ -1235,11 +1235,14 @@ namespace HousePartyTranslator.Managers
             {
                 Title = "Choose a file for translation",
                 Filter = "Text files (*.txt)|*.txt",
-                InitialDirectory = @"C:\Users\%USER%\Documents"
+                InitialDirectory = Properties.Settings.Default.translation_path.Length > 0 ? Path.GetDirectoryName(Properties.Settings.Default.translation_path) : @"C:\Users\%USER%\Documents",
+                RestoreDirectory = false
             };
 
             if (selectFileDialog.ShowDialog() == DialogResult.OK)
             {
+                Properties.Settings.Default.translation_path = selectFileDialog.FileName;
+                Properties.Settings.Default.Save();
                 return selectFileDialog.FileName;
             }
             return "";

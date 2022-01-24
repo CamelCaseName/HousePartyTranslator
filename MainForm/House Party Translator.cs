@@ -143,7 +143,8 @@ namespace HousePartyTranslator
 
         private void StoryExplorerStripMenuItem1_Click(object sender, EventArgs e)
         {
-            StoryExplorer explorer = new StoryExplorer();
+            bool isStory = TranslationManager.main.StoryName == TranslationManager.main.FileName;
+            StoryExplorer explorer = new StoryExplorer(isStory);
             if (!explorer.IsDisposed) explorer.Show();
         }
     }

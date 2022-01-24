@@ -256,7 +256,7 @@ public class PlayerReaction
     public string LocationTargetOption { get; set; }
 }
 
-public class StoryItem
+public class MainStory
 {
     public string HousePartyVersion { get; set; }
     public List<ItemOverride> ItemOverrides { get; set; }
@@ -543,7 +543,7 @@ public class OnAcceptEvent
     public List<object> Criteria { get; set; }
 }
 
-public class MainStory
+public class StoryItem
 {
     public List<Critera> Critera { get; set; }
     public string ItemName { get; set; }
