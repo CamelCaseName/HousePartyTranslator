@@ -26,6 +26,9 @@ namespace HousePartyTranslator.Helpers
         public int Weight;
         public List<Node> ParentNodes;
         public List<Node> ChildNodes;
+        public bool visited = false;
+        public bool childsVisited = false;
+        public bool parentsVisited = false;
 
 
         public Node(string iD, NodeType type, int weight, string text, List<Node> parentNodes, List<Node> childNodes)
@@ -104,7 +107,7 @@ namespace HousePartyTranslator.Helpers
         {
             if (!ChildNodes.Contains(childNode))
             {
-                ChildNodes.Remove(childNode);
+                ChildNodes.Add(childNode);
             }
         }
 
@@ -112,7 +115,7 @@ namespace HousePartyTranslator.Helpers
         {
             if (!ParentNodes.Contains(parentNode))
             {
-                ParentNodes.Remove(parentNode);
+                ParentNodes.Add(parentNode);
             }
         }
         public void RemoveChildNode(Node childNode)
@@ -134,6 +137,11 @@ namespace HousePartyTranslator.Helpers
         public void SetPosition(Point position)
         {
             Position = position;
+        }
+
+        public override string ToString()
+        {
+            return $"{Type} | parents: {ParentNodes.Count} | childs: {ChildNodes.Count} | {ID} | {Text}";
         }
     }
 }

@@ -14,10 +14,8 @@ namespace HousePartyTranslator
         private string _StoryFilePath;
         private Graphics DrawingSpace;
         private readonly bool IsStory;
-        private readonly List<Node> Nodes;
-
-        private int TotalNodes = 0;
-
+        private List<Node> Nodes;
+        private List<Node> CriteriaInFile;
 
         public string FilePath
         {
@@ -111,10 +109,15 @@ namespace HousePartyTranslator
                 return false;
             }
         }
+        public void DissectCharacter(CharacterStory story)
+        {
+
+        }
 
         public void DissectStory(MainStory story)
         {
-            int totalBeforeCombine = 0;
+            CriteriaInFile = new List<Node>();
+
             //add all items in the story
             Nodes.AddRange(GetItemOverrides(story));
             //add all item groups with their actions
@@ -124,10 +127,68 @@ namespace HousePartyTranslator
             //add all reactions the player will say
             Nodes.AddRange(GetPlayerReactions(story));
 
-            totalBeforeCombine = TotalNodes;
-            TotalNodes = 0;
+            //remove duplicates/merge criteria
+            //maybe later we load the corresponding strings from the character files and vise versa?
+            Nodes = CombineNodes(Nodes);
+            //calculate starting positions
+            Nodes = CalculateStartingPositions(Nodes);
 
-            //remove duplicates and fix edges (links)
+            //render and do the force driven calculation thingies
+
+            CriteriaInFile.Clear();
+        }
+
+        private List<Node> CalculateStartingPositions(List<Node> nodes)
+        {
+            return nodes;
+        }
+
+        private List<Node> CombineNodes(List<Node> nodes)
+        {
+            List<Node> tempNodes = new List<Node>();
+
+            //go through all given root nodes (considered root as this stage)
+            foreach (Node node in nodes)
+            {
+                if (node.ParentNodes.Count > 0 && !node.parentsVisited)
+                {
+                    //get combined parent nodes
+                    node.parentsVisited = true;
+                    tempNodes.AddRange(CombineNodes(node.ParentNodes));
+                }
+                //as long as there are children we can go further
+                else if (node.ChildNodes.Count > 0 && !node.childsVisited)
+                {
+                    //get combined children nodes
+                    node.childsVisited = true;
+                    tempNodes.AddRange(CombineNodes(node.ChildNodes));
+                }
+                //actually add node
+                if (node.Type == NodeType.Criteria)
+                {
+                    //node.visited = true;
+                    //if in file
+                    Node criterionInFile = CriteriaInFile.Find(n => n.ID == node.ID);
+                    if (criterionInFile != null)
+                    {
+                        //add our parents/childs to existing node
+                        criterionInFile.ChildNodes.AddRange(node.ChildNodes);
+                        criterionInFile.ParentNodes.AddRange(node.ParentNodes);
+                    }
+                    else//no node yet, add to list
+                    {
+                        CriteriaInFile.Add(node);
+                        tempNodes.Add(node);
+                    }
+                }
+                else if (!node.visited)
+                {
+                    node.visited = true;
+                    tempNodes.Add(node);
+                }
+
+            }
+            return tempNodes;
         }
 
         private List<Node> GetPlayerReactions(MainStory story)
@@ -145,20 +206,16 @@ namespace HousePartyTranslator
                     //only if correct type
                     if (eevent.EventType == 10)
                     {
-
-
                         //add criteria that influence this item
                         foreach (Criterion criterion in eevent.Criteria)
                         {
                             if (criterion.CompareType == "State")
                             {
-                                currentEvent.AddParentNode(new Node(criterion.Value, NodeType.Criteria, 1, "*criteria*", new List<Node>(), new List<Node>() { currentEvent }));
-                                TotalNodes++;
+                                currentEvent.AddParentNode(CreateCriteriaNode(criterion, currentEvent)); 
                             }
                         }
                         //add action to item
                         currentReaction.AddChildNode(currentEvent);
-                        TotalNodes++;
                     }
 
                 }
@@ -167,12 +224,10 @@ namespace HousePartyTranslator
 
                     if (critera.CompareType == "State")
                     {
-                        currentReaction.AddParentNode(new Node(critera.Value, NodeType.Criteria, 1, "*criteria*", new List<Node>(), new List<Node>() { currentReaction }));
-                        TotalNodes++;
+                        currentReaction.AddParentNode(CreateCriteriaNode((Criterion)critera, currentReaction));
                     }
 
                 nodes.Add(currentReaction);
-                TotalNodes++;
             }
 
             return nodes;
@@ -185,9 +240,7 @@ namespace HousePartyTranslator
             {
                 Node node = new Node(achievement.Id, NodeType.Achievement, 1, achievement.Name);
                 node.AddChildNode(new Node(achievement.Id + "Description", NodeType.Achievement, 1, achievement.Description, node));
-                TotalNodes++;
                 nodes.Add(node);
-                TotalNodes++;
             }
 
             return nodes;
@@ -215,13 +268,11 @@ namespace HousePartyTranslator
                         {
                             if (criterion.CompareType == "State")
                             {
-                                currentEvent.AddParentNode(new Node(criterion.Value, NodeType.Criteria, 1, "*criteria*", new List<Node>(), new List<Node>() { currentEvent }));
-                                TotalNodes++;
+                                currentAction.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
                             }
                         }
 
                         currentAction.AddChildNode(currentEvent);
-                        TotalNodes++;
                     }
 
                     //add criteria that influence this item
@@ -229,18 +280,15 @@ namespace HousePartyTranslator
                     {
                         if (criterion.CompareType == "State")
                         {
-                            currentAction.AddParentNode(new Node(criterion.Value, NodeType.Criteria, 1, "*criteria*", new List<Node>(), new List<Node>() { currentAction }));
-                            TotalNodes++;
+                            currentAction.AddParentNode(CreateCriteriaNode(criterion, currentAction));
                         }
                     }
 
                     //add action to item
                     currentGroup.AddChildNode(currentAction);
-                    TotalNodes++;
                 }
 
                 nodes.Add(currentGroup);
-                TotalNodes++;
             }
 
             return nodes;
@@ -271,13 +319,11 @@ namespace HousePartyTranslator
                             {
                                 if (criterion.CompareType == "State")
                                 {
-                                    currentEvent.AddParentNode(new Node(criterion.Value, NodeType.Criteria, 1, "*criteria*", new List<Node>(), new List<Node>() { currentEvent }));
-                                    TotalNodes++;
+                                    currentAction.AddParentNode(CreateCriteriaNode(criterion, currentEvent)); 
                                 }
                             }
 
                             currentAction.AddChildNode(currentEvent);
-                            TotalNodes++;
                         }
                     }
 
@@ -286,26 +332,23 @@ namespace HousePartyTranslator
                     {
                         if (criterion.CompareType == "State")
                         {
-                            currentAction.AddParentNode(new Node(criterion.Value, NodeType.Criteria, 1, "*criteria*", new List<Node>(), new List<Node>() { currentAction }));
-                            TotalNodes++;
+                            currentAction.AddParentNode(CreateCriteriaNode(criterion, currentAction)); 
                         }
                     }
 
                     //add action to item
                     currentItem.AddChildNode(currentAction);
-                    TotalNodes++;
                 }
 
                 nodes.Add(currentItem);
-                TotalNodes++;
             }
 
             return nodes;
         }
 
-        public void DissectCharacter(CharacterStory story)
+        private Node CreateCriteriaNode(Criterion criterion, Node node)
         {
-
+            return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criteria, 1, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
         }
     }
 }
