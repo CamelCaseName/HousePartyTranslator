@@ -1,6 +1,4 @@
-﻿
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 public class Criterion
 {
@@ -640,4 +638,3 @@ public class CharacterStory
     public List<object> CharacterItemGroupInteractions { get; set; }
     public List<string> StoryValues { get; set; }
 }
-

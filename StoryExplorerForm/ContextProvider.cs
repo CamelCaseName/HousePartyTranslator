@@ -140,6 +140,20 @@ namespace HousePartyTranslator
 
         private List<Node> CalculateStartingPositions(List<Node> nodes)
         {
+            int runningTotal = 0;
+            int sideLength = (int)(Math.Sqrt(nodes.Count) + 0.5);
+            foreach (Node node in nodes)
+            {
+                //modulo of running total with sidelength gives x coords, repeating after sidelength
+                //offset by halfe sidelength to center x
+                int x = (runningTotal % sideLength) - sideLength / 2;
+                //running total divided by sidelength gives y coords,
+                //increments after runningtotal increments sidelength times
+                //offset by halfe sidelength to center y
+                int y = (runningTotal / sideLength) - sideLength / 2;
+                node.SetPosition(new Point(x, y));
+                runningTotal++;
+            }
             return nodes;
         }
 
