@@ -165,9 +165,9 @@ namespace HousePartyTranslator
 
             //distance an edge should be long, given in units
             int desiredDistance = 20;
-            float gravitationMultiplier = 0.001f;
-            float connectionMultiplier = 0.01f;
-            float spacialMultiplier = 0.001f;
+            float gravitationMultiplier = 0.5f; //between 0 and 1
+            float connectionMultiplier = 0.055f;//between 0 and 1
+            float spacialMultiplier = 0.002f;//between 0 and 0.01
 
             //random to decide what to do with overlapping nodes
             Random random = new Random();
@@ -207,18 +207,18 @@ namespace HousePartyTranslator
                             else
                             {
                                 //if nodes overlap, we move them apart by a bit
-                                accelerationX -= random.Next(-10, 10);
+                                accelerationX += random.Next(-10, 10);
                             }
                             //same 0 check for y acceleration
                             if (distanceY > 0.1d || distanceY < -0.1d)
                             {
                                 //same calculations we did for x part of the coordinate, see above
-                                accelerationY += nodeForSpacialForce.Mass / (distanceY * distanceY * Math.Sign(distanceY) * spacialMultiplier);
+                                accelerationY -= nodeForSpacialForce.Mass / (distanceY * distanceY * Math.Sign(distanceY) * spacialMultiplier);
                             }
                             else
                             {
                                 //if nodes overlap, we move them apart by a bit
-                                accelerationY -= random.Next(-10, 10);
+                                accelerationY += random.Next(-10, 10);
                             }
                         }
                     }
@@ -232,14 +232,21 @@ namespace HousePartyTranslator
                         long distanceY = child.Position.Y - node.Position.Y;
                         //add difference in position times a tuning multiplier
                         //if we are too close:
-                        if (desiredDistance > Math.Sqrt(distanceX * distanceX + distanceY * distanceY))
+                        if (desiredDistance > Math.Abs(distanceX))
                         {
+                            //make dependant on the location of the child?
                             accelerationX -= distanceX * connectionMultiplier;
-                            accelerationY -= distanceY * connectionMultiplier;
                         }
                         else //we are too far apart
                         {
                             accelerationX += distanceX * connectionMultiplier;
+                        }
+                        if (desiredDistance > Math.Abs(distanceY))
+                        {
+                            accelerationY -= distanceY * connectionMultiplier;
+                        }
+                        else //we are too far apart
+                        {
                             accelerationY += distanceY * connectionMultiplier;
                         }
                     }

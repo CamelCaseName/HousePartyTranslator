@@ -147,7 +147,7 @@ namespace HousePartyTranslator
         {
             Cursor = Cursors.WaitCursor;
             bool isStory = TranslationManager.main.StoryName == TranslationManager.main.FileName;
-            StoryExplorer explorer = new StoryExplorer(isStory);
+            StoryExplorer explorer = new StoryExplorer(isStory, true);
             if (!explorer.IsDisposed) explorer.Show();
             Cursor = Cursors.Default;
         }

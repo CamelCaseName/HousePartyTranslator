@@ -13,22 +13,31 @@ namespace HousePartyTranslator.StoryExplorerForm
         private float BeforeZoomMouseY = 0f;
         private float OffsetX = 0f;
         private float OffsetY = 0f;
-        private float Scaling = 1f;
+        private float Scaling = 0.2f;
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
-        private readonly bool ReadyToDraw = false;
+        public readonly bool ReadyToDraw = false;
         private readonly ContextProvider Context;
+        private readonly Bitmap GraphBitmap;
+        private const int BitmapEdgeLength = 10000;
+        private const int Nodesize = 10;
 
-        public StoryExplorer(bool IsStory)
+        public StoryExplorer(bool IsStory, bool AutoLoad)
         {
             Cursor = Cursors.WaitCursor;
             //set offset
-            OffsetX = -ClientRectangle.X / 2;
-            OffsetY = -ClientRectangle.Y / 2;
+            OffsetX = -BitmapEdgeLength / 2;
+            OffsetY = -BitmapEdgeLength / 2;
 
             InitializeComponent();
 
-            Context = new ContextProvider("", IsStory, false);
+            Context = new ContextProvider("", IsStory, AutoLoad);
+
+            GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            Graphics tempgraphics = Graphics.FromImage(GraphBitmap);
+            tempgraphics.DrawRectangle(Pens.DarkGray, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
+            tempgraphics.Dispose();
 
             //add custom paint event handler to draw all nodes and edges
             Paint += new PaintEventHandler(DrawNodes);
@@ -36,6 +45,21 @@ namespace HousePartyTranslator.StoryExplorerForm
             //parse story, and not get cancelled xD
             if (Context.ParseFile() || Context.GotCancelled)
             {
+                //draw to image
+                Graphics graphics = Graphics.FromImage(GraphBitmap);
+                //go on displaying graph
+                foreach (Node node in Context.GetNodes())
+                {
+                    //draw ndoe
+                    graphics.FillEllipse(Brushes.RoyalBlue, (node.Position.X - Nodesize / 2) + BitmapEdgeLength / 2, (node.Position.Y - Nodesize / 2) + BitmapEdgeLength / 2, Nodesize, Nodesize);
+
+                    //draw edges
+                    foreach (Node child in node.ChildNodes)
+                    {
+                        //draw edge to child
+                        graphics.DrawLine(Pens.Coral, (node.Position.X) + BitmapEdgeLength / 2, (node.Position.Y) + BitmapEdgeLength / 2, (child.Position.X) + BitmapEdgeLength / 2, (child.Position.Y) + BitmapEdgeLength / 2);
+                    }
+                }
                 //allow paint handler to draw
                 ReadyToDraw = true;
                 Cursor = Cursors.Default;
@@ -51,26 +75,10 @@ namespace HousePartyTranslator.StoryExplorerForm
         {
             if (ReadyToDraw)
             {
-                Graphics graphics = e.Graphics;
-                //go on displaying graph
-                foreach (Node node in Context.GetNodes())
-                {
-                    //convert coordinates
-                    GraphToScreen(node.Position.X - 5, node.Position.Y - 5, out float screenX, out float screenY);
-
-                    //draw ndoe
-                    graphics.FillEllipse(Brushes.Aquamarine, screenX, screenY, 10, 10);
-
-                    //draw edges
-                    foreach (Node child in node.ChildNodes)
-                    {
-                        //convert child coordinates
-                        GraphToScreen(child.Position.X, child.Position.Y, out float childScreenX, out float childScreenY);
-
-                        //draw edge to child
-                        graphics.DrawLine(Pens.Coral, screenX, screenY, childScreenX, childScreenY);
-                    }
-                }
+                //convert image
+                GraphToScreen(-BitmapEdgeLength / 2, -BitmapEdgeLength / 2, out float ImageScreenX, out float ImageScreenY);
+                //display image with scaling applied
+                e.Graphics.DrawImage(GraphBitmap, ImageScreenX, ImageScreenY, BitmapEdgeLength * Scaling, BitmapEdgeLength * Scaling);
             }
         }
 
@@ -123,7 +131,7 @@ namespace HousePartyTranslator.StoryExplorerForm
                 CurrentlyInPan = false;
             }
             //everything else, scrolling for example
-            else if(e.Delta != 0)
+            else if (e.Delta != 0)
             {
                 //get last mouse position in world space before the zoom so we can
                 //offset back by the distance in world space we got shifted by zooming
@@ -133,11 +141,11 @@ namespace HousePartyTranslator.StoryExplorerForm
                 //https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.mouseeventargs.delta?view=windowsdesktop-6.0
                 if (e.Delta > 0)
                 {
-                    Scaling *= 1.1f;
+                    Scaling *= 1.2f;
                 }
                 else if (e.Delta < 0)
                 {
-                    Scaling *= 0.9f;
+                    Scaling *= 0.8f;
                 }
 
                 //capture mouse coordinates in world space again so we can calculate the offset cause by zooming and compensate
