@@ -1,4 +1,6 @@
 ﻿
+using System.Windows.Forms;
+
 namespace HousePartyTranslator.StoryExplorerForm
 {
     partial class StoryExplorer
@@ -29,23 +31,15 @@ namespace HousePartyTranslator.StoryExplorerForm
         /// </summary>
         private void InitializeComponent()
         {
-            this.ExplorerPanel = new System.Windows.Forms.Panel();
             this.SuspendLayout();
-            // 
-            // panel1
-            // 
-            this.ExplorerPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ExplorerPanel.Location = new System.Drawing.Point(0, 0);
-            this.ExplorerPanel.Name = "panel1";
-            this.ExplorerPanel.Size = new System.Drawing.Size(800, 450);
-            this.ExplorerPanel.TabIndex = 0;
             // 
             // StoryExplorer
             // 
+            this.MouseMove += new MouseEventHandler(this.HandleMouseEvents);
+            this.MouseWheel += new MouseEventHandler(this.HandleMouseEvents);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.ExplorerPanel);
             this.Name = "StoryExplorer";
             this.ShowIcon = false;
             this.Text = "Story Explorer";
@@ -54,7 +48,5 @@ namespace HousePartyTranslator.StoryExplorerForm
         }
 
         #endregion
-
-        private System.Windows.Forms.Panel ExplorerPanel;
     }
 }

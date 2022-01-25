@@ -4,18 +4,18 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
     internal class ContextProvider
     {
-        private readonly Panel DrawingPanel;
         private string _StoryFilePath;
-        private Graphics DrawingSpace;
         private readonly bool IsStory;
         private List<Node> Nodes;
         private List<Node> CriteriaInFile;
+        public bool GotCancelled = false;
 
         public string FilePath
         {
@@ -63,18 +63,16 @@ namespace HousePartyTranslator
                     else
                     {
                         //close form if cancelled
-                        DrawingPanel.FindForm().Close();
+                        GotCancelled = true;
                     }
                 }
             }
         }
 
-        public ContextProvider(string FilePath, Panel DrawingSpace, bool IsStory, bool AutoSelectFile)
+        public ContextProvider(string FilePath, bool IsStory, bool AutoSelectFile)
         {
             Nodes = new List<Node>();
             this.IsStory = IsStory;
-            DrawingPanel = DrawingSpace;
-            this.DrawingSpace = DrawingPanel.CreateGraphics();
             if (Properties.Settings.Default.story_path != "" && AutoSelectFile)
             {
                 this.FilePath = Properties.Settings.Default.story_path;
@@ -83,6 +81,11 @@ namespace HousePartyTranslator
             {
                 this.FilePath = FilePath;
             }
+        }
+
+        public List<Node> GetNodes()
+        {
+            return Nodes;
         }
 
         public bool ParseFile()
@@ -130,21 +133,20 @@ namespace HousePartyTranslator
             //remove duplicates/merge criteria
             //maybe later we load the corresponding strings from the character files and vise versa?
             Nodes = CombineNodes(Nodes);
+
+            //clear criteria to free memory, we dont need them anyways
+            //cant be called recusrively so we cant add it, it would break the combination
+            CriteriaInFile.Clear();
+
             //calculate starting positions
             Nodes = CalculateStartingPositions(Nodes);
 
             //render and do the force driven calculation thingies
             Nodes = CalculateForceDirectedLayout(Nodes, 100);
-
-            CriteriaInFile.Clear();
         }
 
         private List<Node> CalculateForceDirectedLayout(List<Node> nodes, int iterations)
         {
-            int desiredDistance = 40;
-            double gravitationMultiplier = 0.1;
-            double distanceMultiplier = 0.1;
-            double spacialMultiplier = 0.1;
             //It's fairly easy to code, you just need to think about the 3 separate forces acting on each node,
             //add them together and divide that by the mass of the node to get the movement of each node.
 
@@ -154,60 +156,97 @@ namespace HousePartyTranslator
             //Node-Node replusion, You can either use coulombs force(which describes particle-particle repulsion)
             //or use the gravitational attraction equation and just reverse it
             //f = m1*m2/r^2 where r is the distance 
+            //masses are the amount of edges that are connected
 
             //Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
             //when the actual distance between them is different from the defined distance,
             //add a force in the direction of the connection multiplied by the difference between the defined and the actual distance
             //f = 1* actual - desired, direction is towards child
+
+            //distance an edge should be long, given in units
+            int desiredDistance = 20;
+            float gravitationMultiplier = 0.001f;
+            float connectionMultiplier = 0.01f;
+            float spacialMultiplier = 0.001f;
+
+            //random to decide what to do with overlapping nodes
+            Random random = new Random();
+            //times to perform calculation, result gets bettor over time
             for (int i = 0; i < iterations; i++)
             {
+                //loop through asll ndoes to calculate their coords after one iteration
                 foreach (Node node in nodes)
                 {
-                    int accelerationX = 0;
-                    int accelerationY = 0;
+                    //the accelleration a node will perceive in units/iteration. aka offset per iteration
+                    float accelerationX = 0;
+                    float accelerationY = 0;
 
-                    //gravitational force (distance to 0 times constant)
-                    accelerationX += (int)((0 - node.Position.X) * gravitationMultiplier);
-                    accelerationY += (int)((0 - node.Position.Y) * gravitationMultiplier);
+                    //pseudogravitational force to keep nodes from shooting off into the unknown (distance to 0 times constant)
+                    accelerationX -= node.Position.X * gravitationMultiplier;
+                    accelerationY -= node.Position.Y * gravitationMultiplier;
 
-                    //spacial force
+                    //spacial force around each node, so they don't clump together/over each other
+                    //calculate distance for each node, then apply a force depending on that distance
+                    //dependant on mass to make heavier nodes move less when smaller ones come by
                     foreach (Node nodeForSpacialForce in nodes)
                     {
+                        //we do not want to calculate the distance to ourself, duh
                         if (node != nodeForSpacialForce)
                         {
-                            //mass times mass divided by r^2, just like coloumb force
-                            if (nodeForSpacialForce.Position.X - node.Position.X != 0)
+                            long distanceX = nodeForSpacialForce.Position.X - node.Position.X;
+                            long distanceY = nodeForSpacialForce.Position.Y - node.Position.Y;
+                            //calculate x accelleration if it is not 0 distance
+                            if (distanceX > 0.1d || distanceX < -0.1d)
                             {
-                                accelerationX += (int)(((node.Mass * nodeForSpacialForce.Mass) / (nodeForSpacialForce.Position.X - node.Position.X) ^ 2) * spacialMultiplier);
+                                //f = mass times mass divided by r^2, just like coloumb force. 
+                                //m1*m2 / r^2 * s / m1 = m2 / r^2 * s
+                                //where s is our multiplier (for tuning) and m1 and m2 are the massess of our nodes
+                                //f = m*a -> a = f/m
+                                accelerationX += nodeForSpacialForce.Mass / (distanceX * distanceX * Math.Sign(distanceX) * spacialMultiplier);
                             }
                             else
                             {
-
-                                accelerationX += 2;
+                                //if nodes overlap, we move them apart by a bit
+                                accelerationX -= random.Next(-10, 10);
                             }
                             //same 0 check for y acceleration
-                            if ((nodeForSpacialForce.Position.Y - node.Position.Y) != 0)
+                            if (distanceY > 0.1d || distanceY < -0.1d)
                             {
-                                accelerationY += (int)(((node.Mass * nodeForSpacialForce.Mass) / (nodeForSpacialForce.Position.Y - node.Position.Y) ^ 2) * spacialMultiplier);
+                                //same calculations we did for x part of the coordinate, see above
+                                accelerationY += nodeForSpacialForce.Mass / (distanceY * distanceY * Math.Sign(distanceY) * spacialMultiplier);
                             }
                             else
                             {
-
-                                accelerationY += 2;
+                                //if nodes overlap, we move them apart by a bit
+                                accelerationY -= random.Next(-10, 10);
                             }
                         }
                     }
 
                     //connection force
-                    foreach (Node child in node.ChildNodes)
+                    //draws nodes together along their edges if they are too far away apart or pushes them away if too close
+                    // calculated for each node we have (parents and childs)
+                    foreach (Node child in Enumerable.Concat(node.ChildNodes, node.ParentNodes))
                     {
-                        accelerationX += (int)((child.Position.X - node.Position.X - desiredDistance) * distanceMultiplier);
-                        accelerationY += (int)((child.Position.Y - node.Position.Y - desiredDistance) * distanceMultiplier);
+                        long distanceX = child.Position.X - node.Position.X;
+                        long distanceY = child.Position.Y - node.Position.Y;
+                        //add difference in position times a tuning multiplier
+                        //if we are too close:
+                        if (desiredDistance > Math.Sqrt(distanceX * distanceX + distanceY * distanceY))
+                        {
+                            accelerationX -= distanceX * connectionMultiplier;
+                            accelerationY -= distanceY * connectionMultiplier;
+                        }
+                        else //we are too far apart
+                        {
+                            accelerationX += distanceX * connectionMultiplier;
+                            accelerationY += distanceY * connectionMultiplier;
+                        }
                     }
 
-                    //actually move node
-                    node.Position.X += accelerationX;
-                    node.Position.Y += accelerationY;
+                    //actually move the node by offsetting the position by the given acceleration each iteration
+                    node.Position.X += (int)accelerationX;
+                    node.Position.Y += (int)accelerationY;
                 }
             }
             return nodes;

@@ -12,6 +12,11 @@ namespace HousePartyTranslator
 
         public Fenster()
         {
+            //custom exception handlers to handle mysql exceptions
+            AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
+            Application.ThreadException += ThreadExceptionHandler;
+
+            //init all form components
             InitializeComponent();
 
             //create propertyhelper
@@ -33,9 +38,6 @@ namespace HousePartyTranslator
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
 
-            //custom exception handlers to handle mysql exceptions
-            AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
-            Application.ThreadException += ThreadExceptionHandler;
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -143,9 +145,11 @@ namespace HousePartyTranslator
 
         private void StoryExplorerStripMenuItem1_Click(object sender, EventArgs e)
         {
+            Cursor = Cursors.WaitCursor;
             bool isStory = TranslationManager.main.StoryName == TranslationManager.main.FileName;
             StoryExplorer explorer = new StoryExplorer(isStory);
             if (!explorer.IsDisposed) explorer.Show();
+            Cursor = Cursors.Default;
         }
     }
 }
