@@ -35,15 +35,16 @@ namespace HousePartyTranslator.StoryExplorerForm
             // 
             // StoryExplorer
             // 
-            this.MouseMove += new MouseEventHandler(this.HandleMouseEvents);
-            this.MouseWheel += new MouseEventHandler(this.HandleMouseEvents);
-            this.KeyDown += new KeyEventHandler(this.HandleKeyBoard);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.SystemColors.Desktop;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Name = "StoryExplorer";
             this.ShowIcon = false;
             this.Text = "Story Explorer";
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleKeyBoard);
+            this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.HandleMouseEvents);
+            this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.HandleMouseEvents);
             this.ResumeLayout(false);
 
         }

@@ -1,6 +1,9 @@
 ﻿using HousePartyTranslator.Helpers;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.StoryExplorerForm
@@ -20,8 +23,9 @@ namespace HousePartyTranslator.StoryExplorerForm
         public bool ReadyToDraw = false;
         private readonly ContextProvider Context;
         private readonly Bitmap GraphBitmap;
-        private const int BitmapEdgeLength = 4000;
+        private const int BitmapEdgeLength = 6000;
         private const int Nodesize = 16;
+        private Graphics MainGraphics;
         public Node NodeToHighlight;
 
         int selector = -1;
@@ -39,9 +43,8 @@ namespace HousePartyTranslator.StoryExplorerForm
 
             GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
-            Graphics tempgraphics = Graphics.FromImage(GraphBitmap);
-            tempgraphics.DrawRectangle(Pens.Black, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
-            tempgraphics.Dispose();
+            MainGraphics = Graphics.FromImage(GraphBitmap);
+            MainGraphics.DrawRectangle(Pens.Black, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
 
             //add custom paint event handler to draw all nodes and edges
             Paint += new PaintEventHandler(DrawNodes);
@@ -61,105 +64,91 @@ namespace HousePartyTranslator.StoryExplorerForm
 
         private void FillBitMap()
         {
-            //draw to image
-            Graphics graphics = Graphics.FromImage(GraphBitmap);
             //go on displaying graph
             foreach (Node node in Context.GetNodes())
             {
                 //draw node
-                graphics.FillEllipse(Brushes.RoyalBlue, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
-
+                DrawColouredNode(node, Color.DarkBlue);
                 //draw edges
                 foreach (Node child in node.ChildNodes)
                 {
                     //draw edge to child, default colour
-                    graphics.DrawLine(
-                        new Pen(Color.FromArgb(20, 20, 20), 2f),
-                        (node.Position.X) + BitmapEdgeLength / 2,
-                        (node.Position.Y) + BitmapEdgeLength / 2,
-                        (child.Position.X) + BitmapEdgeLength / 2,
-                        (child.Position.Y) + BitmapEdgeLength / 2);
+                    DrawEdge(node, child, Color.FromArgb(30, 30, 30));
                 }
             }
             //allow paint handler to draw
             ReadyToDraw = true;
             Cursor = Cursors.Default;
-            graphics.Dispose();
             Invalidate();
         }
 
-        private void DrawHighlightNode()
+        private void DrawColouredNode(Node node, Color color)
         {
-            //draw to image
-            Graphics graphics = Graphics.FromImage(GraphBitmap);
-            //draw parents and edges in colour
-            foreach (Node node in NodeToHighlight.ParentNodes)
-            {
-                //draw line
-                graphics.DrawLine(
-                    new Pen(Color.Coral, 2f),
-                    (node.Position.X) + BitmapEdgeLength / 2,
-                    (node.Position.Y) + BitmapEdgeLength / 2,
-                    (NodeToHighlight.Position.X) + BitmapEdgeLength / 2,
-                    (NodeToHighlight.Position.Y) + BitmapEdgeLength / 2);
-                //overdraw line with node
-                graphics.FillEllipse(Brushes.OrangeRed, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
-            }
+            MainGraphics.FillEllipse(
+                new SolidBrush(color), 
+                node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, 
+                node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, 
+                Nodesize, 
+                Nodesize);
+        }
 
-            //draw childs and edges in colour
-            foreach (Node node in NodeToHighlight.ChildNodes)
+        private void DrawEdge(Node node1, Node node2, Color color)
+        {
+            MainGraphics.DrawLine(
+                new Pen(color, 3f),
+                (node1.Position.X) + BitmapEdgeLength / 2,
+                (node1.Position.Y) + BitmapEdgeLength / 2,
+                (node2.Position.X) + BitmapEdgeLength / 2,
+                (node2.Position.Y) + BitmapEdgeLength / 2);
+        }
+
+        private void DrawHighlightNodeTree()
+        {
+            //draw parents and edges in colour
+            foreach (Node node in Enumerable.Concat(NodeToHighlight.ParentNodes, NodeToHighlight.ChildNodes))
             {
                 //draw line
-                graphics.DrawLine(
-                    new Pen(Color.Coral, 2f),
-                    (node.Position.X) + BitmapEdgeLength / 2,
-                    (node.Position.Y) + BitmapEdgeLength / 2,
-                    (NodeToHighlight.Position.X) + BitmapEdgeLength / 2,
-                    (NodeToHighlight.Position.Y) + BitmapEdgeLength / 2);
+                DrawEdge(node, NodeToHighlight, Color.FromArgb(255,100,0));
                 //draw node over line
-                graphics.FillEllipse(Brushes.OrangeRed, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
+                DrawColouredNode(node, Color.Red);
+
+                //highlight second childs
+                foreach (Node node2 in node.ChildNodes)
+                {
+                    //draw line
+                    DrawEdge(node2, node, Color.FromArgb(125,50,0));
+                    //draw node over line
+                    DrawColouredNode(node2, Color.DarkOrange);
+                }
             }
 
             //redraw node itself
-            graphics.FillEllipse(Brushes.DarkRed, NodeToHighlight.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, NodeToHighlight.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
-            graphics.Dispose();
+            DrawColouredNode(NodeToHighlight, Color.DarkRed);
             Invalidate();
         }
 
         private void DeleteHighlightDrawing()
         {
-            //draw to image
-            Graphics graphics = Graphics.FromImage(GraphBitmap);
             //draw parents and edges in colour
-            foreach (Node node in NodeToHighlight.ParentNodes)
+            foreach (Node node in Enumerable.Concat(NodeToHighlight.ParentNodes, NodeToHighlight.ChildNodes))
             {
                 //draw line
-                graphics.DrawLine(
-                    new Pen(Color.FromArgb(20, 20, 20), 2f),
-                    (node.Position.X) + BitmapEdgeLength / 2,
-                    (node.Position.Y) + BitmapEdgeLength / 2,
-                    (NodeToHighlight.Position.X) + BitmapEdgeLength / 2,
-                    (NodeToHighlight.Position.Y) + BitmapEdgeLength / 2);
-                //overdraw line with node
-                graphics.FillEllipse(Brushes.RoyalBlue, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
-            }
-            //draw childs and edges in colour
-            foreach (Node node in NodeToHighlight.ChildNodes)
-            {
-                //draw line
-                graphics.DrawLine(
-                    new Pen(Color.FromArgb(20, 20, 20), 2f),
-                    (node.Position.X) + BitmapEdgeLength / 2,
-                    (node.Position.Y) + BitmapEdgeLength / 2,
-                    (NodeToHighlight.Position.X) + BitmapEdgeLength / 2,
-                    (NodeToHighlight.Position.Y) + BitmapEdgeLength / 2);
+                DrawEdge(node, NodeToHighlight, Color.FromArgb(30, 30, 30));
                 //draw node over line
-                graphics.FillEllipse(Brushes.RoyalBlue, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
+                DrawColouredNode(node, Color.DarkBlue);
+
+                //highlight second childs
+                foreach (Node node2 in Enumerable.Concat(node.ParentNodes, node.ChildNodes))
+                {
+                    //draw line
+                    DrawEdge(node2, node, Color.FromArgb(30,30,30));
+                    //draw node over line
+                    DrawColouredNode(node2, Color.DarkBlue);
+                }
             }
 
             //redraw node itself
-            graphics.FillEllipse(Brushes.RoyalBlue, NodeToHighlight.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, NodeToHighlight.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
-            graphics.Dispose();
+            DrawColouredNode(NodeToHighlight, Color.DarkBlue);
             Invalidate();
         }
 
@@ -198,14 +187,14 @@ namespace HousePartyTranslator.StoryExplorerForm
                 DeleteHighlightDrawing();
                 selector++;
                 NodeToHighlight = Context.GetNodes()[selector];
-                DrawHighlightNode();
+                DrawHighlightNodeTree();
             }
             else if (e.KeyCode == Keys.D)
             {
                 DeleteHighlightDrawing();
                 if (selector > 0) selector--;
                 NodeToHighlight = Context.GetNodes()[selector];
-                DrawHighlightNode();
+                DrawHighlightNodeTree();
             }
         }
 

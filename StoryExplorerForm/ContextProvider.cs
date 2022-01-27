@@ -108,7 +108,7 @@ namespace HousePartyTranslator
                     DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString));
                 }
 
-                return true;
+                return Nodes.Count > 0;
             }
             else
             {
@@ -167,13 +167,13 @@ namespace HousePartyTranslator
             //f = 1* actual - desired, direction is towards child
 
             //distance an edge should be long, given in units
-            const int iterations = 80;
+            const int iterations = 100;
             const float maxForce = 0;
-            float attraction = 500f;//attraction force multiplier, between 0 and much
-            float cooldown = 0.95f;
+            float attraction = 700f;//attraction force multiplier, between 0 and much
+            float cooldown = 0.97f;
             //float gravityMultiplier = 0f; //between 0 and 1
-            float repulsion = 300f;//repulsion force multiplier, between 0 and much
-            int length = 200; //spring length in units
+            float repulsion = 1000f;//repulsion force multiplier, between 0 and much
+            int length = 180; //spring length in units
             float currentMaxForce = maxForce + 0.1f;
 
             //copy node ids in a dict so we can apply force and not disturb the rest
