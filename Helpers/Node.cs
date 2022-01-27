@@ -146,6 +146,7 @@ namespace HousePartyTranslator.Helpers
         public void CalculateMass()
         {
             Mass = ChildNodes.Count + ParentNodes.Count;
+            if (Mass < 1) Mass = 1;
         }
     }
 }

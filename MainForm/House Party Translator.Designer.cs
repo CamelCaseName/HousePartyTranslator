@@ -51,6 +51,7 @@ namespace HousePartyTranslator
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.CommentGroup = new System.Windows.Forms.GroupBox();
             this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
@@ -164,7 +165,8 @@ namespace HousePartyTranslator
             this.saveCommentsToolStripMenuItem1,
             this.searchToolStripTextBox,
             this.languageToolStripComboBox,
-            this.storyExplorerStripMenuItem1});
+            this.storyExplorerStripMenuItem1,
+            this.customOpenStoryExplorer});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
             this.MainMenu.Size = new System.Drawing.Size(1384, 27);
@@ -248,7 +250,6 @@ namespace HousePartyTranslator
             // 
             this.searchToolStripTextBox.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
             this.searchToolStripTextBox.Size = new System.Drawing.Size(300, 23);
             this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
@@ -281,9 +282,18 @@ namespace HousePartyTranslator
             this.storyExplorerStripMenuItem1.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.storyExplorerStripMenuItem1.Name = "storyExplorerStripMenuItem1";
             this.storyExplorerStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
-            this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(121, 23);
-            this.storyExplorerStripMenuItem1.Text = "Open Story&Explorer";
+            this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(118, 23);
+            this.storyExplorerStripMenuItem1.Text = "Auto Story&Explorer";
             this.storyExplorerStripMenuItem1.Click += new System.EventHandler(this.StoryExplorerStripMenuItem1_Click);
+            // 
+            // customOpenStoryExplorer
+            // 
+            this.customOpenStoryExplorer.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.customOpenStoryExplorer.Name = "customOpenStoryExplorer";
+            this.customOpenStoryExplorer.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
+            this.customOpenStoryExplorer.Size = new System.Drawing.Size(121, 23);
+            this.customOpenStoryExplorer.Text = "Open Sto&ryExplorer";
+            this.customOpenStoryExplorer.Click += new System.EventHandler(this.CustomStoryExplorerStripMenuItem_Click);
             // 
             // tableLayoutPanel1
             // 
@@ -425,6 +435,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
         //private System.Windows.Forms.SplitContainer MainContainer;
     }
 }

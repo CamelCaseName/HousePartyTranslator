@@ -151,5 +151,14 @@ namespace HousePartyTranslator
             if (!explorer.IsDisposed) explorer.Show();
             Cursor = Cursors.Default;
         }
+
+        private void CustomStoryExplorerStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Cursor = Cursors.WaitCursor;
+            bool isStory = TranslationManager.main.StoryName == TranslationManager.main.FileName;
+            StoryExplorer explorer = new StoryExplorer(isStory, false);
+            if (!explorer.IsDisposed) explorer.Show();
+            Cursor = Cursors.Default;
+        }
     }
 }
