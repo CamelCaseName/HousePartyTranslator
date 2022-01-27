@@ -792,7 +792,7 @@ namespace HousePartyTranslator.Managers
                 //remove pipe to not break saving/export
                 helper.TranslationTextBox.Text.Replace('|', ' ');
                 TranslationData[internalIndex].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
-                UpdateApprovedCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count(), helper);
+                UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count(), helper);
             }
         }
 
