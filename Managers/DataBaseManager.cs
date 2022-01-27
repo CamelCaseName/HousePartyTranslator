@@ -10,12 +10,12 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     static class DataBaseManager
     {
-        private static MySqlConnection sqlConnection = new MySqlConnection();
+        private static string DBVersion;
         private static MySqlCommand MainCommand;
         private static MySqlDataReader MainReader;
         private static string SoftwareVersion;
-        private static string DBVersion;
-#if DEBUG 
+        private static readonly MySqlConnection sqlConnection = new MySqlConnection();
+#if DEBUG
         private static readonly string FROM = "FROM debug ";
         private static readonly string INSERT = "INSERT INTO debug ";
         private static readonly string UPDATE = "UPDATE debug ";
@@ -26,6 +26,438 @@ namespace HousePartyTranslator.Managers
         private static readonly string UPDATE = "UPDATE translations ";
         private static readonly string DELETE = "DELETE FROM translations ";
 #endif
+
+
+
+        /// <summary>
+        /// Add a comment to the translation to the string defined by id and language.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="comment"> The comment to be added.</param>
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
+        public static bool AddTranslationComment(string id, string fileName, string story, string comment, string language = "de")
+        {
+            //use # for comment seperator
+            GetTranslationComments(id, fileName, story, out string internalComment, language);
+
+            internalComment += ("#" + comment);
+
+            string insertCommand = UPDATE + @"
+                                     SET COMMENT = @comment 
+                                     WHERE id = @id AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+            MainCommand.Parameters.AddWithValue("@language", language);
+            MainCommand.Parameters.AddWithValue("@comment", internalComment);
+
+            return MainCommand.ExecuteNonQuery() > 0;
+        }
+
+        /// <summary>
+        /// MUST NOT USE ESLEWHERE THAN THE TEMPLATE UPLOADER IN THE BEGINNING
+        /// </summary>
+        /// <returns>
+        /// True if it worked.
+        /// </returns>
+        public static bool ClearDBofAllStrings()
+        {
+            string insertCommand = DELETE + @" 
+                                     WHERE NOT ID = @version AND LANGUAGE IS NULL;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@version", "version");
+
+            //return if at least ione row was changed
+            return MainCommand.ExecuteNonQuery() > 0;
+        }
+
+        /// <summary>
+        /// Executes a custom SQL command, returns a MySqlDataReader.
+        /// </summary>
+        /// <param name="command">The command to execute.</param> 
+        /// <param name="ResultReader">The result reader will be written to this parameter.</param> 
+        public static void ExecuteCustomCommand(string command, out MySqlDataReader ResultReader)
+        {
+            MainCommand.Parameters.Clear();
+            MainCommand.CommandText = command;
+            ResultReader = MainCommand.ExecuteReader();
+        }
+
+        /// <summary>
+        /// Returns a list of all ids and categorys for the given file in a list of LineData.
+        /// </summary>
+        /// <param name="fileName">The name of the file read from without the extension.</param>
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
+        /// <param name="LineDataList">A list of all ids and categorys in LineData objects.</param>
+        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
+        /// <returns>
+        /// True if ids are found for this file.
+        /// </returns>
+        public static bool GetAllLineDataBasicForFile(string fileName, string story, out List<LineData> LineDataList)
+        {
+            Application.UseWaitCursor = true;
+            string insertCommand;
+            if (story == "Hints")
+            {
+                insertCommand = @"SELECT id, category, english 
+                                    " + FROM + @" 
+                                    WHERE story = @story AND language IS NULL
+                                    ORDER BY category ASC;";
+            }
+            else
+            {
+                insertCommand = @"SELECT id, category, english 
+                                    " + FROM + @" 
+                                    WHERE filename = @filename AND story = @story AND language IS NULL
+                                    ORDER BY category ASC;";
+            }
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@filename", fileName);
+            MainCommand.Parameters.AddWithValue("@story", story);
+
+            MainReader = MainCommand.ExecuteReader();
+            LineDataList = new List<LineData>();
+
+            if (MainReader.HasRows)
+            {
+                while (MainReader.Read())
+                {
+                    LineDataList.Add(
+                        new LineData(
+                            CleanId(MainReader.GetString("id"), story, fileName, true),
+                            story,
+                            fileName,
+                            (StringCategory)MainReader.GetInt32("category"),
+                            MainReader.GetString("english"),
+                            true));
+                }
+            }
+            else
+            {
+                MessageBox.Show("Ids can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            }
+            MainReader.Close();
+
+            Application.UseWaitCursor = false;
+            return LineDataList.Count > 0;
+        }
+
+        /// <summary>
+        /// Gets all approval states for a certain file.
+        /// </summary>
+        /// <param name="fileName">The name of the file read from without the extension.</param>
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
+        /// <param name="approvalStates">A list of approvals in the LineData class.</param>
+        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
+        /// <returns>
+        /// True if approvals are found for the file.
+        /// </returns>
+        public static bool GetAllStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
+        {
+            Application.UseWaitCursor = true;
+            string insertCommand = @"SELECT id, category, approved, translated, translation, english 
+                                     " + FROM + @" 
+                                     WHERE filename = @filename AND story = @story AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@filename", fileName);
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MainReader = MainCommand.ExecuteReader();
+            approvalStates = new List<LineData>();
+
+            if (MainReader.HasRows)
+            {
+                while (MainReader.Read())
+                {
+                    approvalStates.Add(
+                        new LineData(
+                            CleanId(MainReader.GetString("id"), story, fileName, false),
+                            story,
+                            fileName,
+                            (StringCategory)MainReader.GetInt32("category"),
+                            MainReader.GetInt32("approved") == 1,
+                            "",
+                            MainReader.GetString("translation")
+                            ));
+                }
+            }
+            else
+            {
+                //its annoying and useless by now
+                //MessageBox.Show("No string is approved so far.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            }
+            MainReader.Close();
+
+            Application.UseWaitCursor = false;
+            return approvalStates.Count > 0;
+        }
+
+        /// <summary>
+        /// Gets all translations for a given file.
+        /// </summary>
+        /// <param name="fileName">The name of the file read from without the extension.</param>
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
+        /// <param name="translations">A list of translations in the LineData class.</param>
+        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
+        /// <returns>
+        /// True if at least one translation came back:).
+        /// </returns>
+        public static bool GetAllTranslatedStringForFile(string fileName, string story, out List<LineData> translations, string language = "de")
+        {
+            Application.UseWaitCursor = true;
+            string insertCommand = @"SELECT id, category, translation 
+                                     " + FROM + @" 
+                                     WHERE filename = @filename AND story = @story AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@filename", fileName);
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MainReader = MainCommand.ExecuteReader();
+            translations = new List<LineData>();
+
+            if (MainReader.HasRows)
+            {
+                while (MainReader.Read())
+                {
+                    translations.Add(
+                        new LineData(
+                            CleanId(MainReader.GetString("id"), story, fileName, false),
+                            story,
+                            fileName,
+                            (StringCategory)MainReader.GetInt32("category"),
+                            MainReader.GetString("translation")));
+                }
+            }
+            else
+            {
+                //also useless because it also shows when nothing is translated
+                //MessageBox.Show("Translations can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            }
+            MainReader.Close();
+
+            Application.UseWaitCursor = false;
+            return translations.Count > 0;
+        }
+
+        /// <summary>
+        /// Get the Approval state of a string in the database.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if the selected string is approved, false if not.
+        /// </returns>
+        public static bool GetStringApprovedState(string id, string fileName, string story, string language = "de")
+        {
+            string insertCommand = @"SELECT approved 
+                                     " + FROM + @" 
+                                     WHERE id = @id;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+            int isApproved;
+            if (MainReader.HasRows)
+            {
+                isApproved = MainReader.GetInt32("approved");
+            }
+            else
+            {
+                isApproved = 0;
+            }
+            MainReader.Close();
+            return isApproved == 1;
+        }
+
+        /// <summary>
+        /// Gets the english teplate string for the specified id.
+        /// </summary>
+        /// <param name="id"> The id of that string as found in the file before the "|".</param>
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="template">The template string will be written to this parameter.</param> 
+        /// <returns>
+        /// True if a template was found.
+        /// </returns>
+        public static bool GetStringTemplate(string id, string fileName, string story, out string template)
+        {
+            Application.UseWaitCursor = true;
+            if (story == "Hints")
+            {
+                fileName = "English";
+            }
+            string insertCommand = @"SELECT english 
+                                     " + FROM + @" 
+                                     WHERE id = @id";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + "template");
+
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+            if (MainReader.HasRows)
+            {
+                template = MainReader.GetString(0);
+            }
+            else
+            {
+                template = "**Template can't be loaded**\n(a restart can help)";
+            }
+            MainReader.Close();
+            Application.UseWaitCursor = false;
+            return template != "";
+        }
+
+        /// <summary>
+        /// Get the isTranslated state of a string in the database (without considereing if an actual translation is present or not!).
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if the requested string is considered translated, false if not.
+        /// </returns>
+        public static bool GetStringTranslatedState(string id, string fileName, string story, string language = "de")
+        {
+            string insertCommand = @"SELECT translated 
+                                     " + FROM + @"  
+                                     WHERE id = @id AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+            int isTranslated;
+            if (MainReader.HasRows)
+            {
+                isTranslated = MainReader.GetInt32(0);
+            }
+            else
+            {
+                isTranslated = 0;
+                MessageBox.Show("Translation state can't be loaded");
+            }
+            MainReader.Close();
+            return isTranslated == 1;
+        }
+
+        /// <summary>
+        /// Gets the translation of a string in the database in the given language.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="translation">The translatin will be written to that string.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if a translation was found.
+        /// </returns>
+        public static bool GetStringTranslation(string id, string fileName, string story, out string translation, string language = "de")
+        {
+            string insertCommand = @"SELECT translation 
+                                     " + FROM + @" 
+                                     WHERE id = @id AND language = @language;";
+            bool wasSuccessfull = false;
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+
+            if (MainReader.HasRows && !MainReader.IsDBNull(0))
+            {
+                translation = MainReader.GetString("translation");
+                wasSuccessfull = true;
+            }
+            else
+            {
+                translation = "**Translation can't be loaded**";
+            }
+            MainReader.Close();
+            return wasSuccessfull;
+        }
+
+        /// <summary>
+        /// Gets a string consisting of all comments for the string, seperated by '#'
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="comments">The returned comments are written tho this string.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
+        public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
+        {
+            string insertCommand = @"SELECT comment 
+                                     " + FROM + @" 
+                                     WHERE id = @id AND language = @language;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MainReader = MainCommand.ExecuteReader();
+            MainReader.Read();
+
+            if (MainReader.HasRows && !MainReader.IsDBNull(0))
+            {
+                comments = MainReader.GetString("comment");
+            }
+            else
+            {
+                comments = "";
+            }
+            MainReader.Close();
+            return comments != "";
+        }
+
+        /// <summary>
+        /// Gets an array of all comments from the specified string.
+        /// </summary>
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="comments">The returned comments are placed in this array.</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if exactly one row was set, false if it was not the case.
+        /// </returns>
+        public static bool GetTranslationComments(string id, string fileName, string story, out string[] comments, string language = "de")
+        {
+            //use # for comment seperator
+            if (GetTranslationComments(id, fileName, story, out string commentString, language))
+            {
+                comments = commentString.Split('#');
+                return true;
+            }
+            else
+            {
+                comments = new string[0] { };
+                return false;
+            }
+        }
 
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
@@ -161,39 +593,31 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
 
             return MainCommand.ExecuteNonQuery() > 0;
         }
-
         /// <summary>
-        /// Get the Approval state of a string in the database.
+        /// Set the english template for string in the database.
         /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="id"> The id of that string as found in the file before the "|".</param>
         /// <param name="fileName">The name of the file read from without the extension.</param> 
         /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
-        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <param name="template">The template for the given id.</param> 
         /// <returns>
-        /// True if the selected string is approved, false if not.
+        /// True if exactly one row was set, false if it was not the case.
         /// </returns>
-        public static bool GetStringApprovedState(string id, string fileName, string story, string language = "de")
+        public static bool SetStringTemplate(string id, string fileName, string story, StringCategory category, string template)
         {
-            string insertCommand = @"SELECT approved 
-                                     " + FROM + @" 
-                                     WHERE id = @id;";
+            string insertCommand = INSERT + @" (id, story, filename, category, english) 
+                                     VALUES(@id, @story, @fileName, @category, @english)
+                                     ON DUPLICATE KEY UPDATE english = @english;";
             MainCommand.CommandText = insertCommand;
             MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + "template");
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@category", (int)category);
+            MainCommand.Parameters.AddWithValue("@english", template);
 
-            MainReader = MainCommand.ExecuteReader();
-            MainReader.Read();
-            int isApproved;
-            if (MainReader.HasRows)
-            {
-                isApproved = MainReader.GetInt32("approved");
-            }
-            else
-            {
-                isApproved = 0;
-            }
-            MainReader.Close();
-            return isApproved == 1;
+            //return if at least ione row was changed
+            return MainCommand.ExecuteNonQuery() > 0;
         }
 
         /// <summary>
@@ -223,43 +647,6 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
 
             return MainCommand.ExecuteNonQuery() > 0;
         }
-
-        /// <summary>
-        /// Get the isTranslated state of a string in the database (without considereing if an actual translation is present or not!).
-        /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param> 
-        /// <param name="fileName">The name of the file read from without the extension.</param> 
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
-        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
-        /// <returns>
-        /// True if the requested string is considered translated, false if not.
-        /// </returns>
-        public static bool GetStringTranslatedState(string id, string fileName, string story, string language = "de")
-        {
-            string insertCommand = @"SELECT translated 
-                                     " + FROM + @"  
-                                     WHERE id = @id AND language = @language;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
-            MainCommand.Parameters.AddWithValue("@language", language);
-
-            MainReader = MainCommand.ExecuteReader();
-            MainReader.Read();
-            int isTranslated;
-            if (MainReader.HasRows)
-            {
-                isTranslated = MainReader.GetInt32(0);
-            }
-            else
-            {
-                isTranslated = 0;
-                MessageBox.Show("Translation state can't be loaded");
-            }
-            MainReader.Close();
-            return isTranslated == 1;
-        }
-
         /// <summary>
         /// Sets the translation of a string in the database in the given language.
         /// </summary>
@@ -289,75 +676,6 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
 
             return MainCommand.ExecuteNonQuery() > 0;
         }
-
-        /// <summary>
-        /// Gets the translation of a string in the database in the given language.
-        /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param> 
-        /// <param name="fileName">The name of the file read from without the extension.</param> 
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
-        /// <param name="translation">The translatin will be written to that string.</param> 
-        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
-        /// <returns>
-        /// True if a translation was found.
-        /// </returns>
-        public static bool GetStringTranslation(string id, string fileName, string story, out string translation, string language = "de")
-        {
-            string insertCommand = @"SELECT translation 
-                                     " + FROM + @" 
-                                     WHERE id = @id AND language = @language;";
-            bool wasSuccessfull = false;
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
-            MainCommand.Parameters.AddWithValue("@language", language);
-
-            MainReader = MainCommand.ExecuteReader();
-            MainReader.Read();
-
-            if (MainReader.HasRows && !MainReader.IsDBNull(0))
-            {
-                translation = MainReader.GetString("translation");
-                wasSuccessfull = true;
-            }
-            else
-            {
-                translation = "**Translation can't be loaded**";
-            }
-            MainReader.Close();
-            return wasSuccessfull;
-        }
-
-        /// <summary>
-        /// Add a comment to the translation to the string defined by id and language.
-        /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param> 
-        /// <param name="fileName">The name of the file read from without the extension.</param> 
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
-        /// <param name="comment"> The comment to be added.</param>
-        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
-        /// <returns>
-        /// True if exactly one row was set, false if it was not the case.
-        /// </returns>
-        public static bool AddTranslationComment(string id, string fileName, string story, string comment, string language = "de")
-        {
-            //use # for comment seperator
-            GetTranslationComments(id, fileName, story, out string internalComment, language);
-
-            internalComment += ("#" + comment);
-
-            string insertCommand = UPDATE + @"
-                                     SET COMMENT = @comment 
-                                     WHERE id = @id AND language = @language;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
-            MainCommand.Parameters.AddWithValue("@language", language);
-            MainCommand.Parameters.AddWithValue("@comment", internalComment);
-
-            return MainCommand.ExecuteNonQuery() > 0;
-        }
-
         /// <summary>
         /// Set all comments on the string defined by id and language.
         /// </summary>
@@ -400,308 +718,6 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
 
 
         }
-
-        /// <summary>
-        /// Gets a string consisting of all comments for the string, seperated by '#'
-        /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param> 
-        /// <param name="fileName">The name of the file read from without the extension.</param> 
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
-        /// <param name="comments">The returned comments are written tho this string.</param> 
-        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
-        /// <returns>
-        /// True if exactly one row was set, false if it was not the case.
-        /// </returns>
-        public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
-        {
-            string insertCommand = @"SELECT comment 
-                                     " + FROM + @" 
-                                     WHERE id = @id AND language = @language;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
-            MainCommand.Parameters.AddWithValue("@language", language);
-
-            MainReader = MainCommand.ExecuteReader();
-            MainReader.Read();
-
-            if (MainReader.HasRows && !MainReader.IsDBNull(0))
-            {
-                comments = MainReader.GetString("comment");
-            }
-            else
-            {
-                comments = "";
-            }
-            MainReader.Close();
-            return comments != "";
-        }
-
-        /// <summary>
-        /// Gets an array of all comments from the specified string.
-        /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param> 
-        /// <param name="fileName">The name of the file read from without the extension.</param> 
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
-        /// <param name="comments">The returned comments are placed in this array.</param> 
-        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
-        /// <returns>
-        /// True if exactly one row was set, false if it was not the case.
-        /// </returns>
-        public static bool GetTranslationComments(string id, string fileName, string story, out string[] comments, string language = "de")
-        {
-            //use # for comment seperator
-            if (GetTranslationComments(id, fileName, story, out string commentString, language))
-            {
-                comments = commentString.Split('#');
-                return true;
-            }
-            else
-            {
-                comments = new string[0] { };
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Gets all translations for a given file.
-        /// </summary>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="translations">A list of translations in the LineData class.</param>
-        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
-        /// <returns>
-        /// True if at least one translation came back:).
-        /// </returns>
-        public static bool GetAllTranslatedStringForFile(string fileName, string story, out List<LineData> translations, string language = "de")
-        {
-            Application.UseWaitCursor = true;
-            string insertCommand = @"SELECT id, category, translation 
-                                     " + FROM + @" 
-                                     WHERE filename = @filename AND story = @story AND language = @language;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@filename", fileName);
-            MainCommand.Parameters.AddWithValue("@story", story);
-            MainCommand.Parameters.AddWithValue("@language", language);
-
-            MainReader = MainCommand.ExecuteReader();
-            translations = new List<LineData>();
-
-            if (MainReader.HasRows)
-            {
-                while (MainReader.Read())
-                {
-                    translations.Add(
-                        new LineData(
-                            CleanId(MainReader.GetString("id"), story, fileName, false),
-                            story,
-                            fileName,
-                            (StringCategory)MainReader.GetInt32("category"),
-                            MainReader.GetString("translation")));
-                }
-            }
-            else
-            {
-                //also useless because it also shows when nothing is translated
-                //MessageBox.Show("Translations can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-            }
-            MainReader.Close();
-
-            Application.UseWaitCursor = false;
-            return translations.Count > 0;
-        }
-
-        /// <summary>
-        /// Gets all approval states for a certain file.
-        /// </summary>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="approvalStates">A list of approvals in the LineData class.</param>
-        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
-        /// <returns>
-        /// True if approvals are found for the file.
-        /// </returns>
-        public static bool GetAllStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
-        {
-            Application.UseWaitCursor = true;
-            string insertCommand = @"SELECT id, category, approved, translated, translation, english 
-                                     " + FROM + @" 
-                                     WHERE filename = @filename AND story = @story AND language = @language;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@filename", fileName);
-            MainCommand.Parameters.AddWithValue("@story", story);
-            MainCommand.Parameters.AddWithValue("@language", language);
-
-            MainReader = MainCommand.ExecuteReader();
-            approvalStates = new List<LineData>();
-
-            if (MainReader.HasRows)
-            {
-                while (MainReader.Read())
-                {
-                    approvalStates.Add(
-                        new LineData(
-                            CleanId(MainReader.GetString("id"), story, fileName, false),
-                            story,
-                            fileName,
-                            (StringCategory)MainReader.GetInt32("category"),
-                            MainReader.GetInt32("approved") == 1,
-                            "",
-                            MainReader.GetString("translation")
-                            ));
-                }
-            }
-            else
-            {
-                //its annoying and useless by now
-                //MessageBox.Show("No string is approved so far.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-            }
-            MainReader.Close();
-
-            Application.UseWaitCursor = false;
-            return approvalStates.Count > 0;
-        }
-
-        /// <summary>
-        /// Returns a list of all ids and categorys for the given file in a list of LineData.
-        /// </summary>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="LineDataList">A list of all ids and categorys in LineData objects.</param>
-        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
-        /// <returns>
-        /// True if ids are found for this file.
-        /// </returns>
-        public static bool GetAllLineDataBasicForFile(string fileName, string story, out List<LineData> LineDataList)
-        {
-            Application.UseWaitCursor = true;
-            string insertCommand;
-            if (story == "Hints")
-            {
-                insertCommand = @"SELECT id, category, english 
-                                    " + FROM + @" 
-                                    WHERE story = @story AND language IS NULL
-                                    ORDER BY category ASC;";
-            }
-            else
-            {
-                insertCommand = @"SELECT id, category, english 
-                                    " + FROM + @" 
-                                    WHERE filename = @filename AND story = @story AND language IS NULL
-                                    ORDER BY category ASC;";
-            }
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@filename", fileName);
-            MainCommand.Parameters.AddWithValue("@story", story);
-
-            MainReader = MainCommand.ExecuteReader();
-            LineDataList = new List<LineData>();
-
-            if (MainReader.HasRows)
-            {
-                while (MainReader.Read())
-                {
-                    LineDataList.Add(
-                        new LineData(
-                            CleanId(MainReader.GetString("id"), story, fileName, true),
-                            story,
-                            fileName,
-                            (StringCategory)MainReader.GetInt32("category"),
-                            MainReader.GetString("english"),
-                            true));
-                }
-            }
-            else
-            {
-                MessageBox.Show("Ids can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-            }
-            MainReader.Close();
-
-            Application.UseWaitCursor = false;
-            return LineDataList.Count > 0;
-        }
-
-        /// <summary>
-        /// Set the english template for string in the database.
-        /// </summary>
-        /// <param name="id"> The id of that string as found in the file before the "|".</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param> 
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
-        /// <param name="template">The template for the given id.</param> 
-        /// <returns>
-        /// True if exactly one row was set, false if it was not the case.
-        /// </returns>
-        public static bool SetStringTemplate(string id, string fileName, string story, StringCategory category, string template)
-        {
-            string insertCommand = INSERT + @" (id, story, filename, category, english) 
-                                     VALUES(@id, @story, @fileName, @category, @english)
-                                     ON DUPLICATE KEY UPDATE english = @english;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + "template");
-            MainCommand.Parameters.AddWithValue("@story", story);
-            MainCommand.Parameters.AddWithValue("@fileName", fileName);
-            MainCommand.Parameters.AddWithValue("@category", (int)category);
-            MainCommand.Parameters.AddWithValue("@english", template);
-
-            //return if at least ione row was changed
-            return MainCommand.ExecuteNonQuery() > 0;
-        }
-
-        /// <summary>
-        /// Gets the english teplate string for the specified id.
-        /// </summary>
-        /// <param name="id"> The id of that string as found in the file before the "|".</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param> 
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
-        /// <param name="template">The template string will be written to this parameter.</param> 
-        /// <returns>
-        /// True if a template was found.
-        /// </returns>
-        public static bool GetStringTemplate(string id, string fileName, string story, out string template)
-        {
-            Application.UseWaitCursor = true;
-            if (story == "Hints")
-            {
-                fileName = "English";
-            }
-            string insertCommand = @"SELECT english 
-                                     " + FROM + @" 
-                                     WHERE id = @id";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + "template");
-
-            MainReader = MainCommand.ExecuteReader();
-            MainReader.Read();
-            if (MainReader.HasRows)
-            {
-                template = MainReader.GetString(0);
-            }
-            else
-            {
-                template = "**Template can't be loaded**\n(a restart can help)";
-            }
-            MainReader.Close();
-            Application.UseWaitCursor = false;
-            return template != "";
-        }
-
-        /// <summary>
-        /// Executes a custom SQL command, returns a MySqlDataReader.
-        /// </summary>
-        /// <param name="command">The command to execute.</param> 
-        /// <param name="ResultReader">The result reader will be written to this parameter.</param> 
-        public static void ExecuteCustomCommand(string command, out MySqlDataReader ResultReader)
-        {
-            MainCommand.Parameters.Clear();
-            MainCommand.CommandText = command;
-            ResultReader = MainCommand.ExecuteReader();
-        }
-
         /// <summary>
         /// Increases the verison count on the database by 0.01, eg: 0.19 -> 0.20
         /// </summary>
@@ -721,23 +737,11 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             //return if at least ione row was changed
             return MainCommand.ExecuteNonQuery() > 0;
         }
-
-        /// <summary>
-        /// MUST NOT USE ESLEWHERE THAN THE TEMPLATE UPLOADER IN THE BEGINNING
-        /// </summary>
-        /// <returns>
-        /// True if it worked.
-        /// </returns>
-        public static bool ClearDBofAllStrings()
+        private static string CleanId(string DataBaseId, string story, string fileName, bool isTemplate)
         {
-            string insertCommand = DELETE + @" 
-                                     WHERE NOT ID = @version AND LANGUAGE IS NULL;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@version", "version");
-
-            //return if at least ione row was changed
-            return MainCommand.ExecuteNonQuery() > 0;
+            if (story == "Hints" && isTemplate) fileName = "English";
+            string tempID = DataBaseId.Substring((story + fileName).Length);
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : 2));
         }
 
         private static string GetConnString()
@@ -753,13 +757,6 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
                 returnString = "";
             }
             return returnString;
-        }
-
-        private static string CleanId(string DataBaseId, string story, string fileName, bool isTemplate)
-        {
-            if (story == "Hints" && isTemplate) fileName = "English";
-            string tempID = DataBaseId.Substring((story + fileName).Length);
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : 2));
         }
     }
 }

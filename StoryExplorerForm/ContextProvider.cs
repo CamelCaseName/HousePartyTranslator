@@ -4,21 +4,34 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Windows.Forms;
 using System.Numerics;
+using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
     internal class ContextProvider
     {
-        private Dictionary<Guid, Vector2> NodeForces;
-        private List<Node> CriteriaInFile;
-        private List<Node> Nodes;
-        private readonly bool IsStory;
-        private string _StoryFilePath;
         public bool GotCancelled = false;
-        private Random Random = new Random();
+        private readonly bool IsStory;
+        private readonly Random Random = new Random();
+        private string _StoryFilePath;
+        private List<Node> CriteriaInFile;
+        private Dictionary<Guid, Vector2> NodeForces;
+        private List<Node> Nodes;
+        public ContextProvider(string FilePath, bool IsStory, bool AutoSelectFile)
+        {
+            //TODO make completely automated in auto mode
+            Nodes = new List<Node>();
+            this.IsStory = IsStory;
+            if (Properties.Settings.Default.story_path != "" && AutoSelectFile)
+            {
+                this.FilePath = Properties.Settings.Default.story_path;
+            }
+            else
+            {
+                this.FilePath = FilePath;
+            }
+        }
 
         public string FilePath
         {
@@ -71,19 +84,37 @@ namespace HousePartyTranslator
                 }
             }
         }
-
-        public ContextProvider(string FilePath, bool IsStory, bool AutoSelectFile)
+        public void DissectCharacter(CharacterStory story)
         {
-            Nodes = new List<Node>();
-            this.IsStory = IsStory;
-            if (Properties.Settings.Default.story_path != "" && AutoSelectFile)
-            {
-                this.FilePath = Properties.Settings.Default.story_path;
-            }
-            else
-            {
-                this.FilePath = FilePath;
-            }
+            //TODO dissect character files
+        }
+
+        public void DissectStory(MainStory story)
+        {
+            CriteriaInFile = new List<Node>();
+
+            //add all items in the story
+            Nodes.AddRange(GetItemOverrides(story));
+            //add all item groups with their actions
+            Nodes.AddRange(GetItemGroups(story));
+            //add all items in the story
+            Nodes.AddRange(GetAchievements(story));
+            //add all reactions the player will say
+            Nodes.AddRange(GetPlayerReactions(story));
+
+            //remove duplicates/merge criteria
+            //maybe later we load the corresponding strings from the character files and vise versa?
+            Nodes = CombineNodes(Nodes);
+
+            //clear criteria to free memory, we dont need them anyways
+            //cant be called recusrively so we cant add it, it would break the combination
+            CriteriaInFile.Clear();
+
+            //calculate starting positions
+            Nodes = CalculateStartingPositions(Nodes);
+
+            //render and do the force driven calculation thingies
+            Nodes = CalculateForceDirectedLayout(Nodes);
         }
 
         public List<Node> GetNodes()
@@ -115,39 +146,6 @@ namespace HousePartyTranslator
                 return false;
             }
         }
-        public void DissectCharacter(CharacterStory story)
-        {
-
-        }
-
-        public void DissectStory(MainStory story)
-        {
-            CriteriaInFile = new List<Node>();
-
-            //add all items in the story
-            Nodes.AddRange(GetItemOverrides(story));
-            //add all item groups with their actions
-            Nodes.AddRange(GetItemGroups(story));
-            //add all items in the story
-            Nodes.AddRange(GetAchievements(story));
-            //add all reactions the player will say
-            Nodes.AddRange(GetPlayerReactions(story));
-
-            //remove duplicates/merge criteria
-            //maybe later we load the corresponding strings from the character files and vise versa?
-            Nodes = CombineNodes(Nodes);
-
-            //clear criteria to free memory, we dont need them anyways
-            //cant be called recusrively so we cant add it, it would break the combination
-            CriteriaInFile.Clear();
-
-            //calculate starting positions
-            Nodes = CalculateStartingPositions(Nodes);
-
-            //render and do the force driven calculation thingies
-            Nodes = CalculateForceDirectedLayout(Nodes);
-        }
-
         private List<Node> CalculateForceDirectedLayout(List<Node> nodes)
         {
             //It's fairly easy to code, you just need to think about the 3 separate forces acting on each node,
@@ -340,46 +338,10 @@ namespace HousePartyTranslator
             return listNodes;
         }
 
-        private List<Node> GetPlayerReactions(MainStory story)
+        private Node CreateCriteriaNode(Criterion criterion, Node node)
         {
-            List<Node> nodes = new List<Node>();
-            foreach (PlayerReaction playerReaction in story.PlayerReactions)
-            {
-                //add items to list
-                Node currentReaction = new Node(playerReaction.Id, NodeType.Reaction, 1, playerReaction.Name);
-                //get actions for item
-                foreach (Event eevent in playerReaction.Events)
-                {
-
-                    Node currentEvent = new Node(eevent.Id, NodeType.Event, 1, eevent.Value, currentReaction);
-                    //only if correct type
-                    if (eevent.EventType == 10)
-                    {
-                        //add criteria that influence this item
-                        foreach (Criterion criterion in eevent.Criteria)
-                        {
-                            if (criterion.CompareType == "State")
-                            {
-                                currentEvent.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
-                            }
-                        }
-                        //add action to item
-                        currentReaction.AddChildNode(currentEvent);
-                    }
-
-                }
-
-                foreach (Critera critera in playerReaction.Critera)
-
-                    if (critera.CompareType == "State")
-                    {
-                        currentReaction.AddParentNode(CreateCriteriaNode((Criterion)critera, currentReaction));
-                    }
-
-                nodes.Add(currentReaction);
-            }
-
-            return nodes;
+            //create all criteria nodes the same way so they can possibly be replaced by the actual text later
+            return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, 1, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
         }
 
         private List<Node> GetAchievements(MainStory story)
@@ -522,10 +484,46 @@ namespace HousePartyTranslator
             return nodes;
         }
 
-        private Node CreateCriteriaNode(Criterion criterion, Node node)
+        private List<Node> GetPlayerReactions(MainStory story)
         {
-            //create all criteria nodes the same way so they can possibly be replaced by the actual text later
-            return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, 1, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
+            List<Node> nodes = new List<Node>();
+            foreach (PlayerReaction playerReaction in story.PlayerReactions)
+            {
+                //add items to list
+                Node currentReaction = new Node(playerReaction.Id, NodeType.Reaction, 1, playerReaction.Name);
+                //get actions for item
+                foreach (Event eevent in playerReaction.Events)
+                {
+
+                    Node currentEvent = new Node(eevent.Id, NodeType.Event, 1, eevent.Value, currentReaction);
+                    //only if correct type
+                    if (eevent.EventType == 10)
+                    {
+                        //add criteria that influence this item
+                        foreach (Criterion criterion in eevent.Criteria)
+                        {
+                            if (criterion.CompareType == "State")
+                            {
+                                currentEvent.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
+                            }
+                        }
+                        //add action to item
+                        currentReaction.AddChildNode(currentEvent);
+                    }
+
+                }
+
+                foreach (Critera critera in playerReaction.Critera)
+
+                    if (critera.CompareType == "State")
+                    {
+                        currentReaction.AddParentNode(CreateCriteriaNode((Criterion)critera, currentReaction));
+                    }
+
+                nodes.Add(currentReaction);
+            }
+
+            return nodes;
         }
     }
 }
