@@ -37,6 +37,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             // 
             this.MouseMove += new MouseEventHandler(this.HandleMouseEvents);
             this.MouseWheel += new MouseEventHandler(this.HandleMouseEvents);
+            this.KeyDown += new KeyEventHandler(this.HandleKeyBoard);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);

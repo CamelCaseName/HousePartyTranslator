@@ -12,7 +12,6 @@ namespace HousePartyTranslator
 {
     internal class ContextProvider
     {
-        private const int MaxDistanceFromCenter = 5000;
         private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> CriteriaInFile;
         private List<Node> Nodes;
@@ -168,10 +167,10 @@ namespace HousePartyTranslator
             //f = 1* actual - desired, direction is towards child
 
             //distance an edge should be long, given in units
-            const int iterations = 150;
+            const int iterations = 80;
             const float maxForce = 0;
-            float attraction = 200f;//attraction force multiplier, between 0 and much
-            float cooldown = 0.97f;
+            float attraction = 500f;//attraction force multiplier, between 0 and much
+            float cooldown = 0.95f;
             //float gravityMultiplier = 0f; //between 0 and 1
             float repulsion = 300f;//repulsion force multiplier, between 0 and much
             int length = 200; //spring length in units

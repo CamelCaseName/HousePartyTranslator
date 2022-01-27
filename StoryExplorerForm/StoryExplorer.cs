@@ -14,14 +14,17 @@ namespace HousePartyTranslator.StoryExplorerForm
         private float BeforeZoomMouseY = 0f;
         private float OffsetX = 0f;
         private float OffsetY = 0f;
-        private float Scaling = 0.2f;
+        private float Scaling = 0.3f;
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
-        public readonly bool ReadyToDraw = false;
+        public bool ReadyToDraw = false;
         private readonly ContextProvider Context;
         private readonly Bitmap GraphBitmap;
-        private const int BitmapEdgeLength = 10000;
+        private const int BitmapEdgeLength = 4000;
         private const int Nodesize = 16;
+        public Node NodeToHighlight;
+
+        int selector = -1;
 
         public StoryExplorer(bool IsStory, bool AutoLoad)
         {
@@ -37,7 +40,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
             Graphics tempgraphics = Graphics.FromImage(GraphBitmap);
-            tempgraphics.DrawRectangle(Pens.DarkGray, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
+            tempgraphics.DrawRectangle(Pens.Black, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
             tempgraphics.Dispose();
 
             //add custom paint event handler to draw all nodes and edges
@@ -46,43 +49,118 @@ namespace HousePartyTranslator.StoryExplorerForm
             //parse story, and not get cancelled xD
             if (Context.ParseFile() || Context.GotCancelled)
             {
-                //draw to image
-                Graphics graphics = Graphics.FromImage(GraphBitmap);
-                //go on displaying graph
-                foreach (Node node in Context.GetNodes())
-                {
-                    //draw ndoe
-                    graphics.FillEllipse(Brushes.RoyalBlue, (node.Position.X - Nodesize / 2) + BitmapEdgeLength / 2, (node.Position.Y - Nodesize / 2) + BitmapEdgeLength / 2, Nodesize, Nodesize);
-
-                    //draw edges
-                    foreach (Node child in node.ChildNodes)
-                    {
-                        
-                        if (child.Position == new Point())
-                        {
-                            Console.WriteLine(node);
-                            Console.WriteLine(child);
-                            Console.WriteLine("-------------------------------------------------------------------------------------------------------");
-                        }
-                        else
-                        {
-                            //draw edge to child, default colour
-                            graphics.DrawLine(new Pen(Color.LightGray, 2f), (node.Position.X) + BitmapEdgeLength / 2, (node.Position.Y) + BitmapEdgeLength / 2, (child.Position.X) + BitmapEdgeLength / 2, (child.Position.Y) + BitmapEdgeLength / 2);
-                        }
-
-                        //highlight colour
-                        //graphics.DrawLine(new Pen(Color.LightGray, 2f), (node.Position.X) + BitmapEdgeLength / 2, (node.Position.Y) + BitmapEdgeLength / 2, (child.Position.X) + BitmapEdgeLength / 2, (child.Position.Y) + BitmapEdgeLength / 2);
-                    }
-                }
-                //allow paint handler to draw
-                ReadyToDraw = true;
-                Cursor = Cursors.Default;
+                NodeToHighlight = Context.GetNodes()[0];
+                FillBitMap();
             }
             else
             {
                 //else we quit
                 Close();
             }
+        }
+
+        private void FillBitMap()
+        {
+            //draw to image
+            Graphics graphics = Graphics.FromImage(GraphBitmap);
+            //go on displaying graph
+            foreach (Node node in Context.GetNodes())
+            {
+                //draw node
+                graphics.FillEllipse(Brushes.RoyalBlue, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
+
+                //draw edges
+                foreach (Node child in node.ChildNodes)
+                {
+                    //draw edge to child, default colour
+                    graphics.DrawLine(
+                        new Pen(Color.FromArgb(20, 20, 20), 2f),
+                        (node.Position.X) + BitmapEdgeLength / 2,
+                        (node.Position.Y) + BitmapEdgeLength / 2,
+                        (child.Position.X) + BitmapEdgeLength / 2,
+                        (child.Position.Y) + BitmapEdgeLength / 2);
+                }
+            }
+            //allow paint handler to draw
+            ReadyToDraw = true;
+            Cursor = Cursors.Default;
+            graphics.Dispose();
+            Invalidate();
+        }
+
+        private void DrawHighlightNode()
+        {
+            //draw to image
+            Graphics graphics = Graphics.FromImage(GraphBitmap);
+            //draw parents and edges in colour
+            foreach (Node node in NodeToHighlight.ParentNodes)
+            {
+                //draw line
+                graphics.DrawLine(
+                    new Pen(Color.Coral, 2f),
+                    (node.Position.X) + BitmapEdgeLength / 2,
+                    (node.Position.Y) + BitmapEdgeLength / 2,
+                    (NodeToHighlight.Position.X) + BitmapEdgeLength / 2,
+                    (NodeToHighlight.Position.Y) + BitmapEdgeLength / 2);
+                //overdraw line with node
+                graphics.FillEllipse(Brushes.OrangeRed, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
+            }
+
+            //draw childs and edges in colour
+            foreach (Node node in NodeToHighlight.ChildNodes)
+            {
+                //draw line
+                graphics.DrawLine(
+                    new Pen(Color.Coral, 2f),
+                    (node.Position.X) + BitmapEdgeLength / 2,
+                    (node.Position.Y) + BitmapEdgeLength / 2,
+                    (NodeToHighlight.Position.X) + BitmapEdgeLength / 2,
+                    (NodeToHighlight.Position.Y) + BitmapEdgeLength / 2);
+                //draw node over line
+                graphics.FillEllipse(Brushes.OrangeRed, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
+            }
+
+            //redraw node itself
+            graphics.FillEllipse(Brushes.DarkRed, NodeToHighlight.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, NodeToHighlight.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
+            graphics.Dispose();
+            Invalidate();
+        }
+
+        private void DeleteHighlightDrawing()
+        {
+            //draw to image
+            Graphics graphics = Graphics.FromImage(GraphBitmap);
+            //draw parents and edges in colour
+            foreach (Node node in NodeToHighlight.ParentNodes)
+            {
+                //draw line
+                graphics.DrawLine(
+                    new Pen(Color.FromArgb(20, 20, 20), 2f),
+                    (node.Position.X) + BitmapEdgeLength / 2,
+                    (node.Position.Y) + BitmapEdgeLength / 2,
+                    (NodeToHighlight.Position.X) + BitmapEdgeLength / 2,
+                    (NodeToHighlight.Position.Y) + BitmapEdgeLength / 2);
+                //overdraw line with node
+                graphics.FillEllipse(Brushes.RoyalBlue, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
+            }
+            //draw childs and edges in colour
+            foreach (Node node in NodeToHighlight.ChildNodes)
+            {
+                //draw line
+                graphics.DrawLine(
+                    new Pen(Color.FromArgb(20, 20, 20), 2f),
+                    (node.Position.X) + BitmapEdgeLength / 2,
+                    (node.Position.Y) + BitmapEdgeLength / 2,
+                    (NodeToHighlight.Position.X) + BitmapEdgeLength / 2,
+                    (NodeToHighlight.Position.Y) + BitmapEdgeLength / 2);
+                //draw node over line
+                graphics.FillEllipse(Brushes.RoyalBlue, node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
+            }
+
+            //redraw node itself
+            graphics.FillEllipse(Brushes.RoyalBlue, NodeToHighlight.Position.X - Nodesize / 2 + BitmapEdgeLength / 2, NodeToHighlight.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2, Nodesize, Nodesize);
+            graphics.Dispose();
+            Invalidate();
         }
 
         private void DrawNodes(object sender, PaintEventArgs e)
@@ -113,39 +191,79 @@ namespace HousePartyTranslator.StoryExplorerForm
             graphY = screenY / Scaling + OffsetY;
         }
 
+        private void HandleKeyBoard(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.A)
+            {
+                DeleteHighlightDrawing();
+                selector++;
+                NodeToHighlight = Context.GetNodes()[selector];
+                DrawHighlightNode();
+            }
+            else if (e.KeyCode == Keys.D)
+            {
+                DeleteHighlightDrawing();
+                if (selector > 0) selector--;
+                NodeToHighlight = Context.GetNodes()[selector];
+                DrawHighlightNode();
+            }
+        }
 
         private void HandleMouseEvents(object sender, MouseEventArgs e)
         {
-            //start of pan
-            if (e.Button == MouseButtons.Middle && !CurrentlyInPan)
+            switch (e.Button)
             {
-                CurrentlyInPan = true;
-                //get current position in screen coordinates when we start to pan
-                StartPanOffsetX = e.X;
-                StartPanOffsetY = e.Y;
-            }
-            //in pan
-            else if (e.Button == MouseButtons.Middle && CurrentlyInPan)
-            {
-                //update opffset by the difference in screen coordinates we travelled so far
-                OffsetX -= (e.X - StartPanOffsetX) / Scaling;
-                OffsetY -= (e.Y - StartPanOffsetY) / Scaling;
+                case MouseButtons.Left:
+                    break;
+                case MouseButtons.None:
+                    //end of pan
+                    if (CurrentlyInPan)
+                    {
+                        CurrentlyInPan = false;
+                    }
+                    break;
+                case MouseButtons.Right:
+                    break;
+                case MouseButtons.Middle:
+                    //start of pan
+                    if (!CurrentlyInPan)
+                    {
+                        CurrentlyInPan = true;
+                        //get current position in screen coordinates when we start to pan
+                        StartPanOffsetX = e.X;
+                        StartPanOffsetY = e.Y;
+                    }
+                    //in pan
+                    else if (CurrentlyInPan)
+                    {
+                        //update opffset by the difference in screen coordinates we travelled so far
+                        OffsetX -= (e.X - StartPanOffsetX) / Scaling;
+                        OffsetY -= (e.Y - StartPanOffsetY) / Scaling;
 
-                //replace old start by new start coordinates so we only look at one interval,
-                //and do not accumulate the change in position
-                StartPanOffsetX = e.X;
-                StartPanOffsetY = e.Y;
+                        //replace old start by new start coordinates so we only look at one interval,
+                        //and do not accumulate the change in position
+                        StartPanOffsetX = e.X;
+                        StartPanOffsetY = e.Y;
 
-                //redraw
-                Invalidate();
+                        //redraw
+                        Invalidate();
+                    }
+                    break;
+                case MouseButtons.XButton1:
+                    break;
+                case MouseButtons.XButton2:
+                    break;
+                default:
+                    //end of pan
+                    if (CurrentlyInPan)
+                    {
+                        CurrentlyInPan = false;
+                    }
+                    break;
             }
-            //end of pan
-            else if (e.Button != MouseButtons.Middle && CurrentlyInPan)
-            {
-                CurrentlyInPan = false;
-            }
+
             //everything else, scrolling for example
-            else if (e.Delta != 0)
+            if (e.Delta != 0)
             {
                 //get last mouse position in world space before the zoom so we can
                 //offset back by the distance in world space we got shifted by zooming
