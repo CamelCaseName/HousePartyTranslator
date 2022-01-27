@@ -6,16 +6,20 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
+using System.Numerics;
 
 namespace HousePartyTranslator
 {
     internal class ContextProvider
     {
-        private string _StoryFilePath;
-        private readonly bool IsStory;
-        private List<Node> Nodes;
+        private const int MaxDistanceFromCenter = 5000;
+        private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> CriteriaInFile;
+        private List<Node> Nodes;
+        private readonly bool IsStory;
+        private string _StoryFilePath;
         public bool GotCancelled = false;
+        private Random Random = new Random();
 
         public string FilePath
         {
@@ -142,10 +146,10 @@ namespace HousePartyTranslator
             Nodes = CalculateStartingPositions(Nodes);
 
             //render and do the force driven calculation thingies
-            Nodes = CalculateForceDirectedLayout(Nodes, 100);
+            Nodes = CalculateForceDirectedLayout(Nodes);
         }
 
-        private List<Node> CalculateForceDirectedLayout(List<Node> nodes, int iterations)
+        private List<Node> CalculateForceDirectedLayout(List<Node> nodes)
         {
             //It's fairly easy to code, you just need to think about the 3 separate forces acting on each node,
             //add them together and divide that by the mass of the node to get the movement of each node.
@@ -164,104 +168,83 @@ namespace HousePartyTranslator
             //f = 1* actual - desired, direction is towards child
 
             //distance an edge should be long, given in units
-            int desiredDistance = 20;
-            float gravitationMultiplier = 0.5f; //between 0 and 1
-            float connectionMultiplier = 0.055f;//between 0 and 1
-            float spacialMultiplier = 0.002f;//between 0 and 0.01
+            const int iterations = 150;
+            const float maxForce = 0;
+            float attraction = 200f;//attraction force multiplier, between 0 and much
+            float cooldown = 0.97f;
+            //float gravityMultiplier = 0f; //between 0 and 1
+            float repulsion = 300f;//repulsion force multiplier, between 0 and much
+            int length = 200; //spring length in units
+            float currentMaxForce = maxForce + 0.1f;
 
-            //random to decide what to do with overlapping nodes
-            Random random = new Random();
+            //copy node ids in a dict so we can apply force and not disturb the rest
+            //save all forces here
+            NodeForces = new Dictionary<Guid, Vector2>();
+            nodes.ForEach(n => NodeForces.Add(n.Guid, new Vector2()));
+
             //times to perform calculation, result gets bettor over time
-            for (int i = 0; i < iterations; i++)
+            int i = 0;
+            while (i < iterations && currentMaxForce > maxForce)
             {
-                //loop through asll ndoes to calculate their coords after one iteration
+                //calculate new, smaller cooldown so the nodes will move less and less
+                cooldown *= cooldown;
+                //initialize maximum force/reset it
+                currentMaxForce = maxForce + 0.1f;
+
+                //go through all nodes and apply the forces
                 foreach (Node node in nodes)
                 {
-                    //the accelleration a node will perceive in units/iteration. aka offset per iteration
-                    float accelerationX = 0;
-                    float accelerationY = 0;
+                    //create position vector for all later calculations
+                    Vector2 nodePosition = new Vector2(node.Position.X, node.Position.Y);
+                    //reset force
+                    NodeForces[node.Guid] = new Vector2();
 
-                    //pseudogravitational force to keep nodes from shooting off into the unknown (distance to 0 times constant)
-                    accelerationX -= node.Position.X * gravitationMultiplier;
-                    accelerationY -= node.Position.Y * gravitationMultiplier;
-
-                    //spacial force around each node, so they don't clump together/over each other
-                    //calculate distance for each node, then apply a force depending on that distance
-                    //dependant on mass to make heavier nodes move less when smaller ones come by
-                    foreach (Node nodeForSpacialForce in nodes)
+                    //calculate repulsion force
+                    foreach (Node secondNode in nodes)
                     {
-                        //we do not want to calculate the distance to ourself, duh
-                        if (node != nodeForSpacialForce)
+                        if (node != secondNode && secondNode.Position != node.Position)
                         {
-                            long distanceX = nodeForSpacialForce.Position.X - node.Position.X;
-                            long distanceY = nodeForSpacialForce.Position.Y - node.Position.Y;
-                            //calculate x accelleration if it is not 0 distance
-                            if (distanceX > 0.1d || distanceX < -0.1d)
+                            Vector2 secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
+                            Vector2 difference = (secondNodePosition - nodePosition);
+                            //absolute length of difference/distance
+                            float distance = difference.Length();
+                            //add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
+                            Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance);
+
+                            //if the second node is a child of ours
+                            if (secondNode.ParentNodes.Contains(node))
                             {
-                                //f = mass times mass divided by r^2, just like coloumb force. 
-                                //m1*m2 / r^2 * s / m1 = m2 / r^2 * s
-                                //where s is our multiplier (for tuning) and m1 and m2 are the massess of our nodes
-                                //f = m*a -> a = f/m
-                                accelerationX += nodeForSpacialForce.Mass / (distanceX * distanceX * Math.Sign(distanceX) * spacialMultiplier);
+                                //so we can now do the attraction force
+                                //formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
+                                NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
                             }
                             else
                             {
-                                //if nodes overlap, we move them apart by a bit
-                                accelerationX += random.Next(-10, 10);
+                                //add force to node
+                                NodeForces[node.Guid] += repulsionForce;
                             }
-                            //same 0 check for y acceleration
-                            if (distanceY > 0.1d || distanceY < -0.1d)
-                            {
-                                //same calculations we did for x part of the coordinate, see above
-                                accelerationY -= nodeForSpacialForce.Mass / (distanceY * distanceY * Math.Sign(distanceY) * spacialMultiplier);
-                            }
-                            else
-                            {
-                                //if nodes overlap, we move them apart by a bit
-                                accelerationY += random.Next(-10, 10);
-                            }
+
+                            //add new maximum force or keep it as is if ours is smaller
+                            currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
                         }
                     }
-
-                    //connection force
-                    //draws nodes together along their edges if they are too far away apart or pushes them away if too close
-                    // calculated for each node we have (parents and childs)
-                    foreach (Node child in Enumerable.Concat(node.ChildNodes, node.ParentNodes))
-                    {
-                        long distanceX = child.Position.X - node.Position.X;
-                        long distanceY = child.Position.Y - node.Position.Y;
-                        //add difference in position times a tuning multiplier
-                        //if we are too close:
-                        if (desiredDistance > Math.Abs(distanceX))
-                        {
-                            //make dependant on the location of the child?
-                            accelerationX -= distanceX * connectionMultiplier;
-                        }
-                        else //we are too far apart
-                        {
-                            accelerationX += distanceX * connectionMultiplier;
-                        }
-                        if (desiredDistance > Math.Abs(distanceY))
-                        {
-                            accelerationY -= distanceY * connectionMultiplier;
-                        }
-                        else //we are too far apart
-                        {
-                            accelerationY += distanceY * connectionMultiplier;
-                        }
-                    }
-
-                    //actually move the node by offsetting the position by the given acceleration each iteration
-                    node.Position.X += (int)accelerationX;
-                    node.Position.Y += (int)accelerationY;
                 }
+
+                //apply force to nodes
+                foreach (Node node in nodes)
+                {
+                    node.Position.X += (int)(cooldown * NodeForces[node.Guid].X);
+                    node.Position.Y += (int)(cooldown * NodeForces[node.Guid].Y);
+                }
+
+                i++;
             }
             return nodes;
         }
 
         private List<Node> CalculateStartingPositions(List<Node> nodes)
         {
-            int step = 100;
+            int step = 40;
             int runningTotal = 0;
             //~sidelength of the most square layout we can achieve witrh the number of nodes we have
             int sideLength = (int)(Math.Sqrt(nodes.Count) + 0.5);
@@ -269,11 +252,11 @@ namespace HousePartyTranslator
             {
                 //modulo of running total with sidelength gives x coords, repeating after sidelength
                 //offset by halfe sidelength to center x
-                int x = (runningTotal % sideLength) - sideLength / 2;
+                int x = (runningTotal % sideLength) - sideLength / 2 + Random.Next(-(step / 2) + 1, (step / 2) - 1);
                 //running total divided by sidelength gives y coords,
                 //increments after runningtotal increments sidelength times
                 //offset by halfe sidelength to center y
-                int y = (runningTotal / sideLength) - sideLength / 2;
+                int y = (runningTotal / sideLength) - sideLength / 2 + Random.Next(-(step / 2) + 1, (step / 2) - 1);
                 //set position
                 node.SetPosition(new Point(x * step, y * step));
                 //increase running total
@@ -285,36 +268,51 @@ namespace HousePartyTranslator
         private List<Node> CombineNodes(List<Node> nodes)
         {
             //temporary list so we dont manipulate the list we read from in the for loops
-            List<Node> tempNodes = new List<Node>();
+            Dictionary<Guid, Node> tempNodes = new Dictionary<Guid, Node>();
 
             //go through all given root nodes (considered root as this stage)
             foreach (Node node in nodes)
             {
+                if (!node.Visited)//if we have not yet seen this node, we can add it to the final list
+                {
+                    //set recusrion end conditional so we dont run forever
+                    node.Visited = true;
+                    //calculate mass for later use
+                    node.CalculateMass();
+                    //add it to the final list
+                    if (!tempNodes.ContainsKey(node.Guid)) tempNodes.Add(node.Guid, node);
+                }
                 //call method again on all parents if they have not yet been added to the list
                 if (node.ParentNodes.Count > 0 && !node.ParentsVisited)
                 {
                     //set visited to true so we dont end up in infitiy
                     node.ParentsVisited = true;
                     //get combined parent nodes recursively
-                    tempNodes.AddRange(CombineNodes(node.ParentNodes));
+                    foreach (Node tempNode in CombineNodes(node.ParentNodes))
+                    {
+                        if (!tempNodes.ContainsKey(tempNode.Guid)) tempNodes.Add(tempNode.Guid, tempNode);
+                    }
                 }
                 //as long as there are children we can go further,
                 //and if we have not yet visited them
-                else if (node.ChildNodes.Count > 0 && !node.ChildsVisited)
+                if (node.ChildNodes.Count > 0 && !node.ChildsVisited)
                 {
                     //basically the same as all parent nodes,
                     //we set them visited before we go into the recursion,
                     //else we end up in an infinite loop easily
                     node.ChildsVisited = true;
                     //get combined children nodes recuirsively
-                    tempNodes.AddRange(CombineNodes(node.ChildNodes));
+                    foreach (Node tempNode in CombineNodes(node.ChildNodes))
+                    {
+                        if (!tempNodes.ContainsKey(tempNode.Guid)) tempNodes.Add(tempNode.Guid, tempNode);
+                    }
                 }
 
                 //actually adding the node
                 if (node.Type == NodeType.Criterion)//if it is a criterion, else is after this bit
                 {
                     //if the criterion has already been seen before
-                    Node criterionInFile = CriteriaInFile.Find(n => n.ID == node.ID);
+                    Node criterionInFile = CriteriaInFile.Find(n => n.Guid == node.Guid);
                     if (criterionInFile != null)//has been seen before
                     {
                         //add the childs and parents of this instance of the criterion to the first instance of this criterion
@@ -329,23 +327,18 @@ namespace HousePartyTranslator
                         //add it to the list of criteria so we can fuse all other instances of this criterion
                         CriteriaInFile.Add(node);
                         //add it to the list of all nodes because it is not on there yet.
-                        tempNodes.Add(node);
+                        if (!tempNodes.ContainsKey(node.Guid)) tempNodes.Add(node.Guid, node);
                     }
                 }
-                else if (!node.Visited)//if we have not yet seen this node, we can add it to the final list
-                {
-                    //set recusrion end conditional so we dont run forever
-                    node.Visited = true;
-                    //calculate mass for later use
-                    node.CalculateMass();
-                    //add it to the final list
-                    tempNodes.Add(node);
-                }
-
             }
 
             //return final list of all nodes in the story
-            return tempNodes;
+            List<Node> listNodes = new List<Node>();
+            foreach (KeyValuePair<Guid, Node> pair in tempNodes)
+            {
+                listNodes.Add(pair.Value);
+            }
+            return listNodes;
         }
 
         private List<Node> GetPlayerReactions(MainStory story)
@@ -436,7 +429,7 @@ namespace HousePartyTranslator
                             if (criterion.CompareType == "State")
                             {
                                 //add criterion to event
-                                currentAction.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
+                                currentEvent.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
                             }
                         }
 
@@ -498,7 +491,7 @@ namespace HousePartyTranslator
                                 if (criterion.CompareType == "State")
                                 {
                                     //add to event as criterion
-                                    currentAction.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
+                                    currentEvent.AddParentNode(CreateCriteriaNode(criterion, currentEvent));
                                 }
                             }
 

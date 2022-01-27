@@ -1,4 +1,5 @@
 ﻿using HousePartyTranslator.Helpers;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -20,7 +21,7 @@ namespace HousePartyTranslator.StoryExplorerForm
         private readonly ContextProvider Context;
         private readonly Bitmap GraphBitmap;
         private const int BitmapEdgeLength = 10000;
-        private const int Nodesize = 10;
+        private const int Nodesize = 16;
 
         public StoryExplorer(bool IsStory, bool AutoLoad)
         {
@@ -56,8 +57,21 @@ namespace HousePartyTranslator.StoryExplorerForm
                     //draw edges
                     foreach (Node child in node.ChildNodes)
                     {
-                        //draw edge to child
-                        graphics.DrawLine(Pens.Coral, (node.Position.X) + BitmapEdgeLength / 2, (node.Position.Y) + BitmapEdgeLength / 2, (child.Position.X) + BitmapEdgeLength / 2, (child.Position.Y) + BitmapEdgeLength / 2);
+                        
+                        if (child.Position == new Point())
+                        {
+                            Console.WriteLine(node);
+                            Console.WriteLine(child);
+                            Console.WriteLine("-------------------------------------------------------------------------------------------------------");
+                        }
+                        else
+                        {
+                            //draw edge to child, default colour
+                            graphics.DrawLine(new Pen(Color.LightGray, 2f), (node.Position.X) + BitmapEdgeLength / 2, (node.Position.Y) + BitmapEdgeLength / 2, (child.Position.X) + BitmapEdgeLength / 2, (child.Position.Y) + BitmapEdgeLength / 2);
+                        }
+
+                        //highlight colour
+                        //graphics.DrawLine(new Pen(Color.LightGray, 2f), (node.Position.X) + BitmapEdgeLength / 2, (node.Position.Y) + BitmapEdgeLength / 2, (child.Position.X) + BitmapEdgeLength / 2, (child.Position.Y) + BitmapEdgeLength / 2);
                     }
                 }
                 //allow paint handler to draw

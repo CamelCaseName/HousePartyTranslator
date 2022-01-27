@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace HousePartyTranslator.Helpers
@@ -29,6 +30,7 @@ namespace HousePartyTranslator.Helpers
         public bool Visited = false;
         public bool ChildsVisited = false;
         public bool ParentsVisited = false;
+        public Guid Guid = Guid.NewGuid();
 
         public Node(string iD, NodeType type, int mass, string text, List<Node> parentNodes, List<Node> childNodes)
         {
