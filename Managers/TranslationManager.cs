@@ -46,7 +46,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// The Name of the file laoded, without the extension.
+        /// The Name of the file loaded, without the extension.
         /// </summary>
         public string FileName
         {

@@ -117,7 +117,7 @@ namespace HousePartyTranslator
             this.CharacterCountLabel.AutoSize = true;
             this.CharacterCountLabel.BackColor = System.Drawing.SystemColors.Desktop;
             this.CharacterCountLabel.ForeColor = System.Drawing.SystemColors.Control;
-            this.CharacterCountLabel.Location = new System.Drawing.Point(540, 6);
+            this.CharacterCountLabel.Location = new System.Drawing.Point(509, 5);
             this.CharacterCountLabel.Name = "CharacterCountLabel";
             this.CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
             this.CharacterCountLabel.TabIndex = 16;
