@@ -28,6 +28,13 @@ namespace HousePartyTranslator.StoryExplorerForm
         int selector = -1;
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
+
+        //TODO move calculations to different thread?
+
+        //TODO make colouring function recursive and automatable in use (depth and colour)
+
+        //TODO save last character files also, together with storys (for each)
+
         public StoryExplorer(bool IsStory, bool AutoLoad)
         {
             Cursor = Cursors.WaitCursor;

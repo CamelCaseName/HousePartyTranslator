@@ -15,7 +15,8 @@ namespace HousePartyTranslator.Helpers
         Dialogue,
         Quest,
         Achievement,
-        Reaction
+        Reaction,
+        BGC
     }
 
     public class Node
@@ -24,7 +25,7 @@ namespace HousePartyTranslator.Helpers
         public string ID;
         public string Text;
         public NodeType Type;
-        public int Mass;
+        public int Mass = 1;
         public List<Node> ParentNodes;
         public List<Node> ChildNodes;
         public bool Visited = false;
@@ -32,74 +33,67 @@ namespace HousePartyTranslator.Helpers
         public bool ParentsVisited = false;
         public Guid Guid = Guid.NewGuid();
 
-        public Node(string iD, NodeType type, int mass, string text, List<Node> parentNodes, List<Node> childNodes)
+        public Node(string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
         {
             ID = iD;
             Text = text;
             Type = type;
-            Mass = mass;
             ParentNodes = parentNodes;
             ChildNodes = childNodes;
         }
 
-        public Node(Point position, string iD, NodeType type, int weight, string text, List<Node> parentNodes, List<Node> childNodes)
+        public Node(Point position, string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
         {
             Position = position;
             ID = iD;
             Text = text;
             Type = type;
-            Mass = weight;
             ParentNodes = parentNodes;
             ChildNodes = childNodes;
         }
 
-        public Node(string iD, NodeType type, int weight, string text, List<Node> parentNodes)
+        public Node(string iD, NodeType type, string text, List<Node> parentNodes)
         {
             ID = iD;
             Text = text;
             Type = type;
-            Mass = weight;
             ParentNodes = parentNodes;
             ChildNodes = new List<Node>();
         }
 
-        public Node(string iD, NodeType type, int weight, string text, Node parentNodes, List<Node> childNodes)
+        public Node(string iD, NodeType type, string text, Node parentNodes, List<Node> childNodes)
         {
             ID = iD;
             Text = text;
             Type = type;
-            Mass = weight;
             ParentNodes = new List<Node>() { parentNodes };
             ChildNodes = childNodes;
         }
 
-        public Node(string iD, NodeType type, int weight, string text, Node parentNode)
+        public Node(string iD, NodeType type, string text, Node parentNode)
         {
             ID = iD;
             Text = text;
             Type = type;
-            Mass = weight;
             ParentNodes = new List<Node>() { parentNode };
             ChildNodes = new List<Node>();
         }
 
-        public Node(string iD, NodeType type, int weight, string text, Node parentNode, Node childNode)
+        public Node(string iD, NodeType type, string text, Node parentNode, Node childNode)
         {
             ID = iD;
             Text = text;
             Type = type;
-            Mass = weight;
             ParentNodes = new List<Node>() { parentNode };
             ChildNodes = new List<Node>() { childNode };
         }
 
 
-        public Node(string iD, NodeType type, int weight, string text)
+        public Node(string iD, NodeType type, string text)
         {
             ID = iD;
             Text = text;
             Type = type;
-            Mass = weight;
             ParentNodes = new List<Node>();
             ChildNodes = new List<Node>();
         }
@@ -109,6 +103,7 @@ namespace HousePartyTranslator.Helpers
             if (!ChildNodes.Contains(childNode))
             {
                 ChildNodes.Add(childNode);
+                childNode.AddParentNode(this);
             }
         }
 
@@ -117,6 +112,7 @@ namespace HousePartyTranslator.Helpers
             if (!ParentNodes.Contains(parentNode))
             {
                 ParentNodes.Add(parentNode);
+                parentNode.AddChildNode(this);
             }
         }
         public void RemoveChildNode(Node childNode)

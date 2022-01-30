@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 public class Criterion
 {
@@ -68,6 +69,31 @@ public class Criterion
     public int Option { get; set; }
 
     public static explicit operator Criterion(Critera v)
+    {
+        return new Criterion(
+            v.BoolValue,
+            v.Character,
+            v.Character2,
+            v.CompareType,
+            v.DialogueStatus,
+            v.DisplayInEditor,
+            v.DoorOptions,
+            v.EqualsValue,
+            v.EquationValue,
+            v.ValueFormula,
+            v.ItemComparison,
+            v.ItemFromItemGroupComparison,
+            v.Key,
+            v.Key2,
+            v.Order,
+            v.PlayerInventoryOption,
+            v.PoseOption,
+            v.SocialStatus,
+            v.Value,
+            v.Option);
+    }
+
+    public static explicit operator Criterion(ResponseCriteria v)
     {
         return new Criterion(
             v.BoolValue,
@@ -166,7 +192,7 @@ public class ItemOverride
     public List<ItemAction> ItemActions { get; set; }
     public string ItemName { get; set; }
     public List<UseWith> UseWiths { get; set; }
-    public bool useDefaultRadialOptions { get; set; }
+    public bool UseDefaultRadialOptions { get; set; }
 }
 
 public class ItemGroupBehavior
@@ -419,7 +445,7 @@ public class ResponseEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class Respons
+public class Response
 {
     public bool Selected { get; set; }
     public string Id { get; set; }
@@ -469,7 +495,7 @@ public class Dialogue
     public List<CloseEvent> CloseEvents { get; set; }
     public int ID { get; set; }
     public bool Important { get; set; }
-    public List<Respons> Responses { get; set; }
+    public List<Response> Responses { get; set; }
     public bool ShowAcceptedItems { get; set; }
     public bool ShowAlternateTexts { get; set; }
     public bool ShowCloseValueAdjustments { get; set; }
@@ -486,7 +512,7 @@ public class Dialogue
     public string Text { get; set; }
 }
 
-public class GlobalGoodbyeRespons
+public class GlobalGoodbyeResponse
 {
     public bool Selected { get; set; }
     public string Id { get; set; }
@@ -502,7 +528,7 @@ public class GlobalGoodbyeRespons
     public string Text { get; set; }
 }
 
-public class GlobalRespons
+public class GlobalResponse
 {
     public bool Selected { get; set; }
     public string Id { get; set; }
@@ -528,7 +554,7 @@ public class BackgroundChatter
     public string SpeakingTo { get; set; }
     public bool OverrideCombatRestriction { get; set; }
     public List<StartEvent> StartEvents { get; set; }
-    public List<Respons> Responses { get; set; }
+    public List<Response> Responses { get; set; }
     public string PairedEmote { get; set; }
     public string DefaultImportance { get; set; }
 }
@@ -626,8 +652,8 @@ public class CharacterStory
     public string CurrentAspect { get; set; }
     public int DialogueID { get; set; }
     public List<Dialogue> Dialogues { get; set; }
-    public List<GlobalGoodbyeRespons> GlobalGoodbyeResponses { get; set; }
-    public List<GlobalRespons> GlobalResponses { get; set; }
+    public List<GlobalGoodbyeResponse> GlobalGoodbyeResponses { get; set; }
+    public List<GlobalResponse> GlobalResponses { get; set; }
     public string HousePartyVersion { get; set; }
     public List<BackgroundChatter> BackgroundChatter { get; set; }
     public bool LockCharacterSelection { get; set; }

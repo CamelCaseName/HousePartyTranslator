@@ -7,8 +7,14 @@ using System.Linq;
 using System.Windows.Forms;
 
 //TODO add tests?
+
 //TODO create local db in ressources to download the tempaltes to
+
 //TODO create a task queue for the database in case of internet outage
+
+//TODO add recents to file drop down menu, add auto open setting
+
+//TODO add settings menu window to edit settings
 
 namespace HousePartyTranslator.Managers
 {
