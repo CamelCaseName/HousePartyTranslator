@@ -364,15 +364,6 @@ namespace HousePartyTranslator
             return listNodes;
         }
 
-        private Node CreateCriteriaNode(Criterion criterion, Node node)
-        {
-            //create all criteria nodes the same way so they can possibly be replaced by the actual text later
-            return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
-        }
-
-        //TODO move events, criteria and others into templated sub functions
-        //add templated event getter function to make code more concise
-
         private List<Node> GetAchievements(MainStory story)
         {
             //list to collect all achievement nodes
@@ -400,33 +391,10 @@ namespace HousePartyTranslator
                 Node bgcNode = new Node($"BGC{backgroundChatter.Id}", NodeType.BGC, backgroundChatter.Text);
 
                 //criteria
-                foreach (Critera critera in backgroundChatter.Critera)
-                {
-                    if (critera.CompareType == "State")
-                    {
-                        bgcNode.AddParentNode(CreateCriteriaNode((Criterion)critera, bgcNode));
-                    }
-                }
+                bgcNode.AddCriteria(backgroundChatter.Critera);
 
                 //startevents
-                foreach (StartEvent startEvent in backgroundChatter.StartEvents)
-                {
-
-                    if (startEvent.EventType == 10)
-                    {
-                        Node nodeStartEvent = new Node(startEvent.Id, NodeType.Event, startEvent.Value, bgcNode);
-
-                        foreach (Criterion criterion in startEvent.Criteria)
-                        {
-                            if (criterion.CompareType == "State")
-                            {
-                                nodeStartEvent.AddParentNode(CreateCriteriaNode(criterion, nodeStartEvent));
-                            }
-                        }
-
-                        bgcNode.AddChildNode(nodeStartEvent);
-                    }
-                }
+                bgcNode.AddEvents(backgroundChatter.StartEvents);
 
                 //responses
                 foreach (Response response in backgroundChatter.Responses)
@@ -455,69 +423,24 @@ namespace HousePartyTranslator
                 {
                     Node nodeAlternateText = new Node($"{dialogue.ID}.{alternateTextCounter}", NodeType.Dialogue, alternateText.Text, nodeDialogue);
 
-                    foreach (Critera critera in alternateText.Critera)
-                    {
-                        if (critera.CompareType == "State")
-                        {
-                            //add criterion to node it influences
-                            nodeAlternateText.AddParentNode(CreateCriteriaNode((Criterion)critera, nodeAlternateText));
-                        }
-                    }
+                    nodeAlternateText.AddCriteria(alternateText.Critera);
+
                     //add alternate to the default text as a child, parent already set on the child
                     nodeDialogue.AddChildNode(nodeAlternateText);
                 }
 
                 //some events in here may have strings that are connected to the dialogue closing
-                foreach (CloseEvent closeEvent in dialogue.CloseEvents)
-                {
-                    if (closeEvent.EventType == 10)
-                    {
-                        Node nodeCloseEvent = new Node(closeEvent.Id, NodeType.Event, closeEvent.Value, nodeDialogue);
-
-                        foreach (Criterion criterion in closeEvent.Criteria)
-                        {
-                            if (criterion.CompareType == "State")
-                            {
-                                nodeCloseEvent.AddParentNode(CreateCriteriaNode(criterion, nodeCloseEvent));
-                            }
-                        }
-
-                        nodeDialogue.AddChildNode(nodeCloseEvent);
-                    }
-                }
+                nodeDialogue.AddEvents(dialogue.CloseEvents);
 
                 //add all responses as childs to this dialogue
                 foreach (Response response in dialogue.Responses)
                 {
                     Node nodeResponse = new Node(response.Id, NodeType.Response, response.Text, nodeDialogue);
 
-                    foreach (ResponseCriteria responseCriteria in response.ResponseCriteria)
-                    {
-                        if (responseCriteria.CompareType == "State")
-                        {
-                            nodeResponse.AddParentNode(CreateCriteriaNode((Criterion)responseCriteria, nodeResponse));
-                        }
-                    }
+                    nodeResponse.AddCriteria(response.ResponseCriteria);
 
                     //check all responses to this dialogue
-                    foreach (ResponseEvent responseEvent in response.ResponseEvents)
-                    {
-                        if (responseEvent.EventType == 10)
-                        {
-                            Node nodeResponseEvent = new Node(responseEvent.Id, NodeType.Event, responseEvent.Value, nodeResponse);
-
-                            foreach (Criterion criterion in responseEvent.Criteria)
-                            {
-                                if (criterion.CompareType == "State")
-                                {
-                                    nodeResponseEvent.AddParentNode(CreateCriteriaNode(criterion, nodeResponseEvent));
-                                }
-                            }
-
-                            nodeResponse.AddChildNode(nodeResponseEvent);
-
-                        }
-                    }
+                    nodeResponse.AddEvents(response.ResponseEvents);
 
                     if (response.Next != 0)
                     {
@@ -528,24 +451,7 @@ namespace HousePartyTranslator
                 }
 
                 //add the starting events
-                foreach (StartEvent startEvent in dialogue.StartEvents)
-                {
-
-                    if (startEvent.EventType == 10)
-                    {
-                        Node nodeStartEvent = new Node(startEvent.Id, NodeType.Event, startEvent.Value, nodeDialogue);
-
-                        foreach (Criterion criterion in startEvent.Criteria)
-                        {
-                            if (criterion.CompareType == "State")
-                            {
-                                nodeStartEvent.AddParentNode(CreateCriteriaNode(criterion, nodeStartEvent));
-                            }
-                        }
-
-                        nodeDialogue.AddChildNode(nodeStartEvent);
-                    }
-                }
+                nodeDialogue.AddEvents(dialogue.StartEvents);
 
                 //finally add node
                 nodes.Add(nodeDialogue);
@@ -561,7 +467,6 @@ namespace HousePartyTranslator
                     node.AddParentNode(next.Item1);
                 }
             }
-            
 
             responseDialogueLinks.Clear();
 
@@ -577,33 +482,10 @@ namespace HousePartyTranslator
             {
                 Node nodeResponse = new Node(response.Id, NodeType.Response, response.Text);
 
-                foreach (ResponseCriteria responseCriteria in response.ResponseCriteria)
-                {
-                    if (responseCriteria.CompareType == "State")
-                    {
-                        nodeResponse.AddParentNode(CreateCriteriaNode((Criterion)responseCriteria, nodeResponse));
-                    }
-                }
+                nodeResponse.AddCriteria(response.ResponseCriteria);
 
                 //check all responses to this dialogue
-                foreach (ResponseEvent responseEvent in response.ResponseEvents)
-                {
-                    if (responseEvent.EventType == 10)
-                    {
-                        Node nodeResponseEvent = new Node(responseEvent.Id, NodeType.Event, responseEvent.Value, nodeResponse);
-
-                        foreach (Criterion criterion in responseEvent.Criteria)
-                        {
-                            if (criterion.CompareType == "State")
-                            {
-                                nodeResponseEvent.AddParentNode(CreateCriteriaNode(criterion, nodeResponseEvent));
-                            }
-                        }
-
-                        nodeResponse.AddChildNode(nodeResponseEvent);
-
-                    }
-                }
+                nodeResponse.AddEvents(response.ResponseEvents);
 
                 nodes.Add(nodeResponse);
             }
@@ -619,33 +501,10 @@ namespace HousePartyTranslator
             {
                 Node nodeResponse = new Node(response.Id, NodeType.Response, response.Text);
 
-                foreach (ResponseCriteria responseCriteria in response.ResponseCriteria)
-                {
-                    if (responseCriteria.CompareType == "State")
-                    {
-                        nodeResponse.AddParentNode(CreateCriteriaNode((Criterion)responseCriteria, nodeResponse));
-                    }
-                }
+                nodeResponse.AddCriteria(response.ResponseCriteria);
 
                 //check all responses to this dialogue
-                foreach (ResponseEvent responseEvent in response.ResponseEvents)
-                {
-                    if (responseEvent.EventType == 10)
-                    {
-                        Node nodeResponseEvent = new Node(responseEvent.Id, NodeType.Event, responseEvent.Value, nodeResponse);
-
-                        foreach (Criterion criterion in responseEvent.Criteria)
-                        {
-                            if (criterion.CompareType == "State")
-                            {
-                                nodeResponseEvent.AddParentNode(CreateCriteriaNode(criterion, nodeResponseEvent));
-                            }
-                        }
-
-                        nodeResponse.AddChildNode(nodeResponseEvent);
-
-                    }
-                }
+                nodeResponse.AddEvents(response.ResponseEvents);
 
                 nodes.Add(nodeResponse);
             }
@@ -669,36 +528,10 @@ namespace HousePartyTranslator
                     Node nodeAction = new Node(itemAction.ActionName, NodeType.Action, itemAction.ActionName, nodeGroup);
 
                     //add text that is shown when item is taken
-                    foreach (OnTakeActionEvent onTakeActionEvent in itemAction.OnTakeActionEvents)
-                    {
-                        //node to add criteria to the event
-                        Node nodeEvent = new Node(onTakeActionEvent.Id, NodeType.Event, onTakeActionEvent.Value, nodeAction);
-
-                        //add criteria that influence this item
-                        foreach (Criterion criterion in onTakeActionEvent.Criteria)
-                        {
-                            //only if state dialogue comparison
-                            if (criterion.CompareType == "State")
-                            {
-                                //add criterion to event
-                                nodeEvent.AddParentNode(CreateCriteriaNode(criterion, nodeEvent));
-                            }
-                        }
-
-                        //add event to action, can be executed when item is taken
-                        nodeAction.AddChildNode(nodeEvent);
-                    }
+                    nodeAction.AddEvents(itemAction.OnTakeActionEvents);
 
                     //add criteria that influence this item
-                    foreach (Criterion criterion in itemAction.Criteria)
-                    {
-                        //only if state dialogue comparison
-                        if (criterion.CompareType == "State")
-                        {
-                            //add criterion to action
-                            nodeAction.AddParentNode(CreateCriteriaNode(criterion, nodeAction));
-                        }
-                    }
+                    nodeAction.AddCriteria(itemAction.Criteria);
 
                     //add action to item
                     nodeGroup.AddChildNode(nodeAction);
@@ -728,40 +561,10 @@ namespace HousePartyTranslator
                     Node nodeAction = new Node(itemAction.ActionName, NodeType.Action, itemAction.ActionName, nodeItem);
 
                     //add text that is shown when item is taken
-                    foreach (OnTakeActionEvent onTakeActionEvent in itemAction.OnTakeActionEvents)
-                    {
-                        //only if correct type
-                        if (onTakeActionEvent.EventType == 10)
-                        {
-                            //create event node to add criteria to
-                            Node nodeEvent = new Node(onTakeActionEvent.Id, NodeType.Event, onTakeActionEvent.Value, nodeAction);
-
-                            //add criteria that influence this item
-                            foreach (Criterion criterion in onTakeActionEvent.Criteria)
-                            {
-                                //only if state dialogue comparison
-                                if (criterion.CompareType == "State")
-                                {
-                                    //add to event as criterion
-                                    nodeEvent.AddParentNode(CreateCriteriaNode(criterion, nodeEvent));
-                                }
-                            }
-
-                            //add event to action as child
-                            nodeAction.AddChildNode(nodeEvent);
-                        }
-                    }
+                    nodeAction.AddEvents(itemAction.OnTakeActionEvents);
 
                     //add criteria that influence this item
-                    foreach (Criterion criterion in itemAction.Criteria)
-                    {
-                        //only if state dialogue comparison, dont care about game vars
-                        if (criterion.CompareType == "State")
-                        {
-                            //add to action as criterion
-                            nodeAction.AddParentNode(CreateCriteriaNode(criterion, nodeAction));
-                        }
-                    }
+                    nodeAction.AddCriteria(itemAction.Criteria);
 
                     //add action to item
                     nodeItem.AddChildNode(nodeAction);
@@ -782,34 +585,11 @@ namespace HousePartyTranslator
             {
                 //add items to list
                 Node nodeReaction = new Node(playerReaction.Id, NodeType.Reaction, playerReaction.Name);
+
                 //get actions for item
-                foreach (Event eevent in playerReaction.Events)
-                {
+                nodeReaction.AddEvents(playerReaction.Events);
 
-                    Node nodeEvent = new Node(eevent.Id, NodeType.Event, eevent.Value, nodeReaction);
-                    //only if correct type
-                    if (eevent.EventType == 10)
-                    {
-                        //add criteria that influence this item
-                        foreach (Criterion criterion in eevent.Criteria)
-                        {
-                            if (criterion.CompareType == "State")
-                            {
-                                nodeEvent.AddParentNode(CreateCriteriaNode(criterion, nodeEvent));
-                            }
-                        }
-                        //add action to item
-                        nodeReaction.AddChildNode(nodeEvent);
-                    }
-
-                }
-
-                foreach (Critera critera in playerReaction.Critera)
-
-                    if (critera.CompareType == "State")
-                    {
-                        nodeReaction.AddParentNode(CreateCriteriaNode((Criterion)critera, nodeReaction));
-                    }
+                nodeReaction.AddCriteria(playerReaction.Critera);
 
                 nodes.Add(nodeReaction);
             }
@@ -852,33 +632,9 @@ namespace HousePartyTranslator
                 //add items to list
                 Node nodeReaction = new Node(playerReaction.Id, NodeType.Reaction, playerReaction.Name);
                 //get actions for item
-                foreach (Event eevent in playerReaction.Events)
-                {
+                nodeReaction.AddEvents(playerReaction.Events);
 
-                    Node nodeEvent = new Node(eevent.Id, NodeType.Event, eevent.Value, nodeReaction);
-                    //only if correct type
-                    if (eevent.EventType == 10)
-                    {
-                        //add criteria that influence this item
-                        foreach (Criterion criterion in eevent.Criteria)
-                        {
-                            if (criterion.CompareType == "State")
-                            {
-                                nodeEvent.AddParentNode(CreateCriteriaNode(criterion, nodeEvent));
-                            }
-                        }
-                        //add action to item
-                        nodeReaction.AddChildNode(nodeEvent);
-                    }
-
-                }
-
-                foreach (Critera critera in playerReaction.Critera)
-
-                    if (critera.CompareType == "State")
-                    {
-                        nodeReaction.AddParentNode(CreateCriteriaNode((Criterion)critera, nodeReaction));
-                    }
+                nodeReaction.AddCriteria(playerReaction.Critera);
 
                 nodes.Add(nodeReaction);
             }

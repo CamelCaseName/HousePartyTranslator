@@ -114,6 +114,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\ICriterion.cs" />
+    <Compile Include="Helpers\IEvent.cs" />
     <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\Items.cs" />
     <Compile Include="Helpers\Node.cs" />

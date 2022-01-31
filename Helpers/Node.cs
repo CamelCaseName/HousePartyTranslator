@@ -146,5 +146,43 @@ namespace HousePartyTranslator.Helpers
             Mass = ChildNodes.Count + ParentNodes.Count;
             if (Mass < 1) Mass = 1;
         }
+
+        public void AddCriteria<T>(List<T> criteria)where T : ICriterion
+        {
+            List<ICriterion> _criteria = criteria.ConvertAll(x => (ICriterion)x);
+
+            foreach (Criterion criterion in _criteria)
+            {
+                if (criterion.CompareType == "State")
+                {
+                    AddParentNode(CreateCriteriaNode(criterion, this));
+                }
+            }
+        }
+
+        public void AddEvents<T>(List<T> events)where T :IEvent
+        {
+            List<IEvent> _events = events.ConvertAll(x => (IEvent)x);
+
+            foreach (Event _event in _events)
+            {
+                if (_event.EventType == 10)
+                {
+                    Node nodeEvent = new Node(_event.Id, NodeType.Event, _event.Value, this);
+
+                    nodeEvent.AddCriteria(_event.Criteria);
+
+                    AddChildNode(nodeEvent);
+                }
+            }
+        }
+
+
+
+        public static Node CreateCriteriaNode(Criterion criterion, Node node)
+        {
+            //create all criteria nodes the same way so they can possibly be replaced by the actual text later
+            return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
+        }
     }
 }

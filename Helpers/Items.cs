@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-public class Criterion
+public class Criterion : ICriterion
 {
     public Criterion(
         string boolValue,
@@ -68,7 +68,7 @@ public class Criterion
     public string Value { get; set; }
     public int Option { get; set; }
 
-    public static explicit operator Criterion(Critera v)
+    public static implicit operator Criterion(Critera v)
     {
         return new Criterion(
             v.BoolValue,
@@ -93,7 +93,7 @@ public class Criterion
             v.Option);
     }
 
-    public static explicit operator Criterion(ResponseCriteria v)
+    public static implicit operator Criterion(ResponseCriteria v)
     {
         return new Criterion(
             v.BoolValue,
@@ -119,7 +119,7 @@ public class Criterion
     }
 }
 
-public class OnTakeActionEvent
+public class OnTakeActionEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -151,7 +151,7 @@ public class ItemAction
     public List<OnTakeActionEvent> OnTakeActionEvents { get; set; }
 }
 
-public class OnSuccessEvent
+public class OnSuccessEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -261,7 +261,7 @@ public class ItemGroup
     public List<string> ItemsInGroup { get; set; }
 }
 
-public class GameStartEvent
+public class GameStartEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -285,7 +285,7 @@ public class GameStartEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class Critera
+public class Critera : ICriterion
 {
     public string BoolValue { get; set; }
     public string Character { get; set; }
@@ -309,7 +309,7 @@ public class Critera
     public int Option { get; set; }
 }
 
-public class Event
+public class Event : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -331,6 +331,11 @@ public class Event
     public bool UseConditions { get; set; }
     public bool DisplayInEditor { get; set; }
     public List<Criterion> Criteria { get; set; }
+
+    public static implicit operator Event(CloseEvent v)
+    {
+        return new Event();
+    }
 }
 
 public class PlayerReaction
@@ -373,7 +378,7 @@ public class AlternateText
     public string Text { get; set; }
 }
 
-public class CloseEvent
+public class CloseEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -397,7 +402,7 @@ public class CloseEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class ResponseCriteria
+public class ResponseCriteria : ICriterion
 {
     public string BoolValue { get; set; }
     public string Character { get; set; }
@@ -421,7 +426,7 @@ public class ResponseCriteria
     public int Option { get; set; }
 }
 
-public class ResponseEvent
+public class ResponseEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -464,7 +469,7 @@ public class Response
     public bool ShowInInspector { get; set; }
 }
 
-public class StartEvent
+public class StartEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -519,8 +524,8 @@ public class GlobalGoodbyeResponse
     public bool AlwaysDisplay { get; set; }
     public int Next { get; set; }
     public int Order { get; set; }
-    public List<object> ResponseCriteria { get; set; }
-    public List<object> ResponseEvents { get; set; }
+    public List<ResponseCriteria> ResponseCriteria { get; set; }
+    public List<ResponseEvent> ResponseEvents { get; set; }
     public bool Show { get; set; }
     public bool ShowResponseCriteria { get; set; }
     public bool ShowResponseEvents { get; set; }
@@ -613,7 +618,7 @@ public class Reaction
     public string LocationTargetOption { get; set; }
 }
 
-public class OnAcceptEvent
+public class OnAcceptEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -634,7 +639,7 @@ public class OnAcceptEvent
     public double StartDelayTime { get; set; }
     public bool UseConditions { get; set; }
     public bool DisplayInEditor { get; set; }
-    public List<object> Criteria { get; set; }
+    public List<Criterion> Criteria { get; set; }
 }
 
 public class StoryItem
