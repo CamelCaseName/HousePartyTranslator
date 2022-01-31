@@ -1,7 +1,6 @@
 ﻿using HousePartyTranslator.Helpers;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -29,7 +28,7 @@ namespace HousePartyTranslator.StoryExplorerForm
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
 
-        //TODO move calculations to different thread?
+        //TODO move calculations to different file first, thread later?
 
         //TODO make colouring function recursive and automatable in use (depth and colour)
 
@@ -55,13 +54,13 @@ namespace HousePartyTranslator.StoryExplorerForm
             MainGraphics.DrawRectangle(Pens.Black, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
 
             //add custom paint event handler to draw all nodes and edges
-            Paint += new PaintEventHandler(DrawNodes);
+            Paint += new PaintEventHandler(DrawNodesPaintHandler);
 
             //parse story, and not get cancelled xD
             if (Context.ParseFile() && !Context.GotCancelled)
             {
                 NodeToHighlight = Context.GetNodes()[0];
-                FillBitMap();
+                PaintAllNodes();
             }
             else
             {
@@ -70,7 +69,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             }
         }
 
-        private void DeleteHighlightDrawing()
+        private void DrawOverHighlight()
         {
             //draw parents and edges in colour
             foreach (Node node in Enumerable.Concat(NodeToHighlight.ParentNodes, NodeToHighlight.ChildNodes))
@@ -140,7 +139,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             Invalidate();
         }
 
-        private void DrawNodes(object sender, PaintEventArgs e)
+        private void DrawNodesPaintHandler(object sender, PaintEventArgs e)
         {
             if (ReadyToDraw)
             {
@@ -151,7 +150,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             }
         }
 
-        private void FillBitMap()
+        private void PaintAllNodes()
         {
             //go on displaying graph
             foreach (Node node in Context.GetNodes())
@@ -182,14 +181,14 @@ namespace HousePartyTranslator.StoryExplorerForm
         {
             if (e.KeyCode == Keys.A)
             {
-                DeleteHighlightDrawing();
+                DrawOverHighlight();
                 selector++;
                 NodeToHighlight = Context.GetNodes()[selector];
                 DrawHighlightNodeTree();
             }
             else if (e.KeyCode == Keys.D)
             {
-                DeleteHighlightDrawing();
+                DrawOverHighlight();
                 if (selector > 0) selector--;
                 NodeToHighlight = Context.GetNodes()[selector];
                 DrawHighlightNodeTree();
@@ -201,6 +200,22 @@ namespace HousePartyTranslator.StoryExplorerForm
             switch (e.Button)
             {
                 case MouseButtons.Left:
+                    //handle position input
+                    ScreenToGraph(e.X - Nodesize, e.Y - Nodesize, out float mouseLeftX, out float mouseUpperY);
+                    ScreenToGraph(e.X + Nodesize, e.Y + Nodesize, out float mouseRightX, out float mouseLowerY);
+
+                    foreach (Node node in Context.GetNodes())
+                    {
+                        if (mouseLowerY > node.Position.Y && mouseUpperY < node.Position.Y)
+                        {
+                            if (mouseRightX > node.Position.X && mouseLeftX < node.Position.X)
+                            {
+                                DrawOverHighlight();
+                                NodeToHighlight = node;
+                                DrawHighlightNodeTree();
+                            }
+                        }
+                    }
                     break;
                 case MouseButtons.None:
                     //end of pan

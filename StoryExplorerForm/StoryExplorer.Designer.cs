@@ -45,6 +45,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleKeyBoard);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.HandleMouseEvents);
             this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.HandleMouseEvents);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HandleMouseEvents);
             this.ResumeLayout(false);
 
         }

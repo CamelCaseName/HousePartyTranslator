@@ -3,50 +3,6 @@ using System.Collections.Generic;
 
 public class Criterion : ICriterion
 {
-    public Criterion(
-        string boolValue,
-        string character,
-        string character2,
-        string compareType,
-        string dialogueStatus,
-        bool displayInEditor,
-        string doorOptions,
-        string equalsValue,
-        string equationValue,
-        string valueFormula,
-        object itemComparison,
-        object itemFromItemGroupComparison,
-        string key,
-        string key2,
-        int order,
-        string playerInventoryOption,
-        string poseOption,
-        string socialStatus,
-        string value,
-        int option)
-    {
-        BoolValue = boolValue;
-        Character = character;
-        Character2 = character2;
-        CompareType = compareType;
-        DialogueStatus = dialogueStatus;
-        DisplayInEditor = displayInEditor;
-        DoorOptions = doorOptions;
-        EqualsValue = equalsValue;
-        EquationValue = equationValue;
-        ValueFormula = valueFormula;
-        ItemComparison = itemComparison;
-        ItemFromItemGroupComparison = itemFromItemGroupComparison;
-        Key = key;
-        Key2 = key2;
-        Order = order;
-        PlayerInventoryOption = playerInventoryOption;
-        PoseOption = poseOption;
-        SocialStatus = socialStatus;
-        Value = value;
-        Option = option;
-    }
-
     public string BoolValue { get; set; }
     public string Character { get; set; }
     public string Character2 { get; set; }
@@ -67,56 +23,6 @@ public class Criterion : ICriterion
     public string SocialStatus { get; set; }
     public string Value { get; set; }
     public int Option { get; set; }
-
-    public static implicit operator Criterion(Critera v)
-    {
-        return new Criterion(
-            v.BoolValue,
-            v.Character,
-            v.Character2,
-            v.CompareType,
-            v.DialogueStatus,
-            v.DisplayInEditor,
-            v.DoorOptions,
-            v.EqualsValue,
-            v.EquationValue,
-            v.ValueFormula,
-            v.ItemComparison,
-            v.ItemFromItemGroupComparison,
-            v.Key,
-            v.Key2,
-            v.Order,
-            v.PlayerInventoryOption,
-            v.PoseOption,
-            v.SocialStatus,
-            v.Value,
-            v.Option);
-    }
-
-    public static implicit operator Criterion(ResponseCriteria v)
-    {
-        return new Criterion(
-            v.BoolValue,
-            v.Character,
-            v.Character2,
-            v.CompareType,
-            v.DialogueStatus,
-            v.DisplayInEditor,
-            v.DoorOptions,
-            v.EqualsValue,
-            v.EquationValue,
-            v.ValueFormula,
-            v.ItemComparison,
-            v.ItemFromItemGroupComparison,
-            v.Key,
-            v.Key2,
-            v.Order,
-            v.PlayerInventoryOption,
-            v.PoseOption,
-            v.SocialStatus,
-            v.Value,
-            v.Option);
-    }
 }
 
 public class OnTakeActionEvent : IEvent
@@ -331,11 +237,6 @@ public class Event : IEvent
     public bool UseConditions { get; set; }
     public bool DisplayInEditor { get; set; }
     public List<Criterion> Criteria { get; set; }
-
-    public static implicit operator Event(CloseEvent v)
-    {
-        return new Event();
-    }
 }
 
 public class PlayerReaction
