@@ -151,7 +151,7 @@ namespace HousePartyTranslator.Helpers
         {
             List<ICriterion> _criteria = criteria.ConvertAll(x => (ICriterion)x);
 
-            foreach (Criterion criterion in _criteria)
+            foreach (ICriterion criterion in _criteria)
             {
                 if (criterion.CompareType == "State")
                 {
@@ -164,7 +164,7 @@ namespace HousePartyTranslator.Helpers
         {
             List<IEvent> _events = events.ConvertAll(x => (IEvent)x);
 
-            foreach (Event _event in _events)
+            foreach (IEvent _event in _events)
             {
                 if (_event.EventType == 10)
                 {
@@ -179,7 +179,7 @@ namespace HousePartyTranslator.Helpers
 
 
 
-        public static Node CreateCriteriaNode(Criterion criterion, Node node)
+        public static Node CreateCriteriaNode(ICriterion criterion, Node node)
         {
             //create all criteria nodes the same way so they can possibly be replaced by the actual text later
             return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });

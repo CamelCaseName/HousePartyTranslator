@@ -33,9 +33,7 @@ namespace HousePartyTranslator.StoryExplorerForm
 
         //TODO make colouring function recursive and automatable in use (depth and colour)
 
-        //TODO save last character files also, together with storys (for each)
-
-        public StoryExplorer(bool IsStory, bool AutoLoad)
+        public StoryExplorer(bool IsStory, bool AutoLoad, string FileName)
         {
             Cursor = Cursors.WaitCursor;
             //set offset
@@ -44,7 +42,7 @@ namespace HousePartyTranslator.StoryExplorerForm
 
             InitializeComponent();
 
-            Context = new ContextProvider("", IsStory, AutoLoad);
+            Context = new ContextProvider(IsStory, AutoLoad, FileName);
 
             GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
@@ -55,7 +53,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             Paint += new PaintEventHandler(DrawNodes);
 
             //parse story, and not get cancelled xD
-            if (Context.ParseFile() || Context.GotCancelled)
+            if (Context.ParseFile() && !Context.GotCancelled)
             {
                 NodeToHighlight = Context.GetNodes()[0];
                 FillBitMap();

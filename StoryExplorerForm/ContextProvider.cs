@@ -19,18 +19,25 @@ namespace HousePartyTranslator
         private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> Nodes;
 
-        public ContextProvider(string FilePath, bool IsStory, bool AutoSelectFile)
+        public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName)
         {
-            //TODO make completely automated in auto mode
             Nodes = new List<Node>();
             this.IsStory = IsStory;
-            if (Properties.Settings.Default.story_path != "" && AutoSelectFile)
+
+            if (Properties.Settings.Default.story_path != "" && AutoSelectFile && FileName != "")
             {
-                this.FilePath = Properties.Settings.Default.story_path;
+                if (IsStory)
+                {
+                    FilePath = Path.Combine(Properties.Settings.Default.story_path, $"{FileName}.story");
+                }
+                else
+                {
+                    FilePath = Path.Combine(Properties.Settings.Default.story_path, $"{FileName}.character");
+                }
             }
             else
             {
-                this.FilePath = FilePath;
+                FilePath = "";
             }
         }
 
@@ -49,13 +56,14 @@ namespace HousePartyTranslator
                 else
                 {
                     OpenFileDialog selectFileDialog;
-                    if (IsStory)
+
+                    if (IsStory)//story file
                     {
                         selectFileDialog = new OpenFileDialog
                         {
                             Title = "Choose the story file you want to explore",
                             Filter = "Story Files (*.story)|*.story",
-                            InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Path.GetDirectoryName(Properties.Settings.Default.story_path) : @"C:\Users\%USER%\Documents",
+                            InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false
 
                         };
@@ -66,14 +74,14 @@ namespace HousePartyTranslator
                         {
                             Title = "Choose the character file you want to explore",
                             Filter = "Character Files (*.character)|*.character",
-                            InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Path.GetDirectoryName(Properties.Settings.Default.story_path) : @"C:\Users\%USER%\Documents",
+                            InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false
                         };
                     }
 
                     if (selectFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        Properties.Settings.Default.story_path = selectFileDialog.FileName;
+                        Properties.Settings.Default.story_path = Path.GetDirectoryName(selectFileDialog.FileName);
                         Properties.Settings.Default.Save();
                         FilePath = selectFileDialog.FileName;
                     }
@@ -88,63 +96,63 @@ namespace HousePartyTranslator
 
         public void DissectCharacter(CharacterStory story)
         {
-            if (story != null)
+            if (story != null && !GotCancelled)
             {
-            CriteriaInFile = new List<Node>();
+                CriteriaInFile = new List<Node>();
 
-            //get all relevant items from the json
-            Nodes.AddRange(GetDialogues(story));
-            Nodes.AddRange(GetGlobalGoodByeResponses(story));
-            Nodes.AddRange(GetGlobalResponses(story));
-            Nodes.AddRange(GetBackGroundChatter(story));
-            Nodes.AddRange(GetQuests(story));
-            Nodes.AddRange(GetReactions(story));
+                //get all relevant items from the json
+                Nodes.AddRange(GetDialogues(story));
+                Nodes.AddRange(GetGlobalGoodByeResponses(story));
+                Nodes.AddRange(GetGlobalResponses(story));
+                Nodes.AddRange(GetBackGroundChatter(story));
+                Nodes.AddRange(GetQuests(story));
+                Nodes.AddRange(GetReactions(story));
 
-            //remove duplicates/merge criteria
-            //maybe later we load the corresponding strings from the character files and vise versa?
-            Nodes = CombineNodes(Nodes);
+                //remove duplicates/merge criteria
+                //maybe later we load the corresponding strings from the character files and vise versa?
+                Nodes = CombineNodes(Nodes);
 
-            //clear criteria to free memory, we dont need them anyways
-            //cant be called recusrively so we cant add it, it would break the combination
-            CriteriaInFile.Clear();
+                //clear criteria to free memory, we dont need them anyways
+                //cant be called recusrively so we cant add it, it would break the combination
+                CriteriaInFile.Clear();
 
-            //calculate starting positions
-            Nodes = CalculateStartingPositions(Nodes);
+                //calculate starting positions
+                Nodes = CalculateStartingPositions(Nodes);
 
-            //render and do the force driven calculation thingies
-            Nodes = CalculateForceDirectedLayout(Nodes);
+                //render and do the force driven calculation thingies
+                Nodes = CalculateForceDirectedLayout(Nodes);
 
             }
         }
 
         public void DissectStory(MainStory story)
         {
-            if (story != null)
+            if (story != null && !GotCancelled)
             {
-            CriteriaInFile = new List<Node>();
+                CriteriaInFile = new List<Node>();
 
-            //add all items in the story
-            Nodes.AddRange(GetItemOverrides(story));
-            //add all item groups with their actions
-            Nodes.AddRange(GetItemGroups(story));
-            //add all items in the story
-            Nodes.AddRange(GetAchievements(story));
-            //add all reactions the player will say
-            Nodes.AddRange(GetPlayerReactions(story));
+                //add all items in the story
+                Nodes.AddRange(GetItemOverrides(story));
+                //add all item groups with their actions
+                Nodes.AddRange(GetItemGroups(story));
+                //add all items in the story
+                Nodes.AddRange(GetAchievements(story));
+                //add all reactions the player will say
+                Nodes.AddRange(GetPlayerReactions(story));
 
-            //remove duplicates/merge criteria
-            //maybe later we load the corresponding strings from the character files and vise versa?
-            Nodes = CombineNodes(Nodes);
+                //remove duplicates/merge criteria
+                //maybe later we load the corresponding strings from the character files and vise versa?
+                Nodes = CombineNodes(Nodes);
 
-            //clear criteria to free memory, we dont need them anyways
-            //cant be called recusrively so we cant add it, it would break the combination
-            CriteriaInFile.Clear();
+                //clear criteria to free memory, we dont need them anyways
+                //cant be called recusrively so we cant add it, it would break the combination
+                CriteriaInFile.Clear();
 
-            //calculate starting positions
-            Nodes = CalculateStartingPositions(Nodes);
+                //calculate starting positions
+                Nodes = CalculateStartingPositions(Nodes);
 
-            //render and do the force driven calculation thingies
-            Nodes = CalculateForceDirectedLayout(Nodes);
+                //render and do the force driven calculation thingies
+                Nodes = CalculateForceDirectedLayout(Nodes);
 
             }
         }
@@ -160,7 +168,7 @@ namespace HousePartyTranslator
             {
                 string fileString = File.ReadAllText(FilePath);
                 //save path
-                Properties.Settings.Default.story_path = FilePath;
+                Properties.Settings.Default.story_path = Path.GetDirectoryName(FilePath);
 
                 if (IsStory)
                 {
