@@ -35,13 +35,18 @@ namespace HousePartyTranslator.StoryExplorerForm
 
         public StoryExplorer(bool IsStory, bool AutoLoad, string FileName)
         {
+            InitializeComponent();
+
             Cursor = Cursors.WaitCursor;
             //set offset
             OffsetX = -BitmapEdgeLength / 2;
             OffsetY = -BitmapEdgeLength / 2;
 
-            InitializeComponent();
+            //change draw order for this windows from bottom to top to top to bottom to remove flickering
+            //use double buffering for that
+            DoubleBuffered = true;
 
+            //get contextprovider
             Context = new ContextProvider(IsStory, AutoLoad, FileName);
 
             GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
