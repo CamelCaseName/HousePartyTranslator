@@ -20,7 +20,9 @@ namespace HousePartyTranslator.Managers
         private float Scaling = 0.3f;
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
-        private Node ClickedNode;
+        private Color LastNodeColor = Color.DarkBlue;
+        private Node InfoNode;
+        private Node LastInfoNode;
         private Node HighlightedNode;
         private readonly Bitmap GraphBitmap;
         private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
@@ -278,15 +280,18 @@ namespace HousePartyTranslator.Managers
         private void DisplayNodeInfo(Point mouseLocation)
         {
             //get new clicked node
-            UpdateNodeClicked(mouseLocation);
+            if (InfoNode != null) LastInfoNode = InfoNode;
+            InfoNode = UpdateClickedNode(mouseLocation);
             //display info on new node
-            if (ClickedNode != null)
+            if (InfoNode != null)
             {
                 NodeInfoLabel.Visible = true;
                 //create header
-                string header = ConstrainLength($"{ClickedNode.Type} - {ClickedNode.ID}");
+                string header = ConstrainLength($"{InfoNode.Type} - {InfoNode.ID}");
+                //strip text of all VA performance hints, embedded in []
+
                 //create info
-                string info = ConstrainLength(ClickedNode.Text);
+                string info = ConstrainLength(RemoveVAHints(InfoNode.Text));
                 //create seperator
                 string seperator = "\n";
                 for (int i = 0; i <= Math.Min(MaxTextLength, Math.Max(header.Length, info.Length)); i++)
@@ -296,11 +301,40 @@ namespace HousePartyTranslator.Managers
                 seperator += "\n";
 
                 NodeInfoLabel.Text = header + seperator + info;
+
+                RemoveLastInfoNode(InfoNode);
+
+                DrawColouredNode(InfoNode, Color.ForestGreen);
             }
             else //remove highlight display
             {
                 NodeInfoLabel.Visible = false;
             }
+
+            Explorer.Invalidate();
+        }
+
+        private string RemoveVAHints(string input)
+        {
+            bool inVAHint = false;
+            string output = "";
+            foreach (char character in input)
+            {
+                if (character == '[' && !inVAHint)
+                {
+                    inVAHint = true;
+                }
+                else if (character == ']' && inVAHint)
+                {
+                    inVAHint = false;
+                }
+                else if (!inVAHint)
+                {
+                    output += character;
+                }
+            }
+
+            return output;
         }
 
         private string ConstrainLength(string input)
@@ -321,7 +355,7 @@ namespace HousePartyTranslator.Managers
 
         private void HighlightClickedNode(Point mouseLocation)
         {
-            UpdateNodeClicked(mouseLocation);
+            Node ClickedNode = UpdateClickedNode(mouseLocation);
             if (HighlightedNode != ClickedNode && ClickedNode != null)
             {
                 RemoveHighlight();
@@ -330,7 +364,26 @@ namespace HousePartyTranslator.Managers
             DrawHighlightNodeTree();
         }
 
-        private void UpdateNodeClicked(Point mouseLocation)
+        private void RemoveLastInfoNode(Node infoNode)
+        {
+            //remove last node highlight
+            if (LastInfoNode != null)
+            {
+                //remove old colour from node
+                DrawColouredNode(LastInfoNode, LastNodeColor);
+            }
+
+            if (infoNode != null)
+            {
+                LastNodeColor = GraphBitmap.GetPixel(infoNode.Position.X + BitmapEdgeLength / 2, infoNode.Position.Y + BitmapEdgeLength / 2);
+                if (LastNodeColor == DefaultEdgeColor)
+                {//reset colour if it is gray, can happen due to drawing order
+                    LastNodeColor = DefaultNodeColor;
+                }
+            }
+        }
+
+        private Node UpdateClickedNode(Point mouseLocation)
         {
             //handle position input
             ScreenToGraph(mouseLocation.X - Nodesize, mouseLocation.Y - Nodesize, out float mouseLeftX, out float mouseUpperY);
@@ -342,10 +395,12 @@ namespace HousePartyTranslator.Managers
                 {
                     if (mouseRightX > node.Position.X && mouseLeftX < node.Position.X)
                     {
-                        ClickedNode = node;
+                        return node;
                     }
                 }
             }
+
+            return null;
         }
 
         private void EndPan()
