@@ -1,40 +1,43 @@
 ﻿using HousePartyTranslator.Helpers;
-using System.Collections;
+using HousePartyTranslator.StoryExplorerForm;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
     class GraphingManager
     {
-        public readonly Graphics MainGraphics;
+        private bool CurrentlyInPan = false;
+        private const int MaxTextLength = 100;
         private float AfterZoomMouseX = 0f;
         private float AfterZoomMouseY = 0f;
         private float BeforeZoomMouseX = 0f;
         private float BeforeZoomMouseY = 0f;
         private float OffsetX = 0f;
         private float OffsetY = 0f;
+        private float Scaling = 0.3f;
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
+        private Node ClickedNode;
+        private Node HighlightedNode;
+        private readonly Bitmap GraphBitmap;
+        private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
+        private readonly Color DefaultNodeColor = Color.DarkBlue;
+        private readonly ContextProvider Context;
+        private readonly StoryExplorer Explorer;
+        private readonly Label NodeInfoLabel;
         public bool ReadyToDraw = false;
         public const int BitmapEdgeLength = 7000;
         public const int Nodesize = 16;
-        private float Scaling = 0.3f;
-        private Node HighlightedNode;
-        private Node ClickedNode;
-        private readonly Bitmap GraphBitmap;
-        private readonly ContextProvider Context;
-        private readonly StoryExplorerForm.StoryExplorer Explorer;
-        private bool CurrentlyInPan = false;
-        private Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
-        private Color DefaultNodeColor = Color.DarkBlue;
+        public readonly Graphics MainGraphics;
 
-        public GraphingManager(ContextProvider context, StoryExplorerForm.StoryExplorer explorer)
+        public GraphingManager(ContextProvider context, StoryExplorer explorer, Label nodeInfoLabel)
         {
             Context = context;
             Explorer = explorer;
+            NodeInfoLabel = nodeInfoLabel;
 
             GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
 
@@ -180,7 +183,6 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-
         public void PaintAllNodes()
         {
             //go on displaying graph
@@ -264,7 +266,6 @@ namespace HousePartyTranslator.Managers
                     EndPan();
                     break;
             }
-
             //everything else, scrolling for example
             if (e.Delta != 0)
             {
@@ -279,6 +280,43 @@ namespace HousePartyTranslator.Managers
             //get new clicked node
             UpdateNodeClicked(mouseLocation);
             //display info on new node
+            if (ClickedNode != null)
+            {
+                NodeInfoLabel.Visible = true;
+                //create header
+                string header = ConstrainLength($"{ClickedNode.Type} - {ClickedNode.ID}");
+                //create info
+                string info = ConstrainLength(ClickedNode.Text);
+                //create seperator
+                string seperator = "\n";
+                for (int i = 0; i <= Math.Min(MaxTextLength, Math.Max(header.Length, info.Length)); i++)
+                {
+                    seperator += "#";
+                }
+                seperator += "\n";
+
+                NodeInfoLabel.Text = header + seperator + info;
+            }
+            else //remove highlight display
+            {
+                NodeInfoLabel.Visible = false;
+            }
+        }
+
+        private string ConstrainLength(string input)
+        {
+            string output = "";
+            int inputLength = input.Length;
+
+            for (int i = 0; i <= (inputLength / MaxTextLength); i++)
+            {
+                int possibleEnd = Math.Min(MaxTextLength, input.Length);
+                output += input.Substring(0, possibleEnd);
+                if (possibleEnd == MaxTextLength) output += " \n";
+                input = input.Remove(0, possibleEnd);
+            }
+
+            return output;
         }
 
         private void HighlightClickedNode(Point mouseLocation)
@@ -336,7 +374,6 @@ namespace HousePartyTranslator.Managers
                 Explorer.Invalidate();
             }
         }
-
 
         public void HandleKeyBoard(object sender, KeyEventArgs e)
         {

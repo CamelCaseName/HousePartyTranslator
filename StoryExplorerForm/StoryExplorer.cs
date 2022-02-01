@@ -14,7 +14,6 @@ namespace HousePartyTranslator.StoryExplorerForm
             InitializeComponent();
 
             Cursor = Cursors.WaitCursor;
-            //set offset
 
             //change draw order for this windows from bottom to top to top to bottom to remove flickering
             //use double buffering for that
@@ -22,7 +21,7 @@ namespace HousePartyTranslator.StoryExplorerForm
 
             //get contextprovider
             Context = new ContextProvider(IsStory, AutoLoad, FileName);
-            Grapher = new GraphingManager(Context, this);
+            Grapher = new GraphingManager(Context, this, NodeInfoLabel);
 
             //add custom paint event handler to draw all nodes and edges
             Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
