@@ -1,4 +1,6 @@
 ﻿using HousePartyTranslator.Helpers;
+using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -17,13 +19,17 @@ namespace HousePartyTranslator.Managers
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
         public bool ReadyToDraw = false;
-        public const int BitmapEdgeLength = 6000;
+        public const int BitmapEdgeLength = 7000;
         public const int Nodesize = 16;
-        public float Scaling = 0.3f;
-        public Node NodeToHighlight;
-        public readonly Bitmap GraphBitmap;
+        private float Scaling = 0.3f;
+        private Node HighlightedNode;
+        private Node ClickedNode;
+        private readonly Bitmap GraphBitmap;
         private readonly ContextProvider Context;
         private readonly StoryExplorerForm.StoryExplorer Explorer;
+        private bool CurrentlyInPan = false;
+        private Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
+        private Color DefaultNodeColor = Color.DarkBlue;
 
         public GraphingManager(ContextProvider context, StoryExplorerForm.StoryExplorer explorer)
         {
@@ -50,29 +56,34 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        public void DrawOverHighlight()
+        public void RemoveHighlight()
         {
-            //draw parents and edges in colour
-            foreach (Node node in Enumerable.Concat(NodeToHighlight.ParentNodes, NodeToHighlight.ChildNodes))
+            if (HighlightedNode != null)
             {
-                //draw line
-                DrawEdge(node, NodeToHighlight, Color.FromArgb(30, 30, 30));
-                //draw node over line
-                DrawColouredNode(node, Color.DarkBlue);
+                //draw over parents
+                DrawNodeSet(
+                    HighlightedNode.ParentNodes,
+                    HighlightedNode,
+                    0,
+                    1,
+                    DefaultNodeColor,
+                    DefaultEdgeColor,
+                    false);
+                //draw over childs
+                DrawNodeSet(
+                    HighlightedNode.ChildNodes,
+                    HighlightedNode,
+                    0,
+                    6,
+                    DefaultNodeColor,
+                    DefaultEdgeColor,
+                    false);
 
-                //highlight second childs
-                foreach (Node node2 in Enumerable.Concat(node.ParentNodes, node.ChildNodes))
-                {
-                    //draw line
-                    DrawEdge(node2, node, Color.FromArgb(30, 30, 30));
-                    //draw node over line
-                    DrawColouredNode(node2, Color.DarkBlue);
-                }
+                //redraw node itself
+                DrawColouredNode(HighlightedNode, DefaultNodeColor);
+                Explorer.Invalidate();
+
             }
-
-            //redraw node itself
-            DrawColouredNode(NodeToHighlight, Color.DarkBlue);
-            Explorer.Invalidate();
         }
 
         public void SetPanOffset(Point location)
@@ -118,27 +129,55 @@ namespace HousePartyTranslator.Managers
 
         public void DrawHighlightNodeTree()
         {
-            //draw parents and edges in colour
-            foreach (Node node in Enumerable.Concat(NodeToHighlight.ParentNodes, NodeToHighlight.ChildNodes))
+            if (HighlightedNode != null)
             {
-                //draw line
-                DrawEdge(node, NodeToHighlight, Color.FromArgb(255, 100, 0));
-                //draw node over line
-                DrawColouredNode(node, Color.Red);
+                //draw parents first (one layer only)
+                DrawNodeSet(
+                    HighlightedNode.ParentNodes,
+                    HighlightedNode,
+                    0,
+                    1,
+                    Color.White,
+                    Color.DarkOrchid,
+                    false);
+                //then childs
+                DrawNodeSet(
+                    HighlightedNode.ChildNodes,
+                    HighlightedNode,
+                    0,
+                    6,
+                    Color.Red,
+                    Color.DeepPink,
+                    true);
 
-                //highlight second childs
-                foreach (Node node2 in node.ChildNodes)
+                //then redraw node itself
+                DrawColouredNode(HighlightedNode, Color.DarkRed);
+                Explorer.Invalidate();
+            }
+        }
+
+        private void DrawNodeSet(List<Node> nodes, Node previousNode, int depth, int maxDepth, Color nodeColor, Color edgeColor, bool diluteColor)
+        {
+            if (depth++ < maxDepth)
+            {
+                //highlight childs
+                foreach (Node node in nodes)
                 {
+                    if (diluteColor)
+                    {
+                        DrawNodeSet(node.ChildNodes, node, depth, maxDepth, Color.FromArgb((int)(nodeColor.ToArgb() / 1.3d)), Color.FromArgb((int)(edgeColor.ToArgb() / 1.3d)), true);
+                    }
+                    else
+                    {
+                        DrawNodeSet(node.ChildNodes, node, depth, maxDepth, nodeColor, edgeColor, false);
+                    }
+
                     //draw line
-                    DrawEdge(node2, node, Color.FromArgb(125, 50, 0));
+                    DrawEdge(node, previousNode, edgeColor);
                     //draw node over line
-                    DrawColouredNode(node2, Color.DarkOrange);
+                    DrawColouredNode(node, nodeColor);
                 }
             }
-
-            //redraw node itself
-            DrawColouredNode(NodeToHighlight, Color.DarkRed);
-            Explorer.Invalidate();
         }
 
 
@@ -148,12 +187,12 @@ namespace HousePartyTranslator.Managers
             foreach (Node node in Context.GetNodes())
             {
                 //draw node
-                DrawColouredNode(node, Color.DarkBlue);
+                DrawColouredNode(node, DefaultNodeColor);
                 //draw edges
                 foreach (Node child in node.ChildNodes)
                 {
                     //draw edge to child, default colour
-                    DrawEdge(node, child, Color.FromArgb(30, 30, 30));
+                    DrawEdge(node, child, DefaultEdgeColor);
                 }
             }
             //allow paint handler to draw
@@ -164,7 +203,6 @@ namespace HousePartyTranslator.Managers
 
         public void UpdateScaling(MouseEventArgs e)
         {
-
             //get last mouse position in world space before the zoom so we can
             //offset back by the distance in world space we got shifted by zooming
             ScreenToGraph(e.X, e.Y, out BeforeZoomMouseX, out BeforeZoomMouseY);
@@ -200,6 +238,109 @@ namespace HousePartyTranslator.Managers
         {
             graphX = screenX / Scaling + OffsetX;
             graphY = screenY / Scaling + OffsetY;
+        }
+
+        public void HandleMouseEvents(object sender, MouseEventArgs e)
+        {
+            switch (e.Button)
+            {
+                case MouseButtons.Left:
+                    DisplayNodeInfo(e.Location);
+                    break;
+                case MouseButtons.None:
+                    EndPan();
+                    break;
+                case MouseButtons.Right:
+                    HighlightClickedNode(e.Location);
+                    break;
+                case MouseButtons.Middle:
+                    UpdatePan(e.Location);
+                    break;
+                case MouseButtons.XButton1:
+                    break;
+                case MouseButtons.XButton2:
+                    break;
+                default:
+                    EndPan();
+                    break;
+            }
+
+            //everything else, scrolling for example
+            if (e.Delta != 0)
+            {
+                UpdateScaling(e);
+                //redraw
+                Explorer.Invalidate();
+            }
+        }
+
+        private void DisplayNodeInfo(Point mouseLocation)
+        {
+            //get new clicked node
+            UpdateNodeClicked(mouseLocation);
+            //display info on new node
+        }
+
+        private void HighlightClickedNode(Point mouseLocation)
+        {
+            UpdateNodeClicked(mouseLocation);
+            if (HighlightedNode != ClickedNode && ClickedNode != null)
+            {
+                RemoveHighlight();
+                HighlightedNode = ClickedNode;
+            }
+            DrawHighlightNodeTree();
+        }
+
+        private void UpdateNodeClicked(Point mouseLocation)
+        {
+            //handle position input
+            ScreenToGraph(mouseLocation.X - Nodesize, mouseLocation.Y - Nodesize, out float mouseLeftX, out float mouseUpperY);
+            ScreenToGraph(mouseLocation.X + Nodesize, mouseLocation.Y + Nodesize, out float mouseRightX, out float mouseLowerY);
+
+            foreach (Node node in Context.GetNodes())
+            {
+                if (mouseLowerY > node.Position.Y && mouseUpperY < node.Position.Y)
+                {
+                    if (mouseRightX > node.Position.X && mouseLeftX < node.Position.X)
+                    {
+                        ClickedNode = node;
+                    }
+                }
+            }
+        }
+
+        private void EndPan()
+        {
+            //end of pan
+            if (CurrentlyInPan)
+            {
+                CurrentlyInPan = false;
+            }
+        }
+
+        private void UpdatePan(Point mouseLocation)
+        {
+            //start of pan
+            if (!CurrentlyInPan)
+            {
+                CurrentlyInPan = true;
+                //get current position in screen coordinates when we start to pan
+                SetPanOffset(mouseLocation);
+            }
+            //in pan
+            else if (CurrentlyInPan)
+            {
+                UpdatePanOffset(mouseLocation);
+                //redraw
+                Explorer.Invalidate();
+            }
+        }
+
+
+        public void HandleKeyBoard(object sender, KeyEventArgs e)
+        {
+
         }
     }
 }

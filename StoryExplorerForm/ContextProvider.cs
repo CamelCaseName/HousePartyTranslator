@@ -199,10 +199,9 @@ namespace HousePartyTranslator
 
             //Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
 
-
             const float maxForce = 0;
             const int iterations = 100;
-            float attraction = 700f;//attraction force multiplier, between 0 and much
+            float attraction = 750f;//attraction force multiplier, between 0 and much
             float cooldown = 0.97f;
             float currentMaxForce = maxForce + 0.1f;
             float repulsion = 1000f;//repulsion force multiplier, between 0 and much
@@ -240,7 +239,7 @@ namespace HousePartyTranslator
                             //absolute length of difference/distance
                             float distance = difference.Length();
                             //add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
-                            Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance);
+                            Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance) / node.Mass;
 
                             //if the second node is a child of ours
                             if (secondNode.ParentNodes.Contains(node))
