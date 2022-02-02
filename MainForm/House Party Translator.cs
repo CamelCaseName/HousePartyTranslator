@@ -8,7 +8,7 @@ namespace HousePartyTranslator
 {
     public partial class Fenster : Form
     {
-        private readonly PropertyHelper MainProperties;
+        public readonly PropertyHelper MainProperties;
         private StoryExplorer explorer;
 
         public StoryExplorer Explorer

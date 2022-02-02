@@ -59,6 +59,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             this.ShowIcon = false;
             this.Text = "Story Explorer";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleKeyBoard);
+            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.HandleKeyBoard);
             this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HandleMouseEvents);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.HandleMouseEvents);
             this.MouseWheel += new System.Windows.Forms.MouseEventHandler(this.HandleMouseEvents);

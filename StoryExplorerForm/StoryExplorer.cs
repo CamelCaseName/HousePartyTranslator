@@ -9,6 +9,8 @@ namespace HousePartyTranslator.StoryExplorerForm
         public GraphingEngine Grapher { get; }
         public string ParentName { get; }
 
+        public Form FormParent { get; }
+
 
         public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, Form Parent)
         {
@@ -16,6 +18,7 @@ namespace HousePartyTranslator.StoryExplorerForm
 
             //indicate ownership
             ParentName = Parent.Name;
+            FormParent = Parent;
 
             Cursor = Cursors.WaitCursor;
 

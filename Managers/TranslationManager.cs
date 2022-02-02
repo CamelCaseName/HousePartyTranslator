@@ -35,6 +35,7 @@ namespace HousePartyTranslator.Managers
         public bool AutoSave = true;
         public bool isTemplate = false;
         public bool IsUpToDate = false;
+        public bool UpdateStoryExplorerSelection = true;
         public List<LineData> TranslationData = new List<LineData>();
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public static TranslationManager main;
@@ -558,7 +559,13 @@ namespace HousePartyTranslator.Managers
                     UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count(), helper);
                     UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count, helper);
 
-                    SetHighlightedNode(helper);
+                    if (UpdateStoryExplorerSelection) { 
+                        SetHighlightedNode(helper);
+                    }
+                    else
+                    {
+                        UpdateStoryExplorerSelection = true;
+                    }
                 }
             }
             MainWindow.Cursor = Cursors.Default;
@@ -577,6 +584,17 @@ namespace HousePartyTranslator.Managers
             {
                 MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.GetNodes().Find(n => n.ID == id);
             }
+        }
+
+        /// <summary>
+        /// Selects a string in the listview given the id
+        /// </summary>
+        /// <param name="id">The id to look for.</param>
+        public void SelectLine(string id)
+        {
+            //select line which correspondends to id
+            int index = TranslationData.FindIndex(n => n.ID == id);
+            if (index >= 0) MainWindow.MainProperties.CheckListBoxLeft.SelectedIndex = index;
         }
 
         /// <summary>

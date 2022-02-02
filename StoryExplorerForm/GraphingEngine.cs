@@ -1,15 +1,15 @@
 ﻿using HousePartyTranslator.Helpers;
+using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace HousePartyTranslator.Managers
+namespace HousePartyTranslator.StoryExplorerForm
 {
     public class GraphingEngine
     {
-        //TODO integrate with editor, select node when selecting a line, select line when selecting a highlight tree node
         public const int BitmapEdgeLength = 7000;
         public const int Nodesize = 16;
 
@@ -31,6 +31,7 @@ namespace HousePartyTranslator.Managers
         private float BeforeZoomMouseY = 0f;
 
         private bool CurrentlyInPan = false;
+        private bool IsShiftPressed = false;
 
         private Node highlightedNode = Node.NullNode;
         private Node infoNode = Node.NullNode;
@@ -70,11 +71,11 @@ namespace HousePartyTranslator.Managers
             set
             {
                 //clear highlight
-                RemoveHighlight();
+                if (!IsShiftPressed) RemoveHighlight();
                 if (value != null)
                 {
                     //set new value
-                    highlightedNode = value;
+                    if (!IsShiftPressed) highlightedNode = value;
                     ClickedNodeChanged(this, new ClickedNodeChangeArgs(value, ClickedNodeTypes.Highlight));
                 }
                 else
@@ -124,7 +125,8 @@ namespace HousePartyTranslator.Managers
 
         public void HandleKeyBoard(object sender, KeyEventArgs e)
         {
-
+            //get the shift key state so we can determine later if we want to redraw the tree on node selection or not
+            IsShiftPressed = e.KeyData == (Keys.ShiftKey | Keys.Shift);
         }
 
         public void HandleMouseEvents(object sender, MouseEventArgs e)
@@ -132,13 +134,13 @@ namespace HousePartyTranslator.Managers
             switch (e.Button)
             {
                 case MouseButtons.Left:
-                    SetNewInfoNode(e.Location);
+                    SetNewHighlightNode(e.Location);
                     break;
                 case MouseButtons.None:
                     EndPan();
                     break;
                 case MouseButtons.Right:
-                    SetNewHighlightNode(e.Location);
+                    SetNewInfoNode(e.Location);
                     break;
                 case MouseButtons.Middle:
                     UpdatePan(e.Location);
@@ -180,7 +182,13 @@ namespace HousePartyTranslator.Managers
             Explorer.Invalidate();
         }
 
-        //converts screen coordinates into the corresponding graph coordinates, taking into account all transformations/zoom
+        /// <summary>
+        /// converts screen coordinates into the corresponding graph coordinates, taking into account all transformations/zoom
+        /// </summary>
+        /// <param name="screenX">The x coord in screen coordinates</param>
+        /// <param name="screenY">The y coord in screen coordinates</param>
+        /// <param name="graphX">The returned x coord in graph coordinate space</param>
+        /// <param name="graphY">The returned y coord in graph coordinate space</param>
         public void ScreenToGraph(float screenX, float screenY, out float graphX, out float graphY)
         {
             graphX = screenX / Scaling + OffsetX;
@@ -323,7 +331,12 @@ namespace HousePartyTranslator.Managers
         {
             if (e.HighlightCase == ClickedNodeTypes.Highlight)
             {
-                DrawHighlightNodeTree();
+                //tell translationmanager to update us or not when selected
+                TranslationManager.main.UpdateStoryExplorerSelection = !IsShiftPressed;
+                //select line in translation manager
+                TranslationManager.main.SelectLine(e.HighlightNode.ID);
+                //draw nodes
+                if (!IsShiftPressed) DrawHighlightNodeTree();
             }
         }
 
