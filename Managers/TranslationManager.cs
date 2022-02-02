@@ -666,7 +666,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void SaveFile()
         {
-            if (SourceFilePath != "")
+            if (SourceFilePath != "" && Language != "")
             {
                 System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
                 MainWindow.Cursor = Cursors.WaitCursor;
