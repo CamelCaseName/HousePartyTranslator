@@ -23,21 +23,21 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     public class TranslationManager
     {
-        public static TranslationManager main;
+        private bool isSaveAs = false;
+        private int ExceptionCount = 0;
+        private int LastIndex = -1;
+        private int SelectedSearchResult = 0;
+        private static Fenster MainWindow;
+        private string fileName = "";
+        private string language = "";
+        private string sourceFilePath = "";
+        private string storyName = "";
         public bool AutoSave = true;
-        public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public bool isTemplate = false;
         public bool IsUpToDate = false;
         public List<LineData> TranslationData = new List<LineData>();
-        private int ExceptionCount = 0;
-        private string fileName = "";
-        private bool isSaveAs = false;
-        private string language = "";
-        private int LastIndex = -1;
-        private int SelectedSearchResult = 0;
-        private string sourceFilePath = "";
-
-        private string storyName = "";
+        public List<StringCategory> CategoriesInFile = new List<StringCategory>();
+        public static TranslationManager main;
 
         /// <summary>
         /// The Constructor for this class. Takes no arguments.
@@ -49,6 +49,15 @@ namespace HousePartyTranslator.Managers
                 return;
             }
             main = this;
+        }
+
+        /// <summary>
+        /// Sets the main form this translationmanager will work on (cursor, fields, etc)
+        /// </summary>
+        /// <param name="mainWindow">The form to work on.</param>
+        public void SetMainForm(Fenster mainWindow)
+        {
+            MainWindow = mainWindow;
         }
 
         /// <summary>
@@ -126,15 +135,15 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="FensterRef">The window of type fenster</param>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public static void ApprovedButtonHandler(Fenster FensterRef, PropertyHelper helper)
+        public static void ApprovedButtonHandler(PropertyHelper helper)
         {
             //get title bar height
-            Rectangle ScreenRectangle = FensterRef.RectangleToScreen(FensterRef.ClientRectangle);
-            int TitleHeight = ScreenRectangle.Top - FensterRef.Top;
+            Rectangle ScreenRectangle = MainWindow.RectangleToScreen(MainWindow.ClientRectangle);
+            int TitleHeight = ScreenRectangle.Top - MainWindow.Top;
 
             //check whether cursor is on approved button or not
-            int deltaX = Cursor.Position.X - helper.ApprovedBox.Location.X - FensterRef.Location.X;
-            int deltaY = Cursor.Position.Y - helper.ApprovedBox.Location.Y - FensterRef.Location.Y - TitleHeight;
+            int deltaX = Cursor.Position.X - helper.ApprovedBox.Location.X - MainWindow.Location.X;
+            int deltaY = Cursor.Position.Y - helper.ApprovedBox.Location.Y - MainWindow.Location.Y - TitleHeight;
             bool isInX = 0 <= deltaX && deltaX <= helper.ApprovedBox.Width;
             bool isInY = 0 <= deltaY && deltaY <= helper.ApprovedBox.Height;
 
@@ -382,7 +391,7 @@ namespace HousePartyTranslator.Managers
         {
             ResetTranslationManager(helper);
 
-            helper.CheckListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+            MainWindow.Cursor = Cursors.WaitCursor;
             if (IsUpToDate)
             {
                 SourceFilePath = SelectFileFromSystem();
@@ -456,7 +465,7 @@ namespace HousePartyTranslator.Managers
             //register load
             LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
-            helper.CheckListBoxLeft.FindForm().Cursor = Cursors.Default;
+            MainWindow.Cursor = Cursors.Default;
         }
 
         /// <summary>
@@ -465,7 +474,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void PopulateTextBoxes(PropertyHelper helper)
         {
-            helper.TemplateTextBox.FindForm().Cursor = Cursors.WaitCursor;
+            MainWindow.Cursor = Cursors.WaitCursor;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
             if (LastIndex < 0)
             {
@@ -548,9 +557,26 @@ namespace HousePartyTranslator.Managers
 
                     UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count(), helper);
                     UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count, helper);
+
+                    SetHighlightedNode(helper);
                 }
             }
-            helper.TemplateTextBox.FindForm().Cursor = Cursors.Default;
+            MainWindow.Cursor = Cursors.Default;
+        }
+
+        /// <summary>
+        /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
+        /// </summary>
+        /// <param name="helper">A Propertyhelper to get access to the form controls.</param>
+        private void SetHighlightedNode(PropertyHelper helper)
+        {
+            int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
+            string id = TranslationData[currentIndex].ID;
+            //Highlights the node representign the selected string in the story explorer window
+            if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
+            {
+                MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.GetNodes().Find(n => n.ID == id);
+            }
         }
 
         /// <summary>
@@ -564,7 +590,7 @@ namespace HousePartyTranslator.Managers
             //if we changed the eselction and have autsave enabled
             if (currentIndex >= 0)
             {
-                helper.CheckListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+                MainWindow.Cursor = Cursors.WaitCursor;
 
                 //upload comment
                 DataBaseManager.SetTranslationComments(
@@ -575,7 +601,7 @@ namespace HousePartyTranslator.Managers
                     Language
                     );
 
-                helper.CheckListBoxLeft.FindForm().Cursor = Cursors.Default;
+                MainWindow.Cursor = Cursors.Default;
             }
         }
 
@@ -590,7 +616,7 @@ namespace HousePartyTranslator.Managers
             //if we changed the eselction and have autsave enabled
             if (currentIndex >= 0)
             {
-                helper.CheckListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+                MainWindow.Cursor = Cursors.WaitCursor;
 
                 //update translation in the database
                 DataBaseManager.SetStringTranslation(
@@ -603,7 +629,7 @@ namespace HousePartyTranslator.Managers
 
                 if (helper.CheckListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) helper.CheckListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
 
-                helper.CheckListBoxLeft.FindForm().Cursor = Cursors.Default;
+                MainWindow.Cursor = Cursors.Default;
             }
         }
 
@@ -616,7 +642,7 @@ namespace HousePartyTranslator.Managers
             if (SourceFilePath != "")
             {
                 System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
-                helper.CheckListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+                MainWindow.Cursor = Cursors.WaitCursor;
                 List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
 
                 //we need to check whether the file has any strings at all, expecially the categories, if no, add them first or shit breaks.
@@ -709,7 +735,7 @@ namespace HousePartyTranslator.Managers
 
                 OutputWriter.Close();
 
-                helper.CheckListBoxLeft.FindForm().Cursor = Cursors.Default;
+                MainWindow.Cursor = Cursors.Default;
             }
         }
 
@@ -1029,7 +1055,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void HandleTranslationLoading(PropertyHelper helper)
         {
-            helper.CheckListBoxLeft.FindForm().Cursor = Cursors.WaitCursor;
+            MainWindow.Cursor = Cursors.WaitCursor;
 
             bool lineIsApproved = false;
             bool gotApprovedStates = DataBaseManager.GetAllStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
@@ -1062,7 +1088,7 @@ namespace HousePartyTranslator.Managers
                 currentIndex++;
                 lineIsApproved = false;
             }
-            helper.CheckListBoxLeft.FindForm().Cursor = Cursors.Default;
+            MainWindow.Cursor = Cursors.Default;
         }
 
         /// <summary>

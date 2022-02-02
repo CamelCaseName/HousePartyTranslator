@@ -6,12 +6,16 @@ namespace HousePartyTranslator.StoryExplorerForm
     public partial class StoryExplorer : Form
     {
         private readonly ContextProvider Context;
-        private readonly GraphingManager Grapher;
+        public GraphingEngine Grapher { get; }
+        public string ParentName { get; }
 
 
-        public StoryExplorer(bool IsStory, bool AutoLoad, string FileName)
+        public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, Form Parent)
         {
             InitializeComponent();
+
+            //indicate ownership
+            ParentName = Parent.Name;
 
             Cursor = Cursors.WaitCursor;
 
@@ -21,7 +25,9 @@ namespace HousePartyTranslator.StoryExplorerForm
 
             //get contextprovider
             Context = new ContextProvider(IsStory, AutoLoad, FileName);
-            Grapher = new GraphingManager(Context, this, NodeInfoLabel);
+            Grapher = new GraphingEngine(Context, this, NodeInfoLabel);
+
+            Text = $"StoryExplorer - {FileName}";
 
             //add custom paint event handler to draw all nodes and edges
             Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);

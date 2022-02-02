@@ -4,8 +4,17 @@ using System.Drawing;
 
 namespace HousePartyTranslator.Helpers
 {
+    public enum ClickedNodeTypes
+    {
+        Null,
+        Highlight,
+        Info,
+        OpenInEditor,
+        Edit
+    }
     public enum NodeType
     {
+        Null,
         Item,
         ItemGroup,
         Action,
@@ -32,6 +41,7 @@ namespace HousePartyTranslator.Helpers
         public bool ChildsVisited = false;
         public bool ParentsVisited = false;
         public Guid Guid = Guid.NewGuid();
+        public static readonly Node NullNode = new Node("",NodeType.Null, "");
 
         public Node(string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
         {
@@ -94,6 +104,15 @@ namespace HousePartyTranslator.Helpers
             ID = iD;
             Text = text;
             Type = type;
+            ParentNodes = new List<Node>();
+            ChildNodes = new List<Node>();
+        }
+
+        public Node()
+        {
+            ID = "";
+            Text = "";
+            Type = NodeType.Null;
             ParentNodes = new List<Node>();
             ChildNodes = new List<Node>();
         }

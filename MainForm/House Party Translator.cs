@@ -9,6 +9,26 @@ namespace HousePartyTranslator
     public partial class Fenster : Form
     {
         private readonly PropertyHelper MainProperties;
+        private StoryExplorer explorer;
+
+        public StoryExplorer Explorer
+        {
+            get
+            {
+                return explorer;
+            } 
+            set
+            {
+                if (value.ParentName == Name)
+                {
+                    explorer = value;
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
+                }
+            }
+        }
 
         public Fenster()
         {
@@ -35,6 +55,7 @@ namespace HousePartyTranslator
                 );
 
             TranslationManager.main.SetLanguage(MainProperties);
+            TranslationManager.main.SetMainForm(this);
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
 
@@ -93,7 +114,7 @@ namespace HousePartyTranslator
 
         private void ApprovedBox_CheckedChanged(object sender, EventArgs e)
         {
-            TranslationManager.ApprovedButtonHandler(this, MainProperties);
+            TranslationManager.ApprovedButtonHandler(MainProperties);
         }
 
         private void SaveCurrentStringToolStripMenuItem_Click(object sender, EventArgs e)
@@ -145,19 +166,21 @@ namespace HousePartyTranslator
 
         private void StoryExplorerStripMenuItem1_Click(object sender, EventArgs e)
         {
-            Cursor = Cursors.WaitCursor;
-            bool isStory = TranslationManager.main.StoryName == TranslationManager.main.FileName;
-            StoryExplorer explorer = new StoryExplorer(isStory, true, TranslationManager.main.FileName);
-            if (!explorer.IsDisposed) explorer.Show();
-            Cursor = Cursors.Default;
+            CreateStoryExplorer(true);
         }
 
         private void CustomStoryExplorerStripMenuItem_Click(object sender, EventArgs e)
         {
+            CreateStoryExplorer(false);
+        }
+
+        private void CreateStoryExplorer(bool autoOpen)
+        {
             Cursor = Cursors.WaitCursor;
             bool isStory = TranslationManager.main.StoryName == TranslationManager.main.FileName;
-            StoryExplorer explorer = new StoryExplorer(isStory, false, TranslationManager.main.FileName);
-            if (!explorer.IsDisposed) explorer.Show();
+            Explorer = new StoryExplorer(isStory, autoOpen, TranslationManager.main.FileName, this);
+            if (!Explorer.IsDisposed) Explorer.Show();
+            //explorer.Grapher.
             Cursor = Cursors.Default;
         }
     }

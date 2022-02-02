@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
-    internal class ContextProvider
+    public class ContextProvider
     {
         public bool GotCancelled = false;
         private readonly bool IsStory;
@@ -430,6 +430,9 @@ namespace HousePartyTranslator
                 {
                     Node nodeAlternateText = new Node($"{dialogue.ID}.{alternateTextCounter}", NodeType.Dialogue, alternateText.Text, nodeDialogue);
 
+                    //increasse counter to ensure valid id
+                    alternateTextCounter++;
+
                     nodeAlternateText.AddCriteria(alternateText.Critera);
 
                     //add alternate to the default text as a child, parent already set on the child
@@ -613,11 +616,11 @@ namespace HousePartyTranslator
                 Node nodeQuest = new Node(quest.ID, NodeType.Quest, quest.Name);
 
                 //Add details
-                nodeQuest.AddChildNode(new Node($"{quest.ID}Description", NodeType.Quest, quest.Details));
+                if (quest.Details.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}Description", NodeType.Quest, quest.Details));
                 //Add completed details
-                nodeQuest.AddChildNode(new Node($"{quest.ID}CompletedDetails", NodeType.Quest, quest.CompletedDetails));
+                if (quest.CompletedDetails.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}CompletedDetails", NodeType.Quest, quest.CompletedDetails));
                 //Add failed details
-                nodeQuest.AddChildNode(new Node($"{quest.ID}FailedDetails", NodeType.Quest, quest.FailedDetails));
+                if (quest.FailedDetails.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}FailedDetails", NodeType.Quest, quest.FailedDetails));
 
                 //Add extended details
 
@@ -625,6 +628,8 @@ namespace HousePartyTranslator
                 {
                     nodeQuest.AddChildNode(new Node($"{quest.ID}Description{detail.Value}", NodeType.Quest, detail.Details));
                 }
+
+                nodes.Add(nodeQuest);
             }
 
             return nodes;

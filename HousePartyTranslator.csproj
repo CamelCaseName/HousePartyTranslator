@@ -114,12 +114,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\ClickedNodeChangeArgs.cs" />
     <Compile Include="Helpers\ICriterion.cs" />
     <Compile Include="Helpers\IEvent.cs" />
     <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\Items.cs" />
     <Compile Include="Helpers\Node.cs" />
-    <Compile Include="StoryExplorerForm\GraphingManager.cs" />
+    <Compile Include="StoryExplorerForm\GraphingEngine.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
