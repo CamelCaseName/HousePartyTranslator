@@ -177,8 +177,8 @@ namespace HousePartyTranslator
         private void CreateStoryExplorer(bool autoOpen)
         {
             Cursor = Cursors.WaitCursor;
-            bool isStory = TranslationManager.main.StoryName == TranslationManager.main.FileName;
-            Explorer = new StoryExplorer(isStory, autoOpen, TranslationManager.main.FileName, this);
+            bool isStory = TranslationManager.main.StoryName.ToLowerInvariant() == TranslationManager.main.FileName.ToLowerInvariant();
+            Explorer = new StoryExplorer(isStory, autoOpen, TranslationManager.main.FileName, TranslationManager.main.StoryName, this);
             if (!Explorer.IsDisposed) Explorer.Show();
             Cursor = Cursors.Default;
         }

@@ -19,20 +19,21 @@ namespace HousePartyTranslator
         private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> Nodes;
 
-        public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName)
+        public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
         {
             Nodes = new List<Node>();
             this.IsStory = IsStory;
+            string storyPathMinusStory = Directory.GetParent(Properties.Settings.Default.story_path).FullName;
 
-            if (Properties.Settings.Default.story_path != "" && AutoSelectFile && FileName != "")
+            if (storyPathMinusStory != "" && AutoSelectFile && FileName != "")
             {
                 if (IsStory)
                 {
-                    FilePath = Path.Combine(Properties.Settings.Default.story_path, $"{FileName}.story");
+                    FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.story");
                 }
                 else
                 {
-                    FilePath = Path.Combine(Properties.Settings.Default.story_path, $"{FileName}.character");
+                    FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
                 }
             }
             else
