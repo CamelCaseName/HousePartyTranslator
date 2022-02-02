@@ -1,5 +1,6 @@
 ﻿using HousePartyTranslator.Helpers;
 using HousePartyTranslator.Managers;
+using HousePartyTranslator.StoryExplorerForm;
 using System;
 using System.Windows.Forms;
 
@@ -7,13 +8,36 @@ namespace HousePartyTranslator
 {
     public partial class Fenster : Form
     {
-        private readonly PropertyHelper MainProperties;
+        public readonly PropertyHelper MainProperties;
+        private StoryExplorer explorer;
+
+        public StoryExplorer Explorer
+        {
+            get
+            {
+                return explorer;
+            } 
+            set
+            {
+                if (value.ParentName == Name)
+                {
+                    explorer = value;
+                }
+                else
+                {
+                    throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
+                }
+            }
+        }
 
         public Fenster()
         {
+            //custom exception handlers to handle mysql exceptions
+            AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
+            Application.ThreadException += ThreadExceptionHandler;
+
+            //init all form components
             InitializeComponent();
-            //initialize and open db connection (should not take too long)
-            SettingsManager.LoadSettings();
 
             //create propertyhelper
             MainProperties = new PropertyHelper(
@@ -31,12 +55,10 @@ namespace HousePartyTranslator
                 );
 
             TranslationManager.main.SetLanguage(MainProperties);
+            TranslationManager.main.SetMainForm(this);
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
 
-            //custom exception handlers to handle mysql exceptions
-            AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
-            Application.ThreadException += ThreadExceptionHandler;
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -92,7 +114,7 @@ namespace HousePartyTranslator
 
         private void ApprovedBox_CheckedChanged(object sender, EventArgs e)
         {
-            TranslationManager.ApprovedButtonHandler(this, MainProperties);
+            TranslationManager.ApprovedButtonHandler(MainProperties);
         }
 
         private void SaveCurrentStringToolStripMenuItem_Click(object sender, EventArgs e)
@@ -113,12 +135,12 @@ namespace HousePartyTranslator
 
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TranslationManager.main.SaveFile(MainProperties);
+            TranslationManager.main.SaveFile();
         }
 
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TranslationManager.main.SaveFileAs(MainProperties);
+            TranslationManager.main.SaveFileAs();
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -131,9 +153,34 @@ namespace HousePartyTranslator
             TranslationManager.main.SetLanguage(MainProperties);
         }
 
-        private void searchToolStripTextBox_TextChanged(object sender, EventArgs e)
+        private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
             TranslationManager.main.Search(MainProperties);
+        }
+
+        private void Fenster_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            //save settings
+            Properties.Settings.Default.Save();
+        }
+
+        private void StoryExplorerStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            CreateStoryExplorer(true);
+        }
+
+        private void CustomStoryExplorerStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CreateStoryExplorer(false);
+        }
+
+        private void CreateStoryExplorer(bool autoOpen)
+        {
+            Cursor = Cursors.WaitCursor;
+            bool isStory = TranslationManager.main.StoryName == TranslationManager.main.FileName;
+            Explorer = new StoryExplorer(isStory, autoOpen, TranslationManager.main.FileName, this);
+            if (!Explorer.IsDisposed) Explorer.Show();
+            Cursor = Cursors.Default;
         }
     }
 }

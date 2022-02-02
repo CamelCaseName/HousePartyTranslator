@@ -3,7 +3,7 @@
 namespace HousePartyTranslator.Helpers
 {
     /// <summary>
-    /// A Property to replace all properties which would have to be passed from the Fenster to the TranslationManager
+    /// A Property to replace all properties which would have to be passed from the Fenster to the TranslationManager.
     /// </summary>
     public class PropertyHelper
     {
@@ -20,19 +20,19 @@ namespace HousePartyTranslator.Helpers
         public readonly TextBox TranslationTextBox;
 
         /// <summary>
-        /// 
+        /// A Property to replace all properties which would have to be passed from the Fenster to the TranslationManager.
         /// </summary>
-        /// <param name="ApprovedBox"></param>
-        /// <param name="ApprovedCountLabel"></param>
-        /// <param name="CharacterCountLabel"></param>
-        /// <param name="CheckListBoxLeft"></param>
-        /// <param name="CommentBox"></param>
-        /// <param name="LanguageBox"></param>
-        /// <param name="NoProgressbar"></param>
-        /// <param name="SearchBox"></param>
-        /// <param name="SelectedFileLabel"></param>
-        /// <param name="TemplateTextBox"></param>
-        /// <param name="TranslationTextBox"></param>
+        /// <param name="ApprovedBox">A checkbox denoting the approval state of a string.</param>
+        /// <param name="ApprovedCountLabel">A label to show the amount of approves strings.</param>
+        /// <param name="CharacterCountLabel">A label displaying the current count of characters for template and translation.</param>
+        /// <param name="CheckListBoxLeft">The list of all strings.</param>
+        /// <param name="CommentBox">The textbox for comments.</param>
+        /// <param name="LanguageBox">The drop down box to choose the language with.</param>
+        /// <param name="NoProgressbar">The progress bar.</param>
+        /// <param name="SearchBox">The textbox to perform searches with.</param>
+        /// <param name="SelectedFileLabel">The currently selected file will be displayed there.</param>
+        /// <param name="TemplateTextBox">The textbox containing the template.</param>
+        /// <param name="TranslationTextBox">The textbox containing the translation</param>
         public PropertyHelper(
             CheckBox ApprovedBox, 
             ColouredCheckedListBox CheckListBoxLeft, 
