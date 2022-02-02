@@ -83,7 +83,15 @@ namespace HousePartyTranslator.Managers
         {
             get
             {
-                return language;
+                if (language.Length == 0)
+                {
+                    MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
+                    return "";
+                }
+                else
+                {
+                    return language;
+                }
             }
             set
             {
@@ -559,7 +567,8 @@ namespace HousePartyTranslator.Managers
                     UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count(), helper);
                     UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count, helper);
 
-                    if (UpdateStoryExplorerSelection) { 
+                    if (UpdateStoryExplorerSelection)
+                    {
                         SetHighlightedNode(helper);
                     }
                     else
@@ -657,7 +666,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void SaveFile()
         {
-            if (SourceFilePath != "")
+            if (SourceFilePath != "" && Language != "")
             {
                 System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
                 MainWindow.Cursor = Cursors.WaitCursor;

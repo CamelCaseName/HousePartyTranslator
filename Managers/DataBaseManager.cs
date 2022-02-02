@@ -593,6 +593,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
 
             return MainCommand.ExecuteNonQuery() > 0;
         }
+
         /// <summary>
         /// Set the english template for string in the database.
         /// </summary>
@@ -647,6 +648,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
 
             return MainCommand.ExecuteNonQuery() > 0;
         }
+
         /// <summary>
         /// Sets the translation of a string in the database in the given language.
         /// </summary>
@@ -676,6 +678,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
 
             return MainCommand.ExecuteNonQuery() > 0;
         }
+
         /// <summary>
         /// Set all comments on the string defined by id and language.
         /// </summary>
@@ -718,6 +721,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
 
 
         }
+
         /// <summary>
         /// Increases the verison count on the database by 0.01, eg: 0.19 -> 0.20
         /// </summary>
@@ -737,6 +741,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             //return if at least ione row was changed
             return MainCommand.ExecuteNonQuery() > 0;
         }
+
         private static string CleanId(string DataBaseId, string story, string fileName, bool isTemplate)
         {
             if (story == "Hints" && isTemplate) fileName = "English";
