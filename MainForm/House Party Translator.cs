@@ -135,12 +135,12 @@ namespace HousePartyTranslator
 
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TranslationManager.main.SaveFile(MainProperties);
+            TranslationManager.main.SaveFile();
         }
 
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TranslationManager.main.SaveFileAs(MainProperties);
+            TranslationManager.main.SaveFileAs();
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -180,7 +180,6 @@ namespace HousePartyTranslator
             bool isStory = TranslationManager.main.StoryName == TranslationManager.main.FileName;
             Explorer = new StoryExplorer(isStory, autoOpen, TranslationManager.main.FileName, this);
             if (!Explorer.IsDisposed) Explorer.Show();
-            //explorer.Grapher.
             Cursor = Cursors.Default;
         }
     }

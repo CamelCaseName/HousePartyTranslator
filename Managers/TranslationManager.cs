@@ -344,7 +344,7 @@ namespace HousePartyTranslator.Managers
 
                 //save current file
                 case (Keys.Control | Keys.S):
-                    SaveFile(helper);
+                    SaveFile();
                     return true;
 
                 //save current string
@@ -655,7 +655,7 @@ namespace HousePartyTranslator.Managers
         /// Saves all strings to the file we read from.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void SaveFile(PropertyHelper helper)
+        public void SaveFile()
         {
             if (SourceFilePath != "")
             {
@@ -761,7 +761,7 @@ namespace HousePartyTranslator.Managers
         /// Saves all strings to a specified file location.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void SaveFileAs(PropertyHelper helper)
+        public void SaveFileAs()
         {
             if (SourceFilePath != "")
             {
@@ -769,7 +769,7 @@ namespace HousePartyTranslator.Managers
                 string oldFile = main.SourceFilePath;
                 string SaveFile = SaveFileOnSystem();
                 main.SourceFilePath = SaveFile;
-                main.SaveFile(helper);
+                main.SaveFile();
                 main.SourceFilePath = oldFile;
                 isSaveAs = false;
             }

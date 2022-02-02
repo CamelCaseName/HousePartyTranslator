@@ -55,8 +55,8 @@ namespace HousePartyTranslator.StoryExplorerForm
             MainGraphics = Graphics.FromImage(GraphBitmap);
             MainGraphics.DrawRectangle(Pens.Black, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
 
-            ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNode);
-            ClickedNodeChanged += new ClickedNodeChangedHandler(DisplayNodeInfo);
+            ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
+            ClickedNodeChanged += new ClickedNodeChangedHandler(DisplayNodeInfoHandler);
         }
 
         public delegate void ClickedNodeChangedHandler(object sender, ClickedNodeChangeArgs e);
@@ -211,18 +211,27 @@ namespace HousePartyTranslator.StoryExplorerForm
             return output;
         }
 
-        private void DisplayNodeInfo(object sender, ClickedNodeChangeArgs e)
+        private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
         {
             //display info on new node
-            if (InfoNode != Node.NullNode && e.HighlightCase == ClickedNodeTypes.Info)
+            if (e.ClickType == ClickedNodeTypes.Info)
+            {
+                DisplayNodeInfo(e.ChangedNode, true);
+            }
+        }
+
+        private void DisplayNodeInfo(Node infoNode, bool removeLast)
+        {
+            //display info on new node
+            if (InfoNode != Node.NullNode)
             {
                 NodeInfoLabel.Visible = true;
                 //create header
-                string header = ConstrainLength($"{InfoNode.Type} - {InfoNode.ID}");
+                string header = ConstrainLength($"{infoNode.Type} - {infoNode.ID}");
                 //strip text of all VA performance hints, embedded in []
 
                 //create info
-                string info = ConstrainLength(RemoveVAHints(InfoNode.Text));
+                string info = ConstrainLength(RemoveVAHints(infoNode.Text));
                 //create seperator
                 string seperator = "\n";
                 for (int i = 0; i <= Math.Min(MaxTextLength, Math.Max(header.Length, info.Length)); i++)
@@ -233,9 +242,9 @@ namespace HousePartyTranslator.StoryExplorerForm
 
                 NodeInfoLabel.Text = header + seperator + info;
 
-                RemoveLastInfoNode(InfoNode);
+                if (removeLast) RemoveLastInfoNode(infoNode);
 
-                DrawColouredNode(InfoNode, Color.ForestGreen);
+                if (removeLast) DrawColouredNode(infoNode, Color.ForestGreen);
             }
             else //remove highlight display
             {
@@ -327,14 +336,16 @@ namespace HousePartyTranslator.StoryExplorerForm
             }
         }
 
-        private void HighlightClickedNode(object sender, ClickedNodeChangeArgs e)
+        private void HighlightClickedNodeHandler(object sender, ClickedNodeChangeArgs e)
         {
-            if (e.HighlightCase == ClickedNodeTypes.Highlight)
+            if (e.ClickType == ClickedNodeTypes.Highlight)
             {
                 //tell translationmanager to update us or not when selected
                 TranslationManager.main.UpdateStoryExplorerSelection = !IsShiftPressed;
                 //select line in translation manager
-                TranslationManager.main.SelectLine(e.HighlightNode.ID);
+                TranslationManager.main.SelectLine(e.ChangedNode.ID);
+                //put info up
+                DisplayNodeInfo(e.ChangedNode, false);
                 //draw nodes
                 if (!IsShiftPressed) DrawHighlightNodeTree();
             }
