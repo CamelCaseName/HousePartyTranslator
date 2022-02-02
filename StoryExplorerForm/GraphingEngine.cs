@@ -223,7 +223,7 @@ namespace HousePartyTranslator.StoryExplorerForm
         private void DisplayNodeInfo(Node infoNode, bool removeLast)
         {
             //display info on new node
-            if (InfoNode != Node.NullNode)
+            if (infoNode != Node.NullNode)
             {
                 NodeInfoLabel.Visible = true;
                 //create header

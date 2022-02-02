@@ -41,12 +41,10 @@ namespace HousePartyTranslator.StoryExplorerForm
             this.NodeInfoLabel.Dock = System.Windows.Forms.DockStyle.Right;
             this.NodeInfoLabel.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.NodeInfoLabel.ForeColor = System.Drawing.SystemColors.MenuBar;
-            this.NodeInfoLabel.Location = new System.Drawing.Point(744, 0);
+            this.NodeInfoLabel.Location = new System.Drawing.Point(800, 0);
             this.NodeInfoLabel.Name = "NodeInfoLabel";
-            this.NodeInfoLabel.Size = new System.Drawing.Size(56, 18);
+            this.NodeInfoLabel.Size = new System.Drawing.Size(0, 18);
             this.NodeInfoLabel.TabIndex = 0;
-            this.NodeInfoLabel.Text = "label1";
-            this.NodeInfoLabel.Visible = false;
             // 
             // StoryExplorer
             // 
