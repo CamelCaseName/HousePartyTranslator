@@ -12,7 +12,7 @@ namespace HousePartyTranslator.StoryExplorerForm
         public Form FormParent { get; }
 
 
-        public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, Form Parent)
+        public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent)
         {
             InitializeComponent();
 
@@ -27,7 +27,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             DoubleBuffered = true;
 
             //get contextprovider
-            Context = new ContextProvider(IsStory, AutoLoad, FileName);
+            Context = new ContextProvider(IsStory, AutoLoad, FileName, StoryName);
             Grapher = new GraphingEngine(Context, this, NodeInfoLabel);
 
             Text = $"StoryExplorer - {FileName}";

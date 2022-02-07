@@ -220,7 +220,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             }
         }
 
-        private void DisplayNodeInfo(Node infoNode, bool removeLast)
+        private void DisplayNodeInfo(Node infoNode, bool colourNode)
         {
             //display info on new node
             if (infoNode != Node.NullNode)
@@ -228,10 +228,11 @@ namespace HousePartyTranslator.StoryExplorerForm
                 NodeInfoLabel.Visible = true;
                 //create header
                 string header = ConstrainLength($"{infoNode.Type} - {infoNode.ID}");
-                //strip text of all VA performance hints, embedded in []
 
                 //create info
+                //strip text of all VA performance hints, embedded in []
                 string info = ConstrainLength(RemoveVAHints(infoNode.Text));
+
                 //create seperator
                 string seperator = "\n";
                 for (int i = 0; i <= Math.Min(MaxTextLength, Math.Max(header.Length, info.Length)); i++)
@@ -242,9 +243,11 @@ namespace HousePartyTranslator.StoryExplorerForm
 
                 NodeInfoLabel.Text = header + seperator + info;
 
-                if (removeLast) RemoveLastInfoNode(infoNode);
-
-                if (removeLast) DrawColouredNode(infoNode, Color.ForestGreen);
+                if (colourNode)
+                {
+                    RemoveLastInfoNode(infoNode);
+                    DrawColouredNode(infoNode, Color.ForestGreen);
+                }
             }
             else //remove highlight display
             {
