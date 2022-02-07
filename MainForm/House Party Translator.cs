@@ -9,19 +9,21 @@ namespace HousePartyTranslator
     public partial class Fenster : Form
     {
         public readonly PropertyHelper MainProperties;
-        private StoryExplorer explorer;
+        private StoryExplorer SExplorer;
+        private readonly DiscordPresenceManager PresenceManager;
+        private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
 
         public StoryExplorer Explorer
         {
             get
             {
-                return explorer;
+                return SExplorer;
             } 
             set
             {
                 if (value.ParentName == Name)
                 {
-                    explorer = value;
+                    SExplorer = value;
                 }
                 else
                 {
@@ -59,6 +61,11 @@ namespace HousePartyTranslator
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
 
+            PresenceManager = new DiscordPresenceManager();
+
+            //start timer to update presence
+            PresenceTimer.Elapsed += (sender, args) => { PresenceManager.Update(); };
+            PresenceTimer.Start();
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -131,6 +138,10 @@ namespace HousePartyTranslator
         {
             TranslationManager.main.LoadFileIntoProgram(MainProperties);
             TranslationManager.main.SetLanguage(MainProperties);
+
+            //update presence
+            PresenceManager.SetCharacterToShow(TranslationManager.main.FileName);
+            PresenceManager.SetStory(TranslationManager.main.StoryName);
         }
 
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
@@ -160,6 +171,8 @@ namespace HousePartyTranslator
 
         private void Fenster_FormClosing(object sender, FormClosingEventArgs e)
         {
+            //prevent discord from getting angry
+            PresenceManager.DeInitialize();
             //save settings
             Properties.Settings.Default.Save();
         }
