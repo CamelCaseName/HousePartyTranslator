@@ -200,6 +200,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             string output = "";
             int inputLength = input.Length;
 
+            //TODO add lookahead and lookback for detecting "words", or change up how we split
             for (int i = 0; i <= (inputLength / MaxTextLength); i++)
             {
                 int possibleEnd = Math.Min(MaxTextLength, input.Length);

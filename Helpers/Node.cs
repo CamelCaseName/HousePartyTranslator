@@ -12,6 +12,7 @@ namespace HousePartyTranslator.Helpers
         OpenInEditor,
         Edit
     }
+
     public enum NodeType
     {
         Null,
@@ -41,7 +42,7 @@ namespace HousePartyTranslator.Helpers
         public bool ChildsVisited = false;
         public bool ParentsVisited = false;
         public Guid Guid = Guid.NewGuid();
-        public static readonly Node NullNode = new Node("",NodeType.Null, "");
+        public static readonly Node NullNode = new Node("", NodeType.Null, "");
 
         public Node(string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
         {
@@ -98,7 +99,6 @@ namespace HousePartyTranslator.Helpers
             ChildNodes = new List<Node>() { childNode };
         }
 
-
         public Node(string iD, NodeType type, string text)
         {
             ID = iD;
@@ -134,6 +134,7 @@ namespace HousePartyTranslator.Helpers
                 parentNode.AddChildNode(this);
             }
         }
+
         public void RemoveChildNode(Node childNode)
         {
             if (ChildNodes.Contains(childNode))
@@ -166,7 +167,7 @@ namespace HousePartyTranslator.Helpers
             if (Mass < 1) Mass = 1;
         }
 
-        public void AddCriteria<T>(List<T> criteria)where T : ICriterion
+        public void AddCriteria<T>(List<T> criteria) where T : ICriterion
         {
             List<ICriterion> _criteria = criteria.ConvertAll(x => (ICriterion)x);
 
@@ -179,7 +180,7 @@ namespace HousePartyTranslator.Helpers
             }
         }
 
-        public void AddEvents<T>(List<T> events)where T :IEvent
+        public void AddEvents<T>(List<T> events) where T : IEvent
         {
             List<IEvent> _events = events.ConvertAll(x => (IEvent)x);
 
@@ -196,12 +197,63 @@ namespace HousePartyTranslator.Helpers
             }
         }
 
-
-
         public static Node CreateCriteriaNode(ICriterion criterion, Node node)
         {
             //create all criteria nodes the same way so they can possibly be replaced by the actual text later
             return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
+        }
+
+        public static List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
+        {
+            List<Node> nodes = new List<Node>();
+
+            //convert all nodes
+            foreach (SerializeableNode serialNode in listToConvert)
+            {
+                nodes.Add(new Node()
+                {
+                    ChildsVisited = serialNode.ChildsVisited,
+                    Guid = serialNode.Guid,
+                    ID = serialNode.ID,
+                    Mass = serialNode.Mass,
+                    ParentsVisited = serialNode.ParentsVisited,
+                    Position = serialNode.Position,
+                    Text = serialNode.Text,
+                    Type = serialNode.Type,
+                    Visited = serialNode.Visited,
+                    ChildNodes = new List<Node>(),
+                    ParentNodes = new List<Node>()
+                });
+            }
+
+            int index = 0;
+
+            //resolve guids to pointer/references to other nodes in the list
+            foreach (SerializeableNode serialNode in listToConvert)
+            {
+                //get node representing the serial node we are in
+                Node nodeToWorkOn = nodes[index++];
+
+                //add children
+                if (serialNode.ChildNodes.Count > 0)
+                {
+                    foreach (Guid guid in serialNode.ChildNodes)
+                    {
+                        nodeToWorkOn.AddChildNode(nodes.Find(n => n.Guid == guid));
+                    }
+                }
+
+                //add parents
+                if (serialNode.ParentNodes.Count > 0)
+                {
+                    foreach (Guid guid in serialNode.ParentNodes)
+                    {
+                        nodeToWorkOn.AddParentNode(nodes.Find(n => n.Guid == guid));
+                    }
+                }
+            }
+
+            return nodes;
         }
     }
 }
