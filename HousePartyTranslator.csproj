@@ -125,6 +125,7 @@
     <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\Items.cs" />
     <Compile Include="Helpers\Node.cs" />
+    <Compile Include="Helpers\SerializeableNode.cs" />
     <Compile Include="Managers\DiscordPresenceManager.cs" />
     <Compile Include="StoryExplorerForm\GraphingEngine.cs" />
     <Compile Include="Properties\Settings.Designer.cs">

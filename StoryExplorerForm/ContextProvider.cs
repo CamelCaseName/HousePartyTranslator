@@ -1,4 +1,5 @@
 ﻿using HousePartyTranslator.Helpers;
+using HousePartyTranslator.Managers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace HousePartyTranslator
         private readonly Random Random = new Random();
         private string _StoryFilePath;
         private List<Node> CriteriaInFile;
+        private string FileId;
         private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> Nodes;
 
@@ -40,6 +42,9 @@ namespace HousePartyTranslator
             {
                 FilePath = "";
             }
+
+            //create an id to differentiate between the different calculated layouts later
+            FileId = StoryName + FileName;
         }
 
         public string FilePath
@@ -95,11 +100,14 @@ namespace HousePartyTranslator
             }
         }
 
-        public void DissectCharacter(CharacterStory story)
+        private void DissectCharacter(CharacterStory story)
         {
             if (story != null && !GotCancelled)
             {
                 CriteriaInFile = new List<Node>();
+
+                //add version to fileId for differntiating
+                FileId += story.HousePartyVersion;
 
                 //get all relevant items from the json
                 Nodes.AddRange(GetDialogues(story));
@@ -126,11 +134,14 @@ namespace HousePartyTranslator
             }
         }
 
-        public void DissectStory(MainStory story)
+        private void DissectStory(MainStory story)
         {
             if (story != null && !GotCancelled)
             {
                 CriteriaInFile = new List<Node>();
+
+                //add version to fileId for differntiating
+                FileId += story.HousePartyVersion;
 
                 //add all items in the story
                 Nodes.AddRange(GetItemOverrides(story));
@@ -168,16 +179,32 @@ namespace HousePartyTranslator
             if (File.Exists(FilePath))
             {
                 string fileString = File.ReadAllText(FilePath);
+                string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
+
                 //save path
                 Properties.Settings.Default.story_path = Path.GetDirectoryName(FilePath);
-
-                if (IsStory)
+                //try to laod the saved nodes
+                if (File.Exists(savedNodesPath))
                 {
-                    DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString));
+                    //read in positions if they exist, but only if version is the same
+                    List<SerializeableNode> tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
+                    //expand the guids back into references
+                    Nodes = Node.ExpandDeserializedNodes(tempList);
                 }
                 else
                 {
-                    DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString));
+                    //else create new
+                    if (IsStory)
+                    {
+                        DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString));
+                    }
+                    else
+                    {
+                        DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString));
+                    }
+
+                    //save nodes
+                    File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(Nodes.ConvertAll(n => (SerializeableNode)n)));
                 }
 
                 return Nodes.Count > 0;

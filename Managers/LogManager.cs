@@ -10,7 +10,7 @@ namespace HousePartyTranslator.Managers
     static class LogManager
     {
         private static readonly string APPDATA_PATH = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); // AppData Local folder (different for every user)
-        private static readonly string CFGFOLDER_PATH = Path.Combine(APPDATA_PATH, "House Party Translator");     // Path for program Settings folder
+        public static readonly string CFGFOLDER_PATH = Path.Combine(APPDATA_PATH, "HousePartyTranslator");     // Path for program Settings folder
         private static readonly string CFGFILE_PATH = Path.Combine(CFGFOLDER_PATH, "log.txt");   // Path for Settings.txt file
 
         /// <summary>
@@ -27,7 +27,9 @@ namespace HousePartyTranslator.Managers
             if (!File.Exists(CFGFILE_PATH))
                 CreateLogFile();
 
-            List<string> FileLines = (List<string>)File.ReadLines(CFGFILE_PATH);
+            //get all lines from the log file so far
+            List<string> FileLines = new List<string>();
+            FileLines.AddRange(File.ReadAllLines(CFGFILE_PATH));
 
             string message = $"Logged event at {DateTime.Now}: \n {EventString} \n\n";
 
@@ -35,9 +37,9 @@ namespace HousePartyTranslator.Managers
             FileLines.AddRange(message.Split('\n'));
 
             //remove old lines after we reach a certain length of the file
-            if (FileLines.Count > 10000)
+            if (FileLines.Count > 5000)
             {
-                for (int i = 0; i < FileLines.Count - 10000; i++)
+                for (int i = 0; i < FileLines.Count - 5000; i++)
                 {
                     FileLines.RemoveAt(0);
                 }
