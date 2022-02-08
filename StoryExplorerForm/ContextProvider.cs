@@ -17,7 +17,7 @@ namespace HousePartyTranslator
         private readonly Random Random = new Random();
         private string _StoryFilePath;
         private List<Node> CriteriaInFile;
-        private string FileId;
+        private readonly string FileId;
         private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> Nodes;
 
@@ -44,7 +44,7 @@ namespace HousePartyTranslator
             }
 
             //create an id to differentiate between the different calculated layouts later
-            FileId = StoryName + FileName;
+            FileId = StoryName + FileName + DataBaseManager.DBVersion;
         }
 
         public string FilePath
@@ -106,9 +106,6 @@ namespace HousePartyTranslator
             {
                 CriteriaInFile = new List<Node>();
 
-                //add version to fileId for differntiating
-                FileId += story.HousePartyVersion;
-
                 //get all relevant items from the json
                 Nodes.AddRange(GetDialogues(story));
                 Nodes.AddRange(GetGlobalGoodByeResponses(story));
@@ -139,9 +136,6 @@ namespace HousePartyTranslator
             if (story != null && !GotCancelled)
             {
                 CriteriaInFile = new List<Node>();
-
-                //add version to fileId for differntiating
-                FileId += story.HousePartyVersion;
 
                 //add all items in the story
                 Nodes.AddRange(GetItemOverrides(story));

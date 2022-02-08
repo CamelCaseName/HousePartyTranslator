@@ -197,8 +197,6 @@ namespace HousePartyTranslator.Helpers
             }
         }
 
-
-
         public static Node CreateCriteriaNode(ICriterion criterion, Node node)
         {
             //create all criteria nodes the same way so they can possibly be replaced by the actual text later

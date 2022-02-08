@@ -10,7 +10,7 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     static class DataBaseManager
     {
-        private static string DBVersion;
+        public static string DBVersion;
         private static MySqlCommand MainCommand;
         private static MySqlDataReader MainReader;
         private static string SoftwareVersion;
