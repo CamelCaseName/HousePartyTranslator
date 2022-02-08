@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace HousePartyTranslator.Managers
@@ -26,9 +27,24 @@ namespace HousePartyTranslator.Managers
             if (!File.Exists(CFGFILE_PATH))
                 CreateLogFile();
 
-            string time = DateTime.Now.ToString();
-            string message = $"Logged event at {time}: \n {EventString} \n\n";
-            File.AppendAllText(CFGFILE_PATH, message);
+            List<string> FileLines = (List<string>)File.ReadLines(CFGFILE_PATH);
+
+            string message = $"Logged event at {DateTime.Now}: \n {EventString} \n\n";
+
+            //add the message as lines to our list of all lines
+            FileLines.AddRange(message.Split('\n'));
+
+            //remove old lines after we reach a certain length of the file
+            if (FileLines.Count > 10000)
+            {
+                for (int i = 0; i < FileLines.Count - 10000; i++)
+                {
+                    FileLines.RemoveAt(0);
+                }
+            }
+
+            //write back file
+            File.WriteAllLines(CFGFILE_PATH, FileLines);
         }
 
         /// <summary>
