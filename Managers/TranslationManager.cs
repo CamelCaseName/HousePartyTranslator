@@ -146,18 +146,10 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public static void ApprovedButtonHandler(PropertyHelper helper)
         {
-            //get title bar height
-            Rectangle ScreenRectangle = MainWindow.RectangleToScreen(MainWindow.ClientRectangle);
-            int TitleHeight = ScreenRectangle.Top - MainWindow.Top;
-
-            //check whether cursor is on approved button or not
-            int deltaX = Cursor.Position.X - helper.ApprovedBox.Location.X - MainWindow.Location.X;
-            int deltaY = Cursor.Position.Y - helper.ApprovedBox.Location.Y - MainWindow.Location.Y - TitleHeight;
-            bool isInX = 0 <= deltaX && deltaX <= helper.ApprovedBox.Width;
-            bool isInY = 0 <= deltaY && deltaY <= helper.ApprovedBox.Height;
-
-            //actually do the checking state change
-            if (isInX && isInY)
+            //change checked state for the selected item,
+            //but only if we are on the button with the mouse.
+            //(prevents an infinite loop when we get the change state from setting the button state in code)
+            if (helper.ApprovedBox.Focused)
             {
                 int Index = helper.CheckListBoxLeft.SelectedIndex;
                 //inverse checked state at the selected index
