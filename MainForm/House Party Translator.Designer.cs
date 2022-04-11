@@ -272,7 +272,8 @@ namespace HousePartyTranslator
             "ptbr",
             "es",
             "esmx",
-            "tr"});
+            "tr",
+            "cn"});
             this.languageToolStripComboBox.Name = "languageToolStripComboBox";
             this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
             this.languageToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.LanguageToolStripComboBox_SelectedIndexChanged);
