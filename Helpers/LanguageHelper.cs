@@ -26,7 +26,8 @@ namespace HousePartyTranslator.Helpers
             "ptbr",
             "es",
             "esmx",
-            "tr"
+            "tr",
+            "cn"
         };
 
         /// <summary>
@@ -47,7 +48,8 @@ namespace HousePartyTranslator.Helpers
             {ShortLanguages[11],"Portuguese, Brazilian" },
             {ShortLanguages[12],"Spanish" },
             {ShortLanguages[13],"Spanish, Mexico" },
-            {ShortLanguages[14],"Turkish" }
+            {ShortLanguages[14],"Turkish" },
+            {ShortLanguages[15],"Chinese" }
         };
     }
 }
