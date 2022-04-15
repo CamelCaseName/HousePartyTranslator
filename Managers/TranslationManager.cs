@@ -491,16 +491,21 @@ namespace HousePartyTranslator.Managers
         /// eplaces the template version of the string with a computer translated one to speed up translation.
         /// </summary>
         /// <param name="currentIndex">The selected index of the string not yet translated</param>
-        public async void ReplaceTranslationTranslatedTask(int currentIndex)
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        public async void ReplaceTranslationTranslatedTask(int currentIndex, PropertyHelper helper)
         {
-            TranslationData[currentIndex].TranslationString = await Translator.TranslateAsync(new Translate()
+            string trans = await Translator.TranslateAsync(new Translate()
             {
                 ApiKey = "",
                 Source = LanguageCode.English,
                 Target = LanguageCode.FromString(Language),
                 Text = TranslationData[currentIndex].TranslationString
             });
-            MainWindow.Invalidate();
+            if (trans.Length > 0)
+            {
+                TranslationData[currentIndex].TranslationString = trans;
+                helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+            }
         }
 
         /// <summary>
@@ -563,7 +568,7 @@ namespace HousePartyTranslator.Managers
                     }
                     else
                     {
-                        ReplaceTranslationTranslatedTask(currentIndex);
+                        ReplaceTranslationTranslatedTask(currentIndex, helper);
                     }
 
                     //display the string in the editable window
