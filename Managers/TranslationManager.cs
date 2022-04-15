@@ -26,20 +26,6 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     public class TranslationManager
     {
-        /*
-        var LibreTranslate = new LibreTranslate();
-        System.Collections.Generic.IEnumerable<SupportedLanguages> SupportedLanguages = await LibreTranslate.GetSupportedLanguagesAsync();
-        System.Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(supportedLanguages, Newtonsoft.Json.Formatting.Indented));
-        var englishText = "Hello World!";
-        string spanishText = await LibreTranslate.TranslateAsync(new Translate() {
-            ApiKey = "MySecretApiKey",
-            Source = LanguageCode.English,
-            Target = LanguageCode.Spanish,
-            Text = englishText
-        });
-        System.Console.WriteLine(spanishText);
-        */
-
         private bool isSaveAs = false;
         private int ExceptionCount = 0;
         private int LastIndex = -1;
@@ -50,6 +36,7 @@ namespace HousePartyTranslator.Managers
         private string sourceFilePath = "";
         private string storyName = "";
         public bool AutoSave = true;
+        public bool AutoTranslate = true;
         public bool isTemplate = false;
         public bool IsUpToDate = false;
         public bool UpdateStoryExplorerSelection = true;
@@ -402,18 +389,28 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void LoadFileIntoProgram(PropertyHelper helper)
+        public void LoadFileIntoProgram(PropertyHelper helper) {
+            LoadFileIntoProgram(helper, SelectFileFromSystem());
+        }
+
+        /// <summary>
+        /// Loads a file into the program and calls all helper routines
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        /// <param name="path">The path to the file to translate</param>
+        public void LoadFileIntoProgram(PropertyHelper helper, string path)
         {
             ResetTranslationManager(helper);
 
             MainWindow.Cursor = Cursors.WaitCursor;
             if (IsUpToDate)
             {
-                SourceFilePath = SelectFileFromSystem();
+                SourceFilePath = path;
                 if (SourceFilePath != "")
                 {
                     string[] paths = SourceFilePath.Split('\\');
@@ -494,20 +491,23 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public async void ReplaceTranslationTranslatedTask(int currentIndex, PropertyHelper helper)
         {
-            string trans = "";
-            trans = await Translator.TranslateAsync(new Translate()
+            if (main.AutoTranslate)
             {
-                ApiKey = "",
-                Source = LanguageCode.English,
-                Target = LanguageCode.FromString(Language),
-                Text = TranslationData[currentIndex].TranslationString
-            });
-            if (trans.Length > 0)
-            {
-                TranslationData[currentIndex].TranslationString = trans;
-                if (currentIndex == helper.CheckListBoxLeft.SelectedIndex)
+                string _1 = "";
+                _1 = await Translator.TranslateAsync(new Translate()
                 {
-                    helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                    ApiKey = "",
+                    Source = LanguageCode.English,
+                    Target = LanguageCode.FromString(Language),
+                    Text = TranslationData[currentIndex].TranslationString
+                });
+                if (_1.Length > 0)
+                {
+                    TranslationData[currentIndex].TranslationString = _1;
+                    if (currentIndex == helper.CheckListBoxLeft.SelectedIndex)
+                    {
+                        helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                    }
                 }
             }
         }
@@ -570,7 +570,7 @@ namespace HousePartyTranslator.Managers
                         //replace older one in file by new one from database
                         TranslationData[currentIndex].TranslationString = translation;
                     }
-                    
+
 
                     //display the string in the editable window
                     helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine);
@@ -578,8 +578,8 @@ namespace HousePartyTranslator.Managers
                     if (DataBaseManager.GetStringTemplate(id, FileName, StoryName, out string templateString))
                     {
                         //read the template form the db and display it if it exists
-                        helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine); 
-                        
+                        helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
+
                         if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
                         {
                             ReplaceTranslationTranslatedTask(currentIndex, helper);

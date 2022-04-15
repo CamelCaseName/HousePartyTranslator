@@ -262,6 +262,8 @@
     <Compile Include="Helpers\Node.cs" />
     <Compile Include="Helpers\SerializeableNode.cs" />
     <Compile Include="Managers\DiscordPresenceManager.cs" />
+    <Compile Include="Managers\RecentsManager.cs" />
+    <Compile Include="Settings.cs" />
     <Compile Include="StoryExplorerForm\GraphingEngine.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
