@@ -494,7 +494,8 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public async void ReplaceTranslationTranslatedTask(int currentIndex, PropertyHelper helper)
         {
-            string trans = await Translator.TranslateAsync(new Translate()
+            string trans = "";
+            trans = await Translator.TranslateAsync(new Translate()
             {
                 ApiKey = "",
                 Source = LanguageCode.English,
@@ -504,7 +505,10 @@ namespace HousePartyTranslator.Managers
             if (trans.Length > 0)
             {
                 TranslationData[currentIndex].TranslationString = trans;
-                helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                if (currentIndex == helper.CheckListBoxLeft.SelectedIndex)
+                {
+                    helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                }
             }
         }
 
