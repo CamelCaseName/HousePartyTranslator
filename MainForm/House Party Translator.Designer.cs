@@ -250,6 +250,7 @@ namespace HousePartyTranslator
             // 
             this.searchToolStripTextBox.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
             this.searchToolStripTextBox.Size = new System.Drawing.Size(300, 23);
             this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
@@ -272,7 +273,8 @@ namespace HousePartyTranslator
             "ptbr",
             "es",
             "esmx",
-            "tr"});
+            "tr",
+            "cn"});
             this.languageToolStripComboBox.Name = "languageToolStripComboBox";
             this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
             this.languageToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.LanguageToolStripComboBox_SelectedIndexChanged);
