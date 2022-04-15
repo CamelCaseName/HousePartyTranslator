@@ -185,6 +185,7 @@
     <EmbeddedResource Include="StoryExplorerForm\StoryExplorer.resx">
       <DependentUpon>StoryExplorer.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include=".editorconfig" />
     <None Include="app.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">

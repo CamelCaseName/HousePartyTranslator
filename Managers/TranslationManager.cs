@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 //TODO add tests?
@@ -675,7 +676,7 @@ namespace HousePartyTranslator.Managers
                     CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
                 }
 
-                StreamWriter OutputWriter = new StreamWriter(SourceFilePath);
+                StreamWriter OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true));
 
                 //can take some time
                 DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);

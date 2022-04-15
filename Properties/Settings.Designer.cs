@@ -37,7 +37,7 @@ namespace HousePartyTranslator.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.21")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.22")]
         public string version {
             get {
                 return ((string)(this["version"]));

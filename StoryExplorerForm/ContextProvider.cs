@@ -25,10 +25,11 @@ namespace HousePartyTranslator
         {
             Nodes = new List<Node>();
             this.IsStory = IsStory;
-            string storyPathMinusStory = Directory.GetParent(Properties.Settings.Default.story_path).FullName;
 
-            if (storyPathMinusStory != "" && AutoSelectFile && FileName != "")
+            if (Properties.Settings.Default.story_path != "" && AutoSelectFile && FileName != "" && StoryName != "")
             {
+                string storyPathMinusStory = Directory.GetParent(Properties.Settings.Default.story_path).FullName;
+
                 if (IsStory)
                 {
                     FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.story");
