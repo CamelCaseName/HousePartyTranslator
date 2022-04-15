@@ -570,10 +570,7 @@ namespace HousePartyTranslator.Managers
                         //replace older one in file by new one from database
                         TranslationData[currentIndex].TranslationString = translation;
                     }
-                    else
-                    {
-                        ReplaceTranslationTranslatedTask(currentIndex, helper);
-                    }
+                    
 
                     //display the string in the editable window
                     helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine);
@@ -581,7 +578,12 @@ namespace HousePartyTranslator.Managers
                     if (DataBaseManager.GetStringTemplate(id, FileName, StoryName, out string templateString))
                     {
                         //read the template form the db and display it if it exists
-                        helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
+                        helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine); 
+                        
+                        if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                        {
+                            ReplaceTranslationTranslatedTask(currentIndex, helper);
+                        }
 
                         //clear text box if it is the template (not translated yet)
                         //  sql makes this easy, can just write all commands to a file that have not been sent, then send all on connection resume.
