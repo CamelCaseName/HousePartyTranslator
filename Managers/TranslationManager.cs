@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using LibreTranslate.Net;
+using System.Threading.Tasks;
 
 //TODO add tests?
 
@@ -24,6 +26,20 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     public class TranslationManager
     {
+        /*
+        var LibreTranslate = new LibreTranslate();
+        System.Collections.Generic.IEnumerable<SupportedLanguages> SupportedLanguages = await LibreTranslate.GetSupportedLanguagesAsync();
+        System.Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(supportedLanguages, Newtonsoft.Json.Formatting.Indented));
+        var englishText = "Hello World!";
+        string spanishText = await LibreTranslate.TranslateAsync(new Translate() {
+            ApiKey = "MySecretApiKey",
+            Source = LanguageCode.English,
+            Target = LanguageCode.Spanish,
+            Text = englishText
+        });
+        System.Console.WriteLine(spanishText);
+        */
+
         private bool isSaveAs = false;
         private int ExceptionCount = 0;
         private int LastIndex = -1;
@@ -40,6 +56,7 @@ namespace HousePartyTranslator.Managers
         public List<LineData> TranslationData = new List<LineData>();
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public static TranslationManager main;
+        private readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
 
         /// <summary>
         /// The Constructor for this class. Takes no arguments.
@@ -471,6 +488,22 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// eplaces the template version of the string with a computer translated one to speed up translation.
+        /// </summary>
+        /// <param name="currentIndex">The selected index of the string not yet translated</param>
+        public async void ReplaceTranslationTranslatedTask(int currentIndex)
+        {
+            TranslationData[currentIndex].TranslationString = await Translator.TranslateAsync(new Translate()
+            {
+                ApiKey = "",
+                Source = LanguageCode.English,
+                Target = LanguageCode.FromString(Language),
+                Text = TranslationData[currentIndex].TranslationString
+            });
+            MainWindow.Invalidate();
+        }
+
+        /// <summary>
         /// Populates the Editor/Template text boxes and does some basic set/reset logic.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
@@ -527,6 +560,10 @@ namespace HousePartyTranslator.Managers
                     {
                         //replace older one in file by new one from database
                         TranslationData[currentIndex].TranslationString = translation;
+                    }
+                    else
+                    {
+                        ReplaceTranslationTranslatedTask(currentIndex);
                     }
 
                     //display the string in the editable window

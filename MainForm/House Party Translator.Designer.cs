@@ -77,11 +77,11 @@ namespace HousePartyTranslator
             this.TranslatedTextBox.ImeMode = System.Windows.Forms.ImeMode.On;
             this.TranslatedTextBox.Location = new System.Drawing.Point(695, 307);
             this.TranslatedTextBox.Multiline = true;
-            this.TranslatedTextBox.Name = "TranslatedTextBox";
+            this.TranslatedTextBox.Name = Properties.Resources.TranslatedTextBox;
             this.TranslatedTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.TranslatedTextBox.Size = new System.Drawing.Size(686, 288);
             this.TranslatedTextBox.TabIndex = 0;
-            this.TranslatedTextBox.Text = "edit here";
+            this.TranslatedTextBox.Text = Properties.Resources.EditHere;
             this.TranslatedTextBox.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
             // 
             // EnglishTextBox
@@ -92,11 +92,11 @@ namespace HousePartyTranslator
             this.EnglishTextBox.ForeColor = System.Drawing.SystemColors.Window;
             this.EnglishTextBox.Location = new System.Drawing.Point(695, 33);
             this.EnglishTextBox.Multiline = true;
-            this.EnglishTextBox.Name = "EnglishTextBox";
+            this.EnglishTextBox.Name = Properties.Resources.EnglishTextBox;
             this.EnglishTextBox.ReadOnly = true;
             this.EnglishTextBox.Size = new System.Drawing.Size(686, 268);
             this.EnglishTextBox.TabIndex = 9;
-            this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
+            this.EnglishTextBox.Text = Properties.Resources.LoremIpsum;
             // 
             // CommentTextBox
             // 
@@ -106,7 +106,7 @@ namespace HousePartyTranslator
             this.CommentTextBox.ForeColor = System.Drawing.SystemColors.Window;
             this.CommentTextBox.Location = new System.Drawing.Point(3, 16);
             this.CommentTextBox.Multiline = true;
-            this.CommentTextBox.Name = "CommentTextBox";
+            this.CommentTextBox.Name = Properties.Resources.CommentTextBox;
             this.CommentTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.CommentTextBox.Size = new System.Drawing.Size(680, 111);
             this.CommentTextBox.TabIndex = 13;
@@ -118,20 +118,20 @@ namespace HousePartyTranslator
             this.CharacterCountLabel.BackColor = System.Drawing.SystemColors.Desktop;
             this.CharacterCountLabel.ForeColor = System.Drawing.SystemColors.Control;
             this.CharacterCountLabel.Location = new System.Drawing.Point(509, 5);
-            this.CharacterCountLabel.Name = "CharacterCountLabel";
+            this.CharacterCountLabel.Name = Properties.Resources.CharacterCountLabel;
             this.CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
             this.CharacterCountLabel.TabIndex = 16;
-            this.CharacterCountLabel.Text = "Template: xx | Translation: xx";
+            this.CharacterCountLabel.Text = Properties.Resources.TemplateCounter;
             // 
             // SelectedFile
             // 
             this.SelectedFile.AutoSize = true;
             this.SelectedFile.ForeColor = System.Drawing.SystemColors.Control;
             this.SelectedFile.Location = new System.Drawing.Point(0, 6);
-            this.SelectedFile.Name = "SelectedFile";
+            this.SelectedFile.Name = Properties.Resources.SelectedFile;
             this.SelectedFile.Size = new System.Drawing.Size(98, 13);
             this.SelectedFile.TabIndex = 7;
-            this.SelectedFile.Text = "Selected File: none";
+            this.SelectedFile.Text = Properties.Resources.SelectedFileText;
             // 
             // WordsTranslated
             // 
@@ -140,20 +140,20 @@ namespace HousePartyTranslator
             this.WordsTranslated.BackColor = System.Drawing.Color.Transparent;
             this.WordsTranslated.ForeColor = System.Drawing.SystemColors.Control;
             this.WordsTranslated.Location = new System.Drawing.Point(305, 6);
-            this.WordsTranslated.Name = "WordsTranslated";
+            this.WordsTranslated.Name = Properties.Resources.WordsTranslated;
             this.WordsTranslated.Size = new System.Drawing.Size(78, 13);
             this.WordsTranslated.TabIndex = 7;
-            this.WordsTranslated.Text = "progress words";
+            this.WordsTranslated.Text = Properties.Resources.Progress;
             // 
             // ApprovedBox
             // 
             this.ApprovedBox.AutoSize = true;
             this.ApprovedBox.ForeColor = System.Drawing.SystemColors.Control;
             this.ApprovedBox.Location = new System.Drawing.Point(3, 5);
-            this.ApprovedBox.Name = "ApprovedBox";
+            this.ApprovedBox.Name = Properties.Resources.ApprovedBox;
             this.ApprovedBox.Size = new System.Drawing.Size(72, 17);
             this.ApprovedBox.TabIndex = 13;
-            this.ApprovedBox.Text = "Approved";
+            this.ApprovedBox.Text = Properties.Resources.Approved;
             this.ApprovedBox.UseVisualStyleBackColor = true;
             this.ApprovedBox.CheckedChanged += new System.EventHandler(this.ApprovedBox_CheckedChanged);
             // 
@@ -168,7 +168,7 @@ namespace HousePartyTranslator
             this.storyExplorerStripMenuItem1,
             this.customOpenStoryExplorer});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
-            this.MainMenu.Name = "MainMenu";
+            this.MainMenu.Name = Properties.Resources.MainMenu;
             this.MainMenu.Size = new System.Drawing.Size(1384, 27);
             this.MainMenu.TabIndex = 17;
             // 
