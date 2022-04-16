@@ -73,7 +73,7 @@ namespace HousePartyTranslator
 
             if (TranslationManager.main.AutoLoadRecent)
             {
-                TranslationManager.main.LoadFileIntoProgram(MainProperties, RecentsManager.GetRecents()[0].Text);
+                if(RecentsManager.GetRecents().Length > 0) TranslationManager.main.LoadFileIntoProgram(MainProperties, RecentsManager.GetRecents()[0].Text);
             }
         }
 

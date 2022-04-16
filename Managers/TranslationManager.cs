@@ -305,7 +305,6 @@ namespace HousePartyTranslator.Managers
         /// <returns></returns>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
-
         public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, PropertyHelper helper)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
@@ -389,7 +388,6 @@ namespace HousePartyTranslator.Managers
                     return false;
             }
         }
-
 
         /// <summary>
         /// Loads a file into the program and calls all helper routines
@@ -506,7 +504,7 @@ namespace HousePartyTranslator.Managers
                 if (_1.Length > 0)
                 {
                     TranslationData[currentIndex].TranslationString = _1;
-                    if (currentIndex == helper.CheckListBoxLeft.SelectedIndex)
+                    if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
                     {
                         helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
                     }
