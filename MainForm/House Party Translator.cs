@@ -69,12 +69,12 @@ namespace HousePartyTranslator
             PresenceTimer.Elapsed += (sender, args) => { PresenceManager.Update(); };
             PresenceTimer.Start();
 
-            ToolStripItem[] items = RecentsManager.GetRecents();
-            for (int i = 0; i < items.Length; i++)
-            {
-                fileToolStripMenuItem.DropDownItems.Insert(3, items[i]);
-            }
+            RecentsManager.UpdateMenuItems(fileToolStripMenuItem.DropDownItems);
 
+            if (TranslationManager.main.AutoLoadRecent)
+            {
+                TranslationManager.main.LoadFileIntoProgram(MainProperties, RecentsManager.GetRecents()[0].Text);
+            }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)

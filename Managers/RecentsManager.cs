@@ -99,11 +99,11 @@ namespace HousePartyTranslator.Managers
 
         public void SaveRecents()
         {
-            Properties.Settings.Default.recents_0 = recents[4];
-            Properties.Settings.Default.recents_1 = recents[3];
+            Properties.Settings.Default.recents_0 = recents[0];
+            Properties.Settings.Default.recents_1 = recents[1];
             Properties.Settings.Default.recents_2 = recents[2];
-            Properties.Settings.Default.recents_3 = recents[1];
-            Properties.Settings.Default.recents_4 = recents[0];
+            Properties.Settings.Default.recents_3 = recents[3];
+            Properties.Settings.Default.recents_4 = recents[4];
         }
     }
 }

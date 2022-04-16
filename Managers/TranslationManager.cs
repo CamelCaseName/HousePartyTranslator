@@ -35,8 +35,9 @@ namespace HousePartyTranslator.Managers
         private string language = "";
         private string sourceFilePath = "";
         private string storyName = "";
-        public bool AutoSave = true;
-        public bool AutoTranslate = true;
+        public bool AutoSave = true;//setting
+        public bool AutoTranslate = true;//setting
+        public bool AutoLoadRecent = true;//setting
         public bool isTemplate = false;
         public bool IsUpToDate = false;
         public bool UpdateStoryExplorerSelection = true;
