@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using LibreTranslate.Net;
+using System.Threading.Tasks;
 
 //TODO add tests?
 
@@ -33,13 +35,16 @@ namespace HousePartyTranslator.Managers
         private string language = "";
         private string sourceFilePath = "";
         private string storyName = "";
-        public bool AutoSave = true;
+        public bool AutoSave = true;//setting
+        public bool AutoTranslate = true;//setting
+        public bool AutoLoadRecent = true;//setting
         public bool isTemplate = false;
         public bool IsUpToDate = false;
         public bool UpdateStoryExplorerSelection = true;
         public List<LineData> TranslationData = new List<LineData>();
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public static TranslationManager main;
+        private readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
 
         /// <summary>
         /// The Constructor for this class. Takes no arguments.
@@ -385,18 +390,29 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void LoadFileIntoProgram(PropertyHelper helper)
         {
+            LoadFileIntoProgram(helper, SelectFileFromSystem());
+        }
+
+        /// <summary>
+        /// Loads a file into the program and calls all helper routines
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        /// <param name="path">The path to the file to translate</param>
+        public void LoadFileIntoProgram(PropertyHelper helper, string path)
+        {
             ResetTranslationManager(helper);
 
             MainWindow.Cursor = Cursors.WaitCursor;
             if (IsUpToDate)
             {
-                SourceFilePath = SelectFileFromSystem();
+                SourceFilePath = path;
                 if (SourceFilePath != "")
                 {
                     string[] paths = SourceFilePath.Split('\\');
@@ -471,6 +487,34 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// eplaces the template version of the string with a computer translated one to speed up translation.
+        /// </summary>
+        /// <param name="currentIndex">The selected index of the string not yet translated</param>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        public async void ReplaceTranslationTranslatedTask(int currentIndex, PropertyHelper helper)
+        {
+            if (main.AutoTranslate)
+            {
+                string _1 = "";
+                _1 = await Translator.TranslateAsync(new Translate()
+                {
+                    ApiKey = "",
+                    Source = LanguageCode.English,
+                    Target = LanguageCode.FromString(Language),
+                    Text = TranslationData[currentIndex].TranslationString
+                });
+                if (_1.Length > 0)
+                {
+                    TranslationData[currentIndex].TranslationString = _1;
+                    if (currentIndex == helper.CheckListBoxLeft.SelectedIndex)
+                    {
+                        helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Populates the Editor/Template text boxes and does some basic set/reset logic.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
@@ -529,6 +573,7 @@ namespace HousePartyTranslator.Managers
                         TranslationData[currentIndex].TranslationString = translation;
                     }
 
+
                     //display the string in the editable window
                     helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine);
 
@@ -536,6 +581,11 @@ namespace HousePartyTranslator.Managers
                     {
                         //read the template form the db and display it if it exists
                         helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
+
+                        if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                        {
+                            ReplaceTranslationTranslatedTask(currentIndex, helper);
+                        }
 
                         //clear text box if it is the template (not translated yet)
                         //  sql makes this easy, can just write all commands to a file that have not been sent, then send all on connection resume.
@@ -789,18 +839,17 @@ namespace HousePartyTranslator.Managers
                 //clear results
                 helper.CheckListBoxLeft.SearchResults.Clear();
                 //methodolgy: highlight items which fulfill search and show count
-                //TranslationData.Where(a => a.TranslationString.IndexOf(helper.SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0||a.ID.IndexOf(helper.SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0).ToList().ForEach(b => helper.CheckListBoxLeft.SearchResults.Add(TranslationData.IndexOf(b)));
-
-                TranslationData.Where(/*Get a list of all strings where*/
-                    a => a.TranslationString.IndexOf(/*the text contains what is searched*/
-                        helper.SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0
-                    ||/*or*/
-                    a.ID.IndexOf(/*the id contains what is searched*/
-                        helper.SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0
-                    ).ToList().ForEach(/*then for all the result items add the index of the item in the main translation data list to the list of result indices*/
-                        b => helper.CheckListBoxLeft.SearchResults.Add(TranslationData.IndexOf(b)
-                    )
-                );
+                for (int i = 0; i < TranslationData.Count; i++)
+                {
+                    if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()) /*if the translated text contaisn the search string*/
+                        || (TranslationData[i].EnglishString != null
+                        ? TranslationData[i].EnglishString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant())
+                        : false)/*if the english string is not null and contaisn the searched part*/
+                        || TranslationData[i].ID.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()))/*if the id contains the searched part*/
+                    {
+                        helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
+                    }
+                }
             }
             else
             {

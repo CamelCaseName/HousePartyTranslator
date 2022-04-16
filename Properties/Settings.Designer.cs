@@ -94,5 +94,65 @@ namespace HousePartyTranslator.Properties {
                 this["story_path"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string recents_0 {
+            get {
+                return ((string)(this["recents_0"]));
+            }
+            set {
+                this["recents_0"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string recents_1 {
+            get {
+                return ((string)(this["recents_1"]));
+            }
+            set {
+                this["recents_1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string recents_2 {
+            get {
+                return ((string)(this["recents_2"]));
+            }
+            set {
+                this["recents_2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string recents_3 {
+            get {
+                return ((string)(this["recents_3"]));
+            }
+            set {
+                this["recents_3"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string recents_4 {
+            get {
+                return ((string)(this["recents_4"]));
+            }
+            set {
+                this["recents_4"] = value;
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ namespace HousePartyTranslator
         public readonly PropertyHelper MainProperties;
         private StoryExplorer SExplorer;
         private readonly DiscordPresenceManager PresenceManager;
+        private readonly RecentsManager RecentsManager;
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
 
         public StoryExplorer Explorer
@@ -18,7 +19,7 @@ namespace HousePartyTranslator
             get
             {
                 return SExplorer;
-            } 
+            }
             set
             {
                 if (value.ParentName == Name)
@@ -62,10 +63,18 @@ namespace HousePartyTranslator
             DataBaseManager.InitializeDB(this);
 
             PresenceManager = new DiscordPresenceManager();
+            RecentsManager = new RecentsManager(MainProperties);
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender, args) => { PresenceManager.Update(); };
             PresenceTimer.Start();
+
+            RecentsManager.UpdateMenuItems(fileToolStripMenuItem.DropDownItems);
+
+            if (TranslationManager.main.AutoLoadRecent)
+            {
+                TranslationManager.main.LoadFileIntoProgram(MainProperties, RecentsManager.GetRecents()[0].Text);
+            }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -140,6 +149,8 @@ namespace HousePartyTranslator
             TranslationManager.main.SetLanguage(MainProperties);
 
             //update presence
+            RecentsManager.SetMostRecent(TranslationManager.main.SourceFilePath);
+            RecentsManager.UpdateMenuItems(fileToolStripMenuItem.DropDownItems);
             PresenceManager.SetCharacterToShow(TranslationManager.main.FileName);
             PresenceManager.SetStory(TranslationManager.main.StoryName);
         }
@@ -173,6 +184,8 @@ namespace HousePartyTranslator
         {
             //prevent discord from getting angry
             PresenceManager.DeInitialize();
+
+            RecentsManager.SaveRecents();
             //save settings
             Properties.Settings.Default.Save();
         }
