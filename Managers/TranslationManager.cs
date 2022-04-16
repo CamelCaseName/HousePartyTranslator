@@ -395,7 +395,8 @@ namespace HousePartyTranslator.Managers
         /// Loads a file into the program and calls all helper routines
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void LoadFileIntoProgram(PropertyHelper helper) {
+        public void LoadFileIntoProgram(PropertyHelper helper)
+        {
             LoadFileIntoProgram(helper, SelectFileFromSystem());
         }
 
@@ -838,18 +839,17 @@ namespace HousePartyTranslator.Managers
                 //clear results
                 helper.CheckListBoxLeft.SearchResults.Clear();
                 //methodolgy: highlight items which fulfill search and show count
-                //TranslationData.Where(a => a.TranslationString.IndexOf(helper.SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0||a.ID.IndexOf(helper.SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0).ToList().ForEach(b => helper.CheckListBoxLeft.SearchResults.Add(TranslationData.IndexOf(b)));
-
-                TranslationData.Where(/*Get a list of all strings where*/
-                    a => a.TranslationString.IndexOf(/*the text contains what is searched*/
-                        helper.SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0
-                    ||/*or*/
-                    a.ID.IndexOf(/*the id contains what is searched*/
-                        helper.SearchBox.Text, StringComparison.OrdinalIgnoreCase) >= 0
-                    ).ToList().ForEach(/*then for all the result items add the index of the item in the main translation data list to the list of result indices*/
-                        b => helper.CheckListBoxLeft.SearchResults.Add(TranslationData.IndexOf(b)
-                    )
-                );
+                for (int i = 0; i < TranslationData.Count; i++)
+                {
+                    if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()) /*if the translated text contaisn the search string*/
+                        || (TranslationData[i].EnglishString != null
+                        ? TranslationData[i].EnglishString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant())
+                        : false)/*if the english string is not null and contaisn the searched part*/
+                        || TranslationData[i].ID.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()))/*if the id contains the searched part*/
+                    {
+                        helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
+                    }
+                }
             }
             else
             {
