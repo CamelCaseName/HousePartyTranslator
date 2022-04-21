@@ -261,6 +261,7 @@
     <Compile Include="Helpers\Items.cs" />
     <Compile Include="Helpers\Node.cs" />
     <Compile Include="Helpers\SerializeableNode.cs" />
+    <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Managers\DiscordPresenceManager.cs" />
     <Compile Include="Managers\RecentsManager.cs" />
     <Compile Include="Settings.cs" />

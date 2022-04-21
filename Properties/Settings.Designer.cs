@@ -154,5 +154,17 @@ namespace HousePartyTranslator.Properties {
                 this["recents_4"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool displayVAHints {
+            get {
+                return ((bool)(this["displayVAHints"]));
+            }
+            set {
+                this["displayVAHints"] = value;
+            }
+        }
     }
 }

@@ -26,26 +26,30 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     public class TranslationManager
     {
-        private bool isSaveAs = false;
+        public static TranslationManager main;
+        public bool AutoLoadRecent = true;
+        public bool AutoSave = true;
+        //setting
+        public bool AutoTranslate = true;
+
+        public List<StringCategory> CategoriesInFile = new List<StringCategory>();
+        //setting
+        //setting
+        public bool isTemplate = false;
+
+        public bool IsUpToDate = false;
+        public List<LineData> TranslationData = new List<LineData>();
+        public bool UpdateStoryExplorerSelection = true;
+        private static Fenster MainWindow;
+        private readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
         private int ExceptionCount = 0;
+        private string fileName = "";
+        private bool isSaveAs = false;
+        private string language = "";
         private int LastIndex = -1;
         private int SelectedSearchResult = 0;
-        private static Fenster MainWindow;
-        private string fileName = "";
-        private string language = "";
         private string sourceFilePath = "";
         private string storyName = "";
-        public bool AutoSave = true;//setting
-        public bool AutoTranslate = true;//setting
-        public bool AutoLoadRecent = true;//setting
-        public bool isTemplate = false;
-        public bool IsUpToDate = false;
-        public bool UpdateStoryExplorerSelection = true;
-        public List<LineData> TranslationData = new List<LineData>();
-        public List<StringCategory> CategoriesInFile = new List<StringCategory>();
-        public static TranslationManager main;
-        private readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
-
         /// <summary>
         /// The Constructor for this class. Takes no arguments.
         /// </summary>
@@ -56,15 +60,6 @@ namespace HousePartyTranslator.Managers
                 return;
             }
             main = this;
-        }
-
-        /// <summary>
-        /// Sets the main form this translationmanager will work on (cursor, fields, etc)
-        /// </summary>
-        /// <param name="mainWindow">The form to work on.</param>
-        public void SetMainForm(Fenster mainWindow)
-        {
-            MainWindow = mainWindow;
         }
 
         /// <summary>
@@ -297,6 +292,35 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
+        /// </summary>
+        /// <param name="toLeft">true if deleting to the left</param>
+        /// <returns>true if successfull</returns>
+        public bool DeleteCharactersInText(bool toLeft)
+        {
+            if (MainWindow.ContainsFocus)
+            {
+                Control focused_control = MainWindow.ActiveControl;
+                try
+                {
+                    TextBox _ = (TextBox)focused_control;
+                }
+                //ignore exception, really intended
+                catch { return false; }
+                TextBox textBox = (TextBox)focused_control;
+                if (toLeft)
+                {
+                    return DeleteCharactersInTextLeft(textBox);
+                }
+                else
+                {
+                    return DeleteCharactersInTextRight(textBox);
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Detects for hotkeys used, else with the return value the defualt WndPrc is called.
         /// </summary>
         /// <param name="msg">Windows message contaning the info on the event.</param>
@@ -398,130 +422,6 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
-        /// </summary>
-        /// <param name="toLeft">true if deleting to the left</param>
-        /// <returns>true if successfull</returns>
-        public bool DeleteCharactersInText(bool toLeft)
-        {
-            if (MainWindow.ContainsFocus)
-            {
-                Control focused_control = MainWindow.ActiveControl;
-                try
-                {
-                    TextBox _ = (TextBox)focused_control;
-                }
-                //ignore exception, really intended
-                catch { return false; }
-                TextBox textBox = (TextBox)focused_control;
-                if (toLeft)
-                {
-                    return DeleteCharactersInTextLeft(textBox);
-                }
-                else
-                {
-                    return DeleteCharactersInTextRight(textBox);
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Deletes the characters to the left of the char until the first seperator or the start of the text.
-        /// </summary>
-        /// <param name="textBox">The textbox to work on</param>
-        /// <returns>true if successful</returns>
-        private bool DeleteCharactersInTextLeft(TextBox textBox)
-        {
-            bool success = false;
-            for (int i = textBox.SelectionStart - 1; i > 0; i--)
-            {
-                if (!success)
-                {
-                    switch (textBox.Text.Substring(i, 1))
-                    {    //set up any stopping points you want
-                        case " ":
-                        case ";":
-                        case ",":
-                        case ".":
-                        case "-":
-                        case "'":
-                        case "/":
-                        case "\\":
-                            textBox.Text = textBox.Text.Remove(i, textBox.SelectionStart - i);
-                            textBox.SelectionStart = i;
-                            success = true;
-                            break;
-                        case "\n":
-                            textBox.Text = textBox.Text.Remove(i - 1, textBox.SelectionStart - i);
-                            textBox.SelectionStart = i;
-                            success = true;
-                            break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            if (!success)
-            {
-                textBox.Clear();
-                success = true;
-            }
-            return success;
-        }
-
-        /// <summary>
-        /// Deletes the characters to the right of the char until the first seperator or the end of the text.
-        /// </summary>
-        /// <param name="textBox">The textbox to work on</param>
-        /// <returns>true if successful</returns>
-        private bool DeleteCharactersInTextRight(TextBox textBox)
-        {
-            bool success = false;
-            int sel = textBox.SelectionStart;
-            for (int i = textBox.SelectionStart; i < textBox.TextLength - 1; i++)
-            {
-                if (!success)
-                {
-                    switch (textBox.Text[i].ToString())
-                    {    //set up any stopping points you want
-                        case " ":
-                        case ";":
-                        case ",":
-                        case ".":
-                        case "-":
-                        case "_":
-                        case "'":
-                        case "/":
-                        case "\\":
-                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
-                            textBox.SelectionStart = sel;
-                            success = true;
-                            break;
-                        case "\n":
-                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
-                            textBox.SelectionStart = sel;
-                            success = true;
-                            break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            if (!success && textBox.SelectionStart < textBox.Text.Length - 1)
-            {
-                textBox.Text = textBox.Text.Remove(textBox.SelectionStart, textBox.Text.Length - textBox.SelectionStart);
-                textBox.SelectionStart = sel;
-                success = true;
-            }
-            return success;
-        }
-
-        /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
@@ -614,34 +514,6 @@ namespace HousePartyTranslator.Managers
             LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
             MainWindow.Cursor = Cursors.Default;
-        }
-
-        /// <summary>
-        /// eplaces the template version of the string with a computer translated one to speed up translation.
-        /// </summary>
-        /// <param name="currentIndex">The selected index of the string not yet translated</param>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public async void ReplaceTranslationTranslatedTask(int currentIndex, PropertyHelper helper)
-        {
-            if (main.AutoTranslate)
-            {
-                string _1 = "";
-                _1 = await Translator.TranslateAsync(new Translate()
-                {
-                    ApiKey = "",
-                    Source = LanguageCode.English,
-                    Target = LanguageCode.FromString(Language),
-                    Text = TranslationData[currentIndex].TranslationString
-                });
-                if (_1.Length > 0)
-                {
-                    TranslationData[currentIndex].TranslationString = _1;
-                    if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
-                    {
-                        helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -754,29 +626,31 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
+        /// eplaces the template version of the string with a computer translated one to speed up translation.
         /// </summary>
-        /// <param name="helper">A Propertyhelper to get access to the form controls.</param>
-        private void SetHighlightedNode(PropertyHelper helper)
+        /// <param name="currentIndex">The selected index of the string not yet translated</param>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        public async void ReplaceTranslationTranslatedTask(int currentIndex, PropertyHelper helper)
         {
-            int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
-            string id = TranslationData[currentIndex].ID;
-            //Highlights the node representign the selected string in the story explorer window
-            if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
+            if (main.AutoTranslate)
             {
-                MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.GetNodes().Find(n => n.ID == id);
+                string _1 = "";
+                _1 = await Translator.TranslateAsync(new Translate()
+                {
+                    ApiKey = "",
+                    Source = LanguageCode.English,
+                    Target = LanguageCode.FromString(Language),
+                    Text = TranslationData[currentIndex].TranslationString
+                });
+                if (_1.Length > 0)
+                {
+                    TranslationData[currentIndex].TranslationString = _1;
+                    if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                    {
+                        helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                    }
+                }
             }
-        }
-
-        /// <summary>
-        /// Selects a string in the listview given the id
-        /// </summary>
-        /// <param name="id">The id to look for.</param>
-        public void SelectLine(string id)
-        {
-            //select line which correspondends to id
-            int index = TranslationData.FindIndex(n => n.ID == id);
-            if (index >= 0) MainWindow.MainProperties.CheckListBoxLeft.SelectedIndex = index;
         }
 
         /// <summary>
@@ -991,6 +865,17 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// Selects a string in the listview given the id
+        /// </summary>
+        /// <param name="id">The id to look for.</param>
+        public void SelectLine(string id)
+        {
+            //select line which correspondends to id
+            int index = TranslationData.FindIndex(n => n.ID == id);
+            if (index >= 0) MainWindow.MainProperties.CheckListBoxLeft.SelectedIndex = index;
+        }
+
+        /// <summary>
         /// Sets the language the translation is associated with
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
@@ -1012,6 +897,15 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// Sets the main form this translationmanager will work on (cursor, fields, etc)
+        /// </summary>
+        /// <param name="mainWindow">The form to work on.</param>
+        public void SetMainForm(Fenster mainWindow)
+        {
+            MainWindow = mainWindow;
+        }
+
+        /// <summary>
         /// Update the currently selected translation string in the TranslationData.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
@@ -1025,6 +919,101 @@ namespace HousePartyTranslator.Managers
                 TranslationData[internalIndex].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
                 UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count(), helper);
             }
+        }
+
+        /// <summary>
+        /// Deletes the characters to the left of the char until the first seperator or the start of the text.
+        /// </summary>
+        /// <param name="textBox">The textbox to work on</param>
+        /// <returns>true if successful</returns>
+        private bool DeleteCharactersInTextLeft(TextBox textBox)
+        {
+            bool success = false;
+            for (int i = textBox.SelectionStart - 1; i > 0; i--)
+            {
+                if (!success)
+                {
+                    switch (textBox.Text.Substring(i, 1))
+                    {    //set up any stopping points you want
+                        case " ":
+                        case ";":
+                        case ",":
+                        case ".":
+                        case "-":
+                        case "'":
+                        case "/":
+                        case "\\":
+                            textBox.Text = textBox.Text.Remove(i, textBox.SelectionStart - i);
+                            textBox.SelectionStart = i;
+                            success = true;
+                            break;
+                        case "\n":
+                            textBox.Text = textBox.Text.Remove(i - 1, textBox.SelectionStart - i);
+                            textBox.SelectionStart = i;
+                            success = true;
+                            break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (!success)
+            {
+                textBox.Clear();
+                success = true;
+            }
+            return success;
+        }
+
+        /// <summary>
+        /// Deletes the characters to the right of the char until the first seperator or the end of the text.
+        /// </summary>
+        /// <param name="textBox">The textbox to work on</param>
+        /// <returns>true if successful</returns>
+        private bool DeleteCharactersInTextRight(TextBox textBox)
+        {
+            bool success = false;
+            int sel = textBox.SelectionStart;
+            for (int i = textBox.SelectionStart; i < textBox.TextLength - 1; i++)
+            {
+                if (!success)
+                {
+                    switch (textBox.Text[i].ToString())
+                    {    //set up any stopping points you want
+                        case " ":
+                        case ";":
+                        case ",":
+                        case ".":
+                        case "-":
+                        case "_":
+                        case "'":
+                        case "/":
+                        case "\\":
+                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
+                            textBox.SelectionStart = sel;
+                            success = true;
+                            break;
+                        case "\n":
+                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
+                            textBox.SelectionStart = sel;
+                            success = true;
+                            break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (!success && textBox.SelectionStart < textBox.Text.Length - 1)
+            {
+                textBox.Text = textBox.Text.Remove(textBox.SelectionStart, textBox.Text.Length - textBox.SelectionStart);
+                textBox.SelectionStart = sel;
+                success = true;
+            }
+            return success;
         }
 
         /// <summary>
@@ -1493,6 +1482,20 @@ namespace HousePartyTranslator.Managers
             SelectedSearchResult = 0;
         }
 
+        /// <summary>
+        /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
+        /// </summary>
+        /// <param name="helper">A Propertyhelper to get access to the form controls.</param>
+        private void SetHighlightedNode(PropertyHelper helper)
+        {
+            int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
+            string id = TranslationData[currentIndex].ID;
+            //Highlights the node representign the selected string in the story explorer window
+            if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
+            {
+                MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.GetNodes().Find(n => n.ID == id);
+            }
+        }
         /// <summary>
         /// Updates the label schowing the number lines approved so far
         /// </summary>
