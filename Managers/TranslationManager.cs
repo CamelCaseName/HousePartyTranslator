@@ -384,9 +384,125 @@ namespace HousePartyTranslator.Managers
                     if (helper.CheckListBoxLeft.SelectedIndex < helper.CheckListBoxLeft.Items.Count - 1) helper.CheckListBoxLeft.SelectedIndex++;
                     return true;
 
+                //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
+                case (Keys.Control | Keys.Delete):
+                    return DeleteCharactersInText(false);
+
+                //ripple delete all alphanumerical chars to the left of the cursor
+                case (Keys.Control | Keys.Back):
+                    return DeleteCharactersInText(true);
+
                 default:
                     return false;
             }
+        }
+
+        public bool DeleteCharactersInText(bool toLeft)
+        {
+            if (MainWindow.ContainsFocus)
+            {
+                Control focused_control = MainWindow.ActiveControl;
+                try
+                {
+                    TextBox _ = (TextBox)focused_control;
+                }
+                //ignore exception, really intended
+                catch { return false; }
+                TextBox textBox = (TextBox)focused_control;
+                if (toLeft)
+                {
+                    return DeleteCharactersInTextLeft(textBox);
+                }
+                else
+                {
+                    return DeleteCharactersInTextRight(textBox);
+                }
+            }
+            return false;
+        }
+
+        private bool DeleteCharactersInTextLeft(TextBox textBox)
+        {
+            bool success = false;
+            for (int i = textBox.SelectionStart - 1; i > 0; i--)
+            {
+                if (!success)
+                {
+                    switch (textBox.Text.Substring(i, 1))
+                    {    //set up any stopping points you want
+                        case " ":
+                        case ";":
+                        case ",":
+                        case ".":
+                        case "-":
+                        case "'":
+                        case "/":
+                        case "\\":
+                            textBox.Text = textBox.Text.Remove(i, textBox.SelectionStart - i);
+                            textBox.SelectionStart = i;
+                            success = true;
+                            break;
+                        case "\n":
+                            textBox.Text = textBox.Text.Remove(i - 1, textBox.SelectionStart - i);
+                            textBox.SelectionStart = i;
+                            success = true;
+                            break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (!success)
+            {
+                textBox.Clear();
+            }
+            return success;
+        }
+
+        private bool DeleteCharactersInTextRight(TextBox textBox)
+        {
+            bool success = false;
+            int sel = textBox.SelectionStart;
+            for (int i = textBox.SelectionStart; i < textBox.TextLength - 1; i++)
+            {
+                if (!success)
+                {
+                    switch (textBox.Text[i].ToString())
+                    {    //set up any stopping points you want
+                        case " ":
+                        case ";":
+                        case ",":
+                        case ".":
+                        case "-":
+                        case "_":
+                        case "'":
+                        case "/":
+                        case "\\":
+                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
+                            textBox.SelectionStart = sel;
+                            success = true;
+                            break;
+                        case "\n":
+                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
+                            textBox.SelectionStart = sel;
+                            success = true;
+                            break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if (!success && textBox.SelectionStart < textBox.Text.Length - 1)
+            {
+                textBox.Text = textBox.Text.Remove(textBox.SelectionStart, textBox.Text.Length - textBox.SelectionStart);
+                textBox.SelectionStart = sel;
+                success = true;
+            }
+            return success;
         }
 
         /// <summary>
