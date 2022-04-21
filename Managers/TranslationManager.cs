@@ -27,17 +27,14 @@ namespace HousePartyTranslator.Managers
     public class TranslationManager
     {
         public static TranslationManager main;
-        public bool AutoLoadRecent = true;
-        public bool AutoSave = true;
-        //setting
-        public bool AutoTranslate = true;
+        public bool AutoLoadRecent = true;//setting
+        public bool AutoSave = true;//setting
+        public bool AutoTranslate = true;//setting
 
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
-        //setting
-        //setting
         public bool isTemplate = false;
 
-        public bool IsUpToDate = false;
+        public bool IsUpToDate = false; //setting
         public List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
         private static Fenster MainWindow;
@@ -50,6 +47,7 @@ namespace HousePartyTranslator.Managers
         private int SelectedSearchResult = 0;
         private string sourceFilePath = "";
         private string storyName = "";
+
         /// <summary>
         /// The Constructor for this class. Takes no arguments.
         /// </summary>
@@ -443,51 +441,7 @@ namespace HousePartyTranslator.Managers
             if (IsUpToDate)
             {
                 SourceFilePath = path;
-                if (SourceFilePath != "")
-                {
-                    string[] paths = SourceFilePath.Split('\\');
-
-                    //get parent folder name
-                    string tempStoryName = paths[paths.Length - 2];
-                    //get language text representation
-                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
-                    //compare
-                    if (tempStoryName == languageAsText && gotLanguage)
-                    {
-                        //get foler one more up
-                        tempStoryName = paths[paths.Length - 3];
-                    }
-
-                    if (tempStoryName == "Languages")
-                    {
-                        //get foler one more up
-                        tempStoryName = "UI";
-                    }
-
-                    StoryName = tempStoryName;
-
-                    //actually load all strings into the program
-                    HandleStringReadingFromFile();
-
-                    //update UI (cut folder name short if it is too long)
-                    int lengthOfFileName = FileName.Length, lengthOfStoryName = StoryName.Length;
-                    if (FileName.Length > 15)
-                    {
-                        lengthOfFileName = 15;
-                    }
-                    if (StoryName.Length > 15)
-                    {
-                        lengthOfStoryName = 15;
-                    }
-
-                    string storyNameToDisplay = StoryName.Length > lengthOfStoryName ? StoryName.Substring(0, lengthOfStoryName).Trim() + "..." : StoryName;
-                    string fileNameToDisplay = FileName.Length > lengthOfFileName ? FileName.Substring(0, lengthOfFileName).Trim() + "..." : FileName;
-                    helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
-
-                    //is up to date, so we can start translation
-                    HandleTranslationLoading(helper);
-                    UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count, helper);
-                }
+                HandleTranslationFileLoading(helper);
             }
             else
             {
@@ -1277,6 +1231,59 @@ namespace HousePartyTranslator.Managers
                 lineIsApproved = false;
             }
             MainWindow.Cursor = Cursors.Default;
+        }
+
+        /// <summary>
+        /// Prepares the values for reading of the strings, and calls the methods necessary after successfully loading a file.
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        private void HandleTranslationFileLoading(PropertyHelper helper)
+        {
+            if (SourceFilePath != "")
+            {
+                string[] paths = SourceFilePath.Split('\\');
+
+                //get parent folder name
+                string tempStoryName = paths[paths.Length - 2];
+                //get language text representation
+                bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
+                //compare
+                if (tempStoryName == languageAsText && gotLanguage)
+                {
+                    //get foler one more up
+                    tempStoryName = paths[paths.Length - 3];
+                }
+
+                if (tempStoryName == "Languages")
+                {
+                    //get foler one more up
+                    tempStoryName = "UI";
+                }
+
+                StoryName = tempStoryName;
+
+                //actually load all strings into the program
+                HandleStringReadingFromFile();
+
+                //update UI (cut folder name short if it is too long)
+                int lengthOfFileName = FileName.Length, lengthOfStoryName = StoryName.Length;
+                if (FileName.Length > 15)
+                {
+                    lengthOfFileName = 15;
+                }
+                if (StoryName.Length > 15)
+                {
+                    lengthOfStoryName = 15;
+                }
+
+                string storyNameToDisplay = StoryName.Length > lengthOfStoryName ? StoryName.Substring(0, lengthOfStoryName).Trim() + "..." : StoryName;
+                string fileNameToDisplay = FileName.Length > lengthOfFileName ? FileName.Substring(0, lengthOfFileName).Trim() + "..." : FileName;
+                helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
+
+                //is up to date, so we can start translation
+                HandleTranslationLoading(helper);
+                UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count, helper);
+            }
         }
 
         /// <summary>
