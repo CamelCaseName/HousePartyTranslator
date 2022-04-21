@@ -397,6 +397,11 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
+        /// </summary>
+        /// <param name="toLeft">true if deleting to the left</param>
+        /// <returns>true if successfull</returns>
         public bool DeleteCharactersInText(bool toLeft)
         {
             if (MainWindow.ContainsFocus)
@@ -421,6 +426,11 @@ namespace HousePartyTranslator.Managers
             return false;
         }
 
+        /// <summary>
+        /// Deletes the characters to the left of the char until the first seperator or the start of the text.
+        /// </summary>
+        /// <param name="textBox">The textbox to work on</param>
+        /// <returns>true if successful</returns>
         private bool DeleteCharactersInTextLeft(TextBox textBox)
         {
             bool success = false;
@@ -457,10 +467,16 @@ namespace HousePartyTranslator.Managers
             if (!success)
             {
                 textBox.Clear();
+                success = true;
             }
             return success;
         }
 
+        /// <summary>
+        /// Deletes the characters to the right of the char until the first seperator or the end of the text.
+        /// </summary>
+        /// <param name="textBox">The textbox to work on</param>
+        /// <returns>true if successful</returns>
         private bool DeleteCharactersInTextRight(TextBox textBox)
         {
             bool success = false;
