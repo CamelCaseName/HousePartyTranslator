@@ -76,14 +76,16 @@ namespace HousePartyTranslator.Managers
                 {
                     for (int i = 0; i < items.Length; i++)
                     {
-                        collection.RemoveAt(3);
+                        if (collection[3].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(3);
+                        else break;
                     }
                 }
                 else
                 {
                     for (int i = 0; i < items.Length - 1; i++)
                     {
-                        collection.RemoveAt(3);
+                        if (collection[3].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(3);
+                        else break;
                     }
                 }
             }
