@@ -41,6 +41,8 @@ namespace HousePartyTranslator
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.Recents = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,12 +56,11 @@ namespace HousePartyTranslator
             this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.CommentGroup = new System.Windows.Forms.GroupBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.Recents = new System.Windows.Forms.ToolStripMenuItem();
             this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.MainMenu.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.CommentGroup.SuspendLayout();
@@ -168,7 +169,8 @@ namespace HousePartyTranslator
             this.searchToolStripTextBox,
             this.languageToolStripComboBox,
             this.storyExplorerStripMenuItem1,
-            this.customOpenStoryExplorer});
+            this.customOpenStoryExplorer,
+            this.settingsToolStripMenuItem});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
             this.MainMenu.Size = new System.Drawing.Size(1384, 27);
@@ -200,6 +202,19 @@ namespace HousePartyTranslator
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
+            // 
+            // Recents
+            // 
+            this.Recents.Enabled = false;
+            this.Recents.Name = "Recents";
+            this.Recents.ShowShortcutKeys = false;
+            this.Recents.Size = new System.Drawing.Size(180, 22);
+            this.Recents.Text = "Recents";
             // 
             // toolStripSeparator
             // 
@@ -298,7 +313,7 @@ namespace HousePartyTranslator
             this.customOpenStoryExplorer.Name = "customOpenStoryExplorer";
             this.customOpenStoryExplorer.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.R)));
             this.customOpenStoryExplorer.Size = new System.Drawing.Size(121, 23);
-            this.customOpenStoryExplorer.Text = "Open Sto&ryExplorer";
+            this.customOpenStoryExplorer.Text = "Open StoryE&xplorer";
             this.customOpenStoryExplorer.Click += new System.EventHandler(this.CustomStoryExplorerStripMenuItem_Click);
             // 
             // tableLayoutPanel1
@@ -335,40 +350,6 @@ namespace HousePartyTranslator
             this.CommentGroup.TabStop = false;
             this.CommentGroup.Text = "Comments";
             // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.SelectedFile);
-            this.panel1.Controls.Add(this.WordsTranslated);
-            this.panel1.Controls.Add(this.ProgressbarTranslated);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(686, 24);
-            this.panel1.TabIndex = 12;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.ApprovedBox);
-            this.panel2.Controls.Add(this.CharacterCountLabel);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(695, 3);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(686, 24);
-            this.panel2.TabIndex = 13;
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
-            // 
-            // Recents
-            // 
-            this.Recents.Enabled = false;
-            this.Recents.Name = "Recents";
-            this.Recents.ShowShortcutKeys = false;
-            this.Recents.Size = new System.Drawing.Size(180, 22);
-            this.Recents.Text = "Recents";
-            // 
             // CheckListBoxLeft
             // 
             this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
@@ -384,6 +365,17 @@ namespace HousePartyTranslator
             this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
             this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
             // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.SelectedFile);
+            this.panel1.Controls.Add(this.WordsTranslated);
+            this.panel1.Controls.Add(this.ProgressbarTranslated);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(3, 3);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(686, 24);
+            this.panel1.TabIndex = 12;
+            // 
             // ProgressbarTranslated
             // 
             this.ProgressbarTranslated.BackColor = System.Drawing.SystemColors.ControlDarkDark;
@@ -397,6 +389,24 @@ namespace HousePartyTranslator
             this.ProgressbarTranslated.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.ProgressbarTranslated.TabIndex = 8;
             this.ProgressbarTranslated.Value = 50;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.ApprovedBox);
+            this.panel2.Controls.Add(this.CharacterCountLabel);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(695, 3);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(686, 24);
+            this.panel2.TabIndex = 13;
+            // 
+            // settingsToolStripMenuItem
+            // 
+            this.settingsToolStripMenuItem.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
+            this.settingsToolStripMenuItem.Text = "Settings";
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // Fenster
             // 
@@ -457,6 +467,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem Recents;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         //private System.Windows.Forms.SplitContainer MainContainer;
     }
 }

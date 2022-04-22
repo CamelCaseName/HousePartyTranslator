@@ -2,6 +2,7 @@
 using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
+using HousePartyTranslator.Helpers;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -16,8 +17,6 @@ namespace HousePartyTranslator.StoryExplorerForm
         public readonly ContextProvider Context;
         public readonly Graphics MainGraphics;
         public bool ReadyToDraw = false;
-
-        private const int MaxTextLength = 100;
 
         private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
         private readonly Color DefaultNodeColor = Color.DarkBlue;
@@ -195,23 +194,6 @@ namespace HousePartyTranslator.StoryExplorerForm
             graphY = screenY / Scaling + OffsetY;
         }
 
-        private string ConstrainLength(string input)
-        {
-            string output = "";
-            int inputLength = input.Length;
-
-            //TODO add lookahead and lookback for detecting "words", or change up how we split
-            for (int i = 0; i <= (inputLength / MaxTextLength); i++)
-            {
-                int possibleEnd = Math.Min(MaxTextLength, input.Length);
-                output += input.Substring(0, possibleEnd);
-                if (possibleEnd == MaxTextLength) output += " \n";
-                input = input.Remove(0, possibleEnd);
-            }
-
-            return output;
-        }
-
         private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
         {
             //display info on new node
@@ -228,15 +210,17 @@ namespace HousePartyTranslator.StoryExplorerForm
             {
                 NodeInfoLabel.Visible = true;
                 //create header
-                string header = ConstrainLength($"{infoNode.Type} - {infoNode.ID}");
+                string header = Utils.ConstrainLength($"{infoNode.Type} - {infoNode.ID}");
 
                 //create info
-                //strip text of all VA performance hints, embedded in []
-                string info = ConstrainLength(RemoveVAHints(infoNode.Text));
+                //strip text of all VA performance hints, embedded in []. if user wants it
+                string info;
+                if (Properties.Settings.Default.displayVAHints) { info = Utils.ConstrainLength(infoNode.Text); }
+                else { info = Utils.ConstrainLength(Utils.RemoveVAHints(infoNode.Text)); }
 
                 //create seperator
                 string seperator = "\n";
-                for (int i = 0; i <= Math.Min(MaxTextLength, Math.Max(header.Length, info.Length)); i++)
+                for (int i = 0; i <= Math.Min(Utils.MaxTextLength, Math.Max(header.Length, info.Length)); i++)
                 {
                     seperator += "#";
                 }
@@ -402,29 +386,6 @@ namespace HousePartyTranslator.StoryExplorerForm
                     LastNodeColor = DefaultNodeColor;
                 }
             }
-        }
-
-        private string RemoveVAHints(string input)
-        {
-            bool inVAHint = false;
-            string output = "";
-            foreach (char character in input)
-            {
-                if (character == '[' && !inVAHint)
-                {
-                    inVAHint = true;
-                }
-                else if (character == ']' && inVAHint)
-                {
-                    inVAHint = false;
-                }
-                else if (!inVAHint)
-                {
-                    output += character;
-                }
-            }
-
-            return output;
         }
 
         private void SetNewHighlightNode(Point mouseLocation)

@@ -13,6 +13,7 @@ namespace HousePartyTranslator
         private readonly DiscordPresenceManager PresenceManager;
         private readonly RecentsManager RecentsManager;
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
+        private SettingsForm.SettingsForm settings;
 
         public StoryExplorer Explorer
         {
@@ -71,15 +72,15 @@ namespace HousePartyTranslator
 
             RecentsManager.UpdateMenuItems(fileToolStripMenuItem.DropDownItems);
 
-            if (TranslationManager.main.AutoLoadRecent)
+            if (Properties.Settings.Default.autoLoadRecent)
             {
-                TranslationManager.main.LoadFileIntoProgram(MainProperties, RecentsManager.GetRecents()[0].Text);
+                if(RecentsManager.GetRecents().Length > 0) TranslationManager.main.LoadFileIntoProgram(MainProperties, RecentsManager.GetRecents()[0].Text);
             }
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (TranslationManager.main.HandleKeyPressMainForm(ref msg, keyData, MainProperties))
+            if (TranslationManager.main.MainFormKeyPressHandler(ref msg, keyData, MainProperties))
             {
                 return true;
             }
@@ -207,6 +208,12 @@ namespace HousePartyTranslator
             Explorer = new StoryExplorer(isStory, autoOpen, TranslationManager.main.FileName, TranslationManager.main.StoryName, this);
             if (!Explorer.IsDisposed) Explorer.Show();
             Cursor = Cursors.Default;
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            settings = new SettingsForm.SettingsForm();
+            if (!settings.IsDisposed) settings.Show();
         }
     }
 }
