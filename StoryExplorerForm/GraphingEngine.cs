@@ -213,8 +213,10 @@ namespace HousePartyTranslator.StoryExplorerForm
                 string header = Utils.ConstrainLength($"{infoNode.Type} - {infoNode.ID}");
 
                 //create info
-                //strip text of all VA performance hints, embedded in []
-                string info = Utils.ConstrainLength(Utils.RemoveVAHints(infoNode.Text));
+                //strip text of all VA performance hints, embedded in []. if user wants it
+                string info;
+                if (Properties.Settings.Default.displayVAHints) { info = Utils.ConstrainLength(infoNode.Text); }
+                else { info = Utils.ConstrainLength(Utils.RemoveVAHints(infoNode.Text)); }
 
                 //create seperator
                 string seperator = "\n";

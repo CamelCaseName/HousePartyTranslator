@@ -265,6 +265,12 @@
     <Compile Include="Managers\DiscordPresenceManager.cs" />
     <Compile Include="Managers\RecentsManager.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="SettingsForm\SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SettingsForm\SettingsForm.Designer.cs">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="StoryExplorerForm\GraphingEngine.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -321,6 +327,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <EmbeddedResource Include="SettingsForm\SettingsForm.resx">
+      <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="StoryExplorerForm\StoryExplorer.resx">
       <DependentUpon>StoryExplorer.cs</DependentUpon>
     </EmbeddedResource>

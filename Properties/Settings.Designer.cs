@@ -166,5 +166,41 @@ namespace HousePartyTranslator.Properties {
                 this["displayVAHints"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool autoLoadRecent {
+            get {
+                return ((bool)(this["autoLoadRecent"]));
+            }
+            set {
+                this["autoLoadRecent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool autoSave {
+            get {
+                return ((bool)(this["autoSave"]));
+            }
+            set {
+                this["autoSave"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool autoTranslate {
+            get {
+                return ((bool)(this["autoTranslate"]));
+            }
+            set {
+                this["autoTranslate"] = value;
+            }
+        }
     }
 }

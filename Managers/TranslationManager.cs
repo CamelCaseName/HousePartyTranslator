@@ -1,4 +1,5 @@
 ﻿using HousePartyTranslator.Helpers;
+using LibreTranslate.Net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -6,16 +7,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using LibreTranslate.Net;
-using System.Threading.Tasks;
 
-//TODO add tests?
-
-//TODO create local db in ressources to download the tempaltes to
-
-//TODO create a task queue for the database in case of internet outage
-
-//TODO add recents to file drop down menu, add auto open setting
+//TODO add tests
 
 //TODO add settings menu window to edit settings
 
@@ -27,9 +20,6 @@ namespace HousePartyTranslator.Managers
     public class TranslationManager
     {
         public static TranslationManager main;
-        public bool AutoLoadRecent = true;//setting
-        public bool AutoSave = true;//setting
-        public bool AutoTranslate = true;//setting
 
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public bool isTemplate = false;
@@ -308,11 +298,11 @@ namespace HousePartyTranslator.Managers
                 TextBox textBox = (TextBox)focused_control;
                 if (toLeft)
                 {
-                    return DeleteCharactersInTextLeft(textBox);
+                    return Utils.DeleteCharactersInTextLeft(textBox);
                 }
                 else
                 {
-                    return DeleteCharactersInTextRight(textBox);
+                    return Utils.DeleteCharactersInTextRight(textBox);
                 }
             }
             return false;
@@ -327,7 +317,7 @@ namespace HousePartyTranslator.Managers
         /// <returns></returns>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
-        public bool HandleKeyPressMainForm(ref Message msg, Keys keyData, PropertyHelper helper)
+        public bool MainFormKeyPressHandler(ref Message msg, Keys keyData, PropertyHelper helper)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
         {
@@ -441,7 +431,7 @@ namespace HousePartyTranslator.Managers
             if (IsUpToDate)
             {
                 SourceFilePath = path;
-                HandleTranslationFileLoading(helper);
+                LoadTranslationFile(helper);
             }
             else
             {
@@ -450,7 +440,7 @@ namespace HousePartyTranslator.Managers
                 if (templateFolderName == "TEMPLATE")
                 {
                     isTemplate = true;
-                    HandleTemplateLoading(folderPath);
+                    LoadAndSyncTemplates(folderPath);
                 }
                 else
                 {
@@ -486,7 +476,7 @@ namespace HousePartyTranslator.Managers
             else
             {
                 //if we changed the selection and have autsave enabled
-                if (LastIndex != currentIndex && AutoSave)
+                if (LastIndex != currentIndex && Properties.Settings.Default.autoSave)
                 {
                     //update translation in the database
                     DataBaseManager.SetStringTranslation(
@@ -586,7 +576,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public async void ReplaceTranslationTranslatedTask(int currentIndex, PropertyHelper helper)
         {
-            if (main.AutoTranslate)
+            if (Properties.Settings.Default.autoTranslate)
             {
                 string _1 = "";
                 _1 = await Translator.TranslateAsync(new Translate()
@@ -876,101 +866,6 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Deletes the characters to the left of the char until the first seperator or the start of the text.
-        /// </summary>
-        /// <param name="textBox">The textbox to work on</param>
-        /// <returns>true if successful</returns>
-        private bool DeleteCharactersInTextLeft(TextBox textBox)
-        {
-            bool success = false;
-            for (int i = textBox.SelectionStart - 1; i > 0; i--)
-            {
-                if (!success)
-                {
-                    switch (textBox.Text.Substring(i, 1))
-                    {    //set up any stopping points you want
-                        case " ":
-                        case ";":
-                        case ",":
-                        case ".":
-                        case "-":
-                        case "'":
-                        case "/":
-                        case "\\":
-                            textBox.Text = textBox.Text.Remove(i, textBox.SelectionStart - i);
-                            textBox.SelectionStart = i;
-                            success = true;
-                            break;
-                        case "\n":
-                            textBox.Text = textBox.Text.Remove(i - 1, textBox.SelectionStart - i);
-                            textBox.SelectionStart = i;
-                            success = true;
-                            break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            if (!success)
-            {
-                textBox.Clear();
-                success = true;
-            }
-            return success;
-        }
-
-        /// <summary>
-        /// Deletes the characters to the right of the char until the first seperator or the end of the text.
-        /// </summary>
-        /// <param name="textBox">The textbox to work on</param>
-        /// <returns>true if successful</returns>
-        private bool DeleteCharactersInTextRight(TextBox textBox)
-        {
-            bool success = false;
-            int sel = textBox.SelectionStart;
-            for (int i = textBox.SelectionStart; i < textBox.TextLength - 1; i++)
-            {
-                if (!success)
-                {
-                    switch (textBox.Text[i].ToString())
-                    {    //set up any stopping points you want
-                        case " ":
-                        case ";":
-                        case ",":
-                        case ".":
-                        case "-":
-                        case "_":
-                        case "'":
-                        case "/":
-                        case "\\":
-                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
-                            textBox.SelectionStart = sel;
-                            success = true;
-                            break;
-                        case "\n":
-                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
-                            textBox.SelectionStart = sel;
-                            success = true;
-                            break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            if (!success && textBox.SelectionStart < textBox.Text.Length - 1)
-            {
-                textBox.Text = textBox.Text.Remove(textBox.SelectionStart, textBox.Text.Length - textBox.SelectionStart);
-                textBox.SelectionStart = sel;
-                success = true;
-            }
-            return success;
-        }
-
-        /// <summary>
         /// Generates a list of all string categories depending on the filename.
         /// </summary>
         private void GenerateCategories()
@@ -1119,7 +1014,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Reads the strings depending on whether its a template or not.
         /// </summary>
-        private void HandleStringReadingFromFile()
+        private void ReadInStringsFromFile()
         {
             //read in all strings with IDs
             if (isTemplate)//read in templates
@@ -1136,7 +1031,7 @@ namespace HousePartyTranslator.Managers
         /// Loads the templates by combining all lines from all files into one, then sending them one by one to the db.
         /// </summary>
         /// <param name="folderPath">The path to the folders to load the templates from.</param>
-        private void HandleTemplateLoading(string folderPath)
+        private void LoadAndSyncTemplates(string folderPath)
         {
             //upload all new strings
             try
@@ -1195,7 +1090,7 @@ namespace HousePartyTranslator.Managers
         /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        private void HandleTranslationLoading(PropertyHelper helper)
+        private void LoadTranslations(PropertyHelper helper)
         {
             MainWindow.Cursor = Cursors.WaitCursor;
 
@@ -1237,7 +1132,7 @@ namespace HousePartyTranslator.Managers
         /// Prepares the values for reading of the strings, and calls the methods necessary after successfully loading a file.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        private void HandleTranslationFileLoading(PropertyHelper helper)
+        private void LoadTranslationFile(PropertyHelper helper)
         {
             if (SourceFilePath != "")
             {
@@ -1263,7 +1158,7 @@ namespace HousePartyTranslator.Managers
                 StoryName = tempStoryName;
 
                 //actually load all strings into the program
-                HandleStringReadingFromFile();
+                ReadInStringsFromFile();
 
                 //update UI (cut folder name short if it is too long)
                 int lengthOfFileName = FileName.Length, lengthOfStoryName = StoryName.Length;
@@ -1281,7 +1176,7 @@ namespace HousePartyTranslator.Managers
                 helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
 
                 //is up to date, so we can start translation
-                HandleTranslationLoading(helper);
+                LoadTranslations(helper);
                 UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count, helper);
             }
         }
@@ -1312,7 +1207,7 @@ namespace HousePartyTranslator.Managers
                                     {
                                         SourceFilePath = templateFile.FullName;
                                         FileName = Path.GetFileNameWithoutExtension(SourceFilePath);
-                                        HandleStringReadingFromFile();
+                                        ReadInStringsFromFile();
                                     }
                                 }
                             }
@@ -1472,7 +1367,7 @@ namespace HousePartyTranslator.Managers
         {
             ResetTranslationManager(helper);
             ReadStringsTranslationsFromFile();
-            HandleTranslationLoading(helper);
+            LoadTranslations(helper);
         }
 
         /// <summary>
