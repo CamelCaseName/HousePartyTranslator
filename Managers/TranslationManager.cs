@@ -325,19 +325,29 @@ namespace HousePartyTranslator.Managers
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
                 case (Keys.Enter):
-                    if (!helper.TranslationTextBox.Focused || !helper.CommentBox.Focused)
+                    if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused)
                     {
                         if (helper.CheckListBoxLeft.SearchResults.Any())
                         {
-                            if (SelectedSearchResult < helper.CheckListBoxLeft.SearchResults.Count)
+                            //loop back to start
+                            if (SelectedSearchResult >= helper.CheckListBoxLeft.SearchResults.Count - 1)
                             {
-                                helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                                SelectedSearchResult = 0;
+                                //select next index from list of matches
+                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
+                                {
+                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                }
                             }
                             else
                             {
-                                SelectedSearchResult = 0;
-                                helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                                //select next index from list of matches
+                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++] < helper.CheckListBoxLeft.Items.Count)
+                                {
+                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                }
                             }
+
                             return true;
                         }
                         else
