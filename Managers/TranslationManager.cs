@@ -371,7 +371,7 @@ namespace HousePartyTranslator.Managers
 
                 //save current file
                 case (Keys.Control | Keys.S):
-                    SaveFile();
+                    SaveFile(helper);
                     return true;
 
                 //save current string
@@ -665,10 +665,13 @@ namespace HousePartyTranslator.Managers
         /// Saves all strings to the file we read from.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void SaveFile()
+        public void SaveFile(PropertyHelper helper)
         {
             if (SourceFilePath != "" && Language != "")
             {
+                //save current string
+                SaveCurrentString(helper);
+
                 System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
                 MainWindow.Cursor = Cursors.WaitCursor;
                 List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
@@ -771,7 +774,7 @@ namespace HousePartyTranslator.Managers
         /// Saves all strings to a specified file location.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void SaveFileAs()
+        public void SaveFileAs(PropertyHelper helper)
         {
             if (SourceFilePath != "")
             {
@@ -779,7 +782,7 @@ namespace HousePartyTranslator.Managers
                 string oldFile = main.SourceFilePath;
                 string SaveFile = SaveFileOnSystem();
                 main.SourceFilePath = SaveFile;
-                main.SaveFile();
+                main.SaveFile(helper);
                 main.SourceFilePath = oldFile;
                 isSaveAs = false;
             }

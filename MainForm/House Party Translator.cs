@@ -158,12 +158,12 @@ namespace HousePartyTranslator
 
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TranslationManager.main.SaveFile();
+            TranslationManager.main.SaveFile(MainProperties);
         }
 
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TranslationManager.main.SaveFileAs();
+            TranslationManager.main.SaveFileAs(MainProperties);
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
