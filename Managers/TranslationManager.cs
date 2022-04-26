@@ -1411,6 +1411,7 @@ namespace HousePartyTranslator.Managers
                 MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.GetNodes().Find(n => n.ID == id);
             }
         }
+
         /// <summary>
         /// Updates the label schowing the number lines approved so far
         /// </summary>

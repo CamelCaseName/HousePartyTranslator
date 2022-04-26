@@ -189,6 +189,11 @@ namespace HousePartyTranslator
             RecentsManager.SaveRecents();
             //save settings
             Properties.Settings.Default.Save();
+
+            if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+            {
+                TranslationManager.main.SaveFile(MainProperties);
+            }
         }
 
         private void StoryExplorerStripMenuItem1_Click(object sender, EventArgs e)
