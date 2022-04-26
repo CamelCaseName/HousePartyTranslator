@@ -538,7 +538,7 @@ namespace HousePartyTranslator.Managers
                         //read the template form the db and display it if it exists
                         helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
 
-                        if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                        if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && TranslationData[currentIndex].Category != StringCategory.General)
                         {
                             ReplaceTranslationTranslatedTask(currentIndex, helper);
                         }
