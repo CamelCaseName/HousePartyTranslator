@@ -11,7 +11,7 @@ namespace HousePartyTranslator.Managers
 {
     static class SoftwareVersionManager
     {
-        public static readonly string LocalVersion = "0.3.4.0";
+        public static readonly string LocalVersion = "0.3.5.0";
         public static string LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new HttpClient();
@@ -43,8 +43,7 @@ namespace HousePartyTranslator.Managers
             //if the version on github has a higher version number
             if (LatestGithubVersion[0] > LocalVersion[0]
                 || LatestGithubVersion[2] > LocalVersion[2]
-                || LatestGithubVersion[4] > LocalVersion[4]
-                || LatestGithubVersion[6] > LocalVersion[6])
+                || LatestGithubVersion[4] > LocalVersion[4])
             {
                 if (MessageBox.Show("A new version is available to download. Do you want to automatically update this installation?", "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                 {
