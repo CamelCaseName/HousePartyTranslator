@@ -771,6 +771,21 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        public void ShowAutoSaveDialog(PropertyHelper helper)
+        {
+            if (Properties.Settings.Default.askForSaveDialog)
+            {
+                if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+                {
+                    SaveFile(helper);
+                }
+            }
+        }
+
+        /// <summary>
         /// Saves all strings to a specified file location.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
