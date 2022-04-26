@@ -325,19 +325,29 @@ namespace HousePartyTranslator.Managers
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
                 case (Keys.Enter):
-                    if (!helper.TranslationTextBox.Focused || !helper.CommentBox.Focused)
+                    if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused)
                     {
                         if (helper.CheckListBoxLeft.SearchResults.Any())
                         {
-                            if (SelectedSearchResult < helper.CheckListBoxLeft.SearchResults.Count)
+                            //loop back to start
+                            if (SelectedSearchResult >= helper.CheckListBoxLeft.SearchResults.Count - 1)
                             {
-                                helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                                SelectedSearchResult = 0;
+                                //select next index from list of matches
+                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
+                                {
+                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                }
                             }
                             else
                             {
-                                SelectedSearchResult = 0;
-                                helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                                //select next index from list of matches
+                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++] < helper.CheckListBoxLeft.Items.Count)
+                                {
+                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                }
                             }
+
                             return true;
                         }
                         else
@@ -361,7 +371,7 @@ namespace HousePartyTranslator.Managers
 
                 //save current file
                 case (Keys.Control | Keys.S):
-                    SaveFile();
+                    SaveFile(helper);
                     return true;
 
                 //save current string
@@ -528,7 +538,7 @@ namespace HousePartyTranslator.Managers
                         //read the template form the db and display it if it exists
                         helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
 
-                        if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                        if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && TranslationData[currentIndex].Category != StringCategory.General)
                         {
                             ReplaceTranslationTranslatedTask(currentIndex, helper);
                         }
@@ -655,10 +665,13 @@ namespace HousePartyTranslator.Managers
         /// Saves all strings to the file we read from.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void SaveFile()
+        public void SaveFile(PropertyHelper helper)
         {
             if (SourceFilePath != "" && Language != "")
             {
+                //save current string
+                SaveCurrentString(helper);
+
                 System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
                 MainWindow.Cursor = Cursors.WaitCursor;
                 List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
@@ -758,10 +771,25 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        public void ShowAutoSaveDialog(PropertyHelper helper)
+        {
+            if (Properties.Settings.Default.askForSaveDialog)
+            {
+                if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+                {
+                    SaveFile(helper);
+                }
+            }
+        }
+
+        /// <summary>
         /// Saves all strings to a specified file location.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void SaveFileAs()
+        public void SaveFileAs(PropertyHelper helper)
         {
             if (SourceFilePath != "")
             {
@@ -769,7 +797,7 @@ namespace HousePartyTranslator.Managers
                 string oldFile = main.SourceFilePath;
                 string SaveFile = SaveFileOnSystem();
                 main.SourceFilePath = SaveFile;
-                main.SaveFile();
+                main.SaveFile(helper);
                 main.SourceFilePath = oldFile;
                 isSaveAs = false;
             }
@@ -1398,6 +1426,7 @@ namespace HousePartyTranslator.Managers
                 MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.GetNodes().Find(n => n.ID == id);
             }
         }
+
         /// <summary>
         /// Updates the label schowing the number lines approved so far
         /// </summary>
