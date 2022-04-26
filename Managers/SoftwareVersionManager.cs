@@ -40,6 +40,10 @@ namespace HousePartyTranslator.Managers
             string releaseFile = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "Release.7z");
             string releaseFolder = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
 
+            //delete old one if it exists
+            string oldExe = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "prev.exe");
+            if (File.Exists(oldExe)) File.Delete(oldExe); ;
+
             //if the version on github has a higher version number
             if (LatestGithubVersion[0] > LocalVersion[0]
                 || LatestGithubVersion[2] > LocalVersion[2]
@@ -59,9 +63,6 @@ namespace HousePartyTranslator.Managers
                             await stream.CopyToAsync(fileStream);
                         }
                     }
-                    //delete old one if it exists
-                    string oldExe = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "prev.exe");
-                    if (File.Exists(oldExe)) File.Delete(oldExe); ;
 
                     //move currently running exe out of the way
                     File.Move(Application.ExecutablePath, oldExe);
