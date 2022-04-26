@@ -74,7 +74,7 @@ namespace HousePartyTranslator.Managers
             {
                 if (language.Length == 0)
                 {
-                    MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
+                    if (!SoftwareVersionManager.UpdatePending) MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
                     return "";
                 }
                 else
@@ -86,7 +86,7 @@ namespace HousePartyTranslator.Managers
             {
                 if (value.Length == 0)
                 {
-                    MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
+                    if (!SoftwareVersionManager.UpdatePending) MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
                 }
                 else
                 {
@@ -1379,7 +1379,7 @@ namespace HousePartyTranslator.Managers
             if (IdsToExport.Count != TranslationData.Count)
             {//inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
              //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
-                MessageBox.Show(
+                if (!SoftwareVersionManager.UpdatePending && Form.ActiveForm != null) MessageBox.Show(
                     @"Some strings are missing from your translation, they will be added with the english version when you first save the file!",
                     "Some strings missing",
                     MessageBoxButtons.OK,
