@@ -1,11 +1,11 @@
 ﻿using HousePartyTranslator.Helpers;
 using HousePartyTranslator.Managers;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Numerics;
+using System.Text.Json;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -182,7 +182,7 @@ namespace HousePartyTranslator
                 if (File.Exists(savedNodesPath))
                 {
                     //read in positions if they exist, but only if version is the same
-                    List<SerializeableNode> tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
+                    List<SerializeableNode> tempList = JsonSerializer.Deserialize<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
                     //expand the guids back into references
                     Nodes = Node.ExpandDeserializedNodes(tempList);
                 }
@@ -191,15 +191,15 @@ namespace HousePartyTranslator
                     //else create new
                     if (IsStory)
                     {
-                        DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString));
+                        DissectStory(JsonSerializer.Deserialize<MainStory>(fileString));
                     }
                     else
                     {
-                        DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString));
+                        DissectCharacter(JsonSerializer.Deserialize<CharacterStory>(fileString));
                     }
 
                     //save nodes
-                    File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(Nodes.ConvertAll(n => (SerializeableNode)n)));
+                    File.WriteAllText(savedNodesPath, JsonSerializer.Serialize(Nodes.ConvertAll(n => (SerializeableNode)n)));
                 }
 
                 return Nodes.Count > 0;

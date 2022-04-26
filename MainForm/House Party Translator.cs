@@ -40,6 +40,9 @@ namespace HousePartyTranslator
             AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
             Application.ThreadException += ThreadExceptionHandler;
 
+            //check for update and replace if we want one
+            SoftwareVersionManager.ReplaceFileIfNew();
+
             //init all form components
             InitializeComponent();
 

@@ -2,7 +2,6 @@
 using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
-using HousePartyTranslator.Helpers;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;

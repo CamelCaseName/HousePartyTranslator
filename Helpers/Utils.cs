@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Helpers
@@ -153,6 +155,17 @@ namespace HousePartyTranslator.Helpers
                 success = true;
             }
             return success;
+        }
+
+        /// <summary>
+        /// Gets the current assembly version as a string.
+        /// </summary>
+        /// <returns>The current assembly version</returns>
+        public static string GetAssemblyFileVersion()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
+            return fileVersion.FileVersion;
         }
     }
 

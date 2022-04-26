@@ -484,7 +484,14 @@ namespace HousePartyTranslator.Managers
                     }
                     else
                     {
-                        MessageBox.Show("Invalid password", "Wrong password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        if (Passwordbox.GetPassword().Length > 1)
+                        {
+                            MessageBox.Show("Invalid password", "Wrong password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        else
+                        {
+                            Environment.Exit(-1);
+                        }
                     }
 
                     Application.UseWaitCursor = true;
