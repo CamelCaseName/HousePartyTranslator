@@ -45,14 +45,13 @@ namespace HousePartyTranslator.Managers
             if (File.Exists(oldExe)) File.Delete(oldExe); ;
 
             //if the version on github has a higher version number
-            if (LatestGithubVersion[0] > LocalVersion[0]
-                || LatestGithubVersion[2] > LocalVersion[2]
-                || LatestGithubVersion[4] > LocalVersion[4])
+            UpdatePending = LatestGithubVersion[0] > LocalVersion[0]/*major version*/
+                || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] > LocalVersion[2])/*major version*/
+                || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] > LocalVersion[4]);/*release number*/
+            if (UpdatePending)
             {
                 if (MessageBox.Show("A new version is available to download. Do you want to automatically update this installation?", "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                 {
-                    UpdatePending = true;
-
                     //get stream to the file in web location
                     using (Stream stream = await client.GetStreamAsync(response.Assets[0].BrowserDownloadUrl))
                     {
@@ -77,7 +76,9 @@ namespace HousePartyTranslator.Managers
                     //exit
                     Application.Exit();
                 }
+
             }
+            
         }
     }
 }

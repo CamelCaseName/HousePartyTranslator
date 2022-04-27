@@ -182,7 +182,6 @@ namespace HousePartyTranslator.Helpers
                 Location = new System.Drawing.Point(4, 22),
                 Name = $"TabPage{number}",
                 Padding = new Padding(3),
-                Size = new System.Drawing.Size(1376, 708),
                 TabIndex = 0,
                 Text = $"Tab{number}",
             };
@@ -204,6 +203,7 @@ namespace HousePartyTranslator.Helpers
             CommentGroup.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
+            newTab.SuspendLayout();
             // 
             // TranslatedTextBox
             // 
@@ -253,14 +253,14 @@ namespace HousePartyTranslator.Helpers
             // 
             // CharacterCountLabel
             // 
-            CharacterCountLabel.Anchor = ((AnchorStyles)((AnchorStyles.Top | AnchorStyles.Right)));
+            CharacterCountLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             CharacterCountLabel.AutoSize = true;
             CharacterCountLabel.BackColor = System.Drawing.SystemColors.Desktop;
             CharacterCountLabel.ForeColor = System.Drawing.SystemColors.Control;
-            CharacterCountLabel.Location = new System.Drawing.Point(501, 5);
+            CharacterCountLabel.Location = new System.Drawing.Point(23, 5);
             CharacterCountLabel.Name = "CharacterCountLabel";
             CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
-            CharacterCountLabel.TabIndex = 16;
+            CharacterCountLabel.TabIndex = 20;
             CharacterCountLabel.Text = "Template: xx | Translation: xx";
             // 
             // SelectedFile
@@ -276,13 +276,14 @@ namespace HousePartyTranslator.Helpers
             // WordsTranslated
             // 
             WordsTranslated.Anchor = AnchorStyles.Top;
+            WordsTranslated.Parent = panel1;
             WordsTranslated.AutoSize = true;
             WordsTranslated.BackColor = System.Drawing.Color.Transparent;
             WordsTranslated.ForeColor = System.Drawing.SystemColors.Control;
-            WordsTranslated.Location = new System.Drawing.Point(302, 6);
+            WordsTranslated.Location = new System.Drawing.Point(60, 6);
             WordsTranslated.Name = "WordsTranslated";
             WordsTranslated.Size = new System.Drawing.Size(47, 13);
-            WordsTranslated.TabIndex = 7;
+            WordsTranslated.TabIndex = 15;
             WordsTranslated.Text = "progress";
             // 
             // ApprovedBox
@@ -308,6 +309,7 @@ namespace HousePartyTranslator.Helpers
             mainTableLayoutPanel.Controls.Add(CheckListBoxLeft, 0, 1);
             mainTableLayoutPanel.Controls.Add(panel1, 0, 0);
             mainTableLayoutPanel.Controls.Add(panel2, 1, 0);
+            mainTableLayoutPanel.Parent = newTab;
             mainTableLayoutPanel.Dock = DockStyle.Fill;
             mainTableLayoutPanel.Location = new System.Drawing.Point(3, 3);
             mainTableLayoutPanel.Name = "mainTableLayoutPanel";
@@ -382,6 +384,15 @@ namespace HousePartyTranslator.Helpers
             ProgressbarTranslated.Value = 50;
 
             newTab.Controls.Add(mainTableLayoutPanel);
+            mainTableLayoutPanel.ResumeLayout();
+            mainTableLayoutPanel.PerformLayout();
+            CommentGroup.ResumeLayout();
+            CommentGroup.PerformLayout();
+            panel1.ResumeLayout();
+            panel1.PerformLayout();
+            panel2.ResumeLayout();
+            panel2.PerformLayout();
+            newTab.ResumeLayout();
 
             return newTab;
         }
