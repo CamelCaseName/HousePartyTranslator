@@ -530,15 +530,16 @@ namespace HousePartyTranslator.Managers
                     {
                         //read the template form the db and display it if it exists
                         helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
-
-                        if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && TranslationData[currentIndex].Category != StringCategory.General)
+    
+                        //translate if useful and possible
+                        if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
                         {
                             ReplaceTranslationTranslatedTask(currentIndex, helper);
                         }
 
-                        //clear text box if it is the template (not translated yet)
+                        //mark text if similar to english (not translated yet)
                         //  sql makes this easy, can just write all commands to a file that have not been sent, then send all on connection resume.
-                        if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && TranslationData[currentIndex].Category != StringCategory.General)
+                        if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
                         {
                             helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
                             //TranslationData[currentIndex].IsTranslated = false;
