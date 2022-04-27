@@ -354,10 +354,5 @@ namespace HousePartyTranslator
                 }
             }
         }
-
-        private void Fenster_Resize(object sender, EventArgs e)
-        {
-            
-        }
     }
 }
