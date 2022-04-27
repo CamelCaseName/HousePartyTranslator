@@ -3,6 +3,7 @@ using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -329,6 +330,26 @@ namespace HousePartyTranslator
                 {
                     translationManager.LoadFileIntoProgram(ActiveProperties(), RecentsManager.GetRecents()[0].Text);
                     if (translationManager.FileName.Length > 0) tabPage1.Text = translationManager.FileName;
+                }
+            }
+        }
+
+        private void CloseTab_Click(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right && tabControl.TabCount > 1)
+            {
+                for (int ix = 0; ix < tabControl.TabCount; ++ix)
+                {
+                    if (tabControl.GetTabRect(ix).Contains(e.Location))
+                    {
+                        //remove manager for the tab, save first
+                        ActiveTranslationManager().SaveFile(ActiveProperties());
+                        translationManagers.Remove(tabControl.TabPages[ix]);
+                        properties.Remove(tabControl.TabPages[ix]);
+
+                        tabControl.TabPages[ix].Dispose();
+                        break;
+                    }
                 }
             }
         }

@@ -287,7 +287,6 @@ namespace HousePartyTranslator
             // 
             this.searchToolStripTextBox.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
             this.searchToolStripTextBox.Size = new System.Drawing.Size(300, 23);
             this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
@@ -435,6 +434,7 @@ namespace HousePartyTranslator
             this.MainTabControl.SelectedIndex = 0;
             this.MainTabControl.Size = new System.Drawing.Size(1384, 734);
             this.MainTabControl.TabIndex = 9;
+            this.MainTabControl.MouseClick += new System.Windows.Forms.MouseEventHandler(CloseTab_Click);
             // 
             // tabPage1
             // 

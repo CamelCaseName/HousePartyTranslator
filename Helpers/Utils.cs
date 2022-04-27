@@ -168,6 +168,11 @@ namespace HousePartyTranslator.Helpers
             return fileVersion.FileVersion;
         }
 
+        /// <summary>
+        /// Creates a new tab with all default controls
+        /// </summary>
+        /// <param name="number">the number of the tab starting at 1, is only used for name and text</param>
+        /// <returns>a TabPage with all controls as child controls</returns>
         public static TabPage CreateNewTab(int number)
         {
             TabPage newTab = new TabPage()
