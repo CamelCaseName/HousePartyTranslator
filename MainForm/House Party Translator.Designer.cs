@@ -41,6 +41,7 @@ namespace HousePartyTranslator
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openInNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.Recents = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
@@ -55,14 +56,14 @@ namespace HousePartyTranslator
             this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.CommentGroup = new System.Windows.Forms.GroupBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
             this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
+            this.panel2 = new System.Windows.Forms.Panel();
             this.MainMenu.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
+            this.mainTableLayoutPanel.SuspendLayout();
             this.CommentGroup.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -181,6 +182,7 @@ namespace HousePartyTranslator
             this.fileToolStripMenuItem.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
+            this.openInNewTabToolStripMenuItem,
             this.toolStripSeparator2,
             this.Recents,
             this.toolStripSeparator,
@@ -198,54 +200,65 @@ namespace HousePartyTranslator
             this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
             this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_Click);
             // 
+            // openInNewTabToolStripMenuItem
+            // 
+            this.openInNewTabToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openInNewTabToolStripMenuItem.Image")));
+            this.openInNewTabToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.openInNewTabToolStripMenuItem.Name = "openInNewTabToolStripMenuItem";
+            this.openInNewTabToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.openInNewTabToolStripMenuItem.Text = "Open in new tab";
+            this.openInNewTabToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
+            // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(143, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
             // Recents
             // 
             this.Recents.Enabled = false;
             this.Recents.Name = "Recents";
             this.Recents.ShowShortcutKeys = false;
-            this.Recents.Size = new System.Drawing.Size(146, 22);
+            this.Recents.Size = new System.Drawing.Size(180, 22);
             this.Recents.Text = "Recents";
             // 
             // toolStripSeparator
             // 
             this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(143, 6);
+            this.toolStripSeparator.Size = new System.Drawing.Size(177, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
             this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveToolStripMenuItem.Text = "&Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
+            this.saveAsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveAsToolStripMenuItem.Image")));
+            this.saveAsToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveAsToolStripMenuItem.Text = "Save &As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(143, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "E&xit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
@@ -323,27 +336,27 @@ namespace HousePartyTranslator
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 
-            // tableLayoutPanel1
+            // mainTableLayoutPanel
             // 
-            this.tableLayoutPanel1.ColumnCount = 2;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel1.Controls.Add(this.CommentGroup, 1, 3);
-            this.tableLayoutPanel1.Controls.Add(this.TranslatedTextBox, 1, 2);
-            this.tableLayoutPanel1.Controls.Add(this.EnglishTextBox, 1, 1);
-            this.tableLayoutPanel1.Controls.Add(this.CheckListBoxLeft, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 0);
-            this.tableLayoutPanel1.Controls.Add(this.panel2, 1, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 27);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 4;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 38.94275F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 41.86569F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 19.19156F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(1384, 734);
-            this.tableLayoutPanel1.TabIndex = 18;
+            this.mainTableLayoutPanel.ColumnCount = 2;
+            this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.mainTableLayoutPanel.Controls.Add(this.CommentGroup, 1, 3);
+            this.mainTableLayoutPanel.Controls.Add(this.TranslatedTextBox, 1, 2);
+            this.mainTableLayoutPanel.Controls.Add(this.EnglishTextBox, 1, 1);
+            this.mainTableLayoutPanel.Controls.Add(this.CheckListBoxLeft, 0, 1);
+            this.mainTableLayoutPanel.Controls.Add(this.panel1, 0, 0);
+            this.mainTableLayoutPanel.Controls.Add(this.panel2, 1, 0);
+            this.mainTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.mainTableLayoutPanel.Location = new System.Drawing.Point(0, 27);
+            this.mainTableLayoutPanel.Name = "mainTableLayoutPanel";
+            this.mainTableLayoutPanel.RowCount = 4;
+            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
+            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 38.94275F));
+            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 41.86569F));
+            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 19.19156F));
+            this.mainTableLayoutPanel.Size = new System.Drawing.Size(1384, 734);
+            this.mainTableLayoutPanel.TabIndex = 18;
             // 
             // CommentGroup
             // 
@@ -357,6 +370,21 @@ namespace HousePartyTranslator
             this.CommentGroup.TabStop = false;
             this.CommentGroup.Text = "Comments";
             // 
+            // CheckListBoxLeft
+            // 
+            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.CheckListBoxLeft.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
+            this.CheckListBoxLeft.FormattingEnabled = true;
+            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
+            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
+            this.mainTableLayoutPanel.SetRowSpan(this.CheckListBoxLeft, 3);
+            this.CheckListBoxLeft.Size = new System.Drawing.Size(686, 698);
+            this.CheckListBoxLeft.TabIndex = 10;
+            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
+            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
+            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
+            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.SelectedFile);
@@ -367,31 +395,6 @@ namespace HousePartyTranslator
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(686, 24);
             this.panel1.TabIndex = 12;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.ApprovedBox);
-            this.panel2.Controls.Add(this.CharacterCountLabel);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(695, 3);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(686, 24);
-            this.panel2.TabIndex = 13;
-            // 
-            // CheckListBoxLeft
-            // 
-            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.CheckListBoxLeft.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
-            this.CheckListBoxLeft.FormattingEnabled = true;
-            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
-            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
-            this.tableLayoutPanel1.SetRowSpan(this.CheckListBoxLeft, 3);
-            this.CheckListBoxLeft.Size = new System.Drawing.Size(686, 698);
-            this.CheckListBoxLeft.TabIndex = 10;
-            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
-            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
-            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
             // 
             // ProgressbarTranslated
             // 
@@ -407,13 +410,23 @@ namespace HousePartyTranslator
             this.ProgressbarTranslated.TabIndex = 8;
             this.ProgressbarTranslated.Value = 50;
             // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.ApprovedBox);
+            this.panel2.Controls.Add(this.CharacterCountLabel);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(695, 3);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(686, 24);
+            this.panel2.TabIndex = 13;
+            // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Desktop;
             this.ClientSize = new System.Drawing.Size(1384, 761);
-            this.Controls.Add(this.tableLayoutPanel1);
+            this.Controls.Add(this.mainTableLayoutPanel);
             this.Controls.Add(this.MainMenu);
             this.Name = "Fenster";
             this.ShowIcon = false;
@@ -422,8 +435,8 @@ namespace HousePartyTranslator
             this.Load += new System.EventHandler(this.Window_Load);
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();
-            this.tableLayoutPanel1.ResumeLayout(false);
-            this.tableLayoutPanel1.PerformLayout();
+            this.mainTableLayoutPanel.ResumeLayout(false);
+            this.mainTableLayoutPanel.PerformLayout();
             this.CommentGroup.ResumeLayout(false);
             this.CommentGroup.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -458,7 +471,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
         private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveCommentsToolStripMenuItem1;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.TableLayoutPanel mainTableLayoutPanel;
         private System.Windows.Forms.GroupBox CommentGroup;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
@@ -467,6 +480,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem Recents;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openInNewTabToolStripMenuItem;
         //private System.Windows.Forms.SplitContainer MainContainer;
     }
 }
