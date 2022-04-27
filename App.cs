@@ -25,7 +25,6 @@ namespace HousePartyTranslator
         /// </summary>
         private static void Start()
         {
-            _ = new TranslationManager();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Fenster());
