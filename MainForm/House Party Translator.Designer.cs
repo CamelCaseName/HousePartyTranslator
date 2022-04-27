@@ -304,7 +304,7 @@ namespace HousePartyTranslator
             this.storyExplorerStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
             this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(118, 23);
             this.storyExplorerStripMenuItem1.Text = "Auto Story&Explorer";
-            this.storyExplorerStripMenuItem1.Click += new System.EventHandler(this.StoryExplorerStripMenuItem1_Click);
+            this.storyExplorerStripMenuItem1.Click += new System.EventHandler(this.StoryExplorerStripMenuItem_Click);
             // 
             // customOpenStoryExplorer
             // 
@@ -321,7 +321,7 @@ namespace HousePartyTranslator
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
             this.settingsToolStripMenuItem.Text = "Settings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
+            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 
             // tableLayoutPanel1
             // 

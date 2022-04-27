@@ -6,8 +6,14 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
+    /// <summary>
+    /// The main class which handles the UI for the House Party Translator Window
+    /// </summary>
     public partial class Fenster : Form
     {
+        /// <summary>
+        /// A Propertyhelper containing all relevant UI elements.
+        /// </summary>
         public readonly PropertyHelper MainProperties;
         private StoryExplorer SExplorer;
         private readonly DiscordPresenceManager PresenceManager;
@@ -15,6 +21,9 @@ namespace HousePartyTranslator
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
         private SettingsForm.SettingsForm settings;
 
+        /// <summary>
+        /// Instance of the Story Explorer, but the owner is checked so only the Storyexplorer class itself can instantiate it.
+        /// </summary>
         public StoryExplorer Explorer
         {
             get
@@ -34,6 +43,9 @@ namespace HousePartyTranslator
             }
         }
 
+        /// <summary>
+        /// Constructor for the main window of the translator, starts all other components in the correct order
+        /// </summary>
         public Fenster()
         {
             //custom exception handlers to handle mysql exceptions
@@ -81,6 +93,12 @@ namespace HousePartyTranslator
             }
         }
 
+        /// <summary>
+        /// Override to intercept the Keystrokes windows sends us.
+        /// </summary>
+        /// <param name="msg">The message containing relevant info</param>
+        /// <param name="keyData">List of all Keys that were pressed in this event</param>
+        /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
             if (TranslationManager.main.MainFormKeyPressHandler(ref msg, keyData, MainProperties))
@@ -198,7 +216,7 @@ namespace HousePartyTranslator
             TranslationManager.main.ShowAutoSaveDialog(MainProperties);
         }
 
-        private void StoryExplorerStripMenuItem1_Click(object sender, EventArgs e)
+        private void StoryExplorerStripMenuItem_Click(object sender, EventArgs e)
         {
             CreateStoryExplorer(true);
         }
@@ -217,7 +235,7 @@ namespace HousePartyTranslator
             Cursor = Cursors.Default;
         }
 
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             settings = new SettingsForm.SettingsForm();
             if (!settings.IsDisposed) settings.Show();

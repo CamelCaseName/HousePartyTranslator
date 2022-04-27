@@ -11,9 +11,18 @@ namespace HousePartyTranslator.Helpers
     /// </summary>
     public class ColouredCheckedListBox : CheckedListBox
     {
-        public List<int> SearchResults = new List<int>(); //list containing all indices that are part of the search result
-        public List<int> SimilarStringsToEnglish = new List<int>(); //list containing all indices that are duplicates fo the english string
+        /// <summary>
+        /// List containing all indices that are part of the search result
+        /// </summary>
+        public List<int> SearchResults = new List<int>();
+        /// <summary>
+        /// list containing all indices that are duplicates fo the english string
+        /// </summary>
+        public List<int> SimilarStringsToEnglish = new List<int>();
 
+        /// <summary>
+        /// Use double buffering, removes flicker
+        /// </summary>
         protected new bool DoubleBuffered = true;
 
         /// <summary>

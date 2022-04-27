@@ -1,6 +1,5 @@
 ﻿using HousePartyTranslator.Helpers;
 using HousePartyTranslator.Managers;
-using HousePartyTranslator.StoryExplorerForm;
 using System;
 using System.Collections.Generic;
 using System.Drawing;

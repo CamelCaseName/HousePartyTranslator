@@ -20,6 +20,9 @@ namespace HousePartyTranslator
             Start();
         }
 
+        /// <summary>
+        /// Starts the main form
+        /// </summary>
         private static void Start()
         {
             _ = new TranslationManager();
