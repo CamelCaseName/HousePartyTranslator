@@ -4,6 +4,7 @@ using HousePartyTranslator.StoryExplorerForm;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -18,7 +19,7 @@ namespace HousePartyTranslator
         private DiscordPresenceManager PresenceManager;
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
         private RecentsManager RecentsManager;
-        private static TabControl tabControl;
+        public static TabControl tabControl;
         private SettingsForm.SettingsForm settings;
         private StoryExplorer SExplorer;
 
@@ -233,7 +234,7 @@ namespace HousePartyTranslator
             PresenceManager.SetStory(translationManager.StoryName);
         }
 
-        private void OpenToolStripMenuItem_Click(object sender, EventArgs e) 
+        private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             //get currently active translationmanager
             TranslationManager translationManager = ActiveTranslationManager();
@@ -352,6 +353,11 @@ namespace HousePartyTranslator
                     }
                 }
             }
+        }
+
+        private void Fenster_Resize(object sender, EventArgs e)
+        {
+            
         }
     }
 }

@@ -287,6 +287,7 @@ namespace HousePartyTranslator
             // 
             this.searchToolStripTextBox.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
             this.searchToolStripTextBox.Size = new System.Drawing.Size(300, 23);
             this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
@@ -434,7 +435,7 @@ namespace HousePartyTranslator
             this.MainTabControl.SelectedIndex = 0;
             this.MainTabControl.Size = new System.Drawing.Size(1384, 734);
             this.MainTabControl.TabIndex = 9;
-            this.MainTabControl.MouseClick += new System.Windows.Forms.MouseEventHandler(CloseTab_Click);
+            this.MainTabControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.CloseTab_Click);
             // 
             // tabPage1
             // 
@@ -462,6 +463,7 @@ namespace HousePartyTranslator
             this.Text = "HP Translator Helper";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Fenster_FormClosing);
             this.Shown += new System.EventHandler(this.FormShown);
+            this.Resize += new System.EventHandler(this.Fenster_Resize);
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();
             this.mainTableLayoutPanel.ResumeLayout(false);

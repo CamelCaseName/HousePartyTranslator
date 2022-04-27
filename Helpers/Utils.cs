@@ -182,7 +182,6 @@ namespace HousePartyTranslator.Helpers
                 Location = new System.Drawing.Point(4, 22),
                 Name = $"TabPage{number}",
                 Padding = new Padding(3),
-                Size = new System.Drawing.Size(1376, 708),
                 TabIndex = 0,
                 Text = $"Tab{number}",
             };
@@ -308,6 +307,7 @@ namespace HousePartyTranslator.Helpers
             mainTableLayoutPanel.Controls.Add(CheckListBoxLeft, 0, 1);
             mainTableLayoutPanel.Controls.Add(panel1, 0, 0);
             mainTableLayoutPanel.Controls.Add(panel2, 1, 0);
+            mainTableLayoutPanel.Parent = newTab;
             mainTableLayoutPanel.Dock = DockStyle.Fill;
             mainTableLayoutPanel.Location = new System.Drawing.Point(3, 3);
             mainTableLayoutPanel.Name = "mainTableLayoutPanel";
