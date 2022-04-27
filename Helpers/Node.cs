@@ -203,7 +203,7 @@ namespace HousePartyTranslator.Helpers
             return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
         }
 
-        public static List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
+        public List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
         {
             List<Node> nodes = new List<Node>();
 
@@ -235,7 +235,7 @@ namespace HousePartyTranslator.Helpers
                 Node nodeToWorkOn = nodes[index++];
 
                 //add children
-                if (serialNode.ChildNodes.Count > 0)
+                if (serialNode.ChildNodes?.Count > 0)
                 {
                     foreach (Guid guid in serialNode.ChildNodes)
                     {
@@ -244,7 +244,7 @@ namespace HousePartyTranslator.Helpers
                 }
 
                 //add parents
-                if (serialNode.ParentNodes.Count > 0)
+                if (serialNode.ParentNodes?.Count > 0)
                 {
                     foreach (Guid guid in serialNode.ParentNodes)
                     {
