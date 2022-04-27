@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Managers
 {
     static class SoftwareVersionManager
     {
-        public static readonly string LocalVersion = "0.4.0.0";
+        public static readonly string LocalVersion = "0.4.1.0";
         public static string LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new HttpClient();
@@ -37,8 +37,8 @@ namespace HousePartyTranslator.Managers
             LatestGithubVersion = $"{t[0]}.{t[2]}.{t[3]}.0";
 
             //path to file if we need it
-            string releaseFile = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "Release.7z");
-            string releaseFolder = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+            string releaseFile = Path.Combine(Directory.GetCurrentDirectory(), "Release.7z");
+            string releaseFolder = Directory.GetCurrentDirectory();
 
             //delete old one if it exists
             string oldExe = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "prev.exe");
