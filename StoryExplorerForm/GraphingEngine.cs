@@ -1,6 +1,5 @@
 ﻿using HousePartyTranslator.Helpers;
 using HousePartyTranslator.Managers;
-using HousePartyTranslator.StoryExplorerForm;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -29,10 +28,9 @@ namespace HousePartyTranslator.StoryExplorerForm
         private float BeforeZoomMouseY = 0f;
 
         private bool CurrentlyInPan = false;
-        private bool IsShiftPressed = false;
-
         private Node highlightedNode = Node.NullNode;
         private Node infoNode = Node.NullNode;
+        private bool IsShiftPressed = false;
         private Node LastInfoNode = Node.NullNode;
         private Color LastNodeColor = Color.DarkBlue;
 
@@ -193,15 +191,6 @@ namespace HousePartyTranslator.StoryExplorerForm
             graphY = screenY / Scaling + OffsetY;
         }
 
-        private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
-        {
-            //display info on new node
-            if (e.ClickType == ClickedNodeTypes.Info)
-            {
-                DisplayNodeInfo(e.ChangedNode, true);
-            }
-        }
-
         private void DisplayNodeInfo(Node infoNode, bool colourNode)
         {
             //display info on new node
@@ -239,6 +228,15 @@ namespace HousePartyTranslator.StoryExplorerForm
             }
 
             Explorer.Invalidate();
+        }
+
+        private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
+        {
+            //display info on new node
+            if (e.ClickType == ClickedNodeTypes.Info)
+            {
+                DisplayNodeInfo(e.ChangedNode, true);
+            }
         }
 
         private void DrawColouredNode(Node node, Color color)
@@ -327,10 +325,11 @@ namespace HousePartyTranslator.StoryExplorerForm
         {
             if (e.ClickType == ClickedNodeTypes.Highlight)
             {
+                TranslationManager translationManager = Fenster.ActiveTranslationManager();
                 //tell translationmanager to update us or not when selected
-                TranslationManager.main.UpdateStoryExplorerSelection = !IsShiftPressed;
+                translationManager.UpdateStoryExplorerSelection = !IsShiftPressed;
                 //select line in translation manager
-                TranslationManager.main.SelectLine(e.ChangedNode.ID);
+                translationManager.SelectLine(e.ChangedNode.ID);
                 //put info up
                 DisplayNodeInfo(e.ChangedNode, false);
                 //draw nodes

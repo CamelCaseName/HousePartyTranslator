@@ -19,12 +19,10 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     public class TranslationManager
     {
-        public static TranslationManager main;
-
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public bool isTemplate = false;
 
-        public bool IsUpToDate = false; //setting
+        public static bool IsUpToDate = false; //setting
         public List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
         private static Fenster MainWindow;
@@ -43,11 +41,6 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public TranslationManager()
         {
-            if (main != null)
-            {
-                return;
-            }
-            main = this;
         }
 
         /// <summary>
@@ -133,7 +126,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="FensterRef">The window of type fenster</param>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public static void ApprovedButtonHandler(PropertyHelper helper)
+        public void ApprovedButtonHandler(PropertyHelper helper)
         {
             //change checked state for the selected item,
             //but only if we are on the button with the mouse.
@@ -150,7 +143,7 @@ namespace HousePartyTranslator.Managers
         /// Displays a window with the necessary info about the exception.
         /// </summary>
         /// <param name="message">The error message to display</param>
-        public static void DisplayExceptionMessage(string message)
+        public static void DisplayExceptionMessage(string message, TranslationManager main)
         {
             LogManager.LogEvent("Exception message shown: " + message);
             LogManager.LogEvent("Current exceptioon count: " + main.ExceptionCount + 1);
@@ -176,7 +169,7 @@ namespace HousePartyTranslator.Managers
         /// Opens a save file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the file to save to.</returns>
-        public static string SaveFileOnSystem()
+        public string SaveFileOnSystem()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
@@ -186,8 +179,8 @@ namespace HousePartyTranslator.Managers
                 CheckPathExists = true,
                 CreatePrompt = true,
                 OverwritePrompt = true,
-                FileName = main.FileName,
-                InitialDirectory = main.SourceFilePath
+                FileName = FileName,
+                InitialDirectory = SourceFilePath
             };
 
             if (saveFileDialog.ShowDialog() == DialogResult.OK)
@@ -259,8 +252,8 @@ namespace HousePartyTranslator.Managers
                 //UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count, helper.ApprovedCountLabel, helper.NoProgressbar);
 
                 string ID = TranslationData[currentIndex].ID;
-                DataBaseManager.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, main.Language);
-                if (!DataBaseManager.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !helper.CheckListBoxLeft.GetItemChecked(currentIndex), main.Language))
+                DataBaseManager.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, Language);
+                if (!DataBaseManager.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !helper.CheckListBoxLeft.GetItemChecked(currentIndex), Language))
                 {
                     MessageBox.Show("Could not set approved state of string " + ID);
                 }
@@ -794,11 +787,11 @@ namespace HousePartyTranslator.Managers
             if (SourceFilePath != "")
             {
                 isSaveAs = true;
-                string oldFile = main.SourceFilePath;
+                string oldFile = SourceFilePath;
                 string SaveFile = SaveFileOnSystem();
-                main.SourceFilePath = SaveFile;
-                main.SaveFile(helper);
-                main.SourceFilePath = oldFile;
+                SourceFilePath = SaveFile;
+                this.SaveFile(helper);
+                SourceFilePath = oldFile;
                 isSaveAs = false;
             }
         }
@@ -819,8 +812,7 @@ namespace HousePartyTranslator.Managers
                 {
                     if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()) /*if the translated text contaisn the search string*/
                         || (TranslationData[i].EnglishString != null
-                        ? TranslationData[i].EnglishString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant())
-                        : false)/*if the english string is not null and contaisn the searched part*/
+                        && TranslationData[i].EnglishString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
                         || TranslationData[i].ID.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()))/*if the id contains the searched part*/
                     {
                         helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
@@ -844,7 +836,7 @@ namespace HousePartyTranslator.Managers
         {
             //select line which correspondends to id
             int index = TranslationData.FindIndex(n => n.ID == id);
-            if (index >= 0) MainWindow.MainProperties.CheckListBoxLeft.SelectedIndex = index;
+            if (index >= 0) Fenster.ActiveProperties().CheckListBoxLeft.SelectedIndex = index;
         }
 
         /// <summary>
@@ -1069,7 +1061,7 @@ namespace HousePartyTranslator.Managers
             catch (UnauthorizedAccessException e)
             {
                 LogManager.LogEvent(e.ToString());
-                DisplayExceptionMessage(e.ToString());
+                DisplayExceptionMessage(e.ToString(), this);
             }
 
             MessageBox.Show(
@@ -1123,10 +1115,10 @@ namespace HousePartyTranslator.Managers
             MainWindow.Cursor = Cursors.WaitCursor;
 
             bool lineIsApproved = false;
-            bool gotApprovedStates = DataBaseManager.GetAllStatesForFile(main.FileName, main.StoryName, out List<LineData> internalLines, main.Language);
+            bool gotApprovedStates = DataBaseManager.GetAllStatesForFile(FileName, StoryName, out List<LineData> internalLines, Language);
             int currentIndex = 0;
 
-            foreach (LineData lineD in main.TranslationData)
+            foreach (LineData lineD in TranslationData)
             {
                 if (gotApprovedStates)
                 {

@@ -1,26 +1,26 @@
 ﻿using HousePartyTranslator.Helpers;
+using SevenZipNET;
 using System.IO;
-using System;
 using System.Net.Http;
 using System.Text.Json;
-using System.Threading.Tasks;
-using SevenZipNET;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
     static class SoftwareVersionManager
     {
-        public static readonly string LocalVersion = "0.3.5.0";
+        public static readonly string LocalVersion = "0.4.0.0";
         public static string LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new HttpClient();
         const string APIUrl = "https://api.github.com/repos/CamelCaseName/HousePartyTranslator/releases/latest";
 
+        /// <summary>
+        /// Download and replaces the running application if necessary
+        /// </summary>
         public static void ReplaceFileIfNew()
         {
             //modify client signatures
-            client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Add("User-Agent", "House Party Translator update service");
 
             //offload async context

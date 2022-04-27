@@ -167,6 +167,224 @@ namespace HousePartyTranslator.Helpers
             FileVersionInfo fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
             return fileVersion.FileVersion;
         }
+
+        /// <summary>
+        /// Creates a new tab with all default controls
+        /// </summary>
+        /// <param name="number">the number of the tab starting at 1, is only used for name and text</param>
+        /// <returns>a TabPage with all controls as child controls</returns>
+        public static TabPage CreateNewTab(int number)
+        {
+            TabPage newTab = new TabPage()
+            {
+                BackColor = System.Drawing.Color.Black,
+                ForeColor = System.Drawing.SystemColors.ScrollBar,
+                Location = new System.Drawing.Point(4, 22),
+                Name = $"TabPage{number}",
+                Padding = new Padding(3),
+                Size = new System.Drawing.Size(1376, 708),
+                TabIndex = 0,
+                Text = $"Tab{number}",
+            };
+
+            TextBox TranslatedTextBox = new TextBox();
+            TextBox EnglishTextBox = new TextBox();
+            TextBox CommentTextBox = new TextBox();
+            Label CharacterCountLabel = new Label();
+            Label SelectedFile = new Label();
+            Label WordsTranslated = new Label();
+            CheckBox ApprovedBox = new CheckBox();
+            TableLayoutPanel mainTableLayoutPanel = new TableLayoutPanel();
+            GroupBox CommentGroup = new GroupBox();
+            Panel panel1 = new Panel();
+            Panel panel2 = new Panel();
+            ColouredCheckedListBox CheckListBoxLeft = new ColouredCheckedListBox();
+            NoAnimationBar ProgressbarTranslated = new NoAnimationBar();
+            mainTableLayoutPanel.SuspendLayout();
+            CommentGroup.SuspendLayout();
+            panel1.SuspendLayout();
+            panel2.SuspendLayout();
+            // 
+            // TranslatedTextBox
+            // 
+            TranslatedTextBox.AcceptsReturn = true;
+            TranslatedTextBox.AllowDrop = true;
+            TranslatedTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
+            TranslatedTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            TranslatedTextBox.Dock = DockStyle.Fill;
+            TranslatedTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            TranslatedTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            TranslatedTextBox.ImeMode = ImeMode.On;
+            TranslatedTextBox.Location = new System.Drawing.Point(689, 294);
+            TranslatedTextBox.Multiline = true;
+            TranslatedTextBox.Name = "TranslatedTextBox";
+            TranslatedTextBox.ScrollBars = ScrollBars.Both;
+            TranslatedTextBox.Size = new System.Drawing.Size(678, 275);
+            TranslatedTextBox.TabIndex = 0;
+            TranslatedTextBox.Text = "edit here";
+            TranslatedTextBox.TextChanged += new EventHandler(((Fenster)Form.ActiveForm).TextBoxRight_TextChanged);
+            // 
+            // EnglishTextBox
+            // 
+            EnglishTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            EnglishTextBox.Dock = DockStyle.Fill;
+            EnglishTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            EnglishTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            EnglishTextBox.Location = new System.Drawing.Point(689, 33);
+            EnglishTextBox.Multiline = true;
+            EnglishTextBox.Name = "EnglishTextBox";
+            EnglishTextBox.ReadOnly = true;
+            EnglishTextBox.Size = new System.Drawing.Size(678, 255);
+            EnglishTextBox.TabIndex = 9;
+            EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
+            // 
+            // CommentTextBox
+            // 
+            CommentTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            CommentTextBox.Dock = DockStyle.Fill;
+            CommentTextBox.Font = new System.Drawing.Font("Consolas", 11F);
+            CommentTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            CommentTextBox.Location = new System.Drawing.Point(3, 16);
+            CommentTextBox.Multiline = true;
+            CommentTextBox.Name = "CommentTextBox";
+            CommentTextBox.ScrollBars = ScrollBars.Vertical;
+            CommentTextBox.Size = new System.Drawing.Size(672, 105);
+            CommentTextBox.TabIndex = 13;
+            // 
+            // CharacterCountLabel
+            // 
+            CharacterCountLabel.Anchor = ((AnchorStyles)((AnchorStyles.Top | AnchorStyles.Right)));
+            CharacterCountLabel.AutoSize = true;
+            CharacterCountLabel.BackColor = System.Drawing.SystemColors.Desktop;
+            CharacterCountLabel.ForeColor = System.Drawing.SystemColors.Control;
+            CharacterCountLabel.Location = new System.Drawing.Point(501, 5);
+            CharacterCountLabel.Name = "CharacterCountLabel";
+            CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
+            CharacterCountLabel.TabIndex = 16;
+            CharacterCountLabel.Text = "Template: xx | Translation: xx";
+            // 
+            // SelectedFile
+            // 
+            SelectedFile.AutoSize = true;
+            SelectedFile.ForeColor = System.Drawing.SystemColors.Control;
+            SelectedFile.Location = new System.Drawing.Point(0, 6);
+            SelectedFile.Name = "SelectedFile";
+            SelectedFile.Size = new System.Drawing.Size(98, 13);
+            SelectedFile.TabIndex = 7;
+            SelectedFile.Text = "Selected File: none";
+            // 
+            // WordsTranslated
+            // 
+            WordsTranslated.Anchor = AnchorStyles.Top;
+            WordsTranslated.AutoSize = true;
+            WordsTranslated.BackColor = System.Drawing.Color.Transparent;
+            WordsTranslated.ForeColor = System.Drawing.SystemColors.Control;
+            WordsTranslated.Location = new System.Drawing.Point(302, 6);
+            WordsTranslated.Name = "WordsTranslated";
+            WordsTranslated.Size = new System.Drawing.Size(47, 13);
+            WordsTranslated.TabIndex = 7;
+            WordsTranslated.Text = "progress";
+            // 
+            // ApprovedBox
+            // 
+            ApprovedBox.AutoSize = true;
+            ApprovedBox.ForeColor = System.Drawing.SystemColors.Control;
+            ApprovedBox.Location = new System.Drawing.Point(3, 5);
+            ApprovedBox.Name = "ApprovedBox";
+            ApprovedBox.Size = new System.Drawing.Size(72, 17);
+            ApprovedBox.TabIndex = 13;
+            ApprovedBox.Text = Properties.Resources.Approved;
+            ApprovedBox.UseVisualStyleBackColor = true;
+            ApprovedBox.CheckedChanged += new EventHandler(((Fenster)Form.ActiveForm).ApprovedBox_CheckedChanged);
+            // 
+            // mainTableLayoutPanel
+            // 
+            mainTableLayoutPanel.ColumnCount = 2;
+            mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.07924F));
+            mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.92076F));
+            mainTableLayoutPanel.Controls.Add(CommentGroup, 1, 3);
+            mainTableLayoutPanel.Controls.Add(TranslatedTextBox, 1, 2);
+            mainTableLayoutPanel.Controls.Add(EnglishTextBox, 1, 1);
+            mainTableLayoutPanel.Controls.Add(CheckListBoxLeft, 0, 1);
+            mainTableLayoutPanel.Controls.Add(panel1, 0, 0);
+            mainTableLayoutPanel.Controls.Add(panel2, 1, 0);
+            mainTableLayoutPanel.Dock = DockStyle.Fill;
+            mainTableLayoutPanel.Location = new System.Drawing.Point(3, 3);
+            mainTableLayoutPanel.Name = "mainTableLayoutPanel";
+            mainTableLayoutPanel.RowCount = 4;
+            mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 38.94275F));
+            mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 41.86569F));
+            mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 19.19156F));
+            mainTableLayoutPanel.Size = new System.Drawing.Size(1370, 702);
+            mainTableLayoutPanel.TabIndex = 18;
+            // 
+            // CommentGroup
+            // 
+            CommentGroup.Controls.Add(CommentTextBox);
+            CommentGroup.Dock = DockStyle.Fill;
+            CommentGroup.ForeColor = System.Drawing.SystemColors.Window;
+            CommentGroup.Location = new System.Drawing.Point(689, 575);
+            CommentGroup.Name = "CommentGroup";
+            CommentGroup.Size = new System.Drawing.Size(678, 124);
+            CommentGroup.TabIndex = 11;
+            CommentGroup.TabStop = false;
+            CommentGroup.Text = "Comments";
+            // 
+            // panel1
+            // 
+            panel1.Controls.Add(SelectedFile);
+            panel1.Controls.Add(WordsTranslated);
+            panel1.Controls.Add(ProgressbarTranslated);
+            panel1.Dock = DockStyle.Fill;
+            panel1.Location = new System.Drawing.Point(3, 3);
+            panel1.Name = "panel1";
+            panel1.Size = new System.Drawing.Size(680, 24);
+            panel1.TabIndex = 12;
+            // 
+            // panel2
+            // 
+            panel2.Controls.Add(ApprovedBox);
+            panel2.Controls.Add(CharacterCountLabel);
+            panel2.Dock = DockStyle.Fill;
+            panel2.Location = new System.Drawing.Point(689, 3);
+            panel2.Name = "panel2";
+            panel2.Size = new System.Drawing.Size(678, 24);
+            panel2.TabIndex = 13;
+            // 
+            // CheckListBoxLeft
+            // 
+            CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
+            CheckListBoxLeft.Dock = DockStyle.Fill;
+            CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
+            CheckListBoxLeft.FormattingEnabled = true;
+            CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
+            CheckListBoxLeft.Name = "CheckListBoxLeft";
+            mainTableLayoutPanel.SetRowSpan(CheckListBoxLeft, 3);
+            CheckListBoxLeft.Size = new System.Drawing.Size(680, 666);
+            CheckListBoxLeft.TabIndex = 10;
+            CheckListBoxLeft.ThreeDCheckBoxes = true;
+            CheckListBoxLeft.ItemCheck += new ItemCheckEventHandler(((Fenster)Form.ActiveForm).CheckListBoxLeft_ItemCheck);
+            CheckListBoxLeft.SelectedIndexChanged += new EventHandler(((Fenster)Form.ActiveForm).CheckListBoxLeft_SelectedIndexChanged);
+            // 
+            // ProgressbarTranslated
+            // 
+            ProgressbarTranslated.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            ProgressbarTranslated.Cursor = Cursors.Default;
+            ProgressbarTranslated.Dock = DockStyle.Fill;
+            ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            ProgressbarTranslated.Location = new System.Drawing.Point(0, 0);
+            ProgressbarTranslated.Name = "ProgressbarTranslated";
+            ProgressbarTranslated.Size = new System.Drawing.Size(680, 24);
+            ProgressbarTranslated.Step = 1;
+            ProgressbarTranslated.Style = ProgressBarStyle.Continuous;
+            ProgressbarTranslated.TabIndex = 8;
+            ProgressbarTranslated.Value = 50;
+
+            newTab.Controls.Add(mainTableLayoutPanel);
+
+            return newTab;
+        }
     }
 
 }

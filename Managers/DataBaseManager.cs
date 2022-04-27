@@ -555,8 +555,8 @@ namespace HousePartyTranslator.Managers
             Properties.Settings.Default.Save();
 
             //set global variable for later actions
-            TranslationManager.main.IsUpToDate = DBVersion == SoftwareVersion;
-            if (!TranslationManager.main.IsUpToDate)
+            TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
+            if (!TranslationManager.IsUpToDate)
             {
                 MessageBox.Show($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
                             $" You may acquire the latest version of this program. " +

@@ -13,11 +13,11 @@ namespace HousePartyTranslator
     public class ContextProvider
     {
         public bool GotCancelled = false;
+        private readonly string FileId;
         private readonly bool IsStory;
         private readonly Random Random = new Random();
         private string _StoryFilePath;
         private List<Node> CriteriaInFile;
-        private readonly string FileId;
         private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> Nodes;
 
@@ -98,69 +98,6 @@ namespace HousePartyTranslator
                         GotCancelled = true;
                     }
                 }
-            }
-        }
-
-        private void DissectCharacter(CharacterStory story)
-        {
-            if (story != null && !GotCancelled)
-            {
-                CriteriaInFile = new List<Node>();
-
-                //get all relevant items from the json
-                Nodes.AddRange(GetDialogues(story));
-                Nodes.AddRange(GetGlobalGoodByeResponses(story));
-                Nodes.AddRange(GetGlobalResponses(story));
-                Nodes.AddRange(GetBackGroundChatter(story));
-                Nodes.AddRange(GetQuests(story));
-                Nodes.AddRange(GetReactions(story));
-
-                //remove duplicates/merge criteria
-                //maybe later we load the corresponding strings from the character files and vise versa?
-                Nodes = CombineNodes(Nodes);
-
-                //clear criteria to free memory, we dont need them anyways
-                //cant be called recusrively so we cant add it, it would break the combination
-                CriteriaInFile.Clear();
-
-                //calculate starting positions
-                Nodes = CalculateStartingPositions(Nodes);
-
-                //render and do the force driven calculation thingies
-                Nodes = CalculateForceDirectedLayout(Nodes);
-
-            }
-        }
-
-        private void DissectStory(MainStory story)
-        {
-            if (story != null && !GotCancelled)
-            {
-                CriteriaInFile = new List<Node>();
-
-                //add all items in the story
-                Nodes.AddRange(GetItemOverrides(story));
-                //add all item groups with their actions
-                Nodes.AddRange(GetItemGroups(story));
-                //add all items in the story
-                Nodes.AddRange(GetAchievements(story));
-                //add all reactions the player will say
-                Nodes.AddRange(GetPlayerReactions(story));
-
-                //remove duplicates/merge criteria
-                //maybe later we load the corresponding strings from the character files and vise versa?
-                Nodes = CombineNodes(Nodes);
-
-                //clear criteria to free memory, we dont need them anyways
-                //cant be called recusrively so we cant add it, it would break the combination
-                CriteriaInFile.Clear();
-
-                //calculate starting positions
-                Nodes = CalculateStartingPositions(Nodes);
-
-                //render and do the force driven calculation thingies
-                Nodes = CalculateForceDirectedLayout(Nodes);
-
             }
         }
 
@@ -392,6 +329,69 @@ namespace HousePartyTranslator
                 listNodes.Add(pair.Value);
             }
             return listNodes;
+        }
+
+        private void DissectCharacter(CharacterStory story)
+        {
+            if (story != null && !GotCancelled)
+            {
+                CriteriaInFile = new List<Node>();
+
+                //get all relevant items from the json
+                Nodes.AddRange(GetDialogues(story));
+                Nodes.AddRange(GetGlobalGoodByeResponses(story));
+                Nodes.AddRange(GetGlobalResponses(story));
+                Nodes.AddRange(GetBackGroundChatter(story));
+                Nodes.AddRange(GetQuests(story));
+                Nodes.AddRange(GetReactions(story));
+
+                //remove duplicates/merge criteria
+                //maybe later we load the corresponding strings from the character files and vise versa?
+                Nodes = CombineNodes(Nodes);
+
+                //clear criteria to free memory, we dont need them anyways
+                //cant be called recusrively so we cant add it, it would break the combination
+                CriteriaInFile.Clear();
+
+                //calculate starting positions
+                Nodes = CalculateStartingPositions(Nodes);
+
+                //render and do the force driven calculation thingies
+                Nodes = CalculateForceDirectedLayout(Nodes);
+
+            }
+        }
+
+        private void DissectStory(MainStory story)
+        {
+            if (story != null && !GotCancelled)
+            {
+                CriteriaInFile = new List<Node>();
+
+                //add all items in the story
+                Nodes.AddRange(GetItemOverrides(story));
+                //add all item groups with their actions
+                Nodes.AddRange(GetItemGroups(story));
+                //add all items in the story
+                Nodes.AddRange(GetAchievements(story));
+                //add all reactions the player will say
+                Nodes.AddRange(GetPlayerReactions(story));
+
+                //remove duplicates/merge criteria
+                //maybe later we load the corresponding strings from the character files and vise versa?
+                Nodes = CombineNodes(Nodes);
+
+                //clear criteria to free memory, we dont need them anyways
+                //cant be called recusrively so we cant add it, it would break the combination
+                CriteriaInFile.Clear();
+
+                //calculate starting positions
+                Nodes = CalculateStartingPositions(Nodes);
+
+                //render and do the force driven calculation thingies
+                Nodes = CalculateForceDirectedLayout(Nodes);
+
+            }
         }
 
         private List<Node> GetAchievements(MainStory story)
