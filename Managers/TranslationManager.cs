@@ -23,6 +23,7 @@ namespace HousePartyTranslator.Managers
         public bool isTemplate = false;
 
         public static bool IsUpToDate = false; //setting
+        public static bool ChangesPending = false;
         public List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
         private static Fenster MainWindow;
@@ -760,6 +761,8 @@ namespace HousePartyTranslator.Managers
 
                 OutputWriter.Close();
 
+                ChangesPending = false;
+
                 MainWindow.Cursor = Cursors.Default;
             }
         }
@@ -770,7 +773,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void ShowAutoSaveDialog(PropertyHelper helper)
         {
-            if (Properties.Settings.Default.askForSaveDialog)
+            if (Properties.Settings.Default.askForSaveDialog && TranslationManager.ChangesPending)
             {
                 if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
                 {
@@ -883,6 +886,7 @@ namespace HousePartyTranslator.Managers
                 helper.TranslationTextBox.Text.Replace('|', ' ');
                 TranslationData[internalIndex].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
                 UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count(), helper);
+                ChangesPending = true;
             }
         }
 
