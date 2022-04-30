@@ -192,8 +192,7 @@ namespace HousePartyTranslator
 
         private void MainTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //set search term to the one from the respective TranslationManager
-            if (TabManager.ActiveTranslationManager != null) searchToolStripTextBox.Text = TabManager.ActiveTranslationManager.SearchQuery;
+            TabManager.SwitchTabs();
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object sender, EventArgs e)
@@ -245,7 +244,10 @@ namespace HousePartyTranslator
 
         private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.Search(TabManager.ActiveProperties);
+            if (!TabManager.SearchAll())
+            {
+                TabManager.ActiveTranslationManager.Search(TabManager.ActiveProperties);
+            }
         }
 
         private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)

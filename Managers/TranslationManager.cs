@@ -26,16 +26,17 @@ namespace HousePartyTranslator.Managers
         public List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
         public string SearchQuery = "";
+        public int SelectedSearchResult = 0;
 
         private static Fenster MainWindow;
-        private readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
+        private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
         private int ExceptionCount = 0;
         private string fileName = "";
         private bool isSaveAs = false;
         private string language = "";
         private int LastIndex = -1;
-        private int SelectedSearchResult = 0;
         private string sourceFilePath = "";
+        private int searchTabIndex = 0;
         private string storyName = "";
 
         /// <summary>
@@ -325,24 +326,43 @@ namespace HousePartyTranslator.Managers
                         if (helper.CheckListBoxLeft.SearchResults.Any())
                         {
                             //loop back to start
-                            if (SelectedSearchResult >= helper.CheckListBoxLeft.SearchResults.Count - 1)
+                            if (SelectedSearchResult > helper.CheckListBoxLeft.SearchResults.Count - 1)
                             {
                                 SelectedSearchResult = 0;
-                                //select next index from list of matches
-                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
+                                //loop over to new tab when in global search
+                                if (TabManager.InGlobalSearch)
                                 {
-                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                    searchTabIndex = TabManager.TabControl.SelectedIndex;
+                                    TabManager.SwitchTabs(++searchTabIndex);
+                                }
+                                else
+                                {
+                                    //select next index from list of matches
+                                    if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
+                                    {
+                                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                    }
                                 }
                             }
                             else
                             {
-                                //select next index from list of matches
-                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++] < helper.CheckListBoxLeft.Items.Count)
+                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
                                 {
-                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                                }
+                                else
+                                {
+                                    SelectedSearchResult = 0;
+                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
                                 }
                             }
 
+                            return true;
+                        }
+                        else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
+                        {
+                            searchTabIndex = TabManager.TabControl.SelectedIndex;
+                            TabManager.SwitchTabs(++searchTabIndex);
                             return true;
                         }
                         else
@@ -532,7 +552,7 @@ namespace HousePartyTranslator.Managers
                     {
                         //read the template form the db and display it if it exists
                         helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
-    
+
                         //translate if useful and possible
                         if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
                         {
@@ -807,20 +827,29 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void Search(PropertyHelper helper)
         {
+            SearchQuery = helper.SearchBox.Text;
+            Search(helper, helper.SearchBox.Text);
+        }
+
+        /// <summary>
+        /// Performs a search through all lines currently loaded.
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        /// <param name="query">The search temr to look for</param>
+        public void Search(PropertyHelper helper, string query)
+        {
             //reset list if no search is performed
-            if (helper.SearchBox.TextLength != 0)
+            if (query.Length != 0)
             {
-                //set searched string
-                SearchQuery = helper.SearchBox.Text;
                 //clear results
                 helper.CheckListBoxLeft.SearchResults.Clear();
                 //methodolgy: highlight items which fulfill search and show count
                 for (int i = 0; i < TranslationData.Count; i++)
                 {
-                    if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(SearchQuery.ToLowerInvariant()) /*if the translated text contaisn the search string*/
+                    if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
                         || (TranslationData[i].EnglishString != null
-                        && TranslationData[i].EnglishString.ToLowerInvariant().Contains(SearchQuery.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
-                        || TranslationData[i].ID.ToLowerInvariant().Contains(SearchQuery.ToLowerInvariant()))/*if the id contains the searched part*/
+                        && TranslationData[i].EnglishString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
+                        || TranslationData[i].ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
                     {
                         helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
                     }
