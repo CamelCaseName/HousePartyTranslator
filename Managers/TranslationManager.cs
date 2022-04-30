@@ -21,11 +21,12 @@ namespace HousePartyTranslator.Managers
     {
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public bool isTemplate = false;
-
         public static bool IsUpToDate = false; //setting
         public static bool ChangesPending = false;
         public List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
+        public string SearchQuery = "";
+
         private static Fenster MainWindow;
         private readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
         private int ExceptionCount = 0;
@@ -773,7 +774,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void ShowAutoSaveDialog(PropertyHelper helper)
         {
-            if (Properties.Settings.Default.askForSaveDialog && TranslationManager.ChangesPending)
+            if (Properties.Settings.Default.askForSaveDialog && ChangesPending)
             {
                 if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
                 {
@@ -809,15 +810,17 @@ namespace HousePartyTranslator.Managers
             //reset list if no search is performed
             if (helper.SearchBox.TextLength != 0)
             {
+                //set searched string
+                SearchQuery = helper.SearchBox.Text;
                 //clear results
                 helper.CheckListBoxLeft.SearchResults.Clear();
                 //methodolgy: highlight items which fulfill search and show count
                 for (int i = 0; i < TranslationData.Count; i++)
                 {
-                    if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()) /*if the translated text contaisn the search string*/
+                    if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(SearchQuery.ToLowerInvariant()) /*if the translated text contaisn the search string*/
                         || (TranslationData[i].EnglishString != null
-                        && TranslationData[i].EnglishString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
-                        || TranslationData[i].ID.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()))/*if the id contains the searched part*/
+                        && TranslationData[i].EnglishString.ToLowerInvariant().Contains(SearchQuery.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
+                        || TranslationData[i].ID.ToLowerInvariant().Contains(SearchQuery.ToLowerInvariant()))/*if the id contains the searched part*/
                     {
                         helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
                     }
@@ -840,7 +843,7 @@ namespace HousePartyTranslator.Managers
         {
             //select line which correspondends to id
             int index = TranslationData.FindIndex(n => n.ID == id);
-            if (index >= 0) Fenster.ActiveProperties().CheckListBoxLeft.SelectedIndex = index;
+            if (index >= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
         }
 
         /// <summary>
