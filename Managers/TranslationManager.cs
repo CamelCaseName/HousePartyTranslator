@@ -703,7 +703,6 @@ namespace HousePartyTranslator.Managers
                     CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
                 }
 
-                StreamWriter OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true));
 
                 //can take some time
                 DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
@@ -746,6 +745,8 @@ namespace HousePartyTranslator.Managers
                     }
                 }
 
+                StreamWriter OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true));
+
                 foreach (Tuple<List<LineData>, StringCategory> CategorizedLines in CategorizedStrings)
                 {
                     //write category
@@ -781,6 +782,35 @@ namespace HousePartyTranslator.Managers
                 }
 
                 OutputWriter.Close();
+
+                //copy file to game rather than writing again
+                if (Properties.Settings.Default.alsoSaveToGame)
+                {
+                    //create path to file
+                    string gameFilePath = "Eek\\House Party\\Mods\\";
+                    if (StoryName != "Hints" && StoryName != "UI")
+                    {
+                        //get language path
+                        LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
+                        //combine all paths
+                        gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", StoryName, languageAsText, FileName + ".txt");
+                    }
+                    else if(StoryName == "UI")
+                    {
+                        //get language path
+                        LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
+                        //combine all paths
+                        gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", languageAsText, FileName + ".txt");
+                    }
+                    else
+                    {
+                        //combine all paths
+                        gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Hints", FileName + ".txt");
+                    }
+
+                    //copy file if we are not already in it lol
+                    if(gameFilePath != SourceFilePath)File.Copy(SourceFilePath, gameFilePath, true);
+                }
 
                 ChangesPending = false;
 

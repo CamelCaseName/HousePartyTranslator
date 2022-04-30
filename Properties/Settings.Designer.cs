@@ -214,5 +214,17 @@ namespace HousePartyTranslator.Properties {
                 this["askForSaveDialog"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool alsoSaveToGame {
+            get {
+                return ((bool)(this["alsoSaveToGame"]));
+            }
+            set {
+                this["alsoSaveToGame"] = value;
+            }
+        }
     }
 }
