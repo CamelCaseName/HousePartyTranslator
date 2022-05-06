@@ -63,7 +63,7 @@ namespace HousePartyTranslator.Managers
 
         private void RecentsManager_Click(object sender, EventArgs e)
         {
-            TranslationManager translationManager = Fenster.ActiveTranslationManager();
+            TranslationManager translationManager = TabManager.ActiveTranslationManager;
             SetMostRecent(((ToolStripMenuItem)sender).Text);
             translationManager.LoadFileIntoProgram(helper, ((ToolStripMenuItem)sender).Text); 
         }

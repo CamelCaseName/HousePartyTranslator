@@ -325,7 +325,7 @@ namespace HousePartyTranslator.StoryExplorerForm
         {
             if (e.ClickType == ClickedNodeTypes.Highlight)
             {
-                TranslationManager translationManager = Fenster.ActiveTranslationManager();
+                TranslationManager translationManager = TabManager.ActiveTranslationManager;
                 //tell translationmanager to update us or not when selected
                 translationManager.UpdateStoryExplorerSelection = !IsShiftPressed;
                 //select line in translation manager

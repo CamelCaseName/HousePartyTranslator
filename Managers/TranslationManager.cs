@@ -21,19 +21,22 @@ namespace HousePartyTranslator.Managers
     {
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public bool isTemplate = false;
-
         public static bool IsUpToDate = false; //setting
+        public static bool ChangesPending = false;
         public List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
+        public string SearchQuery = "";
+        public int SelectedSearchResult = 0;
+
         private static Fenster MainWindow;
-        private readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
-        private int ExceptionCount = 0;
+        private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
+        private static int ExceptionCount = 0;
         private string fileName = "";
         private bool isSaveAs = false;
         private string language = "";
         private int LastIndex = -1;
-        private int SelectedSearchResult = 0;
         private string sourceFilePath = "";
+        private int searchTabIndex = 0;
         private string storyName = "";
 
         /// <summary>
@@ -143,23 +146,23 @@ namespace HousePartyTranslator.Managers
         /// Displays a window with the necessary info about the exception.
         /// </summary>
         /// <param name="message">The error message to display</param>
-        public static void DisplayExceptionMessage(string message, TranslationManager main)
+        public static void DisplayExceptionMessage(string message)
         {
             LogManager.LogEvent("Exception message shown: " + message);
-            LogManager.LogEvent("Current exceptioon count: " + main.ExceptionCount + 1);
-            main.ExceptionCount++;
+            LogManager.LogEvent("Current exceptioon count: " + ExceptionCount + 1);
+            ExceptionCount++;
             MessageBox.Show(
                 $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
                 $"Anyways, here is what happened: \n\n{message}\n\n " +
                 $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
-                $"Some Error found (Nr. {main.ExceptionCount})",
+                $"Some Error found (Nr. {ExceptionCount})",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error
             );
 
             Application.OpenForms[0].Cursor = Cursors.Default;
 
-            if (main.ExceptionCount > 3)
+            if (ExceptionCount > 3)
             {
                 Application.Exit();
             }
@@ -323,24 +326,43 @@ namespace HousePartyTranslator.Managers
                         if (helper.CheckListBoxLeft.SearchResults.Any())
                         {
                             //loop back to start
-                            if (SelectedSearchResult >= helper.CheckListBoxLeft.SearchResults.Count - 1)
+                            if (SelectedSearchResult > helper.CheckListBoxLeft.SearchResults.Count - 1)
                             {
                                 SelectedSearchResult = 0;
-                                //select next index from list of matches
-                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
+                                //loop over to new tab when in global search
+                                if (TabManager.InGlobalSearch)
                                 {
-                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                    searchTabIndex = TabManager.TabControl.SelectedIndex;
+                                    TabManager.SwitchTabs(++searchTabIndex);
+                                }
+                                else
+                                {
+                                    //select next index from list of matches
+                                    if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
+                                    {
+                                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                    }
                                 }
                             }
                             else
                             {
-                                //select next index from list of matches
-                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++] < helper.CheckListBoxLeft.Items.Count)
+                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
                                 {
-                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                                }
+                                else
+                                {
+                                    SelectedSearchResult = 0;
+                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
                                 }
                             }
 
+                            return true;
+                        }
+                        else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
+                        {
+                            searchTabIndex = TabManager.TabControl.SelectedIndex;
+                            TabManager.SwitchTabs(++searchTabIndex);
                             return true;
                         }
                         else
@@ -530,7 +552,7 @@ namespace HousePartyTranslator.Managers
                     {
                         //read the template form the db and display it if it exists
                         helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
-    
+
                         //translate if useful and possible
                         if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
                         {
@@ -681,7 +703,6 @@ namespace HousePartyTranslator.Managers
                     CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
                 }
 
-                StreamWriter OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true));
 
                 //can take some time
                 DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
@@ -724,6 +745,8 @@ namespace HousePartyTranslator.Managers
                     }
                 }
 
+                StreamWriter OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true));
+
                 foreach (Tuple<List<LineData>, StringCategory> CategorizedLines in CategorizedStrings)
                 {
                     //write category
@@ -760,6 +783,37 @@ namespace HousePartyTranslator.Managers
 
                 OutputWriter.Close();
 
+                //copy file to game rather than writing again
+                if (Properties.Settings.Default.alsoSaveToGame)
+                {
+                    //create path to file
+                    string gameFilePath = "Eek\\House Party\\Mods\\";
+                    if (StoryName != "Hints" && StoryName != "UI")
+                    {
+                        //get language path
+                        LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
+                        //combine all paths
+                        gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", StoryName, languageAsText, FileName + ".txt");
+                    }
+                    else if(StoryName == "UI")
+                    {
+                        //get language path
+                        LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
+                        //combine all paths
+                        gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", languageAsText, FileName + ".txt");
+                    }
+                    else
+                    {
+                        //combine all paths
+                        gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Hints", FileName + ".txt");
+                    }
+
+                    //copy file if we are not already in it lol
+                    if(gameFilePath != SourceFilePath)File.Copy(SourceFilePath, gameFilePath, true);
+                }
+
+                ChangesPending = false;
+
                 MainWindow.Cursor = Cursors.Default;
             }
         }
@@ -770,7 +824,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void ShowAutoSaveDialog(PropertyHelper helper)
         {
-            if (Properties.Settings.Default.askForSaveDialog)
+            if (Properties.Settings.Default.askForSaveDialog && ChangesPending)
             {
                 if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
                 {
@@ -803,18 +857,29 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void Search(PropertyHelper helper)
         {
+            SearchQuery = helper.SearchBox.Text;
+            Search(helper, helper.SearchBox.Text);
+        }
+
+        /// <summary>
+        /// Performs a search through all lines currently loaded.
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        /// <param name="query">The search temr to look for</param>
+        public void Search(PropertyHelper helper, string query)
+        {
             //reset list if no search is performed
-            if (helper.SearchBox.TextLength != 0)
+            if (query.Length != 0)
             {
                 //clear results
                 helper.CheckListBoxLeft.SearchResults.Clear();
                 //methodolgy: highlight items which fulfill search and show count
                 for (int i = 0; i < TranslationData.Count; i++)
                 {
-                    if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()) /*if the translated text contaisn the search string*/
+                    if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
                         || (TranslationData[i].EnglishString != null
-                        && TranslationData[i].EnglishString.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
-                        || TranslationData[i].ID.ToLowerInvariant().Contains(helper.SearchBox.Text.ToLowerInvariant()))/*if the id contains the searched part*/
+                        && TranslationData[i].EnglishString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
+                        || TranslationData[i].ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
                     {
                         helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
                     }
@@ -837,7 +902,7 @@ namespace HousePartyTranslator.Managers
         {
             //select line which correspondends to id
             int index = TranslationData.FindIndex(n => n.ID == id);
-            if (index >= 0) Fenster.ActiveProperties().CheckListBoxLeft.SelectedIndex = index;
+            if (index >= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
         }
 
         /// <summary>
@@ -883,6 +948,7 @@ namespace HousePartyTranslator.Managers
                 helper.TranslationTextBox.Text.Replace('|', ' ');
                 TranslationData[internalIndex].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
                 UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count(), helper);
+                ChangesPending = true;
             }
         }
 
@@ -1062,7 +1128,7 @@ namespace HousePartyTranslator.Managers
             catch (UnauthorizedAccessException e)
             {
                 LogManager.LogEvent(e.ToString());
-                DisplayExceptionMessage(e.ToString(), this);
+                DisplayExceptionMessage(e.ToString());
             }
 
             MessageBox.Show(

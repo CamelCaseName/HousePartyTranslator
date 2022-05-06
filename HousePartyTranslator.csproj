@@ -272,6 +272,7 @@
     <Compile Include="Managers\DiscordPresenceManager.cs" />
     <Compile Include="Managers\RecentsManager.cs" />
     <Compile Include="Managers\SoftwareVersionManager.cs" />
+    <Compile Include="Managers\TabManager.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="SettingsForm\SettingsForm.cs">
       <SubType>Form</SubType>
