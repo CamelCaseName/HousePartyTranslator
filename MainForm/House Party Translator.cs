@@ -144,11 +144,11 @@ namespace HousePartyTranslator
             LogManager.LogEvent(e.ExceptionObject.ToString());
             try //casting the object into an exception
             {
-                TranslationManager.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message, TabManager.ActiveTranslationManager);
+                TranslationManager.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
             }
             catch //dirty dirty me... can't cast into an exception :)
             {
-                TranslationManager.DisplayExceptionMessage(e.ExceptionObject.ToString(), TabManager.ActiveTranslationManager);
+                TranslationManager.DisplayExceptionMessage(e.ExceptionObject.ToString());
             }
         }
 
@@ -156,10 +156,9 @@ namespace HousePartyTranslator
         {
             LogManager.LogEvent("Application started! hi there :D");
 
-            TabManager.Initialize(tabPage1);
 
             //get translationmanager back
-            TranslationManager translationManager = TabManager.ActiveTranslationManager;
+            TranslationManager translationManager = TabManager.Initialize(tabPage1);
             translationManager.SetLanguage(TabManager.ActiveProperties);
             translationManager.SetMainForm(this);
 
@@ -264,7 +263,7 @@ namespace HousePartyTranslator
         private void ThreadExceptionHandler(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
             LogManager.LogEvent(e.Exception.ToString());
-            TranslationManager.DisplayExceptionMessage(e.Exception.Message, TabManager.ActiveTranslationManager);
+            TranslationManager.DisplayExceptionMessage(e.Exception.Message);
         }
     }
 }

@@ -86,7 +86,7 @@ namespace HousePartyTranslator.Managers
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tabPage1">The initial tab</param>
-        public static void Initialize(TabPage tabPage1)
+        public static TranslationManager Initialize(TabPage tabPage1)
         {
             //get tabcontrol as a statc reference;
             TabControl = (TabControl)Form.ActiveForm.Controls.Find("MainTabControl", true)[0];
@@ -94,6 +94,8 @@ namespace HousePartyTranslator.Managers
             //create new translationmanager to use with the tab open right now
             translationManagers.Add(tabPage1, new TranslationManager());
             properties.Add(tabPage1, CreateActivePropertyHelper());
+
+            return translationManagers[tabPage1];
         }
 
         /// <summary>

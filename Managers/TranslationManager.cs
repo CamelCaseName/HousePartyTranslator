@@ -30,7 +30,7 @@ namespace HousePartyTranslator.Managers
 
         private static Fenster MainWindow;
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
-        private int ExceptionCount = 0;
+        private static int ExceptionCount = 0;
         private string fileName = "";
         private bool isSaveAs = false;
         private string language = "";
@@ -146,23 +146,23 @@ namespace HousePartyTranslator.Managers
         /// Displays a window with the necessary info about the exception.
         /// </summary>
         /// <param name="message">The error message to display</param>
-        public static void DisplayExceptionMessage(string message, TranslationManager main)
+        public static void DisplayExceptionMessage(string message)
         {
             LogManager.LogEvent("Exception message shown: " + message);
-            LogManager.LogEvent("Current exceptioon count: " + main.ExceptionCount + 1);
-            main.ExceptionCount++;
+            LogManager.LogEvent("Current exceptioon count: " + ExceptionCount + 1);
+            ExceptionCount++;
             MessageBox.Show(
                 $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
                 $"Anyways, here is what happened: \n\n{message}\n\n " +
                 $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
-                $"Some Error found (Nr. {main.ExceptionCount})",
+                $"Some Error found (Nr. {ExceptionCount})",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error
             );
 
             Application.OpenForms[0].Cursor = Cursors.Default;
 
-            if (main.ExceptionCount > 3)
+            if (ExceptionCount > 3)
             {
                 Application.Exit();
             }
@@ -1128,7 +1128,7 @@ namespace HousePartyTranslator.Managers
             catch (UnauthorizedAccessException e)
             {
                 LogManager.LogEvent(e.ToString());
-                DisplayExceptionMessage(e.ToString(), this);
+                DisplayExceptionMessage(e.ToString());
             }
 
             MessageBox.Show(

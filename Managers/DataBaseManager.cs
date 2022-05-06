@@ -566,7 +566,7 @@ namespace HousePartyTranslator.Managers
                             MessageBoxIcon.Warning
                         );
             }
-            mainWindow.Text += " (Software Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ")";
+            mainWindow.Text += " (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + SoftwareVersionManager.LocalVersion + ")";
             mainWindow.Update();
 
             Application.UseWaitCursor = false;
