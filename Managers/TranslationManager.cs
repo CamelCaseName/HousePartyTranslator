@@ -809,7 +809,18 @@ namespace HousePartyTranslator.Managers
                     }
 
                     //copy file if we are not already in it lol
-                    if(gameFilePath != SourceFilePath)File.Copy(SourceFilePath, gameFilePath, true);
+                    if (gameFilePath != SourceFilePath) {
+                        if (File.Exists(gameFilePath))
+                        {
+                            File.Copy(SourceFilePath, gameFilePath, true);
+                        }
+                        else
+                        {
+                            //create file if it does not exist, as well as all folders
+                            Directory.CreateDirectory(Path.GetDirectoryName(gameFilePath));
+                            File.Copy(SourceFilePath, gameFilePath, true);
+                        }
+                    }
                 }
 
                 ChangesPending = false;

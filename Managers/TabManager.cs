@@ -14,7 +14,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// The TabControl in the main form, where all tabs are managed under
         /// </summary>
-        public static TabControl TabControl;
+        public static TabControl TabControl = null;
         public static bool InGlobalSearch = false;
         private static readonly Dictionary<TabPage, PropertyHelper> properties = new Dictionary<TabPage, PropertyHelper>();
         private static readonly Dictionary<TabPage, TranslationManager> translationManagers = new Dictionary<TabPage, TranslationManager>();
@@ -88,8 +88,11 @@ namespace HousePartyTranslator.Managers
         /// <param name="tabPage1">The initial tab</param>
         public static TranslationManager Initialize(TabPage tabPage1)
         {
-            //get tabcontrol as a statc reference;
-            TabControl = (TabControl)Form.ActiveForm.Controls.Find("MainTabControl", true)[0];
+            while (TabControl == null)
+            {
+                //get tabcontrol as a statc reference;
+                TabControl = (TabControl)Form.ActiveForm.Controls.Find("MainTabControl", true)[0];
+            }
 
             //create new translationmanager to use with the tab open right now
             translationManagers.Add(tabPage1, new TranslationManager());
