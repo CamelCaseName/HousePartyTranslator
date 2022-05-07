@@ -1,13 +1,59 @@
 # HousePartyTranslator
-## Donwload
+## Download
 You can get the latest release [here](https://github.com/CamelCaseName/HousePartyTranslator/releases/latest).
 
 ## Usage
 Just start the .exe file. On your first launch it will ask you for a password, 
-you can get that from @CamelCaseName. 
+you can get that from @CamelCaseName(Lenny on the discord). 
 It will also ask you to select a language from the dropdown list at the top. 
 Refer to [this video](https://www.youtube.com/watch?v=Si3EU0niGX4) 
 for more infos on this application and how to use it.
+
+# Hotkeys and other hot stuff
+List of all hotkeys so far
+
+|keys|action|remarks|
+|-----|-----|-----|
+|CTRL + O|select a file to load into the current tab||
+|CTRL + SHIFT + O|select a file to be opened in a new tab||
+|CTRL + S|saves the file to disk|file will also be saved to the game, use setting "alsoCopyToGame" to control|
+|CTRL + SHIFT + S|saves the currently selected line||
+|CTRL + F|moves the cursor to the search box|use a '?' at the beginning of your search to perform it in all tabs|
+|CTRL + R|reloads the current file in the current tab|can be used to get rid of miscoloured lines|
+|CTRL + UP|select the line above||
+|CTRL + DOWN|select the line below||
+|CTRL + LEFT|cylcle tabs to the left||
+|CTRL + RIGHT|cycle tabs to the right||
+|CTRL + ENTER|save line and select the one below||
+|CTRL + SHIFT + ENTER|save the line, set it as approved and move one down||
+|CTRL + E|opens the AutoStoryExplorer||
+|CTRL + X|opens the StoryExplorer where you can select the file yourself||
+|CTRL + P|opens the settings menu||
+|ENTER|when performing a search, enter will cycle through the search results|use a '?' at the beginning of your search to perform it in all tabs, this will also then cycle through tabs|
+
+## Settings
+Some explanation for the settings and what they do
+
+|name|default value|explanation|
+|-----|-----|-----|
+|alsoSaveToGame|True|if true, the program will try to save the files to the game as well for easy testing|
+|askForSaveDialog|True|set this to false to disable the "save changes" dialog popping up when exiting|
+|autoLoadRecent|True|load the most recently opened file on start when enabled|
+|autoSave|True|enable automatic saving of the last line when a new one is selected|
+|autoTranslate|True|if true, the program will try to translate the selected line if it has never before been seen|
+|dbPassword||the password for the database|
+|displayVAHints|False|set to True to enable the voice acting hints in the node info text in the StoryExplorer|
+|language||the two letter short form of the language you have selected|
+|recents_0||a path to the most recent file|
+|recents_1||a path to the second most recent file|
+|recents_2||a path to the third most recent file|
+|recents_3||a path to the fourth most recent file|
+|recents_4||a path to the fifth most recent file|
+|story_path||a file path to the folde rcontaining the original story character files, set when loading the first file ever into the StoryExplorer|
+|template_path|C:\\Users\\|points to the folder containing the new template files for the story, in the correct folder structure. not used in normal program behaviour|
+|translation_path|path to the last opened file, used as a reference to open the folder dialog in it's parent folder|
+|version|0.22|the game's story verison currently present in the database|
+
 
 # Development
 If you want to build and or develop this application, 
@@ -16,3 +62,4 @@ as well as the MySql Package for Visual Studio,
 for that you need to install the MySql Development config 
 from their website and then add the MySql Package to 
 the solution via the NuGet package manager.
+You'll probably also need some additional NuGet packages.
