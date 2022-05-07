@@ -191,7 +191,7 @@ namespace HousePartyTranslator
 
         private void MainTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TabManager.SwitchTabs();
+            TabManager.OnSwitchTabs();
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object sender, EventArgs e)

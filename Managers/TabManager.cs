@@ -128,7 +128,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Called when tabs are switched, swaps the search terms
         /// </summary>
-        public static void SwitchTabs()
+        public static void OnSwitchTabs()
         {
             //set search term to the one from the respective TranslationManager
             if (ActiveTranslationManager != null)
@@ -148,7 +148,7 @@ namespace HousePartyTranslator.Managers
         /// Switches to the Tab specified, does all the other logic behind
         /// </summary>
         /// <param name="i">The tab index to switch to</param>
-        public static void SwitchTabs(int i)
+        public static void SwitchToTab(int i)
         {
             if (i >= 0 && i < TabControl.TabCount)
             {

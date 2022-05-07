@@ -333,7 +333,7 @@ namespace HousePartyTranslator.Managers
                                 if (TabManager.InGlobalSearch)
                                 {
                                     searchTabIndex = TabManager.TabControl.SelectedIndex;
-                                    TabManager.SwitchTabs(++searchTabIndex);
+                                    TabManager.SwitchToTab(++searchTabIndex);
                                 }
                                 else
                                 {
@@ -362,7 +362,7 @@ namespace HousePartyTranslator.Managers
                         else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
                         {
                             searchTabIndex = TabManager.TabControl.SelectedIndex;
-                            TabManager.SwitchTabs(++searchTabIndex);
+                            TabManager.SwitchToTab(++searchTabIndex);
                             return true;
                         }
                         else
@@ -407,6 +407,16 @@ namespace HousePartyTranslator.Managers
                 //select string below current selection
                 case (Keys.Control | Keys.Down):
                     if (helper.CheckListBoxLeft.SelectedIndex < helper.CheckListBoxLeft.Items.Count - 1) helper.CheckListBoxLeft.SelectedIndex++;
+                    return true;
+
+                //switch tab to the left
+                case (Keys.Control | Keys.Left):
+                    if (TabManager.TabControl.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex - 1);
+                    return true;
+
+                //switch tab to the right
+                case (Keys.Control | Keys.Right):
+                    if (TabManager.TabControl.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex + 1);
                     return true;
 
                 //save translation and move down one
