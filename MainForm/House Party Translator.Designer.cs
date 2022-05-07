@@ -289,6 +289,7 @@ namespace HousePartyTranslator
             // 
             this.searchToolStripTextBox.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
             this.searchToolStripTextBox.Size = new System.Drawing.Size(300, 23);
             this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
@@ -339,6 +340,7 @@ namespace HousePartyTranslator
             // 
             this.settingsToolStripMenuItem.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
+            this.settingsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
