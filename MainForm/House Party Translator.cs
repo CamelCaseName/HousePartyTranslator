@@ -167,7 +167,7 @@ namespace HousePartyTranslator
             DataBaseManager.InitializeDB(this);
 
             PresenceManager = new DiscordPresenceManager();
-            RecentsManager.Initialize(TabManager.ActiveProperties);
+            RecentsManager.Initialize();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };

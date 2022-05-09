@@ -11,11 +11,9 @@ namespace HousePartyTranslator.Managers
     static class RecentsManager
     {
         static readonly List<string> recents = new List<string>(5);
-        private static Helpers.PropertyHelper _helper;
 
-        public static void Initialize(Helpers.PropertyHelper helper)
+        public static void Initialize()
         {
-            _helper = helper;
             //add all saved recents
             recents.Add(Properties.Settings.Default.recents_0);
             recents.Add(Properties.Settings.Default.recents_1);
@@ -65,7 +63,7 @@ namespace HousePartyTranslator.Managers
         private static void RecentsManager_Click(object sender, EventArgs e)
         {
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram(_helper, ((ToolStripMenuItem)sender).Text);             
+            translationManager.LoadFileIntoProgram(TabManager.ActiveProperties, ((ToolStripMenuItem)sender).Text);             
         }
 
         public static void UpdateMenuItems(ToolStripItemCollection collection)

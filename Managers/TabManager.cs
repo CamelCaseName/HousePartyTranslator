@@ -120,9 +120,16 @@ namespace HousePartyTranslator.Managers
             //call startup for new translationmanager
             t.SetLanguage(ActiveProperties);
             t.LoadFileIntoProgram(ActiveProperties);
+        }
 
-            //update tab name
-            if (t.FileName.Length > 0) newTab.Text = t.FileName;
+        public static void UpdateTabTitle(string title)
+        {
+            UpdateTabTitle(TabControl.SelectedTab, title);
+        }
+
+        public static void UpdateTabTitle(TabPage tab, string title)
+        {
+            if (title.Length > 0) tab.Text = title;
         }
 
         /// <summary>

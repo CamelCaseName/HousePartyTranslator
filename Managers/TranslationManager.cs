@@ -13,7 +13,7 @@ using System.Windows.Forms;
 namespace HousePartyTranslator.Managers
 {
     /// <summary>
-    /// A class providing functions for loading, approving, and workign with strings to be translated. Heavily integrated in all other parts of this application.
+    /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
     public class TranslationManager
     {
@@ -487,8 +487,12 @@ namespace HousePartyTranslator.Managers
                         );
                 }
             }
-            //register load
+            //log file loading
             LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
+
+            //update tab name
+            TabManager.UpdateTabTitle(FileName);
+            //update recents
             RecentsManager.SetMostRecent(SourceFilePath);
             RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
 
@@ -805,7 +809,7 @@ namespace HousePartyTranslator.Managers
                         //combine all paths
                         gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", StoryName, languageAsText, FileName + ".txt");
                     }
-                    else if(StoryName == "UI")
+                    else if (StoryName == "UI")
                     {
                         //get language path
                         LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
@@ -819,7 +823,8 @@ namespace HousePartyTranslator.Managers
                     }
 
                     //copy file if we are not already in it lol
-                    if (gameFilePath != SourceFilePath) {
+                    if (gameFilePath != SourceFilePath)
+                    {
                         if (File.Exists(gameFilePath))
                         {
                             File.Copy(SourceFilePath, gameFilePath, true);
