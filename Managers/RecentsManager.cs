@@ -8,14 +8,14 @@ using System.Windows.Forms;
 namespace HousePartyTranslator.Managers
 {
     //todo also resume to last string
-    class RecentsManager
+    static class RecentsManager
     {
-        readonly List<string> recents = new List<string>(5);
-        private readonly Helpers.PropertyHelper helper;
+        static readonly List<string> recents = new List<string>(5);
+        private static Helpers.PropertyHelper _helper;
 
-        public RecentsManager(Helpers.PropertyHelper helper)
+        public static void Initialize(Helpers.PropertyHelper helper)
         {
-            this.helper = helper;
+            _helper = helper;
             //add all saved recents
             recents.Add(Properties.Settings.Default.recents_0);
             recents.Add(Properties.Settings.Default.recents_1);
@@ -24,12 +24,12 @@ namespace HousePartyTranslator.Managers
             recents.Add(Properties.Settings.Default.recents_4);
         }
 
-        public void SetMostRecent(string filepath)
+        public static void SetMostRecent(string filepath)
         {
             if (filepath.Length > 0) recents.Insert(0, filepath);
         }
 
-        public ToolStripItem[] GetRecents()
+        public static ToolStripItem[] GetRecents()
         {
             int count = 0;
             for (int i = 0; i < recents.Count; i++)
@@ -62,14 +62,13 @@ namespace HousePartyTranslator.Managers
             return items;
         }
 
-        private void RecentsManager_Click(object sender, EventArgs e)
+        private static void RecentsManager_Click(object sender, EventArgs e)
         {
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            SetMostRecent(((ToolStripMenuItem)sender).Text);
-            translationManager.LoadFileIntoProgram(helper, ((ToolStripMenuItem)sender).Text); 
+            translationManager.LoadFileIntoProgram(_helper, ((ToolStripMenuItem)sender).Text);             
         }
 
-        public void UpdateMenuItems(ToolStripItemCollection collection)
+        public static void UpdateMenuItems(ToolStripItemCollection collection)
         {
             ToolStripItem[] items = GetRecents();
             if (items.Length > 0)
@@ -101,7 +100,7 @@ namespace HousePartyTranslator.Managers
             Properties.Settings.Default.Save();
         }
 
-        public void SaveRecents()
+        public static void SaveRecents()
         {
             Properties.Settings.Default.recents_0 = recents[0];
             Properties.Settings.Default.recents_1 = recents[1];

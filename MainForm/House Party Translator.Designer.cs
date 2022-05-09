@@ -465,8 +465,8 @@ namespace HousePartyTranslator
             this.Name = "Fenster";
             this.ShowIcon = false;
             this.Text = "HP Translator Helper";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Fenster_FormClosing);
-            this.Shown += new System.EventHandler(this.FormShown);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
+            this.Shown += new System.EventHandler(this.OnFormShown);
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();
             this.mainTableLayoutPanel.ResumeLayout(false);

@@ -10,8 +10,6 @@ using System.Windows.Forms;
 
 //TODO add tests
 
-//TODO add settings menu window to edit settings
-
 namespace HousePartyTranslator.Managers
 {
     /// <summary>
@@ -21,7 +19,7 @@ namespace HousePartyTranslator.Managers
     {
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public bool isTemplate = false;
-        public static bool IsUpToDate = false; //setting
+        public static bool IsUpToDate = false; //setting?
         public static bool ChangesPending = false;
         public List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
@@ -491,6 +489,8 @@ namespace HousePartyTranslator.Managers
             }
             //register load
             LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
+            RecentsManager.SetMostRecent(SourceFilePath);
+            RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
 
             MainWindow.Cursor = Cursors.Default;
         }
