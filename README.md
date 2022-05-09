@@ -39,16 +39,18 @@ Some explanation for the settings and what they do
 |alsoSaveToGame|True|if true, the program will try to save the files to the game as well for easy testing|
 |askForSaveDialog|True|set this to false to disable the "save changes" dialog popping up when exiting|
 |autoLoadRecent|True|load the most recently opened file on start when enabled|
+|autoLoadRecentIndex|True|loads the most recenlty selected line on start when enabled and possible|
 |autoSave|True|enable automatic saving of the last line when a new one is selected|
 |autoTranslate|True|if true, the program will try to translate the selected line if it has never before been seen|
 |dbPassword||the password for the database|
 |displayVAHints|False|set to True to enable the voice acting hints in the node info text in the StoryExplorer|
 |language||the two letter short form of the language you have selected|
-|recents_0||a path to the most recent file|
-|recents_1||a path to the second most recent file|
-|recents_2||a path to the third most recent file|
-|recents_3||a path to the fourth most recent file|
-|recents_4||a path to the fifth most recent file|
+|recent_index|-1|the index of the line to resume to, should not be edited!|
+|recents_0||a path to the most recent file, should not be edited!|
+|recents_1||a path to the second most recent file, should not be edited!|
+|recents_2||a path to the third most recent file, should not be edited!|
+|recents_3||a path to the fourth most recent file, should not be edited!|
+|recents_4||a path to the fifth most recent file, should not be edited!|
 |story_path||a file path to the folde rcontaining the original story character files, set when loading the first file ever into the StoryExplorer|
 |template_path|C:\\Users\\|points to the folder containing the new template files for the story, in the correct folder structure. not used in normal program behaviour|
 |translation_path|path to the last opened file, used as a reference to open the folder dialog in it's parent folder|
