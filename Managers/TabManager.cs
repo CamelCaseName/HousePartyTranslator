@@ -87,7 +87,7 @@ namespace HousePartyTranslator.Managers
             while (TabControl == null)
             {
                 //get tabcontrol as a statc reference;
-                TabControl = (TabControl)Form.ActiveForm.Controls.Find("MainTabControl", true)[0];
+                if(Form.ActiveForm?.Controls != null)TabControl = (TabControl)Form.ActiveForm.Controls.Find("MainTabControl", true)[0];
             }
 
             //create new translationmanager to use with the tab open right now
