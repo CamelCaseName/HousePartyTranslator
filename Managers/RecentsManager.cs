@@ -1,32 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
     //todo also resume to last string
-    static class RecentsManager
+    internal static class RecentsManager
     {
-        static readonly List<string> recents = new List<string>(5);
+        private static readonly List<string> recents = new List<string>(5);
+        private static int recentIndex = -1;
 
-        public static void Initialize()
-        {
-            //add all saved recents
-            recents.Add(Properties.Settings.Default.recents_0);
-            recents.Add(Properties.Settings.Default.recents_1);
-            recents.Add(Properties.Settings.Default.recents_2);
-            recents.Add(Properties.Settings.Default.recents_3);
-            recents.Add(Properties.Settings.Default.recents_4);
-        }
-
-        public static void SetMostRecent(string filepath)
-        {
-            if (filepath.Length > 0) recents.Insert(0, filepath);
-        }
-
+        /// <summary>
+        /// Get the most recently opened files as a collection of ToolStriItems
+        /// </summary>
+        /// <returns>A Collection of ToolStripItems with a length between 0 and 5</returns>
         public static ToolStripItem[] GetRecents()
         {
             int count = 0;
@@ -60,12 +47,67 @@ namespace HousePartyTranslator.Managers
             return items;
         }
 
-        private static void RecentsManager_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Initializes the most recently opened files from the saved settings
+        /// </summary>
+        public static void Initialize()
         {
-            TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram(TabManager.ActiveProperties, ((ToolStripMenuItem)sender).Text);             
+            //add all saved recents
+            recents.Add(Properties.Settings.Default.recents_0);
+            recents.Add(Properties.Settings.Default.recents_1);
+            recents.Add(Properties.Settings.Default.recents_2);
+            recents.Add(Properties.Settings.Default.recents_3);
+            recents.Add(Properties.Settings.Default.recents_4);
+            recentIndex = Properties.Settings.Default.recent_index;
         }
 
+        /// <summary>
+        /// Save the recently opened file paths to the settings
+        /// </summary>
+        public static void SaveRecents()
+        {
+            //set most recent to the last file open in the selected tab so the index is correct
+            Properties.Settings.Default.recents_0 = TabManager.ActiveTranslationManager.SourceFilePath;
+            Properties.Settings.Default.recents_1 = recents[1];
+            Properties.Settings.Default.recents_2 = recents[2];
+            Properties.Settings.Default.recents_3 = recents[3];
+            Properties.Settings.Default.recents_4 = recents[4];
+            Properties.Settings.Default.recent_index = TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex;
+
+            //save settings
+            Properties.Settings.Default.Save();
+        }
+
+        /// <summary>
+        /// Sets the given path as the most recently opened file
+        /// </summary>
+        /// <param name="filepath">The path to set as most recent</param>
+        /// <param name="index">The index of the last selected line</param>
+        public static void SetMostRecent(string filepath)
+        {
+            if (filepath.Length > 0) recents.Insert(0, filepath);
+        }
+
+        /// <summary>
+        /// Opens the most recent file
+        /// </summary>
+        public static void OpenMostRecent()
+        {
+            if (Properties.Settings.Default.autoLoadRecent)
+            {
+                if (recents.Count > 0)
+                {
+                    TranslationManager t = TabManager.ActiveTranslationManager;
+                    t.LoadFileIntoProgram(TabManager.ActiveProperties, recents[0]);
+                    if (Properties.Settings.Default.autoLoadRecentIndex) t.SelectLine(recentIndex);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the recent menuitems in the given collection
+        /// </summary>
+        /// <param name="collection"></param>
         public static void UpdateMenuItems(ToolStripItemCollection collection)
         {
             ToolStripItem[] items = GetRecents();
@@ -92,19 +134,14 @@ namespace HousePartyTranslator.Managers
             {
                 collection.Insert(3, items[items.Length - i - 1]);
             }
-
             SaveRecents();
-            //save settings
-            Properties.Settings.Default.Save();
         }
 
-        public static void SaveRecents()
+        private static void RecentsManager_Click(object sender, EventArgs e)
         {
-            Properties.Settings.Default.recents_0 = recents[0];
-            Properties.Settings.Default.recents_1 = recents[1];
-            Properties.Settings.Default.recents_2 = recents[2];
-            Properties.Settings.Default.recents_3 = recents[3];
-            Properties.Settings.Default.recents_4 = recents[4];
+            TranslationManager translationManager = TabManager.ActiveTranslationManager;
+            translationManager.LoadFileIntoProgram(TabManager.ActiveProperties, ((ToolStripMenuItem)sender).Text);
+            if (Properties.Settings.Default.autoLoadRecentIndex) translationManager.SelectLine(recentIndex);
         }
     }
 }

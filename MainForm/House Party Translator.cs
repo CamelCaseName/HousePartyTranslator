@@ -133,9 +133,6 @@ namespace HousePartyTranslator
 
             RecentsManager.SaveRecents();
 
-            //save settings
-            Properties.Settings.Default.Save();
-
             //show save unsaved changes dialog
             TabManager.ActiveTranslationManager.ShowAutoSaveDialog(TabManager.ActiveProperties);
         }
@@ -157,7 +154,6 @@ namespace HousePartyTranslator
         {
             LogManager.LogEvent("Application started! hi there :D");
 
-
             //get translationmanager back
             TranslationManager translationManager = TabManager.Initialize(tabPage1);
             translationManager.SetLanguage(TabManager.ActiveProperties);
@@ -173,14 +169,7 @@ namespace HousePartyTranslator
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
             PresenceTimer.Start();
 
-            if (Properties.Settings.Default.autoLoadRecent)
-            {
-                if (RecentsManager.GetRecents().Length > 0)
-                {
-                    translationManager.LoadFileIntoProgram(TabManager.ActiveProperties, RecentsManager.GetRecents()[0].Text);
-                    if (translationManager.FileName.Length > 0) tabPage1.Text = translationManager.FileName;
-                }
-            }
+            RecentsManager.OpenMostRecent();            
         }
 
         private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)

@@ -507,6 +507,7 @@ namespace HousePartyTranslator.Managers
         {
             MainWindow.Cursor = Cursors.WaitCursor;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
+
             if (LastIndex < 0)
             {
                 //sets index the first time/when we click elsewhere
@@ -929,6 +930,15 @@ namespace HousePartyTranslator.Managers
             //select line which correspondends to id
             int index = TranslationData.FindIndex(n => n.ID == id);
             if (index >= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
+        }
+
+        /// <summary>
+        /// Selects the index given in the list of strings
+        /// </summary>
+        /// <param name="index">The index to select</param>
+        public void SelectLine(int index)
+        {
+            if (index >= 0 && index < TabManager.ActiveProperties.CheckListBoxLeft.Items.Count) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
         }
 
         /// <summary>

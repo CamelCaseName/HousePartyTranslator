@@ -1,10 +1,6 @@
-﻿using System;
+﻿using HousePartyTranslator.Helpers;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using HousePartyTranslator.Helpers;
 
 
 namespace HousePartyTranslator.Managers
@@ -122,11 +118,20 @@ namespace HousePartyTranslator.Managers
             t.LoadFileIntoProgram(ActiveProperties);
         }
 
+        /// <summary>
+        /// Updates the current tabs title
+        /// </summary>
+        /// <param name="title">The title to set</param>
         public static void UpdateTabTitle(string title)
         {
             UpdateTabTitle(TabControl.SelectedTab, title);
         }
 
+        /// <summary>
+        /// Updates the text of the given TapPage object to the given string.
+        /// </summary>
+        /// <param name="tab">The tab to set the text of</param>
+        /// <param name="title">The string to set the tab text to</param>
         public static void UpdateTabTitle(TabPage tab, string title)
         {
             if (title.Length > 0) tab.Text = title;
