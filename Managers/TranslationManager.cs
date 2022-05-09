@@ -10,18 +10,16 @@ using System.Windows.Forms;
 
 //TODO add tests
 
-//TODO add settings menu window to edit settings
-
 namespace HousePartyTranslator.Managers
 {
     /// <summary>
-    /// A class providing functions for loading, approving, and workign with strings to be translated. Heavily integrated in all other parts of this application.
+    /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
     public class TranslationManager
     {
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public bool isTemplate = false;
-        public static bool IsUpToDate = false; //setting
+        public static bool IsUpToDate = false; //setting?
         public static bool ChangesPending = false;
         public List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
@@ -489,8 +487,14 @@ namespace HousePartyTranslator.Managers
                         );
                 }
             }
-            //register load
+            //log file loading
             LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
+
+            //update tab name
+            TabManager.UpdateTabTitle(FileName);
+            //update recents
+            RecentsManager.SetMostRecent(SourceFilePath);
+            RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
 
             MainWindow.Cursor = Cursors.Default;
         }
@@ -503,6 +507,7 @@ namespace HousePartyTranslator.Managers
         {
             MainWindow.Cursor = Cursors.WaitCursor;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
+
             if (LastIndex < 0)
             {
                 //sets index the first time/when we click elsewhere
@@ -614,20 +619,30 @@ namespace HousePartyTranslator.Managers
         {
             if (Properties.Settings.Default.autoTranslate)
             {
-                string _1 = "";
-                _1 = await Translator.TranslateAsync(new Translate()
+                try
                 {
-                    ApiKey = "",
-                    Source = LanguageCode.English,
-                    Target = LanguageCode.FromString(Language),
-                    Text = TranslationData[currentIndex].TranslationString
-                });
-                if (_1.Length > 0)
-                {
-                    TranslationData[currentIndex].TranslationString = _1;
-                    if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                    string _1 = "";
+                    _1 = await Translator.TranslateAsync(new Translate()
                     {
-                        helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                        ApiKey = "",
+                        Source = LanguageCode.English,
+                        Target = LanguageCode.FromString(Language),
+                        Text = TranslationData[currentIndex].TranslationString
+                    });
+                    if (_1.Length > 0)
+                    {
+                        TranslationData[currentIndex].TranslationString = _1;
+                        if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                        {
+                            helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                        }
+                    }
+                }
+                catch
+                {
+                    if (MessageBox.Show("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    {
+                        Properties.Settings.Default.autoTranslate = false;
                     }
                 }
             }
@@ -805,7 +820,7 @@ namespace HousePartyTranslator.Managers
                         //combine all paths
                         gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", StoryName, languageAsText, FileName + ".txt");
                     }
-                    else if(StoryName == "UI")
+                    else if (StoryName == "UI")
                     {
                         //get language path
                         LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
@@ -819,7 +834,8 @@ namespace HousePartyTranslator.Managers
                     }
 
                     //copy file if we are not already in it lol
-                    if (gameFilePath != SourceFilePath) {
+                    if (gameFilePath != SourceFilePath)
+                    {
                         if (File.Exists(gameFilePath))
                         {
                             File.Copy(SourceFilePath, gameFilePath, true);
@@ -849,7 +865,10 @@ namespace HousePartyTranslator.Managers
             {
                 if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
                 {
-                    SaveFile(helper);
+                    if (!TabManager.SaveAllTabs())
+                    {
+                        SaveFile(helper);
+                    }
                 }
             }
         }
@@ -924,6 +943,15 @@ namespace HousePartyTranslator.Managers
             //select line which correspondends to id
             int index = TranslationData.FindIndex(n => n.ID == id);
             if (index >= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
+        }
+
+        /// <summary>
+        /// Selects the index given in the list of strings
+        /// </summary>
+        /// <param name="index">The index to select</param>
+        public void SelectLine(int index)
+        {
+            if (index >= 0 && index < TabManager.ActiveProperties.CheckListBoxLeft.Items.Count) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
         }
 
         /// <summary>

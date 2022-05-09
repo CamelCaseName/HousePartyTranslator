@@ -226,5 +226,29 @@ namespace HousePartyTranslator.Properties {
                 this["alsoSaveToGame"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int recent_index {
+            get {
+                return ((int)(this["recent_index"]));
+            }
+            set {
+                this["recent_index"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool autoLoadRecentIndex {
+            get {
+                return ((bool)(this["autoLoadRecentIndex"]));
+            }
+            set {
+                this["autoLoadRecentIndex"] = value;
+            }
+        }
     }
 }

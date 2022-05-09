@@ -1,10 +1,6 @@
-﻿using System;
+﻿using HousePartyTranslator.Helpers;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using HousePartyTranslator.Helpers;
 
 
 namespace HousePartyTranslator.Managers
@@ -120,9 +116,25 @@ namespace HousePartyTranslator.Managers
             //call startup for new translationmanager
             t.SetLanguage(ActiveProperties);
             t.LoadFileIntoProgram(ActiveProperties);
+        }
 
-            //update tab name
-            if (t.FileName.Length > 0) newTab.Text = t.FileName;
+        /// <summary>
+        /// Updates the current tabs title
+        /// </summary>
+        /// <param name="title">The title to set</param>
+        public static void UpdateTabTitle(string title)
+        {
+            UpdateTabTitle(TabControl.SelectedTab, title);
+        }
+
+        /// <summary>
+        /// Updates the text of the given TapPage object to the given string.
+        /// </summary>
+        /// <param name="tab">The tab to set the text of</param>
+        /// <param name="title">The string to set the tab text to</param>
+        public static void UpdateTabTitle(TabPage tab, string title)
+        {
+            if (title.Length > 0) tab.Text = title;
         }
 
         /// <summary>
@@ -142,6 +154,24 @@ namespace HousePartyTranslator.Managers
                     ActiveProperties.SearchBox.Text = ActiveTranslationManager.SearchQuery;
                 }
             }
+        }
+
+        /// <summary>
+        /// Saves all files in open tabs
+        /// </summary>
+        /// <returns>True if there are more than one tab and they have been saved</returns>
+        public static bool SaveAllTabs()
+        {
+            if (TabControl.TabCount > 1)
+            {
+                //save all tabs
+                foreach (TabPage tab in TabControl.TabPages)
+                {
+                    translationManagers[tab].SaveFile(properties[tab]);
+                }
+                return true;
+            }
+            return false;
         }
 
         /// <summary>

@@ -16,7 +16,6 @@ namespace HousePartyTranslator
     {
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
         private DiscordPresenceManager PresenceManager;
-        private RecentsManager RecentsManager;
         private SettingsForm.SettingsForm settings;
         private StoryExplorer SExplorer;
 
@@ -61,6 +60,8 @@ namespace HousePartyTranslator
         public ToolStripComboBox LanguageBox { get { return languageToolStripComboBox; } }
 
         public ToolStripTextBox SearchBox { get { return searchToolStripTextBox; } }
+
+        public ToolStripMenuItem FileToolStripMenuItem { get { return fileToolStripMenuItem; } }
 
         public void ApprovedBox_CheckedChanged(object sender, EventArgs e)
         {
@@ -125,18 +126,15 @@ namespace HousePartyTranslator
             Application.Exit();
         }
 
-        private void Fenster_FormClosing(object sender, FormClosingEventArgs e)
+        private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             //prevent discord from getting angry
-            PresenceManager.DeInitialize();
+            if (PresenceManager != null) PresenceManager.DeInitialize();
 
             RecentsManager.SaveRecents();
 
-            //save settings
-            Properties.Settings.Default.Save();
-
             //show save unsaved changes dialog
-            TabManager.ActiveTranslationManager.ShowAutoSaveDialog(TabManager.ActiveProperties);
+            if (TabManager.ActiveTranslationManager != null) TabManager.ActiveTranslationManager.ShowAutoSaveDialog(TabManager.ActiveProperties);
         }
 
         private void FensterUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
@@ -152,10 +150,9 @@ namespace HousePartyTranslator
             }
         }
 
-        private void FormShown(object sender, EventArgs e)
+        private void OnFormShown(object sender, EventArgs e)
         {
             LogManager.LogEvent("Application started! hi there :D");
-
 
             //get translationmanager back
             TranslationManager translationManager = TabManager.Initialize(tabPage1);
@@ -166,22 +163,13 @@ namespace HousePartyTranslator
             DataBaseManager.InitializeDB(this);
 
             PresenceManager = new DiscordPresenceManager();
-            RecentsManager = new RecentsManager(TabManager.ActiveProperties);
+            RecentsManager.Initialize();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
             PresenceTimer.Start();
 
-            RecentsManager.UpdateMenuItems(fileToolStripMenuItem.DropDownItems);
-
-            if (Properties.Settings.Default.autoLoadRecent)
-            {
-                if (RecentsManager.GetRecents().Length > 0)
-                {
-                    translationManager.LoadFileIntoProgram(TabManager.ActiveProperties, RecentsManager.GetRecents()[0].Text);
-                    if (translationManager.FileName.Length > 0) tabPage1.Text = translationManager.FileName;
-                }
-            }
+            RecentsManager.OpenMostRecent();
         }
 
         private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -199,8 +187,6 @@ namespace HousePartyTranslator
             TabManager.OpenNewTab();
 
             //update presence and recents
-            RecentsManager.SetMostRecent(TabManager.ActiveTranslationManager.SourceFilePath);
-            RecentsManager.UpdateMenuItems(fileToolStripMenuItem.DropDownItems);
             PresenceManager.SetCharacterToShow(TabManager.ActiveTranslationManager.FileName);
             PresenceManager.SetStory(TabManager.ActiveTranslationManager.StoryName);
         }
@@ -215,8 +201,6 @@ namespace HousePartyTranslator
             if (translationManager.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = translationManager.FileName;
 
             //update presence and recents
-            RecentsManager.SetMostRecent(translationManager.SourceFilePath);
-            RecentsManager.UpdateMenuItems(fileToolStripMenuItem.DropDownItems);
             PresenceManager.SetCharacterToShow(translationManager.FileName);
             PresenceManager.SetStory(translationManager.StoryName);
         }

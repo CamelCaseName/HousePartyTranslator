@@ -102,9 +102,7 @@ namespace HousePartyTranslator.Managers
         public void DeInitialize()
         {
             //Deinit to prevent a c++ side memory leak
-            {
-                DiscordPresenceClient.Dispose();
-            }
+            DiscordPresenceClient.Dispose();
         }
     }
 }
