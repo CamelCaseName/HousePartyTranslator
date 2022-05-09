@@ -157,6 +157,24 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// Saves all files in open tabs
+        /// </summary>
+        /// <returns>True if there are more than one tab and they have been saved</returns>
+        public static bool SaveAllTabs()
+        {
+            if (TabControl.TabCount > 1)
+            {
+                //save all tabs
+                foreach (TabPage tab in TabControl.TabPages)
+                {
+                    translationManagers[tab].SaveFile(properties[tab]);
+                }
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Switches to the Tab specified, does all the other logic behind
         /// </summary>
         /// <param name="i">The tab index to switch to</param>
