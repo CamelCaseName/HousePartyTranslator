@@ -619,20 +619,30 @@ namespace HousePartyTranslator.Managers
         {
             if (Properties.Settings.Default.autoTranslate)
             {
-                string _1 = "";
-                _1 = await Translator.TranslateAsync(new Translate()
+                try
                 {
-                    ApiKey = "",
-                    Source = LanguageCode.English,
-                    Target = LanguageCode.FromString(Language),
-                    Text = TranslationData[currentIndex].TranslationString
-                });
-                if (_1.Length > 0)
-                {
-                    TranslationData[currentIndex].TranslationString = _1;
-                    if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                    string _1 = "";
+                    _1 = await Translator.TranslateAsync(new Translate()
                     {
-                        helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                        ApiKey = "",
+                        Source = LanguageCode.English,
+                        Target = LanguageCode.FromString(Language),
+                        Text = TranslationData[currentIndex].TranslationString
+                    });
+                    if (_1.Length > 0)
+                    {
+                        TranslationData[currentIndex].TranslationString = _1;
+                        if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                        {
+                            helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                        }
+                    }
+                }
+                catch
+                {
+                    if (MessageBox.Show("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    {
+                        Properties.Settings.Default.autoTranslate = false;
                     }
                 }
             }

@@ -129,12 +129,12 @@ namespace HousePartyTranslator
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             //prevent discord from getting angry
-            PresenceManager.DeInitialize();
+            if (PresenceManager != null) PresenceManager.DeInitialize();
 
             RecentsManager.SaveRecents();
 
             //show save unsaved changes dialog
-            TabManager.ActiveTranslationManager.ShowAutoSaveDialog(TabManager.ActiveProperties);
+            if (TabManager.ActiveTranslationManager != null) TabManager.ActiveTranslationManager.ShowAutoSaveDialog(TabManager.ActiveProperties);
         }
 
         private void FensterUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
@@ -169,7 +169,7 @@ namespace HousePartyTranslator
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
             PresenceTimer.Start();
 
-            RecentsManager.OpenMostRecent();            
+            RecentsManager.OpenMostRecent();
         }
 
         private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
