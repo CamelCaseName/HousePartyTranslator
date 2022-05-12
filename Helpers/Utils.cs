@@ -100,12 +100,12 @@ namespace HousePartyTranslator.Helpers
                     break;
                 }
             }
-            if (!success)
+            if (!success && textBox.SelectionStart > 0)
             {
-                textBox.Clear();
-                success = true;
+                textBox.Text = textBox.Text.Remove(0, textBox.SelectionStart);
             }
-            return success;
+            //to stop winforms adding the weird backspace character to the text
+            return true;
         }
 
         /// <summary>
@@ -132,12 +132,12 @@ namespace HousePartyTranslator.Helpers
                         case "'":
                         case "/":
                         case "\\":
-                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
+                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart + 1);
                             textBox.SelectionStart = sel;
                             success = true;
                             break;
                         case "\n":
-                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart);
+                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart + 1);
                             textBox.SelectionStart = sel;
                             success = true;
                             break;
