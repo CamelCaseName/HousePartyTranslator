@@ -3,6 +3,7 @@ using HousePartyTranslator.Managers;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.StoryExplorerForm
@@ -10,16 +11,18 @@ namespace HousePartyTranslator.StoryExplorerForm
     public class GraphingEngine
     {
         public const int BitmapEdgeLength = 7000;
+        public const int HalfBitmapEdgeLength = BitmapEdgeLength / 2;
+        public const int NegativeHalfBitmapEdgeLength = -HalfBitmapEdgeLength;
         public const int Nodesize = 16;
 
         public readonly ContextProvider Context;
-        public readonly Graphics MainGraphics;
         public bool ReadyToDraw = false;
 
         private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
         private readonly Color DefaultNodeColor = Color.DarkBlue;
         private readonly StoryExplorer Explorer;
         private readonly Bitmap GraphBitmap;
+        private readonly Graphics MainGraphics;
         private readonly Label NodeInfoLabel;
 
         private float AfterZoomMouseX = 0f;
@@ -34,11 +37,42 @@ namespace HousePartyTranslator.StoryExplorerForm
         private Node LastInfoNode = Node.NullNode;
         private Color LastNodeColor = Color.DarkBlue;
 
-        private float OffsetX = -BitmapEdgeLength / 2;
-        private float OffsetY = -BitmapEdgeLength / 2;
+        private float OffsetX = -HalfBitmapEdgeLength;
+        private float OffsetY = -HalfBitmapEdgeLength;
         private float Scaling = 0.3f;
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
+
+        private int bytesPerPixel;
+        private int heightInPixels;
+        private int widthInPixels;
+
+        /*
+        unsafe
+        {
+            BitmapData bitmapData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height), ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
+            int heightInPixels = bitmapData.Height;
+            int widthInBytes = bitmapData.Width * bytesPerPixel;
+            byte* ptrFirstPixel = (byte*)bitmapData.Scan0;
+         
+            for (int y = 0; y < heightInPixels; y++)
+            {
+                byte* currentLine = ptrFirstPixel + (y * bitmapData.Stride);
+                for (int x = 0; x < widthInBytes; x = x + bytesPerPixel)
+                {
+                    int oldBlue = currentLine[x];
+                    int oldGreen = currentLine[x + 1];
+                    int oldRed = currentLine[x + 2];
+ 
+                    // calculate new pixel value
+                    currentLine[x] = (byte)oldBlue;
+                    currentLine[x + 1] = (byte)oldGreen;
+                    currentLine[x + 2] = (byte)oldRed;
+                }
+            }
+            processedBitmap.UnlockBits(bitmapData);
+        }
+        */
 
         public GraphingEngine(ContextProvider context, StoryExplorer explorer, Label nodeInfoLabel)
         {
@@ -47,6 +81,10 @@ namespace HousePartyTranslator.StoryExplorerForm
             NodeInfoLabel = nodeInfoLabel;
 
             GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+
+            bytesPerPixel = Image.GetPixelFormatSize(GraphBitmap.PixelFormat) / 8;
+            heightInPixels = GraphBitmap.Height;
+            widthInPixels = GraphBitmap.Width * bytesPerPixel;
 
             MainGraphics = Graphics.FromImage(GraphBitmap);
             MainGraphics.DrawRectangle(Pens.Black, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
@@ -106,13 +144,19 @@ namespace HousePartyTranslator.StoryExplorerForm
             if (ReadyToDraw)
             {
                 //convert image
-                GraphToScreen(-BitmapEdgeLength / 2, -BitmapEdgeLength / 2, out float ImageScreenX, out float ImageScreenY);
+                GraphToScreen(NegativeHalfBitmapEdgeLength, NegativeHalfBitmapEdgeLength, out float ImageScreenX, out float ImageScreenY);
                 //display image with scaling applied
                 e.Graphics.DrawImage(GraphBitmap, ImageScreenX, ImageScreenY, BitmapEdgeLength * Scaling, BitmapEdgeLength * Scaling);
             }
         }
 
-        //converts graph coordinates into the corresponding screen coordinates, taking into account all transformations/zoom
+        /// <summary>
+        /// converts graph coordinates into the corresponding screen coordinates, taking into account all transformations/zoom
+        /// </summary>
+        /// <param name="graphX">x in the graphics coords</param>
+        /// <param name="graphY">y in the graphics coords</param>
+        /// <param name="screenX">x in the screens coords</param>
+        /// <param name="screenY">y in the screens coords</param>
         public void GraphToScreen(float graphX, float graphY, out float screenX, out float screenY)
         {
             screenX = (graphX - OffsetX) * Scaling;
@@ -161,15 +205,14 @@ namespace HousePartyTranslator.StoryExplorerForm
         public void PaintAllNodes()
         {
             //go on displaying graph
-            foreach (Node node in Context.GetNodes())
+            for (int i = 0; i < Context.GetNodes().Count; i++)
             {
                 //draw node
-                DrawColouredNode(node, DefaultNodeColor);
-                //draw edges
-                foreach (Node child in node.ChildNodes)
+                DrawColouredNode(Context.GetNodes()[i], DefaultNodeColor);
+                //draw edges to children, default colour
+                for (int j = 0; j < Context.GetNodes()[i].ChildNodes.Count; j++)
                 {
-                    //draw edge to child, default colour
-                    DrawEdge(node, child, DefaultEdgeColor);
+                    DrawEdge(Context.GetNodes()[i], Context.GetNodes()[i].ChildNodes[j], DefaultEdgeColor);
                 }
             }
             //allow paint handler to draw
@@ -243,8 +286,8 @@ namespace HousePartyTranslator.StoryExplorerForm
         {
             MainGraphics.FillEllipse(
                 new SolidBrush(color),
-                node.Position.X - Nodesize / 2 + BitmapEdgeLength / 2,
-                node.Position.Y - Nodesize / 2 + BitmapEdgeLength / 2,
+                node.Position.X - Nodesize / 2 + HalfBitmapEdgeLength,
+                node.Position.Y - Nodesize / 2 + HalfBitmapEdgeLength,
                 Nodesize,
                 Nodesize);
         }
@@ -253,10 +296,22 @@ namespace HousePartyTranslator.StoryExplorerForm
         {
             MainGraphics.DrawLine(
                 new Pen(color, 3f),
-                (node1.Position.X) + BitmapEdgeLength / 2,
-                (node1.Position.Y) + BitmapEdgeLength / 2,
-                (node2.Position.X) + BitmapEdgeLength / 2,
-                (node2.Position.Y) + BitmapEdgeLength / 2);
+                (node1.Position.X) + HalfBitmapEdgeLength,
+                (node1.Position.Y) + HalfBitmapEdgeLength,
+                (node2.Position.X) + HalfBitmapEdgeLength,
+                (node2.Position.Y) + HalfBitmapEdgeLength);
+        }
+
+        private void DrawEdges(Node first, List<Node> nodes, Color color)
+        {
+            Point[] points = new Point[nodes.Count];
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                points[i] = nodes[i].Position;
+                points[i].X += HalfBitmapEdgeLength;
+                points[i].Y += HalfBitmapEdgeLength;
+            }
+            MainGraphics.DrawLines(new Pen(color, 3f), points);
         }
 
         private void DrawHighlightNodeTree()
@@ -378,7 +433,7 @@ namespace HousePartyTranslator.StoryExplorerForm
 
             if (infoNode != Node.NullNode)
             {
-                LastNodeColor = GraphBitmap.GetPixel(infoNode.Position.X + BitmapEdgeLength / 2, infoNode.Position.Y + BitmapEdgeLength / 2);
+                LastNodeColor = GraphBitmap.GetPixel(infoNode.Position.X + HalfBitmapEdgeLength, infoNode.Position.Y + HalfBitmapEdgeLength);
                 if (LastNodeColor == DefaultEdgeColor)
                 {//reset colour if it is gray, can happen due to drawing order
                     LastNodeColor = DefaultNodeColor;

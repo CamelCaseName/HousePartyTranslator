@@ -8,6 +8,10 @@ namespace HousePartyTranslator.Managers
     internal static class RecentsManager
     {
         private static readonly List<string> recents = new List<string>(5);
+        /// <summary>
+        /// Set to the number of recents set you want to ignore, used for the first one on stasrtup here
+        /// </summary>
+        public static int ignorenextRecents = 0;
         private static int recentIndex = -1;
 
         /// <summary>
@@ -84,8 +88,12 @@ namespace HousePartyTranslator.Managers
         /// <param name="filepath">The path to set as most recent</param>
         /// <param name="index">The index of the last selected line</param>
         public static void SetMostRecent(string filepath)
-        {
-            if (filepath.Length > 0) recents.Insert(0, filepath);
+        {//if we dont ignore recents, keep number near 0 so we dont underflow
+            if (ignorenextRecents-- <= 0)
+            {
+                if (filepath.Length > 0) recents.Insert(0, filepath);
+                ignorenextRecents = 0;
+            }
         }
 
         /// <summary>
@@ -97,6 +105,7 @@ namespace HousePartyTranslator.Managers
             {
                 if (recents.Count > 0)
                 {
+                    ignorenextRecents = 1;
                     TranslationManager t = TabManager.ActiveTranslationManager;
                     t.LoadFileIntoProgram(TabManager.ActiveProperties, recents[0]);
                     if (Properties.Settings.Default.autoLoadRecentIndex) t.SelectLine(recentIndex);
