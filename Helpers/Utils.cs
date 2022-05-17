@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Helpers
@@ -11,6 +12,23 @@ namespace HousePartyTranslator.Helpers
     static class Utils
     {
         public static readonly int MaxTextLength = 100;
+
+        public static string Replace(string input, string replacement, string search)
+        {
+            return ReplaceRegex(input, replacement, Regex.Escape(search));
+        }
+
+        /// <summary>
+        /// Replaces all regex rule matches inte given string and returns it
+        /// </summary>
+        /// <param name="input">The string to work on</param>
+        /// <param name="replacement">The replacement for all matches</param>
+        /// <param name="regexRules">The regex to match</param>
+        /// <returns></returns>
+        public static string ReplaceRegex(string input, string replacement, string regexRules)
+        {
+            return Regex.Replace(input, regexRules, replacement, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline, new TimeSpan(0, 0, 10));
+        }
 
         /// <summary>
         /// Removes the voice actor infos from the given string. Info has to be encapsulated in []. 

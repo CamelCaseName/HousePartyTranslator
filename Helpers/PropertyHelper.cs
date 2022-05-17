@@ -16,6 +16,8 @@ namespace HousePartyTranslator.Helpers
         public readonly NoAnimationBar NoProgressbar;
         public readonly TextBox CommentBox;
         public readonly ToolStripTextBox SearchBox;
+        public readonly ToolStripTextBox ReplaceBox;
+        public readonly ToolStripMenuItem ReplaceButton;
         public readonly TextBox TemplateTextBox;
         public readonly TextBox TranslationTextBox;
 
@@ -30,6 +32,7 @@ namespace HousePartyTranslator.Helpers
         /// <param name="LanguageBox">The drop down box to choose the language with.</param>
         /// <param name="NoProgressbar">The progress bar.</param>
         /// <param name="SearchBox">The textbox to perform searches with.</param>
+        /// <param name="ReplaceBox">The textbox to replace search with.</param>
         /// <param name="SelectedFileLabel">The currently selected file will be displayed there.</param>
         /// <param name="TemplateTextBox">The textbox containing the template.</param>
         /// <param name="TranslationTextBox">The textbox containing the translation</param>
@@ -43,6 +46,8 @@ namespace HousePartyTranslator.Helpers
             NoAnimationBar NoProgressbar,
             TextBox CommentBox,
             ToolStripTextBox SearchBox,
+            ToolStripTextBox ReplaceBox,
+            ToolStripMenuItem ReplaceButton,
             TextBox TemplateTextBox,
             TextBox TranslationTextBox
             )
@@ -55,6 +60,8 @@ namespace HousePartyTranslator.Helpers
             this.LanguageBox = LanguageBox;
             this.NoProgressbar = NoProgressbar;
             this.SearchBox = SearchBox;
+            this.ReplaceBox = ReplaceBox;
+            this.ReplaceButton = ReplaceButton;
             this.SelectedFileLabel = SelectedFileLabel;
             this.TemplateTextBox = TemplateTextBox;
             this.TranslationTextBox = TranslationTextBox;

@@ -61,6 +61,10 @@ namespace HousePartyTranslator
 
         public ToolStripTextBox SearchBox { get { return searchToolStripTextBox; } }
 
+        public ToolStripTextBox ReplaceBox { get { return ToolStripMenuReplaceBox; } }
+
+        public ToolStripMenuItem ReplaceButton { get { return toolStripReplaceButton; } }
+
         public ToolStripMenuItem FileToolStripMenuItem { get { return fileToolStripMenuItem; } }
 
         public void ApprovedBox_CheckedChanged(object sender, EventArgs e)
@@ -248,6 +252,15 @@ namespace HousePartyTranslator
         {
             LogManager.LogEvent(e.Exception.ToString());
             TranslationManager.DisplayExceptionMessage(e.Exception.Message);
+        }
+
+        private void ToolStripMenuReplaceBox_TextChanged(object sender, EventArgs e)
+        {
+        }
+
+        private void ToolStripReplaceButton_Click(object sender, EventArgs e)
+        {
+            TabManager.Replace();
         }
     }
 }
