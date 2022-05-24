@@ -121,7 +121,7 @@ namespace HousePartyTranslator
                     //read in positions if they exist, but only if version is the same
                     List<SerializeableNode> tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
                     //expand the guids back into references
-                    Nodes = new Node().ExpandDeserializedNodes(tempList);
+                    Nodes = Node.ExpandDeserializedNodes(tempList);
                 }
                 else
                 {
@@ -301,6 +301,9 @@ namespace HousePartyTranslator
                 //actually adding the node
                 if (node.Type == NodeType.Criterion)//if it is a criterion, else is after this bit
                 {
+                    //set gender of childs of the event this criterion is part of if we have a gender comparison
+                    
+
                     //if the criterion has already been seen before
                     Node criterionInFile = CriteriaInFile.Find(n => n.Guid == node.Guid);
                     if (criterionInFile != null)//has been seen before

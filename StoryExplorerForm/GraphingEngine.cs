@@ -19,7 +19,8 @@ namespace HousePartyTranslator.StoryExplorerForm
         public bool ReadyToDraw = false;
 
         private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
-        private readonly Color DefaultNodeColor = Color.DarkBlue;
+        private readonly Color DefaultMaleColor = Color.DarkBlue;
+        private readonly Color DefaultFemaleColor = Color.DarkTurquoise;
         private readonly StoryExplorer Explorer;
         private readonly Bitmap GraphBitmap;
         private readonly Graphics MainGraphics;
@@ -208,7 +209,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             for (int i = 0; i < Context.GetNodes().Count; i++)
             {
                 //draw node
-                DrawColouredNode(Context.GetNodes()[i], DefaultNodeColor);
+                DrawColouredNode(Context.GetNodes()[i], Context.GetNodes()[i].IsFemale ? DefaultFemaleColor : DefaultMaleColor);
                 //draw edges to children, default colour
                 for (int j = 0; j < Context.GetNodes()[i].ChildNodes.Count; j++)
                 {
@@ -284,22 +285,28 @@ namespace HousePartyTranslator.StoryExplorerForm
 
         private void DrawColouredNode(Node node, Color color)
         {
-            MainGraphics.FillEllipse(
-                new SolidBrush(color),
-                node.Position.X - Nodesize / 2 + HalfBitmapEdgeLength,
-                node.Position.Y - Nodesize / 2 + HalfBitmapEdgeLength,
-                Nodesize,
-                Nodesize);
+            if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+            {
+                MainGraphics.FillEllipse(
+                               new SolidBrush(color),
+                               node.Position.X - Nodesize / 2 + HalfBitmapEdgeLength,
+                               node.Position.Y - Nodesize / 2 + HalfBitmapEdgeLength,
+                               Nodesize,
+                               Nodesize);
+            }
         }
 
         private void DrawEdge(Node node1, Node node2, Color color)
         {
-            MainGraphics.DrawLine(
+            if (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
+            {
+                MainGraphics.DrawLine(
                 new Pen(color, 3f),
                 (node1.Position.X) + HalfBitmapEdgeLength,
                 (node1.Position.Y) + HalfBitmapEdgeLength,
                 (node2.Position.X) + HalfBitmapEdgeLength,
                 (node2.Position.Y) + HalfBitmapEdgeLength);
+            }
         }
 
         private void DrawEdges(List<Node> nodes, Color color)
@@ -402,7 +409,7 @@ namespace HousePartyTranslator.StoryExplorerForm
                     HighlightedNode,
                     0,
                     1,
-                    DefaultNodeColor,
+                    DefaultMaleColor,
                     DefaultEdgeColor,
                     false);
                 //draw over childs
@@ -411,12 +418,12 @@ namespace HousePartyTranslator.StoryExplorerForm
                     HighlightedNode,
                     0,
                     6,
-                    DefaultNodeColor,
+                    HighlightedNode.IsFemale ? DefaultFemaleColor : DefaultMaleColor,
                     DefaultEdgeColor,
                     false);
 
                 //redraw node itself
-                DrawColouredNode(HighlightedNode, DefaultNodeColor);
+                DrawColouredNode(HighlightedNode, HighlightedNode.IsFemale ? DefaultFemaleColor : DefaultMaleColor);
                 Explorer.Invalidate();
 
             }
@@ -436,7 +443,7 @@ namespace HousePartyTranslator.StoryExplorerForm
                 LastNodeColor = GraphBitmap.GetPixel(infoNode.Position.X + HalfBitmapEdgeLength, infoNode.Position.Y + HalfBitmapEdgeLength);
                 if (LastNodeColor == DefaultEdgeColor)
                 {//reset colour if it is gray, can happen due to drawing order
-                    LastNodeColor = DefaultNodeColor;
+                    LastNodeColor = infoNode.IsFemale ? DefaultFemaleColor : DefaultMaleColor;
                 }
             }
         }
@@ -477,7 +484,10 @@ namespace HousePartyTranslator.StoryExplorerForm
                 {
                     if (mouseRightX > node.Position.X && mouseLeftX < node.Position.X)
                     {
-                        return node;
+                        if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+                        {
+                            return node;
+                        }
                     }
                 }
             }
