@@ -302,7 +302,7 @@ namespace HousePartyTranslator.StoryExplorerForm
                 (node2.Position.Y) + HalfBitmapEdgeLength);
         }
 
-        private void DrawEdges(Node first, List<Node> nodes, Color color)
+        private void DrawEdges(List<Node> nodes, Color color)
         {
             Point[] points = new Point[nodes.Count];
             for (int i = 0; i < nodes.Count; i++)

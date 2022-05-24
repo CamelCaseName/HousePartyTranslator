@@ -12,6 +12,7 @@ namespace HousePartyTranslator.Helpers
     static class Utils
     {
         public static readonly int MaxTextLength = 100;
+        public static readonly int maxWordLength = 15;
 
         public static string Replace(string input, string replacement, string search)
         {
@@ -66,15 +67,42 @@ namespace HousePartyTranslator.Helpers
         public static string ConstrainLength(string input)
         {
             string output = "";
-            int inputLength = input.Length;
+            bool inWord;
+            int currentWordLength = 0, currentLength = 0;
 
-            //TODO add lookahead and lookback for detecting "words", or change up how we split
-            for (int i = 0; i <= (inputLength / MaxTextLength); i++)
+            foreach (char c in input)
             {
-                int possibleEnd = Math.Min(MaxTextLength, input.Length);
-                output += input.Substring(0, possibleEnd);
-                if (possibleEnd == MaxTextLength) output += " \n";
-                input = input.Remove(0, possibleEnd);
+                if (c != ' ' && c != '\n' && c != '\r')
+                {
+                    inWord = true;
+                    currentWordLength++;
+                }
+                else
+                {
+                    inWord = false;
+                    currentWordLength = 0;
+                }
+
+                currentLength++;
+
+                //if line is short still
+                if (currentLength <= MaxTextLength)
+                {
+                    output += c;
+                }
+                else
+                {
+                    if (inWord && currentWordLength < maxWordLength)
+                    {
+                        //line is too long but we in a word
+                        output += c;
+                    }
+                    else
+                    {
+                        output += c + "\n";
+                        currentLength = 0;
+                    }
+                }
             }
 
             return output;

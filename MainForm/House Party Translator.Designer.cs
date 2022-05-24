@@ -53,11 +53,11 @@ namespace HousePartyTranslator
             this.saveCommentsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.ToolStripMenuReplaceBox = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripReplaceButton = new System.Windows.Forms.ToolStripMenuItem();
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripReplaceButton = new System.Windows.Forms.ToolStripMenuItem();
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.CommentGroup = new System.Windows.Forms.GroupBox();
             this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
@@ -309,6 +309,17 @@ namespace HousePartyTranslator
             this.ToolStripMenuReplaceBox.Visible = false;
             this.ToolStripMenuReplaceBox.TextChanged += new System.EventHandler(this.ToolStripMenuReplaceBox_TextChanged);
             // 
+            // toolStripReplaceButton
+            // 
+            this.toolStripReplaceButton.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.toolStripReplaceButton.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.toolStripReplaceButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.toolStripReplaceButton.Name = "toolStripReplaceButton";
+            this.toolStripReplaceButton.Size = new System.Drawing.Size(63, 23);
+            this.toolStripReplaceButton.Text = "Replace!";
+            this.toolStripReplaceButton.Visible = false;
+            this.toolStripReplaceButton.Click += new System.EventHandler(this.ToolStripReplaceButton_Click);
+            // 
             // languageToolStripComboBox
             // 
             this.languageToolStripComboBox.BackColor = System.Drawing.SystemColors.ScrollBar;
@@ -359,17 +370,6 @@ namespace HousePartyTranslator
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
-            // 
-            // toolStripReplaceButton
-            // 
-            this.toolStripReplaceButton.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.toolStripReplaceButton.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.toolStripReplaceButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.toolStripReplaceButton.Name = "toolStripReplaceButton";
-            this.toolStripReplaceButton.Size = new System.Drawing.Size(63, 23);
-            this.toolStripReplaceButton.Text = "Replace!";
-            this.toolStripReplaceButton.Visible = false;
-            this.toolStripReplaceButton.Click += new System.EventHandler(this.ToolStripReplaceButton_Click);
             // 
             // mainTableLayoutPanel
             // 

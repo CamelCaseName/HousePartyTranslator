@@ -4,7 +4,6 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
-    //todo also resume to last string
     internal static class RecentsManager
     {
         private static readonly List<string> recents = new List<string>(5);
