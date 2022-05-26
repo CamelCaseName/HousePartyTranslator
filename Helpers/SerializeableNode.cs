@@ -29,6 +29,7 @@ namespace HousePartyTranslator.Helpers
                 Mass = v.Mass,
                 ParentsVisited = v.ParentsVisited,
                 Position = v.Position,
+                IsFemale = v.IsFemale,
                 Text = v.Text,
                 Type = v.Type,
                 Visited = v.Visited,

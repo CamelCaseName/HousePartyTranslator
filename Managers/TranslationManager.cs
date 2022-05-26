@@ -1569,7 +1569,7 @@ namespace HousePartyTranslator.Managers
             //Highlights the node representign the selected string in the story explorer window
             if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
             {
-                MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.GetNodes().Find(n => n.ID == id);
+                MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.Nodes.Find(n => n.ID == id);
             }
         }
 

@@ -19,11 +19,11 @@ namespace HousePartyTranslator
         private string _StoryFilePath;
         private List<Node> CriteriaInFile;
         private Dictionary<Guid, Vector2> NodeForces;
-        private List<Node> Nodes;
+        private List<Node> nodes;
 
         public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
         {
-            Nodes = new List<Node>();
+            nodes = new List<Node>();
             this.IsStory = IsStory;
 
             if (Properties.Settings.Default.story_path != "" && AutoSelectFile && FileName != "" && StoryName != "")
@@ -101,10 +101,7 @@ namespace HousePartyTranslator
             }
         }
 
-        public List<Node> GetNodes()
-        {
-            return Nodes;
-        }
+        public List<Node> Nodes => nodes;
 
         public bool ParseFile()
         {
@@ -121,7 +118,7 @@ namespace HousePartyTranslator
                     //read in positions if they exist, but only if version is the same
                     List<SerializeableNode> tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
                     //expand the guids back into references
-                    Nodes = Node.ExpandDeserializedNodes(tempList);
+                    nodes = Node.ExpandDeserializedNodes(tempList);
                 }
                 else
                 {
@@ -136,10 +133,10 @@ namespace HousePartyTranslator
                     }
 
                     //save nodes
-                    File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(Nodes.ConvertAll(n => (SerializeableNode)n)));
+                    File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
                 }
 
-                return Nodes.Count > 0;
+                return nodes.Count > 0;
             }
             else
             {
@@ -341,26 +338,26 @@ namespace HousePartyTranslator
                 CriteriaInFile = new List<Node>();
 
                 //get all relevant items from the json
-                Nodes.AddRange(GetDialogues(story));
-                Nodes.AddRange(GetGlobalGoodByeResponses(story));
-                Nodes.AddRange(GetGlobalResponses(story));
-                Nodes.AddRange(GetBackGroundChatter(story));
-                Nodes.AddRange(GetQuests(story));
-                Nodes.AddRange(GetReactions(story));
+                nodes.AddRange(GetDialogues(story));
+                nodes.AddRange(GetGlobalGoodByeResponses(story));
+                nodes.AddRange(GetGlobalResponses(story));
+                nodes.AddRange(GetBackGroundChatter(story));
+                nodes.AddRange(GetQuests(story));
+                nodes.AddRange(GetReactions(story));
 
                 //remove duplicates/merge criteria
                 //maybe later we load the corresponding strings from the character files and vise versa?
-                Nodes = CombineNodes(Nodes);
+                nodes = CombineNodes(nodes);
 
                 //clear criteria to free memory, we dont need them anyways
                 //cant be called recusrively so we cant add it, it would break the combination
                 CriteriaInFile.Clear();
 
                 //calculate starting positions
-                Nodes = CalculateStartingPositions(Nodes);
+                nodes = CalculateStartingPositions(nodes);
 
                 //render and do the force driven calculation thingies
-                Nodes = CalculateForceDirectedLayout(Nodes);
+                nodes = CalculateForceDirectedLayout(nodes);
 
             }
         }
@@ -372,27 +369,27 @@ namespace HousePartyTranslator
                 CriteriaInFile = new List<Node>();
 
                 //add all items in the story
-                Nodes.AddRange(GetItemOverrides(story));
+                nodes.AddRange(GetItemOverrides(story));
                 //add all item groups with their actions
-                Nodes.AddRange(GetItemGroups(story));
+                nodes.AddRange(GetItemGroups(story));
                 //add all items in the story
-                Nodes.AddRange(GetAchievements(story));
+                nodes.AddRange(GetAchievements(story));
                 //add all reactions the player will say
-                Nodes.AddRange(GetPlayerReactions(story));
+                nodes.AddRange(GetPlayerReactions(story));
 
                 //remove duplicates/merge criteria
                 //maybe later we load the corresponding strings from the character files and vise versa?
-                Nodes = CombineNodes(Nodes);
+                nodes = CombineNodes(nodes);
 
                 //clear criteria to free memory, we dont need them anyways
                 //cant be called recusrively so we cant add it, it would break the combination
                 CriteriaInFile.Clear();
 
                 //calculate starting positions
-                Nodes = CalculateStartingPositions(Nodes);
+                nodes = CalculateStartingPositions(nodes);
 
                 //render and do the force driven calculation thingies
-                Nodes = CalculateForceDirectedLayout(Nodes);
+                nodes = CalculateForceDirectedLayout(nodes);
 
             }
         }

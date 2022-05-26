@@ -206,14 +206,14 @@ namespace HousePartyTranslator.StoryExplorerForm
         public void PaintAllNodes()
         {
             //go on displaying graph
-            for (int i = 0; i < Context.GetNodes().Count; i++)
+            for (int i = 0; i < Context.Nodes.Count; i++)
             {
                 //draw node
-                DrawColouredNode(Context.GetNodes()[i], Context.GetNodes()[i].IsFemale ? DefaultFemaleColor : DefaultMaleColor);
+                DrawColouredNode(Context.Nodes[i], Context.Nodes[i].IsFemale ? DefaultFemaleColor : DefaultMaleColor);
                 //draw edges to children, default colour
-                for (int j = 0; j < Context.GetNodes()[i].ChildNodes.Count; j++)
+                for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
                 {
-                    DrawEdge(Context.GetNodes()[i], Context.GetNodes()[i].ChildNodes[j], DefaultEdgeColor);
+                    DrawEdge(Context.Nodes[i], Context.Nodes[i].ChildNodes[j], DefaultEdgeColor);
                 }
             }
             //allow paint handler to draw
@@ -478,7 +478,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             ScreenToGraph(mouseLocation.X - Nodesize, mouseLocation.Y - Nodesize, out float mouseLeftX, out float mouseUpperY);
             ScreenToGraph(mouseLocation.X + Nodesize, mouseLocation.Y + Nodesize, out float mouseRightX, out float mouseLowerY);
 
-            foreach (Node node in Context.GetNodes())
+            foreach (Node node in Context.Nodes)
             {
                 if (mouseLowerY > node.Position.Y && mouseUpperY < node.Position.Y)
                 {
