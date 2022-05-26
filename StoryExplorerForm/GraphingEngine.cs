@@ -35,6 +35,7 @@ namespace HousePartyTranslator.StoryExplorerForm
         private Node highlightedNode = Node.NullNode;
         private Node infoNode = Node.NullNode;
         private bool IsShiftPressed = false;
+        private bool IsCtrlPressed = false;
         private Node LastInfoNode = Node.NullNode;
         private Color LastNodeColor = Color.DarkBlue;
 
@@ -168,6 +169,8 @@ namespace HousePartyTranslator.StoryExplorerForm
         {
             //get the shift key state so we can determine later if we want to redraw the tree on node selection or not
             IsShiftPressed = e.KeyData == (Keys.ShiftKey | Keys.Shift);
+            //determine ctrl state for node moving
+            IsCtrlPressed = e.KeyData == (Keys.ControlKey | Keys.Control);
         }
 
         public void HandleMouseEvents(object sender, MouseEventArgs e)

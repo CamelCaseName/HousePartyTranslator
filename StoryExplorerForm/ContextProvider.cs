@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Numerics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -179,16 +180,18 @@ namespace HousePartyTranslator
                 currentMaxForce = maxForce + 0.1f;
 
                 //go through all nodes and apply the forces
-                foreach (Node node in nodes)
+                Parallel.For(0, nodes.Count, i1 =>
                 {
+                    Node node = nodes[i1];
                     //create position vector for all later calculations
                     Vector2 nodePosition = new Vector2(node.Position.X, node.Position.Y);
                     //reset force
                     NodeForces[node.Guid] = new Vector2();
 
                     //calculate repulsion force
-                    foreach (Node secondNode in nodes)
+                    for (int i2 = 0; i2 < nodes.Count; i2++)
                     {
+                        Node secondNode = nodes[i2];
                         if (node != secondNode && secondNode.Position != node.Position)
                         {
                             Vector2 secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
@@ -215,11 +218,12 @@ namespace HousePartyTranslator
                             currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
                         }
                     }
-                }
+                });
 
                 //apply force to nodes
-                foreach (Node node in nodes)
+                for (int i1 = 0; i1 < nodes.Count; i1++)
                 {
+                    Node node = nodes[i1];
                     node.Position.X += (int)(cooldown * NodeForces[node.Guid].X);
                     node.Position.Y += (int)(cooldown * NodeForces[node.Guid].Y);
                 }
@@ -235,8 +239,9 @@ namespace HousePartyTranslator
             int runningTotal = 0;
             //~sidelength of the most square layout we can achieve witrh the number of nodes we have
             int sideLength = (int)(Math.Sqrt(nodes.Count) + 0.5);
-            foreach (Node node in nodes)
+            for (int i = 0; i < nodes.Count; i++)
             {
+                Node node = nodes[i];
                 //modulo of running total with sidelength gives x coords, repeating after sidelength
                 //offset by halfe sidelength to center x
                 int x = (runningTotal % sideLength) - sideLength / 2 + Random.Next(-(step / 2) + 1, (step / 2) - 1);
@@ -258,8 +263,9 @@ namespace HousePartyTranslator
             Dictionary<Guid, Node> tempNodes = new Dictionary<Guid, Node>();
 
             //go through all given root nodes (considered root as this stage)
-            foreach (Node node in nodes)
+            for (int i = 0; i < nodes.Count; i++)
             {
+                Node node = nodes[i];
                 if (!node.Visited)//if we have not yet seen this node, we can add it to the final list
                 {
                     //set recusrion end conditional so we dont run forever
