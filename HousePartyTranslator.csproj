@@ -32,7 +32,7 @@
     </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -46,7 +46,7 @@
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -58,6 +58,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Ressources\wumpus_smoll.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>HousePartyTranslator.App</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="7z.NET, Version=1.0.3.0, Culture=neutral, processorArchitecture=MSIL">
@@ -266,6 +269,7 @@
     <Compile Include="Helpers\IEvent.cs" />
     <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\Items.cs" />
+    <Compile Include="Helpers\FastNative.cs" />
     <Compile Include="Helpers\Node.cs" />
     <Compile Include="Helpers\SerializeableNode.cs" />
     <Compile Include="Helpers\Utils.cs" />
@@ -365,7 +369,6 @@
   <ItemGroup>
     <Content Include="Ressources\wumpus_smoll.ico" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="AfterResolveReferences">
     <ItemGroup>
@@ -389,6 +392,11 @@
   <Import Project="packages\7z.NET.1.0.3\build\7z.NET.targets" Condition="Exists('packages\7z.NET.1.0.3\build\7z.NET.targets')" />
   <Import Project="packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Release .\..\Debug\7za.exe u ".\Release.7z" .\HousePartyTranslator.exe .\HousePartyTranslator.exe.config .\7za.exe</PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName) == Release copy ..\..\x64\Release\force_directed_graph.dll .\force_directed_graph.dll
+if $(ConfigurationName) == Release .\..\Debug\7za.exe u ".\Release.7z" .\HousePartyTranslator.exe .\HousePartyTranslator.exe.config .\7za.exe .\force_directed_graph.dll</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
 </Project>

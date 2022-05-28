@@ -22,6 +22,8 @@ namespace HousePartyTranslator
         private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> nodes;
 
+
+
         public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
         {
             nodes = new List<Node>();
@@ -145,92 +147,52 @@ namespace HousePartyTranslator
             }
         }
 
-        private List<Node> CalculateForceDirectedLayout(List<Node> nodes)
+        private List<Node> CalculateForceDirectedLayoutCpp(List<Node> _nodes)
         {
-            //You just need to think about the 3 separate forces acting on each node,
-            //add them together each "frame" to get the movement of each node.
+            //prepare the arrays
+            int[] x = new int[_nodes.Count], y = new int[_nodes.Count], mass = new int[_nodes.Count];
+            //prepare the edges
+            int[] node_1 = new int[_nodes.Count * 2], node_2 = new int[_nodes.Count * 2];
+            int nodeConnectionCount = 0;
 
-            //Gravity, put a simple force acting towards the centre of the canvas so the nodes dont launch themselves out of frame
-
-            //Node-Node replusion, You can either use coulombs force(which describes particle-particle repulsion)
-            //or use the gravitational attraction equation and just reverse it
-
-            //Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
-
-            const float maxForce = 0;
-            const int iterations = 100;
-            float attraction = 750f;//attraction force multiplier, between 0 and much
-            float cooldown = 0.97f;
-            float currentMaxForce = maxForce + 0.1f;
-            float repulsion = 1000f;//repulsion force multiplier, between 0 and much
-            int length = 180; //spring length in units aka thedistance an edge should be long
-
-            //copy node ids in a dict so we can apply force and not disturb the rest
-            //save all forces here
-            NodeForces = new Dictionary<Guid, Vector2>();
-            nodes.ForEach(n => NodeForces.Add(n.Guid, new Vector2()));
-
-            //times to perform calculation, result gets bettor over time
-            int i = 0;
-            while (i < iterations && currentMaxForce > maxForce)
+            for (int i = 0; i < _nodes.Count; i++)
             {
-                //calculate new, smaller cooldown so the nodes will move less and less
-                cooldown *= cooldown;
-                //initialize maximum force/reset it
-                currentMaxForce = maxForce + 0.1f;
+                x[i] = _nodes[i].Position.X;
+                y[i] = _nodes[i].Position.Y;
+                mass[i] = _nodes[i].Mass;
 
-                //go through all nodes and apply the forces
-                Parallel.For(0, nodes.Count, i1 =>
+                for (int j = 0; j < _nodes[i].ChildNodes.Count; j++)
                 {
-                    Node node = nodes[i1];
-                    //create position vector for all later calculations
-                    Vector2 nodePosition = new Vector2(node.Position.X, node.Position.Y);
-                    //reset force
-                    NodeForces[node.Guid] = new Vector2();
-
-                    //calculate repulsion force
-                    for (int i2 = 0; i2 < nodes.Count; i2++)
-                    {
-                        Node secondNode = nodes[i2];
-                        if (node != secondNode && secondNode.Position != node.Position)
-                        {
-                            Vector2 secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
-                            Vector2 difference = (secondNodePosition - nodePosition);
-                            //absolute length of difference/distance
-                            float distance = difference.Length();
-                            //add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
-                            Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance) / node.Mass;
-
-                            //if the second node is a child of ours
-                            if (secondNode.ParentNodes.Contains(node))
-                            {
-                                //so we can now do the attraction force
-                                //formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
-                                NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
-                            }
-                            else
-                            {
-                                //add force to node
-                                NodeForces[node.Guid] += repulsionForce;
-                            }
-
-                            //add new maximum force or keep it as is if ours is smaller
-                            currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
-                        }
-                    }
-                });
-
-                //apply force to nodes
-                for (int i1 = 0; i1 < nodes.Count; i1++)
-                {
-                    Node node = nodes[i1];
-                    node.Position.X += (int)(cooldown * NodeForces[node.Guid].X);
-                    node.Position.Y += (int)(cooldown * NodeForces[node.Guid].Y);
+                    node_1[nodeConnectionCount] = i;
+                    node_2[nodeConnectionCount++] = _nodes.FindIndex(n => n == _nodes[i].ChildNodes[j]);
                 }
-
-                i++;
             }
-            return nodes;
+
+            FastNative.do_graph_physics(x, y, mass, _nodes.Count, node_1, node_2, nodeConnectionCount);
+
+            for (int i = 0; i < _nodes.Count; i++)
+            {
+                _nodes[i].Position.X = x[i];
+                _nodes[i].Position.Y = y[i];
+                _nodes[i].Mass = mass[i];
+            }
+
+            return _nodes;
+        }
+
+        private List<Tuple<int, int>> GetEdges(List<Node> _nodes)
+        {
+            List<Tuple<int, int>> returnList = new List<Tuple<int, int>>();
+
+            for (int i = 0; i < _nodes.Count; i++)
+            {
+                for (int j = 0; j < _nodes[i].ChildNodes.Count; j++)
+                {
+                    returnList.Add(new Tuple<int, int>(i, _nodes.FindIndex(n => n == _nodes[i].ChildNodes[j])));
+                }
+            }
+
+            return returnList;
         }
 
         private List<Node> CalculateStartingPositions(List<Node> nodes)
@@ -305,7 +267,7 @@ namespace HousePartyTranslator
                 if (node.Type == NodeType.Criterion)//if it is a criterion, else is after this bit
                 {
                     //set gender of childs of the event this criterion is part of if we have a gender comparison
-                    
+
 
                     //if the criterion has already been seen before
                     Node criterionInFile = CriteriaInFile.Find(n => n.Guid == node.Guid);
@@ -314,6 +276,7 @@ namespace HousePartyTranslator
                         //add the childs and parents of this instance of the criterion to the first instance of this criterion
                         //aka fusion
                         criterionInFile.ChildNodes.AddRange(node.ChildNodes);
+                        criterionInFile.PropagateGender(criterionInFile.Gender);
                         criterionInFile.ParentNodes.AddRange(node.ParentNodes);
                         //recalculate mass for later use
                         criterionInFile.CalculateMass();
@@ -363,7 +326,7 @@ namespace HousePartyTranslator
                 nodes = CalculateStartingPositions(nodes);
 
                 //render and do the force driven calculation thingies
-                nodes = CalculateForceDirectedLayout(nodes);
+                nodes = CalculateForceDirectedLayoutCpp(nodes);
 
             }
         }
@@ -395,7 +358,7 @@ namespace HousePartyTranslator
                 nodes = CalculateStartingPositions(nodes);
 
                 //render and do the force driven calculation thingies
-                nodes = CalculateForceDirectedLayout(nodes);
+                nodes = CalculateForceDirectedLayoutCpp(nodes);
 
             }
         }

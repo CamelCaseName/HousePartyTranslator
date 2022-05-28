@@ -19,7 +19,8 @@ namespace HousePartyTranslator.StoryExplorerForm
         public bool ReadyToDraw = false;
 
         private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
-        private readonly Color DefaultMaleColor = Color.DarkBlue;
+        private readonly Color DefaultMaleColor = Color.Coral;
+        private readonly Color DefaultColor = Color.DarkBlue;
         private readonly Color DefaultFemaleColor = Color.DarkTurquoise;
         private readonly StoryExplorer Explorer;
         private readonly Bitmap GraphBitmap;
@@ -212,7 +213,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             for (int i = 0; i < Context.Nodes.Count; i++)
             {
                 //draw node
-                DrawColouredNode(Context.Nodes[i], Context.Nodes[i].IsFemale ? DefaultFemaleColor : DefaultMaleColor);
+                DrawColouredNode(Context.Nodes[i], Context.Nodes[i].Gender == 1 ? DefaultFemaleColor : Context.Nodes[i].Gender == 2 ? DefaultMaleColor : DefaultColor);
                 //draw edges to children, default colour
                 for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
                 {
@@ -421,12 +422,12 @@ namespace HousePartyTranslator.StoryExplorerForm
                     HighlightedNode,
                     0,
                     6,
-                    HighlightedNode.IsFemale ? DefaultFemaleColor : DefaultMaleColor,
+                    HighlightedNode.Gender == 1 ? DefaultFemaleColor : HighlightedNode.Gender == 2 ? DefaultMaleColor : DefaultColor,
                     DefaultEdgeColor,
                     false);
 
                 //redraw node itself
-                DrawColouredNode(HighlightedNode, HighlightedNode.IsFemale ? DefaultFemaleColor : DefaultMaleColor);
+                DrawColouredNode(HighlightedNode, HighlightedNode.Gender == 1 ? DefaultFemaleColor : HighlightedNode.Gender == 2 ? DefaultMaleColor : DefaultColor);
                 Explorer.Invalidate();
 
             }
@@ -446,7 +447,7 @@ namespace HousePartyTranslator.StoryExplorerForm
                 LastNodeColor = GraphBitmap.GetPixel(infoNode.Position.X + HalfBitmapEdgeLength, infoNode.Position.Y + HalfBitmapEdgeLength);
                 if (LastNodeColor == DefaultEdgeColor)
                 {//reset colour if it is gray, can happen due to drawing order
-                    LastNodeColor = infoNode.IsFemale ? DefaultFemaleColor : DefaultMaleColor;
+                    LastNodeColor = infoNode.Gender == 1 ? DefaultFemaleColor : infoNode.Gender == 2 ? DefaultMaleColor : DefaultColor;
                 }
             }
         }

@@ -513,7 +513,7 @@ namespace HousePartyTranslator.Managers
                 }
             }
             MainCommand = new MySqlCommand("", sqlConnection);
-            Console.WriteLine("DB opened");
+            //Console.WriteLine("DB opened");
 
             //checking template version
             MySqlCommand getVersion = new MySqlCommand("SELECT story " +

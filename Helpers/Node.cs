@@ -37,7 +37,7 @@ namespace HousePartyTranslator.Helpers
         public bool ChildsVisited = false;
         public Guid Guid = Guid.NewGuid();
         public string ID;
-        public bool IsFemale = false;
+        public int Gender = 0;//1 is female, 2 is male only
         public int Mass = 1;
         public List<Node> ParentNodes;
         public bool ParentsVisited = false;
@@ -141,7 +141,7 @@ namespace HousePartyTranslator.Helpers
                     ParentsVisited = serialNode.ParentsVisited,
                     Position = serialNode.Position,
                     Text = serialNode.Text,
-                    IsFemale = serialNode.IsFemale,
+                    Gender = serialNode.Gender,
                     Type = serialNode.Type,
                     Visited = serialNode.Visited,
                     ChildNodes = new List<Node>(),
@@ -197,7 +197,7 @@ namespace HousePartyTranslator.Helpers
                 Node tempNode = CreateCriteriaNode(criterion, this);
                 if (criterion.CompareType == "PlayerGender")
                 {
-                    tempNode.IsFemale = criterion.Value == "Female";
+                    tempNode.Gender = criterion.Value == "Female" ? 1 : criterion.Value == "Male" ? 2 : 0;
                 }
                 AddParentNode(tempNode);
             }
@@ -223,7 +223,8 @@ namespace HousePartyTranslator.Helpers
             {
                 ParentNodes.Add(parentNode);
                 parentNode.AddChildNode(this);
-                IsFemale = parentNode.IsFemale;
+                Gender = parentNode.Gender;
+                parentNode.PropagateGender(Gender);
             }
         }
 
@@ -231,6 +232,18 @@ namespace HousePartyTranslator.Helpers
         {
             Mass = ChildNodes.Count + ParentNodes.Count;
             if (Mass < 1) Mass = 1;
+        }
+
+        public void PropagateGender(int gender)
+        {
+            if (ChildNodes.Count > 0)
+            {
+                for (int i = 0; i < ChildNodes.Count; i++)
+                {
+                    if (ChildNodes[i].Gender != gender) ChildNodes[i].PropagateGender(gender);
+                }
+                Gender = gender;
+            }
         }
 
         public void RemoveChildNode(Node childNode)

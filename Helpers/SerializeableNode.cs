@@ -11,7 +11,7 @@ namespace HousePartyTranslator.Helpers
         public string Text;
         public NodeType Type;
         public int Mass = 1;
-        public bool IsFemale = false;
+        public int Gender = 0;
         public bool Visited = false;
         public bool ChildsVisited = false;
         public bool ParentsVisited = false;
@@ -29,7 +29,7 @@ namespace HousePartyTranslator.Helpers
                 Mass = v.Mass,
                 ParentsVisited = v.ParentsVisited,
                 Position = v.Position,
-                IsFemale = v.IsFemale,
+                Gender = v.Gender,
                 Text = v.Text,
                 Type = v.Type,
                 Visited = v.Visited,

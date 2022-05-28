@@ -221,6 +221,10 @@ namespace HousePartyTranslator.Managers
 
         private static PropertyHelper CreateActivePropertyHelper()
         {
+            while (!Form.ActiveForm.Visible)
+            {
+
+            }
             return new PropertyHelper(
                 (CheckBox)TabControl.SelectedTab.Controls.Find("ApprovedBox", true)[0],
                 (ColouredCheckedListBox)TabControl.SelectedTab.Controls.Find("CheckListBoxLeft", true)[0],
