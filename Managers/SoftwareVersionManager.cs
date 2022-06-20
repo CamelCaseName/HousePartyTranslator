@@ -50,7 +50,7 @@ namespace HousePartyTranslator.Managers
                 || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] > LocalVersion[4]);/*release number*/
             if (UpdatePending)
             {
-                if (MessageBox.Show("A new version is available to download. Do you want to automatically update this installation?", "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                if (MessageBox.Show("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                 {
                     //get stream to the file in web location
                     using (Stream stream = await client.GetStreamAsync(response.Assets[0].BrowserDownloadUrl))
