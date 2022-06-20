@@ -31,18 +31,20 @@ namespace HousePartyTranslator.Helpers
 
     public class Node
     {
-        public Point Position;
+        public static readonly Node NullNode = new Node("", NodeType.Null, "");
+
+        public List<Node> ChildNodes;
+        public bool ChildsVisited = false;
+        public Guid Guid = Guid.NewGuid();
         public string ID;
-        public string Text;
-        public NodeType Type;
+        public int Gender = 0;//1 is female, 2 is male only
         public int Mass = 1;
         public List<Node> ParentNodes;
-        public List<Node> ChildNodes;
-        public bool Visited = false;
-        public bool ChildsVisited = false;
         public bool ParentsVisited = false;
-        public Guid Guid = Guid.NewGuid();
-        public static readonly Node NullNode = new Node("", NodeType.Null, "");
+        public Point Position;
+        public string Text;
+        public NodeType Type;
+        public bool Visited = false;
 
         public Node(string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
         {
@@ -117,93 +119,13 @@ namespace HousePartyTranslator.Helpers
             ChildNodes = new List<Node>();
         }
 
-        public void AddChildNode(Node childNode)
-        {
-            if (!ChildNodes.Contains(childNode))
-            {
-                ChildNodes.Add(childNode);
-                childNode.AddParentNode(this);
-            }
-        }
-
-        public void AddParentNode(Node parentNode)
-        {
-            if (!ParentNodes.Contains(parentNode))
-            {
-                ParentNodes.Add(parentNode);
-                parentNode.AddChildNode(this);
-            }
-        }
-
-        public void RemoveChildNode(Node childNode)
-        {
-            if (ChildNodes.Contains(childNode))
-            {
-                ChildNodes.Remove(childNode);
-            }
-        }
-
-        public void RemoveParentNode(Node parentNode)
-        {
-            if (ParentNodes.Contains(parentNode))
-            {
-                ParentNodes.Remove(parentNode);
-            }
-        }
-
-        public void SetPosition(Point position)
-        {
-            Position = position;
-        }
-
-        public override string ToString()
-        {
-            return $"{Type} | parents: {ParentNodes.Count} | childs: {ChildNodes.Count} | {ID} | {Text}";
-        }
-
-        public void CalculateMass()
-        {
-            Mass = ChildNodes.Count + ParentNodes.Count;
-            if (Mass < 1) Mass = 1;
-        }
-
-        public void AddCriteria<T>(List<T> criteria) where T : ICriterion
-        {
-            List<ICriterion> _criteria = criteria.ConvertAll(x => (ICriterion)x);
-
-            foreach (ICriterion criterion in _criteria)
-            {
-                if (criterion.CompareType == "State")
-                {
-                    AddParentNode(CreateCriteriaNode(criterion, this));
-                }
-            }
-        }
-
-        public void AddEvents<T>(List<T> events) where T : IEvent
-        {
-            List<IEvent> _events = events.ConvertAll(x => (IEvent)x);
-
-            foreach (IEvent _event in _events)
-            {
-                if (_event.EventType == 10)
-                {
-                    Node nodeEvent = new Node(_event.Id, NodeType.Event, _event.Value, this);
-
-                    nodeEvent.AddCriteria(_event.Criteria);
-
-                    AddChildNode(nodeEvent);
-                }
-            }
-        }
-
         public static Node CreateCriteriaNode(ICriterion criterion, Node node)
         {
             //create all criteria nodes the same way so they can possibly be replaced by the actual text later
             return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
         }
 
-        public List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
+        public static List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
         {
             List<Node> nodes = new List<Node>();
 
@@ -219,6 +141,7 @@ namespace HousePartyTranslator.Helpers
                     ParentsVisited = serialNode.ParentsVisited,
                     Position = serialNode.Position,
                     Text = serialNode.Text,
+                    Gender = serialNode.Gender,
                     Type = serialNode.Type,
                     Visited = serialNode.Visited,
                     ChildNodes = new List<Node>(),
@@ -254,6 +177,99 @@ namespace HousePartyTranslator.Helpers
             }
 
             return nodes;
+        }
+
+        public void AddChildNode(Node childNode)
+        {
+            if (!ChildNodes.Contains(childNode))
+            {
+                ChildNodes.Add(childNode);
+                childNode.AddParentNode(this);
+            }
+        }
+
+        public void AddCriteria<T>(List<T> criteria) where T : ICriterion
+        {
+            List<ICriterion> _criteria = criteria.ConvertAll(x => (ICriterion)x);
+
+            foreach (ICriterion criterion in _criteria)
+            {
+                Node tempNode = CreateCriteriaNode(criterion, this);
+                if (criterion.CompareType == "PlayerGender")
+                {
+                    tempNode.Gender = criterion.Value == "Female" ? 1 : criterion.Value == "Male" ? 2 : 0;
+                }
+                AddParentNode(tempNode);
+            }
+        }
+
+        public void AddEvents<T>(List<T> events) where T : IEvent
+        {
+            List<IEvent> _events = events.ConvertAll(x => (IEvent)x);
+
+            foreach (IEvent _event in _events)
+            {
+                Node nodeEvent = new Node(_event.Id, NodeType.Event, _event.Value, this);
+
+                nodeEvent.AddCriteria(_event.Criteria);
+
+                AddChildNode(nodeEvent);
+            }
+        }
+
+        public void AddParentNode(Node parentNode)
+        {
+            if (!ParentNodes.Contains(parentNode))
+            {
+                ParentNodes.Add(parentNode);
+                parentNode.AddChildNode(this);
+                Gender = parentNode.Gender;
+                parentNode.PropagateGender(Gender);
+            }
+        }
+
+        public void CalculateMass()
+        {
+            Mass = ChildNodes.Count + ParentNodes.Count;
+            if (Mass < 1) Mass = 1;
+        }
+
+        public void PropagateGender(int gender)
+        {
+            if (ChildNodes.Count > 0)
+            {
+                for (int i = 0; i < ChildNodes.Count; i++)
+                {
+                    if (ChildNodes[i].Gender != gender) ChildNodes[i].PropagateGender(gender);
+                }
+                Gender = gender;
+            }
+        }
+
+        public void RemoveChildNode(Node childNode)
+        {
+            if (ChildNodes.Contains(childNode))
+            {
+                ChildNodes.Remove(childNode);
+            }
+        }
+
+        public void RemoveParentNode(Node parentNode)
+        {
+            if (ParentNodes.Contains(parentNode))
+            {
+                ParentNodes.Remove(parentNode);
+            }
+        }
+
+        public void SetPosition(Point position)
+        {
+            Position = position;
+        }
+
+        public override string ToString()
+        {
+            return $"{Type} | parents: {ParentNodes.Count} | childs: {ChildNodes.Count} | {ID} | {Text}";
         }
     }
 }

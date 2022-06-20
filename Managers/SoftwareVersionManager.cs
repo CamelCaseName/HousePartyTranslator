@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Managers
 {
     static class SoftwareVersionManager
     {
-        public static readonly string LocalVersion = "0.4.4.0";
+        public static readonly string LocalVersion = "0.4.5.0";
         public static string LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new HttpClient();
@@ -45,13 +45,12 @@ namespace HousePartyTranslator.Managers
             if (File.Exists(oldExe)) File.Delete(oldExe);
 
             //if the version on github has a higher version number
-            //todo improve version checking, take into account the last number as well and convert to real numbers 
             UpdatePending = LatestGithubVersion[0] > LocalVersion[0]/*major version*/
                 || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] > LocalVersion[2])/*major version*/
                 || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] > LocalVersion[4]);/*release number*/
             if (UpdatePending)
             {
-                if (MessageBox.Show("A new version is available to download. Do you want to automatically update this installation?", "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                if (MessageBox.Show("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                 {
                     //get stream to the file in web location
                     using (Stream stream = await client.GetStreamAsync(response.Assets[0].BrowserDownloadUrl))

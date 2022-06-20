@@ -17,24 +17,26 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     public class TranslationManager
     {
+        public static bool ChangesPending = false;
+        public static bool IsUpToDate = false;
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public bool isTemplate = false;
-        public static bool IsUpToDate = false; //setting?
-        public static bool ChangesPending = false;
-        public List<LineData> TranslationData = new List<LineData>();
-        public bool UpdateStoryExplorerSelection = true;
         public string SearchQuery = "";
+
         public int SelectedSearchResult = 0;
 
-        private static Fenster MainWindow;
+        //setting?
+        public List<LineData> TranslationData = new List<LineData>();
+        public bool UpdateStoryExplorerSelection = true;
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
         private static int ExceptionCount = 0;
+        private static Fenster MainWindow;
         private string fileName = "";
         private bool isSaveAs = false;
         private string language = "";
         private int LastIndex = -1;
-        private string sourceFilePath = "";
         private int searchTabIndex = 0;
+        private string sourceFilePath = "";
         private string storyName = "";
 
         /// <summary>
@@ -123,24 +125,6 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Depending on the cursor location the line is approved or not (on checkbox or not).
-        /// </summary>
-        /// <param name="FensterRef">The window of type fenster</param>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void ApprovedButtonHandler(PropertyHelper helper)
-        {
-            //change checked state for the selected item,
-            //but only if we are on the button with the mouse.
-            //(prevents an infinite loop when we get the change state from setting the button state in code)
-            if (helper.ApprovedBox.Focused)
-            {
-                int Index = helper.CheckListBoxLeft.SelectedIndex;
-                //inverse checked state at the selected index
-                if (Index >= 0) helper.CheckListBoxLeft.SetItemChecked(Index, !helper.CheckListBoxLeft.GetItemChecked(Index));
-            }
-        }
-
-        /// <summary>
         /// Displays a window with the necessary info about the exception.
         /// </summary>
         /// <param name="message">The error message to display</param>
@@ -164,31 +148,6 @@ namespace HousePartyTranslator.Managers
             {
                 Application.Exit();
             }
-        }
-
-        /// <summary>
-        /// Opens a save file dialogue and returns the selected file as a path.
-        /// </summary>
-        /// <returns>The path to the file to save to.</returns>
-        public string SaveFileOnSystem()
-        {
-            SaveFileDialog saveFileDialog = new SaveFileDialog
-            {
-                Title = "Choose a file to save the translations to",
-                AddExtension = true,
-                DefaultExt = "txt",
-                CheckPathExists = true,
-                CreatePrompt = true,
-                OverwritePrompt = true,
-                FileName = FileName,
-                InitialDirectory = SourceFilePath
-            };
-
-            if (saveFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                return saveFileDialog.FileName;
-            }
-            return "";
         }
 
         /// <summary>
@@ -238,6 +197,24 @@ namespace HousePartyTranslator.Managers
                 return t;
             }
             return "";
+        }
+
+        /// <summary>
+        /// Depending on the cursor location the line is approved or not (on checkbox or not).
+        /// </summary>
+        /// <param name="FensterRef">The window of type fenster</param>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        public void ApprovedButtonHandler(PropertyHelper helper)
+        {
+            //change checked state for the selected item,
+            //but only if we are on the button with the mouse.
+            //(prevents an infinite loop when we get the change state from setting the button state in code)
+            if (helper.ApprovedBox.Focused)
+            {
+                int Index = helper.CheckListBoxLeft.SelectedIndex;
+                //inverse checked state at the selected index
+                if (Index >= 0) helper.CheckListBoxLeft.SetItemChecked(Index, !helper.CheckListBoxLeft.GetItemChecked(Index));
+            }
         }
 
         /// <summary>
@@ -303,6 +280,63 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// Loads a file into the program and calls all helper routines
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        public void LoadFileIntoProgram(PropertyHelper helper)
+        {
+            LoadFileIntoProgram(helper, SelectFileFromSystem());
+        }
+
+        /// <summary>
+        /// Loads a file into the program and calls all helper routines
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        /// <param name="path">The path to the file to translate</param>
+        public void LoadFileIntoProgram(PropertyHelper helper, string path)
+        {
+            ResetTranslationManager(helper);
+
+            MainWindow.Cursor = Cursors.WaitCursor;
+            if (IsUpToDate)
+            {
+                SourceFilePath = path;
+                LoadTranslationFile(helper);
+            }
+            else
+            {
+                string folderPath = SelectFolderFromSystem();
+                string templateFolderName = folderPath.Split('\\')[folderPath.Split('\\').Length - 1];
+                if (templateFolderName == "TEMPLATE")
+                {
+                    isTemplate = true;
+                    LoadAndSyncTemplates(folderPath);
+                }
+                else
+                {
+                    isTemplate = false;
+                    MessageBox.Show(
+                        $"Please the template folder named 'TEMPLATE' so we can upload them. " +
+                        $"Your Current Folder shows as {templateFolderName}.",
+                        "Updating string database",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                        );
+                }
+            }
+            //log file loading
+            LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
+
+            //update tab name
+            TabManager.UpdateTabTitle(FileName);
+            //update recents
+            RecentsManager.SetMostRecent(SourceFilePath);
+            RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
+
+            MainWindow.Cursor = Cursors.Default;
+        }
+
+        /// <summary>
         /// Detects for hotkeys used, else with the return value the defualt WndPrc is called.
         /// </summary>
         /// <param name="msg">Windows message contaning the info on the event.</param>
@@ -319,59 +353,7 @@ namespace HousePartyTranslator.Managers
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
                 case (Keys.Enter):
-                    if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused)
-                    {
-                        if (helper.CheckListBoxLeft.SearchResults.Any())
-                        {
-                            //loop back to start
-                            if (SelectedSearchResult > helper.CheckListBoxLeft.SearchResults.Count - 1)
-                            {
-                                SelectedSearchResult = 0;
-                                //loop over to new tab when in global search
-                                if (TabManager.InGlobalSearch)
-                                {
-                                    searchTabIndex = TabManager.TabControl.SelectedIndex;
-                                    TabManager.SwitchToTab(++searchTabIndex);
-                                }
-                                else
-                                {
-                                    //select next index from list of matches
-                                    if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
-                                    {
-                                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
-                                {
-                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
-                                }
-                                else
-                                {
-                                    SelectedSearchResult = 0;
-                                    helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
-                                }
-                            }
-
-                            return true;
-                        }
-                        else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
-                        {
-                            searchTabIndex = TabManager.TabControl.SelectedIndex;
-                            TabManager.SwitchToTab(++searchTabIndex);
-                            return true;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
+                    return SelectNextResultIfApplicable(helper);
 
                 //set selected string as search string and place cursor in search box
                 case (Keys.Control | Keys.F):
@@ -381,7 +363,12 @@ namespace HousePartyTranslator.Managers
                     }
                     helper.SearchBox.Focus();
                     return true;
-
+                    /*
+                //search, but also with replacing
+                case (Keys.Control | Keys.Shift | Keys.F):
+                    ToggleReplaceUI(helper);
+                    return true;
+                    */
                 //save current file
                 case (Keys.Control | Keys.S):
                     SaveFile(helper);
@@ -440,63 +427,6 @@ namespace HousePartyTranslator.Managers
                 default:
                     return false;
             }
-        }
-
-        /// <summary>
-        /// Loads a file into the program and calls all helper routines
-        /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void LoadFileIntoProgram(PropertyHelper helper)
-        {
-            LoadFileIntoProgram(helper, SelectFileFromSystem());
-        }
-
-        /// <summary>
-        /// Loads a file into the program and calls all helper routines
-        /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        /// <param name="path">The path to the file to translate</param>
-        public void LoadFileIntoProgram(PropertyHelper helper, string path)
-        {
-            ResetTranslationManager(helper);
-
-            MainWindow.Cursor = Cursors.WaitCursor;
-            if (IsUpToDate)
-            {
-                SourceFilePath = path;
-                LoadTranslationFile(helper);
-            }
-            else
-            {
-                string folderPath = SelectFolderFromSystem();
-                string templateFolderName = folderPath.Split('\\')[folderPath.Split('\\').Length - 1];
-                if (templateFolderName == "TEMPLATE")
-                {
-                    isTemplate = true;
-                    LoadAndSyncTemplates(folderPath);
-                }
-                else
-                {
-                    isTemplate = false;
-                    MessageBox.Show(
-                        $"Please the template folder named 'TEMPLATE' so we can upload them. " +
-                        $"Your Current Folder shows as {templateFolderName}.",
-                        "Updating string database",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
-                        );
-                }
-            }
-            //log file loading
-            LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
-
-            //update tab name
-            TabManager.UpdateTabTitle(FileName);
-            //update recents
-            RecentsManager.SetMostRecent(SourceFilePath);
-            RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
-
-            MainWindow.Cursor = Cursors.Default;
         }
 
         /// <summary>
@@ -608,6 +538,27 @@ namespace HousePartyTranslator.Managers
                 }
             }
             MainWindow.Cursor = Cursors.Default;
+        }
+
+        /// <summary>
+        /// Replaces a searched string in all applicable lines by the replacement provided using the invariant culture.
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        /// <param name="replacement">The string to replace all search matches with</param>
+        public void Replace(PropertyHelper helper, string replacement)
+        {
+            foreach (var i in helper.CheckListBoxLeft.SearchResults)
+            {
+                TranslationData[i].TranslationString = Utils.Replace(TranslationData[i].TranslationString, replacement, SearchQuery);
+            }
+            //update translations also on the database
+            DataBaseManager.SetStringSelectedTranslations(TranslationData, FileName, StoryName, Language, helper.CheckListBoxLeft.SearchResults);
+
+            //update search results
+            Search(helper);
+
+            //show confirmation
+            MessageBox.Show("Replace successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         /// <summary>
@@ -856,24 +807,6 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
-        /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        public void ShowAutoSaveDialog(PropertyHelper helper)
-        {
-            if (Properties.Settings.Default.askForSaveDialog && ChangesPending)
-            {
-                if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
-                {
-                    if (!TabManager.SaveAllTabs())
-                    {
-                        SaveFile(helper);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
         /// Saves all strings to a specified file location.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
@@ -889,6 +822,31 @@ namespace HousePartyTranslator.Managers
                 SourceFilePath = oldFile;
                 isSaveAs = false;
             }
+        }
+
+        /// <summary>
+        /// Opens a save file dialogue and returns the selected file as a path.
+        /// </summary>
+        /// <returns>The path to the file to save to.</returns>
+        public string SaveFileOnSystem()
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog
+            {
+                Title = "Choose a file to save the translations to",
+                AddExtension = true,
+                DefaultExt = "txt",
+                CheckPathExists = true,
+                CreatePrompt = true,
+                OverwritePrompt = true,
+                FileName = FileName,
+                InitialDirectory = SourceFilePath
+            };
+
+            if (saveFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                return saveFileDialog.FileName;
+            }
+            return "";
         }
 
         /// <summary>
@@ -982,6 +940,24 @@ namespace HousePartyTranslator.Managers
         public void SetMainForm(Fenster mainWindow)
         {
             MainWindow = mainWindow;
+        }
+
+        /// <summary>
+        /// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        public void ShowAutoSaveDialog(PropertyHelper helper)
+        {
+            if (Properties.Settings.Default.askForSaveDialog && ChangesPending)
+            {
+                if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+                {
+                    if (!TabManager.SaveAllTabs())
+                    {
+                        SaveFile(helper);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -1148,18 +1124,38 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Reads the strings depending on whether its a template or not.
+        /// Reads all files in all subfolders below the given path.
         /// </summary>
-        private void ReadInStringsFromFile()
+        /// <param name="folderPath">The path to the folder to find all files in (iterative).</param>
+        private void IterativeReadFiles(string folderPath)
         {
-            //read in all strings with IDs
-            if (isTemplate)//read in templates
+            DirectoryInfo templateDir = new DirectoryInfo(folderPath);
+            if (templateDir != null)
             {
-                ReadStringsTemplateFromFile();
-            }
-            else //read in translations
-            {
-                ReadStringsTranslationsFromFile();
+                DirectoryInfo[] storyDirs = templateDir.GetDirectories();
+                if (storyDirs != null)
+                {
+                    foreach (DirectoryInfo storyDir in storyDirs)
+                    {
+                        if (storyDir != null)
+                        {
+                            StoryName = storyDir.Name;
+                            FileInfo[] templateFiles = storyDir.GetFiles();
+                            if (templateFiles != null)
+                            {
+                                foreach (FileInfo templateFile in templateFiles)
+                                {
+                                    if (templateFile != null)
+                                    {
+                                        SourceFilePath = templateFile.FullName;
+                                        FileName = Path.GetFileNameWithoutExtension(SourceFilePath);
+                                        ReadInStringsFromFile();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -1223,48 +1219,6 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Loads the strings and does some work around to ensure smooth sailing.
-        /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        private void LoadTranslations(PropertyHelper helper)
-        {
-            MainWindow.Cursor = Cursors.WaitCursor;
-
-            bool lineIsApproved = false;
-            bool gotApprovedStates = DataBaseManager.GetAllStatesForFile(FileName, StoryName, out List<LineData> internalLines, Language);
-            int currentIndex = 0;
-
-            foreach (LineData lineD in TranslationData)
-            {
-                if (gotApprovedStates)
-                {
-                    LineData tempLine = internalLines.Find(predicateLine => predicateLine.ID == lineD.ID);
-                    if (tempLine != null)
-                    {
-                        lineIsApproved = tempLine.IsApproved;
-                        lineD.IsTranslated = tempLine.TranslationString.Trim().Length > 1;
-                    }
-                }
-
-                helper.CheckListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
-
-                //do after adding or it will trigger reset
-                lineD.IsApproved = lineIsApproved;
-
-                //colour string if similar to the english one
-                if (!lineD.IsTranslated && !lineD.IsApproved)
-                {
-                    helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
-                }
-
-                //increase index to aid colouring
-                currentIndex++;
-                lineIsApproved = false;
-            }
-            MainWindow.Cursor = Cursors.Default;
-        }
-
-        /// <summary>
         /// Prepares the values for reading of the strings, and calls the methods necessary after successfully loading a file.
         /// </summary>
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
@@ -1318,38 +1272,60 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Reads all files in all subfolders below the given path.
+        /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
-        /// <param name="folderPath">The path to the folder to find all files in (iterative).</param>
-        private void IterativeReadFiles(string folderPath)
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        private void LoadTranslations(PropertyHelper helper)
         {
-            DirectoryInfo templateDir = new DirectoryInfo(folderPath);
-            if (templateDir != null)
+            MainWindow.Cursor = Cursors.WaitCursor;
+
+            bool lineIsApproved = false;
+            bool gotApprovedStates = DataBaseManager.GetAllStatesForFile(FileName, StoryName, out List<LineData> internalLines, Language);
+            int currentIndex = 0;
+
+            foreach (LineData lineD in TranslationData)
             {
-                DirectoryInfo[] storyDirs = templateDir.GetDirectories();
-                if (storyDirs != null)
+                if (gotApprovedStates)
                 {
-                    foreach (DirectoryInfo storyDir in storyDirs)
+                    LineData tempLine = internalLines.Find(predicateLine => predicateLine.ID == lineD.ID);
+                    if (tempLine != null)
                     {
-                        if (storyDir != null)
-                        {
-                            StoryName = storyDir.Name;
-                            FileInfo[] templateFiles = storyDir.GetFiles();
-                            if (templateFiles != null)
-                            {
-                                foreach (FileInfo templateFile in templateFiles)
-                                {
-                                    if (templateFile != null)
-                                    {
-                                        SourceFilePath = templateFile.FullName;
-                                        FileName = Path.GetFileNameWithoutExtension(SourceFilePath);
-                                        ReadInStringsFromFile();
-                                    }
-                                }
-                            }
-                        }
+                        lineIsApproved = tempLine.IsApproved;
+                        lineD.IsTranslated = tempLine.TranslationString.Trim().Length > 1;
                     }
                 }
+
+                helper.CheckListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
+
+                //do after adding or it will trigger reset
+                lineD.IsApproved = lineIsApproved;
+
+                //colour string if similar to the english one
+                if (!lineD.IsTranslated && !lineD.IsApproved)
+                {
+                    helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
+                }
+
+                //increase index to aid colouring
+                currentIndex++;
+                lineIsApproved = false;
+            }
+            MainWindow.Cursor = Cursors.Default;
+        }
+
+        /// <summary>
+        /// Reads the strings depending on whether its a template or not.
+        /// </summary>
+        private void ReadInStringsFromFile()
+        {
+            //read in all strings with IDs
+            if (isTemplate)//read in templates
+            {
+                ReadStringsTemplateFromFile();
+            }
+            else //read in translations
+            {
+                ReadStringsTranslationsFromFile();
             }
         }
 
@@ -1521,6 +1497,61 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// Selects the next search result if applicable
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        /// <returns></returns>
+        private bool SelectNextResultIfApplicable(PropertyHelper helper)
+        {
+            if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused && helper.CheckListBoxLeft.SearchResults.Any())
+            {
+                //loop back to start
+                if (SelectedSearchResult > helper.CheckListBoxLeft.SearchResults.Count - 1)
+                {
+                    SelectedSearchResult = 0;
+                    //loop over to new tab when in global search
+                    if (TabManager.InGlobalSearch)
+                    {
+                        searchTabIndex = TabManager.TabControl.SelectedIndex;
+                        TabManager.SwitchToTab(++searchTabIndex);
+                    }
+                    else
+                    {
+                        //select next index from list of matches
+                        if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
+                        {
+                            helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                        }
+                    }
+                }
+                else
+                {
+                    if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
+                    {
+                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                    }
+                    else
+                    {
+                        SelectedSearchResult = 0;
+                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                    }
+                }
+
+                return true;
+            }
+            else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
+            {
+                searchTabIndex = TabManager.TabControl.SelectedIndex;
+                TabManager.SwitchToTab(++searchTabIndex);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
         /// </summary>
         /// <param name="helper">A Propertyhelper to get access to the form controls.</param>
@@ -1531,7 +1562,34 @@ namespace HousePartyTranslator.Managers
             //Highlights the node representign the selected string in the story explorer window
             if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
             {
-                MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.GetNodes().Find(n => n.ID == id);
+                MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.Nodes.Find(n => n.ID == id);
+            }
+        }
+
+        /// <summary>
+        /// Does some logic to figure out wether to show or hide the replacing ui
+        /// </summary>
+        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+        private void ToggleReplaceUI(PropertyHelper helper)
+        {
+            if (!helper.ReplaceBox.Visible)
+            {
+                if (helper.TranslationTextBox.SelectedText.Length > 0)
+                {
+                    helper.SearchBox.Text = helper.TranslationTextBox.SelectedText;
+                }
+                helper.ReplaceBox.Visible = true;
+                helper.ReplaceButton.Visible = true;
+
+                //set focus to most needed text box, search first
+                if (helper.SearchBox.Text.Length > 0) helper.ReplaceBox.Focus();
+                else helper.SearchBox.Focus();
+            }
+            else
+            {
+                helper.ReplaceButton.Visible = false;
+                helper.ReplaceBox.Visible = false;
+                helper.TranslationTextBox.Focus();
             }
         }
 

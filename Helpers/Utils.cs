@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Helpers
@@ -11,6 +12,24 @@ namespace HousePartyTranslator.Helpers
     static class Utils
     {
         public static readonly int MaxTextLength = 100;
+        public static readonly int maxWordLength = 15;
+
+        public static string Replace(string input, string replacement, string search)
+        {
+            return ReplaceRegex(input, replacement, Regex.Escape(search));
+        }
+
+        /// <summary>
+        /// Replaces all regex rule matches inte given string and returns it
+        /// </summary>
+        /// <param name="input">The string to work on</param>
+        /// <param name="replacement">The replacement for all matches</param>
+        /// <param name="regexRules">The regex to match</param>
+        /// <returns></returns>
+        public static string ReplaceRegex(string input, string replacement, string regexRules)
+        {
+            return Regex.Replace(input, regexRules, replacement, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline, new TimeSpan(0, 0, 10));
+        }
 
         /// <summary>
         /// Removes the voice actor infos from the given string. Info has to be encapsulated in []. 
@@ -48,15 +67,42 @@ namespace HousePartyTranslator.Helpers
         public static string ConstrainLength(string input)
         {
             string output = "";
-            int inputLength = input.Length;
+            bool inWord;
+            int currentWordLength = 0, currentLength = 0;
 
-            //TODO add lookahead and lookback for detecting "words", or change up how we split
-            for (int i = 0; i <= (inputLength / MaxTextLength); i++)
+            foreach (char c in input)
             {
-                int possibleEnd = Math.Min(MaxTextLength, input.Length);
-                output += input.Substring(0, possibleEnd);
-                if (possibleEnd == MaxTextLength) output += " \n";
-                input = input.Remove(0, possibleEnd);
+                if (c != ' ' && c != '\n' && c != '\r')
+                {
+                    inWord = true;
+                    currentWordLength++;
+                }
+                else
+                {
+                    inWord = false;
+                    currentWordLength = 0;
+                }
+
+                currentLength++;
+
+                //if line is short still
+                if (currentLength <= MaxTextLength)
+                {
+                    output += c;
+                }
+                else
+                {
+                    if (inWord && currentWordLength < maxWordLength)
+                    {
+                        //line is too long but we in a word
+                        output += c;
+                    }
+                    else
+                    {
+                        output += c + "\n";
+                        currentLength = 0;
+                    }
+                }
             }
 
             return output;

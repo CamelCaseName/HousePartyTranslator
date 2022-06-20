@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Numerics;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -17,13 +18,15 @@ namespace HousePartyTranslator
         private readonly bool IsStory;
         private readonly Random Random = new Random();
         private string _StoryFilePath;
-        private List<Node> CriteriaInFile;
         private Dictionary<Guid, Vector2> NodeForces;
-        private List<Node> Nodes;
+        private List<Node> CriteriaInFile;
+        private List<Node> nodes;
+
+
 
         public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
         {
-            Nodes = new List<Node>();
+            nodes = new List<Node>();
             this.IsStory = IsStory;
 
             if (Properties.Settings.Default.story_path != "" && AutoSelectFile && FileName != "" && StoryName != "")
@@ -101,10 +104,7 @@ namespace HousePartyTranslator
             }
         }
 
-        public List<Node> GetNodes()
-        {
-            return Nodes;
-        }
+        public List<Node> Nodes => nodes;
 
         public bool ParseFile()
         {
@@ -121,7 +121,7 @@ namespace HousePartyTranslator
                     //read in positions if they exist, but only if version is the same
                     List<SerializeableNode> tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
                     //expand the guids back into references
-                    Nodes = new Node().ExpandDeserializedNodes(tempList);
+                    nodes = Node.ExpandDeserializedNodes(tempList);
                 }
                 else
                 {
@@ -136,15 +136,50 @@ namespace HousePartyTranslator
                     }
 
                     //save nodes
-                    File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(Nodes.ConvertAll(n => (SerializeableNode)n)));
+                    File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
                 }
 
-                return Nodes.Count > 0;
+                return nodes.Count > 0;
             }
             else
             {
                 return false;
             }
+        }
+
+        private List<Node> CalculateForceDirectedLayoutCpp(List<Node> _nodes)
+        {
+            /*
+            //prepare the arrays
+            int[] x = new int[_nodes.Count], y = new int[_nodes.Count], mass = new int[_nodes.Count];
+            //prepare the edges
+            int[] node_1 = new int[_nodes.Count * 2], node_2 = new int[_nodes.Count * 2];
+            int nodeConnectionCount = 0;
+
+            for (int i = 0; i < _nodes.Count; i++)
+            {
+                x[i] = _nodes[i].Position.X;
+                y[i] = _nodes[i].Position.Y;
+                mass[i] = _nodes[i].Mass;
+
+                for (int j = 0; j < _nodes[i].ChildNodes.Count; j++)
+                {
+                    node_1[nodeConnectionCount] = i;
+                    node_2[nodeConnectionCount++] = _nodes.FindIndex(n => n == _nodes[i].ChildNodes[j]);
+                }
+            }
+
+            FastNative.do_graph_physics(x, y, mass, _nodes.Count, node_1, node_2, nodeConnectionCount);
+
+            for (int i = 0; i < _nodes.Count; i++)
+            {
+                _nodes[i].Position.X = x[i];
+                _nodes[i].Position.Y = y[i];
+                _nodes[i].Mass = mass[i];
+            }
+
+            return _nodes;*/
+            return CalculateForceDirectedLayout(nodes);
         }
 
         private List<Node> CalculateForceDirectedLayout(List<Node> nodes)
@@ -160,7 +195,7 @@ namespace HousePartyTranslator
             //Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
 
             const float maxForce = 0;
-            const int iterations = 100;
+            const int iterations = 300;
             float attraction = 750f;//attraction force multiplier, between 0 and much
             float cooldown = 0.97f;
             float currentMaxForce = maxForce + 0.1f;
@@ -182,16 +217,18 @@ namespace HousePartyTranslator
                 currentMaxForce = maxForce + 0.1f;
 
                 //go through all nodes and apply the forces
-                foreach (Node node in nodes)
+                Parallel.For(0, nodes.Count, i1 =>
                 {
+                    Node node = nodes[i1];
                     //create position vector for all later calculations
                     Vector2 nodePosition = new Vector2(node.Position.X, node.Position.Y);
                     //reset force
                     NodeForces[node.Guid] = new Vector2();
 
                     //calculate repulsion force
-                    foreach (Node secondNode in nodes)
+                    for (int i2 = 0; i2 < nodes.Count; i2++)
                     {
+                        Node secondNode = nodes[i2];
                         if (node != secondNode && secondNode.Position != node.Position)
                         {
                             Vector2 secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
@@ -218,11 +255,12 @@ namespace HousePartyTranslator
                             currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
                         }
                     }
-                }
+                });
 
                 //apply force to nodes
-                foreach (Node node in nodes)
+                for (int i1 = 0; i1 < nodes.Count; i1++)
                 {
+                    Node node = nodes[i1];
                     node.Position.X += (int)(cooldown * NodeForces[node.Guid].X);
                     node.Position.Y += (int)(cooldown * NodeForces[node.Guid].Y);
                 }
@@ -232,14 +270,30 @@ namespace HousePartyTranslator
             return nodes;
         }
 
+        private List<Tuple<int, int>> GetEdges(List<Node> _nodes)
+        {
+            List<Tuple<int, int>> returnList = new List<Tuple<int, int>>();
+
+            for (int i = 0; i < _nodes.Count; i++)
+            {
+                for (int j = 0; j < _nodes[i].ChildNodes.Count; j++)
+                {
+                    returnList.Add(new Tuple<int, int>(i, _nodes.FindIndex(n => n == _nodes[i].ChildNodes[j])));
+                }
+            }
+
+            return returnList;
+        }
+
         private List<Node> CalculateStartingPositions(List<Node> nodes)
         {
             int step = 40;
             int runningTotal = 0;
             //~sidelength of the most square layout we can achieve witrh the number of nodes we have
             int sideLength = (int)(Math.Sqrt(nodes.Count) + 0.5);
-            foreach (Node node in nodes)
+            for (int i = 0; i < nodes.Count; i++)
             {
+                Node node = nodes[i];
                 //modulo of running total with sidelength gives x coords, repeating after sidelength
                 //offset by halfe sidelength to center x
                 int x = (runningTotal % sideLength) - sideLength / 2 + Random.Next(-(step / 2) + 1, (step / 2) - 1);
@@ -261,8 +315,9 @@ namespace HousePartyTranslator
             Dictionary<Guid, Node> tempNodes = new Dictionary<Guid, Node>();
 
             //go through all given root nodes (considered root as this stage)
-            foreach (Node node in nodes)
+            for (int i = 0; i < nodes.Count; i++)
             {
+                Node node = nodes[i];
                 if (!node.Visited)//if we have not yet seen this node, we can add it to the final list
                 {
                     //set recusrion end conditional so we dont run forever
@@ -301,6 +356,9 @@ namespace HousePartyTranslator
                 //actually adding the node
                 if (node.Type == NodeType.Criterion)//if it is a criterion, else is after this bit
                 {
+                    //set gender of childs of the event this criterion is part of if we have a gender comparison
+
+
                     //if the criterion has already been seen before
                     Node criterionInFile = CriteriaInFile.Find(n => n.Guid == node.Guid);
                     if (criterionInFile != null)//has been seen before
@@ -308,6 +366,7 @@ namespace HousePartyTranslator
                         //add the childs and parents of this instance of the criterion to the first instance of this criterion
                         //aka fusion
                         criterionInFile.ChildNodes.AddRange(node.ChildNodes);
+                        criterionInFile.PropagateGender(criterionInFile.Gender);
                         criterionInFile.ParentNodes.AddRange(node.ParentNodes);
                         //recalculate mass for later use
                         criterionInFile.CalculateMass();
@@ -338,26 +397,26 @@ namespace HousePartyTranslator
                 CriteriaInFile = new List<Node>();
 
                 //get all relevant items from the json
-                Nodes.AddRange(GetDialogues(story));
-                Nodes.AddRange(GetGlobalGoodByeResponses(story));
-                Nodes.AddRange(GetGlobalResponses(story));
-                Nodes.AddRange(GetBackGroundChatter(story));
-                Nodes.AddRange(GetQuests(story));
-                Nodes.AddRange(GetReactions(story));
+                nodes.AddRange(GetDialogues(story));
+                nodes.AddRange(GetGlobalGoodByeResponses(story));
+                nodes.AddRange(GetGlobalResponses(story));
+                nodes.AddRange(GetBackGroundChatter(story));
+                nodes.AddRange(GetQuests(story));
+                nodes.AddRange(GetReactions(story));
 
                 //remove duplicates/merge criteria
                 //maybe later we load the corresponding strings from the character files and vise versa?
-                Nodes = CombineNodes(Nodes);
+                nodes = CombineNodes(nodes);
 
                 //clear criteria to free memory, we dont need them anyways
                 //cant be called recusrively so we cant add it, it would break the combination
                 CriteriaInFile.Clear();
 
                 //calculate starting positions
-                Nodes = CalculateStartingPositions(Nodes);
+                nodes = CalculateStartingPositions(nodes);
 
                 //render and do the force driven calculation thingies
-                Nodes = CalculateForceDirectedLayout(Nodes);
+                nodes = CalculateForceDirectedLayoutCpp(nodes);
 
             }
         }
@@ -369,27 +428,27 @@ namespace HousePartyTranslator
                 CriteriaInFile = new List<Node>();
 
                 //add all items in the story
-                Nodes.AddRange(GetItemOverrides(story));
+                nodes.AddRange(GetItemOverrides(story));
                 //add all item groups with their actions
-                Nodes.AddRange(GetItemGroups(story));
+                nodes.AddRange(GetItemGroups(story));
                 //add all items in the story
-                Nodes.AddRange(GetAchievements(story));
+                nodes.AddRange(GetAchievements(story));
                 //add all reactions the player will say
-                Nodes.AddRange(GetPlayerReactions(story));
+                nodes.AddRange(GetPlayerReactions(story));
 
                 //remove duplicates/merge criteria
                 //maybe later we load the corresponding strings from the character files and vise versa?
-                Nodes = CombineNodes(Nodes);
+                nodes = CombineNodes(nodes);
 
                 //clear criteria to free memory, we dont need them anyways
                 //cant be called recusrively so we cant add it, it would break the combination
                 CriteriaInFile.Clear();
 
                 //calculate starting positions
-                Nodes = CalculateStartingPositions(Nodes);
+                nodes = CalculateStartingPositions(nodes);
 
                 //render and do the force driven calculation thingies
-                Nodes = CalculateForceDirectedLayout(Nodes);
+                nodes = CalculateForceDirectedLayoutCpp(nodes);
 
             }
         }

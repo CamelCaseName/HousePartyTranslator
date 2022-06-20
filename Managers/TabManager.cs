@@ -1,4 +1,5 @@
 ﻿using HousePartyTranslator.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -87,7 +88,7 @@ namespace HousePartyTranslator.Managers
             while (TabControl == null)
             {
                 //get tabcontrol as a statc reference;
-                if(Form.ActiveForm?.Controls != null)TabControl = (TabControl)Form.ActiveForm.Controls.Find("MainTabControl", true)[0];
+                if (Form.ActiveForm?.Controls != null) TabControl = (TabControl)Form.ActiveForm.Controls.Find("MainTabControl", true)[0];
             }
 
             //create new translationmanager to use with the tab open right now
@@ -220,6 +221,10 @@ namespace HousePartyTranslator.Managers
 
         private static PropertyHelper CreateActivePropertyHelper()
         {
+            while (!Form.ActiveForm.Visible)
+            {
+
+            }
             return new PropertyHelper(
                 (CheckBox)TabControl.SelectedTab.Controls.Find("ApprovedBox", true)[0],
                 (ColouredCheckedListBox)TabControl.SelectedTab.Controls.Find("CheckListBoxLeft", true)[0],
@@ -230,9 +235,26 @@ namespace HousePartyTranslator.Managers
                 (NoAnimationBar)TabControl.SelectedTab.Controls.Find("ProgressbarTranslated", true)[0],
                 (TextBox)TabControl.SelectedTab.Controls.Find("CommentTextBox", true)[0],
                 ((Fenster)Form.ActiveForm).SearchBox,
+                ((Fenster)Form.ActiveForm).ReplaceBox,
+                ((Fenster)Form.ActiveForm).ReplaceButton,
                 (TextBox)TabControl.SelectedTab.Controls.Find("EnglishTextBox", true)[0],
                 (TextBox)TabControl.SelectedTab.Controls.Find("TranslatedTextBox", true)[0]
                 );
+        }
+
+        public static void Replace()
+        {
+            if (InGlobalSearch)
+            {
+                for (int i = 0; i < TabControl.TabCount; i++)
+                {
+                    translationManagers[TabControl.TabPages[i]].Replace(properties[TabControl.TabPages[i]], ActiveProperties.ReplaceBox.Text);
+                }
+            }
+            else
+            {
+                ActiveTranslationManager.Replace(ActiveProperties, ActiveProperties.ReplaceBox.Text);
+            }
         }
     }
 }

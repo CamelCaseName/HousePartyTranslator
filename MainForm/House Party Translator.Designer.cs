@@ -52,18 +52,20 @@ namespace HousePartyTranslator
             this.saveCurrentStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveCommentsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
+            this.ToolStripMenuReplaceBox = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripReplaceButton = new System.Windows.Forms.ToolStripMenuItem();
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.CommentGroup = new System.Windows.Forms.GroupBox();
+            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
             this.panel2 = new System.Windows.Forms.Panel();
             this.MainTabControl = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
-            this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
             this.MainMenu.SuspendLayout();
             this.mainTableLayoutPanel.SuspendLayout();
             this.CommentGroup.SuspendLayout();
@@ -172,6 +174,8 @@ namespace HousePartyTranslator
             this.saveCurrentStringToolStripMenuItem,
             this.saveCommentsToolStripMenuItem1,
             this.searchToolStripTextBox,
+            this.ToolStripMenuReplaceBox,
+            this.toolStripReplaceButton,
             this.languageToolStripComboBox,
             this.storyExplorerStripMenuItem1,
             this.customOpenStoryExplorer,
@@ -294,6 +298,28 @@ namespace HousePartyTranslator
             this.searchToolStripTextBox.Size = new System.Drawing.Size(300, 23);
             this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
             // 
+            // ToolStripMenuReplaceBox
+            // 
+            this.ToolStripMenuReplaceBox.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.ToolStripMenuReplaceBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ToolStripMenuReplaceBox.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.ToolStripMenuReplaceBox.Margin = new System.Windows.Forms.Padding(4, 0, 1, 0);
+            this.ToolStripMenuReplaceBox.Name = "ToolStripMenuReplaceBox";
+            this.ToolStripMenuReplaceBox.Size = new System.Drawing.Size(100, 23);
+            this.ToolStripMenuReplaceBox.Visible = false;
+            this.ToolStripMenuReplaceBox.TextChanged += new System.EventHandler(this.ToolStripMenuReplaceBox_TextChanged);
+            // 
+            // toolStripReplaceButton
+            // 
+            this.toolStripReplaceButton.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.toolStripReplaceButton.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.toolStripReplaceButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.toolStripReplaceButton.Name = "toolStripReplaceButton";
+            this.toolStripReplaceButton.Size = new System.Drawing.Size(63, 23);
+            this.toolStripReplaceButton.Text = "Replace!";
+            this.toolStripReplaceButton.Visible = false;
+            this.toolStripReplaceButton.Click += new System.EventHandler(this.ToolStripReplaceButton_Click);
+            // 
             // languageToolStripComboBox
             // 
             this.languageToolStripComboBox.BackColor = System.Drawing.SystemColors.ScrollBar;
@@ -379,6 +405,21 @@ namespace HousePartyTranslator
             this.CommentGroup.TabStop = false;
             this.CommentGroup.Text = "Comments";
             // 
+            // CheckListBoxLeft
+            // 
+            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.CheckListBoxLeft.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
+            this.CheckListBoxLeft.FormattingEnabled = true;
+            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
+            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
+            this.mainTableLayoutPanel.SetRowSpan(this.CheckListBoxLeft, 3);
+            this.CheckListBoxLeft.Size = new System.Drawing.Size(680, 666);
+            this.CheckListBoxLeft.TabIndex = 10;
+            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
+            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
+            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
+            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.SelectedFile);
@@ -389,6 +430,20 @@ namespace HousePartyTranslator
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(680, 24);
             this.panel1.TabIndex = 12;
+            // 
+            // ProgressbarTranslated
+            // 
+            this.ProgressbarTranslated.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.ProgressbarTranslated.Cursor = System.Windows.Forms.Cursors.Default;
+            this.ProgressbarTranslated.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.ProgressbarTranslated.Location = new System.Drawing.Point(0, 0);
+            this.ProgressbarTranslated.Name = "ProgressbarTranslated";
+            this.ProgressbarTranslated.Size = new System.Drawing.Size(680, 24);
+            this.ProgressbarTranslated.Step = 1;
+            this.ProgressbarTranslated.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            this.ProgressbarTranslated.TabIndex = 8;
+            this.ProgressbarTranslated.Value = 50;
             // 
             // panel2
             // 
@@ -423,35 +478,6 @@ namespace HousePartyTranslator
             this.tabPage1.Size = new System.Drawing.Size(1376, 708);
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Tab1";
-            // 
-            // CheckListBoxLeft
-            // 
-            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.CheckListBoxLeft.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
-            this.CheckListBoxLeft.FormattingEnabled = true;
-            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
-            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
-            this.mainTableLayoutPanel.SetRowSpan(this.CheckListBoxLeft, 3);
-            this.CheckListBoxLeft.Size = new System.Drawing.Size(680, 666);
-            this.CheckListBoxLeft.TabIndex = 10;
-            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
-            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
-            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
-            // 
-            // ProgressbarTranslated
-            // 
-            this.ProgressbarTranslated.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ProgressbarTranslated.Cursor = System.Windows.Forms.Cursors.Default;
-            this.ProgressbarTranslated.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.ButtonFace;
-            this.ProgressbarTranslated.Location = new System.Drawing.Point(0, 0);
-            this.ProgressbarTranslated.Name = "ProgressbarTranslated";
-            this.ProgressbarTranslated.Size = new System.Drawing.Size(680, 24);
-            this.ProgressbarTranslated.Step = 1;
-            this.ProgressbarTranslated.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.ProgressbarTranslated.TabIndex = 8;
-            this.ProgressbarTranslated.Value = 50;
             // 
             // Fenster
             // 
@@ -519,6 +545,8 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripMenuItem openInNewTabToolStripMenuItem;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabControl MainTabControl;
+        private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
+        private System.Windows.Forms.ToolStripMenuItem toolStripReplaceButton;
         //private System.Windows.Forms.SplitContainer MainContainer;
     }
 }

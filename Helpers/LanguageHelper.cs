@@ -27,29 +27,31 @@ namespace HousePartyTranslator.Helpers
             "es",
             "esmx",
             "tr",
-            "cn"
+            "cn",
+            "nl"
         };
 
         /// <summary>
         /// A Dictionary with all String representations of the languages given in short form as the key
         /// </summary>
         public static readonly Dictionary<string, string> Languages = new Dictionary<string, string>() {
-            {ShortLanguages[0],"Czech" },
-            {ShortLanguages[1],"Danish" },
-            {ShortLanguages[2],"German" },
-            {ShortLanguages[3],"Finnish" },
-            {ShortLanguages[4],"French" },
-            {ShortLanguages[5],"Hungarian" },
-            {ShortLanguages[6],"Italian" },
-            {ShortLanguages[7],"Japanese" },
-            {ShortLanguages[8],"Korean" },
-            {ShortLanguages[9],"Polish" },
-            {ShortLanguages[10],"Purtuguese" },
-            {ShortLanguages[11],"Portuguese, Brazilian" },
-            {ShortLanguages[12],"Spanish" },
-            {ShortLanguages[13],"Spanish, Mexico" },
-            {ShortLanguages[14],"Turkish" },
-            {ShortLanguages[15],"Chinese" }
+            {ShortLanguages[0], "Czech" },
+            {ShortLanguages[1], "Danish" },
+            {ShortLanguages[2], "German" },
+            {ShortLanguages[3], "Finnish" },
+            {ShortLanguages[4], "French" },
+            {ShortLanguages[5], "Hungarian" },
+            {ShortLanguages[6], "Italian" },
+            {ShortLanguages[7], "Japanese" },
+            {ShortLanguages[8], "Korean" },
+            {ShortLanguages[9], "Polish" },
+            {ShortLanguages[10], "Purtuguese" },
+            {ShortLanguages[11], "Portuguese, Brazilian" },
+            {ShortLanguages[12], "Spanish" },
+            {ShortLanguages[13], "Spanish, Mexico" },
+            {ShortLanguages[14], "Turkish" },
+            {ShortLanguages[15], "Chinese" },
+            {ShortLanguages[16], "Dutch" }
         };
     }
 }

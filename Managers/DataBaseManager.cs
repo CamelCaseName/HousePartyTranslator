@@ -513,7 +513,7 @@ namespace HousePartyTranslator.Managers
                 }
             }
             MainCommand = new MySqlCommand("", sqlConnection);
-            Console.WriteLine("DB opened");
+            //Console.WriteLine("DB opened");
 
             //checking template version
             MySqlCommand getVersion = new MySqlCommand("SELECT story " +
@@ -570,6 +570,66 @@ namespace HousePartyTranslator.Managers
             mainWindow.Update();
 
             Application.UseWaitCursor = false;
+        }
+
+        /// <summary>
+        /// Updates all translated strings for the selected file
+        /// </summary>
+        /// <param name="translationData">A list of all loaded lines for this file</param>
+        /// <param name="fileName">The name of the file read from without the extension.</param>
+        /// <param name="storyName">The name of the story the file is from, should be the name of the parent folder.</param>
+        /// <param name="language">The translated language in ISO 639-1 notation.</param>
+        /// <returns></returns>
+        public static bool SetStringTranslations(List<LineData> translationData, string fileName, string storyName, string language)
+        {
+            foreach (var line in translationData)
+            {
+                string insertCommand = INSERT + @" (id, story, filename, category, translated, approved, language, translation) 
+                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @translation)
+                                     ON DUPLICATE KEY UPDATE translation = @translation;";
+                MainCommand.CommandText = insertCommand;
+                MainCommand.Parameters.Clear();
+                MainCommand.Parameters.AddWithValue("@id", storyName + fileName + line.ID + language);
+                MainCommand.Parameters.AddWithValue("@story", storyName);
+                MainCommand.Parameters.AddWithValue("@fileName", fileName);
+                MainCommand.Parameters.AddWithValue("@category", (int)line.Category);
+                MainCommand.Parameters.AddWithValue("@translated", 1);
+                MainCommand.Parameters.AddWithValue("@approved", 0);
+                MainCommand.Parameters.AddWithValue("@language", language);
+                MainCommand.Parameters.AddWithValue("@translation", line.TranslationString);
+            }
+            return MainCommand.ExecuteNonQuery() > 0;
+        }
+
+        /// <summary>
+        /// Updates the selected translated strings (specified by the indices) for the selected file
+        /// </summary>
+        /// <param name="translationData">A list of all loaded lines for this file</param>
+        /// <param name="fileName">The name of the file read from without the extension.</param>
+        /// <param name="storyName">The name of the story the file is from, should be the name of the parent folder.</param>
+        /// <param name="language">The translated language in ISO 639-1 notation.</param>
+        /// <param name="indices">The list of indices to update.</param>
+        /// <returns></returns>
+        public static bool SetStringSelectedTranslations(List<LineData> translationData, string fileName, string storyName, string language, List<int> indices)
+        {
+            foreach (var index in indices)
+            {
+                LineData line = translationData[index];
+                string insertCommand = INSERT + @" (id, story, filename, category, translated, approved, language, translation) 
+                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @translation)
+                                     ON DUPLICATE KEY UPDATE translation = @translation;";
+                MainCommand.CommandText = insertCommand;
+                MainCommand.Parameters.Clear();
+                MainCommand.Parameters.AddWithValue("@id", storyName + fileName + line.ID + language);
+                MainCommand.Parameters.AddWithValue("@story", storyName);
+                MainCommand.Parameters.AddWithValue("@fileName", fileName);
+                MainCommand.Parameters.AddWithValue("@category", (int)line.Category);
+                MainCommand.Parameters.AddWithValue("@translated", 1);
+                MainCommand.Parameters.AddWithValue("@approved", 0);
+                MainCommand.Parameters.AddWithValue("@language", language);
+                MainCommand.Parameters.AddWithValue("@translation", line.TranslationString);
+            }
+            return MainCommand.ExecuteNonQuery() > 0;
         }
 
         /// <summary>

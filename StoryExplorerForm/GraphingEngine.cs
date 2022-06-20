@@ -19,7 +19,9 @@ namespace HousePartyTranslator.StoryExplorerForm
         public bool ReadyToDraw = false;
 
         private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
-        private readonly Color DefaultNodeColor = Color.DarkBlue;
+        private readonly Color DefaultMaleColor = Color.Coral;
+        private readonly Color DefaultColor = Color.DarkBlue;
+        private readonly Color DefaultFemaleColor = Color.DarkTurquoise;
         private readonly StoryExplorer Explorer;
         private readonly Bitmap GraphBitmap;
         private readonly Graphics MainGraphics;
@@ -34,6 +36,7 @@ namespace HousePartyTranslator.StoryExplorerForm
         private Node highlightedNode = Node.NullNode;
         private Node infoNode = Node.NullNode;
         private bool IsShiftPressed = false;
+        private bool IsCtrlPressed = false;
         private Node LastInfoNode = Node.NullNode;
         private Color LastNodeColor = Color.DarkBlue;
 
@@ -167,6 +170,8 @@ namespace HousePartyTranslator.StoryExplorerForm
         {
             //get the shift key state so we can determine later if we want to redraw the tree on node selection or not
             IsShiftPressed = e.KeyData == (Keys.ShiftKey | Keys.Shift);
+            //determine ctrl state for node moving
+            IsCtrlPressed = e.KeyData == (Keys.ControlKey | Keys.Control);
         }
 
         public void HandleMouseEvents(object sender, MouseEventArgs e)
@@ -205,14 +210,14 @@ namespace HousePartyTranslator.StoryExplorerForm
         public void PaintAllNodes()
         {
             //go on displaying graph
-            for (int i = 0; i < Context.GetNodes().Count; i++)
+            for (int i = 0; i < Context.Nodes.Count; i++)
             {
                 //draw node
-                DrawColouredNode(Context.GetNodes()[i], DefaultNodeColor);
+                DrawColouredNode(Context.Nodes[i], Context.Nodes[i].Gender == 1 ? DefaultFemaleColor : Context.Nodes[i].Gender == 2 ? DefaultMaleColor : DefaultColor);
                 //draw edges to children, default colour
-                for (int j = 0; j < Context.GetNodes()[i].ChildNodes.Count; j++)
+                for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
                 {
-                    DrawEdge(Context.GetNodes()[i], Context.GetNodes()[i].ChildNodes[j], DefaultEdgeColor);
+                    DrawEdge(Context.Nodes[i], Context.Nodes[i].ChildNodes[j], DefaultEdgeColor);
                 }
             }
             //allow paint handler to draw
@@ -284,25 +289,31 @@ namespace HousePartyTranslator.StoryExplorerForm
 
         private void DrawColouredNode(Node node, Color color)
         {
-            MainGraphics.FillEllipse(
-                new SolidBrush(color),
-                node.Position.X - Nodesize / 2 + HalfBitmapEdgeLength,
-                node.Position.Y - Nodesize / 2 + HalfBitmapEdgeLength,
-                Nodesize,
-                Nodesize);
+            if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+            {
+                MainGraphics.FillEllipse(
+                               new SolidBrush(color),
+                               node.Position.X - Nodesize / 2 + HalfBitmapEdgeLength,
+                               node.Position.Y - Nodesize / 2 + HalfBitmapEdgeLength,
+                               Nodesize,
+                               Nodesize);
+            }
         }
 
         private void DrawEdge(Node node1, Node node2, Color color)
         {
-            MainGraphics.DrawLine(
+            if (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
+            {
+                MainGraphics.DrawLine(
                 new Pen(color, 3f),
                 (node1.Position.X) + HalfBitmapEdgeLength,
                 (node1.Position.Y) + HalfBitmapEdgeLength,
                 (node2.Position.X) + HalfBitmapEdgeLength,
                 (node2.Position.Y) + HalfBitmapEdgeLength);
+            }
         }
 
-        private void DrawEdges(Node first, List<Node> nodes, Color color)
+        private void DrawEdges(List<Node> nodes, Color color)
         {
             Point[] points = new Point[nodes.Count];
             for (int i = 0; i < nodes.Count; i++)
@@ -402,7 +413,7 @@ namespace HousePartyTranslator.StoryExplorerForm
                     HighlightedNode,
                     0,
                     1,
-                    DefaultNodeColor,
+                    DefaultMaleColor,
                     DefaultEdgeColor,
                     false);
                 //draw over childs
@@ -411,12 +422,12 @@ namespace HousePartyTranslator.StoryExplorerForm
                     HighlightedNode,
                     0,
                     6,
-                    DefaultNodeColor,
+                    HighlightedNode.Gender == 1 ? DefaultFemaleColor : HighlightedNode.Gender == 2 ? DefaultMaleColor : DefaultColor,
                     DefaultEdgeColor,
                     false);
 
                 //redraw node itself
-                DrawColouredNode(HighlightedNode, DefaultNodeColor);
+                DrawColouredNode(HighlightedNode, HighlightedNode.Gender == 1 ? DefaultFemaleColor : HighlightedNode.Gender == 2 ? DefaultMaleColor : DefaultColor);
                 Explorer.Invalidate();
 
             }
@@ -436,7 +447,7 @@ namespace HousePartyTranslator.StoryExplorerForm
                 LastNodeColor = GraphBitmap.GetPixel(infoNode.Position.X + HalfBitmapEdgeLength, infoNode.Position.Y + HalfBitmapEdgeLength);
                 if (LastNodeColor == DefaultEdgeColor)
                 {//reset colour if it is gray, can happen due to drawing order
-                    LastNodeColor = DefaultNodeColor;
+                    LastNodeColor = infoNode.Gender == 1 ? DefaultFemaleColor : infoNode.Gender == 2 ? DefaultMaleColor : DefaultColor;
                 }
             }
         }
@@ -471,13 +482,16 @@ namespace HousePartyTranslator.StoryExplorerForm
             ScreenToGraph(mouseLocation.X - Nodesize, mouseLocation.Y - Nodesize, out float mouseLeftX, out float mouseUpperY);
             ScreenToGraph(mouseLocation.X + Nodesize, mouseLocation.Y + Nodesize, out float mouseRightX, out float mouseLowerY);
 
-            foreach (Node node in Context.GetNodes())
+            foreach (Node node in Context.Nodes)
             {
                 if (mouseLowerY > node.Position.Y && mouseUpperY < node.Position.Y)
                 {
                     if (mouseRightX > node.Position.X && mouseLeftX < node.Position.X)
                     {
-                        return node;
+                        if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+                        {
+                            return node;
+                        }
                     }
                 }
             }
