@@ -18,8 +18,8 @@ namespace HousePartyTranslator
         private readonly bool IsStory;
         private readonly Random Random = new Random();
         private string _StoryFilePath;
-        private List<Node> CriteriaInFile;
         private Dictionary<Guid, Vector2> NodeForces;
+        private List<Node> CriteriaInFile;
         private List<Node> nodes;
 
 
@@ -149,6 +149,7 @@ namespace HousePartyTranslator
 
         private List<Node> CalculateForceDirectedLayoutCpp(List<Node> _nodes)
         {
+            /*
             //prepare the arrays
             int[] x = new int[_nodes.Count], y = new int[_nodes.Count], mass = new int[_nodes.Count];
             //prepare the edges
@@ -177,7 +178,96 @@ namespace HousePartyTranslator
                 _nodes[i].Mass = mass[i];
             }
 
-            return _nodes;
+            return _nodes;*/
+            return CalculateForceDirectedLayout(nodes);
+        }
+
+        private List<Node> CalculateForceDirectedLayout(List<Node> nodes)
+        {
+            //You just need to think about the 3 separate forces acting on each node,
+            //add them together each "frame" to get the movement of each node.
+
+            //Gravity, put a simple force acting towards the centre of the canvas so the nodes dont launch themselves out of frame
+
+            //Node-Node replusion, You can either use coulombs force(which describes particle-particle repulsion)
+            //or use the gravitational attraction equation and just reverse it
+
+            //Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
+
+            const float maxForce = 0;
+            const int iterations = 300;
+            float attraction = 750f;//attraction force multiplier, between 0 and much
+            float cooldown = 0.97f;
+            float currentMaxForce = maxForce + 0.1f;
+            float repulsion = 1000f;//repulsion force multiplier, between 0 and much
+            int length = 180; //spring length in units aka thedistance an edge should be long
+
+            //copy node ids in a dict so we can apply force and not disturb the rest
+            //save all forces here
+            NodeForces = new Dictionary<Guid, Vector2>();
+            nodes.ForEach(n => NodeForces.Add(n.Guid, new Vector2()));
+
+            //times to perform calculation, result gets bettor over time
+            int i = 0;
+            while (i < iterations && currentMaxForce > maxForce)
+            {
+                //calculate new, smaller cooldown so the nodes will move less and less
+                cooldown *= cooldown;
+                //initialize maximum force/reset it
+                currentMaxForce = maxForce + 0.1f;
+
+                //go through all nodes and apply the forces
+                Parallel.For(0, nodes.Count, i1 =>
+                {
+                    Node node = nodes[i1];
+                    //create position vector for all later calculations
+                    Vector2 nodePosition = new Vector2(node.Position.X, node.Position.Y);
+                    //reset force
+                    NodeForces[node.Guid] = new Vector2();
+
+                    //calculate repulsion force
+                    for (int i2 = 0; i2 < nodes.Count; i2++)
+                    {
+                        Node secondNode = nodes[i2];
+                        if (node != secondNode && secondNode.Position != node.Position)
+                        {
+                            Vector2 secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
+                            Vector2 difference = (secondNodePosition - nodePosition);
+                            //absolute length of difference/distance
+                            float distance = difference.Length();
+                            //add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
+                            Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance) / node.Mass;
+
+                            //if the second node is a child of ours
+                            if (secondNode.ParentNodes.Contains(node))
+                            {
+                                //so we can now do the attraction force
+                                //formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
+                                NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
+                            }
+                            else
+                            {
+                                //add force to node
+                                NodeForces[node.Guid] += repulsionForce;
+                            }
+
+                            //add new maximum force or keep it as is if ours is smaller
+                            currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
+                        }
+                    }
+                });
+
+                //apply force to nodes
+                for (int i1 = 0; i1 < nodes.Count; i1++)
+                {
+                    Node node = nodes[i1];
+                    node.Position.X += (int)(cooldown * NodeForces[node.Guid].X);
+                    node.Position.Y += (int)(cooldown * NodeForces[node.Guid].Y);
+                }
+
+                i++;
+            }
+            return nodes;
         }
 
         private List<Tuple<int, int>> GetEdges(List<Node> _nodes)

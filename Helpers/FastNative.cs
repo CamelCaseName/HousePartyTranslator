@@ -5,7 +5,7 @@ namespace HousePartyTranslator.Helpers
     public static class FastNative
     {
 #if DEBUG
-        [DllImport("force_directed_graph.dll", CallingConvention = CallingConvention.StdCall)]
+        [DllImport("..\\..\\x64\\Debug\\force_directed_graph.dll", CallingConvention = CallingConvention.StdCall)]
         public static extern void do_graph_physics(
             [In, Out] int[] x,
             [In, Out] int[] y,
