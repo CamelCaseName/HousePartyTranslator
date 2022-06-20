@@ -363,12 +363,12 @@ namespace HousePartyTranslator.Managers
                     }
                     helper.SearchBox.Focus();
                     return true;
-
+                    /*
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
                     ToggleReplaceUI(helper);
                     return true;
-
+                    */
                 //save current file
                 case (Keys.Control | Keys.S):
                     SaveFile(helper);
@@ -1503,54 +1503,47 @@ namespace HousePartyTranslator.Managers
         /// <returns></returns>
         private bool SelectNextResultIfApplicable(PropertyHelper helper)
         {
-            if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused)
+            if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused && helper.CheckListBoxLeft.SearchResults.Any())
             {
-                if (helper.CheckListBoxLeft.SearchResults.Any())
+                //loop back to start
+                if (SelectedSearchResult > helper.CheckListBoxLeft.SearchResults.Count - 1)
                 {
-                    //loop back to start
-                    if (SelectedSearchResult > helper.CheckListBoxLeft.SearchResults.Count - 1)
+                    SelectedSearchResult = 0;
+                    //loop over to new tab when in global search
+                    if (TabManager.InGlobalSearch)
                     {
-                        SelectedSearchResult = 0;
-                        //loop over to new tab when in global search
-                        if (TabManager.InGlobalSearch)
-                        {
-                            searchTabIndex = TabManager.TabControl.SelectedIndex;
-                            TabManager.SwitchToTab(++searchTabIndex);
-                        }
-                        else
-                        {
-                            //select next index from list of matches
-                            if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
-                            {
-                                helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
-                            }
-                        }
+                        searchTabIndex = TabManager.TabControl.SelectedIndex;
+                        TabManager.SwitchToTab(++searchTabIndex);
                     }
                     else
                     {
+                        //select next index from list of matches
                         if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
                         {
-                            helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
-                        }
-                        else
-                        {
-                            SelectedSearchResult = 0;
-                            helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                            helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
                         }
                     }
-
-                    return true;
-                }
-                else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
-                {
-                    searchTabIndex = TabManager.TabControl.SelectedIndex;
-                    TabManager.SwitchToTab(++searchTabIndex);
-                    return true;
                 }
                 else
                 {
-                    return false;
+                    if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
+                    {
+                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                    }
+                    else
+                    {
+                        SelectedSearchResult = 0;
+                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                    }
                 }
+
+                return true;
+            }
+            else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
+            {
+                searchTabIndex = TabManager.TabControl.SelectedIndex;
+                TabManager.SwitchToTab(++searchTabIndex);
+                return true;
             }
             else
             {
