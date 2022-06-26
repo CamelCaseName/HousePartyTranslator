@@ -174,6 +174,8 @@ namespace HousePartyTranslator
             PresenceTimer.Start();
 
             RecentsManager.OpenMostRecent();
+
+            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -191,8 +193,7 @@ namespace HousePartyTranslator
             TabManager.OpenNewTab();
 
             //update presence and recents
-            PresenceManager.SetCharacterToShow(TabManager.ActiveTranslationManager.FileName);
-            PresenceManager.SetStory(TabManager.ActiveTranslationManager.StoryName);
+            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
@@ -205,8 +206,7 @@ namespace HousePartyTranslator
             if (translationManager.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = translationManager.FileName;
 
             //update presence and recents
-            PresenceManager.SetCharacterToShow(translationManager.FileName);
-            PresenceManager.SetStory(translationManager.StoryName);
+            PresenceManager.Update(translationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)

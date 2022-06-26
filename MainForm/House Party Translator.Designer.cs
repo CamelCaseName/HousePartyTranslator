@@ -323,23 +323,7 @@ namespace HousePartyTranslator
             // languageToolStripComboBox
             // 
             this.languageToolStripComboBox.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.languageToolStripComboBox.Items.AddRange(new object[] {
-            "cs",
-            "da",
-            "de",
-            "fi",
-            "fr",
-            "hu",
-            "it",
-            "ja",
-            "ko",
-            "pl",
-            "pt",
-            "ptbr",
-            "es",
-            "esmx",
-            "tr",
-            "cn"});
+            this.languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
             this.languageToolStripComboBox.Name = "languageToolStripComboBox";
             this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
             this.languageToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.LanguageToolStripComboBox_SelectedIndexChanged);
