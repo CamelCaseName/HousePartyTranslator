@@ -174,6 +174,8 @@ namespace HousePartyTranslator
             PresenceTimer.Start();
 
             RecentsManager.OpenMostRecent();
+
+            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)

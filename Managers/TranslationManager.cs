@@ -333,6 +333,8 @@ namespace HousePartyTranslator.Managers
             RecentsManager.SetMostRecent(SourceFilePath);
             RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
 
+            
+
             MainWindow.Cursor = Cursors.Default;
         }
 
