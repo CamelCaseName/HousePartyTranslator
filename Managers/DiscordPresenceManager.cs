@@ -19,15 +19,6 @@ namespace HousePartyTranslator.Managers
 
         }
 
-        public void SetCharacterToShow(string character)
-        {
-            Character = character;
-
-            SetImageKey();
-
-            UpdatePresence();
-        }
-
         private void UpdatePresence()
         {
             DiscordPresenceClient.SetPresence(new RichPresence()
@@ -58,11 +49,14 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        public void SetStory(string story)
+        public void Update(string story, string character)
         {
             Story = story;
+            Character = character;
 
-            Update();
+            SetImageKey();
+
+            UpdatePresence();
         }
 
         public void Update()
