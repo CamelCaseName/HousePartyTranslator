@@ -186,6 +186,8 @@ namespace HousePartyTranslator
         private void MainTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             TabManager.OnSwitchTabs();
+            //update tabs
+            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object sender, EventArgs e)

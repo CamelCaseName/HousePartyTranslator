@@ -365,12 +365,12 @@ namespace HousePartyTranslator.Managers
                     }
                     helper.SearchBox.Focus();
                     return true;
-                    /*
+                    
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
                     ToggleReplaceUI(helper);
                     return true;
-                    */
+                    
                 //save current file
                 case (Keys.Control | Keys.S):
                     SaveFile(helper);
