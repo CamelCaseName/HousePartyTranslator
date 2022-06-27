@@ -187,7 +187,7 @@ namespace HousePartyTranslator
         {
             TabManager.OnSwitchTabs();
             //update tabs
-            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+            if(TabManager.ActiveTranslationManager != null)PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object sender, EventArgs e)
