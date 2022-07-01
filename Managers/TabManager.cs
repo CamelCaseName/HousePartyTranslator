@@ -65,7 +65,7 @@ namespace HousePartyTranslator.Managers
             {
                 for (int ix = 0; ix < TabControl.TabCount; ++ix)
                 {
-                    if (TabControl.GetTabRect(ix).Contains(e.Location))
+                    if (TabControl.GetTabRect(ix).Contains(e.Location) && ActiveTranslationManager != null)
                     {
                         //remove manager for the tab, save first
                         ActiveTranslationManager.SaveFile(ActiveProperties);

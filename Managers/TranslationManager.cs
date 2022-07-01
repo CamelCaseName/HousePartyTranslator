@@ -1603,7 +1603,8 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void UpdateApprovedCountLabel(int Approved, int Total, PropertyHelper helper)
         {
-            helper.ApprovedCountLabel.Text = $"Approved: {Approved} / {Total}";
+            float percentage = Approved / Total;
+            helper.ApprovedCountLabel.Text = $"Approved: {Approved} / {Total} {percentage}%";
             int ProgressValue = (int)((float)Approved / (float)Total * 100);
             if (ProgressValue > 0 && ProgressValue < 100)
             {
@@ -1628,7 +1629,7 @@ namespace HousePartyTranslator.Managers
             {
                 helper.CharacterCountLabel.ForeColor = Color.LawnGreen;
             }//if bigger by no more than 20 percent
-            else if ((TranslationCount - TemplateCount) < (TemplateCount / 20))
+            else if ((TranslationCount - TemplateCount) < (TemplateCount / 30))
             {
                 helper.CharacterCountLabel.ForeColor = Color.DarkOrange;
             }
