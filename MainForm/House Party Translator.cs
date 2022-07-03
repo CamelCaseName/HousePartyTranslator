@@ -264,5 +264,10 @@ namespace HousePartyTranslator
         {
             TabManager.Replace();
         }
+
+        private void TranslateThis_Click(object sender, EventArgs e)
+        {
+            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex, TabManager.ActiveProperties);
+        }
     }
 }

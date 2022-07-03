@@ -38,6 +38,7 @@ namespace HousePartyTranslator
             this.SelectedFile = new System.Windows.Forms.Label();
             this.WordsTranslated = new System.Windows.Forms.Label();
             this.ApprovedBox = new System.Windows.Forms.CheckBox();
+            this.TranslateThis = new System.Windows.Forms.Button();
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -166,6 +167,19 @@ namespace HousePartyTranslator
             this.ApprovedBox.Text = global::HousePartyTranslator.Properties.Resources.Approved;
             this.ApprovedBox.UseVisualStyleBackColor = true;
             this.ApprovedBox.CheckedChanged += new System.EventHandler(this.ApprovedBox_CheckedChanged);
+            // 
+            // TranslateThis
+            // 
+            this.TranslateThis.AutoSize = true;
+            this.TranslateThis.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.TranslateThis.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.TranslateThis.Location = new System.Drawing.Point(80, 1);
+            this.TranslateThis.Name = "TranslateThis";
+            this.TranslateThis.Size = new System.Drawing.Size(60, 20);
+            this.TranslateThis.TabIndex = 13;
+            this.TranslateThis.Text = "Translate";
+            this.TranslateThis.UseVisualStyleBackColor = true;
+            this.TranslateThis.Click += new System.EventHandler(this.TranslateThis_Click);
             // 
             // MainMenu
             // 
@@ -432,6 +446,7 @@ namespace HousePartyTranslator
             // panel2
             // 
             this.panel2.Controls.Add(this.ApprovedBox);
+            this.panel2.Controls.Add(this.TranslateThis);
             this.panel2.Controls.Add(this.CharacterCountLabel);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(689, 3);
@@ -494,6 +509,7 @@ namespace HousePartyTranslator
 
         }
 
+
         #endregion
 
         private System.Windows.Forms.TextBox TranslatedTextBox;
@@ -505,6 +521,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.Label WordsTranslated;
         private ColouredCheckedListBox CheckListBoxLeft;
         private System.Windows.Forms.CheckBox ApprovedBox;
+        private System.Windows.Forms.Button TranslateThis;
         private System.Windows.Forms.MenuStrip MainMenu;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
