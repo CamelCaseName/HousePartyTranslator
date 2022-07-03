@@ -22,7 +22,7 @@ namespace HousePartyTranslator.Helpers
         /// <param name="e">The PaintEventArgs to manipulate.</param>
         protected override void OnPaint(PaintEventArgs e)
         {
-            e.Graphics.FillRectangle(new SolidBrush(ForeColor), new Rectangle(0, 0, (int)(Width * (float)Value / (float)Maximum), Height));
+            e.Graphics.FillRectangle(new SolidBrush(ForeColor), new Rectangle(0, 0, (int)(Width * (float)Value / Maximum), Height));
         }
     }
 }
