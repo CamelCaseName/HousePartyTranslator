@@ -11,20 +11,20 @@ namespace HousePartyTranslator.Managers
     static class DataBaseManager
     {
         public static string DBVersion;
+        private static readonly MySqlConnection sqlConnection = new MySqlConnection();
         private static MySqlCommand MainCommand;
         private static MySqlDataReader MainReader;
         private static string SoftwareVersion;
-        private static readonly MySqlConnection sqlConnection = new MySqlConnection();
 #if DEBUG
         private static readonly string FROM = "FROM debug ";
         private static readonly string INSERT = "INSERT INTO debug ";
         private static readonly string UPDATE = "UPDATE debug ";
         private static readonly string DELETE = "DELETE FROM debug ";
 #else
+        private static readonly string DELETE = "DELETE FROM translations ";
         private static readonly string FROM = "FROM translations ";
         private static readonly string INSERT = "INSERT INTO translations ";
         private static readonly string UPDATE = "UPDATE translations ";
-        private static readonly string DELETE = "DELETE FROM translations ";
 #endif
 
 
@@ -42,6 +42,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool AddTranslationComment(string id, string fileName, string story, string comment, string language = "de")
         {
+            CheckConnection();
             //use # for comment seperator
             GetTranslationComments(id, fileName, story, out string internalComment, language);
 
@@ -56,25 +57,7 @@ namespace HousePartyTranslator.Managers
             MainCommand.Parameters.AddWithValue("@language", language);
             MainCommand.Parameters.AddWithValue("@comment", internalComment);
 
-            return MainCommand.ExecuteNonQuery() > 0;
-        }
-
-        /// <summary>
-        /// MUST NOT USE ESLEWHERE THAN THE TEMPLATE UPLOADER IN THE BEGINNING
-        /// </summary>
-        /// <returns>
-        /// True if it worked.
-        /// </returns>
-        public static bool ClearDBofAllStrings()
-        {
-            string insertCommand = DELETE + @" 
-                                     WHERE NOT ID = @version AND LANGUAGE IS NULL;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@version", "version");
-
-            //return if at least ione row was changed
-            return MainCommand.ExecuteNonQuery() > 0;
+            return ExecuteOrReOpen(MainCommand);
         }
 
         /// <summary>
@@ -84,6 +67,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="ResultReader">The result reader will be written to this parameter.</param> 
         public static void ExecuteCustomCommand(string command, out MySqlDataReader ResultReader)
         {
+            CheckConnection();
             MainCommand.Parameters.Clear();
             MainCommand.CommandText = command;
             ResultReader = MainCommand.ExecuteReader();
@@ -101,6 +85,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetAllLineDataBasicForFile(string fileName, string story, out List<LineData> LineDataList)
         {
+            CheckConnection();
             Application.UseWaitCursor = true;
             string insertCommand;
             if (story == "Hints")
@@ -161,6 +146,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetAllStatesForFile(string fileName, string story, out List<LineData> approvalStates, string language = "de")
         {
+            CheckConnection();
             Application.UseWaitCursor = true;
             string insertCommand = @"SELECT id, category, approved, translated, translation, english 
                                      " + FROM + @" 
@@ -213,6 +199,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetAllTranslatedStringForFile(string fileName, string story, out List<LineData> translations, string language = "de")
         {
+            CheckConnection();
             Application.UseWaitCursor = true;
             string insertCommand = @"SELECT id, category, translation 
                                      " + FROM + @" 
@@ -262,6 +249,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetStringApprovedState(string id, string fileName, string story, string language = "de")
         {
+            CheckConnection();
             string insertCommand = @"SELECT approved 
                                      " + FROM + @" 
                                      WHERE id = @id;";
@@ -296,6 +284,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetStringTemplate(string id, string fileName, string story, out string template)
         {
+            CheckConnection();
             Application.UseWaitCursor = true;
             if (story == "Hints")
             {
@@ -335,6 +324,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetStringTranslatedState(string id, string fileName, string story, string language = "de")
         {
+            CheckConnection();
             string insertCommand = @"SELECT translated 
                                      " + FROM + @"  
                                      WHERE id = @id AND language = @language;";
@@ -372,6 +362,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetStringTranslation(string id, string fileName, string story, out string translation, string language = "de")
         {
+            CheckConnection();
             string insertCommand = @"SELECT translation 
                                      " + FROM + @" 
                                      WHERE id = @id AND language = @language;";
@@ -410,6 +401,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
         {
+            CheckConnection();
             string insertCommand = @"SELECT comment 
                                      " + FROM + @" 
                                      WHERE id = @id AND language = @language;";
@@ -446,6 +438,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetTranslationComments(string id, string fileName, string story, out string[] comments, string language = "de")
         {
+            CheckConnection();
             //use # for comment seperator
             if (GetTranslationComments(id, fileName, story, out string commentString, language))
             {
@@ -573,32 +566,32 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Updates all translated strings for the selected file
+        /// Set the Approval state of a string in the database.
         /// </summary>
-        /// <param name="translationData">A list of all loaded lines for this file</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="storyName">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="language">The translated language in ISO 639-1 notation.</param>
-        /// <returns></returns>
-        public static bool SetStringTranslations(List<LineData> translationData, string fileName, string storyName, string language)
+        /// <param name="id">The id of that string as found in the file before the "|".</param> 
+        /// <param name="fileName">The name of the file read from without the extension.</param> 
+        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
+        /// <param name="isApproved">The approval state to set the string to (0 or 1).</param> 
+        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
+        /// <returns>
+        /// True if at least one row was returned.
+        /// </returns>
+        public static bool SetStringApprovedState(string id, string fileName, string story, StringCategory category, bool isApproved, string language = "de")
         {
-            foreach (var line in translationData)
-            {
-                string insertCommand = INSERT + @" (id, story, filename, category, translated, approved, language, translation) 
-                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @translation)
-                                     ON DUPLICATE KEY UPDATE translation = @translation;";
-                MainCommand.CommandText = insertCommand;
-                MainCommand.Parameters.Clear();
-                MainCommand.Parameters.AddWithValue("@id", storyName + fileName + line.ID + language);
-                MainCommand.Parameters.AddWithValue("@story", storyName);
-                MainCommand.Parameters.AddWithValue("@fileName", fileName);
-                MainCommand.Parameters.AddWithValue("@category", (int)line.Category);
-                MainCommand.Parameters.AddWithValue("@translated", 1);
-                MainCommand.Parameters.AddWithValue("@approved", 0);
-                MainCommand.Parameters.AddWithValue("@language", language);
-                MainCommand.Parameters.AddWithValue("@translation", line.TranslationString);
-            }
-            return MainCommand.ExecuteNonQuery() > 0;
+            string insertCommand = INSERT + @" (id, story, filename, category, translated, approved, language) 
+VALUES(@id, @story, @fileName, @category, @translated, @approved, @language)
+ON DUPLICATE KEY UPDATE approved = @approved;";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@category", (int)category);
+            MainCommand.Parameters.AddWithValue("@translated", 1);
+            MainCommand.Parameters.AddWithValue("@approved", isApproved ? 1 : 0);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            return ExecuteOrReOpen(MainCommand);
         }
 
         /// <summary>
@@ -629,36 +622,7 @@ namespace HousePartyTranslator.Managers
                 MainCommand.Parameters.AddWithValue("@language", language);
                 MainCommand.Parameters.AddWithValue("@translation", line.TranslationString);
             }
-            return MainCommand.ExecuteNonQuery() > 0;
-        }
-
-        /// <summary>
-        /// Set the Approval state of a string in the database.
-        /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param> 
-        /// <param name="fileName">The name of the file read from without the extension.</param> 
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param> 
-        /// <param name="isApproved">The approval state to set the string to (0 or 1).</param> 
-        /// <param name="language">The translated language in ISO 639-1 notation.</param> 
-        /// <returns>
-        /// True if at least one row was returned.
-        /// </returns>
-        public static bool SetStringApprovedState(string id, string fileName, string story, StringCategory category, bool isApproved, string language = "de")
-        {
-            string insertCommand = INSERT + @" (id, story, filename, category, translated, approved, language) 
-VALUES(@id, @story, @fileName, @category, @translated, @approved, @language)
-ON DUPLICATE KEY UPDATE approved = @approved;";
-            MainCommand.CommandText = insertCommand;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
-            MainCommand.Parameters.AddWithValue("@story", story);
-            MainCommand.Parameters.AddWithValue("@fileName", fileName);
-            MainCommand.Parameters.AddWithValue("@category", (int)category);
-            MainCommand.Parameters.AddWithValue("@translated", 1);
-            MainCommand.Parameters.AddWithValue("@approved", isApproved ? 1 : 0);
-            MainCommand.Parameters.AddWithValue("@language", language);
-
-            return MainCommand.ExecuteNonQuery() > 0;
+            return ExecuteOrReOpen(MainCommand);
         }
 
         /// <summary>
@@ -685,7 +649,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             MainCommand.Parameters.AddWithValue("@english", template);
 
             //return if at least ione row was changed
-            return MainCommand.ExecuteNonQuery() > 0;
+            return ExecuteOrReOpen(MainCommand);
         }
 
         /// <summary>
@@ -713,7 +677,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             MainCommand.Parameters.AddWithValue("@translated", isTranslated ? 1 : 0);
             MainCommand.Parameters.AddWithValue("@language", language);
 
-            return MainCommand.ExecuteNonQuery() > 0;
+            return ExecuteOrReOpen(MainCommand);
         }
 
         /// <summary>
@@ -743,7 +707,36 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             MainCommand.Parameters.AddWithValue("@language", language);
             MainCommand.Parameters.AddWithValue("@translation", translation);
 
-            return MainCommand.ExecuteNonQuery() > 0;
+            return ExecuteOrReOpen(MainCommand);
+        }
+
+        /// <summary>
+        /// Updates all translated strings for the selected file
+        /// </summary>
+        /// <param name="translationData">A list of all loaded lines for this file</param>
+        /// <param name="fileName">The name of the file read from without the extension.</param>
+        /// <param name="storyName">The name of the story the file is from, should be the name of the parent folder.</param>
+        /// <param name="language">The translated language in ISO 639-1 notation.</param>
+        /// <returns></returns>
+        public static bool SetStringTranslations(List<LineData> translationData, string fileName, string storyName, string language)
+        {
+            foreach (var line in translationData)
+            {
+                string insertCommand = INSERT + @" (id, story, filename, category, translated, approved, language, translation) 
+                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @translation)
+                                     ON DUPLICATE KEY UPDATE translation = @translation;";
+                MainCommand.CommandText = insertCommand;
+                MainCommand.Parameters.Clear();
+                MainCommand.Parameters.AddWithValue("@id", storyName + fileName + line.ID + language);
+                MainCommand.Parameters.AddWithValue("@story", storyName);
+                MainCommand.Parameters.AddWithValue("@fileName", fileName);
+                MainCommand.Parameters.AddWithValue("@category", (int)line.Category);
+                MainCommand.Parameters.AddWithValue("@translated", 1);
+                MainCommand.Parameters.AddWithValue("@approved", 0);
+                MainCommand.Parameters.AddWithValue("@language", language);
+                MainCommand.Parameters.AddWithValue("@translation", line.TranslationString);
+            }
+            return ExecuteOrReOpen(MainCommand);
         }
 
         /// <summary>
@@ -784,8 +777,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             MainCommand.Parameters.AddWithValue("@comment", internalComment);
 
             //return if at least ione row was changed
-            return MainCommand.ExecuteNonQuery() > 0;
-
+            return ExecuteOrReOpen(MainCommand);
 
         }
 
@@ -806,7 +798,19 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             MainCommand.Parameters.AddWithValue("@version", "version");
 
             //return if at least ione row was changed
-            return MainCommand.ExecuteNonQuery() > 0;
+            return ExecuteOrReOpen(MainCommand);
+        }
+
+        /// <summary>
+        /// Reopens the connection if necessary
+        /// </summary>
+        private static void CheckConnection()
+        {
+            if (sqlConnection.State != System.Data.ConnectionState.Open)
+            {
+                sqlConnection.Close();
+                sqlConnection.Open();
+            }
         }
 
         private static string CleanId(string DataBaseId, string story, string fileName, bool isTemplate)
@@ -814,6 +818,33 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId.Substring((story + fileName).Length);
             return tempID.Remove(tempID.Length - (isTemplate ? 8 : 2));
+        }
+
+        /// <summary>
+        /// Executes the command, returns true if succeeded. reopens the connection if necessary
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        private static bool ExecuteOrReOpen(MySqlCommand command)
+        {
+            //try to reopen the connection if it died
+            int tries = 10;
+            while (sqlConnection.State != System.Data.ConnectionState.Open && tries > 0)
+            {
+                sqlConnection.Close();
+                System.Threading.Thread.Sleep(500);
+                sqlConnection.Open();
+            }
+
+            if (sqlConnection.State != System.Data.ConnectionState.Open)
+            {
+                //password may have to be changed
+                MessageBox.Show("Can't connect to the database, contact CamelCaseName (Lenny)");
+                Application.Exit();
+                return false;
+            }
+
+            return command.ExecuteNonQuery() > 0;
         }
 
         private static string GetConnString()

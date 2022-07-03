@@ -365,12 +365,12 @@ namespace HousePartyTranslator.Managers
                     }
                     helper.SearchBox.Focus();
                     return true;
-                    /*
+                    
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
                     ToggleReplaceUI(helper);
                     return true;
-                    */
+                    
                 //save current file
                 case (Keys.Control | Keys.S):
                     SaveFile(helper);
@@ -527,7 +527,6 @@ namespace HousePartyTranslator.Managers
                     helper.ApprovedBox.Checked = helper.CheckListBoxLeft.GetItemChecked(currentIndex);
 
                     UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count(), helper);
-                    UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count, helper);
 
                     if (UpdateStoryExplorerSelection)
                     {
@@ -1603,9 +1602,10 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void UpdateApprovedCountLabel(int Approved, int Total, PropertyHelper helper)
         {
-            helper.ApprovedCountLabel.Text = $"Approved: {Approved} / {Total}";
-            int ProgressValue = (int)((float)Approved / (float)Total * 100);
-            if (ProgressValue > 0 && ProgressValue < 100)
+            float percentage = Approved / (float)Total;
+            helper.ApprovedCountLabel.Text = $"Approved: {Approved} / {Total} {(int)(percentage * 100)}%";
+            int ProgressValue = (int)(Approved / (float)Total * 100);
+            if (ProgressValue > 0 && ProgressValue <= 100)
             {
                 helper.NoProgressbar.Value = ProgressValue;
             }
@@ -1628,7 +1628,7 @@ namespace HousePartyTranslator.Managers
             {
                 helper.CharacterCountLabel.ForeColor = Color.LawnGreen;
             }//if bigger by no more than 20 percent
-            else if ((TranslationCount - TemplateCount) < (TemplateCount / 20))
+            else if ((TranslationCount - TemplateCount) < (TemplateCount / 30))
             {
                 helper.CharacterCountLabel.ForeColor = Color.DarkOrange;
             }

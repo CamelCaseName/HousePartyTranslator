@@ -186,6 +186,8 @@ namespace HousePartyTranslator
         private void MainTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             TabManager.OnSwitchTabs();
+            //update tabs
+            if(TabManager.ActiveTranslationManager != null)PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object sender, EventArgs e)
@@ -261,6 +263,11 @@ namespace HousePartyTranslator
         private void ToolStripReplaceButton_Click(object sender, EventArgs e)
         {
             TabManager.Replace();
+        }
+
+        private void TranslateThis_Click(object sender, EventArgs e)
+        {
+            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex, TabManager.ActiveProperties);
         }
     }
 }
