@@ -31,42 +31,50 @@ namespace HousePartyTranslator
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Fenster));
-            this.TranslatedTextBox = new System.Windows.Forms.TextBox();
-            this.EnglishTextBox = new System.Windows.Forms.TextBox();
-            this.CommentTextBox = new System.Windows.Forms.TextBox();
-            this.CharacterCountLabel = new System.Windows.Forms.Label();
-            this.SelectedFile = new System.Windows.Forms.Label();
-            this.WordsTranslated = new System.Windows.Forms.Label();
             this.ApprovedBox = new System.Windows.Forms.CheckBox();
-            this.TranslateThis = new System.Windows.Forms.Button();
-            this.MainMenu = new System.Windows.Forms.MenuStrip();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openInNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.Recents = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.CharacterCountLabel = new System.Windows.Forms.Label();
+            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
+            this.CommentGroup = new System.Windows.Forms.GroupBox();
+            this.CommentTextBox = new System.Windows.Forms.TextBox();
+            this.CopyAllContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyAsOutputContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyFileNameContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyIdContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyStoryNameContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyTemplateContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.CopyTranslationContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
+            this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
+            this.EnglishTextBox = new System.Windows.Forms.TextBox();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveCurrentStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
+            this.ListContextMenu = new System.Windows.Forms.ContextMenuStrip();
+            this.MainMenu = new System.Windows.Forms.MenuStrip();
+            this.MainTabControl = new System.Windows.Forms.TabControl();
+            this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.openInNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
+            this.Recents = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveCommentsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveCurrentStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
+            this.SelectedFile = new System.Windows.Forms.Label();
+            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tabPage1 = new System.Windows.Forms.TabPage();
             this.ToolStripMenuReplaceBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripReplaceButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
-            this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
-            this.CommentGroup = new System.Windows.Forms.GroupBox();
-            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.MainTabControl = new System.Windows.Forms.TabControl();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.TranslatedTextBox = new System.Windows.Forms.TextBox();
+            this.TranslateThis = new System.Windows.Forms.Button();
+            this.WordsTranslated = new System.Windows.Forms.Label();
             this.MainMenu.SuspendLayout();
             this.mainTableLayoutPanel.SuspendLayout();
             this.CommentGroup.SuspendLayout();
@@ -284,7 +292,7 @@ namespace HousePartyTranslator
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.exitToolStripMenuItem.Text = "E&xit";
+            this.exitToolStripMenuItem.Text = "&Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
             // 
             // saveCurrentStringToolStripMenuItem
@@ -355,7 +363,7 @@ namespace HousePartyTranslator
             // 
             this.customOpenStoryExplorer.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.customOpenStoryExplorer.Name = "customOpenStoryExplorer";
-            this.customOpenStoryExplorer.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.X)));
+            this.customOpenStoryExplorer.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
             this.customOpenStoryExplorer.Size = new System.Drawing.Size(121, 23);
             this.customOpenStoryExplorer.Text = "Open StoryE&xplorer";
             this.customOpenStoryExplorer.Click += new System.EventHandler(this.CustomStoryExplorerStripMenuItem_Click);
@@ -417,6 +425,8 @@ namespace HousePartyTranslator
             this.CheckListBoxLeft.ThreeDCheckBoxes = true;
             this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
             this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
+            this.CheckListBoxLeft.ContextMenuStrip = this.ListContextMenu;
+            this.CheckListBoxLeft.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OpeningContextMenu);
             // 
             // panel1
             // 
@@ -478,6 +488,73 @@ namespace HousePartyTranslator
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "Tab1";
             // 
+            // CopyIdContextMenuButton
+            // 
+            this.CopyIdContextMenuButton.Name = "CopyIdContextMenuButton";
+            this.CopyIdContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            this.CopyIdContextMenuButton.Text = "Copy Id";
+            this.CopyIdContextMenuButton.Click += new System.EventHandler(this.CopyIdContextMenuButton_Click);
+            // 
+            // CopyFileNameContextMenuButton
+            // 
+            this.CopyFileNameContextMenuButton.Name = "CopyFileNameContextMenuButton";
+            this.CopyFileNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            this.CopyFileNameContextMenuButton.Text = "Copy file name";
+            this.CopyFileNameContextMenuButton.Click += new System.EventHandler(this.CopyFileNameContextMenuButton_Click);
+            // 
+            // CopyStoryNameContextMenuButton
+            // 
+            this.CopyStoryNameContextMenuButton.Name = "CopyStoryNameContextMenuButton";
+            this.CopyStoryNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            this.CopyStoryNameContextMenuButton.Text = "Copy story name";
+            this.CopyStoryNameContextMenuButton.Click += new System.EventHandler(this.CopyStoryNameContextMenuButton_Click);
+            // 
+            // CopyAllContextMenuButton
+            // 
+            this.CopyAllContextMenuButton.Name = "CopyAllContextMenuButton";
+            this.CopyAllContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            this.CopyAllContextMenuButton.Text = "Copy everything";
+            this.CopyAllContextMenuButton.Click += new System.EventHandler(this.CopyAllContextMenuButton_Click);
+            // 
+            // CopyAsOutputContextMenuButton
+            // 
+            this.CopyAsOutputContextMenuButton.Name = "CopyAsOutputContextMenuButton";
+            this.CopyAsOutputContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            this.CopyAsOutputContextMenuButton.Text = "Copy as output";
+            this.CopyAsOutputContextMenuButton.Click += new System.EventHandler(this.CopyAsOutputContextMenuButton_Click);
+            // 
+            // CopyTemplateContextMenuButton
+            // 
+            this.CopyTemplateContextMenuButton.Name = "CopyTemplateContextMenuButton";
+            this.CopyTemplateContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            this.CopyTemplateContextMenuButton.Text = "Copy template";
+            this.CopyTemplateContextMenuButton.Click += new System.EventHandler(this.CopyTemplateContextMenuButton_Click);
+            // 
+            // CopyTranslationContextMenuButton
+            // 
+            this.CopyTranslationContextMenuButton.Name = "CopyTranslationContextMenuButton";
+            this.CopyTranslationContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            this.CopyTranslationContextMenuButton.Text = "Copy translation";
+            this.CopyTranslationContextMenuButton.Click += new System.EventHandler(this.CopyTranslationContextMenuButton_Click);
+            //
+            // ListContextMenu
+            //
+            this.ListContextMenu.Name = "ListContextMenu";
+            this.ListContextMenu.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.ListContextMenu.ShowCheckMargin = false;
+            this.ListContextMenu.ShowImageMargin = false;
+            this.ListContextMenu.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.ListContextMenu.Size = new System.Drawing.Size(236, 160);
+            this.ListContextMenu.Items.Clear();
+            this.ListContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[]{
+            CopyIdContextMenuButton,
+            CopyFileNameContextMenuButton,
+            CopyStoryNameContextMenuButton,
+            CopyTemplateContextMenuButton,
+            CopyTranslationContextMenuButton,
+            CopyAsOutputContextMenuButton,
+            CopyAllContextMenuButton});
+            // 
             // Fenster
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -511,43 +588,50 @@ namespace HousePartyTranslator
 
 
         #endregion
-
-        private System.Windows.Forms.TextBox TranslatedTextBox;
-        private System.Windows.Forms.TextBox EnglishTextBox;
+        private ColouredCheckedListBox CheckListBoxLeft;
         private NoAnimationBar ProgressbarTranslated;
-        private System.Windows.Forms.TextBox CommentTextBox;
+        private System.Windows.Forms.Button TranslateThis;
+        private System.Windows.Forms.CheckBox ApprovedBox;
+        private System.Windows.Forms.ContextMenuStrip ListContextMenu;
+        private System.Windows.Forms.GroupBox CommentGroup;
         private System.Windows.Forms.Label CharacterCountLabel;
         private System.Windows.Forms.Label SelectedFile;
         private System.Windows.Forms.Label WordsTranslated;
-        private ColouredCheckedListBox CheckListBoxLeft;
-        private System.Windows.Forms.CheckBox ApprovedBox;
-        private System.Windows.Forms.Button TranslateThis;
         private System.Windows.Forms.MenuStrip MainMenu;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripComboBox languageToolStripComboBox;
-        private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
-        private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveCommentsToolStripMenuItem1;
-        private System.Windows.Forms.TableLayoutPanel mainTableLayoutPanel;
-        private System.Windows.Forms.GroupBox CommentGroup;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
-        private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.ToolStripMenuItem Recents;
-        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openInNewTabToolStripMenuItem;
-        private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabControl MainTabControl;
-        private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
+        private System.Windows.Forms.TableLayoutPanel mainTableLayoutPanel;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.TextBox CommentTextBox;
+        private System.Windows.Forms.TextBox EnglishTextBox;
+        private System.Windows.Forms.TextBox TranslatedTextBox;
+        private System.Windows.Forms.ToolStripComboBox languageToolStripComboBox;
+        private System.Windows.Forms.ToolStripMenuItem CopyAllContextMenuButton;
+        private System.Windows.Forms.ToolStripMenuItem CopyAsOutputContextMenuButton;
+        private System.Windows.Forms.ToolStripMenuItem CopyFileNameContextMenuButton;
+        private System.Windows.Forms.ToolStripMenuItem CopyIdContextMenuButton;
+        private System.Windows.Forms.ToolStripMenuItem CopyStoryNameContextMenuButton;
+        private System.Windows.Forms.ToolStripMenuItem CopyTemplateContextMenuButton;
+        private System.Windows.Forms.ToolStripMenuItem CopyTranslationContextMenuButton;
+        private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openInNewTabToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem Recents;
+        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveCommentsToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceButton;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
+        private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
         //private System.Windows.Forms.SplitContainer MainContainer;
     }
 }

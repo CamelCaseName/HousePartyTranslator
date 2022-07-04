@@ -68,7 +68,7 @@ namespace HousePartyTranslator.Managers
                     if (TabControl.GetTabRect(ix).Contains(e.Location) && ActiveTranslationManager != null)
                     {
                         //remove manager for the tab, save first
-                        ActiveTranslationManager.SaveFile(ActiveProperties);
+                        ActiveTranslationManager.SaveFile();
                         translationManagers.Remove(TabControl.TabPages[ix]);
                         properties.Remove(TabControl.TabPages[ix]);
 
@@ -92,8 +92,8 @@ namespace HousePartyTranslator.Managers
             }
 
             //create new translationmanager to use with the tab open right now
-            translationManagers.Add(tabPage1, new TranslationManager());
             properties.Add(tabPage1, CreateActivePropertyHelper());
+            translationManagers.Add(tabPage1, new TranslationManager(ActiveProperties));
 
             return translationManagers[tabPage1];
         }
@@ -104,19 +104,19 @@ namespace HousePartyTranslator.Managers
         public static void OpenNewTab()
         {
             //create new support objects
-            TranslationManager t = new TranslationManager();
             TabPage newTab = Utils.CreateNewTab(translationManagers.Count + 1);
             //Add tab to form control
             TabControl.TabPages.Add(newTab);
             //select new tab
             TabControl.SelectedTab = newTab;
             //create support dict
-            translationManagers.Add(newTab, t);
             properties.Add(newTab, CreateActivePropertyHelper());
+            TranslationManager t = new TranslationManager(ActiveProperties);
+            translationManagers.Add(newTab, t);
 
             //call startup for new translationmanager
-            t.SetLanguage(ActiveProperties);
-            t.LoadFileIntoProgram(ActiveProperties);
+            t.SetLanguage();
+            t.LoadFileIntoProgram();
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace HousePartyTranslator.Managers
             {
                 if (InGlobalSearch)
                 {
-                    ActiveTranslationManager.Search(ActiveProperties, ActiveProperties.SearchBox.Text.Substring(1));
+                    ActiveTranslationManager.Search(ActiveProperties.SearchBox.Text.Substring(1));
                 }
                 else
                 {
@@ -168,7 +168,7 @@ namespace HousePartyTranslator.Managers
                 //save all tabs
                 foreach (TabPage tab in TabControl.TabPages)
                 {
-                    translationManagers[tab].SaveFile(properties[tab]);
+                    translationManagers[tab].SaveFile();
                 }
                 return true;
             }
@@ -203,7 +203,7 @@ namespace HousePartyTranslator.Managers
                 if (ActiveProperties.SearchBox.Text[0] == '?')
                 {
                     InGlobalSearch = true;
-                    ActiveTranslationManager.Search(ActiveProperties, ActiveProperties.SearchBox.Text.Substring(1));
+                    ActiveTranslationManager.Search(ActiveProperties.SearchBox.Text.Substring(1));
                     return true;
                 }
                 else
@@ -217,6 +217,46 @@ namespace HousePartyTranslator.Managers
                 InGlobalSearch = false;
                 return false;
             }
+        }
+
+        public static void CopyId()
+        {
+            Clipboard.SetText(ActiveTranslationManager.SelectedId);
+        }
+
+        public static void CopyFileName()
+        {
+            Clipboard.SetText(ActiveTranslationManager.FileName);
+        }
+
+        public static void CopyStoryName()
+        {
+            Clipboard.SetText(ActiveTranslationManager.StoryName);
+        }
+
+        public static void CopyAll()
+        {
+            Clipboard.SetText(
+                ActiveTranslationManager.StoryName +
+                "/" + ActiveTranslationManager.FileName +
+                " : " +
+                ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).ToString());
+        }
+
+        public static void CopyAsOutput()
+        {
+            Clipboard.SetText(ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).ToString());
+        }
+
+        public static void CopyTranslation()
+        {
+            Clipboard.SetText(ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).TranslationString);
+        }
+
+        public static void CopyTemplate()
+        {
+            DataBaseManager.GetStringTemplate(ActiveTranslationManager.SelectedId, ActiveTranslationManager.FileName, ActiveTranslationManager.StoryName, out string templateString);
+            Clipboard.SetText(templateString);
         }
 
         private static PropertyHelper CreateActivePropertyHelper()
@@ -248,12 +288,12 @@ namespace HousePartyTranslator.Managers
             {
                 for (int i = 0; i < TabControl.TabCount; i++)
                 {
-                    translationManagers[TabControl.TabPages[i]].Replace(properties[TabControl.TabPages[i]], ActiveProperties.ReplaceBox.Text);
+                    translationManagers[TabControl.TabPages[i]].Replace(ActiveProperties.ReplaceBox.Text);
                 }
             }
             else
             {
-                ActiveTranslationManager.Replace(ActiveProperties, ActiveProperties.ReplaceBox.Text);
+                ActiveTranslationManager.Replace(ActiveProperties.ReplaceBox.Text);
             }
         }
     }

@@ -106,8 +106,9 @@ namespace HousePartyTranslator.Managers
                 {
                     ignorenextRecents = 1;
                     TranslationManager t = TabManager.ActiveTranslationManager;
-                    t.LoadFileIntoProgram(TabManager.ActiveProperties, recents[0]);
+                    t.LoadFileIntoProgram(recents[0]);
                     if (Properties.Settings.Default.autoLoadRecentIndex) t.SelectLine(recentIndex);
+                    else t.SelectLine(0);
                 }
             }
         }
@@ -148,7 +149,7 @@ namespace HousePartyTranslator.Managers
         private static void RecentsManager_Click(object sender, EventArgs e)
         {
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram(TabManager.ActiveProperties, ((ToolStripMenuItem)sender).Text);
+            translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text);
             if (Properties.Settings.Default.autoLoadRecentIndex) translationManager.SelectLine(recentIndex);
         }
     }

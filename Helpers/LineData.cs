@@ -9,7 +9,7 @@ public class LineData
     public bool IsTranslated;
     public bool IsApproved;
     public bool IsTemplate;
-    public string EnglishString;
+    public string TemplateString;
     public string TranslationString;
     public string[] Comments;
 
@@ -43,7 +43,7 @@ public class LineData
     public LineData(string id, string story, string filename, StringCategory category, string english, bool isTemplate)
     {
         ID = id;
-        EnglishString = english;
+        TemplateString = english;
         Story = story;
         FileName = filename;
         Category = category;
@@ -56,7 +56,7 @@ public class LineData
         Story = story;
         FileName = filename;
         Category = category;
-        EnglishString = english;
+        TemplateString = english;
         TranslationString = translation;
         IsTranslated = translation.Length > 1;
     }
@@ -68,7 +68,7 @@ public class LineData
         FileName = filename;
         Category = category;
         IsApproved = isApproved;
-        EnglishString = english;
+        TemplateString = english;
         TranslationString = translation;
         IsTranslated = translation.Length > 1;
     }
@@ -88,7 +88,7 @@ public class LineData
         Story = story;
         FileName = filename;
         Category = category;
-        EnglishString = english;
+        TemplateString = english;
         TranslationString = translation;
         IsTranslated = isTranslated;
         IsApproved = isApproved;
@@ -136,7 +136,7 @@ public class LineData
         }
         else
         {
-            value = ID + "|" + EnglishString;
+            value = ID + "|" + TemplateString;
         }
         return value;
     }

@@ -69,22 +69,22 @@ namespace HousePartyTranslator
 
         public void ApprovedBox_CheckedChanged(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.ApprovedButtonHandler(TabManager.ActiveProperties);
+            TabManager.ActiveTranslationManager.ApprovedButtonHandler();
         }
 
         public void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            TabManager.ActiveTranslationManager.ApproveIfPossible(TabManager.ActiveProperties, false);
+            TabManager.ActiveTranslationManager.ApproveIfPossible(false);
         }
 
         public void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.PopulateTextBoxes(TabManager.ActiveProperties);
+            TabManager.ActiveTranslationManager.PopulateTextBoxes();
         }
 
         public void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.UpdateTranslationString(TabManager.ActiveProperties);
+            TabManager.ActiveTranslationManager.UpdateTranslationString();
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace HousePartyTranslator
         /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (TabManager.ActiveTranslationManager.MainFormKeyPressHandler(ref msg, keyData, TabManager.ActiveProperties))
+            if (TabManager.ActiveTranslationManager.MainFormKeyPressHandler(ref msg, keyData))
             {
                 return true;
             }
@@ -138,7 +138,7 @@ namespace HousePartyTranslator
             RecentsManager.SaveRecents();
 
             //show save unsaved changes dialog
-            if (TabManager.ActiveTranslationManager != null) TabManager.ActiveTranslationManager.ShowAutoSaveDialog(TabManager.ActiveProperties);
+            if (TabManager.ActiveTranslationManager != null) TabManager.ActiveTranslationManager.ShowAutoSaveDialog();
         }
 
         private void FensterUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
@@ -160,7 +160,7 @@ namespace HousePartyTranslator
 
             //get translationmanager back
             TranslationManager translationManager = TabManager.Initialize(tabPage1);
-            translationManager.SetLanguage(TabManager.ActiveProperties);
+            translationManager.SetLanguage();
             translationManager.SetMainForm(this);
 
             //Settings have to be loaded before the Database can be connected with
@@ -180,14 +180,14 @@ namespace HousePartyTranslator
 
         private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.SetLanguage(TabManager.ActiveProperties);
+            TabManager.ActiveTranslationManager.SetLanguage();
         }
 
         private void MainTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             TabManager.OnSwitchTabs();
             //update tabs
-            if(TabManager.ActiveTranslationManager != null)PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+            if (TabManager.ActiveTranslationManager != null) PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object sender, EventArgs e)
@@ -202,8 +202,8 @@ namespace HousePartyTranslator
         {
             //get currently active translationmanager
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram(TabManager.ActiveProperties);
-            translationManager.SetLanguage(TabManager.ActiveProperties);
+            translationManager.LoadFileIntoProgram();
+            translationManager.SetLanguage();
             //update tab name
             if (translationManager.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = translationManager.FileName;
 
@@ -213,29 +213,29 @@ namespace HousePartyTranslator
 
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.SaveFileAs(TabManager.ActiveProperties);
+            TabManager.ActiveTranslationManager.SaveFileAs();
         }
 
         private void SaveCommentsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.SaveCurrentComment(TabManager.ActiveProperties);
+            TabManager.ActiveTranslationManager.SaveCurrentComment();
         }
 
         private void SaveCurrentStringToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.SaveCurrentString(TabManager.ActiveProperties);
+            TabManager.ActiveTranslationManager.SaveCurrentString();
         }
 
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.SaveFile(TabManager.ActiveProperties);
+            TabManager.ActiveTranslationManager.SaveFile();
         }
 
         private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
             if (!TabManager.SearchAll())
             {
-                TabManager.ActiveTranslationManager.Search(TabManager.ActiveProperties);
+                TabManager.ActiveTranslationManager.Search();
             }
         }
 
@@ -267,7 +267,52 @@ namespace HousePartyTranslator
 
         private void TranslateThis_Click(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex, TabManager.ActiveProperties);
+            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex);
+        }
+
+        private void CopyIdContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyId();
+        }
+
+        private void CopyAllContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyAll();
+        }
+
+        private void CopyFileNameContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyFileName();
+        }
+
+        private void CopyStoryNameContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyStoryName();
+        }
+
+        private void CopyAsOutputContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyAsOutput();
+        }
+
+        private void CopyTranslationContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyTranslation();
+        }
+
+        private void CopyTemplateContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyTemplate();
+        }
+
+        private void OpeningContextMenu(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = TabManager.ActiveProperties.CheckListBoxLeft.IndexFromPoint(e.Location);
+                if (TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex <= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = 0;
+                ListContextMenu.Show();
+            }
         }
     }
 }
