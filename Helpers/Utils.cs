@@ -115,41 +115,11 @@ namespace HousePartyTranslator.Helpers
         /// <returns>true if successful</returns>
         public static bool DeleteCharactersInTextLeft(TextBox textBox)
         {
-            bool success = false;
-            for (int i = textBox.SelectionStart - 1; i > 0; i--)
-            {
-                if (!success)
-                {
-                    switch (textBox.Text.Substring(i, 1))
-                    {    //set up any stopping points you want
-                        case " ":
-                        case ";":
-                        case ",":
-                        case ".":
-                        case "-":
-                        case "'":
-                        case "/":
-                        case "\\":
-                            textBox.Text = textBox.Text.Remove(i, textBox.SelectionStart - i);
-                            textBox.SelectionStart = i;
-                            success = true;
-                            break;
-                        case "\n":
-                            textBox.Text = textBox.Text.Remove(i - 1, textBox.SelectionStart - i);
-                            textBox.SelectionStart = i;
-                            success = true;
-                            break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            if (!success && textBox.SelectionStart > 0)
-            {
-                textBox.Text = textBox.Text.Remove(0, textBox.SelectionStart);
-            }
+            int oldPos = textBox.SelectionStart;
+            MoveCursorWordLeft(textBox);
+            int newPos = textBox.SelectionStart;
+            if (oldPos - newPos > 0) textBox.Text = textBox.Text.Remove(newPos, oldPos - newPos);
+            textBox.SelectionStart = newPos;
             //to stop winforms adding the weird backspace character to the text
             return true;
         }
@@ -161,46 +131,12 @@ namespace HousePartyTranslator.Helpers
         /// <returns>true if successful</returns>
         public static bool DeleteCharactersInTextRight(TextBox textBox)
         {
-            bool success = false;
-            int sel = textBox.SelectionStart;
-            for (int i = textBox.SelectionStart; i < textBox.TextLength - 1; i++)
-            {
-                if (!success)
-                {
-                    switch (textBox.Text[i].ToString())
-                    {    //set up any stopping points you want
-                        case " ":
-                        case ";":
-                        case ",":
-                        case ".":
-                        case "-":
-                        case "_":
-                        case "'":
-                        case "/":
-                        case "\\":
-                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart + 1);
-                            textBox.SelectionStart = sel;
-                            success = true;
-                            break;
-                        case "\n":
-                            textBox.Text = textBox.Text.Remove(textBox.SelectionStart, i - textBox.SelectionStart + 1);
-                            textBox.SelectionStart = sel;
-                            success = true;
-                            break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            if (!success && textBox.SelectionStart < textBox.Text.Length - 1)
-            {
-                textBox.Text = textBox.Text.Remove(textBox.SelectionStart, textBox.Text.Length - textBox.SelectionStart);
-                textBox.SelectionStart = sel;
-                success = true;
-            }
-            return success;
+            int oldPos = textBox.SelectionStart;
+            MoveCursorWordRight(textBox);
+            int newPos = textBox.SelectionStart;
+            if (newPos - oldPos > 0) textBox.Text = textBox.Text.Remove(oldPos, newPos - oldPos);
+            textBox.SelectionStart = oldPos;
+            return true;
         }
 
         /// <summary>
