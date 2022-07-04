@@ -27,7 +27,7 @@ List of all hotkeys so far
 |CTRL + ENTER|save line and select the one below||
 |CTRL + SHIFT + ENTER|save the line, set it as approved and move one down||
 |CTRL + E|opens the AutoStoryExplorer||
-|CTRL + X|opens the StoryExplorer where you can select the file yourself||
+|CTRL + T|opens the StoryExplorer where you can select the file yourself||
 |CTRL + P|opens the settings menu||
 |ENTER|when performing a search, enter will cycle through the search results|use a '?' at the beginning of your search to perform it in all tabs, this will also then cycle through tabs|
 
