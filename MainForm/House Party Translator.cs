@@ -274,26 +274,32 @@ namespace HousePartyTranslator
         {
             TabManager.CopyId();
         }
+
         private void CopyAllContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyAll();
         }
+
         private void CopyFileNameContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyFileName();
         }
+
         private void CopyStoryNameContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyStoryName();
         }
+
         private void CopyAsOutputContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyAsOutput();
         }
+
         private void CopyTranslationContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyTranslation();
         }
+
         private void CopyTemplateContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyTemplate();

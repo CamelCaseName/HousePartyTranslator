@@ -237,8 +237,8 @@ namespace HousePartyTranslator.Managers
         public static void CopyAll()
         {
             Clipboard.SetText(
-                ActiveTranslationManager.StoryName + 
-                "/" + ActiveTranslationManager.FileName + 
+                ActiveTranslationManager.StoryName +
+                "/" + ActiveTranslationManager.FileName +
                 " : " +
                 ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).ToString());
         }
@@ -255,7 +255,8 @@ namespace HousePartyTranslator.Managers
 
         public static void CopyTemplate()
         {
-            Clipboard.SetText(ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).TemplateString);
+            DataBaseManager.GetStringTemplate(ActiveTranslationManager.SelectedId, ActiveTranslationManager.FileName, ActiveTranslationManager.StoryName, out string templateString);
+            Clipboard.SetText(templateString);
         }
 
         private static PropertyHelper CreateActivePropertyHelper()
