@@ -219,21 +219,33 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// Copies the Id of the selected, or most recently selected line into the clipboard
+        /// </summary>
         public static void CopyId()
         {
             Clipboard.SetText(ActiveTranslationManager.SelectedId);
         }
 
+        /// <summary>
+        /// Copies the filename of the selected, or most recently selected line into the clipboard
+        /// </summary>
         public static void CopyFileName()
         {
             Clipboard.SetText(ActiveTranslationManager.FileName);
         }
 
+        /// <summary>
+        /// Copies the name of the story containing the selected, or most recently selected line into the clipboard
+        /// </summary>
         public static void CopyStoryName()
         {
             Clipboard.SetText(ActiveTranslationManager.StoryName);
         }
 
+        /// <summary>
+        /// Copies the all info on the selected, or most recently selected line into the clipboard
+        /// </summary>
         public static void CopyAll()
         {
             Clipboard.SetText(
@@ -243,16 +255,25 @@ namespace HousePartyTranslator.Managers
                 ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).ToString());
         }
 
+        /// <summary>
+        /// Copies the data as it will be shown in the output files of the selected, or most recently selected line into the clipboard
+        /// </summary>
         public static void CopyAsOutput()
         {
             Clipboard.SetText(ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).ToString());
         }
 
+        /// <summary>
+        /// Copies the translation of the selected, or most recently selected line into the clipboard
+        /// </summary>
         public static void CopyTranslation()
         {
             Clipboard.SetText(ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).TranslationString);
         }
 
+        /// <summary>
+        /// Copies the template of the selected, or most recently selected line into the clipboard
+        /// </summary>
         public static void CopyTemplate()
         {
             DataBaseManager.GetStringTemplate(ActiveTranslationManager.SelectedId, ActiveTranslationManager.FileName, ActiveTranslationManager.StoryName, out string templateString);

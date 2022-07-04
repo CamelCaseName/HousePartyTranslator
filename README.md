@@ -22,14 +22,14 @@ List of all hotkeys so far
 |CTRL + R|reloads the current file in the current tab|can be used to get rid of miscoloured lines|
 |CTRL + UP|select the line above||
 |CTRL + DOWN|select the line below||
-|CTRL + LEFT|cylcle tabs to the left||
-|CTRL + RIGHT|cycle tabs to the right||
 |CTRL + ENTER|save line and select the one below||
 |CTRL + SHIFT + ENTER|save the line, set it as approved and move one down||
 |CTRL + E|opens the AutoStoryExplorer||
 |CTRL + T|opens the StoryExplorer where you can select the file yourself||
 |CTRL + P|opens the settings menu||
 |ENTER|when performing a search, enter will cycle through the search results|use a '?' at the beginning of your search to perform it in all tabs, this will also then cycle through tabs|
+|ALT + LEFT|cylcle tabs to the left||
+|ALT + RIGHT|cycle tabs to the right||
 
 ## Settings
 Some explanation for the settings and what they do

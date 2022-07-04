@@ -207,7 +207,6 @@ namespace HousePartyTranslator.Managers
         /// Depending on the cursor location the line is approved or not (on checkbox or not).
         /// </summary>
         /// <param name="FensterRef">The window of type fenster</param>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void ApprovedButtonHandler()
         {
             //change checked state for the selected item,
@@ -224,7 +223,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Approves the string in the db, if possible. Also updates UI.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         /// <param name="SelectNewAfter">A bool to determine if a new string should be selected after approval.</param>
         public void ApproveIfPossible(bool SelectNewAfter)
         {
@@ -284,9 +282,39 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
+        /// Moves the cursor to the beginning/end of the next word in the specified direction
+        /// </summary>
+        /// <param name="toLeft">true if to scan to the left</param>
+        /// <returns>true if succeeded</returns>
+        public bool MoveCursorInText(bool toLeft)
+        {
+            if (MainWindow.ContainsFocus)
+            {
+                Control focused_control = MainWindow.ActiveControl;
+                try
+                {
+                    TextBox _ = (TextBox)focused_control;
+                }
+                //ignore exception, really intended
+                catch { return false; }
+                TextBox textBox = (TextBox)focused_control;
+                if (toLeft)
+                {
+                    Utils.MoveCursorWordLeft(textBox);
+                    return true;
+                }
+                else
+                {
+                    Utils.MoveCursorWordRight(textBox);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void LoadFileIntoProgram()
         {
             LoadFileIntoProgram(SelectFileFromSystem());
@@ -295,7 +323,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
+
         /// <param name="path">The path to the file to translate</param>
         public void LoadFileIntoProgram(string path)
         {
@@ -347,7 +375,6 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="msg">Windows message contaning the info on the event.</param>
         /// <param name="keyData">Keydata containing all currently pressed keys.</param>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         /// <returns></returns>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
@@ -401,12 +428,12 @@ namespace HousePartyTranslator.Managers
                     return true;
 
                 //switch tab to the left
-                case (Keys.Control | Keys.Left):
+                case (Keys.Alt | Keys.Left):
                     if (TabManager.TabControl.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex - 1);
                     return true;
 
                 //switch tab to the right
-                case (Keys.Control | Keys.Right):
+                case (Keys.Alt | Keys.Right):
                     if (TabManager.TabControl.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex + 1);
                     return true;
 
@@ -430,6 +457,14 @@ namespace HousePartyTranslator.Managers
                 case (Keys.Control | Keys.Back):
                     return DeleteCharactersInText(true);
 
+                //move cursor to the left, clinging to words
+                case (Keys.Control | Keys.Left):
+                    return MoveCursorInText(true);
+
+                //move cursor to the right, clinging to words
+                case (Keys.Control | Keys.Right):
+                    return MoveCursorInText(false);
+
                 default:
                     return false;
             }
@@ -438,7 +473,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Populates the Editor/Template text boxes and does some basic set/reset logic.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void PopulateTextBoxes()
         {
             MainWindow.Cursor = Cursors.WaitCursor;
@@ -548,7 +582,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Replaces a searched string in all applicable lines by the replacement provided using the invariant culture.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         /// <param name="replacement">The string to replace all search matches with</param>
         public void Replace(string replacement)
         {
@@ -570,7 +603,6 @@ namespace HousePartyTranslator.Managers
         /// eplaces the template version of the string with a computer translated one to speed up translation.
         /// </summary>
         /// <param name="currentIndex">The selected index of the string not yet translated</param>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public async void ReplaceTranslationTranslatedTask(int currentIndex)
         {
             if (Properties.Settings.Default.autoTranslate)
@@ -607,7 +639,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Saves the current comment to the db
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void SaveCurrentComment()
         {
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
@@ -633,7 +664,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Saves the current string to the db
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void SaveCurrentString()
         {
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
@@ -661,7 +691,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Saves all strings to the file we read from.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void SaveFile()
         {
             if (SourceFilePath != "" && Language != "")
@@ -814,7 +843,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Saves all strings to a specified file location.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void SaveFileAs()
         {
             if (SourceFilePath != "")
@@ -857,7 +885,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Performs a search through all lines currently loaded.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void Search()
         {
             SearchQuery = helper.SearchBox.Text;
@@ -867,7 +894,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Performs a search through all lines currently loaded.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         /// <param name="query">The search temr to look for</param>
         public void Search(string query)
         {
@@ -920,7 +946,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Sets the language the translation is associated with
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void SetLanguage()
         {
             if (helper.LanguageBox.SelectedIndex >= 0)
@@ -950,7 +975,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void ShowAutoSaveDialog()
         {
             if (Properties.Settings.Default.askForSaveDialog && ChangesPending)
@@ -968,7 +992,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Update the currently selected translation string in the TranslationData.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         public void UpdateTranslationString()
         {
             int internalIndex = helper.CheckListBoxLeft.SelectedIndex;
@@ -1226,7 +1249,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Prepares the values for reading of the strings, and calls the methods necessary after successfully loading a file.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void LoadTranslationFile()
         {
             if (SourceFilePath != "")
@@ -1279,7 +1301,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void LoadTranslations()
         {
             MainWindow.Cursor = Cursors.WaitCursor;
@@ -1479,7 +1500,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Reloads the file into the program as if it were selected.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void ReloadFile()
         {
             ResetTranslationManager();
@@ -1490,7 +1510,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Resets the translation manager.
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void ResetTranslationManager()
         {
             TranslationData.Clear();
@@ -1504,8 +1523,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Selects the next search result if applicable
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
-        /// <returns></returns>
+        /// <returns>True if a new result could be selected</returns>
         private bool SelectNextResultIfApplicable()
         {
             if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused && helper.CheckListBoxLeft.SearchResults.Any())
@@ -1574,7 +1592,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Does some logic to figure out wether to show or hide the replacing ui
         /// </summary>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void ToggleReplaceUI()
         {
             if (!helper.ReplaceBox.Visible)
@@ -1603,7 +1620,6 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="Approved">The number of approved strings.</param>
         /// <param name="Total">The total number of strings.</param>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void UpdateApprovedCountLabel(int Approved, int Total)
         {
             float percentage = Approved / (float)Total;
@@ -1625,14 +1641,13 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="TemplateCount">The number of chars in the template string.</param>
         /// <param name="TranslationCount">The number of chars in the translated string.</param>
-        /// <param name="helper">A reference to an instance of the helper class which exposes all necesseray UI elements</param>
         private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount)
         {
-            if (TemplateCount >= TranslationCount)
+            if (TranslationCount <= TemplateCount)
             {
                 helper.CharacterCountLabel.ForeColor = Color.LawnGreen;
             }//if bigger by no more than 20 percent
-            else if ((TranslationCount - TemplateCount) < (TemplateCount / 30))
+            else if (TranslationCount <= TemplateCount * 1.2f)
             {
                 helper.CharacterCountLabel.ForeColor = Color.DarkOrange;
             }
