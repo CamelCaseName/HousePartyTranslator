@@ -210,9 +210,10 @@ namespace HousePartyTranslator.Helpers
         public static void MoveCursorWordLeft(TextBox textBox)
         {
             bool broken = false;
-            for (int i = textBox.SelectionStart - 1; i >= 0; i--)
+            int oldPos = textBox.SelectionStart;
+            for (int i = textBox.SelectionStart; i > 0; i--)
             {
-                switch (textBox.Text.Substring(i, 1))
+                switch (textBox.Text.Substring(i - 1, 1))
                 {    //set up any stopping points you want
                     case " ":
                     case ";":
@@ -223,13 +224,13 @@ namespace HousePartyTranslator.Helpers
                     case "/":
                     case "\\":
                     case "\n":
-                        textBox.SelectionStart = i + 1;
+                        textBox.SelectionStart = i;
                         broken = true;
                         break;
                 }
                 if (broken) break;
             }
-            if (textBox.SelectionStart > 0) textBox.SelectionStart--;
+            if (oldPos - textBox.SelectionStart < 1 && textBox.SelectionStart > 0) textBox.SelectionStart--;
             if (!broken) textBox.SelectionStart = 0;
         }
 
@@ -240,7 +241,8 @@ namespace HousePartyTranslator.Helpers
         public static void MoveCursorWordRight(TextBox textBox)
         {
             bool broken = false;
-            for (int i = textBox.SelectionStart; i <= textBox.TextLength - 1; i++)
+            int oldPos = textBox.SelectionStart;
+            for (int i = textBox.SelectionStart; i < textBox.TextLength; i++)
             {
                 switch (textBox.Text[i].ToString())
                 {    //set up any stopping points you want
@@ -260,7 +262,7 @@ namespace HousePartyTranslator.Helpers
                 }
                 if (broken) break;
             }
-            if (textBox.SelectionStart > 0) textBox.SelectionStart++;
+            if (textBox.SelectionStart - oldPos < 1 && textBox.SelectionStart < textBox.Text.Length) textBox.SelectionStart++;
             if (!broken) textBox.SelectionStart = textBox.Text.Length;
         }
 
