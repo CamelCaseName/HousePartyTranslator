@@ -214,6 +214,23 @@ namespace HousePartyTranslator.Helpers
         }
 
         /// <summary>
+        /// cuts a string to a maximum length and adds a delimiter
+        /// </summary>
+        /// <param name="toTrim">the string to cut</param>
+        /// <param name="delimiter">the delimiter to add afterwards</param>
+        /// <param name="maxLength">the length of the resulting string including the delimiter</param>
+        /// <returns></returns>
+        public static string TrimWithDelim(string toTrim, string delimiter = "...", int maxLength = 18)
+        {
+            int length = toTrim.Length, delimLength = delimiter.Length;
+            if (length > maxLength - delimLength)
+            {
+                length = maxLength - delimLength;
+            }
+            return toTrim.Length > length ? toTrim.Substring(0, length).Trim() + delimiter : toTrim;
+        }
+
+        /// <summary>
         /// Creates a new tab with all default controls
         /// </summary>
         /// <param name="number">the number of the tab starting at 1, is only used for name and text</param>

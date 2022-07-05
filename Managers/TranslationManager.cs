@@ -26,7 +26,7 @@ namespace HousePartyTranslator.Managers
         public int SelectedSearchResult = 0;
 
         //setting?
-        public List<LineData> TranslationData = new List<LineData>();
+        public readonly List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
         private static int ExceptionCount = 0;
@@ -38,7 +38,7 @@ namespace HousePartyTranslator.Managers
         private int searchTabIndex = 0;
         private string sourceFilePath = "";
         private string storyName = "";
-        private PropertyHelper helper;
+        private readonly PropertyHelper helper;
 
         /// <summary>
         /// The Constructor for this class. Takes no arguments.
@@ -63,6 +63,9 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        /// <summary>
+        /// Provides the id of the currently selected line
+        /// </summary>
         public string SelectedId { get { return helper.CheckListBoxLeft.SelectedItem.ToString(); } }
 
         /// <summary>
@@ -365,8 +368,6 @@ namespace HousePartyTranslator.Managers
             RecentsManager.SetMostRecent(SourceFilePath);
             RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
 
-
-
             MainWindow.Cursor = Cursors.Default;
         }
 
@@ -529,32 +530,37 @@ namespace HousePartyTranslator.Managers
                         TranslationData[currentIndex].TranslationString = translation;
                     }
 
-
                     //display the string in the editable window
                     helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine);
 
-                    if (DataBaseManager.GetStringTemplate(id, FileName, StoryName, out string templateString))
+                    string templateString;
+                    //if we have no template here
+                    if (TranslationData[currentIndex].TemplateString.Length == 0)
                     {
                         //read the template form the db and display it if it exists
-                        helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
+                        DataBaseManager.GetStringTemplate(id, FileName, StoryName, out templateString);
+                    }
+                    else
+                    {
+                        templateString = TranslationData[currentIndex].TemplateString;
+                    }
 
-                        //translate if useful and possible
-                        if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
-                        {
-                            ReplaceTranslationTranslatedTask(currentIndex);
-                        }
+                    helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
 
-                        //mark text if similar to english (not translated yet)
-                        //  sql makes this easy, can just write all commands to a file that have not been sent, then send all on connection resume.
-                        if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
-                        {
-                            helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
-                            //TranslationData[currentIndex].IsTranslated = false;
-                        }
-                        else
-                        {
-                            if (helper.CheckListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) helper.CheckListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
-                        }
+                    //translate if useful and possible
+                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
+                    {
+                        ReplaceTranslationTranslatedTask(currentIndex);
+                    }
+
+                    //mark text if similar to english (not translated yet)
+                    if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
+                    {
+                        helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
+                    }
+                    else
+                    {
+                        if (helper.CheckListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) helper.CheckListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
                     }
 
                     if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
@@ -1277,19 +1283,8 @@ namespace HousePartyTranslator.Managers
                 //actually load all strings into the program
                 ReadInStringsFromFile();
 
-                //update UI (cut folder name short if it is too long)
-                int lengthOfFileName = FileName.Length, lengthOfStoryName = StoryName.Length;
-                if (FileName.Length > 15)
-                {
-                    lengthOfFileName = 15;
-                }
-                if (StoryName.Length > 15)
-                {
-                    lengthOfStoryName = 15;
-                }
-
-                string storyNameToDisplay = StoryName.Length > lengthOfStoryName ? StoryName.Substring(0, lengthOfStoryName).Trim() + "..." : StoryName;
-                string fileNameToDisplay = FileName.Length > lengthOfFileName ? FileName.Substring(0, lengthOfFileName).Trim() + "..." : FileName;
+                string storyNameToDisplay = Utils.TrimWithDelim(StoryName);
+                string fileNameToDisplay = Utils.TrimWithDelim(FileName);
                 helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
 
                 //is up to date, so we can start translation
@@ -1427,7 +1422,7 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector));
+                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, IdsToExport.Find(p => p.ID == lastLine[0]).TemplateString, lastLine[1] + multiLineCollector));
 
                     //get current line
                     lastLine = line.Split('|');
@@ -1456,6 +1451,7 @@ namespace HousePartyTranslator.Managers
                                       StoryName,
                                       FileName,
                                       currentCategory,
+                                      IdsToExport.Find(p => p.ID == lastLine[0]).TemplateString,
                                       lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
                             }
                             else
@@ -1466,6 +1462,7 @@ namespace HousePartyTranslator.Managers
                                       StoryName,
                                       FileName,
                                       currentCategory,
+                                      IdsToExport.Find(p => p.ID == lastLine[0]).TemplateString,
                                       lastLine[1]));
                             }
                         }
