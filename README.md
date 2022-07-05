@@ -18,7 +18,7 @@ List of all hotkeys so far
 |CTRL + SHIFT + O|select a file to be opened in a new tab||
 |CTRL + S|saves the file to disk|file will also be saved to the game, use setting "alsoCopyToGame" to control|
 |CTRL + SHIFT + S|saves the currently selected line||
-|CTRL + F|moves the cursor to the search box|use a '?' at the beginning of your search to perform it in all tabs|
+|CTRL + F|moves the cursor to the search box|use a '?' at the beginning of your search to perform it in all tabs. use a '!' to enable case sensitive search. you can combine them also like so '?!search' for a case sensitive multitab search. use a '\\' in front of the ? or ! to treat it as a literal. somewhat combineable.|
 |CTRL + R|reloads the current file in the current tab|can be used to get rid of miscoloured lines|
 |CTRL + UP|select the line above||
 |CTRL + DOWN|select the line below||

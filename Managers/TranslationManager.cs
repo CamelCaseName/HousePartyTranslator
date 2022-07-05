@@ -904,19 +904,43 @@ namespace HousePartyTranslator.Managers
         public void Search(string query)
         {
             //reset list if no search is performed
-            if (query.Length != 0)
+            if (query.Length > 0)
             {
                 //clear results
                 helper.CheckListBoxLeft.SearchResults.Clear();
-                //methodolgy: highlight items which fulfill search and show count
-                for (int i = 0; i < TranslationData.Count; i++)
+
+                //decide on case sensitivity
+                if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
                 {
-                    if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
-                        || (TranslationData[i].TemplateString != null
-                        && TranslationData[i].TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
-                        || TranslationData[i].ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
+                    query = query.Substring(1);
+                    //methodolgy: highlight items which fulfill search and show count
+                    for (int i = 0; i < TranslationData.Count; i++)
                     {
-                        helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
+                        if (TranslationData[i].TranslationString.Contains(query) /*if the translated text contaisn the search string*/
+                            || (TranslationData[i].TemplateString != null
+                            && TranslationData[i].TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
+                            || TranslationData[i].ID.Contains(query))/*if the id contains the searched part*/
+                        {
+                            helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
+                        }
+                    }
+                }
+                else if(query[0] != '!')
+                {
+                    if (query[0] == '\\') // we have an escaped flag following, so we chop of escaper and continue
+                    {
+                        query = query.Substring(1);
+                    }
+                    //methodolgy: highlight items which fulfill search and show count
+                    for (int i = 0; i < TranslationData.Count; i++)
+                    {
+                        if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
+                            || (TranslationData[i].TemplateString != null
+                            && TranslationData[i].TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
+                            || TranslationData[i].ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
+                        {
+                            helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
+                        }
                     }
                 }
             }

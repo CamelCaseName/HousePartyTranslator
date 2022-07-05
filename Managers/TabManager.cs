@@ -195,15 +195,14 @@ namespace HousePartyTranslator.Managers
         /// Call to determine if all tabs should be searched or only the selected one
         /// </summary>
         /// <returns>True if we want to search all, performs the search also. False when single tab search is intended.</returns>
-        public static bool SearchAll()
+        private static bool SearchAll()
         {
-            //global search has to start with the ?
             if (ActiveProperties.SearchBox.TextLength > 0)
             {
+                //global search has to start with the ?
                 if (ActiveProperties.SearchBox.Text[0] == '?')
                 {
                     InGlobalSearch = true;
-                    ActiveTranslationManager.Search(ActiveProperties.SearchBox.Text.Substring(1));
                     return true;
                 }
                 else
@@ -212,10 +211,22 @@ namespace HousePartyTranslator.Managers
                     return false;
                 }
             }
+            InGlobalSearch = false;
+            return false;
+        }
+
+        /// <summary>
+        /// Call to search tab(s)
+        /// </summary>
+        public static void Search()
+        {
+            if (!SearchAll())
+            {
+                ActiveTranslationManager.Search();
+            }
             else
             {
-                InGlobalSearch = false;
-                return false;
+                ActiveTranslationManager.Search(ActiveProperties.SearchBox.Text.Substring(1));
             }
         }
 
