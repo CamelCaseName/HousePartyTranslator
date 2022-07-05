@@ -535,10 +535,11 @@ namespace HousePartyTranslator.Managers
 
                     string templateString;
                     //if we have no template here
-                    if (TranslationData[currentIndex].TemplateString.Length == 0)
+                    if (TranslationData[currentIndex].TemplateString?.Length == 0 || TranslationData[currentIndex].TemplateString?.Length == null)
                     {
                         //read the template form the db and display it if it exists
                         DataBaseManager.GetStringTemplate(id, FileName, StoryName, out templateString);
+                        TranslationData[currentIndex].TemplateString = templateString;
                     }
                     else
                     {
