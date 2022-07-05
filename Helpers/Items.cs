@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+#pragma warning disable 1591
 public class Criterion : ICriterion
 {
     public string BoolValue { get; set; }
@@ -570,3 +570,5 @@ public class CharacterStory
     public List<object> CharacterItemGroupInteractions { get; set; }
     public List<string> StoryValues { get; set; }
 }
+
+#pragma warning restore

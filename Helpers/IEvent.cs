@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+#pragma warning disable 1591
 public interface IEvent
 {
     string Character { get; set; }
@@ -23,3 +24,5 @@ public interface IEvent
     string Value2 { get; set; }
     string Version { get; set; }
 }
+
+#pragma warning restore

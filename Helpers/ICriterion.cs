@@ -1,4 +1,6 @@
-﻿public interface ICriterion
+﻿#pragma warning disable 1591
+
+public interface ICriterion
 {
     string BoolValue { get; set; }
     string Character { get; set; }
@@ -21,3 +23,5 @@
     string Value { get; set; }
     string ValueFormula { get; set; }
 }
+
+#pragma warning restore

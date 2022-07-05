@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace HousePartyTranslator.Helpers
 {
+#pragma warning disable 1591 
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     public class Author
     {
@@ -221,5 +222,5 @@ namespace HousePartyTranslator.Helpers
         public int MentionsCount { get; set; }
     }
 
-
+#pragma warning restore
 }

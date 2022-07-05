@@ -233,10 +233,7 @@ namespace HousePartyTranslator
 
         private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
-            if (!TabManager.SearchAll())
-            {
-                TabManager.ActiveTranslationManager.Search();
-            }
+            TabManager.Search();
         }
 
         private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
