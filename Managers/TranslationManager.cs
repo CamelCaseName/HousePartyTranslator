@@ -727,7 +727,7 @@ namespace HousePartyTranslator.Managers
 
                 foreach (LineData item in IdsToExport)
                 {
-                    LineData lineDataResult = TranslationData.Find(predicateLine => predicateLine.ID == item.ID);
+                    LineData lineDataResult = TranslationsFromDatabase.Find(predicateLine => predicateLine.ID == item.ID);
                     if (lineDataResult != null)
                     {
                         //add translation to the list in the correct category if present
@@ -737,7 +737,7 @@ namespace HousePartyTranslator.Managers
                     else// if id is not found
                     {
                         //add template to list if no translation is in the file
-                        LineData TempResult = TranslationsFromDatabase.Find(pL => pL.ID == item.ID);
+                        LineData TempResult = TranslationData.Find(pL => pL.ID == item.ID);
 
                         if (TempResult == null)
                         {
@@ -1447,8 +1447,10 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, IdsToExport.Find(p => p.ID == lastLine[0]).TemplateString, lastLine[1] + multiLineCollector));
-
+                    if (lastLine.Length != 0)
+                    {
+                        TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString, lastLine[1] + multiLineCollector));
+                    }
                     //get current line
                     lastLine = line.Split('|');
 
