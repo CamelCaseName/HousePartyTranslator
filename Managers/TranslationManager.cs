@@ -549,7 +549,7 @@ namespace HousePartyTranslator.Managers
                     helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
 
                     //translate if useful and possible
-                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
+                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved && helper.TemplateTextBox.Text.Length > 0)
                     {
                         ReplaceTranslationTranslatedTask(currentIndex);
                     }
