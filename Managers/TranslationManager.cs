@@ -1537,6 +1537,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         private void ResetTranslationManager()
         {
+            Properties.Settings.Default.recent_index = helper.CheckListBoxLeft.SelectedIndex;
             TranslationData.Clear();
             helper.CheckListBoxLeft.Items.Clear();
             CategoriesInFile.Clear();
