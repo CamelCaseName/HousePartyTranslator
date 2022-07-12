@@ -326,7 +326,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
-
         /// <param name="path">The path to the file to translate</param>
         public void LoadFileIntoProgram(string path)
         {
@@ -1529,6 +1528,8 @@ namespace HousePartyTranslator.Managers
             ResetTranslationManager();
             ReadStringsTranslationsFromFile();
             LoadTranslations();
+            //select recent index
+            if (Properties.Settings.Default.recent_index > 0 && Properties.Settings.Default.recent_index < TranslationData.Count) helper.CheckListBoxLeft.SelectedIndex = Properties.Settings.Default.recent_index;
         }
 
         /// <summary>
