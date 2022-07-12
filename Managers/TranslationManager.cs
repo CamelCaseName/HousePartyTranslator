@@ -326,7 +326,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
-
         /// <param name="path">The path to the file to translate</param>
         public void LoadFileIntoProgram(string path)
         {
@@ -535,10 +534,11 @@ namespace HousePartyTranslator.Managers
 
                     string templateString;
                     //if we have no template here
-                    if (TranslationData[currentIndex].TemplateString.Length == 0)
+                    if (TranslationData[currentIndex].TemplateString?.Length == 0 || TranslationData[currentIndex].TemplateString?.Length == null)
                     {
                         //read the template form the db and display it if it exists
                         DataBaseManager.GetStringTemplate(id, FileName, StoryName, out templateString);
+                        TranslationData[currentIndex].TemplateString = templateString;
                     }
                     else
                     {
@@ -548,7 +548,7 @@ namespace HousePartyTranslator.Managers
                     helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
 
                     //translate if useful and possible
-                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
+                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved && helper.TemplateTextBox.Text.Length > 0)
                     {
                         ReplaceTranslationTranslatedTask(currentIndex);
                     }
@@ -615,17 +615,17 @@ namespace HousePartyTranslator.Managers
             {
                 try
                 {
-                    string _1 = "";
-                    _1 = await Translator.TranslateAsync(new Translate()
+                    string result = "";
+                    result = await Translator.TranslateAsync(new Translate()
                     {
                         ApiKey = "",
                         Source = LanguageCode.English,
                         Target = LanguageCode.FromString(Language),
-                        Text = TranslationData[currentIndex].TranslationString
+                        Text = TranslationData[currentIndex].TemplateString
                     });
-                    if (_1.Length > 0)
+                    if (result.Length > 0)
                     {
-                        TranslationData[currentIndex].TranslationString = _1;
+                        TranslationData[currentIndex].TranslationString = result;
                         if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
                         {
                             helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
@@ -726,7 +726,7 @@ namespace HousePartyTranslator.Managers
 
                 foreach (LineData item in IdsToExport)
                 {
-                    LineData lineDataResult = TranslationData.Find(predicateLine => predicateLine.ID == item.ID);
+                    LineData lineDataResult = TranslationsFromDatabase.Find(predicateLine => predicateLine.ID == item.ID);
                     if (lineDataResult != null)
                     {
                         //add translation to the list in the correct category if present
@@ -736,7 +736,7 @@ namespace HousePartyTranslator.Managers
                     else// if id is not found
                     {
                         //add template to list if no translation is in the file
-                        LineData TempResult = TranslationsFromDatabase.Find(pL => pL.ID == item.ID);
+                        LineData TempResult = TranslationData.Find(pL => pL.ID == item.ID);
 
                         if (TempResult == null)
                         {
@@ -1446,8 +1446,10 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, IdsToExport.Find(p => p.ID == lastLine[0]).TemplateString, lastLine[1] + multiLineCollector));
-
+                    if (lastLine.Length != 0)
+                    {
+                        TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString, lastLine[1] + multiLineCollector));
+                    }
                     //get current line
                     lastLine = line.Split('|');
 
@@ -1526,6 +1528,8 @@ namespace HousePartyTranslator.Managers
             ResetTranslationManager();
             ReadStringsTranslationsFromFile();
             LoadTranslations();
+            //select recent index
+            if (Properties.Settings.Default.recent_index > 0 && Properties.Settings.Default.recent_index < TranslationData.Count) helper.CheckListBoxLeft.SelectedIndex = Properties.Settings.Default.recent_index;
         }
 
         /// <summary>
@@ -1533,6 +1537,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         private void ResetTranslationManager()
         {
+            Properties.Settings.Default.recent_index = helper.CheckListBoxLeft.SelectedIndex;
             TranslationData.Clear();
             helper.CheckListBoxLeft.Items.Clear();
             CategoriesInFile.Clear();
