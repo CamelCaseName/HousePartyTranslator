@@ -616,17 +616,17 @@ namespace HousePartyTranslator.Managers
             {
                 try
                 {
-                    string _1 = "";
-                    _1 = await Translator.TranslateAsync(new Translate()
+                    string result = "";
+                    result = await Translator.TranslateAsync(new Translate()
                     {
                         ApiKey = "",
                         Source = LanguageCode.English,
                         Target = LanguageCode.FromString(Language),
-                        Text = TranslationData[currentIndex].TranslationString
+                        Text = TranslationData[currentIndex].TemplateString
                     });
-                    if (_1.Length > 0)
+                    if (result.Length > 0)
                     {
-                        TranslationData[currentIndex].TranslationString = _1;
+                        TranslationData[currentIndex].TranslationString = result;
                         if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
                         {
                             helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
