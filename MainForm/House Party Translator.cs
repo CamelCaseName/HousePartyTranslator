@@ -1,10 +1,6 @@
-﻿using HousePartyTranslator.Helpers;
-using HousePartyTranslator.Managers;
+﻿using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -211,6 +207,15 @@ namespace HousePartyTranslator
             PresenceManager.Update(translationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
+        private void OpenAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //opne the story in tabs
+            TabManager.OpenAllTabs();
+
+            //update presence and recents
+            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+        }
+
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TabManager.ActiveTranslationManager.SaveFileAs();
@@ -229,6 +234,11 @@ namespace HousePartyTranslator
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TabManager.ActiveTranslationManager.SaveFile();
+        }
+
+        private void SaveAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TabManager.SaveAllTabs();
         }
 
         private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
@@ -262,7 +272,7 @@ namespace HousePartyTranslator
             TabManager.Replace();
         }
 
-        private void TranslateThis_Click(object sender, EventArgs e)
+        public void TranslateThis_Click(object sender, EventArgs e)
         {
             TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex);
         }

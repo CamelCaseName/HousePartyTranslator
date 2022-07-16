@@ -474,5 +474,4 @@ namespace HousePartyTranslator.Helpers
             return newTab;
         }
     }
-
 }

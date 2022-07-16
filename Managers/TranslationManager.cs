@@ -181,15 +181,25 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Opens a select folder dialogue and returns the selected folder as a path.
+        /// Opens a select folder dialogue to find the template folder and returns the selected folder as a path.
         /// </summary>
         /// <returns>The folder path selected.</returns>
-        public static string SelectFolderFromSystem()
+        public static string SelectTemplateFolderFromSystem()
+        {
+            return SelectFolderFromSystem("Please select the 'TEMPLATE' folder like in the repo");
+        }
+
+        /// <summary>
+        /// Opens a select folder dialogue and returns the selected folder as a path.
+        /// </summary>
+        /// <param name="message">The description of the dialogue to display</param>
+        /// <returns>The folder path selected.</returns>
+        public static string SelectFolderFromSystem(string message)
         {
             string templatePath = Properties.Settings.Default.template_path;
             FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
             {
-                Description = "Please select the 'TEMPLATE' folder like in the repo",
+                Description = message,
                 SelectedPath = templatePath == "" ? Environment.SpecialFolder.UserProfile.ToString() : templatePath,
             };
 
@@ -220,6 +230,39 @@ namespace HousePartyTranslator.Managers
                 int Index = helper.CheckListBoxLeft.SelectedIndex;
                 //inverse checked state at the selected index
                 if (Index >= 0) helper.CheckListBoxLeft.SetItemChecked(Index, !helper.CheckListBoxLeft.GetItemChecked(Index));
+            }
+        }
+
+        /// <summary>
+        /// Gets the location of a single file, then tries to discover all others and load them.
+        /// </summary>
+        public static void LoadAllFilesIntoProgram()
+        {
+            string basePath = SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
+
+            foreach (string path in Directory.GetDirectories(basePath))
+            {
+                string[] folders = path.Split('\\');
+
+                //get parent folder name
+                string tempName = folders[folders.Length - 1];
+                //get language text representation
+                bool gotLanguage = LanguageHelper.Languages.TryGetValue(TabManager.ActiveTranslationManager.Language, out string languageAsText);
+                //compare
+                if (tempName == languageAsText && gotLanguage)
+                {
+                    //get foler one more up
+                    basePath = path;
+                    break;
+                }
+            }
+
+            foreach (string filePath in Directory.GetFiles(basePath))
+            {
+                if(Path.GetExtension(filePath) == ".txt")
+                {
+                    TabManager.OpenInNewTab(filePath);
+                }
             }
         }
 
@@ -339,7 +382,7 @@ namespace HousePartyTranslator.Managers
             }
             else
             {
-                string folderPath = SelectFolderFromSystem();
+                string folderPath = SelectTemplateFolderFromSystem();
                 string templateFolderName = folderPath.Split('\\')[folderPath.Split('\\').Length - 1];
                 if (templateFolderName == "TEMPLATE")
                 {
