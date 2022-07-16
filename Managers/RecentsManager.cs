@@ -126,7 +126,7 @@ namespace HousePartyTranslator.Managers
                 {
                     for (int i = 0; i < items.Length; i++)
                     {
-                        if (collection[3].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(3);
+                        if (collection[4].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(4);
                         else break;
                     }
                 }
@@ -134,14 +134,14 @@ namespace HousePartyTranslator.Managers
                 {
                     for (int i = 0; i < items.Length - 1; i++)
                     {
-                        if (collection[3].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(3);
+                        if (collection[4].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(4);
                         else break;
                     }
                 }
             }
             for (int i = 0; i < items.Length; i++)
             {
-                collection.Insert(3, items[items.Length - i - 1]);
+                collection.Insert(4, items[items.Length - i - 1]);
             }
             SaveRecents();
         }

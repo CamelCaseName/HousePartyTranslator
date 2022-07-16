@@ -257,6 +257,7 @@ namespace HousePartyTranslator.Helpers
             CheckBox ApprovedBox = new CheckBox();
             TableLayoutPanel mainTableLayoutPanel = new TableLayoutPanel();
             GroupBox CommentGroup = new GroupBox();
+            Button TranslateThis = new Button();
             Panel panel1 = new Panel();
             Panel panel2 = new Panel();
             ColouredCheckedListBox CheckListBoxLeft = new ColouredCheckedListBox();
@@ -285,6 +286,19 @@ namespace HousePartyTranslator.Helpers
             TranslatedTextBox.TabIndex = 0;
             TranslatedTextBox.Text = "edit here";
             TranslatedTextBox.TextChanged += new EventHandler(((Fenster)Form.ActiveForm).TextBoxRight_TextChanged);
+            // 
+            // TranslateThis
+            // 
+            TranslateThis.AutoSize = true;
+            TranslateThis.BackColor = System.Drawing.SystemColors.ScrollBar;
+            TranslateThis.ForeColor = System.Drawing.SystemColors.MenuText;
+            TranslateThis.Location = new System.Drawing.Point(80, 1);
+            TranslateThis.Name = "TranslateThis";
+            TranslateThis.Size = new System.Drawing.Size(60, 20);
+            TranslateThis.TabIndex = 13;
+            TranslateThis.Text = "Translate";
+            TranslateThis.UseVisualStyleBackColor = true;
+            TranslateThis.Click += new System.EventHandler(((Fenster)Form.ActiveForm).TranslateThis_Click);
             // 
             // EnglishTextBox
             // 
@@ -409,6 +423,7 @@ namespace HousePartyTranslator.Helpers
             // panel2
             // 
             panel2.Controls.Add(ApprovedBox);
+            panel2.Controls.Add(TranslateThis);
             panel2.Controls.Add(CharacterCountLabel);
             panel2.Dock = DockStyle.Fill;
             panel2.Location = new System.Drawing.Point(689, 3);
@@ -459,5 +474,4 @@ namespace HousePartyTranslator.Helpers
             return newTab;
         }
     }
-
 }

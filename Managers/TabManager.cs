@@ -1,5 +1,4 @@
 ﻿using HousePartyTranslator.Helpers;
-using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -103,6 +102,15 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void OpenNewTab()
         {
+            OpenInNewTab(TranslationManager.SelectFileFromSystem());
+        }
+
+        /// <summary>
+        /// Opens the given file in a new tab.
+        /// </summary>
+        /// <param name="path">path to the file to open</param>
+        public static void OpenInNewTab(string path)
+        {
             //create new support objects
             TabPage newTab = Utils.CreateNewTab(translationManagers.Count + 1);
             //Add tab to form control
@@ -116,7 +124,15 @@ namespace HousePartyTranslator.Managers
 
             //call startup for new translationmanager
             t.SetLanguage();
-            t.LoadFileIntoProgram();
+            t.LoadFileIntoProgram(path);
+        }
+
+        /// <summary>
+        /// Does all the logic to open all files form a story in tabs
+        /// </summary>
+        public static void OpenAllTabs()
+        {
+            TranslationManager.LoadAllFilesIntoProgram();
         }
 
         /// <summary>
