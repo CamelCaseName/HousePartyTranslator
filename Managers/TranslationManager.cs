@@ -500,7 +500,7 @@ namespace HousePartyTranslator.Managers
 
                 //save translation, approve and move down one
                 case (Keys.Control | Keys.Shift | Keys.Enter):
-                    if(helper.CheckListBoxLeft.SelectedIndex >= 0) helper.CheckListBoxLeft.SetItemChecked(helper.CheckListBoxLeft.SelectedIndex, true);
+                    if (helper.CheckListBoxLeft.SelectedIndex >= 0) helper.CheckListBoxLeft.SetItemChecked(helper.CheckListBoxLeft.SelectedIndex, true);
                     else helper.CheckListBoxLeft.SetItemChecked(0, true);
                     if (helper.CheckListBoxLeft.SelectedIndex < helper.CheckListBoxLeft.Items.Count - 1) helper.CheckListBoxLeft.SelectedIndex++;
                     return true;
@@ -858,19 +858,23 @@ namespace HousePartyTranslator.Managers
                 //copy file to game rather than writing again
                 if (Properties.Settings.Default.alsoSaveToGame)
                 {
+                    //get language path
+                    LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
+                    //add new to langauge if wanted
+                    if (Properties.Settings.Default.useFalseFolder)
+                    {
+                        languageAsText += " new";
+                    }
+
                     //create path to file
                     string gameFilePath = "Eek\\House Party\\Mods\\";
                     if (StoryName != "Hints" && StoryName != "UI")
                     {
-                        //get language path
-                        LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
                         //combine all paths
                         gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", StoryName, languageAsText, FileName + ".txt");
                     }
                     else if (StoryName == "UI")
                     {
-                        //get language path
-                        LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
                         //combine all paths
                         gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", languageAsText, FileName + ".txt");
                     }
