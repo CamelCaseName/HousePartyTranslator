@@ -14,6 +14,24 @@ namespace HousePartyTranslator.Helpers
         public static readonly int MaxTextLength = 100;
         public static readonly int maxWordLength = 15;
 
+        /// <summary>
+        /// Returns whether a story is official or not
+        /// </summary>
+        /// <param name="storyName">the name to check</param>
+        /// <returns></returns>
+        public static bool IsOfficialStory(string storyName)
+        {
+            string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney" };
+            return Array.IndexOf(stories, storyName) >= 0;
+        }
+
+        /// <summary>
+        /// Replaces all matches in the given string and returns it
+        /// </summary>
+        /// <param name="input">The string to work on</param>
+        /// <param name="replacement">The replacement for all matches</param>
+        /// <param name="search">the pattern to search for</param>
+        /// <returns>the replaced string</returns>
         public static string Replace(string input, string replacement, string search)
         {
             return ReplaceRegex(input, replacement, Regex.Escape(search));

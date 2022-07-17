@@ -127,7 +127,15 @@ namespace HousePartyTranslator.Managers
             }
             set
             {
-                storyName = value;
+                if (Utils.IsOfficialStory(value))
+                {
+                    storyName = value;
+                }
+                else
+                {
+                    MessageBox.Show($"No valid story name found \"{value}\", assuming Original Story.");
+                    storyName = "Original Story";
+                }
             }
         }
 
@@ -138,8 +146,7 @@ namespace HousePartyTranslator.Managers
         public static void DisplayExceptionMessage(string message)
         {
             LogManager.LogEvent("Exception message shown: " + message);
-            LogManager.LogEvent("Current exceptioon count: " + ExceptionCount + 1);
-            ExceptionCount++;
+            LogManager.LogEvent("Current exception count: " + ExceptionCount++);
             MessageBox.Show(
                 $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
                 $"Anyways, here is what happened: \n\n{message}\n\n " +
@@ -372,6 +379,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="path">The path to the file to translate</param>
         public void LoadFileIntoProgram(string path)
         {
+            ShowAutoSaveDialog();
             ResetTranslationManager();
 
             MainWindow.Cursor = Cursors.WaitCursor;
@@ -453,6 +461,10 @@ namespace HousePartyTranslator.Managers
                 //save current string
                 case (Keys.Control | Keys.Shift | Keys.S):
                     SaveCurrentString();
+                    return true;
+
+                case (Keys.Control | Keys.Alt | Keys.S):
+                    TabManager.SaveAllTabs();
                     return true;
 
                 //reload currently loaded file

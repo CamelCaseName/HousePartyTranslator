@@ -533,11 +533,11 @@ namespace HousePartyTranslator.Managers
                     Properties.Settings.Default.version = fileVersion;
                 }
 
-                if (float.Parse(DBVersion) > float.Parse(fileVersion))
+                if (double.Parse(DBVersion) > double.Parse(fileVersion))
                 {
                     //update local software version from db
                     SoftwareVersion = DBVersion;
-                    Properties.Settings.Default.version = fileVersion;
+                    Properties.Settings.Default.version = DBVersion;
                 }
                 else
                 {
