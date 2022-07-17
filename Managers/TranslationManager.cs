@@ -463,6 +463,10 @@ namespace HousePartyTranslator.Managers
                     SaveCurrentString();
                     return true;
 
+                case (Keys.Control | Keys.Alt | Keys.S):
+                    TabManager.SaveAllTabs();
+                    return true;
+
                 //reload currently loaded file
                 case (Keys.Control | Keys.R):
                     ReloadFile();
