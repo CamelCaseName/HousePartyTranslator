@@ -500,7 +500,8 @@ namespace HousePartyTranslator.Managers
 
                 //save translation, approve and move down one
                 case (Keys.Control | Keys.Shift | Keys.Enter):
-                    helper.CheckListBoxLeft.SetItemChecked(helper.CheckListBoxLeft.SelectedIndex, true);
+                    if(helper.CheckListBoxLeft.SelectedIndex >= 0) helper.CheckListBoxLeft.SetItemChecked(helper.CheckListBoxLeft.SelectedIndex, true);
+                    else helper.CheckListBoxLeft.SetItemChecked(0, true);
                     if (helper.CheckListBoxLeft.SelectedIndex < helper.CheckListBoxLeft.Items.Count - 1) helper.CheckListBoxLeft.SelectedIndex++;
                     return true;
 
