@@ -179,7 +179,7 @@ namespace HousePartyTranslator.Managers
         /// <returns>True if there are more than one tab and they have been saved</returns>
         public static bool SaveAllTabs()
         {
-            if (TabControl.TabCount > 1)
+            if (TabControl.TabCount >= 1)
             {
                 //save all tabs
                 foreach (TabPage tab in TabControl.TabPages)

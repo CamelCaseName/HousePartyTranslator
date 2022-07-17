@@ -266,7 +266,7 @@ namespace HousePartyTranslator.Managers
 
             foreach (string filePath in Directory.GetFiles(basePath))
             {
-                if(Path.GetExtension(filePath) == ".txt")
+                if (Path.GetExtension(filePath) == ".txt")
                 {
                     TabManager.OpenInNewTab(filePath);
                 }
@@ -980,7 +980,7 @@ namespace HousePartyTranslator.Managers
                         }
                     }
                 }
-                else if(query[0] != '!')
+                else if (query[0] != '!')
                 {
                     if (query[0] == '\\') // we have an escaped flag following, so we chop of escaper and continue
                     {
