@@ -277,42 +277,42 @@ namespace HousePartyTranslator
             TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex);
         }
 
-        private void CopyIdContextMenuButton_Click(object sender, EventArgs e)
+        public void CopyIdContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyId();
         }
 
-        private void CopyAllContextMenuButton_Click(object sender, EventArgs e)
+        public void CopyAllContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyAll();
         }
 
-        private void CopyFileNameContextMenuButton_Click(object sender, EventArgs e)
+        public void CopyFileNameContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyFileName();
         }
 
-        private void CopyStoryNameContextMenuButton_Click(object sender, EventArgs e)
+        public void CopyStoryNameContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyStoryName();
         }
 
-        private void CopyAsOutputContextMenuButton_Click(object sender, EventArgs e)
+        public void CopyAsOutputContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyAsOutput();
         }
 
-        private void CopyTranslationContextMenuButton_Click(object sender, EventArgs e)
+        public void CopyTranslationContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyTranslation();
         }
 
-        private void CopyTemplateContextMenuButton_Click(object sender, EventArgs e)
+        public void CopyTemplateContextMenuButton_Click(object sender, EventArgs e)
         {
             TabManager.CopyTemplate();
         }
 
-        private void OpeningContextMenu(object sender, MouseEventArgs e)
+        public void OpeningContextMenu(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {

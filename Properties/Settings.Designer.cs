@@ -250,5 +250,17 @@ namespace HousePartyTranslator.Properties {
                 this["autoLoadRecentIndex"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool useFalseFolder {
+            get {
+                return ((bool)(this["useFalseFolder"]));
+            }
+            set {
+                this["useFalseFolder"] = value;
+            }
+        }
     }
 }

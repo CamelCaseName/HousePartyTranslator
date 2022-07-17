@@ -55,6 +55,7 @@ Some explanation for the settings and what they do
 |story_path||a file path to the folde rcontaining the original story character files, set when loading the first file ever into the StoryExplorer|
 |template_path|C:\\Users\\|points to the folder containing the new template files for the story, in the correct folder structure. not used in normal program behaviour|
 |translation_path|path to the last opened file, used as a reference to open the folder dialog in it's parent folder|
+|useFalseFolder|False|will add a "new" after the language in the game folder in order to enable development of languages already implemented in the game.|
 |version|0.22|the game's story verison currently present in the database|
 
 

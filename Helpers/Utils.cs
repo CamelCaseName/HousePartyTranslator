@@ -280,6 +280,14 @@ namespace HousePartyTranslator.Helpers
             Panel panel2 = new Panel();
             ColouredCheckedListBox CheckListBoxLeft = new ColouredCheckedListBox();
             NoAnimationBar ProgressbarTranslated = new NoAnimationBar();
+            ContextMenuStrip ListContextMenu = new ContextMenuStrip();
+            ToolStripMenuItem CopyAllContextMenuButton = new ToolStripMenuItem();
+            ToolStripMenuItem CopyAsOutputContextMenuButton = new ToolStripMenuItem();
+            ToolStripMenuItem CopyFileNameContextMenuButton = new ToolStripMenuItem();
+            ToolStripMenuItem CopyIdContextMenuButton = new ToolStripMenuItem();
+            ToolStripMenuItem CopyStoryNameContextMenuButton = new ToolStripMenuItem();
+            ToolStripMenuItem CopyTemplateContextMenuButton = new ToolStripMenuItem();
+            ToolStripMenuItem CopyTranslationContextMenuButton = new ToolStripMenuItem();
             mainTableLayoutPanel.SuspendLayout();
             CommentGroup.SuspendLayout();
             panel1.SuspendLayout();
@@ -316,7 +324,7 @@ namespace HousePartyTranslator.Helpers
             TranslateThis.TabIndex = 13;
             TranslateThis.Text = "Translate";
             TranslateThis.UseVisualStyleBackColor = true;
-            TranslateThis.Click += new System.EventHandler(((Fenster)Form.ActiveForm).TranslateThis_Click);
+            TranslateThis.Click += new EventHandler(((Fenster)Form.ActiveForm).TranslateThis_Click);
             // 
             // EnglishTextBox
             // 
@@ -463,6 +471,8 @@ namespace HousePartyTranslator.Helpers
             CheckListBoxLeft.ThreeDCheckBoxes = true;
             CheckListBoxLeft.ItemCheck += new ItemCheckEventHandler(((Fenster)Form.ActiveForm).CheckListBoxLeft_ItemCheck);
             CheckListBoxLeft.SelectedIndexChanged += new EventHandler(((Fenster)Form.ActiveForm).CheckListBoxLeft_SelectedIndexChanged);
+            CheckListBoxLeft.ContextMenuStrip = ListContextMenu;
+            CheckListBoxLeft.MouseDown += new MouseEventHandler(((Fenster)Form.ActiveForm).OpeningContextMenu);
             // 
             // ProgressbarTranslated
             // 
@@ -477,6 +487,73 @@ namespace HousePartyTranslator.Helpers
             ProgressbarTranslated.Style = ProgressBarStyle.Continuous;
             ProgressbarTranslated.TabIndex = 8;
             ProgressbarTranslated.Value = 50;
+            // 
+            // CopyIdContextMenuButton
+            // 
+            CopyIdContextMenuButton.Name = "CopyIdContextMenuButton";
+            CopyIdContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyIdContextMenuButton.Text = "Copy Id";
+            CopyIdContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyIdContextMenuButton_Click);
+            // 
+            // CopyFileNameContextMenuButton
+            // 
+            CopyFileNameContextMenuButton.Name = "CopyFileNameContextMenuButton";
+            CopyFileNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyFileNameContextMenuButton.Text = "Copy file name";
+            CopyFileNameContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyFileNameContextMenuButton_Click);
+            // 
+            // CopyStoryNameContextMenuButton
+            // 
+            CopyStoryNameContextMenuButton.Name = "CopyStoryNameContextMenuButton";
+            CopyStoryNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyStoryNameContextMenuButton.Text = "Copy story name";
+            CopyStoryNameContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyStoryNameContextMenuButton_Click);
+            // 
+            // CopyAllContextMenuButton
+            // 
+            CopyAllContextMenuButton.Name = "CopyAllContextMenuButton";
+            CopyAllContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyAllContextMenuButton.Text = "Copy everything";
+            CopyAllContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyAllContextMenuButton_Click);
+            // 
+            // CopyAsOutputContextMenuButton
+            // 
+            CopyAsOutputContextMenuButton.Name = "CopyAsOutputContextMenuButton";
+            CopyAsOutputContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyAsOutputContextMenuButton.Text = "Copy as output";
+            CopyAsOutputContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyAsOutputContextMenuButton_Click);
+            // 
+            // CopyTemplateContextMenuButton
+            // 
+            CopyTemplateContextMenuButton.Name = "CopyTemplateContextMenuButton";
+            CopyTemplateContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyTemplateContextMenuButton.Text = "Copy template";
+            CopyTemplateContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyTemplateContextMenuButton_Click);
+            // 
+            // CopyTranslationContextMenuButton
+            // 
+            CopyTranslationContextMenuButton.Name = "CopyTranslationContextMenuButton";
+            CopyTranslationContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyTranslationContextMenuButton.Text = "Copy translation";
+            CopyTranslationContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyTranslationContextMenuButton_Click);
+            //
+            // ListContextMenu
+            //
+            ListContextMenu.Name = "ListContextMenu";
+            ListContextMenu.BackColor = System.Drawing.SystemColors.ScrollBar;
+            ListContextMenu.ShowCheckMargin = false;
+            ListContextMenu.ShowImageMargin = false;
+            ListContextMenu.ForeColor = System.Drawing.SystemColors.MenuText;
+            ListContextMenu.Size = new System.Drawing.Size(236, 160);
+            ListContextMenu.Items.Clear();
+            ListContextMenu.Items.AddRange(new ToolStripItem[]{
+            CopyIdContextMenuButton,
+            CopyFileNameContextMenuButton,
+            CopyStoryNameContextMenuButton,
+            CopyTemplateContextMenuButton,
+            CopyTranslationContextMenuButton,
+            CopyAsOutputContextMenuButton,
+            CopyAllContextMenuButton});
 
             newTab.Controls.Add(mainTableLayoutPanel);
             mainTableLayoutPanel.ResumeLayout();
