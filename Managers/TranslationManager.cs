@@ -1664,7 +1664,7 @@ namespace HousePartyTranslator.Managers
         /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
         /// </summary>
         /// <param name="helper">A Propertyhelper to get access to the form controls.</param>
-        private void SetHighlightedNode()
+        public void SetHighlightedNode()
         {
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
             string id = TranslationData[currentIndex].ID;
