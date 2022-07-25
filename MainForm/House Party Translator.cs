@@ -114,6 +114,7 @@ namespace HousePartyTranslator
             Explorer = new StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, this);
             if (!Explorer.IsDisposed) Explorer.Show();
             Cursor = Cursors.Default;
+            translationManager.SetHighlightedNode();
         }
 
         private void CustomStoryExplorerStripMenuItem_Click(object sender, EventArgs e)
