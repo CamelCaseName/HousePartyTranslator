@@ -52,15 +52,24 @@ namespace HousePartyTranslator.Managers
             {
                 if (MessageBox.Show("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
                 {
-                    //get stream to the file in web location
-                    using (Stream stream = await client.GetStreamAsync(response.Assets[0].BrowserDownloadUrl))
+                    try
                     {
-                        //stream to the file on dis
-                        using (FileStream fileStream = new FileStream(releaseFile, FileMode.Create))
+                        //get stream to the file in web location
+                        using (Stream stream = await client.GetStreamAsync(response.Assets[0].BrowserDownloadUrl))
                         {
-                            //copy data to file on disk
-                            await stream.CopyToAsync(fileStream);
+                            //stream to the file on dis
+                            using (FileStream fileStream = new FileStream(releaseFile, FileMode.Create))
+                            {
+                                //copy data to file on disk
+                                await stream.CopyToAsync(fileStream);
+                            }
                         }
+                    }
+                    catch (System.UnauthorizedAccessException e)
+                    {
+                        LogManager.LogEvent(e.ToString());
+                        MessageBox.Show($"The update failed because the program could not access\n   {oldExe}\n or the folder it is in.", "Update failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
 
                     //move currently running exe out of the way
@@ -68,7 +77,18 @@ namespace HousePartyTranslator.Managers
 
                     //extract file to our current location and replace
                     SevenZipExtractor extractor = new SevenZipExtractor(releaseFile);
-                    extractor.ExtractAll(releaseFolder, true, true);
+                    try {
+                        extractor.ExtractAll(releaseFolder, true, true); 
+                    }
+                    catch (System.ComponentModel.Win32Exception e)
+                    {
+                        LogManager.LogEvent(e.ToString());
+                        //move currently running back because something broke
+                        File.Move(oldExe, Application.ExecutablePath);
+                        if (File.Exists(oldExe)) File.Delete(oldExe);
+                        MessageBox.Show($"The update failed because the program could not access\n   {releaseFolder}\n or the folder it is in.", "Update failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
 
                     //inform user
                     MessageBox.Show("Successfully updated the program! It will close itself now", "Update successful", MessageBoxButtons.OK);
@@ -76,9 +96,7 @@ namespace HousePartyTranslator.Managers
                     //exit
                     Application.Exit();
                 }
-
             }
-            
         }
     }
 }
