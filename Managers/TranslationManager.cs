@@ -247,28 +247,31 @@ namespace HousePartyTranslator.Managers
         {
             string basePath = SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
 
-            foreach (string path in Directory.GetDirectories(basePath))
+            if (basePath.Length > 0)
             {
-                string[] folders = path.Split('\\');
-
-                //get parent folder name
-                string tempName = folders[folders.Length - 1];
-                //get language text representation
-                bool gotLanguage = LanguageHelper.Languages.TryGetValue(TabManager.ActiveTranslationManager.Language, out string languageAsText);
-                //compare
-                if (tempName == languageAsText && gotLanguage)
+                foreach (string path in Directory.GetDirectories(basePath))
                 {
-                    //get foler one more up
-                    basePath = path;
-                    break;
+                    string[] folders = path.Split('\\');
+
+                    //get parent folder name
+                    string tempName = folders[folders.Length - 1];
+                    //get language text representation
+                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(TabManager.ActiveTranslationManager.Language, out string languageAsText);
+                    //compare
+                    if (tempName == languageAsText && gotLanguage)
+                    {
+                        //get foler one more up
+                        basePath = path;
+                        break;
+                    }
                 }
-            }
 
-            foreach (string filePath in Directory.GetFiles(basePath))
-            {
-                if (Path.GetExtension(filePath) == ".txt")
+                foreach (string filePath in Directory.GetFiles(basePath))
                 {
-                    TabManager.OpenInNewTab(filePath);
+                    if (Path.GetExtension(filePath) == ".txt")
+                    {
+                        TabManager.OpenInNewTab(filePath);
+                    }
                 }
             }
         }
@@ -379,46 +382,49 @@ namespace HousePartyTranslator.Managers
         /// <param name="path">The path to the file to translate</param>
         public void LoadFileIntoProgram(string path)
         {
-            ShowAutoSaveDialog();
-            ResetTranslationManager();
+            if (path.Length > 0)
+            {
+                ShowAutoSaveDialog();
+                ResetTranslationManager();
 
-            MainWindow.Cursor = Cursors.WaitCursor;
-            if (IsUpToDate)
-            {
-                SourceFilePath = path;
-                LoadTranslationFile();
-            }
-            else
-            {
-                string folderPath = SelectTemplateFolderFromSystem();
-                string templateFolderName = folderPath.Split('\\')[folderPath.Split('\\').Length - 1];
-                if (templateFolderName == "TEMPLATE")
+                MainWindow.Cursor = Cursors.WaitCursor;
+                if (IsUpToDate)
                 {
-                    isTemplate = true;
-                    LoadAndSyncTemplates(folderPath);
+                    SourceFilePath = path;
+                    LoadTranslationFile();
                 }
                 else
                 {
-                    isTemplate = false;
-                    MessageBox.Show(
-                        $"Please the template folder named 'TEMPLATE' so we can upload them. " +
-                        $"Your Current Folder shows as {templateFolderName}.",
-                        "Updating string database",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning
-                        );
+                    string folderPath = SelectTemplateFolderFromSystem();
+                    string templateFolderName = folderPath.Split('\\')[folderPath.Split('\\').Length - 1];
+                    if (templateFolderName == "TEMPLATE")
+                    {
+                        isTemplate = true;
+                        LoadAndSyncTemplates(folderPath);
+                    }
+                    else
+                    {
+                        isTemplate = false;
+                        MessageBox.Show(
+                            $"Please the template folder named 'TEMPLATE' so we can upload them. " +
+                            $"Your Current Folder shows as {templateFolderName}.",
+                            "Updating string database",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                            );
+                    }
                 }
+                //log file loading
+                LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
+
+                //update tab name
+                TabManager.UpdateTabTitle(FileName);
+                //update recents
+                RecentsManager.SetMostRecent(SourceFilePath);
+                RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
+
+                MainWindow.Cursor = Cursors.Default;
             }
-            //log file loading
-            LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
-
-            //update tab name
-            TabManager.UpdateTabTitle(FileName);
-            //update recents
-            RecentsManager.SetMostRecent(SourceFilePath);
-            RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
-
-            MainWindow.Cursor = Cursors.Default;
         }
 
         /// <summary>
@@ -638,6 +644,7 @@ namespace HousePartyTranslator.Managers
                     }
                 }
             }
+            UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
             MainWindow.Cursor = Cursors.Default;
         }
 
@@ -1711,15 +1718,18 @@ namespace HousePartyTranslator.Managers
             float percentage = Approved / (float)Total;
             helper.ApprovedCountLabel.Text = $"Approved: {Approved} / {Total} {(int)(percentage * 100)}%";
             int ProgressValue = (int)(Approved / (float)Total * 100);
-            if (ProgressValue > 0 && ProgressValue <= 100)
+            if (ProgressValue != helper.NoProgressbar.Value)
             {
-                helper.NoProgressbar.Value = ProgressValue;
+                if (ProgressValue > 0 && ProgressValue <= 100)
+                {
+                    helper.NoProgressbar.Value = ProgressValue;
+                }
+                else
+                {
+                    helper.NoProgressbar.Value = 0;
+                }
+                helper.NoProgressbar.Invalidate();
             }
-            else
-            {
-                helper.NoProgressbar.Value = 0;
-            }
-            helper.NoProgressbar.Invalidate();
         }
 
         /// <summary>

@@ -111,20 +111,23 @@ namespace HousePartyTranslator.Managers
         /// <param name="path">path to the file to open</param>
         public static void OpenInNewTab(string path)
         {
-            //create new support objects
-            TabPage newTab = Utils.CreateNewTab(translationManagers.Count + 1);
-            //Add tab to form control
-            TabControl.TabPages.Add(newTab);
-            //select new tab
-            TabControl.SelectedTab = newTab;
-            //create support dict
-            properties.Add(newTab, CreateActivePropertyHelper());
-            TranslationManager t = new TranslationManager(ActiveProperties);
-            translationManagers.Add(newTab, t);
+            if (path.Length > 0)
+            {
+                //create new support objects
+                TabPage newTab = Utils.CreateNewTab(translationManagers.Count + 1);
+                //Add tab to form control
+                TabControl.TabPages.Add(newTab);
+                //select new tab
+                TabControl.SelectedTab = newTab;
+                //create support dict
+                properties.Add(newTab, CreateActivePropertyHelper());
+                TranslationManager t = new TranslationManager(ActiveProperties);
+                translationManagers.Add(newTab, t);
 
-            //call startup for new translationmanager
-            t.SetLanguage();
-            t.LoadFileIntoProgram(path);
+                //call startup for new translationmanager
+                t.SetLanguage();
+                t.LoadFileIntoProgram(path);
+            }
         }
 
         /// <summary>
