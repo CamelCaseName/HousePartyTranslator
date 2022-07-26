@@ -45,6 +45,7 @@ Some explanation for the settings and what they do
 |autoTranslate|True|if true, the program will try to translate the selected line if it has never before been seen|
 |dbPassword||the password for the database|
 |displayVAHints|False|set to True to enable the voice acting hints in the node info text in the StoryExplorer|
+|enableDiscordRP|True|set to False to disable the discord rich presence integration|
 |language||the two letter short form of the language you have selected|
 |recent_index|-1|the index of the line to resume to, should not be edited!|
 |recents_0||a path to the most recent file, should not be edited!|

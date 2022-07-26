@@ -537,6 +537,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public void PopulateTextBoxes()
         {
+            //todo make smaller/compartmentalize
             MainWindow.Cursor = Cursors.WaitCursor;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
 

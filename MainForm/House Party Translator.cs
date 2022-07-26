@@ -163,16 +163,17 @@ namespace HousePartyTranslator
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
 
-            PresenceManager = new DiscordPresenceManager();
             RecentsManager.Initialize();
+            RecentsManager.OpenMostRecent();
+
+            PresenceManager = new DiscordPresenceManager();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
             PresenceTimer.Start();
 
-            RecentsManager.OpenMostRecent();
-
             PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+
         }
 
         private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
