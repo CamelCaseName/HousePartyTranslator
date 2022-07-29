@@ -70,7 +70,7 @@ namespace HousePartyTranslator.Managers
         public static void SaveRecents()
         {
             //set most recent to the last file open in the selected tab so the index is correct
-            Properties.Settings.Default.recents_0 = TabManager.ActiveTranslationManager.SourceFilePath;
+            Properties.Settings.Default.recents_0 = TabManager.ActiveTranslationManager?.SourceFilePath ?? "";
             Properties.Settings.Default.recents_1 = recents[1];
             Properties.Settings.Default.recents_2 = recents[2];
             Properties.Settings.Default.recents_3 = recents[3];

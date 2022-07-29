@@ -262,5 +262,17 @@ namespace HousePartyTranslator.Properties {
                 this["useFalseFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool enableDiscordRP {
+            get {
+                return ((bool)(this["enableDiscordRP"]));
+            }
+            set {
+                this["enableDiscordRP"] = value;
+            }
+        }
     }
 }
