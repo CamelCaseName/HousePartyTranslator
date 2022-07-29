@@ -184,8 +184,21 @@ namespace HousePartyTranslator.Helpers
                 }
                 if (broken) break;
             }
-            if (oldPos - textBox.SelectionStart < 1 && textBox.SelectionStart > 0) textBox.SelectionStart--;
-            if (!broken) textBox.SelectionStart = 0;
+            if (oldPos - textBox.SelectionStart < 1 && textBox.SelectionStart > 0)
+            {
+                --textBox.SelectionStart;
+            }
+            if (!broken)
+            {
+                textBox.SelectionStart = 0;
+            }
+            if (textBox.SelectionStart > 0)
+            {
+                if (textBox.Text[textBox.SelectionStart - 1] == ' ')
+                {
+                    --textBox.SelectionStart;
+                }
+            }
         }
 
         /// <summary>
@@ -216,8 +229,21 @@ namespace HousePartyTranslator.Helpers
                 }
                 if (broken) break;
             }
-            if (textBox.SelectionStart - oldPos < 1 && textBox.SelectionStart < textBox.Text.Length) textBox.SelectionStart++;
-            if (!broken) textBox.SelectionStart = textBox.Text.Length;
+            if (textBox.SelectionStart - oldPos < 1)
+            {
+                textBox.SelectionStart++;
+            }
+            if (!broken)
+            {
+                textBox.SelectionStart = textBox.Text.Length;
+            }
+            if (textBox.SelectionStart < textBox.Text.Length)
+            {
+                if (textBox.Text[textBox.SelectionStart] == ' ' && textBox.SelectionStart < textBox.Text.Length - 1)
+                {
+                    ++textBox.SelectionStart;
+                }
+            }
         }
 
         /// <summary>
