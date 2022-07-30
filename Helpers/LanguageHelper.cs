@@ -28,7 +28,9 @@ namespace HousePartyTranslator.Helpers
             "esmx",
             "tr",
             "cn",
-            "nl"
+            "nl",
+            "ro",
+            "sw"
         };
 
         /// <summary>
@@ -51,7 +53,9 @@ namespace HousePartyTranslator.Helpers
             {ShortLanguages[13], "Spanish, Mexico" },
             {ShortLanguages[14], "Turkish" },
             {ShortLanguages[15], "Chinese" },
-            {ShortLanguages[16], "Dutch" }
+            {ShortLanguages[16], "Dutch" },
+            {ShortLanguages[17], "Romanian" },
+            {ShortLanguages[18], "Swedish" }
         };
     }
 }
