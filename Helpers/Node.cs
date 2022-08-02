@@ -29,6 +29,13 @@ namespace HousePartyTranslator.Helpers
         BGC
     }
 
+    public enum Gender
+    {
+        None = 0,
+        Female = 1,
+        Male = 2
+    }
+
     public class Node
     {
         public static readonly Node NullNode = new Node("", NodeType.Null, "");
@@ -37,7 +44,7 @@ namespace HousePartyTranslator.Helpers
         public bool ChildsVisited = false;
         public Guid Guid = Guid.NewGuid();
         public string ID;
-        public int Gender = 0;//1 is female, 2 is male only
+        public Gender Gender = Gender.None;//1 is female, 2 is male only
         public int Mass = 1;
         public List<Node> ParentNodes;
         public bool ParentsVisited = false;
@@ -197,7 +204,7 @@ namespace HousePartyTranslator.Helpers
                 Node tempNode = CreateCriteriaNode(criterion, this);
                 if (criterion.CompareType == "PlayerGender")
                 {
-                    tempNode.Gender = criterion.Value == "Female" ? 1 : criterion.Value == "Male" ? 2 : 0;
+                    tempNode.Gender = criterion.Value == "Female" ? Gender.Female : criterion.Value == "Male" ? Gender.Male : Gender.None;
                 }
                 AddParentNode(tempNode);
             }
@@ -234,7 +241,7 @@ namespace HousePartyTranslator.Helpers
             if (Mass < 1) Mass = 1;
         }
 
-        public void PropagateGender(int gender)
+        public void PropagateGender(Gender gender)
         {
             if (ChildNodes.Count > 0)
             {

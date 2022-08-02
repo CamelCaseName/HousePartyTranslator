@@ -213,7 +213,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             for (int i = 0; i < Context.Nodes.Count; i++)
             {
                 //draw node
-                DrawColouredNode(Context.Nodes[i], Context.Nodes[i].Gender == 1 ? DefaultFemaleColor : Context.Nodes[i].Gender == 2 ? DefaultMaleColor : DefaultColor);
+                DrawColouredNode(Context.Nodes[i], Context.Nodes[i].Gender == Gender.Female ? DefaultFemaleColor : Context.Nodes[i].Gender == Gender.Male ? DefaultMaleColor : DefaultColor);
                 //draw edges to children, default colour
                 for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
                 {
@@ -247,6 +247,7 @@ namespace HousePartyTranslator.StoryExplorerForm
                 NodeInfoLabel.Visible = true;
                 //create header
                 string header = Utils.ConstrainLength($"{infoNode.Type} - {infoNode.ID}");
+                if (infoNode.Gender != Gender.None) header = Utils.ConstrainLength(header + $" - {infoNode.Gender} only");
 
                 //create info
                 //strip text of all VA performance hints, embedded in []. if user wants it
@@ -422,12 +423,12 @@ namespace HousePartyTranslator.StoryExplorerForm
                     HighlightedNode,
                     0,
                     6,
-                    HighlightedNode.Gender == 1 ? DefaultFemaleColor : HighlightedNode.Gender == 2 ? DefaultMaleColor : DefaultColor,
+                    HighlightedNode.Gender == Gender.Female ? DefaultFemaleColor : HighlightedNode.Gender == Gender.Male ? DefaultMaleColor : DefaultColor,
                     DefaultEdgeColor,
                     false);
 
                 //redraw node itself
-                DrawColouredNode(HighlightedNode, HighlightedNode.Gender == 1 ? DefaultFemaleColor : HighlightedNode.Gender == 2 ? DefaultMaleColor : DefaultColor);
+                DrawColouredNode(HighlightedNode, HighlightedNode.Gender == Gender.Female ? DefaultFemaleColor : HighlightedNode.Gender == Gender.Male ? DefaultMaleColor : DefaultColor);
                 Explorer.Invalidate();
 
             }
@@ -447,7 +448,7 @@ namespace HousePartyTranslator.StoryExplorerForm
                 LastNodeColor = GraphBitmap.GetPixel(infoNode.Position.X + HalfBitmapEdgeLength, infoNode.Position.Y + HalfBitmapEdgeLength);
                 if (LastNodeColor == DefaultEdgeColor)
                 {//reset colour if it is gray, can happen due to drawing order
-                    LastNodeColor = infoNode.Gender == 1 ? DefaultFemaleColor : infoNode.Gender == 2 ? DefaultMaleColor : DefaultColor;
+                    LastNodeColor = LastInfoNode.Gender == Gender.Female ? DefaultFemaleColor : LastInfoNode.Gender == Gender.Male ? DefaultMaleColor : DefaultColor;
                 }
             }
         }
