@@ -538,11 +538,11 @@ namespace HousePartyTranslator.Managers
                 //add 0. if it is missing
                 if (!fileVersion.Contains("."))
                 {
-                    fileVersion = "0." + fileVersion;
+                    fileVersion = "1." + fileVersion;
                     Properties.Settings.Default.version = fileVersion;
                 }
 
-                if (double.Parse(DBVersion) > double.Parse(fileVersion))
+                if (double.Parse(DBVersion, System.Globalization.NumberStyles.Any) > double.Parse(fileVersion, System.Globalization.NumberStyles.Any))
                 {
                     //update local software version from db
                     SoftwareVersion = DBVersion;
