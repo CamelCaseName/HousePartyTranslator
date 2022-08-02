@@ -1545,7 +1545,7 @@ namespace HousePartyTranslator.Managers
                                       StoryName,
                                       FileName,
                                       currentCategory,
-                                      IdsToExport.Find(p => p.ID == lastLine[0]).TemplateString,
+                                      IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
                                       lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
                             }
                             else
@@ -1556,7 +1556,7 @@ namespace HousePartyTranslator.Managers
                                       StoryName,
                                       FileName,
                                       currentCategory,
-                                      IdsToExport.Find(p => p.ID == lastLine[0]).TemplateString,
+                                      IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
                                       lastLine[1]));
                             }
                         }
