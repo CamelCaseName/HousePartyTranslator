@@ -541,8 +541,20 @@ namespace HousePartyTranslator.Managers
                     fileVersion = "1." + fileVersion;
                     Properties.Settings.Default.version = fileVersion;
                 }
+                //try casting wi9th invariant culture, log and try and work around it if it fails
+                if(!double.TryParse(DBVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _dbVersion))
+                {
+                    _dbVersion = 1.0;
+                    LogManager.LogEvent($"invalid string cast to double. Offender: {DBVersion}");
+                }
+                if (!double.TryParse(fileVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _fileVersion))
+                {
+                    _fileVersion = 1.0;
+                    LogManager.LogEvent($"invalid string cast to double. Offender: {fileVersion}");
+                }
 
-                if (double.Parse(DBVersion, System.Globalization.NumberStyles.Any) > double.Parse(fileVersion, System.Globalization.NumberStyles.Any))
+                //save comparison
+                if (_dbVersion > _fileVersion)
                 {
                     //update local software version from db
                     SoftwareVersion = DBVersion;
