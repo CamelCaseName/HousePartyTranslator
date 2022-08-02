@@ -452,11 +452,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        /// <summary>
-        /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
-        /// </summary>
-        /// <param name="mainWindow">The windows to change the title of.</param> 
-        public static void InitializeDB(Fenster mainWindow)
+        private static void EstablishConnection(Fenster mainWindow)
         {
             Application.UseWaitCursor = true;
             bool isConnected = false;
@@ -514,6 +510,17 @@ namespace HousePartyTranslator.Managers
 
                 }
             }
+        }
+
+        /// <summary>
+        /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
+        /// </summary>
+        /// <param name="mainWindow">The windows to change the title of.</param> 
+        public static void InitializeDB(Fenster mainWindow)
+        {
+            //establish connection and handle password
+            EstablishConnection(mainWindow);
+
             MainCommand = new MySqlCommand("", sqlConnection);
             //Console.WriteLine("DB opened");
 
