@@ -465,7 +465,6 @@ namespace HousePartyTranslator.Managers
                 string connString = GetConnString();
                 if (connString == "")
                 {
-
                     Application.UseWaitCursor = false;
                     //Pasword has to be set first time
                     Password Passwordbox = new Password();
@@ -492,17 +491,27 @@ namespace HousePartyTranslator.Managers
                 else
                 {
                     sqlConnection.ConnectionString = connString;
-                    sqlConnection.Open();
-                    if (sqlConnection.State != System.Data.ConnectionState.Open)
+                    try
                     {
-                        //password may have to be changed
-                        MessageBox.Show("Can't connect to the database, contact CamelCaseName (Lenny)");
-                        Application.Exit();
+                        sqlConnection.Open();
+                        if (sqlConnection.State != System.Data.ConnectionState.Open)
+                        {
+                            //password may have to be changed
+                            MessageBox.Show("Can't connect to the database, contact CamelCaseName (Lenny)");
+                            Application.Exit();
+                        }
+                        else
+                        {
+                            isConnected = true;
+                        }
                     }
-                    else
+                    catch (MySqlException e)
                     {
-                        isConnected = true;
+                        MessageBox.Show($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Application.UseWaitCursor = false;
+                        return;
                     }
+
                 }
             }
             MainCommand = new MySqlCommand("", sqlConnection);
