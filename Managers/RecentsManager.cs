@@ -71,10 +71,10 @@ namespace HousePartyTranslator.Managers
         {
             //set most recent to the last file open in the selected tab so the index is correct
             Properties.Settings.Default.recents_0 = TabManager.ActiveTranslationManager?.SourceFilePath ?? "";
-            Properties.Settings.Default.recents_1 = recents[1];
-            Properties.Settings.Default.recents_2 = recents[2];
-            Properties.Settings.Default.recents_3 = recents[3];
-            Properties.Settings.Default.recents_4 = recents[4];
+            Properties.Settings.Default.recents_1 = recents.Count > 1 ? recents[1] : "";
+            Properties.Settings.Default.recents_2 = recents.Count > 2 ? recents[2] : "";
+            Properties.Settings.Default.recents_3 = recents.Count > 3 ? recents[3] : "";
+            Properties.Settings.Default.recents_4 = recents.Count > 4 ? recents[4] : "";
             Properties.Settings.Default.recent_index = TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex;
 
             //save settings

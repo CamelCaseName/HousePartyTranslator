@@ -160,10 +160,13 @@ namespace HousePartyTranslator
             translationManager.SetLanguage();
             translationManager.SetMainForm(this);
 
+            //initialize before password check so the saving doesnt break
+            RecentsManager.Initialize();
+
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
 
-            RecentsManager.Initialize();
+            //open most recent after db is initialized
             RecentsManager.OpenMostRecent();
 
             PresenceManager = new DiscordPresenceManager();
