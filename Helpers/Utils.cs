@@ -339,16 +339,16 @@ namespace HousePartyTranslator.Helpers
             TranslatedTextBox.Text = "edit here";
             TranslatedTextBox.TextChanged += new EventHandler(((Fenster)Form.ActiveForm).TextBoxRight_TextChanged);
             // 
-            // TranslateThis
+            // AutoTranslateThis
             // 
             TranslateThis.AutoSize = true;
             TranslateThis.BackColor = System.Drawing.SystemColors.ScrollBar;
             TranslateThis.ForeColor = System.Drawing.SystemColors.MenuText;
             TranslateThis.Location = new System.Drawing.Point(80, 1);
-            TranslateThis.Name = "TranslateThis";
+            TranslateThis.Name = "AutoTranslateThis";
             TranslateThis.Size = new System.Drawing.Size(60, 20);
             TranslateThis.TabIndex = 13;
-            TranslateThis.Text = "Translate";
+            TranslateThis.Text = "Automatic Translation";
             TranslateThis.UseVisualStyleBackColor = true;
             TranslateThis.Click += new EventHandler(((Fenster)Form.ActiveForm).TranslateThis_Click);
             // 

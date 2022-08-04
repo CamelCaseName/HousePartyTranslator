@@ -1545,7 +1545,7 @@ namespace HousePartyTranslator.Managers
                                       StoryName,
                                       FileName,
                                       currentCategory,
-                                      IdsToExport.Find(p => p.ID == lastLine[0]).TemplateString,
+                                      IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
                                       lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
                             }
                             else
@@ -1556,7 +1556,7 @@ namespace HousePartyTranslator.Managers
                                       StoryName,
                                       FileName,
                                       currentCategory,
-                                      IdsToExport.Find(p => p.ID == lastLine[0]).TemplateString,
+                                      IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
                                       lastLine[1]));
                             }
                         }
@@ -1674,12 +1674,15 @@ namespace HousePartyTranslator.Managers
         /// <param name="helper">A Propertyhelper to get access to the form controls.</param>
         public void SetHighlightedNode()
         {
-            int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
-            string id = TranslationData[currentIndex].ID;
-            //Highlights the node representign the selected string in the story explorer window
-            if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
+            if (TranslationData.Count > 0)
             {
-                MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.Nodes.Find(n => n.ID == id);
+                int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
+                string id = currentIndex < TranslationData.Count && currentIndex >= 0 ? TranslationData[currentIndex].ID : TranslationData[0].ID;
+                //Highlights the node representign the selected string in the story explorer window
+                if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
+                {
+                    MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.Nodes.Find(n => n.ID == id);
+                }
             }
         }
 

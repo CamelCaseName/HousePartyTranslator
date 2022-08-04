@@ -453,10 +453,10 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
+        /// Establishes the connection and handles the password stuff
         /// </summary>
-        /// <param name="mainWindow">The windows to change the title of.</param> 
-        public static void InitializeDB(Fenster mainWindow)
+        /// <param name="mainWindow">the window to spawn the password box as a child of</param>
+        private static void EstablishConnection(Fenster mainWindow)
         {
             Application.UseWaitCursor = true;
             bool isConnected = false;
@@ -514,6 +514,17 @@ namespace HousePartyTranslator.Managers
 
                 }
             }
+        }
+
+        /// <summary>
+        /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
+        /// </summary>
+        /// <param name="mainWindow">The windows to change the title of.</param> 
+        public static void InitializeDB(Fenster mainWindow)
+        {
+            //establish connection and handle password
+            EstablishConnection(mainWindow);
+
             MainCommand = new MySqlCommand("", sqlConnection);
             //Console.WriteLine("DB opened");
 
@@ -541,8 +552,20 @@ namespace HousePartyTranslator.Managers
                     fileVersion = "1." + fileVersion;
                     Properties.Settings.Default.version = fileVersion;
                 }
+                //try casting wi9th invariant culture, log and try and work around it if it fails
+                if (!double.TryParse(DBVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _dbVersion))
+                {
+                    _dbVersion = 1.0;
+                    LogManager.LogEvent($"invalid string cast to double. Offender: {DBVersion}");
+                }
+                if (!double.TryParse(fileVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _fileVersion))
+                {
+                    _fileVersion = 1.0;
+                    LogManager.LogEvent($"invalid string cast to double. Offender: {fileVersion}");
+                }
 
-                if (double.Parse(DBVersion, System.Globalization.NumberStyles.Any) > double.Parse(fileVersion, System.Globalization.NumberStyles.Any))
+                //save comparison
+                if (_dbVersion > _fileVersion)
                 {
                     //update local software version from db
                     SoftwareVersion = DBVersion;
@@ -836,10 +859,38 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
         /// <returns></returns>
         private static bool ExecuteOrReOpen(MySqlCommand command)
         {
+            if (CheckOrReopenConnection()){
+                bool executedSuccessfully = false;
+                int tries = 0; //reset try count
+                while (!executedSuccessfully && tries < 10)
+                {
+                    try
+                    {
+                        ++tries;
+                        executedSuccessfully = command.ExecuteNonQuery() > 0;
+                    }
+                    catch (Exception e)
+                    {
+                        LogManager.LogEvent($"While trying to execute the following command{command.CommandText},\n this happened:\n" + e.ToString());
+                    }
+                }
+
+                return executedSuccessfully;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks the connection, and tries to reopen it up to 10 times if it is closed
+        /// </summary>
+        /// <returns>true if the connection is open and could be opened within 10 tries</returns>
+        private static bool CheckOrReopenConnection()
+        {
             //try to reopen the connection if it died
-            int tries = 10;
-            while (sqlConnection.State != System.Data.ConnectionState.Open && tries > 0)
+            int tries = 0;
+            while (sqlConnection.State != System.Data.ConnectionState.Open && tries < 10)
             {
+                ++tries;
                 sqlConnection.Close();
                 System.Threading.Thread.Sleep(500);
                 sqlConnection.Open();
@@ -852,8 +903,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
                 Application.Exit();
                 return false;
             }
-
-            return command.ExecuteNonQuery() > 0;
+            else return true;
         }
 
         private static string GetConnString()

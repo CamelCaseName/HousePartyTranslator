@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Managers
 {
     static class SoftwareVersionManager
     {
-        public static readonly string LocalVersion = "0.5.3.0";
+        public static readonly string LocalVersion = "0.5.3.1";
         public static string LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new HttpClient();
@@ -35,6 +35,7 @@ namespace HousePartyTranslator.Managers
             //extract version number
             string t = response.TagName;
             LatestGithubVersion = $"{t[0]}.{t[2]}.{t[3]}.0";
+            if(t.Length > 4) LatestGithubVersion = $"{t[0]}.{t[2]}.{t[3]}.{t[4]}";
 
             //path to file if we need it
             string releaseFile = Path.Combine(Directory.GetCurrentDirectory(), "Release.7z");
@@ -46,8 +47,9 @@ namespace HousePartyTranslator.Managers
 
             //if the version on github has a higher version number
             UpdatePending = LatestGithubVersion[0] > LocalVersion[0]/*major version*/
-                || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] > LocalVersion[2])/*major version*/
-                || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] > LocalVersion[4]);/*release number*/
+                || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] > LocalVersion[2])/*minor version*/
+                || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] > LocalVersion[4])/*major release number*/
+                || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] == LocalVersion[4] && LatestGithubVersion[6] > LocalVersion[6]);/*minor release number*/
             if (UpdatePending)
             {
                 if (MessageBox.Show("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)

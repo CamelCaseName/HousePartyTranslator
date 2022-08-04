@@ -53,7 +53,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.TextBox TranslatedTextBox;
-        private System.Windows.Forms.Button TranslateThis;
+        private System.Windows.Forms.Button AutoTranslateThis;
         private System.Windows.Forms.Label WordsTranslated;
 
         /// <summary>
@@ -122,7 +122,7 @@ namespace HousePartyTranslator
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.TranslatedTextBox = new System.Windows.Forms.TextBox();
-            this.TranslateThis = new System.Windows.Forms.Button();
+            this.AutoTranslateThis = new System.Windows.Forms.Button();
             this.WordsTranslated = new System.Windows.Forms.Label();
             this.MainMenu.SuspendLayout();
             this.mainTableLayoutPanel.SuspendLayout();
@@ -225,18 +225,18 @@ namespace HousePartyTranslator
             this.ApprovedBox.UseVisualStyleBackColor = true;
             this.ApprovedBox.CheckedChanged += new System.EventHandler(this.ApprovedBox_CheckedChanged);
             // 
-            // TranslateThis
+            // AutoTranslateThis
             // 
-            this.TranslateThis.AutoSize = true;
-            this.TranslateThis.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.TranslateThis.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.TranslateThis.Location = new System.Drawing.Point(80, 1);
-            this.TranslateThis.Name = "TranslateThis";
-            this.TranslateThis.Size = new System.Drawing.Size(60, 20);
-            this.TranslateThis.TabIndex = 13;
-            this.TranslateThis.Text = "Translate";
-            this.TranslateThis.UseVisualStyleBackColor = true;
-            this.TranslateThis.Click += new System.EventHandler(this.TranslateThis_Click);
+            this.AutoTranslateThis.AutoSize = true;
+            this.AutoTranslateThis.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.AutoTranslateThis.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.AutoTranslateThis.Location = new System.Drawing.Point(80, 1);
+            this.AutoTranslateThis.Name = "AutoTranslateThis";
+            this.AutoTranslateThis.Size = new System.Drawing.Size(100, 20);
+            this.AutoTranslateThis.TabIndex = 13;
+            this.AutoTranslateThis.Text = "Automatic Translation";
+            this.AutoTranslateThis.UseVisualStyleBackColor = true;
+            this.AutoTranslateThis.Click += new System.EventHandler(this.TranslateThis_Click);
             // 
             // MainMenu
             // 
@@ -528,7 +528,7 @@ namespace HousePartyTranslator
             // panel2
             // 
             this.panel2.Controls.Add(this.ApprovedBox);
-            this.panel2.Controls.Add(this.TranslateThis);
+            this.panel2.Controls.Add(this.AutoTranslateThis);
             this.panel2.Controls.Add(this.CharacterCountLabel);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel2.Location = new System.Drawing.Point(689, 3);
