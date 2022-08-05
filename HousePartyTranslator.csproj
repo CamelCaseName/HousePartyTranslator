@@ -274,6 +274,7 @@
     <Compile Include="Helpers\SerializeableNode.cs" />
     <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Managers\DiscordPresenceManager.cs" />
+    <Compile Include="Managers\KeypressManager.cs" />
     <Compile Include="Managers\RecentsManager.cs" />
     <Compile Include="Managers\SoftwareVersionManager.cs" />
     <Compile Include="Managers\TabManager.cs" />

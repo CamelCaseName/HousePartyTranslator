@@ -12,7 +12,6 @@ namespace HousePartyTranslator
     {
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
         private DiscordPresenceManager PresenceManager;
-        private SettingsForm.SettingsForm settings;
         private StoryExplorer SExplorer;
 
         /// <summary>
@@ -65,22 +64,22 @@ namespace HousePartyTranslator
 
         public void ApprovedBox_CheckedChanged(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.ApprovedButtonHandler();
+            KeypressManager.ApprovedButtonChanged();
         }
 
         public void CheckListBoxLeft_ItemCheck(object sender, ItemCheckEventArgs e)
         {
-            TabManager.ActiveTranslationManager.ApproveIfPossible(false);
+            KeypressManager.CheckItemChanged();
         }
 
         public void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.PopulateTextBoxes();
+            KeypressManager.SelectedItemChanged();
         }
 
         public void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.UpdateTranslationString();
+            KeypressManager.TranslationTextChanged();
         }
 
         /// <summary>
@@ -91,7 +90,7 @@ namespace HousePartyTranslator
         /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (TabManager.ActiveTranslationManager.MainFormKeyPressHandler(ref msg, keyData))
+            if (KeypressManager.MainKeyPressHandler(ref msg, keyData, PresenceManager, this))
             {
                 return true;
             }
@@ -106,20 +105,9 @@ namespace HousePartyTranslator
             TabManager.CloseTab(sender, e);
         }
 
-        private void CreateStoryExplorer(bool autoOpen)
-        {
-            TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            Cursor = Cursors.WaitCursor;
-            bool isStory = translationManager.StoryName.ToLowerInvariant() == translationManager.FileName.ToLowerInvariant();
-            Explorer = new StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, this);
-            if (!Explorer.IsDisposed) Explorer.Show();
-            Cursor = Cursors.Default;
-            translationManager.SetHighlightedNode();
-        }
-
         private void CustomStoryExplorerStripMenuItem_Click(object sender, EventArgs e)
         {
-            CreateStoryExplorer(false);
+            Explorer = KeypressManager.CreateStoryExplorer(false, this);
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -181,44 +169,27 @@ namespace HousePartyTranslator
 
         private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.SetLanguage();
+            KeypressManager.SelectedLanguageChanged();
         }
 
         private void MainTabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TabManager.OnSwitchTabs();
-            //update tabs
-            if (TabManager.ActiveTranslationManager != null) PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+            KeypressManager.SelectedTabChanged(PresenceManager);
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TabManager.OpenNewTab();
-
-            //update presence and recents
-            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+            KeypressManager.OpenNewTab(PresenceManager);
         }
 
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //get currently active translationmanager
-            TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram();
-            translationManager.SetLanguage();
-            //update tab name
-            if (translationManager.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = translationManager.FileName;
-
-            //update presence and recents
-            PresenceManager.Update(translationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+            KeypressManager.OpenNew(PresenceManager);
         }
 
         private void OpenAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //opne the story in tabs
-            TabManager.OpenAllTabs();
-
-            //update presence and recents
-            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+            KeypressManager.OpenAll(PresenceManager);
         }
 
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -253,13 +224,12 @@ namespace HousePartyTranslator
 
         private void SettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            settings = new SettingsForm.SettingsForm();
-            if (!settings.IsDisposed) settings.Show();
+            KeypressManager.ShowSettings();
         }
 
         private void StoryExplorerStripMenuItem_Click(object sender, EventArgs e)
         {
-            CreateStoryExplorer(true);
+            Explorer = KeypressManager.CreateStoryExplorer(true, this);
         }
 
         private void ThreadExceptionHandler(object sender, System.Threading.ThreadExceptionEventArgs e)
@@ -279,7 +249,7 @@ namespace HousePartyTranslator
 
         public void TranslateThis_Click(object sender, EventArgs e)
         {
-            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex);
+            KeypressManager.AutoTranslate();
         }
 
         public void CopyIdContextMenuButton_Click(object sender, EventArgs e)
@@ -319,12 +289,7 @@ namespace HousePartyTranslator
 
         public void OpeningContextMenu(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
-            {
-                TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = TabManager.ActiveProperties.CheckListBoxLeft.IndexFromPoint(e.Location);
-                if (TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex <= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = 0;
-                ListContextMenu.Show();
-            }
+            KeypressManager.OpenContextMenu(ListContextMenu, e);
         }
     }
 }
