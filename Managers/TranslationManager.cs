@@ -414,15 +414,19 @@ namespace HousePartyTranslator.Managers
                             );
                     }
                 }
-                //log file loading
-                LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
-                //update tab name
-                TabManager.UpdateTabTitle(FileName);
-                //update recents
-                RecentsManager.SetMostRecent(SourceFilePath);
-                RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
+                if (TranslationData.Count > 0)
+                {
+                    //log file loading if successfull
+                    LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
+                    //update tab name
+                    TabManager.UpdateTabTitle(FileName);
+                    //update recents
+                    RecentsManager.SetMostRecent(SourceFilePath);
+                    RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
+                }
+                //reset cursor
                 MainWindow.Cursor = Cursors.Default;
             }
         }
@@ -469,6 +473,7 @@ namespace HousePartyTranslator.Managers
                     SaveCurrentString();
                     return true;
 
+                //saves all open tabs
                 case (Keys.Control | Keys.Alt | Keys.S):
                     TabManager.SaveAllTabs();
                     return true;
@@ -1375,13 +1380,16 @@ namespace HousePartyTranslator.Managers
                 //actually load all strings into the program
                 ReadInStringsFromFile();
 
-                string storyNameToDisplay = Utils.TrimWithDelim(StoryName);
-                string fileNameToDisplay = Utils.TrimWithDelim(FileName);
-                helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
+                if (TranslationData.Count() > 0)
+                {
+                    string storyNameToDisplay = Utils.TrimWithDelim(StoryName);
+                    string fileNameToDisplay = Utils.TrimWithDelim(FileName);
+                    helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
 
-                //is up to date, so we can start translation
-                LoadTranslations();
-                UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
+                    //is up to date, so we can start translation
+                    LoadTranslations();
+                    UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
+                }
             }
         }
 
@@ -1503,9 +1511,19 @@ namespace HousePartyTranslator.Managers
             string[] lastLine = { };
 
             DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
-
-            //read in lines
-            List<string> LinesFromFile = File.ReadAllLines(SourceFilePath).ToList();
+            List<string> LinesFromFile = new List<string>();
+            try
+            {
+                //read in lines
+                LinesFromFile = File.ReadAllLines(SourceFilePath).ToList();
+            }
+            catch (Exception e)
+            {
+                LogManager.LogEvent($"File not found under {SourceFilePath}.\n{e}");
+                MessageBox.Show($"File not found under {SourceFilePath}. Please reopen.", "Invalid path", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ResetTranslationManager();
+                return;
+            }
             //remove last if empty, breaks line lioading for the last
             while (LinesFromFile.Last() == "") LinesFromFile.RemoveAt(LinesFromFile.Count - 1);
             //load lines and their data and split accordingly
@@ -1612,6 +1630,8 @@ namespace HousePartyTranslator.Managers
             helper.CheckListBoxLeft.SimilarStringsToEnglish.Clear();
             LastIndex = -1;
             SelectedSearchResult = 0;
+            TabManager.TabControl.SelectedTab.Text = "Tab";
+            UpdateApprovedCountLabel(1, 1);
         }
 
         /// <summary>
