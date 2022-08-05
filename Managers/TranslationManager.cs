@@ -414,121 +414,20 @@ namespace HousePartyTranslator.Managers
                             );
                     }
                 }
-                //log file loading
-                LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
-                //update tab name
-                TabManager.UpdateTabTitle(FileName);
-                //update recents
-                RecentsManager.SetMostRecent(SourceFilePath);
-                RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
+                if (TranslationData.Count > 0)
+                {
+                    //log file loading if successfull
+                    LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
+                    //update tab name
+                    TabManager.UpdateTabTitle(FileName);
+                    //update recents
+                    RecentsManager.SetMostRecent(SourceFilePath);
+                    RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
+                }
+                //reset cursor
                 MainWindow.Cursor = Cursors.Default;
-            }
-        }
-
-        /// <summary>
-        /// Detects for hotkeys used, else with the return value the defualt WndPrc is called.
-        /// </summary>
-        /// <param name="msg">Windows message contaning the info on the event.</param>
-        /// <param name="keyData">Keydata containing all currently pressed keys.</param>
-        /// <returns></returns>
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-#pragma warning disable IDE0060 // Remove unused parameter
-        public bool MainFormKeyPressHandler(ref Message msg, Keys keyData)
-#pragma warning restore IDE0060 // Remove unused parameter
-#pragma warning restore IDE0079 // Remove unnecessary suppression
-        {
-            switch (keyData)
-            {
-                //handle enter as jumping to first search result if searched something, and focus is not on text editor.
-                case (Keys.Enter):
-                    return SelectNextResultIfApplicable();
-
-                //set selected string as search string and place cursor in search box
-                case (Keys.Control | Keys.F):
-                    if (helper.TranslationTextBox.SelectedText.Length > 0)
-                    {
-                        helper.SearchBox.Text = helper.TranslationTextBox.SelectedText;
-                    }
-                    helper.SearchBox.Focus();
-                    return true;
-
-                //search, but also with replacing
-                case (Keys.Control | Keys.Shift | Keys.F):
-                    ToggleReplaceUI();
-                    return true;
-
-                //save current file
-                case (Keys.Control | Keys.S):
-                    SaveFile();
-                    return true;
-
-                //save current string
-                case (Keys.Control | Keys.Shift | Keys.S):
-                    SaveCurrentString();
-                    return true;
-
-                case (Keys.Control | Keys.Alt | Keys.S):
-                    TabManager.SaveAllTabs();
-                    return true;
-
-                //reload currently loaded file
-                case (Keys.Control | Keys.R):
-                    ReloadFile();
-                    return true;
-
-                //select string above current selection
-                case (Keys.Control | Keys.Up):
-                    if (helper.CheckListBoxLeft.SelectedIndex > 0) helper.CheckListBoxLeft.SelectedIndex--;
-                    return true;
-
-                //select string below current selection
-                case (Keys.Control | Keys.Down):
-                    if (helper.CheckListBoxLeft.SelectedIndex < helper.CheckListBoxLeft.Items.Count - 1) helper.CheckListBoxLeft.SelectedIndex++;
-                    return true;
-
-                //switch tab to the left
-                case (Keys.Alt | Keys.Left):
-                    if (TabManager.TabControl.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex - 1);
-                    return true;
-
-                //switch tab to the right
-                case (Keys.Alt | Keys.Right):
-                    if (TabManager.TabControl.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex + 1);
-                    return true;
-
-                //save translation and move down one
-                case (Keys.Control | Keys.Enter):
-                    SaveCurrentString();
-                    if (helper.CheckListBoxLeft.SelectedIndex < helper.CheckListBoxLeft.Items.Count - 1) helper.CheckListBoxLeft.SelectedIndex++;
-                    return true;
-
-                //save translation, approve and move down one
-                case (Keys.Control | Keys.Shift | Keys.Enter):
-                    if (helper.CheckListBoxLeft.SelectedIndex >= 0) helper.CheckListBoxLeft.SetItemChecked(helper.CheckListBoxLeft.SelectedIndex, true);
-                    else helper.CheckListBoxLeft.SetItemChecked(0, true);
-                    if (helper.CheckListBoxLeft.SelectedIndex < helper.CheckListBoxLeft.Items.Count - 1) helper.CheckListBoxLeft.SelectedIndex++;
-                    return true;
-
-                //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
-                case (Keys.Control | Keys.Delete):
-                    return DeleteCharactersInText(false);
-
-                //ripple delete all alphanumerical chars to the left of the cursor
-                case (Keys.Control | Keys.Back):
-                    return DeleteCharactersInText(true);
-
-                //move cursor to the left, clinging to words
-                case (Keys.Control | Keys.Left):
-                    return MoveCursorInText(true);
-
-                //move cursor to the right, clinging to words
-                case (Keys.Control | Keys.Right):
-                    return MoveCursorInText(false);
-
-                default:
-                    return false;
             }
         }
 
@@ -1375,13 +1274,16 @@ namespace HousePartyTranslator.Managers
                 //actually load all strings into the program
                 ReadInStringsFromFile();
 
-                string storyNameToDisplay = Utils.TrimWithDelim(StoryName);
-                string fileNameToDisplay = Utils.TrimWithDelim(FileName);
-                helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
+                if (TranslationData.Count() > 0)
+                {
+                    string storyNameToDisplay = Utils.TrimWithDelim(StoryName);
+                    string fileNameToDisplay = Utils.TrimWithDelim(FileName);
+                    helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
 
-                //is up to date, so we can start translation
-                LoadTranslations();
-                UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
+                    //is up to date, so we can start translation
+                    LoadTranslations();
+                    UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
+                }
             }
         }
 
@@ -1503,9 +1405,19 @@ namespace HousePartyTranslator.Managers
             string[] lastLine = { };
 
             DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
-
-            //read in lines
-            List<string> LinesFromFile = File.ReadAllLines(SourceFilePath).ToList();
+            List<string> LinesFromFile = new List<string>();
+            try
+            {
+                //read in lines
+                LinesFromFile = File.ReadAllLines(SourceFilePath).ToList();
+            }
+            catch (Exception e)
+            {
+                LogManager.LogEvent($"File not found under {SourceFilePath}.\n{e}");
+                MessageBox.Show($"File not found under {SourceFilePath}. Please reopen.", "Invalid path", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                ResetTranslationManager();
+                return;
+            }
             //remove last if empty, breaks line lioading for the last
             while (LinesFromFile.Last() == "") LinesFromFile.RemoveAt(LinesFromFile.Count - 1);
             //load lines and their data and split accordingly
@@ -1591,7 +1503,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Reloads the file into the program as if it were selected.
         /// </summary>
-        private void ReloadFile()
+        internal void ReloadFile()
         {
             ResetTranslationManager();
             ReadStringsTranslationsFromFile();
@@ -1612,13 +1524,15 @@ namespace HousePartyTranslator.Managers
             helper.CheckListBoxLeft.SimilarStringsToEnglish.Clear();
             LastIndex = -1;
             SelectedSearchResult = 0;
+            TabManager.TabControl.SelectedTab.Text = "Tab";
+            UpdateApprovedCountLabel(1, 1);
         }
 
         /// <summary>
         /// Selects the next search result if applicable
         /// </summary>
         /// <returns>True if a new result could be selected</returns>
-        private bool SelectNextResultIfApplicable()
+        internal bool SelectNextResultIfApplicable()
         {
             if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused && helper.CheckListBoxLeft.SearchResults.Any())
             {
@@ -1689,7 +1603,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Does some logic to figure out wether to show or hide the replacing ui
         /// </summary>
-        private void ToggleReplaceUI()
+        internal void ToggleReplaceUI()
         {
             if (!helper.ReplaceBox.Visible)
             {

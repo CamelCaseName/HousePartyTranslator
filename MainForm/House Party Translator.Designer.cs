@@ -280,7 +280,6 @@ namespace HousePartyTranslator
             this.openToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripMenuItem.Image")));
             this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
             this.openToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
@@ -291,8 +290,6 @@ namespace HousePartyTranslator
             this.openAllToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripMenuItem.Image")));
             this.openAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openAllToolStripMenuItem.Name = "openAllToolStripMenuItem";
-            this.openAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Alt
-            | System.Windows.Forms.Keys.O)));
             this.openAllToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
             this.openAllToolStripMenuItem.Text = "Open &all";
             this.openAllToolStripMenuItem.ToolTipText = "Opens a dialog to select a file, all others will be discovered automatically. Usually.";
@@ -303,8 +300,6 @@ namespace HousePartyTranslator
             this.openInNewTabToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openInNewTabToolStripMenuItem.Image")));
             this.openInNewTabToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openInNewTabToolStripMenuItem.Name = "openInNewTabToolStripMenuItem";
-            this.openInNewTabToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift)
-            | System.Windows.Forms.Keys.O)));
             this.openInNewTabToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
             this.openInNewTabToolStripMenuItem.Text = "Open in new tab";
             this.openInNewTabToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
@@ -426,7 +421,6 @@ namespace HousePartyTranslator
             // 
             this.storyExplorerStripMenuItem1.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.storyExplorerStripMenuItem1.Name = "storyExplorerStripMenuItem1";
-            this.storyExplorerStripMenuItem1.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.E)));
             this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(118, 23);
             this.storyExplorerStripMenuItem1.Text = "Auto Story&Explorer";
             this.storyExplorerStripMenuItem1.Click += new System.EventHandler(this.StoryExplorerStripMenuItem_Click);
@@ -435,7 +429,6 @@ namespace HousePartyTranslator
             // 
             this.customOpenStoryExplorer.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.customOpenStoryExplorer.Name = "customOpenStoryExplorer";
-            this.customOpenStoryExplorer.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.T)));
             this.customOpenStoryExplorer.Size = new System.Drawing.Size(121, 23);
             this.customOpenStoryExplorer.Text = "Open StoryE&xplorer";
             this.customOpenStoryExplorer.Click += new System.EventHandler(this.CustomStoryExplorerStripMenuItem_Click);
@@ -444,7 +437,6 @@ namespace HousePartyTranslator
             // 
             this.settingsToolStripMenuItem.BackColor = System.Drawing.SystemColors.ScrollBar;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.P)));
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);

@@ -16,9 +16,10 @@ List of all hotkeys so far
 |-----|-----|-----|
 |CTRL + O|select a file to load into the current tab||
 |CTRL + SHIFT + O|select a file to be opened in a new tab||
+|ALT + SHIFT + O|select a story folder to open all files in||
 |CTRL + S|saves the file to disk|file will also be saved to the game, use setting "alsoCopyToGame" to control|
 |CTRL + SHIFT + S|saves the currently selected line||
-|CTRL + ALT + S|Saves all open files||
+|ALT + SHIFT + S|Saves all open files||
 |CTRL + F|moves the cursor to the search box|use a '?' at the beginning of your search to perform it in all tabs. use a '!' to enable case sensitive search. you can combine them also like so '?!search' for a case sensitive multitab search. use a '\\' in front of the ? or ! to treat it as a literal. somewhat combineable.|
 |CTRL + R|reloads the current file in the current tab|can be used to get rid of miscoloured lines|
 |CTRL + UP|select the line above||

@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Managers
 {
     static class SoftwareVersionManager
     {
-        public static readonly string LocalVersion = "0.5.3.1";
+        public static readonly string LocalVersion = "0.5.4.1";
         public static string LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new HttpClient();
@@ -34,8 +34,9 @@ namespace HousePartyTranslator.Managers
 
             //extract version number
             string t = response.TagName;
-            LatestGithubVersion = $"{t[0]}.{t[2]}.{t[3]}.0";
-            if(t.Length > 4) LatestGithubVersion = $"{t[0]}.{t[2]}.{t[3]}.{t[4]}";
+            LatestGithubVersion = $"{t[0]}.{t[2]}.0.0";
+            if (t.Length > 3) LatestGithubVersion = $"{t[0]}.{t[2]}.{t[3]}.0";
+            if (t.Length > 4) LatestGithubVersion = $"{t[0]}.{t[2]}.{t[3]}.{t[4]}";
 
             //path to file if we need it
             string releaseFile = Path.Combine(Directory.GetCurrentDirectory(), "Release.7z");
