@@ -22,7 +22,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripMenuItem CopyTemplateContextMenuButton;
         private System.Windows.Forms.ToolStripMenuItem CopyTranslationContextMenuButton;
         private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
-        private System.Windows.Forms.TextBox EnglishTextBox;
+        private System.Windows.Forms.TextBox TenmplateTextBox;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripComboBox languageToolStripComboBox;
@@ -55,6 +55,14 @@ namespace HousePartyTranslator
         private System.Windows.Forms.TextBox TranslatedTextBox;
         private System.Windows.Forms.Button AutoTranslateThis;
         private System.Windows.Forms.Label WordsTranslated;
+
+        private System.Drawing.Color foreground = System.Drawing.SystemColors.Window;
+        private System.Drawing.Color background = System.Drawing.SystemColors.ControlDarkDark;
+        private System.Drawing.Color backgroundDarker = System.Drawing.SystemColors.MenuText;
+        private System.Drawing.Color brightText = System.Drawing.SystemColors.HighlightText;
+        private System.Drawing.Color darkText = System.Drawing.SystemColors.WindowText;
+        private System.Drawing.Color menu = System.Drawing.SystemColors.ScrollBar;
+        private System.Drawing.Color frame = System.Drawing.SystemColors.WindowFrame;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -91,7 +99,7 @@ namespace HousePartyTranslator
             this.CopyTemplateContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
             this.CopyTranslationContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
             this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
-            this.EnglishTextBox = new System.Windows.Forms.TextBox();
+            this.TenmplateTextBox = new System.Windows.Forms.TextBox();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
@@ -138,10 +146,10 @@ namespace HousePartyTranslator
             this.TranslatedTextBox.AcceptsReturn = true;
             this.TranslatedTextBox.AllowDrop = true;
             this.TranslatedTextBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.TranslatedTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.TranslatedTextBox.BackColor = this.background;
             this.TranslatedTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.TranslatedTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TranslatedTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.TranslatedTextBox.ForeColor = this.brightText;
             this.TranslatedTextBox.ImeMode = System.Windows.Forms.ImeMode.On;
             this.TranslatedTextBox.Location = new System.Drawing.Point(689, 294);
             this.TranslatedTextBox.Multiline = true;
@@ -154,24 +162,24 @@ namespace HousePartyTranslator
             // 
             // EnglishTextBox
             // 
-            this.EnglishTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.EnglishTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.EnglishTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.EnglishTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            this.EnglishTextBox.Location = new System.Drawing.Point(689, 33);
-            this.EnglishTextBox.Multiline = true;
-            this.EnglishTextBox.Name = "EnglishTextBox";
-            this.EnglishTextBox.ReadOnly = true;
-            this.EnglishTextBox.Size = new System.Drawing.Size(678, 255);
-            this.EnglishTextBox.TabIndex = 9;
-            this.EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
+            this.TenmplateTextBox.BackColor = this.background;
+            this.TenmplateTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.TenmplateTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TenmplateTextBox.ForeColor = this.brightText;
+            this.TenmplateTextBox.Location = new System.Drawing.Point(689, 33);
+            this.TenmplateTextBox.Multiline = true;
+            this.TenmplateTextBox.Name = "TemplateTextBox";
+            this.TenmplateTextBox.ReadOnly = true;
+            this.TenmplateTextBox.Size = new System.Drawing.Size(678, 255);
+            this.TenmplateTextBox.TabIndex = 9;
+            this.TenmplateTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
             // CommentTextBox
             // 
-            this.CommentTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.CommentTextBox.BackColor = this.background;
             this.CommentTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.CommentTextBox.Font = new System.Drawing.Font("Consolas", 11F);
-            this.CommentTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            this.CommentTextBox.ForeColor = this.brightText;
             this.CommentTextBox.Location = new System.Drawing.Point(3, 16);
             this.CommentTextBox.Multiline = true;
             this.CommentTextBox.Name = "CommentTextBox";
@@ -183,8 +191,8 @@ namespace HousePartyTranslator
             // 
             this.CharacterCountLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.CharacterCountLabel.AutoSize = true;
-            this.CharacterCountLabel.BackColor = System.Drawing.SystemColors.Desktop;
-            this.CharacterCountLabel.ForeColor = System.Drawing.SystemColors.Control;
+            this.CharacterCountLabel.BackColor = this.backgroundDarker;
+            this.CharacterCountLabel.ForeColor = this.brightText;
             this.CharacterCountLabel.Location = new System.Drawing.Point(501, 5);
             this.CharacterCountLabel.Name = "CharacterCountLabel";
             this.CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
@@ -194,7 +202,7 @@ namespace HousePartyTranslator
             // SelectedFile
             // 
             this.SelectedFile.AutoSize = true;
-            this.SelectedFile.ForeColor = System.Drawing.SystemColors.Control;
+            this.SelectedFile.ForeColor = this.brightText;
             this.SelectedFile.Location = new System.Drawing.Point(0, 6);
             this.SelectedFile.Name = "SelectedFile";
             this.SelectedFile.Size = new System.Drawing.Size(98, 13);
@@ -206,7 +214,7 @@ namespace HousePartyTranslator
             this.WordsTranslated.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.WordsTranslated.AutoSize = true;
             this.WordsTranslated.BackColor = System.Drawing.Color.Transparent;
-            this.WordsTranslated.ForeColor = System.Drawing.SystemColors.Control;
+            this.WordsTranslated.ForeColor = this.brightText;
             this.WordsTranslated.Location = new System.Drawing.Point(302, 6);
             this.WordsTranslated.Name = "WordsTranslated";
             this.WordsTranslated.Size = new System.Drawing.Size(47, 13);
@@ -216,7 +224,7 @@ namespace HousePartyTranslator
             // ApprovedBox
             // 
             this.ApprovedBox.AutoSize = true;
-            this.ApprovedBox.ForeColor = System.Drawing.SystemColors.Control;
+            this.ApprovedBox.ForeColor = this.brightText;
             this.ApprovedBox.Location = new System.Drawing.Point(3, 5);
             this.ApprovedBox.Name = "ApprovedBox";
             this.ApprovedBox.Size = new System.Drawing.Size(72, 17);
@@ -228,8 +236,8 @@ namespace HousePartyTranslator
             // AutoTranslateThis
             // 
             this.AutoTranslateThis.AutoSize = true;
-            this.AutoTranslateThis.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.AutoTranslateThis.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.AutoTranslateThis.BackColor = this.menu;
+            this.AutoTranslateThis.ForeColor = this.darkText;
             this.AutoTranslateThis.Location = new System.Drawing.Point(80, 1);
             this.AutoTranslateThis.Name = "AutoTranslateThis";
             this.AutoTranslateThis.Size = new System.Drawing.Size(100, 20);
@@ -258,7 +266,7 @@ namespace HousePartyTranslator
             // 
             // fileToolStripMenuItem
             // 
-            this.fileToolStripMenuItem.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.fileToolStripMenuItem.BackColor = this.menu;
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
             this.openAllToolStripMenuItem,
@@ -364,7 +372,7 @@ namespace HousePartyTranslator
             // 
             // saveCurrentStringToolStripMenuItem
             // 
-            this.saveCurrentStringToolStripMenuItem.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.saveCurrentStringToolStripMenuItem.BackColor = this.menu;
             this.saveCurrentStringToolStripMenuItem.Name = "saveCurrentStringToolStripMenuItem";
             this.saveCurrentStringToolStripMenuItem.Size = new System.Drawing.Size(122, 23);
             this.saveCurrentStringToolStripMenuItem.Text = "&Save selected string";
@@ -372,7 +380,7 @@ namespace HousePartyTranslator
             // 
             // saveCommentsToolStripMenuItem1
             // 
-            this.saveCommentsToolStripMenuItem1.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.saveCommentsToolStripMenuItem1.BackColor = this.menu;
             this.saveCommentsToolStripMenuItem1.Name = "saveCommentsToolStripMenuItem1";
             this.saveCommentsToolStripMenuItem1.Size = new System.Drawing.Size(103, 23);
             this.saveCommentsToolStripMenuItem1.Text = "Save &comments";
@@ -380,7 +388,7 @@ namespace HousePartyTranslator
             // 
             // searchToolStripTextBox
             // 
-            this.searchToolStripTextBox.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.searchToolStripTextBox.BackColor = this.menu;
             this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
@@ -389,7 +397,7 @@ namespace HousePartyTranslator
             // 
             // ToolStripMenuReplaceBox
             // 
-            this.ToolStripMenuReplaceBox.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.ToolStripMenuReplaceBox.BackColor = this.menu;
             this.ToolStripMenuReplaceBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.ToolStripMenuReplaceBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.ToolStripMenuReplaceBox.Margin = new System.Windows.Forms.Padding(4, 0, 1, 0);
@@ -400,8 +408,8 @@ namespace HousePartyTranslator
             // 
             // toolStripReplaceButton
             // 
-            this.toolStripReplaceButton.BackColor = System.Drawing.SystemColors.ScrollBar;
-            this.toolStripReplaceButton.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.toolStripReplaceButton.BackColor = this.menu;
+            this.toolStripReplaceButton.ForeColor = this.darkText;
             this.toolStripReplaceButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.toolStripReplaceButton.Name = "toolStripReplaceButton";
             this.toolStripReplaceButton.Size = new System.Drawing.Size(63, 23);
@@ -411,7 +419,7 @@ namespace HousePartyTranslator
             // 
             // languageToolStripComboBox
             // 
-            this.languageToolStripComboBox.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.languageToolStripComboBox.BackColor = this.menu;
             this.languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
             this.languageToolStripComboBox.Name = "languageToolStripComboBox";
             this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
@@ -419,7 +427,7 @@ namespace HousePartyTranslator
             // 
             // storyExplorerStripMenuItem1
             // 
-            this.storyExplorerStripMenuItem1.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.storyExplorerStripMenuItem1.BackColor = this.menu;
             this.storyExplorerStripMenuItem1.Name = "storyExplorerStripMenuItem1";
             this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(118, 23);
             this.storyExplorerStripMenuItem1.Text = "Auto Story&Explorer";
@@ -427,7 +435,7 @@ namespace HousePartyTranslator
             // 
             // customOpenStoryExplorer
             // 
-            this.customOpenStoryExplorer.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.customOpenStoryExplorer.BackColor = this.menu;
             this.customOpenStoryExplorer.Name = "customOpenStoryExplorer";
             this.customOpenStoryExplorer.Size = new System.Drawing.Size(121, 23);
             this.customOpenStoryExplorer.Text = "Open StoryE&xplorer";
@@ -435,7 +443,7 @@ namespace HousePartyTranslator
             // 
             // settingsToolStripMenuItem
             // 
-            this.settingsToolStripMenuItem.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.settingsToolStripMenuItem.BackColor = this.menu;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
             this.settingsToolStripMenuItem.Text = "Settings";
@@ -448,7 +456,7 @@ namespace HousePartyTranslator
             this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 49.92076F));
             this.mainTableLayoutPanel.Controls.Add(this.CommentGroup, 1, 3);
             this.mainTableLayoutPanel.Controls.Add(this.TranslatedTextBox, 1, 2);
-            this.mainTableLayoutPanel.Controls.Add(this.EnglishTextBox, 1, 1);
+            this.mainTableLayoutPanel.Controls.Add(this.TenmplateTextBox, 1, 1);
             this.mainTableLayoutPanel.Controls.Add(this.CheckListBoxLeft, 0, 1);
             this.mainTableLayoutPanel.Controls.Add(this.panel1, 0, 0);
             this.mainTableLayoutPanel.Controls.Add(this.panel2, 1, 0);
@@ -467,7 +475,7 @@ namespace HousePartyTranslator
             // 
             this.CommentGroup.Controls.Add(this.CommentTextBox);
             this.CommentGroup.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.CommentGroup.ForeColor = System.Drawing.SystemColors.Window;
+            this.CommentGroup.ForeColor = this.brightText;
             this.CommentGroup.Location = new System.Drawing.Point(689, 575);
             this.CommentGroup.Name = "CommentGroup";
             this.CommentGroup.Size = new System.Drawing.Size(678, 124);
@@ -477,9 +485,9 @@ namespace HousePartyTranslator
             // 
             // CheckListBoxLeft
             // 
-            this.CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
+            this.CheckListBoxLeft.BackColor = this.frame;
             this.CheckListBoxLeft.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
+            this.CheckListBoxLeft.ForeColor = this.brightText;
             this.CheckListBoxLeft.FormattingEnabled = true;
             this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
             this.CheckListBoxLeft.Name = "CheckListBoxLeft";
@@ -505,10 +513,10 @@ namespace HousePartyTranslator
             // 
             // ProgressbarTranslated
             // 
-            this.ProgressbarTranslated.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.ProgressbarTranslated.BackColor = this.background;
             this.ProgressbarTranslated.Cursor = System.Windows.Forms.Cursors.Default;
             this.ProgressbarTranslated.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            this.ProgressbarTranslated.ForeColor = this.foreground;
             this.ProgressbarTranslated.Location = new System.Drawing.Point(0, 0);
             this.ProgressbarTranslated.Name = "ProgressbarTranslated";
             this.ProgressbarTranslated.Size = new System.Drawing.Size(680, 24);
@@ -544,7 +552,7 @@ namespace HousePartyTranslator
             // 
             this.tabPage1.BackColor = System.Drawing.Color.Black;
             this.tabPage1.Controls.Add(this.mainTableLayoutPanel);
-            this.tabPage1.ForeColor = System.Drawing.SystemColors.ScrollBar;
+            this.tabPage1.ForeColor = this.menu;
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
@@ -604,10 +612,10 @@ namespace HousePartyTranslator
             // ListContextMenu
             //
             this.ListContextMenu.Name = "ListContextMenu";
-            this.ListContextMenu.BackColor = System.Drawing.SystemColors.ScrollBar;
+            this.ListContextMenu.BackColor = this.menu;
             this.ListContextMenu.ShowCheckMargin = false;
             this.ListContextMenu.ShowImageMargin = false;
-            this.ListContextMenu.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.ListContextMenu.ForeColor = this.darkText;
             this.ListContextMenu.Size = new System.Drawing.Size(236, 160);
             this.ListContextMenu.Items.Clear();
             this.ListContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[]{
@@ -623,7 +631,7 @@ namespace HousePartyTranslator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.Desktop;
+            this.BackColor = this.backgroundDarker;
             this.ClientSize = new System.Drawing.Size(1384, 761);
             this.Controls.Add(this.MainTabControl);
             this.Controls.Add(this.MainMenu);
