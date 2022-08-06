@@ -18,8 +18,6 @@ namespace HousePartyTranslator.StoryExplorerForm
             parentName = Parent.Name;
             parentForm = Parent;
 
-            Cursor = Cursors.WaitCursor;
-
             //change draw order for this windows from bottom to top to top to bottom to remove flickering
             //use double buffering for that
             DoubleBuffered = true;

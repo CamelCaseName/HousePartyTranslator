@@ -222,8 +222,6 @@ namespace HousePartyTranslator.StoryExplorerForm
             }
             //allow paint handler to draw
             ReadyToDraw = true;
-            Explorer.Cursor = Cursors.Default;
-            Explorer.Invalidate();
         }
 
         /// <summary>

@@ -45,22 +45,37 @@ namespace HousePartyTranslator.Managers
                 if (MessageBox.Show("If you never opened this character in the explorer before, " +
                     "be aware that this can take some time (5+ minutes) and is really cpu intensive. " +
                     "This only has to be done once for each character!\n" +
-                    "You may notice stutters and stuff hanging. ", 
-                    "Warning!", 
-                    MessageBoxButtons.OKCancel, 
+                    "You may notice stutters and stuff hanging. ",
+                    "Warning!",
+                    MessageBoxButtons.OKCancel,
                     MessageBoxIcon.Warning) == DialogResult.OK)
                 {
                     StoryExplorerForm.StoryExplorer explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, explorerParent, parallelOptions);
-                    var explorerTask = Task.Run(() =>
-                   {
-                       explorer.Initialize();
-                       if (!explorer.IsDisposed) explorer.Show();
-                       return true;
-                   });
 
-                    translationManager.SetHighlightedNode();
-                    explorerParent.UseWaitCursor = false;
-                    return await explorerTask ? explorer : null;
+                    explorer.UseWaitCursor = true;
+                    var explorerTask = Task.Run(() =>
+                    {
+                        explorer.Initialize();
+                        return true;
+                    });
+
+                    if (await explorerTask)
+                    {
+                        if (!explorer.IsDisposed)
+                        {//reset cursor and display window
+                            explorer.UseWaitCursor = false;
+                            explorer.Invalidate();
+                            explorer.Show();
+                        }
+
+                        translationManager.SetHighlightedNode();
+                        explorerParent.UseWaitCursor = false;
+                        return explorer;
+                    }
+                    else
+                    {
+                        return null;
+                    }
                 }
                 else
                 {
