@@ -1,4 +1,7 @@
-﻿using System.Windows.Forms;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
@@ -22,16 +25,53 @@ namespace HousePartyTranslator.Managers
             TabManager.ActiveTranslationManager.ApproveIfPossible(false);
         }
 
-        static public StoryExplorerForm.StoryExplorer CreateStoryExplorer(bool autoOpen, Form explorerParent)
+        static async public Task<StoryExplorerForm.StoryExplorer> CreateStoryExplorer(bool autoOpen, Form explorerParent, CancellationTokenSource tokenSource)
         {
+            explorerParent.UseWaitCursor = true;
+
+            // Use ParallelOptions instance to store the CancellationToken
+            ParallelOptions parallelOptions = new ParallelOptions
+            {
+                CancellationToken = tokenSource.Token,
+                MaxDegreeOfParallelism = Environment.ProcessorCount - 1
+            };
+
+            //get currently active translation manager
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            Form.ActiveForm.UseWaitCursor = true;
             bool isStory = translationManager.StoryName.ToLowerInvariant() == translationManager.FileName.ToLowerInvariant();
-            StoryExplorerForm.StoryExplorer Explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, explorerParent);
-            if (!Explorer.IsDisposed) Explorer.Show();
-            Form.ActiveForm.UseWaitCursor = false;
-            translationManager.SetHighlightedNode();
-            return Explorer;
+            try
+            {
+                //inform user this is going to take some time
+                if (MessageBox.Show("If you never opened this character in the explorer before, " +
+                    "be aware that this can take some time (5+ minutes) and is really cpu intensive. " +
+                    "This only has to be done once for each character!\n" +
+                    "You may notice stutters and stuff hanging. ", 
+                    "Warning!", 
+                    MessageBoxButtons.OKCancel, 
+                    MessageBoxIcon.Warning) == DialogResult.OK)
+                {
+                    StoryExplorerForm.StoryExplorer explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, explorerParent, parallelOptions);
+                    var explorerTask = Task.Run(() =>
+                   {
+                       explorer.Initialize();
+                       if (!explorer.IsDisposed) explorer.Show();
+                       return true;
+                   });
+
+                    translationManager.SetHighlightedNode();
+                    explorerParent.UseWaitCursor = false;
+                    return await explorerTask ? explorer : null;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                LogManager.LogEvent("Explorer closed during creation");
+                return null;
+            }
         }
 
         /// <summary>
@@ -42,7 +82,7 @@ namespace HousePartyTranslator.Managers
         /// <returns></returns>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
-        static public bool MainKeyPressHandler(ref Message msg, Keys keyData, DiscordPresenceManager presence, Form parent)
+        static public bool MainKeyPressHandler(ref Message msg, Keys keyData, DiscordPresenceManager presence, Form parent, CancellationTokenSource tokenSource)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
         {
@@ -148,11 +188,11 @@ namespace HousePartyTranslator.Managers
                     return true;
 
                 case Keys.Control | Keys.E:
-                    CreateStoryExplorer(true, parent);
+                    CreateStoryExplorer(true, parent, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.T:
-                    CreateStoryExplorer(false, parent);
+                    CreateStoryExplorer(false, parent, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.P:

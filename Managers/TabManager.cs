@@ -328,7 +328,7 @@ namespace HousePartyTranslator.Managers
                 ((Fenster)Form.ActiveForm).SearchBox,
                 ((Fenster)Form.ActiveForm).ReplaceBox,
                 ((Fenster)Form.ActiveForm).ReplaceButton,
-                (TextBox)TabControl.SelectedTab.Controls.Find("EnglishTextBox", true)[0],
+                (TextBox)TabControl.SelectedTab.Controls.Find("TemplateTextBox", true)[0],
                 (TextBox)TabControl.SelectedTab.Controls.Find("TranslatedTextBox", true)[0]
                 );
         }
