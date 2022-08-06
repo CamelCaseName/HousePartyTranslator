@@ -21,11 +21,13 @@ namespace HousePartyTranslator
         private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> CriteriaInFile;
         private List<Node> nodes;
+        private ParallelOptions options;
 
 
 
-        public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
+        public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, ParallelOptions parallelOptions)
         {
+            options = parallelOptions;
             nodes = new List<Node>();
             this.IsStory = IsStory;
 
@@ -136,7 +138,8 @@ namespace HousePartyTranslator
                     }
 
                     //save nodes
-                    File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
+                    if (nodes != null) File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
+                    else return false;
                 }
 
                 return nodes.Count > 0;
@@ -215,11 +218,12 @@ namespace HousePartyTranslator
                 cooldown *= cooldown;
                 //initialize maximum force/reset it
                 currentMaxForce = maxForce + 0.1f;
-
-                //go through all nodes and apply the forces
-                Parallel.For(0, nodes.Count, i1 =>
+                try
                 {
-                    Node node = nodes[i1];
+                    //go through all nodes and apply the forces
+                    Parallel.For(0, nodes.Count, options, i1 =>
+                    {
+                        Node node = nodes[i1];
                     //create position vector for all later calculations
                     Vector2 nodePosition = new Vector2(node.Position.X, node.Position.Y);
                     //reset force
@@ -227,12 +231,12 @@ namespace HousePartyTranslator
 
                     //calculate repulsion force
                     for (int i2 = 0; i2 < nodes.Count; i2++)
-                    {
-                        Node secondNode = nodes[i2];
-                        if (node != secondNode && secondNode.Position != node.Position)
                         {
-                            Vector2 secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
-                            Vector2 difference = (secondNodePosition - nodePosition);
+                            Node secondNode = nodes[i2];
+                            if (node != secondNode && secondNode.Position != node.Position)
+                            {
+                                Vector2 secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
+                                Vector2 difference = (secondNodePosition - nodePosition);
                             //absolute length of difference/distance
                             float distance = difference.Length();
                             //add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
@@ -240,22 +244,28 @@ namespace HousePartyTranslator
 
                             //if the second node is a child of ours
                             if (secondNode.ParentNodes.Contains(node))
-                            {
+                                {
                                 //so we can now do the attraction force
                                 //formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
                                 NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
-                            }
-                            else
-                            {
+                                }
+                                else
+                                {
                                 //add force to node
                                 NodeForces[node.Guid] += repulsionForce;
-                            }
+                                }
 
                             //add new maximum force or keep it as is if ours is smaller
                             currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                catch (OperationCanceledException e)
+                {
+                    LogManager.LogEvent("Explorer closed during creation");
+                    return null;
+                }
 
                 //apply force to nodes
                 for (int i1 = 0; i1 < nodes.Count; i1++)

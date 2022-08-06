@@ -191,7 +191,6 @@ namespace HousePartyTranslator
             // 
             this.CharacterCountLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.CharacterCountLabel.AutoSize = true;
-            this.CharacterCountLabel.BackColor = this.backgroundDarker;
             this.CharacterCountLabel.ForeColor = this.brightText;
             this.CharacterCountLabel.Location = new System.Drawing.Point(501, 5);
             this.CharacterCountLabel.Name = "CharacterCountLabel";
@@ -663,4 +662,3 @@ namespace HousePartyTranslator
         //private System.Windows.Forms.SplitContainer MainContainer;
     }
 }
-

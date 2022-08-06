@@ -83,7 +83,7 @@ namespace HousePartyTranslator.StoryExplorerForm
             Explorer = explorer;
             NodeInfoLabel = nodeInfoLabel;
 
-            GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+            GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, PixelFormat.Format24bppRgb);
 
             bytesPerPixel = Image.GetPixelFormatSize(GraphBitmap.PixelFormat) / 8;
             heightInPixels = GraphBitmap.Height;
@@ -222,8 +222,6 @@ namespace HousePartyTranslator.StoryExplorerForm
             }
             //allow paint handler to draw
             ReadyToDraw = true;
-            Explorer.Cursor = Cursors.Default;
-            Explorer.Invalidate();
         }
 
         /// <summary>

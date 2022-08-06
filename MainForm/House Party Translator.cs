@@ -1,6 +1,7 @@
 ﻿using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
@@ -13,6 +14,7 @@ namespace HousePartyTranslator
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
         private DiscordPresenceManager PresenceManager;
         private StoryExplorer SExplorer;
+        private readonly CancellationTokenSource CancelTokens = new CancellationTokenSource();
 
         /// <summary>
         /// Constructor for the main window of the translator, starts all other components in the correct order
@@ -90,7 +92,7 @@ namespace HousePartyTranslator
         /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (KeypressManager.MainKeyPressHandler(ref msg, keyData, PresenceManager, this))
+            if (KeypressManager.MainKeyPressHandler(ref msg, keyData, PresenceManager, this, CancelTokens))
             {
                 return true;
             }
@@ -105,9 +107,9 @@ namespace HousePartyTranslator
             TabManager.CloseTab(sender, e);
         }
 
-        private void CustomStoryExplorerStripMenuItem_Click(object sender, EventArgs e)
+        private async void CustomStoryExplorerStripMenuItem_Click(object sender, EventArgs e)
         {
-            Explorer = KeypressManager.CreateStoryExplorer(false, this);
+            Explorer = await KeypressManager.CreateStoryExplorer(false, this, CancelTokens);
         }
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -121,6 +123,10 @@ namespace HousePartyTranslator
             if (PresenceManager != null) PresenceManager.DeInitialize();
 
             RecentsManager.SaveRecents();
+
+            CancelTokens.Cancel();
+
+            CancelTokens.Dispose();
 
             //show save unsaved changes dialog
             if (TabManager.ActiveTranslationManager != null) TabManager.ActiveTranslationManager.ShowAutoSaveDialog();
@@ -227,9 +233,9 @@ namespace HousePartyTranslator
             KeypressManager.ShowSettings();
         }
 
-        private void StoryExplorerStripMenuItem_Click(object sender, EventArgs e)
+        private async void StoryExplorerStripMenuItem_Click(object sender, EventArgs e)
         {
-            Explorer = KeypressManager.CreateStoryExplorer(true, this);
+            Explorer = await KeypressManager.CreateStoryExplorer(true, this, CancelTokens);
         }
 
         private void ThreadExceptionHandler(object sender, System.Threading.ThreadExceptionEventArgs e)
