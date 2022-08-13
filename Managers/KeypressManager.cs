@@ -134,7 +134,7 @@ namespace HousePartyTranslator.Managers
 
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
-                    TabManager.ActiveTranslationManager.ToggleReplaceUI();
+                    //TabManager.ActiveTranslationManager.ToggleReplaceUI();
                     return true;
 
                 //save current file
