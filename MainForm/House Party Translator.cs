@@ -43,13 +43,16 @@ namespace HousePartyTranslator
             }
             set
             {
-                if (value.ParentName == Name)
+                if (value != null)
                 {
-                    SExplorer = value;
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
+                    if (value.ParentName == Name)
+                    {
+                        SExplorer = value;
+                    }
+                    else
+                    {
+                        throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
+                    }
                 }
             }
         }

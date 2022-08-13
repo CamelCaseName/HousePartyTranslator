@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -41,18 +42,29 @@ namespace HousePartyTranslator.Managers
             bool isStory = translationManager.StoryName.ToLowerInvariant() == translationManager.FileName.ToLowerInvariant();
             try
             {
-                //inform user this is going to take some time
-                if (MessageBox.Show("If you never opened this character in the explorer before, " +
-                    "be aware that this can take some time (5+ minutes) and is really cpu intensive. " +
-                    "This only has to be done once for each character!\n" +
-                    "You may notice stutters and stuff hanging. ",
-                    "Warning!",
-                    MessageBoxButtons.OKCancel,
-                    MessageBoxIcon.Warning) == DialogResult.OK)
+                //create an id to differentiate between the different calculated layouts later
+                string FileId = translationManager.StoryName + translationManager.FileName + DataBaseManager.DBVersion;
+                string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
+                DialogResult result = DialogResult.OK;
+                if (!File.Exists(savedNodesPath))
                 {
-                    StoryExplorerForm.StoryExplorer explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, explorerParent, parallelOptions);
+                    result = MessageBox.Show("If you never opened this character in the explorer before, " +
+                       "be aware that this can take some time (5+ minutes) and is really cpu intensive. " +
+                       "This only has to be done once for each character!\n" +
+                       "You may notice stutters and stuff hanging. ",
+                       "Warning!",
+                       MessageBoxButtons.OKCancel,
+                       MessageBoxIcon.Warning);
+                }
+                //inform user this is going to take some time
+                if (result == DialogResult.OK)
+                {
+                    StoryExplorerForm.StoryExplorer explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, explorerParent, parallelOptions)
+                    {
+                        UseWaitCursor = true
+                    };
 
-                    explorer.UseWaitCursor = true;
+                    //task to offload initialization workload
                     var explorerTask = Task.Run(() =>
                     {
                         explorer.Initialize();
@@ -74,16 +86,20 @@ namespace HousePartyTranslator.Managers
                     }
                     else
                     {
+                        explorerParent.UseWaitCursor = false;
                         return null;
                     }
                 }
                 else
                 {
+                    explorerParent.UseWaitCursor = false;
                     return null;
                 }
+
             }
             catch (OperationCanceledException)
             {
+                explorerParent.UseWaitCursor = false;
                 LogManager.LogEvent("Explorer closed during creation");
                 return null;
             }
