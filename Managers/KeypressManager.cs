@@ -243,18 +243,18 @@ namespace HousePartyTranslator.Managers
                     return true;
 
                 default:
-                    PrepareTextChanged(parent);
+                    PrepareTextChanged(parent.ActiveControl);
                     //return false, we dont consume the keypresses, only save a state to monitor for change
                     return false;
             }
         }
 
-        static public void PrepareTextChanged(Form parent)
+        static public void PrepareTextChanged(object textBox)
         {
             //if we have any kind of text box selected, we save keypresses for undo, else not
-            if (parent.ActiveControl.GetType().IsAssignableFrom(typeof(TextBox)))
+            if (textBox.GetType().IsAssignableFrom(typeof(TextBox)))
             {
-                lastChangedTextBox = (TextBox)parent.ActiveControl;
+                lastChangedTextBox = (TextBox)textBox;
                 lastText = lastChangedTextBox.Text;
             }
         }

@@ -160,6 +160,7 @@ namespace HousePartyTranslator
             this.TranslatedTextBox.Text = "edit here";
             this.TranslatedTextBox.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
             this.TranslatedTextBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TextContextOpened);
+            this.TranslatedTextBox.MouseEnter += new System.EventHandler(this.TextContextOpened);
             // 
             // EnglishTextBox
             // 
@@ -189,6 +190,7 @@ namespace HousePartyTranslator
             this.CommentTextBox.TabIndex = 13;
             this.CommentTextBox.TextChanged += new System.EventHandler(this.Comments_TextChanged);
             this.CommentTextBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TextContextOpened);
+            this.CommentTextBox.MouseEnter += new System.EventHandler(this.TextContextOpened);
             // 
             // CharacterCountLabel
             // 

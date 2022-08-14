@@ -312,7 +312,7 @@ namespace HousePartyTranslator
 
         public void TextContextOpened(object sender, EventArgs e)
         {
-            KeypressManager.PrepareTextChanged(this);
+            KeypressManager.PrepareTextChanged(sender);
         }
     }
 }
