@@ -159,6 +159,7 @@ namespace HousePartyTranslator
             this.TranslatedTextBox.TabIndex = 0;
             this.TranslatedTextBox.Text = "edit here";
             this.TranslatedTextBox.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
+            this.TranslatedTextBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TextContextOpened);
             // 
             // EnglishTextBox
             // 
@@ -186,6 +187,8 @@ namespace HousePartyTranslator
             this.CommentTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.CommentTextBox.Size = new System.Drawing.Size(672, 105);
             this.CommentTextBox.TabIndex = 13;
+            this.CommentTextBox.TextChanged += new System.EventHandler(this.Comments_TextChanged);
+            this.CommentTextBox.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TextContextOpened);
             // 
             // CharacterCountLabel
             // 
@@ -639,6 +642,7 @@ namespace HousePartyTranslator
             this.ShowIcon = false;
             this.Text = "HP Translator Helper";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TextContextOpened);
             this.Shown += new System.EventHandler(this.OnFormShown);
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();

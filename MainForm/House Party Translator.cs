@@ -79,11 +79,12 @@ namespace HousePartyTranslator
 
         public void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            KeypressManager.SelectedItemChanged();
+            KeypressManager.SelectedItemChanged(CheckListBoxLeft);
         }
 
         public void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
+            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
             KeypressManager.TranslationTextChanged();
         }
 
@@ -101,7 +102,8 @@ namespace HousePartyTranslator
             }
             else
             {
-                return base.ProcessCmdKey(ref msg, keyData);
+                bool temp = base.ProcessCmdKey(ref msg, keyData);
+                return temp;
             }
         }
 
@@ -228,6 +230,7 @@ namespace HousePartyTranslator
 
         private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
+            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
             TabManager.Search();
         }
 
@@ -241,7 +244,7 @@ namespace HousePartyTranslator
             Explorer = await KeypressManager.CreateStoryExplorer(true, this, CancelTokens);
         }
 
-        private void ThreadExceptionHandler(object sender, System.Threading.ThreadExceptionEventArgs e)
+        private void ThreadExceptionHandler(object sender, ThreadExceptionEventArgs e)
         {
             LogManager.LogEvent(e.Exception.ToString());
             TranslationManager.DisplayExceptionMessage(e.Exception.Message);
@@ -249,6 +252,12 @@ namespace HousePartyTranslator
 
         private void ToolStripMenuReplaceBox_TextChanged(object sender, EventArgs e)
         {
+            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
+        }
+
+        private void Comments_TextChanged(object sender, EventArgs e)
+        {
+            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
         }
 
         private void ToolStripReplaceButton_Click(object sender, EventArgs e)
@@ -299,6 +308,11 @@ namespace HousePartyTranslator
         public void OpeningContextMenu(object sender, MouseEventArgs e)
         {
             KeypressManager.OpenContextMenu(ListContextMenu, e);
+        }
+
+        public void TextContextOpened(object sender, EventArgs e)
+        {
+            KeypressManager.PrepareTextChanged(this);
         }
     }
 }

@@ -11,6 +11,10 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     static class KeypressManager
     {
+        static private TextBox lastChangedTextBox;
+        static private string lastText;
+        static private int lastIndex = Properties.Settings.Default.recent_index;
+
         static public void ApprovedButtonChanged()
         {
             TabManager.ActiveTranslationManager.ApprovedButtonHandler();
@@ -106,7 +110,7 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Detects for hotkeys used, if they are consumed we return true, else false is returned.
+        /// Detects for hotkeys used, if they are consumed we return true, else false is returned. Call TextChangedCallback if this returned false and the base.WndProc has finished to call back on text changes.
         /// </summary>
         /// <param name="msg">Windows message contaning the info on the event.</param>
         /// <param name="keyData">Keydata containing all currently pressed keys.</param>
@@ -134,7 +138,7 @@ namespace HousePartyTranslator.Managers
 
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
-                    //TabManager.ActiveTranslationManager.ToggleReplaceUI();
+                    TabManager.ActiveTranslationManager.ToggleReplaceUI();
                     return true;
 
                 //save current file
@@ -210,6 +214,14 @@ namespace HousePartyTranslator.Managers
                     OpenNew(presence);
                     return true;
 
+                case Keys.Control | Keys.Z:
+                    History.Undo();
+                    return true;
+
+                case Keys.Control | Keys.U:
+                    History.Redo();
+                    return true;
+
                 case Keys.Control | Keys.Shift | Keys.O:
                     OpenNewTab(presence);
                     return true;
@@ -219,11 +231,11 @@ namespace HousePartyTranslator.Managers
                     return true;
 
                 case Keys.Control | Keys.E:
-                    CreateStoryExplorer(true, parent, tokenSource);
+                    _ = CreateStoryExplorer(true, parent, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.T:
-                    CreateStoryExplorer(false, parent, tokenSource);
+                    _ = CreateStoryExplorer(false, parent, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.P:
@@ -231,7 +243,36 @@ namespace HousePartyTranslator.Managers
                     return true;
 
                 default:
+                    PrepareTextChanged(parent);
+                    //return false, we dont consume the keypresses, only save a state to monitor for change
                     return false;
+            }
+        }
+
+        static public void PrepareTextChanged(Form parent)
+        {
+            //if we have any kind of text box selected, we save keypresses for undo, else not
+            if (parent.ActiveControl.GetType().IsAssignableFrom(typeof(TextBox)))
+            {
+                lastChangedTextBox = (TextBox)parent.ActiveControl;
+                lastText = lastChangedTextBox.Text;
+            }
+        }
+
+        /// <summary>
+        /// Call this after performing base.WndProc, but before returning in the overriden form WndProc
+        /// </summary>
+        static public void TextChangedCallback(Form parent, int selectedIndex)
+        {
+            if (parent.ActiveControl.GetType().IsAssignableFrom(typeof(TextBox)))
+            {
+                if (((TextBox)parent.ActiveControl) == lastChangedTextBox
+                    && lastText != lastChangedTextBox?.Text
+                    && !History.CausedByHistory
+                    && lastIndex == selectedIndex)
+                {
+                    History.AddAction(new TextChanged(lastChangedTextBox, lastText, lastChangedTextBox.Text));
+                }
             }
         }
 
@@ -275,8 +316,11 @@ namespace HousePartyTranslator.Managers
             presenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
-        static public void SelectedItemChanged()
+        static public void SelectedItemChanged(Helpers.ColouredCheckedListBox listBox)
         {
+            if (!History.CausedByHistory)
+                History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex));
+            lastIndex = listBox.SelectedIndex;
             TabManager.ActiveTranslationManager.PopulateTextBoxes();
         }
 
