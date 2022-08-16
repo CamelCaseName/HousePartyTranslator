@@ -293,7 +293,7 @@ namespace HousePartyTranslator.Helpers
             };
 
             TextBox TranslatedTextBox = new TextBox();
-            TextBox EnglishTextBox = new TextBox();
+            TextBox TemplateTextBox = new TextBox();
             TextBox CommentTextBox = new TextBox();
             Label CharacterCountLabel = new Label();
             Label SelectedFile = new Label();
@@ -352,19 +352,19 @@ namespace HousePartyTranslator.Helpers
             TranslateThis.UseVisualStyleBackColor = true;
             TranslateThis.Click += new EventHandler(((Fenster)Form.ActiveForm).TranslateThis_Click);
             // 
-            // EnglishTextBox
+            // TemplateTextBox
             // 
-            EnglishTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
-            EnglishTextBox.Dock = DockStyle.Fill;
-            EnglishTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            EnglishTextBox.ForeColor = System.Drawing.SystemColors.Window;
-            EnglishTextBox.Location = new System.Drawing.Point(689, 33);
-            EnglishTextBox.Multiline = true;
-            EnglishTextBox.Name = "EnglishTextBox";
-            EnglishTextBox.ReadOnly = true;
-            EnglishTextBox.Size = new System.Drawing.Size(678, 255);
-            EnglishTextBox.TabIndex = 9;
-            EnglishTextBox.Text = "Lorem ipsum dolor sit amed";
+            TemplateTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            TemplateTextBox.Dock = DockStyle.Fill;
+            TemplateTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            TemplateTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            TemplateTextBox.Location = new System.Drawing.Point(689, 33);
+            TemplateTextBox.Multiline = true;
+            TemplateTextBox.Name = "TemplateTextBox";
+            TemplateTextBox.ReadOnly = true;
+            TemplateTextBox.Size = new System.Drawing.Size(678, 255);
+            TemplateTextBox.TabIndex = 9;
+            TemplateTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
             // CommentTextBox
             // 
@@ -433,7 +433,7 @@ namespace HousePartyTranslator.Helpers
             mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.92076F));
             mainTableLayoutPanel.Controls.Add(CommentGroup, 1, 3);
             mainTableLayoutPanel.Controls.Add(TranslatedTextBox, 1, 2);
-            mainTableLayoutPanel.Controls.Add(EnglishTextBox, 1, 1);
+            mainTableLayoutPanel.Controls.Add(TemplateTextBox, 1, 1);
             mainTableLayoutPanel.Controls.Add(CheckListBoxLeft, 0, 1);
             mainTableLayoutPanel.Controls.Add(panel1, 0, 0);
             mainTableLayoutPanel.Controls.Add(panel2, 1, 0);
