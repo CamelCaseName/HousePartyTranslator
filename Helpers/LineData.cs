@@ -130,7 +130,7 @@ public class LineData
     public override string ToString()
     {
         string value;
-        if (TranslationString != "" && TranslationString != null)
+        if (TranslationString != null && TranslationString != "")
         {
             value = ID + "|" + TranslationString;
         }

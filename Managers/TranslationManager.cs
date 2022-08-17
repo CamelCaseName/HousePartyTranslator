@@ -40,6 +40,7 @@ namespace HousePartyTranslator.Managers
         private string storyName = "";
         private readonly PropertyHelper helper;
         private bool triedFixingOnce = false;
+        private bool triedSavingFixOnce = false;
 
         /// <summary>
         /// The Constructor for this class. Takes no arguments.
@@ -697,7 +698,16 @@ namespace HousePartyTranslator.Managers
                     {
                         //add translation to the list in the correct category if present
                         int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-                        CategorizedStrings[intCategory].Item1.Add(lineDataResult);
+                        if (intCategory < CategorizedStrings.Count && intCategory >= 0)
+                            CategorizedStrings[intCategory].Item1.Add(lineDataResult);
+                        else if(!triedSavingFixOnce)
+                        {
+                            triedSavingFixOnce = true;
+                            GenerateCategories();
+                            SaveFile();
+                            triedSavingFixOnce = false;
+                        }
+
                     }
                     else// if id is not found
                     {
@@ -1438,12 +1448,6 @@ namespace HousePartyTranslator.Managers
                 TryFixEmptyFile();
             }
 
-            if (lastLine.Length > 0)
-            {
-                //add last line (dont care about duplicates because sql will get rid of them)
-                TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
-            }
-
             //set categories if file is a hint file
             if (StoryName == "Hints") CategoriesInFile = new List<StringCategory>() { StringCategory.General };
 
@@ -1532,6 +1536,12 @@ namespace HousePartyTranslator.Managers
                         CategoriesInFile.Add(category);
                     }
                 }
+            }
+
+            if (lastLine.Length > 0)
+            {
+                //add last line (dont care about duplicates because sql will get rid of them)
+                TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, category, lastLine[1]));
             }
         }
 
