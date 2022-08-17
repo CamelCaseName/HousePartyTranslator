@@ -17,8 +17,8 @@ namespace HousePartyTranslator
         private StoryExplorer SExplorer;
         private readonly CancellationTokenSource CancelTokens = new CancellationTokenSource();
 
-        private ColouredCheckedListBox CheckListBoxLeft;
-        private ContextMenuStrip ListContextMenu;
+        private readonly ColouredCheckedListBox CheckListBoxLeft;
+        private readonly ContextMenuStrip ListContextMenu;
 
         /// <summary>
         /// Constructor for the main window of the translator, starts all other components in the correct order
