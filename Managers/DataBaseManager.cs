@@ -849,7 +849,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId.Substring((story + fileName).Length);
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : 2));
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TabManager.ActiveTranslationManager.Language.Length));
         }
 
         /// <summary>

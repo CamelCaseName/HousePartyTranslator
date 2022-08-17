@@ -4,65 +4,43 @@ namespace HousePartyTranslator
 {
     partial class Fenster
     {
-        private System.Windows.Forms.CheckBox ApprovedBox;
-        private System.Windows.Forms.Label CharacterCountLabel;
-        private ColouredCheckedListBox CheckListBoxLeft;
-        private System.Windows.Forms.GroupBox CommentGroup;
-        private System.Windows.Forms.TextBox CommentTextBox;
-
         /// <summary>
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-        private System.Windows.Forms.ToolStripMenuItem CopyAllContextMenuButton;
-        private System.Windows.Forms.ToolStripMenuItem CopyAsOutputContextMenuButton;
-        private System.Windows.Forms.ToolStripMenuItem CopyFileNameContextMenuButton;
-        private System.Windows.Forms.ToolStripMenuItem CopyIdContextMenuButton;
-        private System.Windows.Forms.ToolStripMenuItem CopyStoryNameContextMenuButton;
-        private System.Windows.Forms.ToolStripMenuItem CopyTemplateContextMenuButton;
-        private System.Windows.Forms.ToolStripMenuItem CopyTranslationContextMenuButton;
-        private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
-        private System.Windows.Forms.TextBox TenmplateTextBox;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripComboBox languageToolStripComboBox;
-        private System.Windows.Forms.ContextMenuStrip ListContextMenu;
         private System.Windows.Forms.MenuStrip MainMenu;
         private System.Windows.Forms.TabControl MainTabControl;
         private System.Windows.Forms.TableLayoutPanel mainTableLayoutPanel;
+        private System.Windows.Forms.TabPage tabPage1;
+        private System.Windows.Forms.ToolStripComboBox languageToolStripComboBox;
+        private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openInNewTabToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Panel panel2;
-        private NoAnimationBar ProgressbarTranslated;
         private System.Windows.Forms.ToolStripMenuItem Recents;
+        private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveCommentsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
-        private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
-        private System.Windows.Forms.Label SelectedFile;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.TextBox TranslatedTextBox;
-        private System.Windows.Forms.Button AutoTranslateThis;
-        private System.Windows.Forms.Label WordsTranslated;
+        private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
+        private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
 
-        private System.Drawing.Color foreground = System.Drawing.SystemColors.Window;
-        private System.Drawing.Color background = System.Drawing.SystemColors.ControlDarkDark;
-        private System.Drawing.Color backgroundDarker = System.Drawing.SystemColors.MenuText;
-        private System.Drawing.Color brightText = System.Drawing.SystemColors.HighlightText;
-        private System.Drawing.Color darkText = System.Drawing.SystemColors.WindowText;
-        private System.Drawing.Color menu = System.Drawing.SystemColors.ScrollBar;
-        private System.Drawing.Color frame = System.Drawing.SystemColors.WindowFrame;
+        private System.Drawing.Color foreground = Utils.foreground;
+        private System.Drawing.Color background = Utils.background;
+        private System.Drawing.Color backgroundDarker = Utils.backgroundDarker;
+        private System.Drawing.Color brightText = Utils.brightText;
+        private System.Drawing.Color darkText = Utils.darkText;
+        private System.Drawing.Color menu = Utils.menu;
+        private System.Drawing.Color frame = Utils.frame;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -77,7 +55,6 @@ namespace HousePartyTranslator
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
 
         /// <summary>
         /// Required method for Designer support - do not modify
@@ -86,41 +63,23 @@ namespace HousePartyTranslator
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Fenster));
-            this.ApprovedBox = new System.Windows.Forms.CheckBox();
-            this.CharacterCountLabel = new System.Windows.Forms.Label();
-            this.CheckListBoxLeft = new HousePartyTranslator.Helpers.ColouredCheckedListBox();
-            this.CommentGroup = new System.Windows.Forms.GroupBox();
-            this.CommentTextBox = new System.Windows.Forms.TextBox();
-            this.CopyAllContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.CopyAsOutputContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.CopyFileNameContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.CopyIdContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.CopyStoryNameContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.CopyTemplateContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.CopyTranslationContextMenuButton = new System.Windows.Forms.ToolStripMenuItem();
             this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
-            this.TenmplateTextBox = new System.Windows.Forms.TextBox();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
-            this.ListContextMenu = new System.Windows.Forms.ContextMenuStrip();
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.MainTabControl = new System.Windows.Forms.TabControl();
             this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.openAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openInNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.ProgressbarTranslated = new HousePartyTranslator.Helpers.NoAnimationBar();
             this.Recents = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveCommentsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.saveCurrentStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
-            this.SelectedFile = new System.Windows.Forms.Label();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage1 = new System.Windows.Forms.TabPage();
@@ -129,121 +88,10 @@ namespace HousePartyTranslator
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.TranslatedTextBox = new System.Windows.Forms.TextBox();
-            this.AutoTranslateThis = new System.Windows.Forms.Button();
-            this.WordsTranslated = new System.Windows.Forms.Label();
             this.MainMenu.SuspendLayout();
-            this.mainTableLayoutPanel.SuspendLayout();
-            this.CommentGroup.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.panel2.SuspendLayout();
             this.MainTabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // TranslatedTextBox
-            // 
-            this.TranslatedTextBox.AcceptsReturn = true;
-            this.TranslatedTextBox.AllowDrop = true;
-            this.TranslatedTextBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.TranslatedTextBox.BackColor = this.background;
-            this.TranslatedTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TranslatedTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TranslatedTextBox.ForeColor = this.brightText;
-            this.TranslatedTextBox.ImeMode = System.Windows.Forms.ImeMode.On;
-            this.TranslatedTextBox.Location = new System.Drawing.Point(689, 294);
-            this.TranslatedTextBox.Multiline = true;
-            this.TranslatedTextBox.Name = "TranslatedTextBox";
-            this.TranslatedTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.TranslatedTextBox.Size = new System.Drawing.Size(678, 275);
-            this.TranslatedTextBox.TabIndex = 0;
-            this.TranslatedTextBox.Text = "edit here";
-            this.TranslatedTextBox.TextChanged += new System.EventHandler(this.TextBoxRight_TextChanged);
-            // 
-            // EnglishTextBox
-            // 
-            this.TenmplateTextBox.BackColor = this.background;
-            this.TenmplateTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.TenmplateTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TenmplateTextBox.ForeColor = this.brightText;
-            this.TenmplateTextBox.Location = new System.Drawing.Point(689, 33);
-            this.TenmplateTextBox.Multiline = true;
-            this.TenmplateTextBox.Name = "TemplateTextBox";
-            this.TenmplateTextBox.ReadOnly = true;
-            this.TenmplateTextBox.Size = new System.Drawing.Size(678, 255);
-            this.TenmplateTextBox.TabIndex = 9;
-            this.TenmplateTextBox.Text = "Lorem ipsum dolor sit amed";
-            // 
-            // CommentTextBox
-            // 
-            this.CommentTextBox.BackColor = this.background;
-            this.CommentTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.CommentTextBox.Font = new System.Drawing.Font("Consolas", 11F);
-            this.CommentTextBox.ForeColor = this.brightText;
-            this.CommentTextBox.Location = new System.Drawing.Point(3, 16);
-            this.CommentTextBox.Multiline = true;
-            this.CommentTextBox.Name = "CommentTextBox";
-            this.CommentTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.CommentTextBox.Size = new System.Drawing.Size(672, 105);
-            this.CommentTextBox.TabIndex = 13;
-            // 
-            // CharacterCountLabel
-            // 
-            this.CharacterCountLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.CharacterCountLabel.AutoSize = true;
-            this.CharacterCountLabel.ForeColor = this.brightText;
-            this.CharacterCountLabel.Location = new System.Drawing.Point(501, 5);
-            this.CharacterCountLabel.Name = "CharacterCountLabel";
-            this.CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
-            this.CharacterCountLabel.TabIndex = 16;
-            this.CharacterCountLabel.Text = "Template: xx | Translation: xx";
-            // 
-            // SelectedFile
-            // 
-            this.SelectedFile.AutoSize = true;
-            this.SelectedFile.ForeColor = this.brightText;
-            this.SelectedFile.Location = new System.Drawing.Point(0, 6);
-            this.SelectedFile.Name = "SelectedFile";
-            this.SelectedFile.Size = new System.Drawing.Size(98, 13);
-            this.SelectedFile.TabIndex = 7;
-            this.SelectedFile.Text = "Selected File: none";
-            // 
-            // WordsTranslated
-            // 
-            this.WordsTranslated.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.WordsTranslated.AutoSize = true;
-            this.WordsTranslated.BackColor = System.Drawing.Color.Transparent;
-            this.WordsTranslated.ForeColor = this.brightText;
-            this.WordsTranslated.Location = new System.Drawing.Point(302, 6);
-            this.WordsTranslated.Name = "WordsTranslated";
-            this.WordsTranslated.Size = new System.Drawing.Size(47, 13);
-            this.WordsTranslated.TabIndex = 7;
-            this.WordsTranslated.Text = "progress";
-            // 
-            // ApprovedBox
-            // 
-            this.ApprovedBox.AutoSize = true;
-            this.ApprovedBox.ForeColor = this.brightText;
-            this.ApprovedBox.Location = new System.Drawing.Point(3, 5);
-            this.ApprovedBox.Name = "ApprovedBox";
-            this.ApprovedBox.Size = new System.Drawing.Size(72, 17);
-            this.ApprovedBox.TabIndex = 13;
-            this.ApprovedBox.Text = global::HousePartyTranslator.Properties.Resources.Approved;
-            this.ApprovedBox.UseVisualStyleBackColor = true;
-            this.ApprovedBox.CheckedChanged += new System.EventHandler(this.ApprovedBox_CheckedChanged);
-            // 
-            // AutoTranslateThis
-            // 
-            this.AutoTranslateThis.AutoSize = true;
-            this.AutoTranslateThis.BackColor = this.menu;
-            this.AutoTranslateThis.ForeColor = this.darkText;
-            this.AutoTranslateThis.Location = new System.Drawing.Point(80, 1);
-            this.AutoTranslateThis.Name = "AutoTranslateThis";
-            this.AutoTranslateThis.Size = new System.Drawing.Size(100, 20);
-            this.AutoTranslateThis.TabIndex = 13;
-            this.AutoTranslateThis.Text = "Automatic Translation";
-            this.AutoTranslateThis.UseVisualStyleBackColor = true;
-            this.AutoTranslateThis.Click += new System.EventHandler(this.TranslateThis_Click);
             // 
             // MainMenu
             // 
@@ -448,92 +296,9 @@ namespace HousePartyTranslator
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 
-            // mainTableLayoutPanel
+            // tabPage1
             // 
-            this.mainTableLayoutPanel.ColumnCount = 2;
-            this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50.07924F));
-            this.mainTableLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 49.92076F));
-            this.mainTableLayoutPanel.Controls.Add(this.CommentGroup, 1, 3);
-            this.mainTableLayoutPanel.Controls.Add(this.TranslatedTextBox, 1, 2);
-            this.mainTableLayoutPanel.Controls.Add(this.TenmplateTextBox, 1, 1);
-            this.mainTableLayoutPanel.Controls.Add(this.CheckListBoxLeft, 0, 1);
-            this.mainTableLayoutPanel.Controls.Add(this.panel1, 0, 0);
-            this.mainTableLayoutPanel.Controls.Add(this.panel2, 1, 0);
-            this.mainTableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainTableLayoutPanel.Location = new System.Drawing.Point(3, 3);
-            this.mainTableLayoutPanel.Name = "mainTableLayoutPanel";
-            this.mainTableLayoutPanel.RowCount = 4;
-            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 38.94275F));
-            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 41.86569F));
-            this.mainTableLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 19.19156F));
-            this.mainTableLayoutPanel.Size = new System.Drawing.Size(1370, 702);
-            this.mainTableLayoutPanel.TabIndex = 18;
-            // 
-            // CommentGroup
-            // 
-            this.CommentGroup.Controls.Add(this.CommentTextBox);
-            this.CommentGroup.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.CommentGroup.ForeColor = this.brightText;
-            this.CommentGroup.Location = new System.Drawing.Point(689, 575);
-            this.CommentGroup.Name = "CommentGroup";
-            this.CommentGroup.Size = new System.Drawing.Size(678, 124);
-            this.CommentGroup.TabIndex = 11;
-            this.CommentGroup.TabStop = false;
-            this.CommentGroup.Text = "Comments";
-            // 
-            // CheckListBoxLeft
-            // 
-            this.CheckListBoxLeft.BackColor = this.frame;
-            this.CheckListBoxLeft.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.CheckListBoxLeft.ForeColor = this.brightText;
-            this.CheckListBoxLeft.FormattingEnabled = true;
-            this.CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
-            this.CheckListBoxLeft.Name = "CheckListBoxLeft";
-            this.mainTableLayoutPanel.SetRowSpan(this.CheckListBoxLeft, 3);
-            this.CheckListBoxLeft.Size = new System.Drawing.Size(680, 666);
-            this.CheckListBoxLeft.TabIndex = 10;
-            this.CheckListBoxLeft.ThreeDCheckBoxes = true;
-            this.CheckListBoxLeft.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.CheckListBoxLeft_ItemCheck);
-            this.CheckListBoxLeft.SelectedIndexChanged += new System.EventHandler(this.CheckListBoxLeft_SelectedIndexChanged);
-            this.CheckListBoxLeft.ContextMenuStrip = this.ListContextMenu;
-            this.CheckListBoxLeft.MouseDown += new System.Windows.Forms.MouseEventHandler(this.OpeningContextMenu);
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.SelectedFile);
-            this.panel1.Controls.Add(this.WordsTranslated);
-            this.panel1.Controls.Add(this.ProgressbarTranslated);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(680, 24);
-            this.panel1.TabIndex = 12;
-            // 
-            // ProgressbarTranslated
-            // 
-            this.ProgressbarTranslated.BackColor = this.background;
-            this.ProgressbarTranslated.Cursor = System.Windows.Forms.Cursors.Default;
-            this.ProgressbarTranslated.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ProgressbarTranslated.ForeColor = this.foreground;
-            this.ProgressbarTranslated.Location = new System.Drawing.Point(0, 0);
-            this.ProgressbarTranslated.Name = "ProgressbarTranslated";
-            this.ProgressbarTranslated.Size = new System.Drawing.Size(680, 24);
-            this.ProgressbarTranslated.Step = 1;
-            this.ProgressbarTranslated.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.ProgressbarTranslated.TabIndex = 8;
-            this.ProgressbarTranslated.Value = 50;
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.ApprovedBox);
-            this.panel2.Controls.Add(this.AutoTranslateThis);
-            this.panel2.Controls.Add(this.CharacterCountLabel);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(689, 3);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(678, 24);
-            this.panel2.TabIndex = 13;
+            this.tabPage1 = Utils.CreateNewTab(1, this);
             // 
             // MainTabControl
             // 
@@ -546,85 +311,6 @@ namespace HousePartyTranslator
             this.MainTabControl.TabIndex = 9;
             this.MainTabControl.SelectedIndexChanged += new System.EventHandler(this.MainTabControl_SelectedIndexChanged);
             this.MainTabControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.CloseTab_Click);
-            // 
-            // tabPage1
-            // 
-            this.tabPage1.BackColor = System.Drawing.Color.Black;
-            this.tabPage1.Controls.Add(this.mainTableLayoutPanel);
-            this.tabPage1.ForeColor = this.menu;
-            this.tabPage1.Location = new System.Drawing.Point(4, 22);
-            this.tabPage1.Name = "tabPage1";
-            this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage1.Size = new System.Drawing.Size(1376, 708);
-            this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Tab1";
-            // 
-            // CopyIdContextMenuButton
-            // 
-            this.CopyIdContextMenuButton.Name = "CopyIdContextMenuButton";
-            this.CopyIdContextMenuButton.Size = new System.Drawing.Size(236, 22);
-            this.CopyIdContextMenuButton.Text = "Copy Id";
-            this.CopyIdContextMenuButton.Click += new System.EventHandler(this.CopyIdContextMenuButton_Click);
-            // 
-            // CopyFileNameContextMenuButton
-            // 
-            this.CopyFileNameContextMenuButton.Name = "CopyFileNameContextMenuButton";
-            this.CopyFileNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
-            this.CopyFileNameContextMenuButton.Text = "Copy file name";
-            this.CopyFileNameContextMenuButton.Click += new System.EventHandler(this.CopyFileNameContextMenuButton_Click);
-            // 
-            // CopyStoryNameContextMenuButton
-            // 
-            this.CopyStoryNameContextMenuButton.Name = "CopyStoryNameContextMenuButton";
-            this.CopyStoryNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
-            this.CopyStoryNameContextMenuButton.Text = "Copy story name";
-            this.CopyStoryNameContextMenuButton.Click += new System.EventHandler(this.CopyStoryNameContextMenuButton_Click);
-            // 
-            // CopyAllContextMenuButton
-            // 
-            this.CopyAllContextMenuButton.Name = "CopyAllContextMenuButton";
-            this.CopyAllContextMenuButton.Size = new System.Drawing.Size(236, 22);
-            this.CopyAllContextMenuButton.Text = "Copy everything";
-            this.CopyAllContextMenuButton.Click += new System.EventHandler(this.CopyAllContextMenuButton_Click);
-            // 
-            // CopyAsOutputContextMenuButton
-            // 
-            this.CopyAsOutputContextMenuButton.Name = "CopyAsOutputContextMenuButton";
-            this.CopyAsOutputContextMenuButton.Size = new System.Drawing.Size(236, 22);
-            this.CopyAsOutputContextMenuButton.Text = "Copy as output";
-            this.CopyAsOutputContextMenuButton.Click += new System.EventHandler(this.CopyAsOutputContextMenuButton_Click);
-            // 
-            // CopyTemplateContextMenuButton
-            // 
-            this.CopyTemplateContextMenuButton.Name = "CopyTemplateContextMenuButton";
-            this.CopyTemplateContextMenuButton.Size = new System.Drawing.Size(236, 22);
-            this.CopyTemplateContextMenuButton.Text = "Copy template";
-            this.CopyTemplateContextMenuButton.Click += new System.EventHandler(this.CopyTemplateContextMenuButton_Click);
-            // 
-            // CopyTranslationContextMenuButton
-            // 
-            this.CopyTranslationContextMenuButton.Name = "CopyTranslationContextMenuButton";
-            this.CopyTranslationContextMenuButton.Size = new System.Drawing.Size(236, 22);
-            this.CopyTranslationContextMenuButton.Text = "Copy translation";
-            this.CopyTranslationContextMenuButton.Click += new System.EventHandler(this.CopyTranslationContextMenuButton_Click);
-            //
-            // ListContextMenu
-            //
-            this.ListContextMenu.Name = "ListContextMenu";
-            this.ListContextMenu.BackColor = this.menu;
-            this.ListContextMenu.ShowCheckMargin = false;
-            this.ListContextMenu.ShowImageMargin = false;
-            this.ListContextMenu.ForeColor = this.darkText;
-            this.ListContextMenu.Size = new System.Drawing.Size(236, 160);
-            this.ListContextMenu.Items.Clear();
-            this.ListContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[]{
-            CopyIdContextMenuButton,
-            CopyFileNameContextMenuButton,
-            CopyStoryNameContextMenuButton,
-            CopyTemplateContextMenuButton,
-            CopyTranslationContextMenuButton,
-            CopyAsOutputContextMenuButton,
-            CopyAllContextMenuButton});
             // 
             // Fenster
             // 
@@ -639,26 +325,17 @@ namespace HousePartyTranslator
             this.ShowIcon = false;
             this.Text = "HP Translator Helper";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TextContextOpened);
             this.Shown += new System.EventHandler(this.OnFormShown);
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();
             this.mainTableLayoutPanel.ResumeLayout(false);
             this.mainTableLayoutPanel.PerformLayout();
-            this.CommentGroup.ResumeLayout(false);
-            this.CommentGroup.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
             this.MainTabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
-
-
-        #endregion
-        //private System.Windows.Forms.SplitContainer MainContainer;
     }
 }

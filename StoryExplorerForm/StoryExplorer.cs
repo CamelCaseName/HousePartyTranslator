@@ -34,7 +34,9 @@ namespace HousePartyTranslator.StoryExplorerForm
         }
 
         public Form FormParent { get { return parentForm; } }
+
         public GraphingEngine Grapher { get { return engine; } }
+
         public string ParentName { get { return parentName; } }
 
         public void Initialize()

@@ -114,7 +114,7 @@ namespace HousePartyTranslator.Managers
             if (path.Length > 0)
             {
                 //create new support objects
-                TabPage newTab = Utils.CreateNewTab(translationManagers.Count + 1);
+                TabPage newTab = Utils.CreateNewTab(translationManagers.Count + 1, (Fenster)Form.ActiveForm);
                 //Add tab to form control
                 TabControl.TabPages.Add(newTab);
                 //select new tab
@@ -312,22 +312,23 @@ namespace HousePartyTranslator.Managers
 
         private static PropertyHelper CreateActivePropertyHelper()
         {
-            while (!Form.ActiveForm.Visible)
+            while (!Form.ActiveForm.Visible && Form.ActiveForm == null)
             {
 
             }
+            Fenster fenster = (Fenster)Form.ActiveForm;
             return new PropertyHelper(
                 (CheckBox)TabControl.SelectedTab.Controls.Find("ApprovedBox", true)[0],
                 (ColouredCheckedListBox)TabControl.SelectedTab.Controls.Find("CheckListBoxLeft", true)[0],
-                ((Fenster)Form.ActiveForm).LanguageBox,
+                fenster.LanguageBox,
                 (Label)TabControl.SelectedTab.Controls.Find("WordsTranslated", true)[0],
                 (Label)TabControl.SelectedTab.Controls.Find("CharacterCountLabel", true)[0],
                 (Label)TabControl.SelectedTab.Controls.Find("SelectedFile", true)[0],
                 (NoAnimationBar)TabControl.SelectedTab.Controls.Find("ProgressbarTranslated", true)[0],
                 (TextBox)TabControl.SelectedTab.Controls.Find("CommentTextBox", true)[0],
-                ((Fenster)Form.ActiveForm).SearchBox,
-                ((Fenster)Form.ActiveForm).ReplaceBox,
-                ((Fenster)Form.ActiveForm).ReplaceButton,
+                fenster.SearchBox,
+                fenster.ReplaceBox,
+                fenster.ReplaceButton,
                 (TextBox)TabControl.SelectedTab.Controls.Find("TemplateTextBox", true)[0],
                 (TextBox)TabControl.SelectedTab.Controls.Find("TranslatedTextBox", true)[0]
                 );

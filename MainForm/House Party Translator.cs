@@ -1,4 +1,5 @@
-﻿using HousePartyTranslator.Managers;
+﻿using HousePartyTranslator.Helpers;
+using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
 using System.Threading;
@@ -16,6 +17,9 @@ namespace HousePartyTranslator
         private StoryExplorer SExplorer;
         private readonly CancellationTokenSource CancelTokens = new CancellationTokenSource();
 
+        private readonly ColouredCheckedListBox CheckListBoxLeft;
+        private readonly ContextMenuStrip ListContextMenu;
+
         /// <summary>
         /// Constructor for the main window of the translator, starts all other components in the correct order
         /// </summary>
@@ -30,6 +34,9 @@ namespace HousePartyTranslator
 
             //init all form components
             InitializeComponent();
+
+            CheckListBoxLeft = (ColouredCheckedListBox)tabPage1.Controls.Find("CheckListBoxLeft", true)[0];
+            ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
         }
 
         /// <summary>
@@ -43,13 +50,16 @@ namespace HousePartyTranslator
             }
             set
             {
-                if (value.ParentName == Name)
+                if (value != null)
                 {
-                    SExplorer = value;
-                }
-                else
-                {
-                    throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
+                    if (value.ParentName == Name)
+                    {
+                        SExplorer = value;
+                    }
+                    else
+                    {
+                        throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
+                    }
                 }
             }
         }
@@ -76,11 +86,12 @@ namespace HousePartyTranslator
 
         public void CheckListBoxLeft_SelectedIndexChanged(object sender, EventArgs e)
         {
-            KeypressManager.SelectedItemChanged();
+            KeypressManager.SelectedItemChanged(CheckListBoxLeft);
         }
 
         public void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
+            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
             KeypressManager.TranslationTextChanged();
         }
 
@@ -98,7 +109,8 @@ namespace HousePartyTranslator
             }
             else
             {
-                return base.ProcessCmdKey(ref msg, keyData);
+                bool temp = base.ProcessCmdKey(ref msg, keyData);
+                return temp;
             }
         }
 
@@ -225,6 +237,7 @@ namespace HousePartyTranslator
 
         private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
         {
+            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
             TabManager.Search();
         }
 
@@ -238,7 +251,7 @@ namespace HousePartyTranslator
             Explorer = await KeypressManager.CreateStoryExplorer(true, this, CancelTokens);
         }
 
-        private void ThreadExceptionHandler(object sender, System.Threading.ThreadExceptionEventArgs e)
+        private void ThreadExceptionHandler(object sender, ThreadExceptionEventArgs e)
         {
             LogManager.LogEvent(e.Exception.ToString());
             TranslationManager.DisplayExceptionMessage(e.Exception.Message);
@@ -246,6 +259,12 @@ namespace HousePartyTranslator
 
         private void ToolStripMenuReplaceBox_TextChanged(object sender, EventArgs e)
         {
+            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
+        }
+
+        public void Comments_TextChanged(object sender, EventArgs e)
+        {
+            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
         }
 
         private void ToolStripReplaceButton_Click(object sender, EventArgs e)
@@ -296,6 +315,11 @@ namespace HousePartyTranslator
         public void OpeningContextMenu(object sender, MouseEventArgs e)
         {
             KeypressManager.OpenContextMenu(ListContextMenu, e);
+        }
+
+        public void TextContextOpened(object sender, EventArgs e)
+        {
+            KeypressManager.PrepareTextChanged(sender);
         }
     }
 }
