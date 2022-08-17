@@ -1331,6 +1331,7 @@ namespace HousePartyTranslator.Managers
             //reload once so the order of lines is correct after we fixed an empty or broken file
             if (triedFixingOnce)
             {
+                triedFixingOnce = false;
                 ReloadFile();
             }
 
