@@ -154,7 +154,6 @@ namespace HousePartyTranslator
             this.TranslatedTextBox.Location = new System.Drawing.Point(689, 294);
             this.TranslatedTextBox.Multiline = true;
             this.TranslatedTextBox.Name = "TranslatedTextBox";
-            this.TranslatedTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.TranslatedTextBox.Size = new System.Drawing.Size(678, 275);
             this.TranslatedTextBox.TabIndex = 0;
             this.TranslatedTextBox.Text = "edit here";
@@ -185,7 +184,6 @@ namespace HousePartyTranslator
             this.CommentTextBox.Location = new System.Drawing.Point(3, 16);
             this.CommentTextBox.Multiline = true;
             this.CommentTextBox.Name = "CommentTextBox";
-            this.CommentTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.CommentTextBox.Size = new System.Drawing.Size(672, 105);
             this.CommentTextBox.TabIndex = 13;
             this.CommentTextBox.TextChanged += new System.EventHandler(this.Comments_TextChanged);
@@ -554,6 +552,7 @@ namespace HousePartyTranslator
             // 
             // tabPage1
             // 
+            //this.tabPage1 = Utils.CreateNewTab(1);
             this.tabPage1.BackColor = System.Drawing.Color.Black;
             this.tabPage1.Controls.Add(this.mainTableLayoutPanel);
             this.tabPage1.ForeColor = this.menu;
