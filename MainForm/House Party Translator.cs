@@ -1,4 +1,5 @@
-﻿using HousePartyTranslator.Managers;
+﻿using HousePartyTranslator.Helpers;
+using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
 using System.Threading;
@@ -16,6 +17,9 @@ namespace HousePartyTranslator
         private StoryExplorer SExplorer;
         private readonly CancellationTokenSource CancelTokens = new CancellationTokenSource();
 
+        private ColouredCheckedListBox CheckListBoxLeft;
+        private ContextMenuStrip ListContextMenu;
+
         /// <summary>
         /// Constructor for the main window of the translator, starts all other components in the correct order
         /// </summary>
@@ -30,6 +34,9 @@ namespace HousePartyTranslator
 
             //init all form components
             InitializeComponent();
+
+            CheckListBoxLeft = (ColouredCheckedListBox)tabPage1.Controls.Find("CheckListBoxLeft", true)[0];
+            ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
         }
 
         /// <summary>
@@ -255,7 +262,7 @@ namespace HousePartyTranslator
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
         }
 
-        private void Comments_TextChanged(object sender, EventArgs e)
+        public void Comments_TextChanged(object sender, EventArgs e)
         {
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
         }

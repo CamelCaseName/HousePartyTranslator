@@ -14,6 +14,14 @@ namespace HousePartyTranslator.Helpers
         public static readonly int MaxTextLength = 100;
         public static readonly int maxWordLength = 15;
 
+        public static readonly System.Drawing.Color foreground = System.Drawing.SystemColors.Window;
+        public static readonly System.Drawing.Color background = System.Drawing.SystemColors.ControlDarkDark;
+        public static readonly System.Drawing.Color backgroundDarker = System.Drawing.SystemColors.MenuText;
+        public static readonly System.Drawing.Color brightText = System.Drawing.SystemColors.HighlightText;
+        public static readonly System.Drawing.Color darkText = System.Drawing.SystemColors.WindowText;
+        public static readonly System.Drawing.Color menu = System.Drawing.SystemColors.ScrollBar;
+        public static readonly System.Drawing.Color frame = System.Drawing.SystemColors.WindowFrame;
+
         /// <summary>
         /// Returns whether a story is official or not
         /// </summary>
@@ -279,7 +287,7 @@ namespace HousePartyTranslator.Helpers
         /// </summary>
         /// <param name="number">the number of the tab starting at 1, is only used for name and text</param>
         /// <returns>a TabPage with all controls as child controls</returns>
-        public static TabPage CreateNewTab(int number)
+        public static TabPage CreateNewTab(int number, Fenster form)
         {
             TabPage newTab = new TabPage()
             {
@@ -292,21 +300,21 @@ namespace HousePartyTranslator.Helpers
                 Text = $"Tab{number}",
             };
 
-            TextBox TranslatedTextBox = new TextBox();
-            TextBox TemplateTextBox = new TextBox();
-            TextBox CommentTextBox = new TextBox();
+            Button TranslateThis = new Button();
+            CheckBox ApprovedBox = new CheckBox();
+            ColouredCheckedListBox CheckListBoxLeft = new ColouredCheckedListBox();
+            ContextMenuStrip ListContextMenu = new ContextMenuStrip();
+            GroupBox CommentGroup = new GroupBox();
             Label CharacterCountLabel = new Label();
             Label SelectedFile = new Label();
             Label WordsTranslated = new Label();
-            CheckBox ApprovedBox = new CheckBox();
-            TableLayoutPanel mainTableLayoutPanel = new TableLayoutPanel();
-            GroupBox CommentGroup = new GroupBox();
-            Button TranslateThis = new Button();
+            NoAnimationBar ProgressbarTranslated = new NoAnimationBar();
             Panel panel1 = new Panel();
             Panel panel2 = new Panel();
-            ColouredCheckedListBox CheckListBoxLeft = new ColouredCheckedListBox();
-            NoAnimationBar ProgressbarTranslated = new NoAnimationBar();
-            ContextMenuStrip ListContextMenu = new ContextMenuStrip();
+            TableLayoutPanel mainTableLayoutPanel = new TableLayoutPanel();
+            TextBox CommentTextBox = new TextBox();
+            TextBox TemplateTextBox = new TextBox();
+            TextBox TranslatedTextBox = new TextBox();
             ToolStripMenuItem CopyAllContextMenuButton = new ToolStripMenuItem();
             ToolStripMenuItem CopyAsOutputContextMenuButton = new ToolStripMenuItem();
             ToolStripMenuItem CopyFileNameContextMenuButton = new ToolStripMenuItem();
@@ -325,39 +333,40 @@ namespace HousePartyTranslator.Helpers
             TranslatedTextBox.AcceptsReturn = true;
             TranslatedTextBox.AllowDrop = true;
             TranslatedTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
-            TranslatedTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            TranslatedTextBox.BackColor = background;
             TranslatedTextBox.Dock = DockStyle.Fill;
             TranslatedTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            TranslatedTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            TranslatedTextBox.ForeColor = brightText;
             TranslatedTextBox.ImeMode = ImeMode.On;
             TranslatedTextBox.Location = new System.Drawing.Point(689, 294);
             TranslatedTextBox.Multiline = true;
             TranslatedTextBox.Name = "TranslatedTextBox";
-            TranslatedTextBox.ScrollBars = ScrollBars.Both;
             TranslatedTextBox.Size = new System.Drawing.Size(678, 275);
             TranslatedTextBox.TabIndex = 0;
             TranslatedTextBox.Text = "edit here";
-            TranslatedTextBox.TextChanged += new EventHandler(((Fenster)Form.ActiveForm).TextBoxRight_TextChanged);
+            TranslatedTextBox.TextChanged += new EventHandler(form.TextBoxRight_TextChanged);
+            TranslatedTextBox.MouseUp += new MouseEventHandler(form.TextContextOpened);
+            TranslatedTextBox.MouseEnter += new EventHandler(form.TextContextOpened);
             // 
             // AutoTranslateThis
             // 
             TranslateThis.AutoSize = true;
-            TranslateThis.BackColor = System.Drawing.SystemColors.ScrollBar;
-            TranslateThis.ForeColor = System.Drawing.SystemColors.MenuText;
+            TranslateThis.BackColor = menu;
+            TranslateThis.ForeColor = darkText;
             TranslateThis.Location = new System.Drawing.Point(80, 1);
             TranslateThis.Name = "AutoTranslateThis";
             TranslateThis.Size = new System.Drawing.Size(60, 20);
             TranslateThis.TabIndex = 13;
             TranslateThis.Text = "Automatic Translation";
             TranslateThis.UseVisualStyleBackColor = true;
-            TranslateThis.Click += new EventHandler(((Fenster)Form.ActiveForm).TranslateThis_Click);
+            TranslateThis.Click += new EventHandler(form.TranslateThis_Click);
             // 
             // TemplateTextBox
             // 
-            TemplateTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            TemplateTextBox.BackColor = background;
             TemplateTextBox.Dock = DockStyle.Fill;
             TemplateTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            TemplateTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            TemplateTextBox.ForeColor = brightText;
             TemplateTextBox.Location = new System.Drawing.Point(689, 33);
             TemplateTextBox.Multiline = true;
             TemplateTextBox.Name = "TemplateTextBox";
@@ -368,23 +377,24 @@ namespace HousePartyTranslator.Helpers
             // 
             // CommentTextBox
             // 
-            CommentTextBox.BackColor = System.Drawing.SystemColors.WindowFrame;
+            CommentTextBox.BackColor = background;
             CommentTextBox.Dock = DockStyle.Fill;
             CommentTextBox.Font = new System.Drawing.Font("Consolas", 11F);
-            CommentTextBox.ForeColor = System.Drawing.SystemColors.Window;
+            CommentTextBox.ForeColor = brightText;
             CommentTextBox.Location = new System.Drawing.Point(3, 16);
             CommentTextBox.Multiline = true;
             CommentTextBox.Name = "CommentTextBox";
-            CommentTextBox.ScrollBars = ScrollBars.Vertical;
             CommentTextBox.Size = new System.Drawing.Size(672, 105);
             CommentTextBox.TabIndex = 13;
+            CommentTextBox.TextChanged += new EventHandler(form.Comments_TextChanged);
+            CommentTextBox.MouseUp += new MouseEventHandler(form.TextContextOpened);
+            CommentTextBox.MouseEnter += new EventHandler(form.TextContextOpened);
             // 
             // CharacterCountLabel
             // 
             CharacterCountLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             CharacterCountLabel.AutoSize = true;
-            CharacterCountLabel.BackColor = System.Drawing.SystemColors.Desktop;
-            CharacterCountLabel.ForeColor = System.Drawing.SystemColors.Control;
+            CharacterCountLabel.ForeColor = brightText;
             CharacterCountLabel.Location = new System.Drawing.Point(23, 5);
             CharacterCountLabel.Name = "CharacterCountLabel";
             CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
@@ -394,7 +404,7 @@ namespace HousePartyTranslator.Helpers
             // SelectedFile
             // 
             SelectedFile.AutoSize = true;
-            SelectedFile.ForeColor = System.Drawing.SystemColors.Control;
+            SelectedFile.ForeColor = brightText;
             SelectedFile.Location = new System.Drawing.Point(0, 6);
             SelectedFile.Name = "SelectedFile";
             SelectedFile.Size = new System.Drawing.Size(98, 13);
@@ -407,7 +417,7 @@ namespace HousePartyTranslator.Helpers
             WordsTranslated.Parent = panel1;
             WordsTranslated.AutoSize = true;
             WordsTranslated.BackColor = System.Drawing.Color.Transparent;
-            WordsTranslated.ForeColor = System.Drawing.SystemColors.Control;
+            WordsTranslated.ForeColor = brightText;
             WordsTranslated.Location = new System.Drawing.Point(60, 6);
             WordsTranslated.Name = "WordsTranslated";
             WordsTranslated.Size = new System.Drawing.Size(47, 13);
@@ -417,14 +427,14 @@ namespace HousePartyTranslator.Helpers
             // ApprovedBox
             // 
             ApprovedBox.AutoSize = true;
-            ApprovedBox.ForeColor = System.Drawing.SystemColors.Control;
+            ApprovedBox.ForeColor = brightText;
             ApprovedBox.Location = new System.Drawing.Point(3, 5);
             ApprovedBox.Name = "ApprovedBox";
             ApprovedBox.Size = new System.Drawing.Size(72, 17);
             ApprovedBox.TabIndex = 13;
             ApprovedBox.Text = Properties.Resources.Approved;
             ApprovedBox.UseVisualStyleBackColor = true;
-            ApprovedBox.CheckedChanged += new EventHandler(((Fenster)Form.ActiveForm).ApprovedBox_CheckedChanged);
+            ApprovedBox.CheckedChanged += new EventHandler(form.ApprovedBox_CheckedChanged);
             // 
             // mainTableLayoutPanel
             // 
@@ -453,7 +463,7 @@ namespace HousePartyTranslator.Helpers
             // 
             CommentGroup.Controls.Add(CommentTextBox);
             CommentGroup.Dock = DockStyle.Fill;
-            CommentGroup.ForeColor = System.Drawing.SystemColors.Window;
+            CommentGroup.ForeColor = brightText;
             CommentGroup.Location = new System.Drawing.Point(689, 575);
             CommentGroup.Name = "CommentGroup";
             CommentGroup.Size = new System.Drawing.Size(678, 124);
@@ -485,9 +495,9 @@ namespace HousePartyTranslator.Helpers
             // 
             // CheckListBoxLeft
             // 
-            CheckListBoxLeft.BackColor = System.Drawing.SystemColors.WindowFrame;
+            CheckListBoxLeft.BackColor = frame;
             CheckListBoxLeft.Dock = DockStyle.Fill;
-            CheckListBoxLeft.ForeColor = System.Drawing.SystemColors.Window;
+            CheckListBoxLeft.ForeColor = brightText;
             CheckListBoxLeft.FormattingEnabled = true;
             CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
             CheckListBoxLeft.Name = "CheckListBoxLeft";
@@ -495,17 +505,17 @@ namespace HousePartyTranslator.Helpers
             CheckListBoxLeft.Size = new System.Drawing.Size(680, 666);
             CheckListBoxLeft.TabIndex = 10;
             CheckListBoxLeft.ThreeDCheckBoxes = true;
-            CheckListBoxLeft.ItemCheck += new ItemCheckEventHandler(((Fenster)Form.ActiveForm).CheckListBoxLeft_ItemCheck);
-            CheckListBoxLeft.SelectedIndexChanged += new EventHandler(((Fenster)Form.ActiveForm).CheckListBoxLeft_SelectedIndexChanged);
+            CheckListBoxLeft.ItemCheck += new ItemCheckEventHandler(form.CheckListBoxLeft_ItemCheck);
+            CheckListBoxLeft.SelectedIndexChanged += new EventHandler(form.CheckListBoxLeft_SelectedIndexChanged);
             CheckListBoxLeft.ContextMenuStrip = ListContextMenu;
-            CheckListBoxLeft.MouseDown += new MouseEventHandler(((Fenster)Form.ActiveForm).OpeningContextMenu);
+            CheckListBoxLeft.MouseDown += new MouseEventHandler(form.OpeningContextMenu);
             // 
             // ProgressbarTranslated
             // 
-            ProgressbarTranslated.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            ProgressbarTranslated.BackColor = background;
             ProgressbarTranslated.Cursor = Cursors.Default;
             ProgressbarTranslated.Dock = DockStyle.Fill;
-            ProgressbarTranslated.ForeColor = System.Drawing.SystemColors.ButtonFace;
+            ProgressbarTranslated.ForeColor = foreground;
             ProgressbarTranslated.Location = new System.Drawing.Point(0, 0);
             ProgressbarTranslated.Name = "ProgressbarTranslated";
             ProgressbarTranslated.Size = new System.Drawing.Size(680, 24);
@@ -519,49 +529,49 @@ namespace HousePartyTranslator.Helpers
             CopyIdContextMenuButton.Name = "CopyIdContextMenuButton";
             CopyIdContextMenuButton.Size = new System.Drawing.Size(236, 22);
             CopyIdContextMenuButton.Text = "Copy Id";
-            CopyIdContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyIdContextMenuButton_Click);
+            CopyIdContextMenuButton.Click += new System.EventHandler(form.CopyIdContextMenuButton_Click);
             // 
             // CopyFileNameContextMenuButton
             // 
             CopyFileNameContextMenuButton.Name = "CopyFileNameContextMenuButton";
             CopyFileNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
             CopyFileNameContextMenuButton.Text = "Copy file name";
-            CopyFileNameContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyFileNameContextMenuButton_Click);
+            CopyFileNameContextMenuButton.Click += new System.EventHandler(form.CopyFileNameContextMenuButton_Click);
             // 
             // CopyStoryNameContextMenuButton
             // 
             CopyStoryNameContextMenuButton.Name = "CopyStoryNameContextMenuButton";
             CopyStoryNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
             CopyStoryNameContextMenuButton.Text = "Copy story name";
-            CopyStoryNameContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyStoryNameContextMenuButton_Click);
+            CopyStoryNameContextMenuButton.Click += new System.EventHandler(form.CopyStoryNameContextMenuButton_Click);
             // 
             // CopyAllContextMenuButton
             // 
             CopyAllContextMenuButton.Name = "CopyAllContextMenuButton";
             CopyAllContextMenuButton.Size = new System.Drawing.Size(236, 22);
             CopyAllContextMenuButton.Text = "Copy everything";
-            CopyAllContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyAllContextMenuButton_Click);
+            CopyAllContextMenuButton.Click += new System.EventHandler(form.CopyAllContextMenuButton_Click);
             // 
             // CopyAsOutputContextMenuButton
             // 
             CopyAsOutputContextMenuButton.Name = "CopyAsOutputContextMenuButton";
             CopyAsOutputContextMenuButton.Size = new System.Drawing.Size(236, 22);
             CopyAsOutputContextMenuButton.Text = "Copy as output";
-            CopyAsOutputContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyAsOutputContextMenuButton_Click);
+            CopyAsOutputContextMenuButton.Click += new System.EventHandler(form.CopyAsOutputContextMenuButton_Click);
             // 
             // CopyTemplateContextMenuButton
             // 
             CopyTemplateContextMenuButton.Name = "CopyTemplateContextMenuButton";
             CopyTemplateContextMenuButton.Size = new System.Drawing.Size(236, 22);
             CopyTemplateContextMenuButton.Text = "Copy template";
-            CopyTemplateContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyTemplateContextMenuButton_Click);
+            CopyTemplateContextMenuButton.Click += new System.EventHandler(form.CopyTemplateContextMenuButton_Click);
             // 
             // CopyTranslationContextMenuButton
             // 
             CopyTranslationContextMenuButton.Name = "CopyTranslationContextMenuButton";
             CopyTranslationContextMenuButton.Size = new System.Drawing.Size(236, 22);
             CopyTranslationContextMenuButton.Text = "Copy translation";
-            CopyTranslationContextMenuButton.Click += new System.EventHandler(((Fenster)Form.ActiveForm).CopyTranslationContextMenuButton_Click);
+            CopyTranslationContextMenuButton.Click += new System.EventHandler(form.CopyTranslationContextMenuButton_Click);
             //
             // ListContextMenu
             //
