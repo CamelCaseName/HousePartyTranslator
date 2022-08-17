@@ -39,6 +39,7 @@ namespace HousePartyTranslator.Managers
         private string sourceFilePath = "";
         private string storyName = "";
         private readonly PropertyHelper helper;
+        private bool triedFixingOnce = false;
 
         /// <summary>
         /// The Constructor for this class. Takes no arguments.
@@ -388,6 +389,7 @@ namespace HousePartyTranslator.Managers
                 ResetTranslationManager();
 
                 MainWindow.Cursor = Cursors.WaitCursor;
+
                 if (IsUpToDate)
                 {
                     SourceFilePath = path;
@@ -422,6 +424,7 @@ namespace HousePartyTranslator.Managers
 
                     //update tab name
                     TabManager.UpdateTabTitle(FileName);
+
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
                     RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
@@ -1259,7 +1262,7 @@ namespace HousePartyTranslator.Managers
                 //compare
                 if (tempStoryName == languageAsText && gotLanguage)
                 {
-                    //get foler one more up
+                    //get folder one more up
                     tempStoryName = paths[paths.Length - 3];
                 }
 
@@ -1325,6 +1328,12 @@ namespace HousePartyTranslator.Managers
                 currentIndex++;
                 lineIsApproved = false;
             }
+            //reload once so the order of lines is correct after we fixed an empty or broken file
+            if (triedFixingOnce)
+            {
+                ReloadFile();
+            }
+
             MainWindow.Cursor = Cursors.Default;
         }
 
@@ -1401,11 +1410,10 @@ namespace HousePartyTranslator.Managers
         private void ReadStringsTranslationsFromFile()
         {
             StringCategory currentCategory = StringCategory.General;
-            string multiLineCollector = "";
             string[] lastLine = { };
 
             DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
-            List<string> LinesFromFile = new List<string>();
+            List<string> LinesFromFile;
             try
             {
                 //read in lines
@@ -1418,8 +1426,53 @@ namespace HousePartyTranslator.Managers
                 ResetTranslationManager();
                 return;
             }
+
+            //if we got lines at all
+            if (LinesFromFile.Count > 0)
+            {
+                SplitReadTranslations(LinesFromFile, lastLine, currentCategory, IdsToExport);
+            }
+            else
+            {
+                TryFixEmptyFile();
+            }
+
+            if (lastLine.Length > 0)
+            {
+                //add last line (dont care about duplicates because sql will get rid of them)
+                TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
+            }
+
+            //set categories if file is a hint file
+            if (StoryName == "Hints") CategoriesInFile = new List<StringCategory>() { StringCategory.General };
+
+            if (IdsToExport.Count != TranslationData.Count)
+            {
+                if (TranslationData.Count == 0)
+                {
+                    TryFixEmptyFile();
+                }
+                else if (!SoftwareVersionManager.UpdatePending && Form.ActiveForm != null)
+                    //inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
+                    //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
+                    MessageBox.Show(
+                    "Some strings are missing from your translation, they will be added with the english version when you first save the file!",
+                    "Some strings missing",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Asterisk);
+            }
+        }
+
+        private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, List<LineData> IdsToExport)
+        {
+            string multiLineCollector = "";
             //remove last if empty, breaks line lioading for the last
-            while (LinesFromFile.Last() == "") LinesFromFile.RemoveAt(LinesFromFile.Count - 1);
+            while (LinesFromFile.Count > 0)
+            {
+                if (LinesFromFile.Last() == "")
+                    LinesFromFile.RemoveAt(LinesFromFile.Count - 1);
+                else break;
+            }
             //load lines and their data and split accordingly
             foreach (string line in LinesFromFile)
             {
@@ -1428,7 +1481,7 @@ namespace HousePartyTranslator.Managers
                     //if we reach a new id, we can add the old string to the translation manager
                     if (lastLine.Length != 0)
                     {
-                        TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString, lastLine[1] + multiLineCollector));
+                        TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, category, IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString, lastLine[1] + multiLineCollector));
                     }
                     //get current line
                     lastLine = line.Split('|');
@@ -1456,7 +1509,7 @@ namespace HousePartyTranslator.Managers
                                       lastLine[0],
                                       StoryName,
                                       FileName,
-                                      currentCategory,
+                                      category,
                                       IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
                                       lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
                             }
@@ -1467,36 +1520,32 @@ namespace HousePartyTranslator.Managers
                                       lastLine[0],
                                       StoryName,
                                       FileName,
-                                      currentCategory,
+                                      category,
                                       IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
                                       lastLine[1]));
                             }
                         }
                         lastLine = new string[0];
                         multiLineCollector = "";
-                        currentCategory = tempCategory;
-                        CategoriesInFile.Add(currentCategory);
+                        category = tempCategory;
+                        CategoriesInFile.Add(category);
                     }
                 }
             }
+        }
 
-            if (lastLine.Length > 0)
+        private void TryFixEmptyFile()
+        {
+            if (!triedFixingOnce)
             {
-                //add last line (dont care about duplicates because sql will get rid of them)
-                TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
-            }
-
-            //set categories if file is a hint file
-            if (StoryName == "Hints") CategoriesInFile = new List<StringCategory>() { StringCategory.General };
-
-            if (IdsToExport.Count != TranslationData.Count)
-            {//inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
-             //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
-                if (!SoftwareVersionManager.UpdatePending && Form.ActiveForm != null) MessageBox.Show(
-                    @"Some strings are missing from your translation, they will be added with the english version when you first save the file!",
-                    "Some strings missing",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Asterisk);
+                triedFixingOnce = true;
+                DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
+                foreach (var item in IdsToExport)
+                {
+                    TranslationData.Add(new LineData(item.ID, StoryName, FileName, item.Category));
+                }
+                SaveFile();
+                ReadStringsTranslationsFromFile();
             }
         }
 
