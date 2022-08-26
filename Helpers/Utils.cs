@@ -173,6 +173,13 @@ namespace HousePartyTranslator.Helpers
         {
             bool broken = false;
             int oldPos = textBox.SelectionStart;
+            if (textBox.SelectionStart > 0)
+            {
+                if (textBox.Text[textBox.SelectionStart - 1] == ' ')
+                {
+                    --textBox.SelectionStart;
+                }
+            }
             for (int i = textBox.SelectionStart; i > 0; i--)
             {
                 switch (textBox.Text.Substring(i - 1, 1))
@@ -200,13 +207,6 @@ namespace HousePartyTranslator.Helpers
             {
                 textBox.SelectionStart = 0;
             }
-            if (textBox.SelectionStart > 0)
-            {
-                if (textBox.Text[textBox.SelectionStart - 1] == ' ')
-                {
-                    --textBox.SelectionStart;
-                }
-            }
         }
 
         /// <summary>
@@ -217,6 +217,13 @@ namespace HousePartyTranslator.Helpers
         {
             bool broken = false;
             int oldPos = textBox.SelectionStart;
+            if (textBox.SelectionStart < textBox.Text.Length)
+            {
+                if (textBox.Text[textBox.SelectionStart] == ' ' && textBox.SelectionStart < textBox.Text.Length - 1)
+                {
+                    ++textBox.SelectionStart;
+                }
+            }
             for (int i = textBox.SelectionStart; i < textBox.TextLength; i++)
             {
                 switch (textBox.Text[i].ToString())
@@ -244,13 +251,6 @@ namespace HousePartyTranslator.Helpers
             if (!broken)
             {
                 textBox.SelectionStart = textBox.Text.Length;
-            }
-            if (textBox.SelectionStart < textBox.Text.Length)
-            {
-                if (textBox.Text[textBox.SelectionStart] == ' ' && textBox.SelectionStart < textBox.Text.Length - 1)
-                {
-                    ++textBox.SelectionStart;
-                }
             }
         }
 
