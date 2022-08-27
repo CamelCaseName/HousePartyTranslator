@@ -135,10 +135,73 @@ namespace HousePartyTranslator.Managers
                 }
                 else
                 {
-                    MessageBox.Show($"No valid story name found \"{value}\", assuming Original Story.");
-                    storyName = "Original Story";
+                    storyName = value;
+                    //custom story?
+                    if (!CustomStoryTemplateHandle(value))
+                    {
+                        MessageBox.Show($"Not flagged as custom story, can't find \"{value}\", assuming Original Story.");
+                        storyName = "Original Story";
+                    }
                 }
             }
+        }
+
+        public bool CustomStoryTemplateHandle(string story)
+        {
+            DialogResult result;
+            if (Properties.Settings.Default.EnableCustomStories)
+            {
+                result = DialogResult.Yes;
+            }
+            else
+            {
+                result = MessageBox.Show($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story", "Custom story?", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            }
+            if (result == DialogResult.Yes)
+            {
+                //check if the template has been added and generated once before
+                DataBaseManager.GetAllLineDataBasicForFile(fileName, story, out var data);
+                if (data.Count == 0)
+                {//its a custom story but no template so far on the server
+                 //use contextprovider to extract the story object and get the lines
+                    result = MessageBox.Show($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                    if (result != DialogResult.Cancel)
+                    {
+                        bool isStory = result == DialogResult.No;
+                        ContextProvider explorer = new ContextProvider(isStory, false, FileName, StoryName, null);
+                        var nodes = explorer.GetTemplateNodes();
+                        if (nodes != null)
+                        {
+                            //remove old lines from server
+                            DataBaseManager.RemoveOldTemplates(FileName, story);
+
+                            //add name as first template (its not in the file)
+                            DataBaseManager.SetStringTemplate("Name", FileName, story, StringCategory.General, FileName);
+
+                            //Add all new lines, but check if they are relevant
+                            for (int i = 0; i < nodes.Count; i++)
+                            {
+                                //filter out irrelevant nodes
+                                if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) && nodes[i].Type == NodeType.Event) 
+                                    && Utils.CategoryFromNode(nodes[i].Type) != StringCategory.Neither
+                                    && nodes[i].ID != "")
+                                {
+                                    DataBaseManager.SetStringTemplate(nodes[i].ID, FileName, story, Utils.CategoryFromNode(nodes[i].Type), nodes[i].Text);
+                                }
+                            }
+
+                            return true;
+                        }
+                        MessageBox.Show("Something broke, please try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -700,7 +763,7 @@ namespace HousePartyTranslator.Managers
                         int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
                         if (intCategory < CategorizedStrings.Count && intCategory >= 0)
                             CategorizedStrings[intCategory].Item1.Add(lineDataResult);
-                        else if(!triedSavingFixOnce)
+                        else if (!triedSavingFixOnce)
                         {
                             triedSavingFixOnce = true;
                             GenerateCategories();
@@ -1223,6 +1286,8 @@ namespace HousePartyTranslator.Managers
                 MessageBoxIcon.Asterisk
                 );
 
+            //remove old lines from server
+            DataBaseManager.RemoveOldTemplates(StoryName);
             //add all the new strings
             foreach (LineData lineD in TranslationData)
             {
@@ -1278,7 +1343,7 @@ namespace HousePartyTranslator.Managers
 
                 if (tempStoryName == "Languages")
                 {
-                    //get foler one more up
+                    //get folder one more up
                     tempStoryName = "UI";
                 }
 

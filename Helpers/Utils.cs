@@ -282,6 +282,39 @@ namespace HousePartyTranslator.Helpers
             return toTrim.Length > length ? toTrim.Substring(0, length).Trim() + delimiter : toTrim;
         }
 
+        public static StringCategory CategoryFromNode(NodeType type)
+        {
+            switch (type)
+            {
+                case NodeType.Null:
+                    return StringCategory.Neither;
+                case NodeType.Item:
+                    return StringCategory.ItemName;
+                case NodeType.ItemGroup:
+                    return StringCategory.ItemGroupAction;
+                case NodeType.Action:
+                    return StringCategory.ItemAction;
+                case NodeType.Event:
+                    return StringCategory.Event;
+                case NodeType.Criterion:
+                    return StringCategory.Neither;
+                case NodeType.Response:
+                    return StringCategory.Response;
+                case NodeType.Dialogue:
+                    return StringCategory.Dialogue;
+                case NodeType.Quest:
+                    return StringCategory.Quest;
+                case NodeType.Achievement:
+                    return StringCategory.Achievement;
+                case NodeType.Reaction:
+                    return StringCategory.Response;
+                case NodeType.BGC:
+                    return StringCategory.BGC;
+                default:
+                    return StringCategory.Neither;
+            }
+        }
+
         /// <summary>
         /// Creates a new tab with all default controls
         /// </summary>

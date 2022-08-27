@@ -597,6 +597,31 @@ namespace HousePartyTranslator.Managers
             Application.UseWaitCursor = false;
         }
 
+        public static bool RemoveOldTemplates(string fileName, string story)
+        {
+            string insertCommand = DELETE + @"WHERE filename = @filename AND story = @story AND SUBSTRING(id, -8) = @templateid";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            MainCommand.Parameters.AddWithValue("@templateid", "template");
+
+            //return if at least one row was changed
+            return ExecuteOrReOpen(MainCommand);
+        }
+
+        public static bool RemoveOldTemplates(string story)
+        {
+            string insertCommand = DELETE + @"WHERE story = @story AND SUBSTRING(id, -8) = @templateid";
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@story", story);
+            MainCommand.Parameters.AddWithValue("@templateid", "template");
+
+            //return if at least one row was changed
+            return ExecuteOrReOpen(MainCommand);
+        }
+
         /// <summary>
         /// Set the Approval state of a string in the database.
         /// </summary>
@@ -859,7 +884,8 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
         /// <returns></returns>
         private static bool ExecuteOrReOpen(MySqlCommand command)
         {
-            if (CheckOrReopenConnection()){
+            if (CheckOrReopenConnection())
+            {
                 bool executedSuccessfully = false;
                 int tries = 0; //reset try count
                 while (!executedSuccessfully && tries < 10)
