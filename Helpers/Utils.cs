@@ -29,7 +29,7 @@ namespace HousePartyTranslator.Helpers
         /// <returns></returns>
         public static bool IsOfficialStory(string storyName)
         {
-            string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney" };
+            string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
             return Array.IndexOf(stories, storyName) >= 0;
         }
 
