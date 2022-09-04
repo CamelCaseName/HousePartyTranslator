@@ -172,6 +172,7 @@ namespace HousePartyTranslator.Managers
                         var nodes = explorer.GetTemplateNodes();
                         if (nodes != null)
                         {
+                            Application.UseWaitCursor = true;
                             //remove old lines from server
                             DataBaseManager.RemoveOldTemplates(FileName, story);
 
@@ -182,7 +183,7 @@ namespace HousePartyTranslator.Managers
                             for (int i = 0; i < nodes.Count; i++)
                             {
                                 //filter out irrelevant nodes
-                                if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) && nodes[i].Type == NodeType.Event) 
+                                if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) && nodes[i].Type == NodeType.Event)
                                     && Utils.CategoryFromNode(nodes[i].Type) != StringCategory.Neither
                                     && nodes[i].ID != "")
                                 {
@@ -190,6 +191,7 @@ namespace HousePartyTranslator.Managers
                                 }
                             }
 
+                            Application.UseWaitCursor = false;
                             return true;
                         }
                         MessageBox.Show("Something broke, please try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -201,6 +203,7 @@ namespace HousePartyTranslator.Managers
                 }
             }
 
+            Application.UseWaitCursor = false;
             return false;
         }
 
@@ -592,15 +595,19 @@ namespace HousePartyTranslator.Managers
                         if (helper.CheckListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) helper.CheckListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
                     }
 
+                    //load comments
                     if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
                     {
                         helper.CommentBox.Lines = comments;
                     }
 
+                    //sync approvedbox and list
                     helper.ApprovedBox.Checked = helper.CheckListBoxLeft.GetItemChecked(currentIndex);
 
+                    //update label
                     UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
 
+                    //update explorer
                     if (UpdateStoryExplorerSelection)
                     {
                         SetHighlightedNode();
@@ -609,6 +616,10 @@ namespace HousePartyTranslator.Managers
                     {
                         UpdateStoryExplorerSelection = true;
                     }
+
+                    //renew search result if possible
+                    int t = helper.CheckListBoxLeft.SearchResults.IndexOf(currentIndex);
+                    if (t >= 0) { SelectedSearchResult = t; }
                 }
             }
             UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
@@ -1362,6 +1373,8 @@ namespace HousePartyTranslator.Managers
                     LoadTranslations();
                     UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
                 }
+                //update tab name
+                TabManager.UpdateTabTitle(FileName);
             }
         }
 
@@ -1687,6 +1700,12 @@ namespace HousePartyTranslator.Managers
                         helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
                         ++SelectedSearchResult;
                     }
+                    else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
+                    {
+                        searchTabIndex = TabManager.TabControl.SelectedIndex;
+                        TabManager.SwitchToTab(++searchTabIndex);
+                        return true;
+                    }
                     else
                     {
                         SelectedSearchResult = 0;
@@ -1695,12 +1714,6 @@ namespace HousePartyTranslator.Managers
                     }
                 }
 
-                return true;
-            }
-            else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
-            {
-                searchTabIndex = TabManager.TabControl.SelectedIndex;
-                TabManager.SwitchToTab(++searchTabIndex);
                 return true;
             }
             else
