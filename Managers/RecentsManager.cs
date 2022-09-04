@@ -12,6 +12,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static int ignorenextRecents = 0;
         private static int recentIndex = -1;
+        private static DiscordPresenceManager presenceManager;
 
         /// <summary>
         /// Get the most recently opened files as a collection of ToolStriItems
@@ -53,7 +54,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Initializes the most recently opened files from the saved settings
         /// </summary>
-        public static void Initialize()
+        public static void Initialize(DiscordPresenceManager presenceManager)
         {
             //add all saved recents
             recents.Add(Properties.Settings.Default.recents_0);
@@ -62,6 +63,7 @@ namespace HousePartyTranslator.Managers
             recents.Add(Properties.Settings.Default.recents_3);
             recents.Add(Properties.Settings.Default.recents_4);
             recentIndex = Properties.Settings.Default.recent_index;
+            RecentsManager.presenceManager = presenceManager;
         }
 
         /// <summary>
@@ -106,7 +108,7 @@ namespace HousePartyTranslator.Managers
                 {
                     ignorenextRecents = 1;
                     TranslationManager t = TabManager.ActiveTranslationManager;
-                    t.LoadFileIntoProgram(recents[0]);
+                    t.LoadFileIntoProgram(recents[0], presenceManager);
                     if (Properties.Settings.Default.autoLoadRecentIndex) t.SelectLine(recentIndex);
                     else t.SelectLine(0);
                 }
@@ -149,7 +151,7 @@ namespace HousePartyTranslator.Managers
         private static void RecentsManager_Click(object sender, EventArgs e)
         {
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text);
+            translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text, presenceManager);
             if (Properties.Settings.Default.autoLoadRecentIndex) translationManager.SelectLine(recentIndex);
         }
     }

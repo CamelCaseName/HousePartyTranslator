@@ -14,6 +14,7 @@ namespace HousePartyTranslator.Managers
         public static bool InGlobalSearch = false;
         private static readonly Dictionary<TabPage, PropertyHelper> properties = new Dictionary<TabPage, PropertyHelper>();
         private static readonly Dictionary<TabPage, TranslationManager> translationManagers = new Dictionary<TabPage, TranslationManager>();
+        private static DiscordPresenceManager presenceManager;
 
         /// <summary>
         /// Method returning a Propertyhelper containing all relevant UI elements.
@@ -82,7 +83,7 @@ namespace HousePartyTranslator.Managers
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tabPage1">The initial tab</param>
-        public static TranslationManager Initialize(TabPage tabPage1)
+        public static TranslationManager Initialize(TabPage tabPage1, DiscordPresenceManager presenceManager)
         {
             while (TabControl == null)
             {
@@ -93,6 +94,8 @@ namespace HousePartyTranslator.Managers
             //create new translationmanager to use with the tab open right now
             properties.Add(tabPage1, CreateActivePropertyHelper());
             translationManagers.Add(tabPage1, new TranslationManager(ActiveProperties));
+
+            TabManager.presenceManager = presenceManager;
 
             return translationManagers[tabPage1];
         }
@@ -126,7 +129,7 @@ namespace HousePartyTranslator.Managers
 
                 //call startup for new translationmanager
                 t.SetLanguage();
-                t.LoadFileIntoProgram(path);
+                t.LoadFileIntoProgram(path, presenceManager);
             }
         }
 

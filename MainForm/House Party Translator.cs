@@ -160,22 +160,22 @@ namespace HousePartyTranslator
         private void OnFormShown(object sender, EventArgs e)
         {
             LogManager.LogEvent("Application started! hi there :D");
+            PresenceManager = new DiscordPresenceManager();
 
             //get translationmanager back
-            TranslationManager translationManager = TabManager.Initialize(tabPage1);
+            TranslationManager translationManager = TabManager.Initialize(tabPage1, PresenceManager);
             translationManager.SetLanguage();
             translationManager.SetMainForm(this);
 
             //initialize before password check so the saving doesnt break
-            RecentsManager.Initialize();
+            RecentsManager.Initialize(PresenceManager);
 
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
 
+
             //open most recent after db is initialized
             RecentsManager.OpenMostRecent();
-
-            PresenceManager = new DiscordPresenceManager();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };

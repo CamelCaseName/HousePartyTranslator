@@ -439,16 +439,16 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
-        public void LoadFileIntoProgram()
+        public void LoadFileIntoProgram(DiscordPresenceManager presenceManager)
         {
-            LoadFileIntoProgram(SelectFileFromSystem());
+            LoadFileIntoProgram(SelectFileFromSystem(), presenceManager);
         }
 
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
         /// <param name="path">The path to the file to translate</param>
-        public void LoadFileIntoProgram(string path)
+        public void LoadFileIntoProgram(string path, DiscordPresenceManager presenceManager)
         {
             if (path.Length > 0)
             {
@@ -495,6 +495,9 @@ namespace HousePartyTranslator.Managers
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
                     RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
+
+                    //update presence and recents
+                    presenceManager.Update(StoryName, TabManager.ActiveTranslationManager.FileName);
                 }
                 //reset cursor
                 MainWindow.Cursor = Cursors.Default;

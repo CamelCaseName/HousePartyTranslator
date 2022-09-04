@@ -304,13 +304,10 @@ namespace HousePartyTranslator.Managers
         {
             //get currently active translationmanager
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram();
+            translationManager.LoadFileIntoProgram(presenceManager);
             translationManager.SetLanguage();
             //update tab name
             if (translationManager.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = translationManager.FileName;
-
-            //update presence and recents
-            presenceManager.Update(translationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         static public void OpenNewTab(DiscordPresenceManager presenceManager)
