@@ -29,7 +29,7 @@ namespace HousePartyTranslator.Helpers
         /// <returns></returns>
         public static bool IsOfficialStory(string storyName)
         {
-            string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney" };
+            string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
             return Array.IndexOf(stories, storyName) >= 0;
         }
 
@@ -173,6 +173,13 @@ namespace HousePartyTranslator.Helpers
         {
             bool broken = false;
             int oldPos = textBox.SelectionStart;
+            if (textBox.SelectionStart > 0)
+            {
+                if (textBox.Text[textBox.SelectionStart - 1] == ' ')
+                {
+                    --textBox.SelectionStart;
+                }
+            }
             for (int i = textBox.SelectionStart; i > 0; i--)
             {
                 switch (textBox.Text.Substring(i - 1, 1))
@@ -200,13 +207,6 @@ namespace HousePartyTranslator.Helpers
             {
                 textBox.SelectionStart = 0;
             }
-            if (textBox.SelectionStart > 0)
-            {
-                if (textBox.Text[textBox.SelectionStart - 1] == ' ')
-                {
-                    --textBox.SelectionStart;
-                }
-            }
         }
 
         /// <summary>
@@ -217,6 +217,13 @@ namespace HousePartyTranslator.Helpers
         {
             bool broken = false;
             int oldPos = textBox.SelectionStart;
+            if (textBox.SelectionStart < textBox.Text.Length)
+            {
+                if (textBox.Text[textBox.SelectionStart] == ' ' && textBox.SelectionStart < textBox.Text.Length - 1)
+                {
+                    ++textBox.SelectionStart;
+                }
+            }
             for (int i = textBox.SelectionStart; i < textBox.TextLength; i++)
             {
                 switch (textBox.Text[i].ToString())
@@ -244,13 +251,6 @@ namespace HousePartyTranslator.Helpers
             if (!broken)
             {
                 textBox.SelectionStart = textBox.Text.Length;
-            }
-            if (textBox.SelectionStart < textBox.Text.Length)
-            {
-                if (textBox.Text[textBox.SelectionStart] == ' ' && textBox.SelectionStart < textBox.Text.Length - 1)
-                {
-                    ++textBox.SelectionStart;
-                }
             }
         }
 
@@ -280,6 +280,39 @@ namespace HousePartyTranslator.Helpers
                 length = maxLength - delimLength;
             }
             return toTrim.Length > length ? toTrim.Substring(0, length).Trim() + delimiter : toTrim;
+        }
+
+        public static StringCategory CategoryFromNode(NodeType type)
+        {
+            switch (type)
+            {
+                case NodeType.Null:
+                    return StringCategory.Neither;
+                case NodeType.Item:
+                    return StringCategory.ItemName;
+                case NodeType.ItemGroup:
+                    return StringCategory.ItemGroupAction;
+                case NodeType.Action:
+                    return StringCategory.ItemAction;
+                case NodeType.Event:
+                    return StringCategory.Event;
+                case NodeType.Criterion:
+                    return StringCategory.Neither;
+                case NodeType.Response:
+                    return StringCategory.Response;
+                case NodeType.Dialogue:
+                    return StringCategory.Dialogue;
+                case NodeType.Quest:
+                    return StringCategory.Quest;
+                case NodeType.Achievement:
+                    return StringCategory.Achievement;
+                case NodeType.Reaction:
+                    return StringCategory.Response;
+                case NodeType.BGC:
+                    return StringCategory.BGC;
+                default:
+                    return StringCategory.Neither;
+            }
         }
 
         /// <summary>

@@ -141,8 +141,9 @@ namespace HousePartyTranslator.Managers
 
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
-                    TabManager.ActiveTranslationManager.ToggleReplaceUI();
-                    PrepareTextChanged(parent.ActiveControl);
+                    //todo uncomment if ready to ship
+                    //TabManager.ActiveTranslationManager.ToggleReplaceUI();
+                    //PrepareTextChanged(parent.ActiveControl);
                     return true;
 
                 //save current file

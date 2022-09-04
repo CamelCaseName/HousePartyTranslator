@@ -73,7 +73,7 @@ namespace HousePartyTranslator
                     {
                         selectFileDialog = new OpenFileDialog
                         {
-                            Title = "Choose the story file you want to explore",
+                            Title = "Choose the story file of your story for the templates",
                             Filter = "Story Files (*.story)|*.story",
                             InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false
@@ -84,7 +84,7 @@ namespace HousePartyTranslator
                     {
                         selectFileDialog = new OpenFileDialog
                         {
-                            Title = "Choose the character file you want to explore",
+                            Title = "Choose the character file of your story for the templates",
                             Filter = "Character Files (*.character)|*.character",
                             InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false
@@ -99,6 +99,7 @@ namespace HousePartyTranslator
                     }
                     else
                     {
+                        _StoryFilePath = "";
                         //close form if cancelled
                         GotCancelled = true;
                     }
@@ -130,11 +131,11 @@ namespace HousePartyTranslator
                     //else create new
                     if (IsStory)
                     {
-                        DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString));
+                        DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString), true);
                     }
                     else
                     {
-                        DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString));
+                        DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString), true);
                     }
 
                     //save nodes
@@ -148,6 +149,26 @@ namespace HousePartyTranslator
             {
                 return false;
             }
+        }
+
+        public List<Node> GetTemplateNodes()
+        {
+            if (FilePath.Length > 0)
+            {
+                string fileString = File.ReadAllText(FilePath);
+                //else create new
+                if (IsStory)
+                {
+                    DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString), false);
+                }
+                else
+                {
+                    DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString), false);
+                }
+
+                return nodes;
+            }
+            return null;
         }
 
         private List<Node> CalculateForceDirectedLayoutCpp(List<Node> _nodes)
@@ -224,39 +245,39 @@ namespace HousePartyTranslator
                     Parallel.For(0, nodes.Count, options, i1 =>
                     {
                         Node node = nodes[i1];
-                    //create position vector for all later calculations
-                    Vector2 nodePosition = new Vector2(node.Position.X, node.Position.Y);
-                    //reset force
-                    NodeForces[node.Guid] = new Vector2();
+                        //create position vector for all later calculations
+                        Vector2 nodePosition = new Vector2(node.Position.X, node.Position.Y);
+                        //reset force
+                        NodeForces[node.Guid] = new Vector2();
 
-                    //calculate repulsion force
-                    for (int i2 = 0; i2 < nodes.Count; i2++)
+                        //calculate repulsion force
+                        for (int i2 = 0; i2 < nodes.Count; i2++)
                         {
                             Node secondNode = nodes[i2];
                             if (node != secondNode && secondNode.Position != node.Position)
                             {
                                 Vector2 secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
                                 Vector2 difference = (secondNodePosition - nodePosition);
-                            //absolute length of difference/distance
-                            float distance = difference.Length();
-                            //add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
-                            Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance) / node.Mass;
+                                //absolute length of difference/distance
+                                float distance = difference.Length();
+                                //add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
+                                Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance) / node.Mass;
 
-                            //if the second node is a child of ours
-                            if (secondNode.ParentNodes.Contains(node))
+                                //if the second node is a child of ours
+                                if (secondNode.ParentNodes.Contains(node))
                                 {
-                                //so we can now do the attraction force
-                                //formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
-                                NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
+                                    //so we can now do the attraction force
+                                    //formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
+                                    NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
                                 }
                                 else
                                 {
-                                //add force to node
-                                NodeForces[node.Guid] += repulsionForce;
+                                    //add force to node
+                                    NodeForces[node.Guid] += repulsionForce;
                                 }
 
-                            //add new maximum force or keep it as is if ours is smaller
-                            currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
+                                //add new maximum force or keep it as is if ours is smaller
+                                currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
                             }
                         }
                     });
@@ -400,7 +421,7 @@ namespace HousePartyTranslator
             return listNodes;
         }
 
-        private void DissectCharacter(CharacterStory story)
+        private void DissectCharacter(CharacterStory story, bool doForceStuff)
         {
             if (story != null && !GotCancelled)
             {
@@ -423,15 +444,18 @@ namespace HousePartyTranslator
                 CriteriaInFile.Clear();
 
                 //calculate starting positions
-                nodes = CalculateStartingPositions(nodes);
+                if (doForceStuff)
+                {
+                    nodes = CalculateStartingPositions(nodes);
 
-                //render and do the force driven calculation thingies
-                nodes = CalculateForceDirectedLayoutCpp(nodes);
+                    //render and do the force driven calculation thingies
+                    nodes = CalculateForceDirectedLayoutCpp(nodes);
+                }
 
             }
         }
 
-        private void DissectStory(MainStory story)
+        private void DissectStory(MainStory story, bool doForceStuff)
         {
             if (story != null && !GotCancelled)
             {
@@ -455,10 +479,13 @@ namespace HousePartyTranslator
                 CriteriaInFile.Clear();
 
                 //calculate starting positions
-                nodes = CalculateStartingPositions(nodes);
+                if (doForceStuff)
+                {
+                    nodes = CalculateStartingPositions(nodes);
 
-                //render and do the force driven calculation thingies
-                nodes = CalculateForceDirectedLayoutCpp(nodes);
+                    //render and do the force driven calculation thingies
+                    nodes = CalculateForceDirectedLayoutCpp(nodes);
+                }
 
             }
         }
@@ -468,7 +495,7 @@ namespace HousePartyTranslator
             //list to collect all achievement nodes
             List<Node> nodes = new List<Node>();
             //go through all of them
-            foreach (Achievement achievement in story.Achievements)
+            foreach (Achievement achievement in story.Achievements ?? System.Linq.Enumerable.Empty<Achievement>())
             {
                 //node to add the description as child to, needs reference to parent, hence can't be anonymous
                 Node node = new Node(achievement.Id, NodeType.Achievement, achievement.Name);
@@ -484,8 +511,7 @@ namespace HousePartyTranslator
         private List<Node> GetBackGroundChatter(CharacterStory story)
         {
             List<Node> nodes = new List<Node>();
-
-            foreach (BackgroundChatter backgroundChatter in story.BackgroundChatter)
+            foreach (BackgroundChatter backgroundChatter in story.BackgroundChatter ?? System.Linq.Enumerable.Empty<BackgroundChatter>())
             {
                 Node bgcNode = new Node($"BGC{backgroundChatter.Id}", NodeType.BGC, backgroundChatter.Text);
 
@@ -512,13 +538,13 @@ namespace HousePartyTranslator
             List<Node> nodes = new List<Node>();
             List<Tuple<Node, int>> responseDialogueLinks = new List<Tuple<Node, int>>();
 
-            foreach (Dialogue dialogue in story.Dialogues)
+            foreach (Dialogue dialogue in story.Dialogues ?? System.Linq.Enumerable.Empty<Dialogue>())
             {
                 Node nodeDialogue = new Node(dialogue.ID.ToString(), NodeType.Dialogue, dialogue.Text);
                 int alternateTextCounter = 1;
 
                 //add all alternate texts to teh dialogue
-                foreach (AlternateText alternateText in dialogue.AlternateTexts)
+                foreach (AlternateText alternateText in dialogue.AlternateTexts ?? System.Linq.Enumerable.Empty<AlternateText>())
                 {
                     Node nodeAlternateText = new Node($"{dialogue.ID}.{alternateTextCounter}", NodeType.Dialogue, alternateText.Text, nodeDialogue);
 
@@ -535,7 +561,7 @@ namespace HousePartyTranslator
                 nodeDialogue.AddEvents(dialogue.CloseEvents);
 
                 //add all responses as childs to this dialogue
-                foreach (Response response in dialogue.Responses)
+                foreach (Response response in dialogue.Responses ?? System.Linq.Enumerable.Empty<Response>())
                 {
                     Node nodeResponse = new Node(response.Id, NodeType.Response, response.Text, nodeDialogue);
 
@@ -580,7 +606,7 @@ namespace HousePartyTranslator
             List<Node> nodes = new List<Node>();
 
             //add all responses as childs to this dialogue
-            foreach (GlobalGoodbyeResponse response in story.GlobalGoodbyeResponses)
+            foreach (GlobalGoodbyeResponse response in story.GlobalGoodbyeResponses ?? System.Linq.Enumerable.Empty<GlobalGoodbyeResponse>())
             {
                 Node nodeResponse = new Node(response.Id, NodeType.Response, response.Text);
 
@@ -599,7 +625,7 @@ namespace HousePartyTranslator
         {
             List<Node> nodes = new List<Node>();
 
-            foreach (GlobalResponse response in story.GlobalResponses)
+            foreach (GlobalResponse response in story.GlobalResponses ?? System.Linq.Enumerable.Empty<GlobalResponse>())
             {
                 Node nodeResponse = new Node(response.Id, NodeType.Response, response.Text);
 
@@ -619,7 +645,7 @@ namespace HousePartyTranslator
             //list to collect all item group nodes in the end
             List<Node> nodes = new List<Node>();
             //go through all item groups to find events
-            foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors)
+            foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors ?? System.Linq.Enumerable.Empty<ItemGroupBehavior>())
             {
                 //create item group node to add events/criteria to
                 Node nodeGroup = new Node(itemGroupBehaviour.Id, NodeType.ItemGroup, itemGroupBehaviour.Name);
@@ -652,7 +678,7 @@ namespace HousePartyTranslator
             //list to store all found root nodes
             List<Node> nodes = new List<Node>();
             //go through all nodes to search them for actions
-            foreach (ItemOverride itemOverride in story.ItemOverrides)
+            foreach (ItemOverride itemOverride in story.ItemOverrides ?? System.Linq.Enumerable.Empty<ItemOverride>())
             {
                 //add items to list
                 Node nodeItem = new Node(itemOverride.Id, NodeType.Item, itemOverride.DisplayName);
@@ -683,7 +709,7 @@ namespace HousePartyTranslator
         private List<Node> GetPlayerReactions(MainStory story)
         {
             List<Node> nodes = new List<Node>();
-            foreach (PlayerReaction playerReaction in story.PlayerReactions)
+            foreach (PlayerReaction playerReaction in story.PlayerReactions ?? System.Linq.Enumerable.Empty<PlayerReaction>())
             {
                 //add items to list
                 Node nodeReaction = new Node(playerReaction.Id, NodeType.Reaction, playerReaction.Name);
@@ -703,20 +729,20 @@ namespace HousePartyTranslator
         {
             List<Node> nodes = new List<Node>();
 
-            foreach (Quest quest in story.Quests)
+            foreach (Quest quest in story.Quests ?? System.Linq.Enumerable.Empty<Quest>())
             {
                 Node nodeQuest = new Node(quest.ID, NodeType.Quest, quest.Name);
 
                 //Add details
-                if (quest.Details.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}Description", NodeType.Quest, quest.Details));
+                if (quest.Details?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}Description", NodeType.Quest, quest.Details));
                 //Add completed details
-                if (quest.CompletedDetails.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}CompletedDetails", NodeType.Quest, quest.CompletedDetails));
+                if (quest.CompletedDetails?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}CompletedDetails", NodeType.Quest, quest.CompletedDetails));
                 //Add failed details
-                if (quest.FailedDetails.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}FailedDetails", NodeType.Quest, quest.FailedDetails));
+                if (quest.FailedDetails?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}FailedDetails", NodeType.Quest, quest.FailedDetails));
 
                 //Add extended details
 
-                foreach (ExtendedDetail detail in quest.ExtendedDetails)
+                foreach (ExtendedDetail detail in quest.ExtendedDetails ?? System.Linq.Enumerable.Empty<ExtendedDetail>())
                 {
                     nodeQuest.AddChildNode(new Node($"{quest.ID}Description{detail.Value}", NodeType.Quest, detail.Details));
                 }
@@ -731,7 +757,7 @@ namespace HousePartyTranslator
         {
             List<Node> nodes = new List<Node>();
 
-            foreach (Reaction playerReaction in story.Reactions)
+            foreach (Reaction playerReaction in story.Reactions ?? System.Linq.Enumerable.Empty<Reaction>())
             {
                 //add items to list
                 Node nodeReaction = new Node(playerReaction.Id, NodeType.Reaction, playerReaction.Name);

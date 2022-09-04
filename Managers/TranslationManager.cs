@@ -40,6 +40,7 @@ namespace HousePartyTranslator.Managers
         private string storyName = "";
         private readonly PropertyHelper helper;
         private bool triedFixingOnce = false;
+        private bool triedSavingFixOnce = false;
 
         /// <summary>
         /// The Constructor for this class. Takes no arguments.
@@ -134,10 +135,76 @@ namespace HousePartyTranslator.Managers
                 }
                 else
                 {
-                    MessageBox.Show($"No valid story name found \"{value}\", assuming Original Story.");
-                    storyName = "Original Story";
+                    storyName = value;
+                    //custom story?
+                    if (!CustomStoryTemplateHandle(value))
+                    {
+                        MessageBox.Show($"Not flagged as custom story, can't find \"{value}\", assuming Original Story.");
+                        storyName = "Original Story";
+                    }
                 }
             }
+        }
+
+        public bool CustomStoryTemplateHandle(string story)
+        {
+            DialogResult result;
+            if (Properties.Settings.Default.EnableCustomStories)
+            {
+                result = DialogResult.Yes;
+            }
+            else
+            {
+                result = MessageBox.Show($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story", "Custom story?", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+            }
+            if (result == DialogResult.Yes)
+            {
+                //check if the template has been added and generated once before
+                DataBaseManager.GetAllLineDataBasicForFile(fileName, story, out var data);
+                if (data.Count == 0)
+                {//its a custom story but no template so far on the server
+                 //use contextprovider to extract the story object and get the lines
+                    result = MessageBox.Show($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
+                    if (result != DialogResult.Cancel)
+                    {
+                        bool isStory = result == DialogResult.No;
+                        ContextProvider explorer = new ContextProvider(isStory, false, FileName, StoryName, null);
+                        var nodes = explorer.GetTemplateNodes();
+                        if (nodes != null)
+                        {
+                            Application.UseWaitCursor = true;
+                            //remove old lines from server
+                            DataBaseManager.RemoveOldTemplates(FileName, story);
+
+                            //add name as first template (its not in the file)
+                            DataBaseManager.SetStringTemplate("Name", FileName, story, StringCategory.General, FileName);
+
+                            //Add all new lines, but check if they are relevant
+                            for (int i = 0; i < nodes.Count; i++)
+                            {
+                                //filter out irrelevant nodes
+                                if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) && nodes[i].Type == NodeType.Event)
+                                    && Utils.CategoryFromNode(nodes[i].Type) != StringCategory.Neither
+                                    && nodes[i].ID != "")
+                                {
+                                    DataBaseManager.SetStringTemplate(nodes[i].ID, FileName, story, Utils.CategoryFromNode(nodes[i].Type), nodes[i].Text);
+                                }
+                            }
+
+                            Application.UseWaitCursor = false;
+                            return true;
+                        }
+                        MessageBox.Show("Something broke, please try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            Application.UseWaitCursor = false;
+            return false;
         }
 
         /// <summary>
@@ -528,15 +595,19 @@ namespace HousePartyTranslator.Managers
                         if (helper.CheckListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) helper.CheckListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
                     }
 
+                    //load comments
                     if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
                     {
                         helper.CommentBox.Lines = comments;
                     }
 
+                    //sync approvedbox and list
                     helper.ApprovedBox.Checked = helper.CheckListBoxLeft.GetItemChecked(currentIndex);
 
+                    //update label
                     UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
 
+                    //update explorer
                     if (UpdateStoryExplorerSelection)
                     {
                         SetHighlightedNode();
@@ -545,6 +616,10 @@ namespace HousePartyTranslator.Managers
                     {
                         UpdateStoryExplorerSelection = true;
                     }
+
+                    //renew search result if possible
+                    int t = helper.CheckListBoxLeft.SearchResults.IndexOf(currentIndex);
+                    if (t >= 0) { SelectedSearchResult = t; }
                 }
             }
             UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
@@ -697,7 +772,16 @@ namespace HousePartyTranslator.Managers
                     {
                         //add translation to the list in the correct category if present
                         int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-                        CategorizedStrings[intCategory].Item1.Add(lineDataResult);
+                        if (intCategory < CategorizedStrings.Count && intCategory >= 0)
+                            CategorizedStrings[intCategory].Item1.Add(lineDataResult);
+                        else if (!triedSavingFixOnce)
+                        {
+                            triedSavingFixOnce = true;
+                            GenerateCategories();
+                            SaveFile();
+                            triedSavingFixOnce = false;
+                        }
+
                     }
                     else// if id is not found
                     {
@@ -1213,6 +1297,8 @@ namespace HousePartyTranslator.Managers
                 MessageBoxIcon.Asterisk
                 );
 
+            //remove old lines from server
+            DataBaseManager.RemoveOldTemplates(StoryName);
             //add all the new strings
             foreach (LineData lineD in TranslationData)
             {
@@ -1268,7 +1354,7 @@ namespace HousePartyTranslator.Managers
 
                 if (tempStoryName == "Languages")
                 {
-                    //get foler one more up
+                    //get folder one more up
                     tempStoryName = "UI";
                 }
 
@@ -1287,6 +1373,8 @@ namespace HousePartyTranslator.Managers
                     LoadTranslations();
                     UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
                 }
+                //update tab name
+                TabManager.UpdateTabTitle(FileName);
             }
         }
 
@@ -1438,12 +1526,6 @@ namespace HousePartyTranslator.Managers
                 TryFixEmptyFile();
             }
 
-            if (lastLine.Length > 0)
-            {
-                //add last line (dont care about duplicates because sql will get rid of them)
-                TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1]));
-            }
-
             //set categories if file is a hint file
             if (StoryName == "Hints") CategoriesInFile = new List<StringCategory>() { StringCategory.General };
 
@@ -1533,6 +1615,12 @@ namespace HousePartyTranslator.Managers
                     }
                 }
             }
+
+            if (lastLine.Length > 0)
+            {
+                //add last line (dont care about duplicates because sql will get rid of them)
+                TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, category, lastLine[1]));
+            }
         }
 
         private void TryFixEmptyFile()
@@ -1609,21 +1697,23 @@ namespace HousePartyTranslator.Managers
                 {
                     if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
                     {
-                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                        ++SelectedSearchResult;
+                    }
+                    else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
+                    {
+                        searchTabIndex = TabManager.TabControl.SelectedIndex;
+                        TabManager.SwitchToTab(++searchTabIndex);
+                        return true;
                     }
                     else
                     {
                         SelectedSearchResult = 0;
-                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                        ++SelectedSearchResult;
                     }
                 }
 
-                return true;
-            }
-            else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
-            {
-                searchTabIndex = TabManager.TabControl.SelectedIndex;
-                TabManager.SwitchToTab(++searchTabIndex);
                 return true;
             }
             else
