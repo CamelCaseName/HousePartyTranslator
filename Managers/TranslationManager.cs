@@ -1684,12 +1684,14 @@ namespace HousePartyTranslator.Managers
                 {
                     if (helper.CheckListBoxLeft.SearchResults[SelectedSearchResult] < helper.CheckListBoxLeft.Items.Count)
                     {
-                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                        ++SelectedSearchResult;
                     }
                     else
                     {
                         SelectedSearchResult = 0;
-                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult++];
+                        helper.CheckListBoxLeft.SelectedIndex = helper.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                        ++SelectedSearchResult;
                     }
                 }
 
