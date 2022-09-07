@@ -582,7 +582,7 @@ namespace HousePartyTranslator.Managers
             Search();
 
             //update textbox
-            helper.TranslationTextBox.Text = TranslationData[helper.CheckListBoxLeft.SelectedIndex].TranslationString.Replace("\n", Environment.NewLine);
+            ReloadTranslationTextbox();
 
             //show confirmation
             MessageBox.Show("Replace successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -608,8 +608,14 @@ namespace HousePartyTranslator.Managers
                 Search();
 
                 //update textbox
-                helper.TranslationTextBox.Text = TranslationData[i].TranslationString.Replace("\n", Environment.NewLine);
+                ReloadTranslationTextbox();
             }
+        }
+
+        public void ReloadTranslationTextbox()
+        {
+            //update textbox
+            helper.TranslationTextBox.Text = TranslationData[helper.CheckListBoxLeft.SelectedIndex].TranslationString.Replace("\n", Environment.NewLine);
         }
 
         /// <summary>
