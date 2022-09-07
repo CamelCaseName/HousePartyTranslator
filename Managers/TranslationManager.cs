@@ -581,6 +581,9 @@ namespace HousePartyTranslator.Managers
             //update search results
             Search();
 
+            //update textbox
+            helper.TranslationTextBox.Text = TranslationData[helper.CheckListBoxLeft.SelectedIndex].TranslationString.Replace("\n", Environment.NewLine);
+
             //show confirmation
             MessageBox.Show("Replace successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
@@ -604,8 +607,8 @@ namespace HousePartyTranslator.Managers
                 //update search results
                 Search();
 
-                //show confirmation
-                MessageBox.Show("Replace successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                //update textbox
+                helper.TranslationTextBox.Text = TranslationData[i].TranslationString.Replace("\n", Environment.NewLine);
             }
         }
 
@@ -1507,6 +1510,18 @@ namespace HousePartyTranslator.Managers
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Asterisk);
             }
+
+            UpdateLineData();
+        }
+
+        private void UpdateLineData()
+        {
+            DataBaseManager.GetAllTranslatedStringForFile(FileName, StoryName, out var lineDatas, Language);
+
+            for (int i = 0; i < lineDatas.Count; i++)
+            {
+                TranslationData.Find(p => p.ID == lineDatas[i].ID).TranslationString = lineDatas[i].TranslationString;
+            }
         }
 
         private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, List<LineData> IdsToExport)
@@ -1715,6 +1730,7 @@ namespace HousePartyTranslator.Managers
                     helper.SearchBox.Text = helper.TranslationTextBox.SelectedText;
                 }
                 helper.ReplaceBox.Visible = true;
+                helper.ReplaceAllButton.Visible = true;
                 helper.ReplaceButton.Visible = true;
 
                 //set focus to most needed text box, search first
@@ -1724,6 +1740,7 @@ namespace HousePartyTranslator.Managers
             else
             {
                 helper.ReplaceButton.Visible = false;
+                helper.ReplaceAllButton.Visible = false;
                 helper.ReplaceBox.Visible = false;
                 helper.TranslationTextBox.Focus();
             }

@@ -331,9 +331,10 @@ namespace HousePartyTranslator.Managers
                 (TextBox)TabControl.SelectedTab.Controls.Find("CommentTextBox", true)[0],
                 fenster.SearchBox,
                 fenster.ReplaceBox,
-                fenster.ReplaceButton,
+                fenster.ReplaceAllButton,
                 (TextBox)TabControl.SelectedTab.Controls.Find("TemplateTextBox", true)[0],
-                (TextBox)TabControl.SelectedTab.Controls.Find("TranslatedTextBox", true)[0]
+                (TextBox)TabControl.SelectedTab.Controls.Find("TranslatedTextBox", true)[0],
+                fenster.ReplaceButton
                 );
         }
 

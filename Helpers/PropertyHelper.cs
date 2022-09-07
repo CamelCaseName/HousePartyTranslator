@@ -17,6 +17,7 @@ namespace HousePartyTranslator.Helpers
         public readonly TextBox CommentBox;
         public readonly ToolStripTextBox SearchBox;
         public readonly ToolStripTextBox ReplaceBox;
+        public readonly ToolStripMenuItem ReplaceAllButton;
         public readonly ToolStripMenuItem ReplaceButton;
         public readonly TextBox TemplateTextBox;
         public readonly TextBox TranslationTextBox;
@@ -47,9 +48,10 @@ namespace HousePartyTranslator.Helpers
             TextBox CommentBox,
             ToolStripTextBox SearchBox,
             ToolStripTextBox ReplaceBox,
-            ToolStripMenuItem ReplaceButton,
+            ToolStripMenuItem ReplaceAllButton,
             TextBox TemplateTextBox,
-            TextBox TranslationTextBox
+            TextBox TranslationTextBox,
+            ToolStripMenuItem ReplaceButton
             )
         {
             this.ApprovedBox = ApprovedBox;
@@ -61,10 +63,11 @@ namespace HousePartyTranslator.Helpers
             this.NoProgressbar = NoProgressbar;
             this.SearchBox = SearchBox;
             this.ReplaceBox = ReplaceBox;
-            this.ReplaceButton = ReplaceButton;
+            this.ReplaceAllButton = ReplaceAllButton;
             this.SelectedFileLabel = SelectedFileLabel;
             this.TemplateTextBox = TemplateTextBox;
             this.TranslationTextBox = TranslationTextBox;
+            this.ReplaceButton = ReplaceButton;
         }
     }
 }

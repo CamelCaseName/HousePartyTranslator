@@ -70,7 +70,9 @@ namespace HousePartyTranslator
 
         public ToolStripTextBox ReplaceBox { get { return ToolStripMenuReplaceBox; } }
 
-        public ToolStripMenuItem ReplaceButton { get { return toolStripReplaceAllButton; } }
+        public ToolStripMenuItem ReplaceAllButton { get { return toolStripReplaceAllButton; } }
+
+        public ToolStripMenuItem ReplaceButton { get { return toolStripReplaceButton; } }
 
         public ToolStripMenuItem FileToolStripMenuItem { get { return fileToolStripMenuItem; } }
 
