@@ -178,4 +178,76 @@ namespace HousePartyTranslator.Managers
             if (newIndex >= 0 && newIndex < ListBox.Items.Count) ListBox.SelectedIndex = oldIndex;
         }
     }
+
+    class TranslationChanged : ICommand
+    {
+        readonly TranslationManager manager;
+        readonly int index;
+        readonly string oldText;
+        readonly string newText;
+
+        public TranslationChanged( TranslationManager manager,int index, string oldText, string newText)
+        {
+            this.manager = manager;
+            this.index = index;
+            this.oldText = oldText;
+            this.newText = newText;
+        }
+
+        void ICommand.Do()
+        {
+            manager.TranslationData[index].TranslationString = newText;
+        }
+
+        void ICommand.Undo()
+        {
+            manager.TranslationData[index].TranslationString = oldText;
+        }
+    }
+
+    class SelectedTabChanged : ICommand
+    {
+        readonly int oldTabIndex, newTabIndex;
+
+        public SelectedTabChanged(int oldTabIndex, int newTabIndex)
+        {
+            this.oldTabIndex = oldTabIndex;
+            this.newTabIndex = newTabIndex;
+        }
+
+        void ICommand.Do()
+        {
+            TabManager.SwitchToTab(newTabIndex);
+        }
+
+        void ICommand.Undo()
+        {
+            TabManager.SwitchToTab(oldTabIndex);
+        }
+    }
+
+    class AllTranslationsChanged : ICommand
+    {
+        readonly List<LineData> oldTranslations, newTranslations;
+        readonly TranslationManager manager;
+
+        public AllTranslationsChanged(TranslationManager manager, List<LineData> oldTranslations, List<LineData> newTranslations)
+        {
+            this.oldTranslations = new List<LineData>(oldTranslations);
+            this.newTranslations = new List<LineData>(newTranslations);
+            this.manager = manager;
+        }
+
+        void ICommand.Do()
+        {
+            manager.TranslationData.Clear();
+            manager.TranslationData.AddRange(newTranslations);
+        }
+
+        void ICommand.Undo()
+        {
+            manager.TranslationData.Clear();
+            manager.TranslationData.AddRange(oldTranslations);
+        }
+    }
 }

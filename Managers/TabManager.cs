@@ -105,7 +105,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void OpenNewTab()
         {
-            OpenInNewTab(TranslationManager.SelectFileFromSystem());
+            OpenInNewTab(Utils.SelectFileFromSystem());
         }
 
         /// <summary>
@@ -337,19 +337,28 @@ namespace HousePartyTranslator.Managers
                 );
         }
 
-        public static void Replace()
+        public static void ReplaceAll()
         {
             if (InGlobalSearch)
             {
                 for (int i = 0; i < TabControl.TabCount; i++)
                 {
-                    translationManagers[TabControl.TabPages[i]].Replace(ActiveProperties.ReplaceBox.Text);
+                    //save history
+                    if (i != 0) History.AddAction(new SelectedTabChanged(i - 1, i));
+                    else History.AddAction(new SelectedTabChanged(0, i));
+
+                    translationManagers[TabControl.TabPages[i]].ReplaceAll(ActiveProperties.ReplaceBox.Text);
                 }
             }
             else
             {
-                ActiveTranslationManager.Replace(ActiveProperties.ReplaceBox.Text);
+                ActiveTranslationManager.ReplaceAll(ActiveProperties.ReplaceBox.Text);
             }
+        }
+
+        public static void Replace()
+        {
+            ActiveTranslationManager.ReplaceSingle(ActiveProperties.ReplaceBox.Text);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using HousePartyTranslator.Helpers;
+using System;
 
 namespace HousePartyTranslator
 {
@@ -27,6 +28,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem toolStripReplaceAllButton;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceButton;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
@@ -84,6 +86,7 @@ namespace HousePartyTranslator
             this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.ToolStripMenuReplaceBox = new System.Windows.Forms.ToolStripTextBox();
+            this.toolStripReplaceAllButton = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripReplaceButton = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -102,6 +105,7 @@ namespace HousePartyTranslator
             this.searchToolStripTextBox,
             this.ToolStripMenuReplaceBox,
             this.toolStripReplaceButton,
+            this.toolStripReplaceAllButton,
             this.languageToolStripComboBox,
             this.storyExplorerStripMenuItem1,
             this.customOpenStoryExplorer,
@@ -253,6 +257,17 @@ namespace HousePartyTranslator
             this.ToolStripMenuReplaceBox.Visible = false;
             this.ToolStripMenuReplaceBox.TextChanged += new System.EventHandler(this.ToolStripMenuReplaceBox_TextChanged);
             // 
+            // toolStripReplaceAllButton
+            // 
+            this.toolStripReplaceAllButton.BackColor = this.menu;
+            this.toolStripReplaceAllButton.ForeColor = this.darkText;
+            this.toolStripReplaceAllButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.toolStripReplaceAllButton.Name = "toolStripReplaceAllButton";
+            this.toolStripReplaceAllButton.Size = new System.Drawing.Size(63, 23);
+            this.toolStripReplaceAllButton.Text = "Replace all";
+            this.toolStripReplaceAllButton.Visible = false;
+            this.toolStripReplaceAllButton.Click += new System.EventHandler(this.ToolStripReplaceAllButton_Click);
+            // 
             // toolStripReplaceButton
             // 
             this.toolStripReplaceButton.BackColor = this.menu;
@@ -260,7 +275,7 @@ namespace HousePartyTranslator
             this.toolStripReplaceButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.toolStripReplaceButton.Name = "toolStripReplaceButton";
             this.toolStripReplaceButton.Size = new System.Drawing.Size(63, 23);
-            this.toolStripReplaceButton.Text = "Replace!";
+            this.toolStripReplaceButton.Text = "Replace";
             this.toolStripReplaceButton.Visible = false;
             this.toolStripReplaceButton.Click += new System.EventHandler(this.ToolStripReplaceButton_Click);
             // 

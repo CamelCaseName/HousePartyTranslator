@@ -70,7 +70,7 @@ namespace HousePartyTranslator
 
         public ToolStripTextBox ReplaceBox { get { return ToolStripMenuReplaceBox; } }
 
-        public ToolStripMenuItem ReplaceButton { get { return toolStripReplaceButton; } }
+        public ToolStripMenuItem ReplaceButton { get { return toolStripReplaceAllButton; } }
 
         public ToolStripMenuItem FileToolStripMenuItem { get { return fileToolStripMenuItem; } }
 
@@ -149,11 +149,11 @@ namespace HousePartyTranslator
             LogManager.LogEvent(e.ExceptionObject.ToString());
             try //casting the object into an exception
             {
-                TranslationManager.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
+                Utils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
             }
             catch //dirty dirty me... can't cast into an exception :)
             {
-                TranslationManager.DisplayExceptionMessage(e.ExceptionObject.ToString());
+                Utils.DisplayExceptionMessage(e.ExceptionObject.ToString());
             }
         }
 
@@ -254,7 +254,7 @@ namespace HousePartyTranslator
         private void ThreadExceptionHandler(object sender, ThreadExceptionEventArgs e)
         {
             LogManager.LogEvent(e.Exception.ToString());
-            TranslationManager.DisplayExceptionMessage(e.Exception.Message);
+            Utils.DisplayExceptionMessage(e.Exception.Message);
         }
 
         private void ToolStripMenuReplaceBox_TextChanged(object sender, EventArgs e)
@@ -265,6 +265,11 @@ namespace HousePartyTranslator
         public void Comments_TextChanged(object sender, EventArgs e)
         {
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
+        }
+
+        private void ToolStripReplaceAllButton_Click(object sender, EventArgs e)
+        {
+            TabManager.ReplaceAll();
         }
 
         private void ToolStripReplaceButton_Click(object sender, EventArgs e)
