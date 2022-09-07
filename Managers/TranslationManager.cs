@@ -29,7 +29,6 @@ namespace HousePartyTranslator.Managers
         public readonly List<LineData> TranslationData = new List<LineData>();
         public bool UpdateStoryExplorerSelection = true;
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
-        private static int ExceptionCount = 0;
         private static Fenster MainWindow;
         private string fileName = "";
         private bool isSaveAs = false;
@@ -208,90 +207,6 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Displays a window with the necessary info about the exception.
-        /// </summary>
-        /// <param name="message">The error message to display</param>
-        public static void DisplayExceptionMessage(string message)
-        {
-            LogManager.LogEvent("Exception message shown: " + message);
-            LogManager.LogEvent("Current exception count: " + ExceptionCount++);
-            MessageBox.Show(
-                $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
-                $"Anyways, here is what happened: \n\n{message}\n\n " +
-                $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
-                $"Some Error found (Nr. {ExceptionCount})",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error
-            );
-
-            Application.OpenForms[0].Cursor = Cursors.Default;
-
-            if (ExceptionCount > 3)
-            {
-                Application.Exit();
-            }
-        }
-
-        /// <summary>
-        /// Opens a select file dialogue and returns the selected file as a path.
-        /// </summary>
-        /// <returns>The path to the selected file.</returns>
-        public static string SelectFileFromSystem()
-        {
-            OpenFileDialog selectFileDialog = new OpenFileDialog
-            {
-                Title = "Choose a file for translation",
-                Filter = "Text files (*.txt)|*.txt",
-                InitialDirectory = Properties.Settings.Default.translation_path.Length > 0 ? Path.GetDirectoryName(Properties.Settings.Default.translation_path) : @"C:\Users\%USER%\Documents",
-                RestoreDirectory = false
-            };
-
-            if (selectFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                Properties.Settings.Default.translation_path = selectFileDialog.FileName;
-                Properties.Settings.Default.Save();
-                return selectFileDialog.FileName;
-            }
-            return "";
-        }
-
-        /// <summary>
-        /// Opens a select folder dialogue to find the template folder and returns the selected folder as a path.
-        /// </summary>
-        /// <returns>The folder path selected.</returns>
-        public static string SelectTemplateFolderFromSystem()
-        {
-            return SelectFolderFromSystem("Please select the 'TEMPLATE' folder like in the repo");
-        }
-
-        /// <summary>
-        /// Opens a select folder dialogue and returns the selected folder as a path.
-        /// </summary>
-        /// <param name="message">The description of the dialogue to display</param>
-        /// <returns>The folder path selected.</returns>
-        public static string SelectFolderFromSystem(string message)
-        {
-            string templatePath = Properties.Settings.Default.template_path;
-            FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
-            {
-                Description = message,
-                SelectedPath = templatePath == "" ? Environment.SpecialFolder.UserProfile.ToString() : templatePath,
-            };
-
-            if (selectFolderDialog.ShowDialog() == DialogResult.OK)
-            {
-                string t = selectFolderDialog.SelectedPath;
-                if (templatePath != null)
-                {
-                    Properties.Settings.Default.template_path = t;
-                    Properties.Settings.Default.Save();
-                }
-                return t;
-            }
-            return "";
-        }
-
-        /// <summary>
         /// Depending on the cursor location the line is approved or not (on checkbox or not).
         /// </summary>
         /// <param name="FensterRef">The window of type fenster</param>
@@ -313,7 +228,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void LoadAllFilesIntoProgram()
         {
-            string basePath = SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
+            string basePath = Utils.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
 
             if (basePath.Length > 0)
             {
@@ -439,16 +354,16 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
-        public void LoadFileIntoProgram()
+        public void LoadFileIntoProgram(DiscordPresenceManager presenceManager)
         {
-            LoadFileIntoProgram(SelectFileFromSystem());
+            LoadFileIntoProgram(Utils.SelectFileFromSystem(), presenceManager);
         }
 
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
         /// <param name="path">The path to the file to translate</param>
-        public void LoadFileIntoProgram(string path)
+        public void LoadFileIntoProgram(string path, DiscordPresenceManager presenceManager)
         {
             if (path.Length > 0)
             {
@@ -464,24 +379,7 @@ namespace HousePartyTranslator.Managers
                 }
                 else
                 {
-                    string folderPath = SelectTemplateFolderFromSystem();
-                    string templateFolderName = folderPath.Split('\\')[folderPath.Split('\\').Length - 1];
-                    if (templateFolderName == "TEMPLATE")
-                    {
-                        isTemplate = true;
-                        LoadAndSyncTemplates(folderPath);
-                    }
-                    else
-                    {
-                        isTemplate = false;
-                        MessageBox.Show(
-                            $"Please the template folder named 'TEMPLATE' so we can upload them. " +
-                            $"Your Current Folder shows as {templateFolderName}.",
-                            "Updating string database",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Warning
-                            );
-                    }
+                    LoadTemplates();
                 }
 
                 if (TranslationData.Count > 0)
@@ -495,9 +393,110 @@ namespace HousePartyTranslator.Managers
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
                     RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
+
+                    //update presence and recents
+                    presenceManager.Update(StoryName, FileName);
                 }
                 //reset cursor
                 MainWindow.Cursor = Cursors.Default;
+            }
+        }
+
+        private void LoadTemplates()
+        {
+            string folderPath = Utils.SelectTemplateFolderFromSystem();
+            string templateFolderName = folderPath.Split('\\')[folderPath.Split('\\').Length - 1];
+            if (templateFolderName == "TEMPLATE")
+            {
+                isTemplate = true;
+                LoadAndSyncTemplates(folderPath);
+            }
+            else
+            {
+                isTemplate = false;
+                MessageBox.Show(
+                    $"Please the template folder named 'TEMPLATE' so we can upload them. " +
+                    $"Your Current Folder shows as {templateFolderName}.",
+                    "Updating string database",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                    );
+            }
+        }
+
+        /// <summary>
+        /// Saves the last selected line to the database
+        /// </summary>
+        /// <param name="currentIndex">currently selected line</param>
+        private void SaveLastLine(int currentIndex)
+        {
+            //if we changed the selection and have autsave enabled
+            if (LastIndex != currentIndex && Properties.Settings.Default.autoSave)
+            {
+                //update translation in the database
+                DataBaseManager.SetStringTranslation(
+                    TranslationData[LastIndex].ID,
+                    FileName,
+                    StoryName,
+                    TranslationData[LastIndex].Category,
+                    TranslationData[LastIndex].TranslationString,
+                    Language);
+
+                //upload comment on change
+                DataBaseManager.SetTranslationComments(
+                    TranslationData[LastIndex].ID,
+                    FileName,
+                    StoryName,
+                    helper.CommentBox.Lines,
+                    Language
+                    );
+
+                LastIndex = currentIndex;
+
+                //clear comment after save
+                helper.CommentBox.Lines = new string[0];
+            }
+        }
+
+        private void DisplayTemplate(int currentIndex, string id)
+        {
+            string templateString;
+            //if we have no template here
+            if (TranslationData[currentIndex].TemplateString?.Length == 0 || TranslationData[currentIndex].TemplateString?.Length == null)
+            {
+                //read the template form the db and display it if it exists
+                DataBaseManager.GetStringTemplate(id, FileName, StoryName, out templateString);
+                TranslationData[currentIndex].TemplateString = templateString;
+            }
+            else
+            {
+                templateString = TranslationData[currentIndex].TemplateString;
+            }
+
+            helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
+        }
+
+        private void MarkSimilarLine(int currentIndex)
+        {
+            if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
+            {
+                helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
+            }
+            else
+            {
+                if (helper.CheckListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) helper.CheckListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
+            }
+        }
+
+        private void UpdateStoryExplorerNode()
+        {
+            if (UpdateStoryExplorerSelection)
+            {
+                SetHighlightedNode();
+            }
+            else
+            {
+                UpdateStoryExplorerSelection = true;
             }
         }
 
@@ -506,44 +505,12 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public void PopulateTextBoxes()
         {
-            //todo make smaller/compartmentalize
             MainWindow.Cursor = Cursors.WaitCursor;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
-
-            if (LastIndex < 0)
-            {
-                //sets index the first time/when we click elsewhere
-                LastIndex = currentIndex;
-            }
-            else
-            {
-                //if we changed the selection and have autsave enabled
-                if (LastIndex != currentIndex && Properties.Settings.Default.autoSave)
-                {
-                    //update translation in the database
-                    DataBaseManager.SetStringTranslation(
-                        TranslationData[LastIndex].ID,
-                        FileName,
-                        StoryName,
-                        TranslationData[LastIndex].Category,
-                        TranslationData[LastIndex].TranslationString,
-                        Language);
-
-                    //upload comment on change
-                    DataBaseManager.SetTranslationComments(
-                        TranslationData[LastIndex].ID,
-                        FileName,
-                        StoryName,
-                        helper.CommentBox.Lines,
-                        Language
-                        );
-
-                    LastIndex = currentIndex;
-
-                    //clear comment after save
-                    helper.CommentBox.Lines = new string[0];
-                }
-            }
+            
+            //sets index the first time/when we click elsewhere
+            if (LastIndex < 0) LastIndex = currentIndex;
+            else SaveLastLine(currentIndex);
 
             if (currentIndex >= 0)
             {
@@ -554,52 +521,26 @@ namespace HousePartyTranslator.Managers
                 else
                 {
                     string id = TranslationData[currentIndex].ID;
+                    DisplayTemplate(currentIndex, id);
+
                     //read latest version from the database
-                    if (DataBaseManager.GetStringTranslation(id, FileName, StoryName, out string translation, Language))
-                    {
-                        //replace older one in file by new one from database
+                    //replace older one in file by new one from database
+                    if (DataBaseManager.GetStringTranslation(id, FileName, StoryName, out string translation, Language)) 
                         TranslationData[currentIndex].TranslationString = translation;
-                    }
 
                     //display the string in the editable window
                     helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine);
 
-                    string templateString;
-                    //if we have no template here
-                    if (TranslationData[currentIndex].TemplateString?.Length == 0 || TranslationData[currentIndex].TemplateString?.Length == null)
-                    {
-                        //read the template form the db and display it if it exists
-                        DataBaseManager.GetStringTemplate(id, FileName, StoryName, out templateString);
-                        TranslationData[currentIndex].TemplateString = templateString;
-                    }
-                    else
-                    {
-                        templateString = TranslationData[currentIndex].TemplateString;
-                    }
-
-                    helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
-
                     //translate if useful and possible
                     if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved && helper.TemplateTextBox.Text.Length > 0)
-                    {
                         ReplaceTranslationTranslatedTask(currentIndex);
-                    }
 
                     //mark text if similar to english (not translated yet)
-                    if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
-                    {
-                        helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
-                    }
-                    else
-                    {
-                        if (helper.CheckListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) helper.CheckListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
-                    }
+                    MarkSimilarLine(currentIndex);
 
                     //load comments
                     if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
-                    {
                         helper.CommentBox.Lines = comments;
-                    }
 
                     //sync approvedbox and list
                     helper.ApprovedBox.Checked = helper.CheckListBoxLeft.GetItemChecked(currentIndex);
@@ -608,14 +549,7 @@ namespace HousePartyTranslator.Managers
                     UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
 
                     //update explorer
-                    if (UpdateStoryExplorerSelection)
-                    {
-                        SetHighlightedNode();
-                    }
-                    else
-                    {
-                        UpdateStoryExplorerSelection = true;
-                    }
+                    UpdateStoryExplorerNode();
 
                     //renew search result if possible
                     int t = helper.CheckListBoxLeft.SearchResults.IndexOf(currentIndex);
@@ -630,20 +564,58 @@ namespace HousePartyTranslator.Managers
         /// Replaces a searched string in all applicable lines by the replacement provided using the invariant culture.
         /// </summary>
         /// <param name="replacement">The string to replace all search matches with</param>
-        public void Replace(string replacement)
+        public void ReplaceAll(string replacement)
         {
+            var old = TranslationData;
+
             foreach (var i in helper.CheckListBoxLeft.SearchResults)
             {
                 TranslationData[i].TranslationString = Utils.Replace(TranslationData[i].TranslationString, replacement, SearchQuery);
             }
+
+            History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
+
             //update translations also on the database
             DataBaseManager.SetStringSelectedTranslations(TranslationData, FileName, StoryName, Language, helper.CheckListBoxLeft.SearchResults);
 
             //update search results
             Search();
 
+            //update textbox
+            ReloadTranslationTextbox();
+
             //show confirmation
             MessageBox.Show("Replace successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Replaces a searched string in the selected line if it is a search result by the replacement provided using the invariant culture.
+        /// </summary>
+        /// <param name="replacement">The string to replace all search matches with</param>
+        public void ReplaceSingle(string replacement)
+        {
+            int i = helper.CheckListBoxLeft.SelectedIndex;
+            if (helper.CheckListBoxLeft.SearchResults.Contains(i))
+            {
+                var temp = Utils.Replace(TranslationData[i].TranslationString, replacement, SearchQuery);
+                History.AddAction(new TranslationChanged(this, i, TranslationData[i].TranslationString, temp));
+                TranslationData[i].TranslationString = temp;
+
+                //update translations also on the database
+                DataBaseManager.SetStringTranslation(TranslationData[i].ID, FileName, StoryName, TranslationData[i].Category, temp, Language);
+
+                //update search results
+                Search();
+
+                //update textbox
+                ReloadTranslationTextbox();
+            }
+        }
+
+        public void ReloadTranslationTextbox()
+        {
+            //update textbox
+            helper.TranslationTextBox.Text = TranslationData[helper.CheckListBoxLeft.SelectedIndex].TranslationString.Replace("\n", Environment.NewLine);
         }
 
         /// <summary>
@@ -1285,7 +1257,7 @@ namespace HousePartyTranslator.Managers
             catch (UnauthorizedAccessException e)
             {
                 LogManager.LogEvent(e.ToString());
-                DisplayExceptionMessage(e.ToString());
+                Utils.DisplayExceptionMessage(e.ToString());
             }
 
             MessageBox.Show(
@@ -1544,6 +1516,18 @@ namespace HousePartyTranslator.Managers
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Asterisk);
             }
+
+            UpdateLineData();
+        }
+
+        private void UpdateLineData()
+        {
+            DataBaseManager.GetAllTranslatedStringForFile(FileName, StoryName, out var lineDatas, Language);
+
+            for (int i = 0; i < lineDatas.Count; i++)
+            {
+                TranslationData.Find(p => p.ID == lineDatas[i].ID).TranslationString = lineDatas[i].TranslationString;
+            }
         }
 
         private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, List<LineData> IdsToExport)
@@ -1752,6 +1736,7 @@ namespace HousePartyTranslator.Managers
                     helper.SearchBox.Text = helper.TranslationTextBox.SelectedText;
                 }
                 helper.ReplaceBox.Visible = true;
+                helper.ReplaceAllButton.Visible = true;
                 helper.ReplaceButton.Visible = true;
 
                 //set focus to most needed text box, search first
@@ -1761,6 +1746,7 @@ namespace HousePartyTranslator.Managers
             else
             {
                 helper.ReplaceButton.Visible = false;
+                helper.ReplaceAllButton.Visible = false;
                 helper.ReplaceBox.Visible = false;
                 helper.TranslationTextBox.Focus();
             }

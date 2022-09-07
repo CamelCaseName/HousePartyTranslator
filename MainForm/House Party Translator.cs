@@ -70,6 +70,8 @@ namespace HousePartyTranslator
 
         public ToolStripTextBox ReplaceBox { get { return ToolStripMenuReplaceBox; } }
 
+        public ToolStripMenuItem ReplaceAllButton { get { return toolStripReplaceAllButton; } }
+
         public ToolStripMenuItem ReplaceButton { get { return toolStripReplaceButton; } }
 
         public ToolStripMenuItem FileToolStripMenuItem { get { return fileToolStripMenuItem; } }
@@ -149,33 +151,33 @@ namespace HousePartyTranslator
             LogManager.LogEvent(e.ExceptionObject.ToString());
             try //casting the object into an exception
             {
-                TranslationManager.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
+                Utils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
             }
             catch //dirty dirty me... can't cast into an exception :)
             {
-                TranslationManager.DisplayExceptionMessage(e.ExceptionObject.ToString());
+                Utils.DisplayExceptionMessage(e.ExceptionObject.ToString());
             }
         }
 
         private void OnFormShown(object sender, EventArgs e)
         {
             LogManager.LogEvent("Application started! hi there :D");
+            PresenceManager = new DiscordPresenceManager();
 
             //get translationmanager back
-            TranslationManager translationManager = TabManager.Initialize(tabPage1);
+            TranslationManager translationManager = TabManager.Initialize(tabPage1, PresenceManager);
             translationManager.SetLanguage();
             translationManager.SetMainForm(this);
 
             //initialize before password check so the saving doesnt break
-            RecentsManager.Initialize();
+            RecentsManager.Initialize(PresenceManager);
 
             //Settings have to be loaded before the Database can be connected with
             DataBaseManager.InitializeDB(this);
 
+
             //open most recent after db is initialized
             RecentsManager.OpenMostRecent();
-
-            PresenceManager = new DiscordPresenceManager();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
@@ -254,7 +256,7 @@ namespace HousePartyTranslator
         private void ThreadExceptionHandler(object sender, ThreadExceptionEventArgs e)
         {
             LogManager.LogEvent(e.Exception.ToString());
-            TranslationManager.DisplayExceptionMessage(e.Exception.Message);
+            Utils.DisplayExceptionMessage(e.Exception.Message);
         }
 
         private void ToolStripMenuReplaceBox_TextChanged(object sender, EventArgs e)
@@ -265,6 +267,11 @@ namespace HousePartyTranslator
         public void Comments_TextChanged(object sender, EventArgs e)
         {
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
+        }
+
+        private void ToolStripReplaceAllButton_Click(object sender, EventArgs e)
+        {
+            TabManager.ReplaceAll();
         }
 
         private void ToolStripReplaceButton_Click(object sender, EventArgs e)

@@ -141,9 +141,7 @@ namespace HousePartyTranslator.Managers
 
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
-                    //todo uncomment if ready to ship
-                    //TabManager.ActiveTranslationManager.ToggleReplaceUI();
-                    //PrepareTextChanged(parent.ActiveControl);
+                    TabManager.ActiveTranslationManager.ToggleReplaceUI();
                     return true;
 
                 //save current file
@@ -304,13 +302,10 @@ namespace HousePartyTranslator.Managers
         {
             //get currently active translationmanager
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram();
+            translationManager.LoadFileIntoProgram(presenceManager);
             translationManager.SetLanguage();
             //update tab name
             if (translationManager.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = translationManager.FileName;
-
-            //update presence and recents
-            presenceManager.Update(translationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         static public void OpenNewTab(DiscordPresenceManager presenceManager)

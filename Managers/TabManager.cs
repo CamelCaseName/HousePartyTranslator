@@ -14,6 +14,7 @@ namespace HousePartyTranslator.Managers
         public static bool InGlobalSearch = false;
         private static readonly Dictionary<TabPage, PropertyHelper> properties = new Dictionary<TabPage, PropertyHelper>();
         private static readonly Dictionary<TabPage, TranslationManager> translationManagers = new Dictionary<TabPage, TranslationManager>();
+        private static DiscordPresenceManager presenceManager;
 
         /// <summary>
         /// Method returning a Propertyhelper containing all relevant UI elements.
@@ -82,7 +83,7 @@ namespace HousePartyTranslator.Managers
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tabPage1">The initial tab</param>
-        public static TranslationManager Initialize(TabPage tabPage1)
+        public static TranslationManager Initialize(TabPage tabPage1, DiscordPresenceManager presenceManager)
         {
             while (TabControl == null)
             {
@@ -94,6 +95,8 @@ namespace HousePartyTranslator.Managers
             properties.Add(tabPage1, CreateActivePropertyHelper());
             translationManagers.Add(tabPage1, new TranslationManager(ActiveProperties));
 
+            TabManager.presenceManager = presenceManager;
+
             return translationManagers[tabPage1];
         }
 
@@ -102,7 +105,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void OpenNewTab()
         {
-            OpenInNewTab(TranslationManager.SelectFileFromSystem());
+            OpenInNewTab(Utils.SelectFileFromSystem());
         }
 
         /// <summary>
@@ -126,7 +129,7 @@ namespace HousePartyTranslator.Managers
 
                 //call startup for new translationmanager
                 t.SetLanguage();
-                t.LoadFileIntoProgram(path);
+                t.LoadFileIntoProgram(path, presenceManager);
             }
         }
 
@@ -328,25 +331,35 @@ namespace HousePartyTranslator.Managers
                 (TextBox)TabControl.SelectedTab.Controls.Find("CommentTextBox", true)[0],
                 fenster.SearchBox,
                 fenster.ReplaceBox,
-                fenster.ReplaceButton,
+                fenster.ReplaceAllButton,
                 (TextBox)TabControl.SelectedTab.Controls.Find("TemplateTextBox", true)[0],
-                (TextBox)TabControl.SelectedTab.Controls.Find("TranslatedTextBox", true)[0]
+                (TextBox)TabControl.SelectedTab.Controls.Find("TranslatedTextBox", true)[0],
+                fenster.ReplaceButton
                 );
         }
 
-        public static void Replace()
+        public static void ReplaceAll()
         {
             if (InGlobalSearch)
             {
                 for (int i = 0; i < TabControl.TabCount; i++)
                 {
-                    translationManagers[TabControl.TabPages[i]].Replace(ActiveProperties.ReplaceBox.Text);
+                    //save history
+                    if (i != 0) History.AddAction(new SelectedTabChanged(i - 1, i));
+                    else History.AddAction(new SelectedTabChanged(0, i));
+
+                    translationManagers[TabControl.TabPages[i]].ReplaceAll(ActiveProperties.ReplaceBox.Text);
                 }
             }
             else
             {
-                ActiveTranslationManager.Replace(ActiveProperties.ReplaceBox.Text);
+                ActiveTranslationManager.ReplaceAll(ActiveProperties.ReplaceBox.Text);
             }
+        }
+
+        public static void Replace()
+        {
+            ActiveTranslationManager.ReplaceSingle(ActiveProperties.ReplaceBox.Text);
         }
     }
 }

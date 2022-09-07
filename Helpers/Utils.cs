@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HousePartyTranslator.Managers;
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -13,6 +14,8 @@ namespace HousePartyTranslator.Helpers
     {
         public static readonly int MaxTextLength = 100;
         public static readonly int maxWordLength = 15;
+
+        private static int ExceptionCount = 0;
 
         public static readonly System.Drawing.Color foreground = System.Drawing.SystemColors.Window;
         public static readonly System.Drawing.Color background = System.Drawing.SystemColors.ControlDarkDark;
@@ -263,6 +266,90 @@ namespace HousePartyTranslator.Helpers
             Assembly assembly = Assembly.GetExecutingAssembly();
             FileVersionInfo fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
             return fileVersion.FileVersion;
+        }
+
+        /// <summary>
+        /// Displays a window with the necessary info about the exception.
+        /// </summary>
+        /// <param name="message">The error message to display</param>
+        public static void DisplayExceptionMessage(string message)
+        {
+            LogManager.LogEvent("Exception message shown: " + message);
+            LogManager.LogEvent("Current exception count: " + ExceptionCount++);
+            MessageBox.Show(
+                $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
+                $"Anyways, here is what happened: \n\n{message}\n\n " +
+                $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
+                $"Some Error found (Nr. {ExceptionCount})",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error
+            );
+
+            Application.OpenForms[0].Cursor = Cursors.Default;
+
+            if (ExceptionCount > 3)
+            {
+                Application.Exit();
+            }
+        }
+
+        /// <summary>
+        /// Opens a select file dialogue and returns the selected file as a path.
+        /// </summary>
+        /// <returns>The path to the selected file.</returns>
+        public static string SelectFileFromSystem()
+        {
+            OpenFileDialog selectFileDialog = new OpenFileDialog
+            {
+                Title = "Choose a file for translation",
+                Filter = "Text files (*.txt)|*.txt",
+                InitialDirectory = Properties.Settings.Default.translation_path.Length > 0 ? System.IO.Path.GetDirectoryName(Properties.Settings.Default.translation_path) : @"C:\Users\%USER%\Documents",
+                RestoreDirectory = false
+            };
+
+            if (selectFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                Properties.Settings.Default.translation_path = selectFileDialog.FileName;
+                Properties.Settings.Default.Save();
+                return selectFileDialog.FileName;
+            }
+            return "";
+        }
+
+        /// <summary>
+        /// Opens a select folder dialogue to find the template folder and returns the selected folder as a path.
+        /// </summary>
+        /// <returns>The folder path selected.</returns>
+        public static string SelectTemplateFolderFromSystem()
+        {
+            return SelectFolderFromSystem("Please select the 'TEMPLATE' folder like in the repo");
+        }
+
+        /// <summary>
+        /// Opens a select folder dialogue and returns the selected folder as a path.
+        /// </summary>
+        /// <param name="message">The description of the dialogue to display</param>
+        /// <returns>The folder path selected.</returns>
+        public static string SelectFolderFromSystem(string message)
+        {
+            string templatePath = Properties.Settings.Default.template_path;
+            FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
+            {
+                Description = message,
+                SelectedPath = templatePath == "" ? Environment.SpecialFolder.UserProfile.ToString() : templatePath,
+            };
+
+            if (selectFolderDialog.ShowDialog() == DialogResult.OK)
+            {
+                string t = selectFolderDialog.SelectedPath;
+                if (templatePath != null)
+                {
+                    Properties.Settings.Default.template_path = t;
+                    Properties.Settings.Default.Save();
+                }
+                return t;
+            }
+            return "";
         }
 
         /// <summary>
