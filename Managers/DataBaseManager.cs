@@ -553,12 +553,12 @@ namespace HousePartyTranslator.Managers
                 if (!double.TryParse(DBVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _dbVersion))
                 {
                     _dbVersion = 1.0;
-                    LogManager.LogEvent($"invalid string cast to double. Offender: {DBVersion}");
+                    LogManager.LogEvent($"invalid string cast to double. Offender: {DBVersion}", LogManager.Level.Warning);
                 }
                 if (!double.TryParse(fileVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _fileVersion))
                 {
                     _fileVersion = 1.0;
-                    LogManager.LogEvent($"invalid string cast to double. Offender: {fileVersion}");
+                    LogManager.LogEvent($"invalid string cast to double. Offender: {fileVersion}", LogManager.Level.Warning);
                 }
 
                 //save comparison
@@ -893,7 +893,7 @@ ON DUPLICATE KEY UPDATE approved = @approved;";
                     }
                     catch (Exception e)
                     {
-                        LogManager.LogEvent($"While trying to execute the following command{command.CommandText},\n this happened:\n" + e.ToString());
+                        LogManager.LogEvent($"While trying to execute the following command{command.CommandText},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
                     }
                 }
 

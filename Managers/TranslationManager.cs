@@ -1256,7 +1256,7 @@ namespace HousePartyTranslator.Managers
             }
             catch (UnauthorizedAccessException e)
             {
-                LogManager.LogEvent(e.ToString());
+                LogManager.LogEvent(e.ToString(), LogManager.Level.Warning);
                 Utils.DisplayExceptionMessage(e.ToString());
             }
 
@@ -1482,7 +1482,7 @@ namespace HousePartyTranslator.Managers
             }
             catch (Exception e)
             {
-                LogManager.LogEvent($"File not found under {SourceFilePath}.\n{e}");
+                LogManager.LogEvent($"File not found under {SourceFilePath}.\n{e}", LogManager.Level.Warning);
                 MessageBox.Show($"File not found under {SourceFilePath}. Please reopen.", "Invalid path", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ResetTranslationManager();
                 return;

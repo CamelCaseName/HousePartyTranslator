@@ -289,6 +289,7 @@ namespace HousePartyTranslator.Helpers
 
             if (ExceptionCount > 3)
             {
+                LogManager.LogEvent("Too many exceptions encountered, aborting", LogManager.Level.Crash);
                 Application.Exit();
             }
         }

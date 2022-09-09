@@ -12,12 +12,17 @@ namespace HousePartyTranslator.Managers
         private static readonly string APPDATA_PATH = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); // AppData Local folder (different for every user)
         public static readonly string CFGFOLDER_PATH = Path.Combine(APPDATA_PATH, "HousePartyTranslator");     // Path for program Settings folder
         private static readonly string CFGFILE_PATH = Path.Combine(CFGFOLDER_PATH, "log.txt");   // Path for Settings.txt file
+        private static readonly List<string> FileLines = new List<string>();
+        
+        public enum Level
+        {
+            Info,
+            Warning,
+            Error,
+            Crash
+        }
 
-        /// <summary>
-        /// A Method for adding a string with timestamp at the end of the log
-        /// </summary>
-        /// <param name="EventString">The string to be added.</param>
-        public static void LogEvent(string EventString)
+        static LogManager()
         {
             // Does the folder not exist?
             if (!Directory.Exists(CFGFOLDER_PATH))
@@ -28,14 +33,11 @@ namespace HousePartyTranslator.Managers
                 CreateLogFile();
 
             //get all lines from the log file so far
-            List<string> FileLines = new List<string>();
             FileLines.AddRange(File.ReadAllLines(CFGFILE_PATH));
+        }
 
-            string message = $"Logged event at {DateTime.Now}: \n {EventString} \n\n";
-
-            //add the message as lines to our list of all lines
-            FileLines.AddRange(message.Split('\n'));
-
+        public static void SaveLogFile()
+        {
             //remove old lines after we reach a certain length of the file
             if (FileLines.Count > 5000)
             {
@@ -47,6 +49,28 @@ namespace HousePartyTranslator.Managers
 
             //write back file
             File.WriteAllLines(CFGFILE_PATH, FileLines);
+        }
+
+        /// <summary>
+        /// A Method for adding a string with timestamp at the end of the log
+        /// </summary>
+        /// <param name="message">The string to be added.</param>
+        public static void LogEvent(string message)
+        {
+            LogEvent(message, Level.Info);
+        }
+
+        /// <summary>
+        /// A Method for adding a string with timestamp at the end of the log
+        /// </summary>
+        /// <param name="message">The string to be added.</param>
+        /// <param name="level">The level of the logged message</param>
+        public static void LogEvent(string message, Level level)
+        {
+            string _message = $"[{level}] | {DateTime.Now} | {message} \n";
+
+            //add the message as lines to our list of all lines
+            FileLines.AddRange(_message.Split('\n'));
         }
 
         /// <summary>
