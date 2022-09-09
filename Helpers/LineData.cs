@@ -13,6 +13,8 @@ public class LineData
     public string TranslationString;
     public string[] Comments;
 
+    public LineData() { }
+
     public LineData(string id, string story, string filename, StringCategory category, bool isApproved)
     {
         ID = id;

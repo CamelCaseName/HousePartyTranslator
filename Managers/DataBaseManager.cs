@@ -27,6 +27,103 @@ namespace HousePartyTranslator.Managers
         private static readonly string UPDATE = "UPDATE translations ";
 #endif
 
+        public static bool GetLineData(string id, string fileName, string story, out LineData translation, string language = "de")
+        {
+            CheckConnection();
+            string insertCommand = @"SELECT *" + FROM + @" WHERE id = @id AND language = @language;";
+            bool wasSuccessfull = false;
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+            MainCommand.Parameters.AddWithValue("@language", language);
+
+            MainReader = MainCommand.ExecuteReader();
+
+
+            if (MainReader.HasRows && !MainReader.IsDBNull(0))
+            {
+                translation = new LineData()
+                {
+                    Category = (StringCategory)MainReader.GetInt32("category"),
+                    Comments = MainReader.GetString("comments").Split('#'),
+                    FileName = fileName,
+                    ID = id,
+                    IsApproved = MainReader.GetInt32("approved") > 0,
+                    IsTemplate = false,
+                    IsTranslated = MainReader.GetInt32("translated") > 0,
+                    Story = story,
+                    TemplateString = "",
+                    TranslationString = MainReader.GetString("translation")
+                };
+                wasSuccessfull = true;
+            }
+            else
+            {
+                translation = new LineData("", "", "", StringCategory.Neither);
+            }
+            MainReader.Close();
+            return wasSuccessfull;
+        }
+
+        public static bool GetAllLineData(string fileName, string story, out List<LineData> LineDataList)
+        {
+            CheckConnection();
+            bool wasSuccessfull = false;
+            string insertCommand;
+            if (story == "Hints")
+            {
+                insertCommand = @"SELECT id, category, english
+                                    " + FROM + @"
+                                    WHERE story = @story AND language IS NULL
+                                    ORDER BY category ASC;";
+            }
+            else
+            {
+                insertCommand = @"SELECT id, category, english
+                                    " + FROM + @"
+                                    WHERE filename = @filename AND story = @story AND language IS NULL
+                                    ORDER BY category ASC;";
+            }
+            MainCommand.CommandText = insertCommand;
+            MainCommand.Parameters.Clear();
+            MainCommand.Parameters.AddWithValue("@filename", fileName);
+            MainCommand.Parameters.AddWithValue("@story", story);
+
+            LineDataList = new List<LineData>();
+
+            MainReader = MainCommand.ExecuteReader();
+
+            if (MainReader.HasRows)
+            {
+                while (MainReader.Read())
+                {
+                    if (!MainReader.IsDBNull(0))
+                    {
+                        LineDataList.Add(new LineData()
+                        {
+                            Category = (StringCategory)MainReader.GetInt32("category"),
+                            Comments = MainReader.GetString("comments").Split('#'),
+                            FileName = fileName,
+                            ID = MainReader.GetString("id"),
+                            IsApproved = MainReader.GetInt32("approved") > 0,
+                            IsTemplate = false,
+                            IsTranslated = MainReader.GetInt32("translated") > 0,
+                            Story = story,
+                            TemplateString = "",
+                            TranslationString = MainReader.GetString("translation")
+                        });
+                    }
+                }
+                wasSuccessfull = true;
+            }
+            else
+            {
+                MessageBox.Show("Ids can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+            }
+            MainReader.Close();
+            return wasSuccessfull;
+        }
+
         /// <summary>
         /// Add a comment to the translation to the string defined by id and language.
         /// </summary>
