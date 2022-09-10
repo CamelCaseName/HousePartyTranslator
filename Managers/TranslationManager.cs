@@ -159,7 +159,7 @@ namespace HousePartyTranslator.Managers
             if (result == DialogResult.Yes)
             {
                 //check if the template has been added and generated once before
-                DataBaseManager.GetAllLineDataBasicForFile(fileName, story, out var data);
+                DataBase.GetAllLineDataTemplate(fileName, story, out var data);
                 if (data.Count == 0)
                 {//its a custom story but no template so far on the server
                  //use contextprovider to extract the story object and get the lines
@@ -173,10 +173,12 @@ namespace HousePartyTranslator.Managers
                         {
                             Application.UseWaitCursor = true;
                             //remove old lines from server
-                            DataBaseManager.RemoveOldTemplates(FileName, story);
+                            DataBase.RemoveOldTemplates(FileName, story);
+
+                            List<LineData> templates = new List<LineData>();
 
                             //add name as first template (its not in the file)
-                            DataBaseManager.SetStringTemplate("Name", FileName, story, StringCategory.General, FileName);
+                            templates.Add(new LineData("Name", story, FileName, StringCategory.General, FileName));
 
                             //Add all new lines, but check if they are relevant
                             for (int i = 0; i < nodes.Count; i++)
@@ -186,9 +188,11 @@ namespace HousePartyTranslator.Managers
                                     && Utils.CategoryFromNode(nodes[i].Type) != StringCategory.Neither
                                     && nodes[i].ID != "")
                                 {
-                                    DataBaseManager.SetStringTemplate(nodes[i].ID, FileName, story, Utils.CategoryFromNode(nodes[i].Type), nodes[i].Text);
+                                    templates.Add(new LineData(nodes[i].ID, story, FileName, Utils.CategoryFromNode(nodes[i].Type), nodes[i].Text, true));
                                 }
                             }
+
+                            DataBase.UploadTemplates(templates);
 
                             Application.UseWaitCursor = false;
                             return true;
@@ -271,8 +275,8 @@ namespace HousePartyTranslator.Managers
                 //UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count.CheckListBoxLeft.Items.Count.ApprovedCountLabel.NoProgressbar);
 
                 string ID = TranslationData[currentIndex].ID;
-                DataBaseManager.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, Language);
-                if (!DataBaseManager.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !helper.CheckListBoxLeft.GetItemChecked(currentIndex), Language))
+                DataBase.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, Language);
+                if (!DataBase.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !helper.CheckListBoxLeft.GetItemChecked(currentIndex), Language))
                 {
                     MessageBox.Show("Could not set approved state of string " + ID);
                 }
@@ -434,7 +438,7 @@ namespace HousePartyTranslator.Managers
             if (LastIndex != currentIndex && Properties.Settings.Default.autoSave)
             {
                 //update translation in the database
-                DataBaseManager.SetStringTranslation(
+                DataBase.SetStringTranslation(
                     TranslationData[LastIndex].ID,
                     FileName,
                     StoryName,
@@ -443,7 +447,7 @@ namespace HousePartyTranslator.Managers
                     Language);
 
                 //upload comment on change
-                DataBaseManager.SetTranslationComments(
+                DataBase.SetTranslationComments(
                     TranslationData[LastIndex].ID,
                     FileName,
                     StoryName,
@@ -465,7 +469,7 @@ namespace HousePartyTranslator.Managers
             if (TranslationData[currentIndex].TemplateString?.Length == 0 || TranslationData[currentIndex].TemplateString?.Length == null)
             {
                 //read the template form the db and display it if it exists
-                DataBaseManager.GetStringTemplate(id, FileName, StoryName, out templateString);
+                DataBase.GetStringTemplate(id, FileName, StoryName, out templateString);
                 TranslationData[currentIndex].TemplateString = templateString;
             }
             else
@@ -525,7 +529,7 @@ namespace HousePartyTranslator.Managers
 
                     //read latest version from the database
                     //replace older one in file by new one from database
-                    if (DataBaseManager.GetStringTranslation(id, FileName, StoryName, out string translation, Language)) 
+                    if (DataBase.GetStringTranslation(id, FileName, StoryName, out string translation, Language)) 
                         TranslationData[currentIndex].TranslationString = translation;
 
                     //display the string in the editable window
@@ -539,7 +543,7 @@ namespace HousePartyTranslator.Managers
                     MarkSimilarLine(currentIndex);
 
                     //load comments
-                    if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
+                    if (DataBase.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
                         helper.CommentBox.Lines = comments;
 
                     //sync approvedbox and list
@@ -576,7 +580,7 @@ namespace HousePartyTranslator.Managers
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
 
             //update translations also on the database
-            DataBaseManager.SetStringSelectedTranslations(TranslationData, FileName, StoryName, Language, helper.CheckListBoxLeft.SearchResults);
+            DataBase.SetStringSelectedTranslations(TranslationData, FileName, StoryName, Language, helper.CheckListBoxLeft.SearchResults);
 
             //update search results
             Search();
@@ -602,7 +606,7 @@ namespace HousePartyTranslator.Managers
                 TranslationData[i].TranslationString = temp;
 
                 //update translations also on the database
-                DataBaseManager.SetStringTranslation(TranslationData[i].ID, FileName, StoryName, TranslationData[i].Category, temp, Language);
+                DataBase.SetStringTranslation(TranslationData[i].ID, FileName, StoryName, TranslationData[i].Category, temp, Language);
 
                 //update search results
                 Search();
@@ -668,7 +672,7 @@ namespace HousePartyTranslator.Managers
                 MainWindow.Cursor = Cursors.WaitCursor;
 
                 //upload comment
-                DataBaseManager.SetTranslationComments(
+                DataBase.SetTranslationComments(
                     TranslationData[currentIndex].ID,
                     FileName,
                     StoryName,
@@ -693,7 +697,7 @@ namespace HousePartyTranslator.Managers
                 MainWindow.Cursor = Cursors.WaitCursor;
 
                 //update translation in the database
-                DataBaseManager.SetStringTranslation(
+                DataBase.SetStringTranslation(
                     TranslationData[LastIndex].ID,
                     FileName,
                     StoryName,
@@ -734,8 +738,8 @@ namespace HousePartyTranslator.Managers
 
 
                 //can take some time
-                DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
-                DataBaseManager.GetAllTranslatedStringForFile(FileName, StoryName, out List<LineData> TranslationsFromDatabase, Language);
+                DataBase.GetAllLineDataTemplate(FileName, StoryName, out List<LineData> IdsToExport);
+                DataBase.GetAllTranslatedStringForFile(FileName, StoryName, out List<LineData> TranslationsFromDatabase, Language);
 
                 foreach (LineData item in IdsToExport)
                 {
@@ -762,7 +766,7 @@ namespace HousePartyTranslator.Managers
 
                         if (TempResult == null)
                         {
-                            DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out item.TranslationString);
+                            DataBase.GetStringTemplate(item.ID, FileName, StoryName, out item.TranslationString);
                         }
                         else
                         {
@@ -1270,13 +1274,13 @@ namespace HousePartyTranslator.Managers
                 );
 
             //remove old lines from server
-            DataBaseManager.RemoveOldTemplates(StoryName);
+            DataBase.RemoveOldTemplates(StoryName);
             //add all the new strings
             foreach (LineData lineD in TranslationData)
             {
                 if (lineD.TemplateString != "")
                 {
-                    DataBaseManager.SetStringTemplate(lineD.ID, lineD.FileName, lineD.Story, lineD.Category, lineD.TemplateString);
+                    DataBase.SetStringTemplate(lineD.ID, lineD.FileName, lineD.Story, lineD.Category, lineD.TemplateString);
                 }
             }
 
@@ -1292,7 +1296,7 @@ namespace HousePartyTranslator.Managers
             //update if successfull
             if (result == DialogResult.Yes)
             {
-                if (DataBaseManager.UpdateDBVersion())
+                if (DataBase.UpdateDBVersion())
                 {
                     IsUpToDate = true;
                     isTemplate = false;
@@ -1358,7 +1362,7 @@ namespace HousePartyTranslator.Managers
             MainWindow.Cursor = Cursors.WaitCursor;
 
             bool lineIsApproved = false;
-            bool gotApprovedStates = DataBaseManager.GetAllStatesForFile(FileName, StoryName, out List<LineData> internalLines, Language);
+            bool gotApprovedStates = DataBase.GetAllStatesForFile(FileName, StoryName, out List<LineData> internalLines, Language);
             int currentIndex = 0;
 
             foreach (LineData lineD in TranslationData)
@@ -1473,7 +1477,7 @@ namespace HousePartyTranslator.Managers
             StringCategory currentCategory = StringCategory.General;
             string[] lastLine = { };
 
-            DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
+            DataBase.GetAllLineDataTemplate(FileName, StoryName, out List<LineData> IdsToExport);
             List<string> LinesFromFile;
             try
             {
@@ -1522,7 +1526,7 @@ namespace HousePartyTranslator.Managers
 
         private void UpdateLineData()
         {
-            DataBaseManager.GetAllTranslatedStringForFile(FileName, StoryName, out var lineDatas, Language);
+            DataBase.GetAllTranslatedStringForFile(FileName, StoryName, out var lineDatas, Language);
 
             for (int i = 0; i < lineDatas.Count; i++)
             {
@@ -1612,7 +1616,7 @@ namespace HousePartyTranslator.Managers
             if (!triedFixingOnce)
             {
                 triedFixingOnce = true;
-                DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
+                DataBase.GetAllLineDataTemplate(FileName, StoryName, out List<LineData> IdsToExport);
                 foreach (var item in IdsToExport)
                 {
                     TranslationData.Add(new LineData(item.ID, StoryName, FileName, item.Category));

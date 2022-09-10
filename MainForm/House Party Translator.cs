@@ -232,7 +232,7 @@ namespace HousePartyTranslator
 
         private void OnFormShown(object sender, EventArgs e)
         {
-            LogManager.LogEvent("Application started! hi there :D", LogManager.Level.Info);
+            LogManager.LogEvent("Application initializing...");
             PresenceManager = new DiscordPresenceManager();
 
             //get translationmanager back
@@ -244,7 +244,7 @@ namespace HousePartyTranslator
             RecentsManager.Initialize(PresenceManager);
 
             //Settings have to be loaded before the Database can be connected with
-            DataBaseManager.InitializeDB(this);
+            DataBase.InitializeDB(this);
 
             //open most recent after db is initialized
             RecentsManager.OpenMostRecent();
@@ -254,6 +254,8 @@ namespace HousePartyTranslator
             PresenceTimer.Start();
 
             PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+
+            LogManager.LogEvent($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{DataBase.DBVersion} story version:{Properties.Settings.Default.version}");
         }
 
         private void OpenAllToolStripMenuItem_Click(object sender, EventArgs e)

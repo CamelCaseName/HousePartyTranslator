@@ -47,7 +47,7 @@ namespace HousePartyTranslator.Managers
             try
             {
                 //create an id to differentiate between the different calculated layouts later
-                string FileId = translationManager.StoryName + translationManager.FileName + DataBaseManager.DBVersion;
+                string FileId = translationManager.StoryName + translationManager.FileName + DataBase.DBVersion;
                 string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
                 DialogResult result = DialogResult.OK;
                 if (!File.Exists(savedNodesPath))

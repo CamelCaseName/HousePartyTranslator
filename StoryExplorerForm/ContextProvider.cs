@@ -50,7 +50,7 @@ namespace HousePartyTranslator
             }
 
             //create an id to differentiate between the different calculated layouts later
-            FileId = StoryName + FileName + DataBaseManager.DBVersion;
+            FileId = StoryName + FileName + DataBase.DBVersion;
         }
 
         public string FilePath

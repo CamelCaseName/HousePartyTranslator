@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Managers
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    internal static class DataBaseManager
+    internal static class DataBase
     {
         public static string DBVersion;
         private static readonly MySqlConnection sqlConnection = new MySqlConnection();
@@ -365,7 +365,7 @@ namespace HousePartyTranslator.Managers
         /// <returns>
         /// True if exactly one row was set, false if it was not the case.
         /// </returns>
-        public static bool SetStringTemplates(List<LineData> lines)
+        public static bool UploadTemplates(List<LineData> lines)
         {
             StringBuilder builder = new StringBuilder(INSERT + " (id, story, filename, category, english) VALUES ", lines.Count * 100);
 
@@ -406,7 +406,7 @@ namespace HousePartyTranslator.Managers
         /// <returns>
         /// True if at least one row was set, false if it was not the case.
         /// </returns>
-        public static bool SetStringTranslation(LineData lineData, string language)
+        public static bool UpdateTranslation(LineData lineData, string language)
         {
             string command = INSERT + @" (id, story, filename, category, translated, approved, language, translation)
                                      VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @translation)
@@ -433,7 +433,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="storyName">The name of the story the file is from, should be the name of the parent folder.</param>
         /// <param name="language">The translated language in ISO 639-1 notation.</param>
         /// <returns></returns>
-        public static bool SetStringTranslations(List<LineData> translationData, string language)
+        public static bool UpdateTranslations(List<LineData> translationData, string language)
         {
             string storyName = translationData[0].Story;
             string fileName = translationData[0].FileName;

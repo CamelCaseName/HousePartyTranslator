@@ -243,7 +243,7 @@ namespace HousePartyTranslator.Managers
             manager.TranslationData.Clear();
             manager.TranslationData.AddRange(newTranslations);
             //update translations also on the database
-            DataBaseManager.SetStringTranslations(newTranslations, manager.FileName, manager.StoryName, manager.Language);
+            DataBase.SetStringTranslations(newTranslations, manager.FileName, manager.StoryName, manager.Language);
             manager.ReloadTranslationTextbox();
         }
 
@@ -252,7 +252,7 @@ namespace HousePartyTranslator.Managers
             manager.TranslationData.Clear();
             manager.TranslationData.AddRange(oldTranslations);
             //update translations also on the database
-            DataBaseManager.SetStringTranslations(oldTranslations, manager.FileName, manager.StoryName, manager.Language);
+            DataBase.SetStringTranslations(oldTranslations, manager.FileName, manager.StoryName, manager.Language);
             manager.ReloadTranslationTextbox();
         }
     }

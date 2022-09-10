@@ -309,7 +309,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void CopyTemplate()
         {
-            DataBaseManager.GetStringTemplate(ActiveTranslationManager.SelectedId, ActiveTranslationManager.FileName, ActiveTranslationManager.StoryName, out string templateString);
+            DataBase.GetStringTemplate(ActiveTranslationManager.SelectedId, ActiveTranslationManager.FileName, ActiveTranslationManager.StoryName, out string templateString);
             Clipboard.SetText(templateString);
         }
 
