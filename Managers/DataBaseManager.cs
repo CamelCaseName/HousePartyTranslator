@@ -187,69 +187,6 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Gets a string consisting of all comments for the string, seperated by '#'
-        /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="comments">The returned comments are written tho this string.</param>
-        /// <param name="language">The translated language in ISO 639-1 notation.</param>
-        /// <returns>
-        /// True if exactly one row was set, false if it was not the case.
-        /// </returns>
-        public static bool GetTranslationComments(string id, string fileName, string story, out string comments, string language = "de")
-        {
-            string command = @"SELECT comment
-                                     " + FROM + @"
-                                     WHERE id = @id AND language = @language;";
-            MainCommand.CommandText = command;
-            MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
-            MainCommand.Parameters.AddWithValue("@language", language);
-
-            CheckOrReopenConnection();
-            MainReader = MainCommand.ExecuteReader();
-            MainReader.Read();
-
-            if (MainReader.HasRows && !MainReader.IsDBNull(0))
-            {
-                comments = MainReader.GetString("comment");
-            }
-            else
-            {
-                comments = "";
-            }
-            MainReader.Close();
-            return comments != "";
-        }
-
-        /// <summary>
-        /// Gets an array of all comments from the specified string.
-        /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="comments">The returned comments are placed in this array.</param>
-        /// <param name="language">The translated language in ISO 639-1 notation.</param>
-        /// <returns>
-        /// True if exactly one row was set, false if it was not the case.
-        /// </returns>
-        public static bool GetTranslationComments(string id, string fileName, string story, out string[] comments, string language = "de")
-        {
-            //use # for comment seperator
-            if (GetTranslationComments(id, fileName, story, out string commentString, language))
-            {
-                comments = commentString.Split('#');
-                return true;
-            }
-            else
-            {
-                comments = new string[0] { };
-                return false;
-            }
-        }
-
-        /// <summary>
         /// Establishes the connection and handles the password stuff
         /// </summary>
         /// <param name="mainWindow">the window to spawn the password box as a child of</param>
