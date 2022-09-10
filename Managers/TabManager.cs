@@ -309,8 +309,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void CopyTemplate()
         {
-            DataBase.GetStringTemplate(ActiveTranslationManager.SelectedId, ActiveTranslationManager.FileName, ActiveTranslationManager.StoryName, out string templateString);
-            Clipboard.SetText(templateString);
+            Clipboard.SetText(ActiveTranslationManager.TranslationData[ActiveProperties.CheckListBoxLeft.SelectedIndex].TemplateString);
         }
 
         private static PropertyHelper CreateActivePropertyHelper()

@@ -46,9 +46,9 @@ namespace HousePartyTranslator.Managers
                 translation = new LineData()
                 {
                     Category = (StringCategory)MainReader.GetInt32("category"),
-                    Comments = MainReader.GetString("comments").Split('#'),
+                    Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
                     FileName = fileName,
-                    ID = id,
+                    ID = CleanId(id, story, fileName, false),
                     IsApproved = MainReader.GetInt32("approved") > 0,
                     IsTemplate = false,
                     IsTranslated = MainReader.GetInt32("translated") > 0,
@@ -102,9 +102,9 @@ namespace HousePartyTranslator.Managers
                         LineDataList.Add(new LineData()
                         {
                             Category = (StringCategory)MainReader.GetInt32("category"),
-                            Comments = MainReader.GetString("comments").Split('#'),
+                            Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
                             FileName = fileName,
-                            ID = MainReader.GetString("id"),
+                            ID = CleanId(MainReader.GetString("id"), story, fileName, false),
                             IsApproved = MainReader.GetInt32("approved") > 0,
                             IsTemplate = false,
                             IsTranslated = MainReader.GetInt32("translated") > 0,
@@ -376,7 +376,7 @@ namespace HousePartyTranslator.Managers
             }
 
             builder.Remove(builder.Length - 1, 1);
-            string command = builder.ToString() + "ON DUPLICATE KEY UPDATE english = @english;";
+            string command = builder.ToString() + "ON DUPLICATE KEY UPDATE english = VALUES(english);";
 
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
@@ -408,8 +408,13 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool UpdateTranslation(LineData lineData, string language)
         {
-            string command = INSERT + @" (id, story, filename, category, translated, approved, language, translation)
-                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @translation)
+            string comment = "";
+            for (int j = 0; j < lineData.Comments?.Length; j++)
+            {
+                comment += lineData.Comments[j] + "#";
+            }
+            string command = INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation)
+                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @comment, @translation)
                                      ON DUPLICATE KEY UPDATE translation = @translation;";
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
@@ -420,6 +425,7 @@ namespace HousePartyTranslator.Managers
             MainCommand.Parameters.AddWithValue("@translated", 1);
             MainCommand.Parameters.AddWithValue("@approved", lineData.IsApproved ? 1 : 0);
             MainCommand.Parameters.AddWithValue("@language", language);
+            MainCommand.Parameters.AddWithValue($"@comment", comment);
             MainCommand.Parameters.AddWithValue("@translation", lineData.TranslationString);
 
             return ExecuteOrReOpen(MainCommand);
@@ -437,23 +443,28 @@ namespace HousePartyTranslator.Managers
         {
             string storyName = translationData[0].Story;
             string fileName = translationData[0].FileName;
-            StringBuilder builder = new StringBuilder(INSERT + @" (id, story, filename, category, translated, approved, language, translation) VALUES ", translationData.Count * 100);
+            StringBuilder builder = new StringBuilder(INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation) VALUES ", translationData.Count * 100);
 
             //add all values
             for (int i = 0; i < translationData.Count; i++)
             {
-                builder.Append($"(@id{i}, @story{i}, @filename{i}, @category{i}, @translated{i}, @approved{i}, @language{i}, @translation{i}),");
+                builder.Append($"(@id{i}, @story{i}, @filename{i}, @category{i}, @translated{i}, @approved{i}, @language{i}, @comment{i}, @translation{i}),");
             }
 
             builder.Remove(builder.Length - 1, 1);
-            string command = builder.ToString() + "ON DUPLICATE KEY UPDATE translation = @translation;";
 
-            MainCommand.CommandText = command;
+            MainCommand.CommandText = builder.ToString() + (" ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
             MainCommand.Parameters.Clear();
 
             //insert all the parameters
             for (int i = 0; i < translationData.Count; i++)
             {
+                string comment = "";
+                for (int j = 0; j < translationData[i].Comments?.Length; j++)
+                {
+                    comment += translationData[i].Comments[j] + "#";
+                }
+
                 MainCommand.Parameters.AddWithValue($"@id{i}", storyName + fileName + translationData[i].ID + language);
                 MainCommand.Parameters.AddWithValue($"@story{i}", storyName);
                 MainCommand.Parameters.AddWithValue($"@fileName{i}", fileName);
@@ -461,6 +472,7 @@ namespace HousePartyTranslator.Managers
                 MainCommand.Parameters.AddWithValue($"@translated{i}", 1);
                 MainCommand.Parameters.AddWithValue($"@approved{i}", translationData[i].IsApproved ? 1 : 0);
                 MainCommand.Parameters.AddWithValue($"@language{i}", language);
+                MainCommand.Parameters.AddWithValue($"@comment{i}", comment);
                 MainCommand.Parameters.AddWithValue($"@translation{i}", translationData[i].TranslationString);
             }
 

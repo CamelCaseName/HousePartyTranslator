@@ -23,7 +23,6 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripMenuItem Recents;
         private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveCommentsToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
@@ -78,7 +77,6 @@ namespace HousePartyTranslator
             this.Recents = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveCommentsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.saveCurrentStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
@@ -101,7 +99,6 @@ namespace HousePartyTranslator
             this.MainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.saveCurrentStringToolStripMenuItem,
-            this.saveCommentsToolStripMenuItem1,
             this.searchToolStripTextBox,
             this.ToolStripMenuReplaceBox,
             this.toolStripReplaceButton,
@@ -228,14 +225,6 @@ namespace HousePartyTranslator
             this.saveCurrentStringToolStripMenuItem.Size = new System.Drawing.Size(122, 23);
             this.saveCurrentStringToolStripMenuItem.Text = "&Save selected string";
             this.saveCurrentStringToolStripMenuItem.Click += new System.EventHandler(this.SaveCurrentStringToolStripMenuItem_Click);
-            // 
-            // saveCommentsToolStripMenuItem1
-            // 
-            this.saveCommentsToolStripMenuItem1.BackColor = this.menu;
-            this.saveCommentsToolStripMenuItem1.Name = "saveCommentsToolStripMenuItem1";
-            this.saveCommentsToolStripMenuItem1.Size = new System.Drawing.Size(103, 23);
-            this.saveCommentsToolStripMenuItem1.Text = "Save &comments";
-            this.saveCommentsToolStripMenuItem1.Click += new System.EventHandler(this.SaveCommentsToolStripMenuItem1_Click);
             // 
             // searchToolStripTextBox
             // 

@@ -97,6 +97,7 @@ namespace HousePartyTranslator
 
         public void Comments_TextChanged(object sender, EventArgs e)
         {
+            TabManager.ActiveTranslationManager.UpdateComments();
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
         }
 
@@ -281,11 +282,6 @@ namespace HousePartyTranslator
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TabManager.ActiveTranslationManager.SaveFileAs();
-        }
-
-        private void SaveCommentsToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            TabManager.ActiveTranslationManager.SaveCurrentComment();
         }
 
         private void SaveCurrentStringToolStripMenuItem_Click(object sender, EventArgs e)
