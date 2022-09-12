@@ -28,7 +28,7 @@ namespace HousePartyTranslator.Managers
         public int SelectedSearchResult = 0;
 
         //setting?
-        public readonly List<LineData> TranslationData = new List<LineData>();
+        public Dictionary<string, LineData> TranslationData = new Dictionary<string, LineData>();
         public bool UpdateStoryExplorerSelection = true;
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
         private static Fenster MainWindow;
@@ -176,10 +176,10 @@ namespace HousePartyTranslator.Managers
                             //remove old lines from server
                             DataBase.RemoveOldTemplates(FileName, story);
 
-                            List<LineData> templates = new List<LineData>();
+                            Dictionary<string, LineData> templates = new Dictionary<string, LineData>();
 
                             //add name as first template (its not in the file)
-                            templates.Add(new LineData("Name", story, FileName, StringCategory.General, FileName));
+                            templates.Add("Name", new LineData("Name", story, FileName, StringCategory.General, FileName));
 
                             //Add all new lines, but check if they are relevant
                             for (int i = 0; i < nodes.Count; i++)
@@ -189,7 +189,7 @@ namespace HousePartyTranslator.Managers
                                     && Utils.CategoryFromNode(nodes[i].Type) != StringCategory.Neither
                                     && nodes[i].ID != "")
                                 {
-                                    templates.Add(new LineData(nodes[i].ID, story, FileName, Utils.CategoryFromNode(nodes[i].Type), nodes[i].Text, true));
+                                    templates.Add(nodes[i].ID, new LineData(nodes[i].ID, story, FileName, Utils.CategoryFromNode(nodes[i].Type), nodes[i].Text, true));
                                 }
                             }
 
@@ -422,7 +422,7 @@ namespace HousePartyTranslator.Managers
 
         private void MarkSimilarLine(int currentIndex)
         {
-            if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
+            if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[SelectedId].IsTranslated && !TranslationData[SelectedId].IsApproved)
             {
                 helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
             }
@@ -456,23 +456,23 @@ namespace HousePartyTranslator.Managers
             {
                 if (isTemplate)
                 {
-                    helper.TemplateTextBox.Text = TranslationData[currentIndex].TemplateString.Replace("\n", Environment.NewLine);
+                    helper.TemplateTextBox.Text = TranslationData[SelectedId].TemplateString.Replace("\n", Environment.NewLine);
                 }
                 else
                 {
-                    helper.TemplateTextBox.Text = TranslationData[currentIndex].TemplateString.Replace("\n", Environment.NewLine);
+                    helper.TemplateTextBox.Text = TranslationData[SelectedId].TemplateString?.Replace("\n", Environment.NewLine);
 
                     //display the string in the editable window
-                    helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine);
+                    helper.TranslationTextBox.Text = TranslationData[SelectedId].TranslationString.Replace("\n", Environment.NewLine);
 
                     //translate if useful and possible
-                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved && helper.TemplateTextBox.Text.Length > 0)
-                        ReplaceTranslationTranslatedTask(currentIndex);
+                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[SelectedId].IsTranslated && !TranslationData[SelectedId].IsApproved && helper.TemplateTextBox.Text.Length > 0)
+                        ReplaceTranslationTranslatedTask(SelectedId);
 
                     //mark text if similar to english (not translated yet)
                     MarkSimilarLine(currentIndex);
 
-                    helper.CommentBox.Lines = TranslationData[currentIndex].Comments;
+                    helper.CommentBox.Lines = TranslationData[SelectedId].Comments;
 
                     //sync approvedbox and list
                     helper.ApprovedBox.Checked = helper.CheckListBoxLeft.GetItemChecked(currentIndex);
@@ -502,7 +502,7 @@ namespace HousePartyTranslator.Managers
 
             foreach (var i in helper.CheckListBoxLeft.SearchResults)
             {
-                TranslationData[i].TranslationString = Utils.Replace(TranslationData[i].TranslationString, replacement, SearchQuery);
+                TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString = Utils.Replace(TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString, replacement, SearchQuery);
             }
 
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
@@ -526,9 +526,9 @@ namespace HousePartyTranslator.Managers
             int i = helper.CheckListBoxLeft.SelectedIndex;
             if (helper.CheckListBoxLeft.SearchResults.Contains(i))
             {
-                var temp = Utils.Replace(TranslationData[i].TranslationString, replacement, SearchQuery);
-                History.AddAction(new TranslationChanged(this, i, TranslationData[i].TranslationString, temp));
-                TranslationData[i].TranslationString = temp;
+                var temp = Utils.Replace(TranslationData[SelectedId].TranslationString, replacement, SearchQuery);
+                History.AddAction(new TranslationChanged(this, SelectedId, TranslationData[SelectedId].TranslationString, temp));
+                TranslationData[SelectedId].TranslationString = temp;
 
                 //update search results
                 Search();
@@ -541,14 +541,14 @@ namespace HousePartyTranslator.Managers
         public void ReloadTranslationTextbox()
         {
             //update textbox
-            helper.TranslationTextBox.Text = TranslationData[helper.CheckListBoxLeft.SelectedIndex].TranslationString.Replace("\n", Environment.NewLine);
+            helper.TranslationTextBox.Text = TranslationData[SelectedId].TranslationString.Replace("\n", Environment.NewLine);
         }
 
         /// <summary>
         /// eplaces the template version of the string with a computer translated one to speed up translation.
         /// </summary>
         /// <param name="currentIndex">The selected index of the string not yet translated</param>
-        public async void ReplaceTranslationTranslatedTask(int currentIndex)
+        public async void ReplaceTranslationTranslatedTask(string currentId)
         {
             if (Properties.Settings.Default.autoTranslate)
             {
@@ -560,14 +560,14 @@ namespace HousePartyTranslator.Managers
                         ApiKey = "",
                         Source = LanguageCode.English,
                         Target = LanguageCode.FromString(Language),
-                        Text = TranslationData[currentIndex].TemplateString
+                        Text = TranslationData[currentId].TemplateString
                     });
                     if (result.Length > 0)
                     {
-                        TranslationData[currentIndex].TranslationString = result;
-                        if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                        TranslationData[currentId].TranslationString = result;
+                        if (currentId == SelectedId && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
                         {
-                            helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                            helper.TranslationTextBox.Text = TranslationData[currentId].TranslationString;
                         }
                     }
                 }
@@ -594,7 +594,7 @@ namespace HousePartyTranslator.Managers
                 MainWindow.Cursor = Cursors.WaitCursor;
 
                 //update translation in the database
-                DataBase.UpdateTranslation(TranslationData[currentIndex], Language);
+                DataBase.UpdateTranslation(TranslationData[SelectedId], Language);
 
                 if (helper.CheckListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) helper.CheckListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
 
@@ -627,16 +627,16 @@ namespace HousePartyTranslator.Managers
                 }
 
                 //can take some time
-                DataBase.GetAllLineDataTemplate(FileName, StoryName, out List<LineData> IdsToExport);
+                DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
 
-                foreach (LineData item in IdsToExport)
+                foreach (LineData item in IdsToExport.Values)
                 {
                     //add template to list if no translation is in the file
-                    LineData TempResult = TranslationData.Find(pL => pL.ID == item.ID);
+                    LineData TempResult = TranslationData[item.ID];
 
                     if (TempResult == null)
                     {
-                        item.TranslationString = IdsToExport.Find(pL => pL.ID == item.ID).TemplateString;
+                        item.TranslationString = IdsToExport[item.ID].TemplateString;
                     }
                     else
                     {
@@ -818,15 +818,17 @@ namespace HousePartyTranslator.Managers
                 {
                     query = query.Substring(1);
                     //methodolgy: highlight items which fulfill search and show count
-                    for (int i = 0; i < TranslationData.Count; i++)
+                    int x = 0;
+                    foreach (var item in TranslationData.Values)
                     {
-                        if (TranslationData[i].TranslationString.Contains(query) /*if the translated text contaisn the search string*/
-                            || (TranslationData[i].TemplateString != null
-                            && TranslationData[i].TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
-                            || TranslationData[i].ID.Contains(query))/*if the id contains the searched part*/
+                        if (item.TranslationString.Contains(query) /*if the translated text contaisn the search string*/
+                            || (item.TemplateString != null
+                            && item.TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
+                            || item.ID.Contains(query))/*if the id contains the searched part*/
                         {
-                            helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
+                            helper.CheckListBoxLeft.SearchResults.Add(x);//add index to highligh list
                         }
+                        ++x;
                     }
                 }
                 else if (query[0] != '!')
@@ -836,15 +838,17 @@ namespace HousePartyTranslator.Managers
                         query = query.Substring(1);
                     }
                     //methodolgy: highlight items which fulfill search and show count
-                    for (int i = 0; i < TranslationData.Count; i++)
+                    int x = 0;
+                    foreach (var item in TranslationData.Values)
                     {
-                        if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
-                            || (TranslationData[i].TemplateString != null
-                            && TranslationData[i].TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
-                            || TranslationData[i].ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
+                        if (item.TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
+                            || (item.TemplateString != null
+                            && item.TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
+                            || item.ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
                         {
-                            helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
+                            helper.CheckListBoxLeft.SearchResults.Add(x);//add index to highligh list
                         }
+                        ++x;
                     }
                 }
             }
@@ -864,8 +868,14 @@ namespace HousePartyTranslator.Managers
         public void SelectLine(string id)
         {
             //select line which correspondends to id
-            int index = TranslationData.FindIndex(n => n.ID == id);
-            if (index >= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
+            foreach (var item in helper.CheckListBoxLeft.Items)
+            {
+                if ((string)item == id)
+                {
+                    helper.CheckListBoxLeft.SelectedItem = item;
+                    break;
+                }
+            };
         }
 
         /// <summary>
@@ -928,26 +938,18 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public void UpdateTranslationString()
         {
-            int internalIndex = helper.CheckListBoxLeft.SelectedIndex;
-            if (internalIndex >= 0)
-            {
-                //remove pipe to not break saving/export
-                helper.TranslationTextBox.Text.Replace('|', ' ');
-                TranslationData[internalIndex].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
-                UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
-                ChangesPending = true;
-            }
+            //remove pipe to not break saving/export
+            helper.TranslationTextBox.Text.Replace('|', ' ');
+            TranslationData[SelectedId].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
+            UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
+            ChangesPending = true;
         }
 
         public void UpdateComments()
         {
-            int internalIndex = helper.CheckListBoxLeft.SelectedIndex;
-            if (internalIndex >= 0)
-            {
-                //remove pipe to not break saving/export
-                TranslationData[internalIndex].Comments = helper.CommentBox.Lines;
-                ChangesPending = true;
-            }
+            //remove pipe to not break saving/export
+            TranslationData[SelectedId].Comments = helper.CommentBox.Lines;
+            ChangesPending = true;
         }
 
         /// <summary>
@@ -988,51 +990,50 @@ namespace HousePartyTranslator.Managers
         /// <returns>The category representing the string, or none.</returns>
         private StringCategory GetCategoryFromString(string line)
         {
-            StringCategory internalCategory = StringCategory.Neither;
             if (line.Contains("["))
             {
                 if (line == "[General]")
                 {
-                    internalCategory = StringCategory.General;
+                    return StringCategory.General;
                 }
                 else if (line == "[Dialogues]")
                 {
-                    internalCategory = StringCategory.Dialogue;
+                   return StringCategory.Dialogue;
                 }
                 else if (line == "[Responses]")
                 {
-                    internalCategory = StringCategory.Response;
+                    return StringCategory.Response;
                 }
                 else if (line == "[Quests]")
                 {
-                    internalCategory = StringCategory.Quest;
+                    return StringCategory.Quest;
                 }
                 else if (line == "[Events]")
                 {
-                    internalCategory = StringCategory.Event;
+                    return StringCategory.Event;
                 }
                 else if (line == "[Background Chatter]")
                 {
-                    internalCategory = StringCategory.BGC;
+                    return StringCategory.BGC;
                 }
                 else if (line == "[Item Names]")
                 {
-                    internalCategory = StringCategory.ItemName;
+                    return StringCategory.ItemName;
                 }
                 else if (line == "[Item Actions]")
                 {
-                    internalCategory = StringCategory.ItemAction;
+                    return StringCategory.ItemAction;
                 }
                 else if (line == "[Item Group Actions]")
                 {
-                    internalCategory = StringCategory.ItemGroupAction;
+                    return StringCategory.ItemGroupAction;
                 }
                 else if (line == "[Achievements]")
                 {
-                    internalCategory = StringCategory.Achievement;
+                    return StringCategory.Achievement;
                 }
             }
-            return internalCategory;
+            return StringCategory.Neither;
         }
 
         /// <summary>
@@ -1042,58 +1043,46 @@ namespace HousePartyTranslator.Managers
         /// <returns>The string representing the category.</returns>
         private string GetStringFromCategory(StringCategory category)
         {
-            string returnedString = "";
             switch (category)
             {
                 case StringCategory.General:
-                    returnedString = "[General]";
-                    break;
+                    return "[General]";
 
                 case StringCategory.Dialogue:
-                    returnedString = "[Dialogues]";
-                    break;
+                    return "[Dialogues]";
 
                 case StringCategory.Response:
-                    returnedString = "[Responses]";
-                    break;
+                    return "[Responses]";
 
                 case StringCategory.Quest:
-                    returnedString = "[Quests]";
-                    break;
+                    return "[Quests]";
 
                 case StringCategory.Event:
-                    returnedString = "[Events]";
-                    break;
+                    return "[Events]";
 
                 case StringCategory.BGC:
-                    returnedString = "[Background Chatter]";
-                    break;
+                    return "[Background Chatter]";
 
                 case StringCategory.ItemName:
-                    returnedString = "[Item Names]";
-                    break;
+                    return "[Item Names]";
 
                 case StringCategory.ItemAction:
-                    returnedString = "[Item Actions]";
-                    break;
+                    return "[Item Actions]";
 
                 case StringCategory.ItemGroupAction:
-                    returnedString = "[Item Group Actions]";
-                    break;
+                    return "[Item Group Actions]";
 
                 case StringCategory.Achievement:
-                    returnedString = "[Achievements]";
-                    break;
+                    return "[Achievements]";
 
                 case StringCategory.Neither:
                     //do nothing hehehehe
-                    break;
+                    return "";
 
                 default:
                     //do nothing hehehehe
-                    break;
+                    return "";
             }
-            return returnedString;
         }
 
         /// <summary>
@@ -1241,27 +1230,34 @@ namespace HousePartyTranslator.Managers
             MainWindow.Cursor = Cursors.WaitCursor;
 
             bool lineIsApproved = false;
-            DataBase.GetAllLineData(FileName, StoryName, out List<LineData> onlineLines, Language);
+            DataBase.GetAllLineData(FileName, StoryName, out Dictionary<string, LineData> onlineLines, Language);
             int currentIndex = 0;
 
-            for (int i = 0; i < TranslationData.Count; ++i)
+            foreach (var key in TranslationData.Keys)
             {
-                LineData tempLine = onlineLines.Find(predicateLine => predicateLine.ID == TranslationData[i].ID);
-                if (tempLine != null)
+                if (onlineLines.TryGetValue(key, out var tempLine))
                 {
                     lineIsApproved = tempLine.IsApproved;
-                    tempLine.TemplateString = TranslationData[i].TemplateString;
-                    TranslationData[i] = tempLine;
-                    TranslationData[i].IsApproved = false;
+                    TranslationData[key].Category = tempLine.Category;
+                    TranslationData[key].Comments = tempLine.Comments;
+                    TranslationData[key].FileName = tempLine.FileName;
+                    TranslationData[key].ID = tempLine.ID;
+                    TranslationData[key].IsTemplate = false;
+                    TranslationData[key].IsTranslated = tempLine.IsTranslated;
+                    TranslationData[key].Story = tempLine.Story;
+                    TranslationData[key].TranslationString = tempLine.TranslationString;
+                    TranslationData[key].IsApproved = false;
                 }
 
-                helper.CheckListBoxLeft.Items.Add(TranslationData[i].ID, lineIsApproved);
+                if (TranslationData[key].TemplateString == null) TranslationData[key].TemplateString = "";
+
+                helper.CheckListBoxLeft.Items.Add(TranslationData[key].ID, lineIsApproved);
 
                 //do after adding or it will trigger reset
-                TranslationData[i].IsApproved = lineIsApproved;
+                TranslationData[key].IsApproved = lineIsApproved;
 
                 //colour string if similar to the english one
-                if (!TranslationData[i].IsTranslated && !TranslationData[i].IsApproved)
+                if (!TranslationData[key].IsTranslated && !TranslationData[key].IsApproved)
                 {
                     helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
                 }
@@ -1317,7 +1313,7 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                    if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
 
                     //get current line
                     lastLine = line.Split('|');
@@ -1336,7 +1332,7 @@ namespace HousePartyTranslator.Managers
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                        if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
 
                         multiLineCollector = "";
                         currentCategory = tempCategory;
@@ -1344,7 +1340,7 @@ namespace HousePartyTranslator.Managers
                 }
             }
             //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
+            if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
         }
 
         /// <summary>
@@ -1355,7 +1351,7 @@ namespace HousePartyTranslator.Managers
             StringCategory currentCategory = StringCategory.General;
             string[] lastLine = { };
 
-            DataBase.GetAllLineDataTemplate(FileName, StoryName, out List<LineData> IdsToExport);
+            DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
             List<string> LinesFromFile;
             try
             {
@@ -1400,7 +1396,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, List<LineData> IdsToExport)
+        private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, Dictionary<string, LineData> IdsToExport)
         {
             string multiLineCollector = "";
             //remove last if empty, breaks line lioading for the last
@@ -1418,7 +1414,10 @@ namespace HousePartyTranslator.Managers
                     //if we reach a new id, we can add the old string to the translation manager
                     if (lastLine.Length != 0)
                     {
-                        TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, category, IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString, lastLine[1] + multiLineCollector));
+                        if(IdsToExport.TryGetValue(lastLine[0], out var line1))
+                            TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1] + multiLineCollector));
+                        else
+                            TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1] + multiLineCollector));
                     }
                     //get current line
                     lastLine = line.Split('|');
@@ -1441,24 +1440,24 @@ namespace HousePartyTranslator.Managers
                         {
                             if (multiLineCollector.Length > 2)
                             {//write last string with id plus all lines after that minus the last new line char
-                                TranslationData.Add(
+                                TranslationData.Add(lastLine[0],
                                   new LineData(
                                       lastLine[0],
                                       StoryName,
                                       FileName,
                                       category,
-                                      IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
+                                      IdsToExport[lastLine[0]]?.TemplateString,
                                       lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
                             }
                             else
                             {//write last line with id if no real line of text is afterwards
-                                TranslationData.Add(
+                                TranslationData.Add(lastLine[0],
                                   new LineData(
                                       lastLine[0],
                                       StoryName,
                                       FileName,
                                       category,
-                                      IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
+                                      IdsToExport[lastLine[0]]?.TemplateString,
                                       lastLine[1]));
                             }
                         }
@@ -1473,7 +1472,10 @@ namespace HousePartyTranslator.Managers
             if (lastLine.Length > 0)
             {
                 //add last line (dont care about duplicates because sql will get rid of them)
-                TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, category, lastLine[1]));
+                if(IdsToExport.TryGetValue(lastLine[0], out var line1))
+                TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1]));
+                        else
+                    TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1]));
             }
         }
 
@@ -1482,10 +1484,10 @@ namespace HousePartyTranslator.Managers
             if (!triedFixingOnce)
             {
                 triedFixingOnce = true;
-                DataBase.GetAllLineDataTemplate(FileName, StoryName, out List<LineData> IdsToExport);
-                foreach (var item in IdsToExport)
+                DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
+                foreach (var item in IdsToExport.Values)
                 {
-                    TranslationData.Add(new LineData(item.ID, StoryName, FileName, item.Category));
+                    TranslationData.Add(item.ID, new LineData(item.ID, StoryName, FileName, item.Category));
                 }
                 SaveFile();
                 ReadStringsTranslationsFromFile();
@@ -1582,7 +1584,7 @@ namespace HousePartyTranslator.Managers
             if (TranslationData.Count > 0)
             {
                 int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
-                string id = currentIndex < TranslationData.Count && currentIndex >= 0 ? TranslationData[currentIndex].ID : TranslationData[0].ID;
+                string id = currentIndex < TranslationData.Count && currentIndex >= 0 ? TranslationData[SelectedId].ID : "Name";
                 //Highlights the node representign the selected string in the story explorer window
                 if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
                 {

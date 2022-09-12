@@ -22,7 +22,7 @@ namespace HousePartyTranslator.Managers
 
         static public void AutoTranslate()
         {
-            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex);
+            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedItem.ToString());
         }
 
         static public void CheckItemChanged()

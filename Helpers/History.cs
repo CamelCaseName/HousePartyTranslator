@@ -182,26 +182,26 @@ namespace HousePartyTranslator.Managers
     internal sealed class TranslationChanged : ICommand
     {
         readonly TranslationManager manager;
-        readonly int index;
+        readonly string id;
         readonly string oldText;
         readonly string newText;
 
-        public TranslationChanged( TranslationManager manager,int index, string oldText, string newText)
+        public TranslationChanged( TranslationManager manager,string id, string oldText, string newText)
         {
             this.manager = manager;
-            this.index = index;
+            this.id = id;
             this.oldText = oldText;
             this.newText = newText;
         }
 
         void ICommand.Do()
         {
-            manager.TranslationData[index].TranslationString = newText;
+            manager.TranslationData[id].TranslationString = newText;
         }
 
         void ICommand.Undo()
         {
-            manager.TranslationData[index].TranslationString = oldText;
+            manager.TranslationData[id].TranslationString = oldText;
         }
     }
 
@@ -228,20 +228,23 @@ namespace HousePartyTranslator.Managers
 
     internal sealed class AllTranslationsChanged : ICommand
     {
-        readonly List<LineData> oldTranslations, newTranslations;
+        readonly Dictionary<string, LineData> oldTranslations, newTranslations;
         readonly TranslationManager manager;
 
-        public AllTranslationsChanged(TranslationManager manager, List<LineData> oldTranslations, List<LineData> newTranslations)
+        public AllTranslationsChanged(TranslationManager manager, Dictionary<string, LineData> oldTranslations, Dictionary<string, LineData> newTranslations)
         {
-            this.oldTranslations = new List<LineData>(oldTranslations);
-            this.newTranslations = new List<LineData>(newTranslations);
+            this.oldTranslations = new Dictionary<string, LineData>(oldTranslations);
+            this.newTranslations = new Dictionary<string, LineData>(newTranslations);
             this.manager = manager;
         }
 
         void ICommand.Do()
         {
             manager.TranslationData.Clear();
-            manager.TranslationData.AddRange(newTranslations);
+            foreach (var item in newTranslations)
+            {
+                manager.TranslationData.Add(item.Key, item.Value);
+            }
             //update translations also on the database
             DataBase.UpdateTranslations(newTranslations, manager.Language);
             manager.ReloadTranslationTextbox();
@@ -250,7 +253,10 @@ namespace HousePartyTranslator.Managers
         void ICommand.Undo()
         {
             manager.TranslationData.Clear();
-            manager.TranslationData.AddRange(oldTranslations);
+            foreach (var item in oldTranslations)
+            {
+                manager.TranslationData.Add(item.Key, item.Value);
+            }
             //update translations also on the database
             DataBase.UpdateTranslations(oldTranslations, manager.Language);
             manager.ReloadTranslationTextbox();
