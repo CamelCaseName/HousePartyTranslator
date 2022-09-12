@@ -998,7 +998,7 @@ namespace HousePartyTranslator.Managers
                 }
                 else if (line == "[Dialogues]")
                 {
-                   return StringCategory.Dialogue;
+                    return StringCategory.Dialogue;
                 }
                 else if (line == "[Responses]")
                 {
@@ -1190,11 +1190,9 @@ namespace HousePartyTranslator.Managers
                 //get language text representation
                 bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
                 //compare
-                if (tempStoryName == languageAsText && gotLanguage)
-                {
+                if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new") )&& gotLanguage)
                     //get folder one more up
                     tempStoryName = paths[paths.Length - 3];
-                }
 
                 if (tempStoryName == "Languages")
                 {
@@ -1414,7 +1412,7 @@ namespace HousePartyTranslator.Managers
                     //if we reach a new id, we can add the old string to the translation manager
                     if (lastLine.Length != 0)
                     {
-                        if(IdsToExport.TryGetValue(lastLine[0], out var line1))
+                        if (IdsToExport.TryGetValue(lastLine[0], out var line1))
                             TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1] + multiLineCollector));
                         else
                             TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1] + multiLineCollector));
@@ -1472,9 +1470,9 @@ namespace HousePartyTranslator.Managers
             if (lastLine.Length > 0)
             {
                 //add last line (dont care about duplicates because sql will get rid of them)
-                if(IdsToExport.TryGetValue(lastLine[0], out var line1))
-                TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1]));
-                        else
+                if (IdsToExport.TryGetValue(lastLine[0], out var line1))
+                    TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1]));
+                else
                     TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1]));
             }
         }
