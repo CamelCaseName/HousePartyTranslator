@@ -12,14 +12,12 @@ namespace HousePartyTranslator
     /// </summary>
     public partial class Fenster : Form
     {
+        private readonly CancellationTokenSource CancelTokens = new CancellationTokenSource();
+        private readonly ColouredCheckedListBox CheckListBoxLeft;
+        private readonly ContextMenuStrip ListContextMenu;
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
         private DiscordPresenceManager PresenceManager;
         private StoryExplorer SExplorer;
-        private readonly CancellationTokenSource CancelTokens = new CancellationTokenSource();
-
-        private readonly ColouredCheckedListBox CheckListBoxLeft;
-        private readonly ContextMenuStrip ListContextMenu;
-
         /// <summary>
         /// Constructor for the main window of the translator, starts all other components in the correct order
         /// </summary>
@@ -64,17 +62,23 @@ namespace HousePartyTranslator
             }
         }
 
-        public ToolStripComboBox LanguageBox { get { return languageToolStripComboBox; } }
+        public ToolStripMenuItem FileToolStripMenuItem
+        { get { return fileToolStripMenuItem; } }
 
-        public ToolStripTextBox SearchBox { get { return searchToolStripTextBox; } }
+        public ToolStripComboBox LanguageBox
+        { get { return languageToolStripComboBox; } }
 
-        public ToolStripTextBox ReplaceBox { get { return ToolStripMenuReplaceBox; } }
+        public ToolStripMenuItem ReplaceAllButton
+        { get { return toolStripReplaceAllButton; } }
 
-        public ToolStripMenuItem ReplaceAllButton { get { return toolStripReplaceAllButton; } }
+        public ToolStripTextBox ReplaceBox
+        { get { return ToolStripMenuReplaceBox; } }
 
-        public ToolStripMenuItem ReplaceButton { get { return toolStripReplaceButton; } }
+        public ToolStripMenuItem ReplaceButton
+        { get { return toolStripReplaceButton; } }
 
-        public ToolStripMenuItem FileToolStripMenuItem { get { return fileToolStripMenuItem; } }
+        public ToolStripTextBox SearchBox
+        { get { return searchToolStripTextBox; } }
 
         public void ApprovedBox_CheckedChanged(object sender, EventArgs e)
         {
@@ -91,10 +95,66 @@ namespace HousePartyTranslator
             KeypressManager.SelectedItemChanged(CheckListBoxLeft);
         }
 
+        public void Comments_TextChanged(object sender, EventArgs e)
+        {
+            TabManager.ActiveTranslationManager.UpdateComments();
+            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
+        }
+
+        public void CopyAllContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyAll();
+        }
+
+        public void CopyAsOutputContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyAsOutput();
+        }
+
+        public void CopyFileNameContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyFileName();
+        }
+
+        public void CopyIdContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyId();
+        }
+
+        public void CopyStoryNameContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyStoryName();
+        }
+
+        public void CopyTemplateContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyTemplate();
+        }
+
+        public void CopyTranslationContextMenuButton_Click(object sender, EventArgs e)
+        {
+            TabManager.CopyTranslation();
+        }
+
+        public void OpeningContextMenu(object sender, MouseEventArgs e)
+        {
+            KeypressManager.OpenContextMenu(ListContextMenu, e);
+        }
+
         public void TextBoxRight_TextChanged(object sender, EventArgs e)
         {
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
             KeypressManager.TranslationTextChanged();
+        }
+
+        public void TextContextOpened(object sender, EventArgs e)
+        {
+            KeypressManager.PrepareTextChanged(sender);
+        }
+
+        public void TranslateThis_Click(object sender, EventArgs e)
+        {
+            KeypressManager.AutoTranslate();
         }
 
         /// <summary>
@@ -131,6 +191,29 @@ namespace HousePartyTranslator
             Application.Exit();
         }
 
+        private void FensterUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+        {
+            LogManager.LogEvent(e.ExceptionObject.ToString(), LogManager.Level.Error);
+            try //casting the object into an exception
+            {
+                Utils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
+            }
+            catch //dirty dirty me... can't cast into an exception :)
+            {
+                Utils.DisplayExceptionMessage(e.ExceptionObject.ToString());
+            }
+        }
+
+        private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            KeypressManager.SelectedLanguageChanged();
+        }
+
+        private void MainTabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            KeypressManager.SelectedTabChanged(PresenceManager);
+        }
+
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             //prevent discord from getting angry
@@ -144,24 +227,13 @@ namespace HousePartyTranslator
 
             //show save unsaved changes dialog
             if (TabManager.ActiveTranslationManager != null) TabManager.ActiveTranslationManager.ShowAutoSaveDialog();
-        }
 
-        private void FensterUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
-        {
-            LogManager.LogEvent(e.ExceptionObject.ToString());
-            try //casting the object into an exception
-            {
-                Utils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
-            }
-            catch //dirty dirty me... can't cast into an exception :)
-            {
-                Utils.DisplayExceptionMessage(e.ExceptionObject.ToString());
-            }
+            LogManager.SaveLogFile();
         }
 
         private void OnFormShown(object sender, EventArgs e)
         {
-            LogManager.LogEvent("Application started! hi there :D");
+            LogManager.LogEvent("Application initializing...");
             PresenceManager = new DiscordPresenceManager();
 
             //get translationmanager back
@@ -173,8 +245,7 @@ namespace HousePartyTranslator
             RecentsManager.Initialize(PresenceManager);
 
             //Settings have to be loaded before the Database can be connected with
-            DataBaseManager.InitializeDB(this);
-
+            DataBase.InitializeDB(this);
 
             //open most recent after db is initialized
             RecentsManager.OpenMostRecent();
@@ -185,16 +256,12 @@ namespace HousePartyTranslator
 
             PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
 
+            LogManager.LogEvent($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{DataBase.DBVersion} story version:{Properties.Settings.Default.version}");
         }
 
-        private void LanguageToolStripComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void OpenAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            KeypressManager.SelectedLanguageChanged();
-        }
-
-        private void MainTabControl_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            KeypressManager.SelectedTabChanged(PresenceManager);
+            KeypressManager.OpenAll(PresenceManager);
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object sender, EventArgs e)
@@ -207,19 +274,14 @@ namespace HousePartyTranslator
             KeypressManager.OpenNew(PresenceManager);
         }
 
-        private void OpenAllToolStripMenuItem_Click(object sender, EventArgs e)
+        private void SaveAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            KeypressManager.OpenAll(PresenceManager);
+            TabManager.SaveAllTabs();
         }
 
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TabManager.ActiveTranslationManager.SaveFileAs();
-        }
-
-        private void SaveCommentsToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            TabManager.ActiveTranslationManager.SaveCurrentComment();
         }
 
         private void SaveCurrentStringToolStripMenuItem_Click(object sender, EventArgs e)
@@ -230,11 +292,6 @@ namespace HousePartyTranslator
         private void SaveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TabManager.ActiveTranslationManager.SaveFile();
-        }
-
-        private void SaveAllToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            TabManager.SaveAllTabs();
         }
 
         private void SearchToolStripTextBox_TextChanged(object sender, EventArgs e)
@@ -255,16 +312,11 @@ namespace HousePartyTranslator
 
         private void ThreadExceptionHandler(object sender, ThreadExceptionEventArgs e)
         {
-            LogManager.LogEvent(e.Exception.ToString());
+            LogManager.LogEvent(e.Exception.ToString(), LogManager.Level.Error);
             Utils.DisplayExceptionMessage(e.Exception.Message);
         }
 
         private void ToolStripMenuReplaceBox_TextChanged(object sender, EventArgs e)
-        {
-            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
-        }
-
-        public void Comments_TextChanged(object sender, EventArgs e)
         {
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
         }
@@ -277,56 +329,6 @@ namespace HousePartyTranslator
         private void ToolStripReplaceButton_Click(object sender, EventArgs e)
         {
             TabManager.Replace();
-        }
-
-        public void TranslateThis_Click(object sender, EventArgs e)
-        {
-            KeypressManager.AutoTranslate();
-        }
-
-        public void CopyIdContextMenuButton_Click(object sender, EventArgs e)
-        {
-            TabManager.CopyId();
-        }
-
-        public void CopyAllContextMenuButton_Click(object sender, EventArgs e)
-        {
-            TabManager.CopyAll();
-        }
-
-        public void CopyFileNameContextMenuButton_Click(object sender, EventArgs e)
-        {
-            TabManager.CopyFileName();
-        }
-
-        public void CopyStoryNameContextMenuButton_Click(object sender, EventArgs e)
-        {
-            TabManager.CopyStoryName();
-        }
-
-        public void CopyAsOutputContextMenuButton_Click(object sender, EventArgs e)
-        {
-            TabManager.CopyAsOutput();
-        }
-
-        public void CopyTranslationContextMenuButton_Click(object sender, EventArgs e)
-        {
-            TabManager.CopyTranslation();
-        }
-
-        public void CopyTemplateContextMenuButton_Click(object sender, EventArgs e)
-        {
-            TabManager.CopyTemplate();
-        }
-
-        public void OpeningContextMenu(object sender, MouseEventArgs e)
-        {
-            KeypressManager.OpenContextMenu(ListContextMenu, e);
-        }
-
-        public void TextContextOpened(object sender, EventArgs e)
-        {
-            KeypressManager.PrepareTextChanged(sender);
         }
     }
 }

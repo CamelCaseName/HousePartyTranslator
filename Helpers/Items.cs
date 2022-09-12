@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 #pragma warning disable 1591
-public class Criterion : ICriterion
+internal sealed class Criterion : ICriterion
 {
     public string BoolValue { get; set; }
     public string Character { get; set; }
@@ -25,7 +25,7 @@ public class Criterion : ICriterion
     public int Option { get; set; }
 }
 
-public class OnTakeActionEvent : IEvent
+internal sealed class OnTakeActionEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -49,7 +49,7 @@ public class OnTakeActionEvent : IEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class ItemAction
+internal sealed class ItemAction
 {
     public string ActionName { get; set; }
     public List<Criterion> Criteria { get; set; }
@@ -57,7 +57,7 @@ public class ItemAction
     public List<OnTakeActionEvent> OnTakeActionEvents { get; set; }
 }
 
-public class OnSuccessEvent : IEvent
+internal sealed class OnSuccessEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -81,7 +81,7 @@ public class OnSuccessEvent : IEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class UseWith
+internal sealed class UseWith
 {
     public List<Criterion> Criteria { get; set; }
     public string CustomCantDoThatMessage { get; set; }
@@ -90,7 +90,7 @@ public class UseWith
     public List<OnSuccessEvent> OnSuccessEvents { get; set; }
 }
 
-public class ItemOverride
+internal sealed class ItemOverride
 {
     public string Id { get; set; }
     public bool DisplayInEditor { get; set; }
@@ -101,7 +101,7 @@ public class ItemOverride
     public bool UseDefaultRadialOptions { get; set; }
 }
 
-public class ItemGroupBehavior
+internal sealed class ItemGroupBehavior
 {
     public string Id { get; set; }
     public string Name { get; set; }
@@ -111,7 +111,7 @@ public class ItemGroupBehavior
     public List<object> UseWiths { get; set; }
 }
 
-public class Achievement
+internal sealed class Achievement
 {
     public string Description { get; set; }
     public string Id { get; set; }
@@ -121,7 +121,7 @@ public class Achievement
     public string SteamName { get; set; }
 }
 
-public class CriteriaList2
+internal sealed class CriteriaList2
 {
     public string BoolValue { get; set; }
     public string Character { get; set; }
@@ -145,12 +145,12 @@ public class CriteriaList2
     public int Option { get; set; }
 }
 
-public class CriteriaList1
+internal sealed class CriteriaList1
 {
     public List<CriteriaList2> CriteriaList { get; set; }
 }
 
-public class CriteriaGroup
+internal sealed class CriteriaGroup
 {
     public string Id { get; set; }
     public string Name { get; set; }
@@ -159,7 +159,7 @@ public class CriteriaGroup
     public List<CriteriaList1> CriteriaList { get; set; }
 }
 
-public class ItemGroup
+internal sealed class ItemGroup
 {
     public string Id { get; set; }
     public string Name { get; set; }
@@ -167,7 +167,7 @@ public class ItemGroup
     public List<string> ItemsInGroup { get; set; }
 }
 
-public class GameStartEvent : IEvent
+internal sealed class GameStartEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -191,7 +191,7 @@ public class GameStartEvent : IEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class Critera : ICriterion
+internal sealed class Critera : ICriterion
 {
     public string BoolValue { get; set; }
     public string Character { get; set; }
@@ -215,7 +215,7 @@ public class Critera : ICriterion
     public int Option { get; set; }
 }
 
-public class Event : IEvent
+internal sealed class Event : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -239,7 +239,7 @@ public class Event : IEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class PlayerReaction
+internal sealed class PlayerReaction
 {
     public string Id { get; set; }
     public string CharacterToReactTo { get; set; }
@@ -256,7 +256,7 @@ public class PlayerReaction
     public string LocationTargetOption { get; set; }
 }
 
-public class MainStory
+internal sealed class MainStory
 {
     public string HousePartyVersion { get; set; }
     public List<ItemOverride> ItemOverrides { get; set; }
@@ -271,7 +271,7 @@ public class MainStory
 
 // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 
-public class AlternateText
+internal sealed class AlternateText
 {
     public List<Critera> Critera { get; set; }
     public int Order { get; set; }
@@ -279,7 +279,7 @@ public class AlternateText
     public string Text { get; set; }
 }
 
-public class CloseEvent : IEvent
+internal sealed class CloseEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -303,7 +303,7 @@ public class CloseEvent : IEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class ResponseCriteria : ICriterion
+internal sealed class ResponseCriteria : ICriterion
 {
     public string BoolValue { get; set; }
     public string Character { get; set; }
@@ -327,7 +327,7 @@ public class ResponseCriteria : ICriterion
     public int Option { get; set; }
 }
 
-public class ResponseEvent : IEvent
+internal sealed class ResponseEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -351,7 +351,7 @@ public class ResponseEvent : IEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class Response
+internal sealed class Response
 {
     public bool Selected { get; set; }
     public string Id { get; set; }
@@ -370,7 +370,7 @@ public class Response
     public bool ShowInInspector { get; set; }
 }
 
-public class StartEvent : IEvent
+internal sealed class StartEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -394,7 +394,7 @@ public class StartEvent : IEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class Dialogue
+internal sealed class Dialogue
 {
     public bool Shown { get; set; }
     public List<AlternateText> AlternateTexts { get; set; }
@@ -418,7 +418,7 @@ public class Dialogue
     public string Text { get; set; }
 }
 
-public class GlobalGoodbyeResponse
+internal sealed class GlobalGoodbyeResponse
 {
     public bool Selected { get; set; }
     public string Id { get; set; }
@@ -434,7 +434,7 @@ public class GlobalGoodbyeResponse
     public string Text { get; set; }
 }
 
-public class GlobalResponse
+internal sealed class GlobalResponse
 {
     public bool Selected { get; set; }
     public string Id { get; set; }
@@ -450,7 +450,7 @@ public class GlobalResponse
     public string Text { get; set; }
 }
 
-public class BackgroundChatter
+internal sealed class BackgroundChatter
 {
     public int Id { get; set; }
     public string Text { get; set; }
@@ -465,24 +465,24 @@ public class BackgroundChatter
     public string DefaultImportance { get; set; }
 }
 
-public class Valuee
+internal sealed class Valuee
 {
     public string Type { get; set; }
     public int Value { get; set; }
 }
 
-public class Personality
+internal sealed class Personality
 {
     public List<Valuee> Values { get; set; }
 }
 
-public class ExtendedDetail
+internal sealed class ExtendedDetail
 {
     public int Value { get; set; }
     public string Details { get; set; }
 }
 
-public class Quest
+internal sealed class Quest
 {
     public string CharacterName { get; set; }
     public int CompleteAt { get; set; }
@@ -502,7 +502,7 @@ public class Quest
     public bool ShowInInspector { get; set; }
 }
 
-public class Reaction
+internal sealed class Reaction
 {
     public string Id { get; set; }
     public string CharacterToReactTo { get; set; }
@@ -519,7 +519,7 @@ public class Reaction
     public string LocationTargetOption { get; set; }
 }
 
-public class OnAcceptEvent : IEvent
+internal sealed class OnAcceptEvent : IEvent
 {
     public int SortOrder2 { get; set; }
     public string Version { get; set; }
@@ -543,7 +543,7 @@ public class OnAcceptEvent : IEvent
     public List<Criterion> Criteria { get; set; }
 }
 
-public class StoryItem
+internal sealed class StoryItem
 {
     public List<Critera> Critera { get; set; }
     public string ItemName { get; set; }
@@ -552,7 +552,7 @@ public class StoryItem
     public bool DisplayInEditor { get; set; }
 }
 
-public class CharacterStory
+internal sealed class CharacterStory
 {
     public string CharacterName { get; set; }
     public string CurrentAspect { get; set; }

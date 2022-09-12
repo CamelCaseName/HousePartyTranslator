@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Managers
     /// <summary>
     /// Class that handles all keyboard presses and calls the appropiate methods if a hotkey was detected
     /// </summary>
-    static class KeypressManager
+    internal static class KeypressManager
     {
         static private TextBox lastChangedTextBox;
         static private string lastText;
@@ -22,7 +22,7 @@ namespace HousePartyTranslator.Managers
 
         static public void AutoTranslate()
         {
-            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex);
+            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedItem.ToString());
         }
 
         static public void CheckItemChanged()
@@ -47,7 +47,7 @@ namespace HousePartyTranslator.Managers
             try
             {
                 //create an id to differentiate between the different calculated layouts later
-                string FileId = translationManager.StoryName + translationManager.FileName + DataBaseManager.DBVersion;
+                string FileId = translationManager.StoryName + translationManager.FileName + DataBase.DBVersion;
                 string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
                 DialogResult result = DialogResult.OK;
                 if (!File.Exists(savedNodesPath))

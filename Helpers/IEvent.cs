@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 #pragma warning disable 1591
-public interface IEvent
+internal interface IEvent
 {
     string Character { get; set; }
     string Character2 { get; set; }

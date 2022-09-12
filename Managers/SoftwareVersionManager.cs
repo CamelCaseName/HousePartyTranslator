@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
-    static class SoftwareVersionManager
+    internal static class SoftwareVersionManager
     {
         public static readonly string LocalVersion = "0.5.6.0";
         public static string LatestGithubVersion;
@@ -70,7 +70,7 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (System.UnauthorizedAccessException e)
                     {
-                        LogManager.LogEvent(e.ToString());
+                        LogManager.LogEvent(e.ToString(), LogManager.Level.Error);
                         MessageBox.Show($"The update failed because the program could not access\n   {oldExe}\n or the folder it is in.", "Update failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
@@ -85,7 +85,7 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (System.ComponentModel.Win32Exception e)
                     {
-                        LogManager.LogEvent(e.ToString());
+                        LogManager.LogEvent(e.ToString(), LogManager.Level.Error);
                         //move currently running back because something broke
                         File.Move(oldExe, Application.ExecutablePath);
                         if (File.Exists(oldExe)) File.Delete(oldExe);

@@ -4,7 +4,7 @@ namespace HousePartyTranslator.Helpers
 {
     public static class Characters
     {
-        public static Dictionary<string, CharacterEnum> CharacterDict = new Dictionary<string, CharacterEnum>(){
+        readonly public static Dictionary<string, CharacterEnum> CharacterDict = new Dictionary<string, CharacterEnum>(){
             {"Amy", CharacterEnum.amy},
             {"Arin",CharacterEnum.arin },
             {"Ashley", CharacterEnum.ashley},

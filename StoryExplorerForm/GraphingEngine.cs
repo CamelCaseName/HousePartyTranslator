@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator.StoryExplorerForm
 {
-    public class GraphingEngine
+    internal sealed class GraphingEngine
     {
         public const int BitmapEdgeLength = 7000;
         public const int HalfBitmapEdgeLength = BitmapEdgeLength / 2;

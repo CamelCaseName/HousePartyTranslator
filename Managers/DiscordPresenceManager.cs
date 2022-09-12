@@ -5,7 +5,7 @@ using System;
 
 namespace HousePartyTranslator.Managers
 {
-    public class DiscordPresenceManager
+    internal sealed class DiscordPresenceManager
     {
         public DiscordRpcClient DiscordPresenceClient;
         private string Character;

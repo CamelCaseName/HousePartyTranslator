@@ -9,13 +9,15 @@ using System.Text;
 using System.Windows.Forms;
 
 //TODO add tests
+//todo periodically save lines to db
+//todo still save file even when offline
 
 namespace HousePartyTranslator.Managers
 {
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    public class TranslationManager
+    internal class TranslationManager
     {
         public static bool ChangesPending = false;
         public static bool IsUpToDate = false;
@@ -26,14 +28,13 @@ namespace HousePartyTranslator.Managers
         public int SelectedSearchResult = 0;
 
         //setting?
-        public readonly List<LineData> TranslationData = new List<LineData>();
+        public Dictionary<string, LineData> TranslationData = new Dictionary<string, LineData>();
         public bool UpdateStoryExplorerSelection = true;
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
         private static Fenster MainWindow;
         private string fileName = "";
         private bool isSaveAs = false;
         private string language = "";
-        private int LastIndex = -1;
         private int searchTabIndex = 0;
         private string sourceFilePath = "";
         private string storyName = "";
@@ -159,7 +160,7 @@ namespace HousePartyTranslator.Managers
             if (result == DialogResult.Yes)
             {
                 //check if the template has been added and generated once before
-                DataBaseManager.GetAllLineDataBasicForFile(fileName, story, out var data);
+                DataBase.GetAllLineDataTemplate(fileName, story, out var data);
                 if (data.Count == 0)
                 {//its a custom story but no template so far on the server
                  //use contextprovider to extract the story object and get the lines
@@ -173,10 +174,12 @@ namespace HousePartyTranslator.Managers
                         {
                             Application.UseWaitCursor = true;
                             //remove old lines from server
-                            DataBaseManager.RemoveOldTemplates(FileName, story);
+                            DataBase.RemoveOldTemplates(FileName, story);
+
+                            Dictionary<string, LineData> templates = new Dictionary<string, LineData>();
 
                             //add name as first template (its not in the file)
-                            DataBaseManager.SetStringTemplate("Name", FileName, story, StringCategory.General, FileName);
+                            templates.Add("Name", new LineData("Name", story, FileName, StringCategory.General, FileName));
 
                             //Add all new lines, but check if they are relevant
                             for (int i = 0; i < nodes.Count; i++)
@@ -186,9 +189,11 @@ namespace HousePartyTranslator.Managers
                                     && Utils.CategoryFromNode(nodes[i].Type) != StringCategory.Neither
                                     && nodes[i].ID != "")
                                 {
-                                    DataBaseManager.SetStringTemplate(nodes[i].ID, FileName, story, Utils.CategoryFromNode(nodes[i].Type), nodes[i].Text);
+                                    templates.Add(nodes[i].ID, new LineData(nodes[i].ID, story, FileName, Utils.CategoryFromNode(nodes[i].Type), nodes[i].Text, true));
                                 }
                             }
+
+                            DataBase.UploadTemplates(templates);
 
                             Application.UseWaitCursor = false;
                             return true;
@@ -268,15 +273,6 @@ namespace HousePartyTranslator.Managers
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
             if (currentIndex >= 0)
             {
-                //UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count.CheckListBoxLeft.Items.Count.ApprovedCountLabel.NoProgressbar);
-
-                string ID = TranslationData[currentIndex].ID;
-                DataBaseManager.SetStringTranslation(ID, FileName, StoryName, TranslationData[currentIndex].Category, TranslationData[currentIndex].TranslationString, Language);
-                if (!DataBaseManager.SetStringApprovedState(ID, FileName, StoryName, TranslationData[currentIndex].Category, !helper.CheckListBoxLeft.GetItemChecked(currentIndex), Language))
-                {
-                    MessageBox.Show("Could not set approved state of string " + ID);
-                }
-
                 //set checkbox state
                 helper.ApprovedBox.Checked = !helper.CheckListBoxLeft.GetItemChecked(currentIndex);
 
@@ -424,61 +420,9 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        /// <summary>
-        /// Saves the last selected line to the database
-        /// </summary>
-        /// <param name="currentIndex">currently selected line</param>
-        private void SaveLastLine(int currentIndex)
-        {
-            //if we changed the selection and have autsave enabled
-            if (LastIndex != currentIndex && Properties.Settings.Default.autoSave)
-            {
-                //update translation in the database
-                DataBaseManager.SetStringTranslation(
-                    TranslationData[LastIndex].ID,
-                    FileName,
-                    StoryName,
-                    TranslationData[LastIndex].Category,
-                    TranslationData[LastIndex].TranslationString,
-                    Language);
-
-                //upload comment on change
-                DataBaseManager.SetTranslationComments(
-                    TranslationData[LastIndex].ID,
-                    FileName,
-                    StoryName,
-                    helper.CommentBox.Lines,
-                    Language
-                    );
-
-                LastIndex = currentIndex;
-
-                //clear comment after save
-                helper.CommentBox.Lines = new string[0];
-            }
-        }
-
-        private void DisplayTemplate(int currentIndex, string id)
-        {
-            string templateString;
-            //if we have no template here
-            if (TranslationData[currentIndex].TemplateString?.Length == 0 || TranslationData[currentIndex].TemplateString?.Length == null)
-            {
-                //read the template form the db and display it if it exists
-                DataBaseManager.GetStringTemplate(id, FileName, StoryName, out templateString);
-                TranslationData[currentIndex].TemplateString = templateString;
-            }
-            else
-            {
-                templateString = TranslationData[currentIndex].TemplateString;
-            }
-
-            helper.TemplateTextBox.Text = templateString.Replace("\n", Environment.NewLine);
-        }
-
         private void MarkSimilarLine(int currentIndex)
         {
-            if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved)
+            if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[SelectedId].IsTranslated && !TranslationData[SelectedId].IsApproved)
             {
                 helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
             }
@@ -507,40 +451,28 @@ namespace HousePartyTranslator.Managers
         {
             MainWindow.Cursor = Cursors.WaitCursor;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
-            
-            //sets index the first time/when we click elsewhere
-            if (LastIndex < 0) LastIndex = currentIndex;
-            else SaveLastLine(currentIndex);
 
             if (currentIndex >= 0)
             {
                 if (isTemplate)
                 {
-                    helper.TemplateTextBox.Text = TranslationData[currentIndex].TemplateString.Replace("\n", Environment.NewLine);
+                    helper.TemplateTextBox.Text = TranslationData[SelectedId].TemplateString.Replace("\n", Environment.NewLine);
                 }
                 else
                 {
-                    string id = TranslationData[currentIndex].ID;
-                    DisplayTemplate(currentIndex, id);
-
-                    //read latest version from the database
-                    //replace older one in file by new one from database
-                    if (DataBaseManager.GetStringTranslation(id, FileName, StoryName, out string translation, Language)) 
-                        TranslationData[currentIndex].TranslationString = translation;
+                    helper.TemplateTextBox.Text = TranslationData[SelectedId].TemplateString?.Replace("\n", Environment.NewLine);
 
                     //display the string in the editable window
-                    helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString.Replace("\n", Environment.NewLine);
+                    helper.TranslationTextBox.Text = TranslationData[SelectedId].TranslationString.Replace("\n", Environment.NewLine);
 
                     //translate if useful and possible
-                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[currentIndex].IsTranslated && !TranslationData[currentIndex].IsApproved && helper.TemplateTextBox.Text.Length > 0)
-                        ReplaceTranslationTranslatedTask(currentIndex);
+                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[SelectedId].IsTranslated && !TranslationData[SelectedId].IsApproved && helper.TemplateTextBox.Text.Length > 0)
+                        ReplaceTranslationTranslatedTask(SelectedId);
 
                     //mark text if similar to english (not translated yet)
                     MarkSimilarLine(currentIndex);
 
-                    //load comments
-                    if (DataBaseManager.GetTranslationComments(id, FileName, StoryName, out string[] comments, Language))
-                        helper.CommentBox.Lines = comments;
+                    helper.CommentBox.Lines = TranslationData[SelectedId].Comments;
 
                     //sync approvedbox and list
                     helper.ApprovedBox.Checked = helper.CheckListBoxLeft.GetItemChecked(currentIndex);
@@ -570,13 +502,10 @@ namespace HousePartyTranslator.Managers
 
             foreach (var i in helper.CheckListBoxLeft.SearchResults)
             {
-                TranslationData[i].TranslationString = Utils.Replace(TranslationData[i].TranslationString, replacement, SearchQuery);
+                TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString = Utils.Replace(TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString, replacement, SearchQuery);
             }
 
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
-
-            //update translations also on the database
-            DataBaseManager.SetStringSelectedTranslations(TranslationData, FileName, StoryName, Language, helper.CheckListBoxLeft.SearchResults);
 
             //update search results
             Search();
@@ -597,12 +526,9 @@ namespace HousePartyTranslator.Managers
             int i = helper.CheckListBoxLeft.SelectedIndex;
             if (helper.CheckListBoxLeft.SearchResults.Contains(i))
             {
-                var temp = Utils.Replace(TranslationData[i].TranslationString, replacement, SearchQuery);
-                History.AddAction(new TranslationChanged(this, i, TranslationData[i].TranslationString, temp));
-                TranslationData[i].TranslationString = temp;
-
-                //update translations also on the database
-                DataBaseManager.SetStringTranslation(TranslationData[i].ID, FileName, StoryName, TranslationData[i].Category, temp, Language);
+                var temp = Utils.Replace(TranslationData[SelectedId].TranslationString, replacement, SearchQuery);
+                History.AddAction(new TranslationChanged(this, SelectedId, TranslationData[SelectedId].TranslationString, temp));
+                TranslationData[SelectedId].TranslationString = temp;
 
                 //update search results
                 Search();
@@ -615,14 +541,14 @@ namespace HousePartyTranslator.Managers
         public void ReloadTranslationTextbox()
         {
             //update textbox
-            helper.TranslationTextBox.Text = TranslationData[helper.CheckListBoxLeft.SelectedIndex].TranslationString.Replace("\n", Environment.NewLine);
+            helper.TranslationTextBox.Text = TranslationData[SelectedId].TranslationString.Replace("\n", Environment.NewLine);
         }
 
         /// <summary>
         /// eplaces the template version of the string with a computer translated one to speed up translation.
         /// </summary>
         /// <param name="currentIndex">The selected index of the string not yet translated</param>
-        public async void ReplaceTranslationTranslatedTask(int currentIndex)
+        public async void ReplaceTranslationTranslatedTask(string currentId)
         {
             if (Properties.Settings.Default.autoTranslate)
             {
@@ -634,14 +560,14 @@ namespace HousePartyTranslator.Managers
                         ApiKey = "",
                         Source = LanguageCode.English,
                         Target = LanguageCode.FromString(Language),
-                        Text = TranslationData[currentIndex].TemplateString
+                        Text = TranslationData[currentId].TemplateString
                     });
                     if (result.Length > 0)
                     {
-                        TranslationData[currentIndex].TranslationString = result;
-                        if (currentIndex == helper.CheckListBoxLeft.SelectedIndex && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
+                        TranslationData[currentId].TranslationString = result;
+                        if (currentId == SelectedId && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
                         {
-                            helper.TranslationTextBox.Text = TranslationData[currentIndex].TranslationString;
+                            helper.TranslationTextBox.Text = TranslationData[currentId].TranslationString;
                         }
                     }
                 }
@@ -652,31 +578,6 @@ namespace HousePartyTranslator.Managers
                         Properties.Settings.Default.autoTranslate = false;
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Saves the current comment to the db
-        /// </summary>
-        public void SaveCurrentComment()
-        {
-            int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
-
-            //if we changed the eselction and have autsave enabled
-            if (currentIndex >= 0)
-            {
-                MainWindow.Cursor = Cursors.WaitCursor;
-
-                //upload comment
-                DataBaseManager.SetTranslationComments(
-                    TranslationData[currentIndex].ID,
-                    FileName,
-                    StoryName,
-                    helper.CommentBox.Lines,
-                    Language
-                    );
-
-                MainWindow.Cursor = Cursors.Default;
             }
         }
 
@@ -693,13 +594,7 @@ namespace HousePartyTranslator.Managers
                 MainWindow.Cursor = Cursors.WaitCursor;
 
                 //update translation in the database
-                DataBaseManager.SetStringTranslation(
-                    TranslationData[LastIndex].ID,
-                    FileName,
-                    StoryName,
-                    TranslationData[LastIndex].Category,
-                    TranslationData[LastIndex].TranslationString,
-                    Language);
+                DataBase.UpdateTranslation(TranslationData[SelectedId], Language);
 
                 if (helper.CheckListBoxLeft.SimilarStringsToEnglish.Contains(currentIndex)) helper.CheckListBoxLeft.SimilarStringsToEnglish.Remove(currentIndex);
 
@@ -714,8 +609,7 @@ namespace HousePartyTranslator.Managers
         {
             if (SourceFilePath != "" && Language != "")
             {
-                //save current string
-                SaveCurrentString();
+                DataBase.UpdateTranslations(TranslationData, Language);
 
                 System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
                 MainWindow.Cursor = Cursors.WaitCursor;
@@ -732,54 +626,38 @@ namespace HousePartyTranslator.Managers
                     CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
                 }
 
-
                 //can take some time
-                DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
-                DataBaseManager.GetAllTranslatedStringForFile(FileName, StoryName, out List<LineData> TranslationsFromDatabase, Language);
+                DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
 
-                foreach (LineData item in IdsToExport)
+                foreach (LineData item in IdsToExport.Values)
                 {
-                    LineData lineDataResult = TranslationsFromDatabase.Find(predicateLine => predicateLine.ID == item.ID);
-                    if (lineDataResult != null)
-                    {
-                        //add translation to the list in the correct category if present
-                        int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-                        if (intCategory < CategorizedStrings.Count && intCategory >= 0)
-                            CategorizedStrings[intCategory].Item1.Add(lineDataResult);
-                        else if (!triedSavingFixOnce)
-                        {
-                            triedSavingFixOnce = true;
-                            GenerateCategories();
-                            SaveFile();
-                            triedSavingFixOnce = false;
-                        }
+                    //add template to list if no translation is in the file
+                    LineData TempResult = TranslationData[item.ID];
 
+                    if (TempResult == null)
+                    {
+                        item.TranslationString = IdsToExport[item.ID].TemplateString;
                     }
-                    else// if id is not found
+                    else
                     {
-                        //add template to list if no translation is in the file
-                        LineData TempResult = TranslationData.Find(pL => pL.ID == item.ID);
+                        item.TranslationString = TempResult.TranslationString;
+                    }
 
-                        if (TempResult == null)
-                        {
-                            DataBaseManager.GetStringTemplate(item.ID, FileName, StoryName, out item.TranslationString);
-                        }
-                        else
-                        {
-                            item.TranslationString = TempResult.TranslationString;
-                        }
+                    int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
 
-                        int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-
-                        if (intCategory < CategorizedStrings.Count && intCategory >= 0)
-                        {
-                            CategorizedStrings[intCategory].Item1.Add(item);
-                        }
-                        else
-                        {
-                            CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), StringCategory.Neither));
-                            CategorizedStrings.Last().Item1.Add(item);
-                        }
+                    if (intCategory < CategorizedStrings.Count && intCategory >= 0)
+                        CategorizedStrings[intCategory].Item1.Add(item);
+                    else if (!triedSavingFixOnce)
+                    {
+                        triedSavingFixOnce = true;
+                        GenerateCategories();
+                        SaveFile();
+                        triedSavingFixOnce = false;
+                    }
+                    else
+                    {
+                        CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), StringCategory.Neither));
+                        CategorizedStrings.Last().Item1.Add(item);
                     }
                 }
 
@@ -940,15 +818,17 @@ namespace HousePartyTranslator.Managers
                 {
                     query = query.Substring(1);
                     //methodolgy: highlight items which fulfill search and show count
-                    for (int i = 0; i < TranslationData.Count; i++)
+                    int x = 0;
+                    foreach (var item in TranslationData.Values)
                     {
-                        if (TranslationData[i].TranslationString.Contains(query) /*if the translated text contaisn the search string*/
-                            || (TranslationData[i].TemplateString != null
-                            && TranslationData[i].TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
-                            || TranslationData[i].ID.Contains(query))/*if the id contains the searched part*/
+                        if (item.TranslationString.Contains(query) /*if the translated text contaisn the search string*/
+                            || (item.TemplateString != null
+                            && item.TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
+                            || item.ID.Contains(query))/*if the id contains the searched part*/
                         {
-                            helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
+                            helper.CheckListBoxLeft.SearchResults.Add(x);//add index to highligh list
                         }
+                        ++x;
                     }
                 }
                 else if (query[0] != '!')
@@ -958,15 +838,17 @@ namespace HousePartyTranslator.Managers
                         query = query.Substring(1);
                     }
                     //methodolgy: highlight items which fulfill search and show count
-                    for (int i = 0; i < TranslationData.Count; i++)
+                    int x = 0;
+                    foreach (var item in TranslationData.Values)
                     {
-                        if (TranslationData[i].TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
-                            || (TranslationData[i].TemplateString != null
-                            && TranslationData[i].TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
-                            || TranslationData[i].ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
+                        if (item.TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
+                            || (item.TemplateString != null
+                            && item.TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
+                            || item.ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
                         {
-                            helper.CheckListBoxLeft.SearchResults.Add(i);//add index to highligh list
+                            helper.CheckListBoxLeft.SearchResults.Add(x);//add index to highligh list
                         }
+                        ++x;
                     }
                 }
             }
@@ -986,8 +868,14 @@ namespace HousePartyTranslator.Managers
         public void SelectLine(string id)
         {
             //select line which correspondends to id
-            int index = TranslationData.FindIndex(n => n.ID == id);
-            if (index >= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
+            foreach (var item in helper.CheckListBoxLeft.Items)
+            {
+                if ((string)item == id)
+                {
+                    helper.CheckListBoxLeft.SelectedItem = item;
+                    break;
+                }
+            };
         }
 
         /// <summary>
@@ -1050,15 +938,18 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public void UpdateTranslationString()
         {
-            int internalIndex = helper.CheckListBoxLeft.SelectedIndex;
-            if (internalIndex >= 0)
-            {
-                //remove pipe to not break saving/export
-                helper.TranslationTextBox.Text.Replace('|', ' ');
-                TranslationData[internalIndex].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
-                UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
-                ChangesPending = true;
-            }
+            //remove pipe to not break saving/export
+            helper.TranslationTextBox.Text.Replace('|', ' ');
+            TranslationData[SelectedId].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
+            UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
+            ChangesPending = true;
+        }
+
+        public void UpdateComments()
+        {
+            //remove pipe to not break saving/export
+            TranslationData[SelectedId].Comments = helper.CommentBox.Lines;
+            ChangesPending = true;
         }
 
         /// <summary>
@@ -1099,51 +990,50 @@ namespace HousePartyTranslator.Managers
         /// <returns>The category representing the string, or none.</returns>
         private StringCategory GetCategoryFromString(string line)
         {
-            StringCategory internalCategory = StringCategory.Neither;
             if (line.Contains("["))
             {
                 if (line == "[General]")
                 {
-                    internalCategory = StringCategory.General;
+                    return StringCategory.General;
                 }
                 else if (line == "[Dialogues]")
                 {
-                    internalCategory = StringCategory.Dialogue;
+                   return StringCategory.Dialogue;
                 }
                 else if (line == "[Responses]")
                 {
-                    internalCategory = StringCategory.Response;
+                    return StringCategory.Response;
                 }
                 else if (line == "[Quests]")
                 {
-                    internalCategory = StringCategory.Quest;
+                    return StringCategory.Quest;
                 }
                 else if (line == "[Events]")
                 {
-                    internalCategory = StringCategory.Event;
+                    return StringCategory.Event;
                 }
                 else if (line == "[Background Chatter]")
                 {
-                    internalCategory = StringCategory.BGC;
+                    return StringCategory.BGC;
                 }
                 else if (line == "[Item Names]")
                 {
-                    internalCategory = StringCategory.ItemName;
+                    return StringCategory.ItemName;
                 }
                 else if (line == "[Item Actions]")
                 {
-                    internalCategory = StringCategory.ItemAction;
+                    return StringCategory.ItemAction;
                 }
                 else if (line == "[Item Group Actions]")
                 {
-                    internalCategory = StringCategory.ItemGroupAction;
+                    return StringCategory.ItemGroupAction;
                 }
                 else if (line == "[Achievements]")
                 {
-                    internalCategory = StringCategory.Achievement;
+                    return StringCategory.Achievement;
                 }
             }
-            return internalCategory;
+            return StringCategory.Neither;
         }
 
         /// <summary>
@@ -1153,58 +1043,46 @@ namespace HousePartyTranslator.Managers
         /// <returns>The string representing the category.</returns>
         private string GetStringFromCategory(StringCategory category)
         {
-            string returnedString = "";
             switch (category)
             {
                 case StringCategory.General:
-                    returnedString = "[General]";
-                    break;
+                    return "[General]";
 
                 case StringCategory.Dialogue:
-                    returnedString = "[Dialogues]";
-                    break;
+                    return "[Dialogues]";
 
                 case StringCategory.Response:
-                    returnedString = "[Responses]";
-                    break;
+                    return "[Responses]";
 
                 case StringCategory.Quest:
-                    returnedString = "[Quests]";
-                    break;
+                    return "[Quests]";
 
                 case StringCategory.Event:
-                    returnedString = "[Events]";
-                    break;
+                    return "[Events]";
 
                 case StringCategory.BGC:
-                    returnedString = "[Background Chatter]";
-                    break;
+                    return "[Background Chatter]";
 
                 case StringCategory.ItemName:
-                    returnedString = "[Item Names]";
-                    break;
+                    return "[Item Names]";
 
                 case StringCategory.ItemAction:
-                    returnedString = "[Item Actions]";
-                    break;
+                    return "[Item Actions]";
 
                 case StringCategory.ItemGroupAction:
-                    returnedString = "[Item Group Actions]";
-                    break;
+                    return "[Item Group Actions]";
 
                 case StringCategory.Achievement:
-                    returnedString = "[Achievements]";
-                    break;
+                    return "[Achievements]";
 
                 case StringCategory.Neither:
                     //do nothing hehehehe
-                    break;
+                    return "";
 
                 default:
                     //do nothing hehehehe
-                    break;
+                    return "";
             }
-            return returnedString;
         }
 
         /// <summary>
@@ -1256,7 +1134,7 @@ namespace HousePartyTranslator.Managers
             }
             catch (UnauthorizedAccessException e)
             {
-                LogManager.LogEvent(e.ToString());
+                LogManager.LogEvent(e.ToString(), LogManager.Level.Warning);
                 Utils.DisplayExceptionMessage(e.ToString());
             }
 
@@ -1270,15 +1148,9 @@ namespace HousePartyTranslator.Managers
                 );
 
             //remove old lines from server
-            DataBaseManager.RemoveOldTemplates(StoryName);
+            DataBase.RemoveOldTemplates(StoryName);
             //add all the new strings
-            foreach (LineData lineD in TranslationData)
-            {
-                if (lineD.TemplateString != "")
-                {
-                    DataBaseManager.SetStringTemplate(lineD.ID, lineD.FileName, lineD.Story, lineD.Category, lineD.TemplateString);
-                }
-            }
+            DataBase.UploadTemplates(TranslationData);
 
             DialogResult result = MessageBox.Show(
                 "This should be done uploading. It should be :)\n" +
@@ -1292,7 +1164,7 @@ namespace HousePartyTranslator.Managers
             //update if successfull
             if (result == DialogResult.Yes)
             {
-                if (DataBaseManager.UpdateDBVersion())
+                if (DataBase.UpdateDBVersion())
                 {
                     IsUpToDate = true;
                     isTemplate = false;
@@ -1358,28 +1230,34 @@ namespace HousePartyTranslator.Managers
             MainWindow.Cursor = Cursors.WaitCursor;
 
             bool lineIsApproved = false;
-            bool gotApprovedStates = DataBaseManager.GetAllStatesForFile(FileName, StoryName, out List<LineData> internalLines, Language);
+            DataBase.GetAllLineData(FileName, StoryName, out Dictionary<string, LineData> onlineLines, Language);
             int currentIndex = 0;
 
-            foreach (LineData lineD in TranslationData)
+            foreach (var key in TranslationData.Keys)
             {
-                if (gotApprovedStates)
+                if (onlineLines.TryGetValue(key, out var tempLine))
                 {
-                    LineData tempLine = internalLines.Find(predicateLine => predicateLine.ID == lineD.ID);
-                    if (tempLine != null)
-                    {
-                        lineIsApproved = tempLine.IsApproved;
-                        lineD.IsTranslated = tempLine.TranslationString.Trim().Length > 1;
-                    }
+                    lineIsApproved = tempLine.IsApproved;
+                    TranslationData[key].Category = tempLine.Category;
+                    TranslationData[key].Comments = tempLine.Comments;
+                    TranslationData[key].FileName = tempLine.FileName;
+                    TranslationData[key].ID = tempLine.ID;
+                    TranslationData[key].IsTemplate = false;
+                    TranslationData[key].IsTranslated = tempLine.IsTranslated;
+                    TranslationData[key].Story = tempLine.Story;
+                    TranslationData[key].TranslationString = tempLine.TranslationString;
+                    TranslationData[key].IsApproved = false;
                 }
 
-                helper.CheckListBoxLeft.Items.Add(lineD.ID, lineIsApproved);
+                if (TranslationData[key].TemplateString == null) TranslationData[key].TemplateString = "";
+
+                helper.CheckListBoxLeft.Items.Add(TranslationData[key].ID, lineIsApproved);
 
                 //do after adding or it will trigger reset
-                lineD.IsApproved = lineIsApproved;
+                TranslationData[key].IsApproved = lineIsApproved;
 
                 //colour string if similar to the english one
-                if (!lineD.IsTranslated && !lineD.IsApproved)
+                if (!TranslationData[key].IsTranslated && !TranslationData[key].IsApproved)
                 {
                     helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
                 }
@@ -1435,7 +1313,7 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                    if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
 
                     //get current line
                     lastLine = line.Split('|');
@@ -1454,7 +1332,7 @@ namespace HousePartyTranslator.Managers
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                        if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
 
                         multiLineCollector = "";
                         currentCategory = tempCategory;
@@ -1462,7 +1340,7 @@ namespace HousePartyTranslator.Managers
                 }
             }
             //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
+            if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
         }
 
         /// <summary>
@@ -1473,7 +1351,7 @@ namespace HousePartyTranslator.Managers
             StringCategory currentCategory = StringCategory.General;
             string[] lastLine = { };
 
-            DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
+            DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
             List<string> LinesFromFile;
             try
             {
@@ -1482,7 +1360,7 @@ namespace HousePartyTranslator.Managers
             }
             catch (Exception e)
             {
-                LogManager.LogEvent($"File not found under {SourceFilePath}.\n{e}");
+                LogManager.LogEvent($"File not found under {SourceFilePath}.\n{e}", LogManager.Level.Warning);
                 MessageBox.Show($"File not found under {SourceFilePath}. Please reopen.", "Invalid path", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 ResetTranslationManager();
                 return;
@@ -1516,21 +1394,9 @@ namespace HousePartyTranslator.Managers
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Asterisk);
             }
-
-            UpdateLineData();
         }
 
-        private void UpdateLineData()
-        {
-            DataBaseManager.GetAllTranslatedStringForFile(FileName, StoryName, out var lineDatas, Language);
-
-            for (int i = 0; i < lineDatas.Count; i++)
-            {
-                TranslationData.Find(p => p.ID == lineDatas[i].ID).TranslationString = lineDatas[i].TranslationString;
-            }
-        }
-
-        private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, List<LineData> IdsToExport)
+        private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, Dictionary<string, LineData> IdsToExport)
         {
             string multiLineCollector = "";
             //remove last if empty, breaks line lioading for the last
@@ -1548,7 +1414,10 @@ namespace HousePartyTranslator.Managers
                     //if we reach a new id, we can add the old string to the translation manager
                     if (lastLine.Length != 0)
                     {
-                        TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, category, IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString, lastLine[1] + multiLineCollector));
+                        if(IdsToExport.TryGetValue(lastLine[0], out var line1))
+                            TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1] + multiLineCollector));
+                        else
+                            TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1] + multiLineCollector));
                     }
                     //get current line
                     lastLine = line.Split('|');
@@ -1571,24 +1440,24 @@ namespace HousePartyTranslator.Managers
                         {
                             if (multiLineCollector.Length > 2)
                             {//write last string with id plus all lines after that minus the last new line char
-                                TranslationData.Add(
+                                TranslationData.Add(lastLine[0],
                                   new LineData(
                                       lastLine[0],
                                       StoryName,
                                       FileName,
                                       category,
-                                      IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
+                                      IdsToExport[lastLine[0]]?.TemplateString,
                                       lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
                             }
                             else
                             {//write last line with id if no real line of text is afterwards
-                                TranslationData.Add(
+                                TranslationData.Add(lastLine[0],
                                   new LineData(
                                       lastLine[0],
                                       StoryName,
                                       FileName,
                                       category,
-                                      IdsToExport.Find(p => p.ID == lastLine[0])?.TemplateString,
+                                      IdsToExport[lastLine[0]]?.TemplateString,
                                       lastLine[1]));
                             }
                         }
@@ -1603,7 +1472,10 @@ namespace HousePartyTranslator.Managers
             if (lastLine.Length > 0)
             {
                 //add last line (dont care about duplicates because sql will get rid of them)
-                TranslationData.Add(new LineData(lastLine[0], StoryName, FileName, category, lastLine[1]));
+                if(IdsToExport.TryGetValue(lastLine[0], out var line1))
+                TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1]));
+                        else
+                    TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1]));
             }
         }
 
@@ -1612,10 +1484,10 @@ namespace HousePartyTranslator.Managers
             if (!triedFixingOnce)
             {
                 triedFixingOnce = true;
-                DataBaseManager.GetAllLineDataBasicForFile(FileName, StoryName, out List<LineData> IdsToExport);
-                foreach (var item in IdsToExport)
+                DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
+                foreach (var item in IdsToExport.Values)
                 {
-                    TranslationData.Add(new LineData(item.ID, StoryName, FileName, item.Category));
+                    TranslationData.Add(item.ID, new LineData(item.ID, StoryName, FileName, item.Category));
                 }
                 SaveFile();
                 ReadStringsTranslationsFromFile();
@@ -1627,9 +1499,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         internal void ReloadFile()
         {
-            ResetTranslationManager();
-            ReadStringsTranslationsFromFile();
-            LoadTranslations();
+            LoadTranslationFile();
             //select recent index
             if (Properties.Settings.Default.recent_index > 0 && Properties.Settings.Default.recent_index < TranslationData.Count) helper.CheckListBoxLeft.SelectedIndex = Properties.Settings.Default.recent_index;
         }
@@ -1644,7 +1514,6 @@ namespace HousePartyTranslator.Managers
             helper.CheckListBoxLeft.Items.Clear();
             CategoriesInFile.Clear();
             helper.CheckListBoxLeft.SimilarStringsToEnglish.Clear();
-            LastIndex = -1;
             SelectedSearchResult = 0;
             TabManager.TabControl.SelectedTab.Text = "Tab";
             UpdateApprovedCountLabel(1, 1);
@@ -1715,7 +1584,7 @@ namespace HousePartyTranslator.Managers
             if (TranslationData.Count > 0)
             {
                 int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
-                string id = currentIndex < TranslationData.Count && currentIndex >= 0 ? TranslationData[currentIndex].ID : TranslationData[0].ID;
+                string id = currentIndex < TranslationData.Count && currentIndex >= 0 ? TranslationData[SelectedId].ID : "Name";
                 //Highlights the node representign the selected string in the story explorer window
                 if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
                 {

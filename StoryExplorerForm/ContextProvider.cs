@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
-    public class ContextProvider
+    internal sealed class ContextProvider
     {
         public bool GotCancelled = false;
         private readonly string FileId;
@@ -50,7 +50,7 @@ namespace HousePartyTranslator
             }
 
             //create an id to differentiate between the different calculated layouts later
-            FileId = StoryName + FileName + DataBaseManager.DBVersion;
+            FileId = StoryName + FileName + DataBase.DBVersion;
         }
 
         public string FilePath

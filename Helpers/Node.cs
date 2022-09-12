@@ -36,7 +36,7 @@ namespace HousePartyTranslator.Helpers
         Male = 2
     }
 
-    public class Node
+    internal sealed class Node
     {
         public static readonly Node NullNode = new Node("", NodeType.Null, "");
 

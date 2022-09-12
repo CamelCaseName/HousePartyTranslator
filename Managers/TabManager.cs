@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
-    static class TabManager
+    internal static class TabManager
     {
         /// <summary>
         /// The TabControl in the main form, where all tabs are managed under
@@ -190,6 +190,7 @@ namespace HousePartyTranslator.Managers
                 //save all tabs
                 foreach (TabPage tab in TabControl.TabPages)
                 {
+                    TabControl.SelectedTab = tab;
                     translationManagers[tab].SaveFile();
                 }
                 return true;
@@ -285,7 +286,7 @@ namespace HousePartyTranslator.Managers
                 ActiveTranslationManager.StoryName +
                 "/" + ActiveTranslationManager.FileName +
                 " : " +
-                ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).ToString());
+                ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId].ToString());
         }
 
         /// <summary>
@@ -293,7 +294,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void CopyAsOutput()
         {
-            Clipboard.SetText(ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).ToString());
+            Clipboard.SetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId].ToString());
         }
 
         /// <summary>
@@ -301,7 +302,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void CopyTranslation()
         {
-            Clipboard.SetText(ActiveTranslationManager.TranslationData.Find(p => p.ID == ActiveTranslationManager.SelectedId).TranslationString);
+            Clipboard.SetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId].TranslationString);
         }
 
         /// <summary>
@@ -309,8 +310,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void CopyTemplate()
         {
-            DataBaseManager.GetStringTemplate(ActiveTranslationManager.SelectedId, ActiveTranslationManager.FileName, ActiveTranslationManager.StoryName, out string templateString);
-            Clipboard.SetText(templateString);
+            Clipboard.SetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId].TemplateString);
         }
 
         private static PropertyHelper CreateActivePropertyHelper()
