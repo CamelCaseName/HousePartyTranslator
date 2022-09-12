@@ -1,6 +1,6 @@
 ﻿using HousePartyTranslator;
 
-public class LineData
+internal sealed class LineData
 {
     public string ID;
     public string Story;

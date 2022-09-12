@@ -10,13 +10,14 @@ using System.Windows.Forms;
 
 //TODO add tests
 //todo periodically save lines to db
+//todo still save file even when offline
 
 namespace HousePartyTranslator.Managers
 {
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    public class TranslationManager
+    internal class TranslationManager
     {
         public static bool ChangesPending = false;
         public static bool IsUpToDate = false;

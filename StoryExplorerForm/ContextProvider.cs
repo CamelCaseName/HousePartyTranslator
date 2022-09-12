@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
-    public class ContextProvider
+    internal sealed class ContextProvider
     {
         public bool GotCancelled = false;
         private readonly string FileId;

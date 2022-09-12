@@ -2,14 +2,14 @@
 
 namespace HousePartyTranslator.Managers
 {
-    static class History
+    internal static class History
     {
         static private readonly Stack<ICommand> history = new Stack<ICommand>();
         static private readonly Stack<ICommand> future = new Stack<ICommand>();
         static public bool CausedByHistory = false;
 
 
-        static public void AddAction(ICommand command)
+        public static void AddAction(ICommand command)
         {
             history.Push(command);
             if (history.Count > 110)
@@ -28,7 +28,7 @@ namespace HousePartyTranslator.Managers
             future.Clear();
         }
 
-        static public void Undo()
+        public static void Undo()
         {
             if (history.Count > 0)
             {
@@ -43,7 +43,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        static public void Redo()
+        public static void Redo()
         {
             if (future.Count > 0)
             {
@@ -59,13 +59,13 @@ namespace HousePartyTranslator.Managers
         }
     }
 
-    interface ICommand
+    internal interface ICommand
     {
         void Do();
         void Undo();
     }
 
-    class TextAdded : ICommand
+    internal sealed class TextAdded : ICommand
     {
         readonly System.Windows.Forms.TextBox TextBox;
         readonly string AddedText;
@@ -87,7 +87,7 @@ namespace HousePartyTranslator.Managers
         }
     }
 
-    class TextRemoved : ICommand
+    internal sealed class TextRemoved : ICommand
     {
         readonly System.Windows.Forms.TextBox TextBox;
         readonly string RemovedText;
@@ -109,7 +109,7 @@ namespace HousePartyTranslator.Managers
         }
     }
 
-    class TextChanged : ICommand
+    internal sealed class TextChanged : ICommand
     {
         readonly System.Windows.Forms.TextBox TextBox;
         readonly string oldText;
@@ -135,7 +135,7 @@ namespace HousePartyTranslator.Managers
         }
     }
 
-    class ApprovedChanged : ICommand
+    internal sealed class ApprovedChanged : ICommand
     {
         readonly int index;
         readonly Helpers.ColouredCheckedListBox ListBox;
@@ -156,7 +156,7 @@ namespace HousePartyTranslator.Managers
         }
     }
 
-    class SelectedLineChanged : ICommand
+    internal sealed class SelectedLineChanged : ICommand
     {
         readonly int oldIndex;
         readonly int newIndex;
@@ -179,7 +179,7 @@ namespace HousePartyTranslator.Managers
         }
     }
 
-    class TranslationChanged : ICommand
+    internal sealed class TranslationChanged : ICommand
     {
         readonly TranslationManager manager;
         readonly int index;
@@ -205,7 +205,7 @@ namespace HousePartyTranslator.Managers
         }
     }
 
-    class SelectedTabChanged : ICommand
+    internal sealed class SelectedTabChanged : ICommand
     {
         readonly int oldTabIndex, newTabIndex;
 
@@ -226,7 +226,7 @@ namespace HousePartyTranslator.Managers
         }
     }
 
-    class AllTranslationsChanged : ICommand
+    internal sealed class AllTranslationsChanged : ICommand
     {
         readonly List<LineData> oldTranslations, newTranslations;
         readonly TranslationManager manager;

@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
-    static class TabManager
+    internal static class TabManager
     {
         /// <summary>
         /// The TabControl in the main form, where all tabs are managed under

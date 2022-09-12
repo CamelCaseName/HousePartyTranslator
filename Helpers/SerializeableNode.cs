@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace HousePartyTranslator.Helpers
 {
-    public class SerializeableNode
+    internal sealed class SerializeableNode
     {
         public Point Position;
         public string ID;

@@ -2,7 +2,7 @@
 
 namespace HousePartyTranslator.Helpers
 {
-    public class ClickedNodeChangeArgs : EventArgs
+    internal sealed class ClickedNodeChangeArgs : EventArgs
     {
         public Node ChangedNode { get; }
 

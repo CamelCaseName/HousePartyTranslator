@@ -5,7 +5,7 @@ namespace HousePartyTranslator.Helpers
     /// <summary>
     /// A Property to replace all properties which would have to be passed from the Fenster to the TranslationManager.
     /// </summary>
-    public class PropertyHelper
+    internal sealed class PropertyHelper
     {
         public readonly CheckBox ApprovedBox;
         public readonly ColouredCheckedListBox CheckListBoxLeft;

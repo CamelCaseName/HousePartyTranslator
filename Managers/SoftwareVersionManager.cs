@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
-    static class SoftwareVersionManager
+    internal static class SoftwareVersionManager
     {
         public static readonly string LocalVersion = "0.5.6.0";
         public static string LatestGithubVersion;

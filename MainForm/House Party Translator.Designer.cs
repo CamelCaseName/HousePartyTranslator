@@ -1,5 +1,4 @@
 ﻿using HousePartyTranslator.Helpers;
-using System;
 
 namespace HousePartyTranslator
 {

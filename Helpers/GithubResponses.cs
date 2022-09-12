@@ -6,7 +6,7 @@ namespace HousePartyTranslator.Helpers
 {
 #pragma warning disable 1591 
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-    public class Author
+    internal sealed class Author
     {
         [JsonPropertyName("login")]
         public string Login { get; set; }
@@ -63,7 +63,7 @@ namespace HousePartyTranslator.Helpers
         public bool SiteAdmin { get; set; }
     }
 
-    public class Uploader
+    internal sealed class Uploader
     {
         [JsonPropertyName("login")]
         public string Login { get; set; }
@@ -120,7 +120,7 @@ namespace HousePartyTranslator.Helpers
         public bool SiteAdmin { get; set; }
     }
 
-    public class Asset
+    internal sealed class Asset
     {
         [JsonPropertyName("url")]
         public string Url { get; set; }
@@ -162,7 +162,7 @@ namespace HousePartyTranslator.Helpers
         public string BrowserDownloadUrl { get; set; }
     }
 
-    public class GithubResponse
+    internal sealed class GithubResponse
     {
         [JsonPropertyName("url")]
         public string Url { get; set; }

@@ -10,7 +10,7 @@ namespace HousePartyTranslator.Helpers
     /// <summary>
     /// Provides some generic utility methods.
     /// </summary>
-    static class Utils
+    public static class Utils
     {
         public static readonly int MaxTextLength = 100;
         public static readonly int maxWordLength = 15;

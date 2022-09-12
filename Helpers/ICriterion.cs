@@ -1,6 +1,6 @@
 ﻿#pragma warning disable 1591
 
-public interface ICriterion
+internal interface ICriterion
 {
     string BoolValue { get; set; }
     string Character { get; set; }

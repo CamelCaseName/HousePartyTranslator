@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Managers
     /// <summary>
     /// Class that handles all keyboard presses and calls the appropiate methods if a hotkey was detected
     /// </summary>
-    static class KeypressManager
+    internal static class KeypressManager
     {
         static private TextBox lastChangedTextBox;
         static private string lastText;
