@@ -384,7 +384,8 @@ namespace HousePartyTranslator.Managers
 
             //insert all the parameters
             int i = 0;
-            foreach(var line in lines) { 
+            foreach (var line in lines)
+            {
                 MainCommand.Parameters.AddWithValue($"@id{i}", line.Value.Story + line.Value.FileName + line.Value.ID + "template");
                 MainCommand.Parameters.AddWithValue($"@story{i}", line.Value.Story);
                 MainCommand.Parameters.AddWithValue($"@fileName{i}", line.Value.FileName);
@@ -443,8 +444,8 @@ namespace HousePartyTranslator.Managers
         /// <returns></returns>
         public static bool UpdateTranslations(Dictionary<string, LineData> translationData, string language)
         {
-                string storyName = translationData.ElementAt(0).Value.Story;
-                string fileName = translationData.ElementAt(0).Value.FileName;
+            string storyName = translationData.ElementAt(0).Value.Story;
+            string fileName = translationData.ElementAt(0).Value.FileName;
             StringBuilder builder = new StringBuilder(INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation) VALUES ", translationData.Count * 100);
 
             //add all values
@@ -465,7 +466,8 @@ namespace HousePartyTranslator.Managers
                 string comment = "";
                 for (int j = 0; j < item.Comments?.Length; j++)
                 {
-                    comment += item.Comments[j] + "#";
+                    if (item.Comments[j].Length > 1)
+                        comment += item.Comments[j] + "#";
                 }
 
                 MainCommand.Parameters.AddWithValue($"@id{i}", storyName + fileName + item.ID + language);

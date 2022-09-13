@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Managers
 {
     internal static class SoftwareVersionManager
     {
-        public static readonly string LocalVersion = "0.6.0.0";
+        public static readonly string LocalVersion = "0.6.0.1";
         public static string LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new HttpClient();
