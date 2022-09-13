@@ -9,7 +9,8 @@ using System.Text;
 using System.Windows.Forms;
 
 //TODO add tests
-//todo periodically save lines to db
+//todo periodically save lines to db, add autosave interval
+//todo add indicator for unsaved changes
 //todo still save file even when offline
 
 namespace HousePartyTranslator.Managers
@@ -275,6 +276,7 @@ namespace HousePartyTranslator.Managers
             {
                 //set checkbox state
                 helper.ApprovedBox.Checked = !helper.CheckListBoxLeft.GetItemChecked(currentIndex);
+                TranslationData[SelectedId].IsApproved = helper.ApprovedBox.Checked;
 
                 //move one string down if possible
                 if (!helper.CheckListBoxLeft.GetItemChecked(currentIndex) && SelectNewAfter)
@@ -1181,6 +1183,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         private void LoadTranslationFile()
         {
+            TranslationData.Clear();
             if (SourceFilePath != "")
             {
                 string[] paths = SourceFilePath.Split('\\');
