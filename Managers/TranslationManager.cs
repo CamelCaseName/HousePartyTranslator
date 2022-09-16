@@ -1184,6 +1184,7 @@ namespace HousePartyTranslator.Managers
         private void LoadTranslationFile()
         {
             TranslationData.Clear();
+            helper.CheckListBoxLeft.Items.Clear();
             if (SourceFilePath != "")
             {
                 string[] paths = SourceFilePath.Split('\\');
