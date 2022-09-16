@@ -12,6 +12,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static TabControl TabControl = null;
         public static bool InGlobalSearch = false;
+        public static Fenster Main;
         private static readonly Dictionary<TabPage, PropertyHelper> properties = new Dictionary<TabPage, PropertyHelper>();
         private static readonly Dictionary<TabPage, TranslationManager> translationManagers = new Dictionary<TabPage, TranslationManager>();
         private static DiscordPresenceManager presenceManager;
@@ -83,12 +84,13 @@ namespace HousePartyTranslator.Managers
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tabPage1">The initial tab</param>
-        public static TranslationManager Initialize(TabPage tabPage1, DiscordPresenceManager presenceManager)
+        public static TranslationManager Initialize(TabPage tabPage1, DiscordPresenceManager presenceManager, Fenster main)
         {
+            Main = main;
             while (TabControl == null)
             {
                 //get tabcontrol as a statc reference;
-                if (Form.ActiveForm?.Controls != null) TabControl = (TabControl)Form.ActiveForm.Controls.Find("MainTabControl", true)[0];
+                if (Main?.Controls != null) TabControl = (TabControl)Main.Controls.Find("MainTabControl", true)[0];
             }
 
             //create new translationmanager to use with the tab open right now
@@ -117,7 +119,7 @@ namespace HousePartyTranslator.Managers
             if (path.Length > 0)
             {
                 //create new support objects
-                TabPage newTab = Utils.CreateNewTab(translationManagers.Count + 1, (Fenster)Form.ActiveForm);
+                TabPage newTab = Utils.CreateNewTab(translationManagers.Count + 1, Main);
                 //Add tab to form control
                 TabControl.TabPages.Add(newTab);
                 //select new tab
@@ -315,11 +317,11 @@ namespace HousePartyTranslator.Managers
 
         private static PropertyHelper CreateActivePropertyHelper()
         {
-            while (!Form.ActiveForm.Visible && Form.ActiveForm == null)
+            while (!Main.Visible && Main == null)
             {
 
             }
-            Fenster fenster = (Fenster)Form.ActiveForm;
+            Fenster fenster = Main;
             return new PropertyHelper(
                 (CheckBox)TabControl.SelectedTab.Controls.Find("ApprovedBox", true)[0],
                 (ColouredCheckedListBox)TabControl.SelectedTab.Controls.Find("CheckListBoxLeft", true)[0],

@@ -237,7 +237,7 @@ namespace HousePartyTranslator
             PresenceManager = new DiscordPresenceManager();
 
             //get translationmanager back
-            TranslationManager translationManager = TabManager.Initialize(tabPage1, PresenceManager);
+            TranslationManager translationManager = TabManager.Initialize(tabPage1, PresenceManager, this);
             translationManager.SetLanguage();
             translationManager.SetMainForm(this);
 
