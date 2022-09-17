@@ -26,6 +26,8 @@ namespace HousePartyTranslator.Managers
         public bool isTemplate = false;
         public string SearchQuery = "";
 
+        public Timer AutoSaveTimer = new Timer();
+
         public int SelectedSearchResult = 0;
 
         //setting?
@@ -49,7 +51,19 @@ namespace HousePartyTranslator.Managers
         public TranslationManager(PropertyHelper _helper)
         {
             this.helper = _helper;
+            if (Properties.Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
+            {
+                AutoSaveTimer.Interval = (int)Properties.Settings.Default.AutoSaveInterval.TotalMilliseconds;
+                AutoSaveTimer.Tick += SaveFileHandler;
+                AutoSaveTimer.Start();
+            }
         }
+
+        internal void SaveFileHandler(object sender, EventArgs e)
+        {
+            SaveFile();
+        }
+
 
         /// <summary>
         /// The Name of the file loaded, without the extension.

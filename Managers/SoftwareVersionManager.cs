@@ -80,8 +80,9 @@ namespace HousePartyTranslator.Managers
 
                     //extract file to our current location and replace
                     SevenZipExtractor extractor = new SevenZipExtractor(releaseFile);
-                    try {
-                        extractor.ExtractAll(releaseFolder, true, true); 
+                    try
+                    {
+                        extractor.ExtractAll(releaseFolder, true, true);
                     }
                     catch (System.ComponentModel.Win32Exception e)
                     {
