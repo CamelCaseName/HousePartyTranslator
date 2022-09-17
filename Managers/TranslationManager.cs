@@ -623,12 +623,13 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public void SaveFile()
         {
+            MainWindow.Cursor = Cursors.WaitCursor;
+
             if (SourceFilePath != "" && Language != "")
             {
                 DataBase.UpdateTranslations(TranslationData, Language);
 
                 System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
-                MainWindow.Cursor = Cursors.WaitCursor;
                 List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
 
                 //we need to check whether the file has any strings at all, expecially the categories, if no, add them first or shit breaks.
@@ -1208,7 +1209,7 @@ namespace HousePartyTranslator.Managers
                 //get language text representation
                 bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
                 //compare
-                if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new") )&& gotLanguage)
+                if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
                     //get folder one more up
                     tempStoryName = paths[paths.Length - 3];
 
