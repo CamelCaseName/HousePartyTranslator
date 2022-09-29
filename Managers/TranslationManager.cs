@@ -30,6 +30,10 @@ namespace HousePartyTranslator.Managers
 
         public int SelectedSearchResult = 0;
 
+
+        //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
+        private int templateCounter = 0;
+
         //setting?
         public Dictionary<string, LineData> TranslationData = new Dictionary<string, LineData>();
         public bool UpdateStoryExplorerSelection = true;
@@ -1155,17 +1159,9 @@ namespace HousePartyTranslator.Managers
                 Utils.DisplayExceptionMessage(e.ToString());
             }
 
-            MessageBox.Show(
-                "This is going to take some time(15+ minutes), get a tea or sth.\n" +
-                "A Message will appear once it is done.\n" +
-                "Click OK if you want to start.",
-                "Updating string database...",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Asterisk
-                );
-
             //remove old lines from server
             DataBase.RemoveOldTemplates(StoryName);
+
             //add all the new strings
             DataBase.UploadTemplates(TranslationData);
 
@@ -1330,7 +1326,7 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                    if (lastLine.Length != 0) TranslationData.Add((++templateCounter).ToString() + lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
 
                     //get current line
                     lastLine = line.Split('|');
@@ -1349,15 +1345,15 @@ namespace HousePartyTranslator.Managers
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
-
+                        if (lastLine.Length != 0) TranslationData.Add((++templateCounter).ToString() + lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                        lastLine = new string[0];
                         multiLineCollector = "";
                         currentCategory = tempCategory;
                     }
                 }
             }
             //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
+            if (lastLine.Length != 0) TranslationData.Add((++templateCounter).ToString() + lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
         }
 
         /// <summary>

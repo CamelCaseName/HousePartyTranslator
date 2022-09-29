@@ -368,34 +368,44 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool UploadTemplates(Dictionary<string, LineData> lines)
         {
-            StringBuilder builder = new StringBuilder(INSERT + " (id, story, filename, category, english) VALUES ", lines.Count * 100);
-
-            //add all values
-            for (int j = 0; j < lines.Count; j++)
+            int c = 0;
+            for (int x = 0; x < ((lines.Count / 500) + 0.5); x++)
             {
-                builder.Append($"(@id{j}, @story{j}, @fileName{j}, @category{j}, @english{j}),");
-            }
+                StringBuilder builder = new StringBuilder(INSERT + " (id, story, filename, category, english) VALUES ", lines.Count * 100);
 
-            builder.Remove(builder.Length - 1, 1);
-            string command = builder.ToString() + "ON DUPLICATE KEY UPDATE english = VALUES(english);";
+                //add all values
+                int v = c;
+                for (int j = 0; j < 500; j++)
+                {
+                    builder.Append($"(@id{v}, @story{v}, @fileName{v}, @category{v}, @english{v}),");
+                    v++;
+                    if (v >= lines.Values.Count) break;
+                }
 
-            MainCommand.CommandText = command;
-            MainCommand.Parameters.Clear();
+                builder.Remove(builder.Length - 1, 1);
+                string command = builder.ToString() + " ON DUPLICATE KEY UPDATE english = VALUES(english);";
 
-            //insert all the parameters
-            int i = 0;
-            foreach (var line in lines)
-            {
-                MainCommand.Parameters.AddWithValue($"@id{i}", line.Value.Story + line.Value.FileName + line.Value.ID + "template");
-                MainCommand.Parameters.AddWithValue($"@story{i}", line.Value.Story);
-                MainCommand.Parameters.AddWithValue($"@fileName{i}", line.Value.FileName);
-                MainCommand.Parameters.AddWithValue($"@category{i}", (int)line.Value.Category);
-                MainCommand.Parameters.AddWithValue($"@english{i}", line.Value.TemplateString);
-                ++i;
+                MainCommand.CommandText = command;
+                MainCommand.Parameters.Clear();
+
+                //insert all the parameters
+                for (int k = 0; k < 500; k++)
+                {
+                    var line = lines.Values.ElementAt(c);
+                    MainCommand.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + "template");
+                    MainCommand.Parameters.AddWithValue($"@story{c}", line.Story);
+                    MainCommand.Parameters.AddWithValue($"@fileName{c}", line.FileName);
+                    MainCommand.Parameters.AddWithValue($"@category{c}", (int)line.Category);
+                    MainCommand.Parameters.AddWithValue($"@english{c}", line.TemplateString);
+                    ++c;
+                    if (c >= lines.Values.Count) break;
+                }
+
+                ExecuteOrReOpen(MainCommand);
             }
 
             //return if at least ione row was changed
-            return ExecuteOrReOpen(MainCommand);
+            return true;
         }
 
         /// <summary>
@@ -456,7 +466,7 @@ namespace HousePartyTranslator.Managers
 
             builder.Remove(builder.Length - 1, 1);
 
-            MainCommand.CommandText = builder.ToString() + (" ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
+            MainCommand.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
             MainCommand.Parameters.Clear();
 
             int i = 0;
