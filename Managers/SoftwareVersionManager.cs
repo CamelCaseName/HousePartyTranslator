@@ -9,7 +9,7 @@ namespace HousePartyTranslator.Managers
 {
     internal static class SoftwareVersionManager
     {
-        public static readonly string LocalVersion = "0.6.0.2";
+        public static readonly string LocalVersion = "0.6.0.3";
         public static string LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new HttpClient();
@@ -80,8 +80,9 @@ namespace HousePartyTranslator.Managers
 
                     //extract file to our current location and replace
                     SevenZipExtractor extractor = new SevenZipExtractor(releaseFile);
-                    try {
-                        extractor.ExtractAll(releaseFolder, true, true); 
+                    try
+                    {
+                        extractor.ExtractAll(releaseFolder, true, true);
                     }
                     catch (System.ComponentModel.Win32Exception e)
                     {

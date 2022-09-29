@@ -26,7 +26,13 @@ namespace HousePartyTranslator.Managers
         public bool isTemplate = false;
         public string SearchQuery = "";
 
+        public Timer AutoSaveTimer = new Timer();
+
         public int SelectedSearchResult = 0;
+
+
+        //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
+        private int templateCounter = 0;
 
         //setting?
         public Dictionary<string, LineData> TranslationData = new Dictionary<string, LineData>();
@@ -49,7 +55,19 @@ namespace HousePartyTranslator.Managers
         public TranslationManager(PropertyHelper _helper)
         {
             this.helper = _helper;
+            if (Properties.Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
+            {
+                AutoSaveTimer.Interval = (int)Properties.Settings.Default.AutoSaveInterval.TotalMilliseconds;
+                AutoSaveTimer.Tick += SaveFileHandler;
+                AutoSaveTimer.Start();
+            }
         }
+
+        internal void SaveFileHandler(object sender, EventArgs e)
+        {
+            SaveFile();
+        }
+
 
         /// <summary>
         /// The Name of the file loaded, without the extension.
@@ -609,12 +627,13 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public void SaveFile()
         {
+            MainWindow.Cursor = Cursors.WaitCursor;
+
             if (SourceFilePath != "" && Language != "")
             {
                 DataBase.UpdateTranslations(TranslationData, Language);
 
                 System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
-                MainWindow.Cursor = Cursors.WaitCursor;
                 List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
 
                 //we need to check whether the file has any strings at all, expecially the categories, if no, add them first or shit breaks.
@@ -634,9 +653,7 @@ namespace HousePartyTranslator.Managers
                 foreach (LineData item in IdsToExport.Values)
                 {
                     //add template to list if no translation is in the file
-                    LineData TempResult = TranslationData[item.ID];
-
-                    if (TempResult == null)
+                    if (!TranslationData.TryGetValue(item.ID, out var TempResult))
                     {
                         item.TranslationString = IdsToExport[item.ID].TemplateString;
                     }
@@ -1140,17 +1157,9 @@ namespace HousePartyTranslator.Managers
                 Utils.DisplayExceptionMessage(e.ToString());
             }
 
-            MessageBox.Show(
-                "This is going to take some time(15+ minutes), get a tea or sth.\n" +
-                "A Message will appear once it is done.\n" +
-                "Click OK if you want to start.",
-                "Updating string database...",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Asterisk
-                );
-
             //remove old lines from server
             DataBase.RemoveOldTemplates(StoryName);
+
             //add all the new strings
             DataBase.UploadTemplates(TranslationData);
 
@@ -1194,7 +1203,7 @@ namespace HousePartyTranslator.Managers
                 //get language text representation
                 bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
                 //compare
-                if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new") )&& gotLanguage)
+                if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
                     //get folder one more up
                     tempStoryName = paths[paths.Length - 3];
 
@@ -1315,7 +1324,7 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                    if (lastLine.Length != 0) TranslationData.Add((++templateCounter).ToString() + lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
 
                     //get current line
                     lastLine = line.Split('|');
@@ -1334,15 +1343,15 @@ namespace HousePartyTranslator.Managers
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
-
+                        if (lastLine.Length != 0) TranslationData.Add((++templateCounter).ToString() + lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                        lastLine = new string[0];
                         multiLineCollector = "";
                         currentCategory = tempCategory;
                     }
                 }
             }
             //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
+            if (lastLine.Length != 0) TranslationData.Add((++templateCounter).ToString() + lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
         }
 
         /// <summary>
@@ -1492,6 +1501,7 @@ namespace HousePartyTranslator.Managers
                     TranslationData.Add(item.ID, new LineData(item.ID, StoryName, FileName, item.Category));
                 }
                 SaveFile();
+                TranslationData.Clear();
                 ReadStringsTranslationsFromFile();
             }
         }
