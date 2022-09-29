@@ -653,9 +653,7 @@ namespace HousePartyTranslator.Managers
                 foreach (LineData item in IdsToExport.Values)
                 {
                     //add template to list if no translation is in the file
-                    LineData TempResult = TranslationData[item.ID];
-
-                    if (TempResult == null)
+                    if (!TranslationData.TryGetValue(item.ID, out var TempResult))
                     {
                         item.TranslationString = IdsToExport[item.ID].TemplateString;
                     }
@@ -1503,6 +1501,7 @@ namespace HousePartyTranslator.Managers
                     TranslationData.Add(item.ID, new LineData(item.ID, StoryName, FileName, item.Category));
                 }
                 SaveFile();
+                TranslationData.Clear();
                 ReadStringsTranslationsFromFile();
             }
         }

@@ -98,7 +98,7 @@ namespace HousePartyTranslator.Managers
             {
                 while (MainReader.Read())
                 {
-                    if (!MainReader.IsDBNull(0))
+                    if (!MainReader.IsDBNull(0) & !MainReader.IsDBNull(9))
                     {
                         LineDataList.Add(CleanId(MainReader.GetString("id"), story, fileName, false), new LineData()
                         {
@@ -454,45 +454,49 @@ namespace HousePartyTranslator.Managers
         /// <returns></returns>
         public static bool UpdateTranslations(Dictionary<string, LineData> translationData, string language)
         {
-            string storyName = translationData.ElementAt(0).Value.Story;
-            string fileName = translationData.ElementAt(0).Value.FileName;
-            StringBuilder builder = new StringBuilder(INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation) VALUES ", translationData.Count * 100);
-
-            //add all values
-            for (int j = 0; j < translationData.Count; j++)
+            if (translationData.Count > 0)
             {
-                builder.Append($"(@id{j}, @story{j}, @filename{j}, @category{j}, @translated{j}, @approved{j}, @language{j}, @comment{j}, @translation{j}),");
-            }
+                string storyName = translationData.ElementAt(0).Value.Story;
+                string fileName = translationData.ElementAt(0).Value.FileName;
+                StringBuilder builder = new StringBuilder(INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation) VALUES ", translationData.Count * 100);
 
-            builder.Remove(builder.Length - 1, 1);
-
-            MainCommand.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
-            MainCommand.Parameters.Clear();
-
-            int i = 0;
-            //insert all the parameters
-            foreach (var item in translationData.Values)
-            {
-                string comment = "";
-                for (int j = 0; j < item.Comments?.Length; j++)
+                //add all values
+                for (int j = 0; j < translationData.Count; j++)
                 {
-                    if (item.Comments[j].Length > 1)
-                        comment += item.Comments[j] + "#";
+                    builder.Append($"(@id{j}, @story{j}, @filename{j}, @category{j}, @translated{j}, @approved{j}, @language{j}, @comment{j}, @translation{j}),");
                 }
 
-                MainCommand.Parameters.AddWithValue($"@id{i}", storyName + fileName + item.ID + language);
-                MainCommand.Parameters.AddWithValue($"@story{i}", storyName);
-                MainCommand.Parameters.AddWithValue($"@fileName{i}", fileName);
-                MainCommand.Parameters.AddWithValue($"@category{i}", (int)item.Category);
-                MainCommand.Parameters.AddWithValue($"@translated{i}", 1);
-                MainCommand.Parameters.AddWithValue($"@approved{i}", item.IsApproved ? 1 : 0);
-                MainCommand.Parameters.AddWithValue($"@language{i}", language);
-                MainCommand.Parameters.AddWithValue($"@comment{i}", comment);
-                MainCommand.Parameters.AddWithValue($"@translation{i}", item.TranslationString);
-                ++i;
-            }
+                builder.Remove(builder.Length - 1, 1);
 
-            return ExecuteOrReOpen(MainCommand);
+                MainCommand.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
+                MainCommand.Parameters.Clear();
+
+                int i = 0;
+                //insert all the parameters
+                foreach (var item in translationData.Values)
+                {
+                    string comment = "";
+                    for (int j = 0; j < item.Comments?.Length; j++)
+                    {
+                        if (item.Comments[j].Length > 1)
+                            comment += item.Comments[j] + "#";
+                    }
+
+                    MainCommand.Parameters.AddWithValue($"@id{i}", storyName + fileName + item.ID + language);
+                    MainCommand.Parameters.AddWithValue($"@story{i}", storyName);
+                    MainCommand.Parameters.AddWithValue($"@fileName{i}", fileName);
+                    MainCommand.Parameters.AddWithValue($"@category{i}", (int)item.Category);
+                    MainCommand.Parameters.AddWithValue($"@translated{i}", 1);
+                    MainCommand.Parameters.AddWithValue($"@approved{i}", item.IsApproved ? 1 : 0);
+                    MainCommand.Parameters.AddWithValue($"@language{i}", language);
+                    MainCommand.Parameters.AddWithValue($"@comment{i}", comment);
+                    MainCommand.Parameters.AddWithValue($"@translation{i}", item.TranslationString);
+                    ++i;
+                }
+
+                return ExecuteOrReOpen(MainCommand);
+            }
+            return false;
         }
 
         /// <summary>
