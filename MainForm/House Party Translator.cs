@@ -16,6 +16,7 @@ namespace HousePartyTranslator
         private readonly ColouredCheckedListBox CheckListBoxLeft;
         private readonly ContextMenuStrip ListContextMenu;
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
+        public static ProgressbarForm.ProgressWindow GetProgressbar { get; private set; }
         private DiscordPresenceManager PresenceManager;
         private StoryExplorer SExplorer;
         /// <summary>
@@ -35,6 +36,7 @@ namespace HousePartyTranslator
 
             CheckListBoxLeft = (ColouredCheckedListBox)tabPage1.Controls.Find("CheckListBoxLeft", true)[0];
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
+            GetProgressbar = new ProgressbarForm.ProgressWindow() { Parent = this, Visible = false };
         }
 
         /// <summary>

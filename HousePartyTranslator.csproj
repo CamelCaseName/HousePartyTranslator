@@ -279,6 +279,12 @@
     <Compile Include="Managers\RecentsManager.cs" />
     <Compile Include="Managers\SoftwareVersionManager.cs" />
     <Compile Include="Managers\TabManager.cs" />
+    <Compile Include="ProgressbarForm\ProgressWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProgressbarForm\ProgressWindow.Designer.cs">
+      <DependentUpon>ProgressWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
     <Compile Include="SettingsForm\SettingsForm.cs">
       <SubType>Form</SubType>
@@ -331,6 +337,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PasswordForm\PasswordBox.resx">
       <DependentUpon>PasswordBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProgressbarForm\ProgressWindow.resx">
+      <DependentUpon>ProgressWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

@@ -9,7 +9,6 @@ using System.Text;
 using System.Windows.Forms;
 
 //TODO add tests
-//todo periodically save lines to db, add autosave interval
 //todo add indicator for unsaved changes
 //todo still save file even when offline
 
@@ -26,7 +25,7 @@ namespace HousePartyTranslator.Managers
         public bool isTemplate = false;
         public string SearchQuery = "";
 
-        public Timer AutoSaveTimer = new Timer();
+        public static Timer AutoSaveTimer = new Timer();
 
         public int SelectedSearchResult = 0;
 
@@ -55,17 +54,24 @@ namespace HousePartyTranslator.Managers
         public TranslationManager(PropertyHelper _helper)
         {
             this.helper = _helper;
+            AutoSaveTimer.Tick += SaveFileHandler;
+        }
+
+        static TranslationManager()
+        {
             if (Properties.Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
             {
                 AutoSaveTimer.Interval = (int)Properties.Settings.Default.AutoSaveInterval.TotalMilliseconds;
-                AutoSaveTimer.Tick += SaveFileHandler;
                 AutoSaveTimer.Start();
             }
         }
 
         internal void SaveFileHandler(object sender, EventArgs e)
         {
+            Fenster.GetProgressbar.Visible = true;
+            Fenster.GetProgressbar.Focus();
             SaveFile();
+            Fenster.GetProgressbar.Visible = false;
         }
 
 
