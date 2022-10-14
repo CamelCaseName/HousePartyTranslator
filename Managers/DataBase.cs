@@ -107,13 +107,13 @@ namespace HousePartyTranslator.Managers
                     {
                         if (!MainReader.IsDBNull(0) & !MainReader.IsDBNull(9))
                         {
-                            var id = MainReader.GetString("id");
+                            var id = CleanId(MainReader.GetString("id"), story, fileName, false);
                             var _lineData = new LineData()
                             {
                                 Category = (StringCategory)MainReader.GetInt32("category"),
                                 Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
                                 FileName = fileName,
-                                ID = CleanId(MainReader.GetString("id"), story, fileName, false),
+                                ID = id,
                                 IsApproved = MainReader.GetInt32("approved") > 0,
                                 IsTemplate = false,
                                 IsTranslated = MainReader.GetInt32("translated") > 0,
@@ -125,8 +125,9 @@ namespace HousePartyTranslator.Managers
                             {
                                 LineDataList[id] = _lineData;
                             }
-                            else { 
-                                LineDataList.Add(id, _lineData); 
+                            else
+                            {
+                                LineDataList.Add(id, _lineData);
                             }
                         }
                     }
