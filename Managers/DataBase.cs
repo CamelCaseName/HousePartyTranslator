@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿using HousePartyTranslator.Helpers;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,31 +40,35 @@ namespace HousePartyTranslator.Managers
             MainCommand.Parameters.AddWithValue("@language", language);
 
             CheckOrReopenConnection();
-            MainReader = MainCommand.ExecuteReader();
-
-
-            if (MainReader.HasRows && !MainReader.IsDBNull(0))
+            try
             {
-                translation = new LineData()
+                MainReader = MainCommand.ExecuteReader();
+                if (MainReader.HasRows && !MainReader.IsDBNull(0))
                 {
-                    Category = (StringCategory)MainReader.GetInt32("category"),
-                    Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
-                    FileName = fileName,
-                    ID = CleanId(id, story, fileName, false),
-                    IsApproved = MainReader.GetInt32("approved") > 0,
-                    IsTemplate = false,
-                    IsTranslated = MainReader.GetInt32("translated") > 0,
-                    Story = story,
-                    TemplateString = "",
-                    TranslationString = MainReader.GetString("translation")
-                };
-                wasSuccessfull = true;
+                    translation = new LineData()
+                    {
+                        Category = (StringCategory)MainReader.GetInt32("category"),
+                        Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
+                        FileName = fileName,
+                        ID = CleanId(id, story, fileName, false),
+                        IsApproved = MainReader.GetInt32("approved") > 0,
+                        IsTemplate = false,
+                        IsTranslated = MainReader.GetInt32("translated") > 0,
+                        Story = story,
+                        TemplateString = "",
+                        TranslationString = MainReader.GetString("translation")
+                    };
+                    wasSuccessfull = true;
+                }
+                else
+                {
+                    translation = new LineData("", "", "", StringCategory.Neither);
+                }
             }
-            else
+            finally
             {
-                translation = new LineData("", "", "", StringCategory.Neither);
+                MainReader.Close();
             }
-            MainReader.Close();
             return wasSuccessfull;
         }
 
@@ -92,36 +97,50 @@ namespace HousePartyTranslator.Managers
             LineDataList = new Dictionary<string, LineData>();
 
             CheckOrReopenConnection();
-            MainReader = MainCommand.ExecuteReader();
+            try
+            {
+                MainReader = MainCommand.ExecuteReader();
 
-            if (MainReader.HasRows)
-            {
-                while (MainReader.Read())
+                if (MainReader.HasRows)
                 {
-                    if (!MainReader.IsDBNull(0) & !MainReader.IsDBNull(9))
+                    while (MainReader.Read())
                     {
-                        LineDataList.Add(CleanId(MainReader.GetString("id"), story, fileName, false), new LineData()
+                        if (!MainReader.IsDBNull(0) & !MainReader.IsDBNull(9))
                         {
-                            Category = (StringCategory)MainReader.GetInt32("category"),
-                            Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
-                            FileName = fileName,
-                            ID = CleanId(MainReader.GetString("id"), story, fileName, false),
-                            IsApproved = MainReader.GetInt32("approved") > 0,
-                            IsTemplate = false,
-                            IsTranslated = MainReader.GetInt32("translated") > 0,
-                            Story = story,
-                            TemplateString = "",
-                            TranslationString = MainReader.GetString("translation")
-                        });
+                            var id = MainReader.GetString("id");
+                            var _lineData = new LineData()
+                            {
+                                Category = (StringCategory)MainReader.GetInt32("category"),
+                                Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
+                                FileName = fileName,
+                                ID = CleanId(MainReader.GetString("id"), story, fileName, false),
+                                IsApproved = MainReader.GetInt32("approved") > 0,
+                                IsTemplate = false,
+                                IsTranslated = MainReader.GetInt32("translated") > 0,
+                                Story = story,
+                                TemplateString = "",
+                                TranslationString = MainReader.GetString("translation")
+                            };
+                            if (LineDataList.ContainsKey(id))
+                            {
+                                LineDataList[id] = _lineData;
+                            }
+                            else { 
+                                LineDataList.Add(id, _lineData); 
+                            }
+                        }
                     }
+                    wasSuccessfull = true;
                 }
-                wasSuccessfull = true;
+                else
+                {
+                    MessageBox.Show("Ids can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                }
             }
-            else
+            finally
             {
-                MessageBox.Show("Ids can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                MainReader.Close();
             }
-            MainReader.Close();
             return wasSuccessfull;
         }
 
@@ -546,7 +565,7 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (Exception e)
                     {
-                        LogManager.LogEvent($"While trying to execute the following command{command.CommandText},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
+                        LogManager.LogEvent($"While trying to execute the following command{Utils.TrimWithDelim(command.CommandText, "[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
                     }
                 }
 

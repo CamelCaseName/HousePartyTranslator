@@ -1426,7 +1426,7 @@ namespace HousePartyTranslator.Managers
                     if (lastLine.Length != 0)
                     {
                         if (IdsToExport.TryGetValue(lastLine[0], out var line1))
-                            TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1] + multiLineCollector));
+                            TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1] + multiLineCollector);
                         else
                             TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1] + multiLineCollector));
                     }
@@ -1484,7 +1484,7 @@ namespace HousePartyTranslator.Managers
             {
                 //add last line (dont care about duplicates because sql will get rid of them)
                 if (IdsToExport.TryGetValue(lastLine[0], out var line1))
-                    TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1]));
+                    TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1]);
                 else
                     TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1]));
             }
