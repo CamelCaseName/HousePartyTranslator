@@ -5,10 +5,10 @@ namespace HousePartyTranslator.StoryExplorerForm
 {
     public partial class StoryExplorer : Form
     {
-        private ContextProvider Context;
-        private GraphingEngine engine;
-        private Form parentForm;
-        private string parentName;
+        private readonly ContextProvider Context;
+        private readonly GraphingEngine engine;
+        private readonly Form parentForm;
+        private readonly string parentName;
 
         public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, ParallelOptions parallelOptions)
         {

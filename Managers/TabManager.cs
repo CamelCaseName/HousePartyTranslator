@@ -189,12 +189,14 @@ namespace HousePartyTranslator.Managers
         {
             if (TabControl.TabCount >= 1)
             {
+                int oldSelection = TabControl.SelectedIndex; 
                 //save all tabs
                 foreach (TabPage tab in TabControl.TabPages)
                 {
                     TabControl.SelectedTab = tab;
                     translationManagers[tab].SaveFile();
                 }
+                TabControl.SelectedIndex = oldSelection;
                 return true;
             }
             return false;
