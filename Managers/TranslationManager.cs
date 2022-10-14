@@ -1513,6 +1513,7 @@ namespace HousePartyTranslator.Managers
         {
             ShowAutoSaveDialog();
             LoadTranslationFile();
+            CategoriesInFile.Clear();
             //select recent index
             if (Properties.Settings.Default.recent_index > 0 && Properties.Settings.Default.recent_index < TranslationData.Count) helper.CheckListBoxLeft.SelectedIndex = Properties.Settings.Default.recent_index;
         }
