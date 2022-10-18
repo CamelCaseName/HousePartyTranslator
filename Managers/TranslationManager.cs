@@ -1457,25 +1457,21 @@ namespace HousePartyTranslator.Managers
                         {
                             if (multiLineCollector.Length > 2)
                             {//write last string with id plus all lines after that minus the last new line char
-                                TranslationData.Add(lastLine[0],
-                                  new LineData(
-                                      lastLine[0],
-                                      StoryName,
-                                      FileName,
-                                      category,
-                                      IdsToExport[lastLine[0]]?.TemplateString,
-                                      lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
+                                if (IdsToExport.TryGetValue(lastLine[0], out _))
+                                    TranslationData[lastLine[0]] =
+                                        new LineData(lastLine[0], StoryName, FileName, category, IdsToExport[lastLine[0]]?.TemplateString, lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1));
+                                else
+                                    TranslationData.Add(lastLine[0],
+                                        new LineData(lastLine[0], StoryName, FileName, category, IdsToExport[lastLine[0]]?.TemplateString, lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
                             }
                             else
                             {//write last line with id if no real line of text is afterwards
-                                TranslationData.Add(lastLine[0],
-                                  new LineData(
-                                      lastLine[0],
-                                      StoryName,
-                                      FileName,
-                                      category,
-                                      IdsToExport[lastLine[0]]?.TemplateString,
-                                      lastLine[1]));
+                                if (IdsToExport.TryGetValue(lastLine[0], out _))
+                                    TranslationData[lastLine[0]] =
+                                  new LineData(lastLine[0], StoryName, FileName, category, IdsToExport[lastLine[0]]?.TemplateString, lastLine[1]);
+                                else
+                                    TranslationData.Add(lastLine[0],
+                                  new LineData(lastLine[0], StoryName, FileName, category, IdsToExport[lastLine[0]]?.TemplateString, lastLine[1]));
                             }
                         }
                         lastLine = new string[0];
