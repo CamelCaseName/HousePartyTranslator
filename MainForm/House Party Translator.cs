@@ -36,7 +36,7 @@ namespace HousePartyTranslator
 
             CheckListBoxLeft = (ColouredCheckedListBox)tabPage1.Controls.Find("CheckListBoxLeft", true)[0];
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
-            GetProgressbar = new ProgressbarForm.ProgressWindow() { Parent = this, Visible = false };
+            GetProgressbar = new ProgressbarForm.ProgressWindow() {Visible = false };
         }
 
         /// <summary>
