@@ -68,10 +68,7 @@ namespace HousePartyTranslator.Managers
 
         internal void SaveFileHandler(object sender, EventArgs e)
         {
-            Fenster.GetProgressbar.Visible = true;
-            Fenster.GetProgressbar.Focus();
             SaveFile();
-            Fenster.GetProgressbar.Visible = false;
         }
 
 
@@ -633,146 +630,151 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public void SaveFile()
         {
+            if (!Fenster.ProgressbarWindow.Visible) Fenster.ProgressbarWindow.Show(MainWindow);
+            Fenster.ProgressbarWindow.Focus();
+            Fenster.ProgressbarWindow.ProgressBar.Value = 10;
             MainWindow.Cursor = Cursors.WaitCursor;
 
-            if (SourceFilePath != "" && Language != "")
+            if (SourceFilePath == "" || Language == "") return;
+
+
+            DataBase.UpdateTranslations(TranslationData, Language);
+
+            System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
+            var CategorizedStrings = new List<CategorizedLines>();
+
+            //we need to check whether the file has any strings at all, expecially the categories, if no, add them first or shit breaks.
+            if (CategoriesInFile.Count == 0)
             {
-                DataBase.UpdateTranslations(TranslationData, Language);
-
-                System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
-                List<Tuple<List<LineData>, StringCategory>> CategorizedStrings = new List<Tuple<List<LineData>, StringCategory>>();
-
-                //we need to check whether the file has any strings at all, expecially the categories, if no, add them first or shit breaks.
-                if (CategoriesInFile.Count == 0)
-                {
-                    GenerateCategories();
-                }
-
-                foreach (StringCategory category in CategoriesInFile)
-                {//add a list for every category we have in the file, so we can then add the strings to these.
-                    CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), category));
-                }
-
-                //can take some time
-                DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
-
-                foreach (LineData item in IdsToExport.Values)
-                {
-                    //add template to list if no translation is in the file
-                    if (!TranslationData.TryGetValue(item.ID, out var TempResult))
-                    {
-                        item.TranslationString = IdsToExport[item.ID].TemplateString;
-                    }
-                    else
-                    {
-                        item.TranslationString = TempResult.TranslationString;
-                    }
-
-                    int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-
-                    if (intCategory < CategorizedStrings.Count && intCategory >= 0)
-                        CategorizedStrings[intCategory].Item1.Add(item);
-                    else if (!triedSavingFixOnce)
-                    {
-                        triedSavingFixOnce = true;
-                        GenerateCategories();
-                        SaveFile();
-                        triedSavingFixOnce = false;
-                    }
-                    else
-                    {
-                        CategorizedStrings.Add(new Tuple<List<LineData>, StringCategory>(new List<LineData>(), StringCategory.Neither));
-                        CategorizedStrings.Last().Item1.Add(item);
-                    }
-                }
-
-                StreamWriter OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true));
-
-                foreach (Tuple<List<LineData>, StringCategory> CategorizedLines in CategorizedStrings)
-                {
-                    //write category
-                    OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.Item2));
-
-                    //sort strings depending on category
-                    if (CategorizedLines.Item2 == StringCategory.Dialogue)
-                    {
-                        CategorizedLines.Item1.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
-                    }
-                    else if (CategorizedLines.Item2 == StringCategory.BGC)
-                    {
-                        //sort using custom IComparer
-                        CategorizedLines.Item1.Sort(new BGCComparer());
-                    }
-                    else if (CategorizedLines.Item2 == StringCategory.General)
-                    {
-                        //hints have to be sortet a bit different because the numbers can contain a u
-                        CategorizedLines.Item1.Sort(new GeneralComparer());
-                    }
-                    else if (CategorizedLines.Item2 == StringCategory.Quest || CategorizedLines.Item2 == StringCategory.Achievement)
-                    {
-                        CategorizedLines.Item1.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
-                    }
-
-                    //iterate through each and print them
-                    foreach (LineData line in CategorizedLines.Item1)
-                    {
-                        OutputWriter.WriteLine(line.ToString());
-                    }
-                    //newline after each category
-                    OutputWriter.WriteLine();
-                }
-
-                OutputWriter.Close();
-
-                //copy file to game rather than writing again
-                if (Properties.Settings.Default.alsoSaveToGame)
-                {
-                    //get language path
-                    LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
-                    //add new to langauge if wanted
-                    if (Properties.Settings.Default.useFalseFolder)
-                    {
-                        languageAsText += " new";
-                    }
-
-                    //create path to file
-                    string gameFilePath = "Eek\\House Party\\Mods\\";
-                    if (StoryName != "Hints" && StoryName != "UI")
-                    {
-                        //combine all paths
-                        gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", StoryName, languageAsText, FileName + ".txt");
-                    }
-                    else if (StoryName == "UI")
-                    {
-                        //combine all paths
-                        gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", languageAsText, FileName + ".txt");
-                    }
-                    else
-                    {
-                        //combine all paths
-                        gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Hints", FileName + ".txt");
-                    }
-
-                    //copy file if we are not already in it lol
-                    if (gameFilePath != SourceFilePath)
-                    {
-                        if (File.Exists(gameFilePath))
-                        {
-                            File.Copy(SourceFilePath, gameFilePath, true);
-                        }
-                        else
-                        {
-                            //create file if it does not exist, as well as all folders
-                            Directory.CreateDirectory(Path.GetDirectoryName(gameFilePath));
-                            File.Copy(SourceFilePath, gameFilePath, true);
-                        }
-                    }
-                }
-
-                ChangesPending = false;
-
-                MainWindow.Cursor = Cursors.Default;
+                GenerateCategories();
             }
+
+            foreach (StringCategory category in CategoriesInFile)
+            {//add a list for every category we have in the file, so we can then add the strings to these.
+                CategorizedStrings.Add((new List<LineData>(), category));
+            }
+
+            //can take some time
+            DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
+
+            foreach (LineData item in IdsToExport.Values)
+            {
+                //add template to list if no translation is in the file
+                if (!TranslationData.TryGetValue(item.ID, out var TempResult))
+                {
+                    item.TranslationString = IdsToExport[item.ID].TemplateString;
+                }
+                else
+                {
+                    item.TranslationString = TempResult.TranslationString;
+                }
+
+                int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
+
+                if (intCategory < CategorizedStrings.Count && intCategory >= 0)
+                    CategorizedStrings[intCategory].lines.Add(item);
+                else if (!triedSavingFixOnce)
+                {
+                    triedSavingFixOnce = true;
+                    GenerateCategories();
+                    SaveFile();
+                    triedSavingFixOnce = false;
+                }
+                else
+                {
+                    CategorizedStrings.Add((new List<LineData>(), StringCategory.Neither));
+                    CategorizedStrings.Last().lines.Add(item);
+                }
+            }
+
+            StreamWriter OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true));
+
+            foreach (var CategorizedLines in CategorizedStrings)
+            {
+                //write category if it has any lines, else we skip the category
+                if (CategorizedLines.lines.Count > 0) OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.category));
+                else continue;
+
+                //sort strings depending on category
+                if (CategorizedLines.category == StringCategory.Dialogue)
+                {
+                    CategorizedLines.lines.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
+                }
+                else if (CategorizedLines.category == StringCategory.BGC)
+                {
+                    //sort using custom IComparer
+                    CategorizedLines.lines.Sort(new BGCComparer());
+                }
+                else if (CategorizedLines.category == StringCategory.General)
+                {
+                    //hints have to be sortet a bit different because the numbers can contain a u
+                    CategorizedLines.lines.Sort(new GeneralComparer());
+                }
+                else if (CategorizedLines.category == StringCategory.Quest || CategorizedLines.category == StringCategory.Achievement)
+                {
+                    CategorizedLines.lines.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
+                }
+
+                //iterate through each and print them
+                foreach (LineData line in CategorizedLines.lines)
+                {
+                    OutputWriter.WriteLine(line.ToString());
+                }
+                //newline after each category
+                OutputWriter.WriteLine();
+            }
+
+            OutputWriter.Close();
+
+            //copy file to game rather than writing again
+            if (Properties.Settings.Default.alsoSaveToGame)
+            {
+                //get language path
+                LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
+                //add new to langauge if wanted
+                if (Properties.Settings.Default.useFalseFolder)
+                {
+                    languageAsText += " new";
+                }
+
+                //create path to file
+                string gameFilePath = "Eek\\House Party\\Mods\\";
+                if (StoryName != "Hints" && StoryName != "UI")
+                {
+                    //combine all paths
+                    gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", StoryName, languageAsText, FileName + ".txt");
+                }
+                else if (StoryName == "UI")
+                {
+                    //combine all paths
+                    gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", languageAsText, FileName + ".txt");
+                }
+                else
+                {
+                    //combine all paths
+                    gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Hints", FileName + ".txt");
+                }
+
+                //copy file if we are not already in it lol
+                if (gameFilePath != SourceFilePath)
+                {
+                    if (File.Exists(gameFilePath))
+                    {
+                        File.Copy(SourceFilePath, gameFilePath, true);
+                    }
+                    else
+                    {
+                        //create file if it does not exist, as well as all folders
+                        Directory.CreateDirectory(Path.GetDirectoryName(gameFilePath));
+                        File.Copy(SourceFilePath, gameFilePath, true);
+                    }
+                }
+            }
+
+            ChangesPending = false;
+
+            MainWindow.Cursor = Cursors.Default;
+            Fenster.ProgressbarWindow.Hide();
         }
 
         /// <summary>
@@ -1682,5 +1684,36 @@ namespace HousePartyTranslator.Managers
             }
             helper.CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
         }
+    }
+
+    internal struct CategorizedLines
+    {
+        public List<LineData> lines;
+        public StringCategory category;
+
+        public CategorizedLines(List<LineData> lines, StringCategory category)
+        {
+            this.lines = lines;
+            this.category = category;
+        }
+
+        public override bool Equals(object obj) => obj is CategorizedLines other && EqualityComparer<List<LineData>>.Default.Equals(lines, other.lines) && category == other.category;
+
+        public override int GetHashCode()
+        {
+            int hashCode = 458706445;
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<LineData>>.Default.GetHashCode(lines);
+            hashCode = hashCode * -1521134295 + category.GetHashCode();
+            return hashCode;
+        }
+
+        public void Deconstruct(out List<LineData> lines, out StringCategory category)
+        {
+            lines = this.lines;
+            category = this.category;
+        }
+
+        public static implicit operator (List<LineData> lines, StringCategory category)(CategorizedLines value) => (value.lines, value.category);
+        public static implicit operator CategorizedLines((List<LineData> lines, StringCategory category) value) => new CategorizedLines(value.lines, value.category);
     }
 }
