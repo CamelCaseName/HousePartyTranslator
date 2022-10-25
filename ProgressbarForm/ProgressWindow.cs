@@ -7,8 +7,12 @@ namespace HousePartyTranslator.ProgressbarForm
     {
         public ProgressWindow()
         {
-            ProgressBar = noAnimationBar1;
             InitializeComponent();
+            noAnimationBar1.Maximum = 10;
+            noAnimationBar1.Value = 0;
+            noAnimationBar1.Step = 1;
+            ProgressBar = noAnimationBar1;
+            Status = label1;
         }
 
         public NoAnimationBar ProgressBar
@@ -16,5 +20,15 @@ namespace HousePartyTranslator.ProgressbarForm
             get;
         }
 
+        public Label Status
+        {
+            get;
+        }
+
+        public void PerformStep()
+        {
+            noAnimationBar1.PerformStep();
+            Update();
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using HousePartyTranslator.Helpers;
+using System.Runtime.Remoting.Messaging;
 
 namespace HousePartyTranslator
 {
@@ -24,6 +25,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem overrideCloudSaveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceAllButton;
@@ -34,13 +36,13 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
         private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
 
-        private System.Drawing.Color foreground = Utils.foreground;
-        private System.Drawing.Color background = Utils.background;
-        private System.Drawing.Color backgroundDarker = Utils.backgroundDarker;
-        private System.Drawing.Color brightText = Utils.brightText;
-        private System.Drawing.Color darkText = Utils.darkText;
-        private System.Drawing.Color menu = Utils.menu;
-        private System.Drawing.Color frame = Utils.frame;
+        private static System.Drawing.Color foreground = Utils.foreground;
+        private static System.Drawing.Color background = Utils.background;
+        private static System.Drawing.Color backgroundDarker = Utils.backgroundDarker;
+        private static System.Drawing.Color brightText = Utils.brightText;
+        private static System.Drawing.Color darkText = Utils.darkText;
+        private static System.Drawing.Color menu = Utils.menu;
+        private static System.Drawing.Color frame = Utils.frame;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -78,6 +80,7 @@ namespace HousePartyTranslator
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveCurrentStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.overrideCloudSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -113,7 +116,7 @@ namespace HousePartyTranslator
             // 
             // fileToolStripMenuItem
             // 
-            this.fileToolStripMenuItem.BackColor = this.menu;
+            this.fileToolStripMenuItem.BackColor = Fenster.menu;
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
             this.openAllToolStripMenuItem,
@@ -124,6 +127,7 @@ namespace HousePartyTranslator
             this.saveToolStripMenuItem,
             this.saveAllToolStripMenuItem,
             this.saveAsToolStripMenuItem,
+            this.overrideCloudSaveToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
@@ -156,7 +160,7 @@ namespace HousePartyTranslator
             this.openInNewTabToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.openInNewTabToolStripMenuItem.Name = "openInNewTabToolStripMenuItem";
             this.openInNewTabToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.openInNewTabToolStripMenuItem.Text = "Open in new tab";
+            this.openInNewTabToolStripMenuItem.Text = "Open in new &tab";
             this.openInNewTabToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
             this.openInNewTabToolStripMenuItem.Click += new System.EventHandler(this.OpenInNewTabToolStripMenuItem_Click);
             // 
@@ -205,6 +209,15 @@ namespace HousePartyTranslator
             this.saveAsToolStripMenuItem.Text = "Save &As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
             // 
+            // overrideCloudSaveToolStripMenuItem
+            // 
+            this.overrideCloudSaveToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveAsToolStripMenuItem.Image")));
+            this.overrideCloudSaveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.overrideCloudSaveToolStripMenuItem.Name = "overrideCloudSaveAsToolStripMenuItem";
+            this.overrideCloudSaveToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
+            this.overrideCloudSaveToolStripMenuItem.Text = "Override &Cloud Save";
+            this.overrideCloudSaveToolStripMenuItem.Click += new System.EventHandler(this.OverrideCloudSaveToolStripMenuItem_Click);
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
@@ -219,7 +232,7 @@ namespace HousePartyTranslator
             // 
             // saveCurrentStringToolStripMenuItem
             // 
-            this.saveCurrentStringToolStripMenuItem.BackColor = this.menu;
+            this.saveCurrentStringToolStripMenuItem.BackColor = Fenster.menu;
             this.saveCurrentStringToolStripMenuItem.Name = "saveCurrentStringToolStripMenuItem";
             this.saveCurrentStringToolStripMenuItem.Size = new System.Drawing.Size(122, 23);
             this.saveCurrentStringToolStripMenuItem.Text = "&Save selected string";
@@ -227,7 +240,7 @@ namespace HousePartyTranslator
             // 
             // searchToolStripTextBox
             // 
-            this.searchToolStripTextBox.BackColor = this.menu;
+            this.searchToolStripTextBox.BackColor = Fenster.menu;
             this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
@@ -236,7 +249,7 @@ namespace HousePartyTranslator
             // 
             // ToolStripMenuReplaceBox
             // 
-            this.ToolStripMenuReplaceBox.BackColor = this.menu;
+            this.ToolStripMenuReplaceBox.BackColor = Fenster.menu;
             this.ToolStripMenuReplaceBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.ToolStripMenuReplaceBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.ToolStripMenuReplaceBox.Margin = new System.Windows.Forms.Padding(4, 0, 1, 0);
@@ -247,8 +260,8 @@ namespace HousePartyTranslator
             // 
             // toolStripReplaceAllButton
             // 
-            this.toolStripReplaceAllButton.BackColor = this.menu;
-            this.toolStripReplaceAllButton.ForeColor = this.darkText;
+            this.toolStripReplaceAllButton.BackColor = Fenster.menu;
+            this.toolStripReplaceAllButton.ForeColor = Fenster.darkText;
             this.toolStripReplaceAllButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.toolStripReplaceAllButton.Name = "toolStripReplaceAllButton";
             this.toolStripReplaceAllButton.Size = new System.Drawing.Size(63, 23);
@@ -258,8 +271,8 @@ namespace HousePartyTranslator
             // 
             // toolStripReplaceButton
             // 
-            this.toolStripReplaceButton.BackColor = this.menu;
-            this.toolStripReplaceButton.ForeColor = this.darkText;
+            this.toolStripReplaceButton.BackColor = Fenster.menu;
+            this.toolStripReplaceButton.ForeColor = Fenster.darkText;
             this.toolStripReplaceButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.toolStripReplaceButton.Name = "toolStripReplaceButton";
             this.toolStripReplaceButton.Size = new System.Drawing.Size(63, 23);
@@ -269,7 +282,7 @@ namespace HousePartyTranslator
             // 
             // languageToolStripComboBox
             // 
-            this.languageToolStripComboBox.BackColor = this.menu;
+            this.languageToolStripComboBox.BackColor = Fenster.menu;
             this.languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
             this.languageToolStripComboBox.Name = "languageToolStripComboBox";
             this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
@@ -277,7 +290,7 @@ namespace HousePartyTranslator
             // 
             // storyExplorerStripMenuItem1
             // 
-            this.storyExplorerStripMenuItem1.BackColor = this.menu;
+            this.storyExplorerStripMenuItem1.BackColor = Fenster.menu;
             this.storyExplorerStripMenuItem1.Name = "storyExplorerStripMenuItem1";
             this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(118, 23);
             this.storyExplorerStripMenuItem1.Text = "Auto Story&Explorer";
@@ -285,7 +298,7 @@ namespace HousePartyTranslator
             // 
             // customOpenStoryExplorer
             // 
-            this.customOpenStoryExplorer.BackColor = this.menu;
+            this.customOpenStoryExplorer.BackColor = Fenster.menu;
             this.customOpenStoryExplorer.Name = "customOpenStoryExplorer";
             this.customOpenStoryExplorer.Size = new System.Drawing.Size(121, 23);
             this.customOpenStoryExplorer.Text = "Open StoryE&xplorer";
@@ -293,7 +306,7 @@ namespace HousePartyTranslator
             // 
             // settingsToolStripMenuItem
             // 
-            this.settingsToolStripMenuItem.BackColor = this.menu;
+            this.settingsToolStripMenuItem.BackColor = Fenster.menu;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
             this.settingsToolStripMenuItem.Text = "Settings";
@@ -319,7 +332,7 @@ namespace HousePartyTranslator
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = this.backgroundDarker;
+            this.BackColor = Fenster.backgroundDarker;
             this.ClientSize = new System.Drawing.Size(1384, 761);
             this.Controls.Add(this.MainTabControl);
             this.Controls.Add(this.MainMenu);

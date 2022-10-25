@@ -1684,6 +1684,11 @@ namespace HousePartyTranslator.Managers
             }
             helper.CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
         }
+
+        internal void OverrideCloudSave()
+        {
+
+        }
     }
 
     internal struct CategorizedLines
