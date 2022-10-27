@@ -71,7 +71,6 @@ namespace HousePartyTranslator.Managers
             SaveFile();
         }
 
-
         /// <summary>
         /// The Name of the file loaded, without the extension.
         /// </summary>
@@ -391,14 +390,14 @@ namespace HousePartyTranslator.Managers
 
                 MainWindow.Cursor = Cursors.WaitCursor;
 
-                if (IsUpToDate)
+                if (!IsUpToDate && Properties.Settings.Default.advancedMode)
                 {
-                    SourceFilePath = path;
-                    LoadTranslationFile();
+                    LoadTemplates();
                 }
                 else
                 {
-                    LoadTemplates();
+                    SourceFilePath = path;
+                    LoadTranslationFile();
                 }
 
                 if (TranslationData.Count > 0)
@@ -1687,17 +1686,20 @@ namespace HousePartyTranslator.Managers
 
         internal void OverrideCloudSave()
         {
-            //show warning
-            if (MessageBox.Show("This will override the lines saved online for the opened file with your local verison! Please be careful. If you read this and want to continue, please select yes", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (Properties.Settings.Default.advancedMode)
             {
-                //force load local version
-                LoadTranslationFile(true);
-                //select recent index
-                if (Properties.Settings.Default.recent_index > 0 && Properties.Settings.Default.recent_index < TranslationData.Count) helper.CheckListBoxLeft.SelectedIndex = Properties.Settings.Default.recent_index;
-                //update to online
-                SaveFile();
-                //reload latest online, should be the same as local by then
-                ReloadFile();
+                //show warning
+                if (MessageBox.Show("This will override the lines saved online for the opened file with your local verison! Please be careful. If you read this and want to continue, please select yes", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                {
+                    //force load local version
+                    LoadTranslationFile(true);
+                    //select recent index
+                    if (Properties.Settings.Default.recent_index > 0 && Properties.Settings.Default.recent_index < TranslationData.Count) helper.CheckListBoxLeft.SelectedIndex = Properties.Settings.Default.recent_index;
+                    //update to online
+                    SaveFile();
+                    //reload latest online, should be the same as local by then
+                    ReloadFile();
+                }
             }
         }
     }

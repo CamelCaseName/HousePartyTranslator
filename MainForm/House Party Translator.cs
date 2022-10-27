@@ -271,6 +271,10 @@ namespace HousePartyTranslator
             //ProgressbarWindow.Hide();
             //ProgressbarWindow.Status.Text = "progress";
             //ProgressbarWindow.Text = "Autosave";
+
+            //hide override button if not in advanced mode
+            if (!Properties.Settings.Default.advancedMode)
+                overrideCloudSaveToolStripMenuItem.Enabled = false;
         }
 
         private void OpenAllToolStripMenuItem_Click(object sender, EventArgs e)

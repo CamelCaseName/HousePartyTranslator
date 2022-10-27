@@ -335,7 +335,7 @@ namespace HousePartyTranslator.Managers
 
             //set global variable for later actions
             TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
-            if (!TranslationManager.IsUpToDate)
+            if (!TranslationManager.IsUpToDate && Properties.Settings.Default.advancedMode)
             {
                 MessageBox.Show($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
                             $" You may acquire the latest version of this program. " +
