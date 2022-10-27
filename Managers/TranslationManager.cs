@@ -1198,8 +1198,9 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Prepares the values for reading of the strings, and calls the methods necessary after successfully loading a file.
         /// </summary>
-        private void LoadTranslationFile()
+        private void LoadTranslationFile(bool localTakesPriority = false)
         {
+            CategoriesInFile.Clear();
             TranslationData.Clear();
             helper.CheckListBoxLeft.Items.Clear();
             if (SourceFilePath != "")
@@ -1233,7 +1234,7 @@ namespace HousePartyTranslator.Managers
                     helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
 
                     //is up to date, so we can start translation
-                    LoadTranslations();
+                    LoadTranslations(localTakesPriority);
                     UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
                 }
                 //update tab name
@@ -1244,7 +1245,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
-        private void LoadTranslations()
+        private void LoadTranslations(bool localTakesPriority = false)
         {
             MainWindow.Cursor = Cursors.WaitCursor;
 
@@ -1264,7 +1265,7 @@ namespace HousePartyTranslator.Managers
                     TranslationData[key].IsTemplate = false;
                     TranslationData[key].IsTranslated = tempLine.IsTranslated;
                     TranslationData[key].Story = tempLine.Story;
-                    TranslationData[key].TranslationString = tempLine.TranslationString;
+                    if (!localTakesPriority) TranslationData[key].TranslationString = tempLine.TranslationString;
                     TranslationData[key].IsApproved = false;
                 }
 
@@ -1517,7 +1518,6 @@ namespace HousePartyTranslator.Managers
         {
             ShowAutoSaveDialog();
             LoadTranslationFile();
-            CategoriesInFile.Clear();
             //select recent index
             if (Properties.Settings.Default.recent_index > 0 && Properties.Settings.Default.recent_index < TranslationData.Count) helper.CheckListBoxLeft.SelectedIndex = Properties.Settings.Default.recent_index;
         }
@@ -1687,7 +1687,18 @@ namespace HousePartyTranslator.Managers
 
         internal void OverrideCloudSave()
         {
-
+            //show warning
+            if (MessageBox.Show("This will override the lines saved online for the opened file with your local verison! Please be careful. If you read this and want to continue, please select yes", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                //force load local version
+                LoadTranslationFile(true);
+                //select recent index
+                if (Properties.Settings.Default.recent_index > 0 && Properties.Settings.Default.recent_index < TranslationData.Count) helper.CheckListBoxLeft.SelectedIndex = Properties.Settings.Default.recent_index;
+                //update to online
+                SaveFile();
+                //reload latest online, should be the same as local by then
+                ReloadFile();
+            }
         }
     }
 
