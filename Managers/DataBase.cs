@@ -335,7 +335,7 @@ namespace HousePartyTranslator.Managers
 
             //set global variable for later actions
             TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
-            if (!TranslationManager.IsUpToDate)
+            if (!TranslationManager.IsUpToDate && Properties.Settings.Default.advancedMode)
             {
                 MessageBox.Show($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
                             $" You may acquire the latest version of this program. " +
@@ -566,7 +566,7 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (Exception e)
                     {
-                        LogManager.LogEvent($"While trying to execute the following command{Utils.TrimWithDelim(command.CommandText, "[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
+                        LogManager.LogEvent($"While trying to execute the following command {Utils.TrimWithDelim(command.CommandText, "[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
                     }
                 }
 

@@ -16,6 +16,7 @@ namespace HousePartyTranslator
         private readonly ColouredCheckedListBox CheckListBoxLeft;
         private readonly ContextMenuStrip ListContextMenu;
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
+        public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
         private DiscordPresenceManager PresenceManager;
         private StoryExplorer SExplorer;
         /// <summary>
@@ -26,12 +27,18 @@ namespace HousePartyTranslator
             //custom exception handlers to handle mysql exceptions
             AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
             Application.ThreadException += ThreadExceptionHandler;
+            ProgressbarWindow = new ProgressbarForm.ProgressWindow();
+            ProgressbarWindow.Status.Text = "starting...";
+            ProgressbarWindow.Text = "Startup";
+            ProgressbarWindow.Show();
 
             //check for update and replace if we want one
             SoftwareVersionManager.ReplaceFileIfNew();
+            ProgressbarWindow.PerformStep();
 
             //init all form components
             InitializeComponent();
+            ProgressbarWindow.PerformStep();
 
             CheckListBoxLeft = (ColouredCheckedListBox)tabPage1.Controls.Find("CheckListBoxLeft", true)[0];
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
@@ -233,6 +240,7 @@ namespace HousePartyTranslator
 
         private void OnFormShown(object sender, EventArgs e)
         {
+            ProgressbarWindow.PerformStep();
             LogManager.LogEvent("Application initializing...");
             PresenceManager = new DiscordPresenceManager();
 
@@ -241,11 +249,14 @@ namespace HousePartyTranslator
             translationManager.SetLanguage();
             translationManager.SetMainForm(this);
 
+            ProgressbarWindow.PerformStep();
+
             //initialize before password check so the saving doesnt break
             RecentsManager.Initialize(PresenceManager);
 
             //Settings have to be loaded before the Database can be connected with
             DataBase.InitializeDB(this);
+            ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
             RecentsManager.OpenMostRecent();
@@ -257,6 +268,13 @@ namespace HousePartyTranslator
             PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
 
             LogManager.LogEvent($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{DataBase.DBVersion} story version:{Properties.Settings.Default.version}");
+            //ProgressbarWindow.Hide();
+            //ProgressbarWindow.Status.Text = "progress";
+            //ProgressbarWindow.Text = "Autosave";
+
+            //hide override button if not in advanced mode
+            if (!Properties.Settings.Default.advancedMode)
+                overrideCloudSaveToolStripMenuItem.Enabled = false;
         }
 
         private void OpenAllToolStripMenuItem_Click(object sender, EventArgs e)
@@ -282,6 +300,11 @@ namespace HousePartyTranslator
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             TabManager.ActiveTranslationManager.SaveFileAs();
+        }
+
+        private void OverrideCloudSaveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TabManager.ActiveTranslationManager.OverrideCloudSave();
         }
 
         private void SaveCurrentStringToolStripMenuItem_Click(object sender, EventArgs e)

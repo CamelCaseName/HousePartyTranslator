@@ -37,7 +37,7 @@ namespace HousePartyTranslator.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1.00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.03")]
         public string version {
             get {
                 return ((string)(this["version"]));
@@ -296,6 +296,18 @@ namespace HousePartyTranslator.Properties {
             }
             set {
                 this["AutoSaveInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool advancedMode {
+            get {
+                return ((bool)(this["advancedMode"]));
+            }
+            set {
+                this["advancedMode"] = value;
             }
         }
     }
