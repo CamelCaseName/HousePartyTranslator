@@ -19,7 +19,18 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     internal class TranslationManager
     {
-        public static bool ChangesPending = false;
+        public bool ChangesPending
+        {
+            get { return _changesPending; }
+            set
+            {
+                if (value)
+                    TabManager.UpdateTabTitle(this, FileName + "*");
+                else
+                    TabManager.UpdateTabTitle(this, FileName ?? "");
+            }
+        }
+        private bool _changesPending;
         public static bool IsUpToDate = false;
         public List<StringCategory> CategoriesInFile = new List<StringCategory>();
         public bool isTemplate = false;
@@ -33,7 +44,6 @@ namespace HousePartyTranslator.Managers
         //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
         private int templateCounter = 0;
 
-        //setting?
         public Dictionary<string, LineData> TranslationData = new Dictionary<string, LineData>();
         public bool UpdateStoryExplorerSelection = true;
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
