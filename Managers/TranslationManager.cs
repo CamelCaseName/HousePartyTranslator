@@ -24,6 +24,7 @@ namespace HousePartyTranslator.Managers
             get { return _changesPending; }
             set
             {
+                _changesPending = value;
                 if (value)
                     TabManager.UpdateTabTitle(this, FileName + "*");
                 else
