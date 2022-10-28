@@ -30,6 +30,7 @@ namespace HousePartyTranslator
             ProgressbarWindow = new ProgressbarForm.ProgressWindow();
             ProgressbarWindow.Status.Text = "starting...";
             ProgressbarWindow.Text = "Startup";
+            //ProgressbarWindow.Hide();
             ProgressbarWindow.Show();
 
             //check for update and replace if we want one
