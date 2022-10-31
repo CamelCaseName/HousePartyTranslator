@@ -264,6 +264,7 @@
   <ItemGroup>
     <Compile Include="Helpers\Characters.cs" />
     <Compile Include="Helpers\ClickedNodeChangeArgs.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\GithubResponses.cs" />
     <Compile Include="Helpers\ICriterion.cs" />
     <Compile Include="Helpers\IEvent.cs" />

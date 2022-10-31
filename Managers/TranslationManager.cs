@@ -158,7 +158,7 @@ namespace HousePartyTranslator.Managers
             }
             set
             {
-                if (Utils.IsOfficialStory(value))
+                if (value.IsOfficialStory())
                 {
                     storyName = value;
                 }
@@ -316,6 +316,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
+        //todo move somewhere else, has nothing to do with translations
         /// <summary>
         /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
         /// </summary>
@@ -335,11 +336,11 @@ namespace HousePartyTranslator.Managers
                 TextBox textBox = (TextBox)focused_control;
                 if (toLeft)
                 {
-                    return Utils.DeleteCharactersInTextLeft(textBox);
+                    return textBox.DeleteCharactersInTextLeft();
                 }
                 else
                 {
-                    return Utils.DeleteCharactersInTextRight(textBox);
+                    return textBox.DeleteCharactersInTextRight();
                 }
             }
             return false;
@@ -364,12 +365,12 @@ namespace HousePartyTranslator.Managers
                 TextBox textBox = (TextBox)focused_control;
                 if (toLeft)
                 {
-                    Utils.MoveCursorWordLeft(textBox);
+                    textBox.MoveCursorWordLeft();
                     return true;
                 }
                 else
                 {
-                    Utils.MoveCursorWordRight(textBox);
+                    textBox.MoveCursorWordRight();
                     return true;
                 }
             }
@@ -528,7 +529,7 @@ namespace HousePartyTranslator.Managers
 
             foreach (var i in helper.CheckListBoxLeft.SearchResults)
             {
-                TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString = Utils.Replace(TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString, replacement, SearchQuery);
+                TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString = TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString.Replace(replacement, SearchQuery);
             }
 
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
@@ -552,7 +553,7 @@ namespace HousePartyTranslator.Managers
             int i = helper.CheckListBoxLeft.SelectedIndex;
             if (helper.CheckListBoxLeft.SearchResults.Contains(i))
             {
-                var temp = Utils.Replace(TranslationData[SelectedId].TranslationString, replacement, SearchQuery);
+                var temp = TranslationData[SelectedId].TranslationString.Replace(replacement, SearchQuery);
                 History.AddAction(new TranslationChanged(this, SelectedId, TranslationData[SelectedId].TranslationString, temp));
                 TranslationData[SelectedId].TranslationString = temp;
 
@@ -1229,8 +1230,8 @@ namespace HousePartyTranslator.Managers
 
                 if (TranslationData.Count() > 0)
                 {
-                    string storyNameToDisplay = Utils.TrimWithDelim(StoryName);
-                    string fileNameToDisplay = Utils.TrimWithDelim(FileName);
+                    string storyNameToDisplay = StoryName.TrimWithDelim();
+                    string fileNameToDisplay = FileName.TrimWithDelim();
                     helper.SelectedFileLabel.Text = $"File: {storyNameToDisplay}/{fileNameToDisplay}.txt";
 
                     //is up to date, so we can start translation
