@@ -563,7 +563,7 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (Exception e)
                     {
-                        LogManager.Log($"While trying to execute the following command  {Utils.TrimWithDelim(command.CommandText, "[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
+                        LogManager.Log($"While trying to execute the following command  {command.CommandText.TrimWithDelim( "[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
                     }
                 }
 

@@ -50,6 +50,7 @@ namespace HousePartyTranslator.Managers
         private bool isSaveAs = false;
         private string language = "";
         private int searchTabIndex = 0;
+        private bool selectedNew = false;
         private string sourceFilePath = "";
         private string storyName = "";
         private readonly PropertyHelper helper;
@@ -487,6 +488,8 @@ namespace HousePartyTranslator.Managers
                 }
                 else
                 {
+                    selectedNew = true;
+
                     helper.TemplateTextBox.Text = TranslationData[SelectedId].TemplateString?.Replace("\n", Environment.NewLine);
 
                     //display the string in the editable window
@@ -972,14 +975,14 @@ namespace HousePartyTranslator.Managers
             helper.TranslationTextBox.Text.Replace('|', ' ');
             TranslationData[SelectedId].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
             UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
-            ChangesPending = true;
+            if(!selectedNew)ChangesPending = true;
+            else selectedNew = false;
         }
 
         public void UpdateComments()
         {
             //remove pipe to not break saving/export
             TranslationData[SelectedId].Comments = helper.CommentBox.Lines;
-            ChangesPending = true;
         }
 
         /// <summary>

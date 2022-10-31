@@ -14,7 +14,7 @@ namespace HousePartyTranslator.Managers
     {
         static private TextBox lastChangedTextBox;
         static private string lastText;
-        static private int lastIndex = Properties.Settings.Default.recent_index;
+        static private int lastIndex = Properties.Settings.Default.recent_index, currentIndex = Properties.Settings.Default.recent_index;
 
         static public void ApprovedButtonChanged()
         {
