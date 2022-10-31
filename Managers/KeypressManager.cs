@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HousePartyTranslator.Helpers;
+using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace HousePartyTranslator.Managers
     {
         static private TextBox lastChangedTextBox;
         static private string lastText;
-        static private int lastIndex = Properties.Settings.Default.recent_index;
+        static private int lastIndex = Properties.Settings.Default.recent_index, currentIndex = Properties.Settings.Default.recent_index;
 
         static public void ApprovedButtonChanged()
         {
@@ -52,13 +53,11 @@ namespace HousePartyTranslator.Managers
                 DialogResult result = DialogResult.OK;
                 if (!File.Exists(savedNodesPath))
                 {
-                    result = MessageBox.Show("If you never opened this character in the explorer before, " +
+                    result = Msg.WarningOkCancel("If you never opened this character in the explorer before, " +
                        "be aware that this can take some time (5+ minutes) and is really cpu intensive. " +
                        "This only has to be done once for each character!\n" +
                        "You may notice stutters and stuff hanging. ",
-                       "Warning!",
-                       MessageBoxButtons.OKCancel,
-                       MessageBoxIcon.Warning);
+                       "Warning!");
                 }
                 //inform user this is going to take some time
                 if (result == DialogResult.OK)
@@ -104,7 +103,7 @@ namespace HousePartyTranslator.Managers
             catch (OperationCanceledException)
             {
                 explorerParent.UseWaitCursor = false;
-                LogManager.LogEvent("Explorer closed during creation");
+                LogManager.Log("Explorer closed during creation");
                 return null;
             }
         }

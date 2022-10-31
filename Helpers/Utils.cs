@@ -1,5 +1,6 @@
 ﻿using HousePartyTranslator.Managers;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -12,8 +13,8 @@ namespace HousePartyTranslator.Helpers
     /// </summary>
     public static class Utils
     {
-        public static readonly int MaxTextLength = 100;
-        public static readonly int maxWordLength = 15;
+        public const int MaxTextLength = 100;
+        public const int MaxWordLength = 15;
 
         private static int ExceptionCount = 0;
 
@@ -24,238 +25,6 @@ namespace HousePartyTranslator.Helpers
         public static readonly System.Drawing.Color darkText = System.Drawing.SystemColors.WindowText;
         public static readonly System.Drawing.Color menu = System.Drawing.SystemColors.ScrollBar;
         public static readonly System.Drawing.Color frame = System.Drawing.SystemColors.WindowFrame;
-
-        /// <summary>
-        /// Returns whether a story is official or not
-        /// </summary>
-        /// <param name="storyName">the name to check</param>
-        /// <returns></returns>
-        public static bool IsOfficialStory(string storyName)
-        {
-            string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
-            return Array.IndexOf(stories, storyName) >= 0;
-        }
-
-        /// <summary>
-        /// Replaces all matches in the given string and returns it
-        /// </summary>
-        /// <param name="input">The string to work on</param>
-        /// <param name="replacement">The replacement for all matches</param>
-        /// <param name="search">the pattern to search for</param>
-        /// <returns>the replaced string</returns>
-        public static string Replace(string input, string replacement, string search)
-        {
-            return ReplaceRegex(input, replacement, Regex.Escape(search));
-        }
-
-        /// <summary>
-        /// Replaces all regex rule matches inte given string and returns it
-        /// </summary>
-        /// <param name="input">The string to work on</param>
-        /// <param name="replacement">The replacement for all matches</param>
-        /// <param name="regexRules">The regex to match</param>
-        /// <returns></returns>
-        public static string ReplaceRegex(string input, string replacement, string regexRules)
-        {
-            return Regex.Replace(input, regexRules, replacement, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline, new TimeSpan(0, 0, 10));
-        }
-
-        /// <summary>
-        /// Removes the voice actor infos from the given string. Info has to be encapsulated in []. 
-        /// </summary>
-        /// <param name="input">The string to clean</param>
-        /// <returns>The cleaned string</returns>
-        public static string RemoveVAHints(string input)
-        {
-            bool inVAHint = false;
-            string output = "";
-            foreach (char character in input)
-            {
-                if (character == '[' && !inVAHint)
-                {
-                    inVAHint = true;
-                }
-                else if (character == ']' && inVAHint)
-                {
-                    inVAHint = false;
-                }
-                else if (!inVAHint)
-                {
-                    output += character;
-                }
-            }
-
-            return output;
-        }
-
-        /// <summary>
-        /// Constrains the lenght of a single string to a multi line version of said string, where every MaxTextLength characters a newline is inserted.
-        /// </summary>
-        /// <param name="input">The string to format</param>
-        /// <returns>The formatted, blockified string</returns>
-        public static string ConstrainLength(string input)
-        {
-            string output = "";
-            bool inWord;
-            int currentWordLength = 0, currentLength = 0;
-
-            foreach (char c in input)
-            {
-                if (c != ' ' && c != '\n' && c != '\r')
-                {
-                    inWord = true;
-                    currentWordLength++;
-                }
-                else
-                {
-                    inWord = false;
-                    currentWordLength = 0;
-                }
-
-                currentLength++;
-
-                //if line is short still
-                if (currentLength <= MaxTextLength)
-                {
-                    output += c;
-                }
-                else
-                {
-                    if (inWord && currentWordLength < maxWordLength)
-                    {
-                        //line is too long but we in a word
-                        output += c;
-                    }
-                    else
-                    {
-                        output += c + "\n";
-                        currentLength = 0;
-                    }
-                }
-            }
-
-            return output;
-        }
-
-        /// <summary>
-        /// Deletes the characters to the left of the char until the first seperator or the start of the text.
-        /// </summary>
-        /// <param name="textBox">The textbox to work on</param>
-        /// <returns>true if successful</returns>
-        public static bool DeleteCharactersInTextLeft(TextBox textBox)
-        {
-            int oldPos = textBox.SelectionStart;
-            MoveCursorWordLeft(textBox);
-            int newPos = textBox.SelectionStart;
-            if (oldPos - newPos > 0) textBox.Text = textBox.Text.Remove(newPos, oldPos - newPos);
-            textBox.SelectionStart = newPos;
-            //to stop winforms adding the weird backspace character to the text
-            return true;
-        }
-
-        /// <summary>
-        /// Deletes the characters to the right of the char until the first seperator or the end of the text.
-        /// </summary>
-        /// <param name="textBox">The textbox to work on</param>
-        /// <returns>true if successful</returns>
-        public static bool DeleteCharactersInTextRight(TextBox textBox)
-        {
-            int oldPos = textBox.SelectionStart;
-            MoveCursorWordRight(textBox);
-            int newPos = textBox.SelectionStart;
-            if (newPos - oldPos > 0) textBox.Text = textBox.Text.Remove(oldPos, newPos - oldPos);
-            textBox.SelectionStart = oldPos;
-            return true;
-        }
-
-        /// <summary>
-        /// Moves the cursor in the given textbox to the next beginning/end of a word to the left
-        /// </summary>
-        /// <param name="textBox">The box to work on</param>
-        public static void MoveCursorWordLeft(TextBox textBox)
-        {
-            bool broken = false;
-            int oldPos = textBox.SelectionStart;
-            if (textBox.SelectionStart > 0)
-            {
-                if (textBox.Text[textBox.SelectionStart - 1] == ' ')
-                {
-                    --textBox.SelectionStart;
-                }
-            }
-            for (int i = textBox.SelectionStart; i > 0; i--)
-            {
-                switch (textBox.Text.Substring(i - 1, 1))
-                {    //set up any stopping points you want
-                    case " ":
-                    case ";":
-                    case ",":
-                    case ".":
-                    case "-":
-                    case "'":
-                    case "/":
-                    case "\\":
-                    case "\n":
-                        textBox.SelectionStart = i;
-                        broken = true;
-                        break;
-                }
-                if (broken) break;
-            }
-            if (oldPos - textBox.SelectionStart < 1 && textBox.SelectionStart > 0)
-            {
-                --textBox.SelectionStart;
-            }
-            if (!broken)
-            {
-                textBox.SelectionStart = 0;
-            }
-        }
-
-        /// <summary>
-        /// Moves the cursor in the given textbox to the next beginning/end of a word to the right
-        /// </summary>
-        /// <param name="textBox">The box to work on</param>
-        public static void MoveCursorWordRight(TextBox textBox)
-        {
-            bool broken = false;
-            int oldPos = textBox.SelectionStart;
-            if (textBox.SelectionStart < textBox.Text.Length)
-            {
-                if (textBox.Text[textBox.SelectionStart] == ' ' && textBox.SelectionStart < textBox.Text.Length - 1)
-                {
-                    ++textBox.SelectionStart;
-                }
-            }
-            for (int i = textBox.SelectionStart; i < textBox.TextLength; i++)
-            {
-                switch (textBox.Text[i].ToString())
-                {    //set up any stopping points you want
-                    case " ":
-                    case ";":
-                    case ",":
-                    case ".":
-                    case "-":
-                    case "_":
-                    case "'":
-                    case "/":
-                    case "\\":
-                    case "\n":
-                        textBox.SelectionStart = i;
-                        broken = true;
-                        break;
-                }
-                if (broken) break;
-            }
-            if (textBox.SelectionStart - oldPos < 1)
-            {
-                textBox.SelectionStart++;
-            }
-            if (!broken)
-            {
-                textBox.SelectionStart = textBox.Text.Length;
-            }
-        }
 
         /// <summary>
         /// Gets the current assembly version as a string.
@@ -274,22 +43,19 @@ namespace HousePartyTranslator.Helpers
         /// <param name="message">The error message to display</param>
         public static void DisplayExceptionMessage(string message)
         {
-            LogManager.LogEvent("Exception message shown: " + message);
-            LogManager.LogEvent("Current exception count: " + ExceptionCount++);
-            MessageBox.Show(
+            LogManager.Log("Exception message shown: " + message);
+            LogManager.Log("Current exception count: " + ExceptionCount++);
+            Msg.ErrorOk(
                 $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
                 $"Anyways, here is what happened: \n\n{message}\n\n " +
                 $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
-                $"Some Error found (Nr. {ExceptionCount})",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error
-            );
+                $"Some Error found (Nr. {ExceptionCount})");
 
             Application.OpenForms[0].Cursor = Cursors.Default;
 
             if (ExceptionCount > 3)
             {
-                LogManager.LogEvent("Too many exceptions encountered, aborting", LogManager.Level.Crash);
+                LogManager.Log("Too many exceptions encountered, aborting", LogManager.Level.Crash);
                 Application.Exit();
             }
         }
@@ -351,23 +117,6 @@ namespace HousePartyTranslator.Helpers
                 return t;
             }
             return "";
-        }
-
-        /// <summary>
-        /// cuts a string to a maximum length and adds a delimiter
-        /// </summary>
-        /// <param name="toTrim">the string to cut</param>
-        /// <param name="delimiter">the delimiter to add afterwards</param>
-        /// <param name="maxLength">the length of the resulting string including the delimiter</param>
-        /// <returns></returns>
-        public static string TrimWithDelim(string toTrim, string delimiter = "...", int maxLength = 18)
-        {
-            int length = toTrim.Length, delimLength = delimiter.Length;
-            if (length > maxLength - delimLength)
-            {
-                length = maxLength - delimLength;
-            }
-            return toTrim.Length > length ? toTrim.Substring(0, length).Trim() + delimiter : toTrim;
         }
 
         public static StringCategory CategoryFromNode(NodeType type)
@@ -724,6 +473,53 @@ namespace HousePartyTranslator.Helpers
             newTab.ResumeLayout();
 
             return newTab;
+        }
+    }
+
+    internal struct CategorizedLines
+    {
+        public List<LineData> lines;
+        public StringCategory category;
+
+        public CategorizedLines(List<LineData> lines, StringCategory category)
+        {
+            this.lines = lines;
+            this.category = category;
+        }
+
+        public override bool Equals(object obj) => obj is CategorizedLines other && EqualityComparer<List<LineData>>.Default.Equals(lines, other.lines) && category == other.category;
+
+        public override int GetHashCode()
+        {
+            int hashCode = 458706445;
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<LineData>>.Default.GetHashCode(lines);
+            hashCode = hashCode * -1521134295 + category.GetHashCode();
+            return hashCode;
+        }
+
+        public void Deconstruct(out List<LineData> lines, out StringCategory category)
+        {
+            lines = this.lines;
+            category = this.category;
+        }
+
+        public static implicit operator (List<LineData> lines, StringCategory category)(CategorizedLines value) => (value.lines, value.category);
+        public static implicit operator CategorizedLines((List<LineData> lines, StringCategory category) value) => new CategorizedLines(value.lines, value.category);
+    }
+
+    internal sealed class FileData : Dictionary<string, LineData>
+    {
+        internal FileData(Dictionary<string, LineData> data)
+        {
+            foreach (var item in data)
+            {
+                this.Add(item.Key, item.Value);
+            }
+        }
+
+        internal FileData()
+        {
+            this.Clear();
         }
     }
 }

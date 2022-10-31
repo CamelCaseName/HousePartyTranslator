@@ -30,6 +30,7 @@ namespace HousePartyTranslator
             ProgressbarWindow = new ProgressbarForm.ProgressWindow();
             ProgressbarWindow.Status.Text = "starting...";
             ProgressbarWindow.Text = "Startup";
+            //ProgressbarWindow.Hide();
             ProgressbarWindow.Show();
 
             //check for update and replace if we want one
@@ -200,7 +201,7 @@ namespace HousePartyTranslator
 
         private void FensterUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
         {
-            LogManager.LogEvent(e.ExceptionObject.ToString(), LogManager.Level.Error);
+            LogManager.Log(e.ExceptionObject.ToString(), LogManager.Level.Error);
             try //casting the object into an exception
             {
                 Utils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
@@ -241,7 +242,7 @@ namespace HousePartyTranslator
         private void OnFormShown(object sender, EventArgs e)
         {
             ProgressbarWindow.PerformStep();
-            LogManager.LogEvent("Application initializing...");
+            LogManager.Log("Application initializing...");
             PresenceManager = new DiscordPresenceManager();
 
             //get translationmanager back
@@ -267,7 +268,7 @@ namespace HousePartyTranslator
 
             PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
 
-            LogManager.LogEvent($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{DataBase.DBVersion} story version:{Properties.Settings.Default.version}");
+            LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{DataBase.DBVersion} story version:{Properties.Settings.Default.version}");
             //ProgressbarWindow.Hide();
             //ProgressbarWindow.Status.Text = "progress";
             //ProgressbarWindow.Text = "Autosave";
@@ -335,7 +336,7 @@ namespace HousePartyTranslator
 
         private void ThreadExceptionHandler(object sender, ThreadExceptionEventArgs e)
         {
-            LogManager.LogEvent(e.Exception.ToString(), LogManager.Level.Error);
+            LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
             Utils.DisplayExceptionMessage(e.Exception.Message);
         }
 

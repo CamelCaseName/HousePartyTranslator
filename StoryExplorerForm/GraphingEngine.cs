@@ -244,14 +244,14 @@ namespace HousePartyTranslator.StoryExplorerForm
             {
                 NodeInfoLabel.Visible = true;
                 //create header
-                string header = Utils.ConstrainLength($"{infoNode.Type} - {infoNode.ID}");
-                if (infoNode.Gender != Gender.None) header = Utils.ConstrainLength(header + $" - {infoNode.Gender} only");
+                string header = $"{infoNode.Type} - {infoNode.ID}".ConstrainLength();
+                if (infoNode.Gender != Gender.None) header = header + $" - {infoNode.Gender} only".ConstrainLength();
 
                 //create info
                 //strip text of all VA performance hints, embedded in []. if user wants it
                 string info;
-                if (Properties.Settings.Default.displayVAHints) { info = Utils.ConstrainLength(infoNode.Text); }
-                else { info = Utils.ConstrainLength(Utils.RemoveVAHints(infoNode.Text)); }
+                if (Properties.Settings.Default.displayVAHints) { info = infoNode.Text.ConstrainLength(); }
+                else { info = infoNode.Text.RemoveVAHints().ConstrainLength(); }
 
                 //create seperator
                 string seperator = "\n";

@@ -146,6 +146,23 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Updates the current tabs title
         /// </summary>
+        /// <param name="manager">The corresponding tab will be updated</param>
+        /// <param name="title">The title to set</param>
+        public static void UpdateTabTitle(TranslationManager manager, string title)
+        {
+            foreach (var tab in translationManagers.Keys)
+            {
+                if (translationManagers[tab] == manager)
+                {
+                    UpdateTabTitle(tab, title);
+                    return;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates the current tabs title
+        /// </summary>
         /// <param name="title">The title to set</param>
         public static void UpdateTabTitle(string title)
         {
@@ -193,6 +210,7 @@ namespace HousePartyTranslator.Managers
                 //save all tabs
                 foreach (TabPage tab in TabControl.TabPages)
                 {
+                    if (translationManagers[tab].ChangesPending)
                     TabControl.SelectedTab = tab;
                     translationManagers[tab].SaveFile();
                 }

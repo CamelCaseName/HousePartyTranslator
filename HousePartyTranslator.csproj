@@ -264,12 +264,14 @@
   <ItemGroup>
     <Compile Include="Helpers\Characters.cs" />
     <Compile Include="Helpers\ClickedNodeChangeArgs.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\GithubResponses.cs" />
     <Compile Include="Helpers\ICriterion.cs" />
     <Compile Include="Helpers\IEvent.cs" />
     <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\Items.cs" />
     <Compile Include="Helpers\FastNative.cs" />
+    <Compile Include="Helpers\Msg.cs" />
     <Compile Include="Helpers\Node.cs" />
     <Compile Include="Helpers\SerializeableNode.cs" />
     <Compile Include="Helpers\Utils.cs" />
