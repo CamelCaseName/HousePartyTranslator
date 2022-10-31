@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.Windows.Forms.Design;
 
 namespace HousePartyTranslator.Helpers
 {
@@ -14,8 +13,8 @@ namespace HousePartyTranslator.Helpers
     /// </summary>
     public static class Utils
     {
-        public static readonly int MaxTextLength = 100;
-        public static readonly int maxWordLength = 15;
+        public const int MaxTextLength = 100;
+        public const int maxWordLength = 15;
 
         private static int ExceptionCount = 0;
 
