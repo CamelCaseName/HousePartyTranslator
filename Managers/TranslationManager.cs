@@ -41,11 +41,10 @@ namespace HousePartyTranslator.Managers
 
         public int SelectedSearchResult = 0;
 
-
         //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
         private int templateCounter = 0;
 
-        public Dictionary<string, LineData> TranslationData = new Dictionary<string, LineData>();
+        public FileData TranslationData = new FileData();
         public bool UpdateStoryExplorerSelection = true;
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
         private static Fenster MainWindow;
@@ -208,7 +207,7 @@ namespace HousePartyTranslator.Managers
                             //remove old lines from server
                             DataBase.RemoveOldTemplates(FileName, story);
 
-                            Dictionary<string, LineData> templates = new Dictionary<string, LineData>();
+                            FileData templates = new FileData();
 
                             //add name as first template (its not in the file)
                             templates.Add("Name", new LineData("Name", story, FileName, StringCategory.General, FileName));
@@ -647,7 +646,6 @@ namespace HousePartyTranslator.Managers
 
             if (SourceFilePath == "" || Language == "") return;
 
-
             DataBase.UpdateTranslations(TranslationData, Language);
 
             System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
@@ -665,7 +663,7 @@ namespace HousePartyTranslator.Managers
             }
 
             //can take some time
-            DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
+            DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
 
             foreach (LineData item in IdsToExport.Values)
             {
@@ -1260,7 +1258,7 @@ namespace HousePartyTranslator.Managers
             MainWindow.Cursor = Cursors.WaitCursor;
 
             bool lineIsApproved = false;
-            DataBase.GetAllLineData(FileName, StoryName, out Dictionary<string, LineData> onlineLines, Language);
+            DataBase.GetAllLineData(FileName, StoryName, out FileData onlineLines, Language);
             int currentIndex = 0;
 
             foreach (var key in TranslationData.Keys)
@@ -1381,7 +1379,7 @@ namespace HousePartyTranslator.Managers
             StringCategory currentCategory = StringCategory.General;
             string[] lastLine = { };
 
-            DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
+            DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
             List<string> LinesFromFile;
             try
             {
@@ -1426,7 +1424,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, Dictionary<string, LineData> IdsToExport)
+        private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, FileData IdsToExport)
         {
             string multiLineCollector = "";
             //remove last if empty, breaks line lioading for the last
@@ -1510,7 +1508,7 @@ namespace HousePartyTranslator.Managers
             if (!triedFixingOnce)
             {
                 triedFixingOnce = true;
-                DataBase.GetAllLineDataTemplate(FileName, StoryName, out Dictionary<string, LineData> IdsToExport);
+                DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
                 foreach (var item in IdsToExport.Values)
                 {
                     TranslationData.Add(item.ID, new LineData(item.ID, StoryName, FileName, item.Category));
@@ -1713,36 +1711,5 @@ namespace HousePartyTranslator.Managers
                 }
             }
         }
-    }
-
-    internal struct CategorizedLines
-    {
-        public List<LineData> lines;
-        public StringCategory category;
-
-        public CategorizedLines(List<LineData> lines, StringCategory category)
-        {
-            this.lines = lines;
-            this.category = category;
-        }
-
-        public override bool Equals(object obj) => obj is CategorizedLines other && EqualityComparer<List<LineData>>.Default.Equals(lines, other.lines) && category == other.category;
-
-        public override int GetHashCode()
-        {
-            int hashCode = 458706445;
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<LineData>>.Default.GetHashCode(lines);
-            hashCode = hashCode * -1521134295 + category.GetHashCode();
-            return hashCode;
-        }
-
-        public void Deconstruct(out List<LineData> lines, out StringCategory category)
-        {
-            lines = this.lines;
-            category = this.category;
-        }
-
-        public static implicit operator (List<LineData> lines, StringCategory category)(CategorizedLines value) => (value.lines, value.category);
-        public static implicit operator CategorizedLines((List<LineData> lines, StringCategory category) value) => new CategorizedLines(value.lines, value.category);
     }
 }

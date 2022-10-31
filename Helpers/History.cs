@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using HousePartyTranslator.Helpers;
+using System.Collections.Generic;
 
 namespace HousePartyTranslator.Managers
 {
@@ -228,13 +229,13 @@ namespace HousePartyTranslator.Managers
 
     internal sealed class AllTranslationsChanged : ICommand
     {
-        readonly Dictionary<string, LineData> oldTranslations, newTranslations;
+        readonly FileData oldTranslations, newTranslations;
         readonly TranslationManager manager;
 
-        public AllTranslationsChanged(TranslationManager manager, Dictionary<string, LineData> oldTranslations, Dictionary<string, LineData> newTranslations)
+        public AllTranslationsChanged(TranslationManager manager, FileData oldTranslations, FileData newTranslations)
         {
-            this.oldTranslations = new Dictionary<string, LineData>(oldTranslations);
-            this.newTranslations = new Dictionary<string, LineData>(newTranslations);
+            this.oldTranslations = new FileData(oldTranslations);
+            this.newTranslations = new FileData(newTranslations);
             this.manager = manager;
         }
 

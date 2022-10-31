@@ -72,7 +72,7 @@ namespace HousePartyTranslator.Managers
             return wasSuccessfull;
         }
 
-        public static bool GetAllLineData(string fileName, string story, out Dictionary<string, LineData> LineDataList, string language)
+        public static bool GetAllLineData(string fileName, string story, out FileData LineDataList, string language)
         {
             bool wasSuccessfull = false;
             string command;
@@ -94,7 +94,7 @@ namespace HousePartyTranslator.Managers
             MainCommand.Parameters.AddWithValue("@story", story);
             MainCommand.Parameters.AddWithValue("@language", language);
 
-            LineDataList = new Dictionary<string, LineData>();
+            LineDataList = new FileData();
 
             CheckOrReopenConnection();
             try
@@ -155,7 +155,7 @@ namespace HousePartyTranslator.Managers
         /// <returns>
         /// True if ids are found for this file.
         /// </returns>
-        public static bool GetAllLineDataTemplate(string fileName, string story, out Dictionary<string, LineData> LineDataList)
+        public static bool GetAllLineDataTemplate(string fileName, string story, out FileData LineDataList)
         {
             Application.UseWaitCursor = true;
             string command;
@@ -180,7 +180,7 @@ namespace HousePartyTranslator.Managers
 
             CheckOrReopenConnection();
             MainReader = MainCommand.ExecuteReader();
-            LineDataList = new Dictionary<string, LineData>();
+            LineDataList = new FileData();
 
             if (MainReader.HasRows)
             {
@@ -386,7 +386,7 @@ namespace HousePartyTranslator.Managers
         /// <returns>
         /// True if exactly one row was set, false if it was not the case.
         /// </returns>
-        public static bool UploadTemplates(Dictionary<string, LineData> lines)
+        public static bool UploadTemplates(FileData lines)
         {
             int c = 0;
             for (int x = 0; x < ((lines.Count / 500) + 0.5); x++)
@@ -472,7 +472,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="storyName">The name of the story the file is from, should be the name of the parent folder.</param>
         /// <param name="language">The translated language in ISO 639-1 notation.</param>
         /// <returns></returns>
-        public static bool UpdateTranslations(Dictionary<string, LineData> translationData, string language)
+        public static bool UpdateTranslations(FileData translationData, string language)
         {
             if (translationData.Count > 0)
             {

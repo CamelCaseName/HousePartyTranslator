@@ -1,5 +1,6 @@
 ﻿using HousePartyTranslator.Managers;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -724,6 +725,53 @@ namespace HousePartyTranslator.Helpers
             newTab.ResumeLayout();
 
             return newTab;
+        }
+    }
+
+    internal struct CategorizedLines
+    {
+        public List<LineData> lines;
+        public StringCategory category;
+
+        public CategorizedLines(List<LineData> lines, StringCategory category)
+        {
+            this.lines = lines;
+            this.category = category;
+        }
+
+        public override bool Equals(object obj) => obj is CategorizedLines other && EqualityComparer<List<LineData>>.Default.Equals(lines, other.lines) && category == other.category;
+
+        public override int GetHashCode()
+        {
+            int hashCode = 458706445;
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<LineData>>.Default.GetHashCode(lines);
+            hashCode = hashCode * -1521134295 + category.GetHashCode();
+            return hashCode;
+        }
+
+        public void Deconstruct(out List<LineData> lines, out StringCategory category)
+        {
+            lines = this.lines;
+            category = this.category;
+        }
+
+        public static implicit operator (List<LineData> lines, StringCategory category)(CategorizedLines value) => (value.lines, value.category);
+        public static implicit operator CategorizedLines((List<LineData> lines, StringCategory category) value) => new CategorizedLines(value.lines, value.category);
+    }
+
+    internal sealed class FileData : Dictionary<string, LineData>
+    {
+        internal FileData(Dictionary<string, LineData> data)
+        {
+            foreach (var item in data)
+            {
+                this.Add(item.Key, item.Value);
+            }
+        }
+
+        internal FileData()
+        {
+            this.Clear();
         }
     }
 }
