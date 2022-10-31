@@ -9,15 +9,13 @@ using System.Text;
 using System.Windows.Forms;
 
 //TODO add tests
-//todo add indicator for unsaved changes
-//todo still save file even when offline
 
 namespace HousePartyTranslator.Managers
 {
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    internal class TranslationManager
+    internal sealed class TranslationManager
     {
         public bool ChangesPending
         {
