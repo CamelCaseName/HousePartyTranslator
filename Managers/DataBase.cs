@@ -135,7 +135,7 @@ namespace HousePartyTranslator.Managers
                 }
                 else
                 {
-                    MessageBox.Show("Ids can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                    Msg.WarningOk("Ids can't be loaded", "Info");
                 }
             }
             finally
@@ -198,8 +198,8 @@ namespace HousePartyTranslator.Managers
             }
             else
             {
-                MessageBox.Show("Ids can't be loaded", "Info", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
-                LogManager.LogEvent("No template ids found for " + story + "/" + fileName);
+                Msg.WarningOk("Ids can't be loaded", "Info");
+                LogManager.Log("No template ids found for " + story + "/" + fileName);
             }
             MainReader.Close();
 
@@ -233,7 +233,7 @@ namespace HousePartyTranslator.Managers
                     {
                         if (Passwordbox.GetPassword().Length > 1)
                         {
-                            MessageBox.Show("Invalid password", "Wrong password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            Msg.ErrorOk("Invalid password", "Wrong password");
                         }
                         else
                         {
@@ -252,7 +252,7 @@ namespace HousePartyTranslator.Managers
                         if (sqlConnection.State != System.Data.ConnectionState.Open)
                         {
                             //password may have to be changed
-                            MessageBox.Show("Can't connect to the database, contact CamelCaseName (Lenny)");
+                            Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
                             Application.Exit();
                         }
                         else
@@ -262,7 +262,7 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (MySqlException e)
                     {
-                        MessageBox.Show($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Msg.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                         Application.UseWaitCursor = false;
                         return;
                     }
@@ -310,12 +310,12 @@ namespace HousePartyTranslator.Managers
                 if (!double.TryParse(DBVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _dbVersion))
                 {
                     _dbVersion = 1.0;
-                    LogManager.LogEvent($"invalid string cast to double. Offender: {DBVersion}", LogManager.Level.Warning);
+                    LogManager.Log($"invalid string cast to double. Offender: {DBVersion}", LogManager.Level.Warning);
                 }
                 if (!double.TryParse(fileVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _fileVersion))
                 {
                     _fileVersion = 1.0;
-                    LogManager.LogEvent($"invalid string cast to double. Offender: {fileVersion}", LogManager.Level.Warning);
+                    LogManager.Log($"invalid string cast to double. Offender: {fileVersion}", LogManager.Level.Warning);
                 }
 
                 //save comparison
@@ -337,13 +337,10 @@ namespace HousePartyTranslator.Managers
             TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
             if (!TranslationManager.IsUpToDate && Properties.Settings.Default.advancedMode)
             {
-                MessageBox.Show($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
+                Msg.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
                             $" You may acquire the latest version of this program. " +
                             $"If you know that you have newer strings, you may select the template files to upload the new versions!",
-                            "Updating string database",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Warning
-                        );
+                            "Updating string database");
             }
             mainWindow.Text += " (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + SoftwareVersionManager.LocalVersion + ")";
             mainWindow.Update();
@@ -566,7 +563,7 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (Exception e)
                     {
-                        LogManager.LogEvent($"While trying to execute the following command  {Utils.TrimWithDelim(command.CommandText, "[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
+                        LogManager.Log($"While trying to execute the following command  {Utils.TrimWithDelim(command.CommandText, "[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
                     }
                 }
 
@@ -594,7 +591,7 @@ namespace HousePartyTranslator.Managers
             if (sqlConnection.State != System.Data.ConnectionState.Open)
             {
                 //password may have to be changed
-                MessageBox.Show("Can't connect to the database, contact CamelCaseName (Lenny)");
+                Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
                 Application.Exit();
                 return false;
             }

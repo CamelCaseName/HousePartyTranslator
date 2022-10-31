@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Windows.Forms.Design;
 
 namespace HousePartyTranslator.Helpers
 {
@@ -275,22 +276,19 @@ namespace HousePartyTranslator.Helpers
         /// <param name="message">The error message to display</param>
         public static void DisplayExceptionMessage(string message)
         {
-            LogManager.LogEvent("Exception message shown: " + message);
-            LogManager.LogEvent("Current exception count: " + ExceptionCount++);
-            MessageBox.Show(
+            LogManager.Log("Exception message shown: " + message);
+            LogManager.Log("Current exception count: " + ExceptionCount++);
+            Msg.ErrorOk(
                 $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
                 $"Anyways, here is what happened: \n\n{message}\n\n " +
                 $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
-                $"Some Error found (Nr. {ExceptionCount})",
-                MessageBoxButtons.OK,
-                MessageBoxIcon.Error
-            );
+                $"Some Error found (Nr. {ExceptionCount})");
 
             Application.OpenForms[0].Cursor = Cursors.Default;
 
             if (ExceptionCount > 3)
             {
-                LogManager.LogEvent("Too many exceptions encountered, aborting", LogManager.Level.Crash);
+                LogManager.Log("Too many exceptions encountered, aborting", LogManager.Level.Crash);
                 Application.Exit();
             }
         }

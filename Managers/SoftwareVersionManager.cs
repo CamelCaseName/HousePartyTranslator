@@ -53,11 +53,7 @@ namespace HousePartyTranslator.Managers
                 || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] == LocalVersion[4] && LatestGithubVersion[6] > LocalVersion[6]);/*minor release number*/
             if (UpdatePending)
             {
-                if (MessageBox.Show("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, 
-                    "Update - " + response.Name, 
-                    MessageBoxButtons.YesNo, 
-                    MessageBoxIcon.Information, 
-                    MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                if (Msg.InfoYesNoB("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update - " + response.Name))
                 {
                     try
                     {
@@ -74,8 +70,8 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (System.UnauthorizedAccessException e)
                     {
-                        LogManager.LogEvent(e.ToString(), LogManager.Level.Error);
-                        MessageBox.Show($"The update failed because the program could not access\n   {oldExe}\n or the folder it is in.", "Update failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        LogManager.Log(e.ToString(), LogManager.Level.Error);
+                        Msg.ErrorOk($"The update failed because the program could not access\n   {oldExe}\n or the folder it is in.", "Update failed");
                         return;
                     }
 
@@ -90,16 +86,16 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (System.ComponentModel.Win32Exception e)
                     {
-                        LogManager.LogEvent(e.ToString(), LogManager.Level.Error);
+                        LogManager.Log(e.ToString(), LogManager.Level.Error);
                         //move currently running back because something broke
                         File.Move(oldExe, Application.ExecutablePath);
                         if (File.Exists(oldExe)) File.Delete(oldExe);
-                        MessageBox.Show($"The update failed because the program could not access\n   {releaseFolder}\n or the folder it is in.", "Update failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Msg.ErrorOk($"The update failed because the program could not access\n   {releaseFolder}\n or the folder it is in.", "Update failed");
                         return;
                     }
 
                     //inform user
-                    MessageBox.Show("Successfully updated the program! It will close itself now", "Update successful", MessageBoxButtons.OK);
+                    Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
 
                     //exit
                     Application.Exit();

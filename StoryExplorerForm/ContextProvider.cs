@@ -284,7 +284,7 @@ namespace HousePartyTranslator
                 }
                 catch (OperationCanceledException)
                 {
-                    LogManager.LogEvent("Explorer closed during creation");
+                    LogManager.Log("Explorer closed during creation");
                     return null;
                 }
 

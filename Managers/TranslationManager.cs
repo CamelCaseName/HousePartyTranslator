@@ -108,7 +108,7 @@ namespace HousePartyTranslator.Managers
             {
                 if (language.Length == 0)
                 {
-                    if (!SoftwareVersionManager.UpdatePending) MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
+                    if (!SoftwareVersionManager.UpdatePending) Msg.InfoOk("Please enter a valid language or select one.", "Enter valid language");
                     return "";
                 }
                 else
@@ -120,7 +120,7 @@ namespace HousePartyTranslator.Managers
             {
                 if (value.Length == 0)
                 {
-                    if (!SoftwareVersionManager.UpdatePending) MessageBox.Show("Please enter a valid language or select one.", "Enter valid language");
+                    if (!SoftwareVersionManager.UpdatePending) Msg.InfoOk("Please enter a valid language or select one.", "Enter valid language");
                 }
                 else
                 {
@@ -168,7 +168,7 @@ namespace HousePartyTranslator.Managers
                     //custom story?
                     if (!CustomStoryTemplateHandle(value))
                     {
-                        MessageBox.Show($"Not flagged as custom story, can't find \"{value}\", assuming Original Story.");
+                        Msg.InfoOk($"Not flagged as custom story, can't find \"{value}\", assuming Original Story.");
                         storyName = "Original Story";
                     }
                 }
@@ -184,7 +184,7 @@ namespace HousePartyTranslator.Managers
             }
             else
             {
-                result = MessageBox.Show($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story", "Custom story?", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+                result = Msg.InfoYesNo($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story", "Custom story?");
             }
             if (result == DialogResult.Yes)
             {
@@ -193,8 +193,7 @@ namespace HousePartyTranslator.Managers
                 if (data.Count == 0)
                 {//its a custom story but no template so far on the server
                  //use contextprovider to extract the story object and get the lines
-                    result = MessageBox.Show($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information);
-                    if (result != DialogResult.Cancel)
+                    if (Msg.InfoYesNoCancelB($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?"))
                     {
                         bool isStory = result == DialogResult.No;
                         ContextProvider explorer = new ContextProvider(isStory, false, FileName, StoryName, null);
@@ -227,7 +226,7 @@ namespace HousePartyTranslator.Managers
                             Application.UseWaitCursor = false;
                             return true;
                         }
-                        MessageBox.Show("Something broke, please try again.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Msg.ErrorOk("Something broke, please try again.");
                     }
                 }
                 else
@@ -411,7 +410,7 @@ namespace HousePartyTranslator.Managers
                 if (TranslationData.Count > 0)
                 {
                     //log file loading if successfull
-                    LogManager.LogEvent($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
+                    LogManager.Log($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
                     //update tab name
                     TabManager.UpdateTabTitle(FileName);
@@ -440,13 +439,10 @@ namespace HousePartyTranslator.Managers
             else
             {
                 isTemplate = false;
-                MessageBox.Show(
+                Msg.WarningOk(
                     $"Please the template folder named 'TEMPLATE' so we can upload them. " +
                     $"Your Current Folder shows as {templateFolderName}.",
-                    "Updating string database",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                    );
+                    "Updating string database");
             }
         }
 
@@ -544,7 +540,7 @@ namespace HousePartyTranslator.Managers
             ReloadTranslationTextbox();
 
             //show confirmation
-            MessageBox.Show("Replace successful!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Msg.InfoOk("Replace successful!", "Success");
         }
 
         /// <summary>
@@ -603,7 +599,7 @@ namespace HousePartyTranslator.Managers
                 }
                 catch
                 {
-                    if (MessageBox.Show("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", MessageBoxButtons.YesNo, MessageBoxIcon.Information) == DialogResult.Yes)
+                    if (Msg.WarningYesNoB("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation"))
                     {
                         Properties.Settings.Default.autoTranslate = false;
                     }
@@ -644,7 +640,7 @@ namespace HousePartyTranslator.Managers
 
             if (SourceFilePath == "" || Language == "") return;
 
-            DataBase.UpdateTranslations(TranslationData, Language);
+            if (!DataBase.UpdateTranslations(TranslationData, Language)) Msg.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
 
             System.Globalization.CultureInfo culture = System.Globalization.CultureInfo.InvariantCulture;
             var CategorizedStrings = new List<CategorizedLines>();
@@ -956,7 +952,7 @@ namespace HousePartyTranslator.Managers
         {
             if (Properties.Settings.Default.askForSaveDialog && ChangesPending)
             {
-                if (MessageBox.Show("You may have unsaved changes. Do you want to save all changes?", "Save changes?", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation) == DialogResult.Yes)
+                if (Msg.WarningYesNoB("You may have unsaved changes. Do you want to save all changes?", "Save changes?"))
                 {
                     if (!TabManager.SaveAllTabs())
                     {
@@ -1167,7 +1163,7 @@ namespace HousePartyTranslator.Managers
             }
             catch (UnauthorizedAccessException e)
             {
-                LogManager.LogEvent(e.ToString(), LogManager.Level.Warning);
+                LogManager.Log(e.ToString(), LogManager.Level.Warning);
                 Utils.DisplayExceptionMessage(e.ToString());
             }
 
@@ -1177,12 +1173,10 @@ namespace HousePartyTranslator.Managers
             //add all the new strings
             DataBase.UploadTemplates(TranslationData);
 
-            DialogResult result = MessageBox.Show(
+            DialogResult result = Msg.WarningYesNoCancel(
                 "This should be done uploading. It should be :)\n" +
                 "If you are done uploading, please select YES. ELSE NO. Be wise please!",
                 "Updating string database...",
-                MessageBoxButtons.YesNoCancel,
-                MessageBoxIcon.Warning,
                 MessageBoxDefaultButton.Button2
                 );
 
@@ -1386,8 +1380,8 @@ namespace HousePartyTranslator.Managers
             }
             catch (Exception e)
             {
-                LogManager.LogEvent($"File not found under {SourceFilePath}.\n{e}", LogManager.Level.Warning);
-                MessageBox.Show($"File not found under {SourceFilePath}. Please reopen.", "Invalid path", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                LogManager.Log($"File not found under {SourceFilePath}.\n{e}", LogManager.Level.Warning);
+                Msg.InfoOk($"File not found under {SourceFilePath}. Please reopen.", "Invalid path");
                 ResetTranslationManager();
                 return;
             }
@@ -1414,11 +1408,9 @@ namespace HousePartyTranslator.Managers
                 else if (!SoftwareVersionManager.UpdatePending && Form.ActiveForm != null)
                     //inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
                     //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
-                    MessageBox.Show(
+                    Msg.InfoOk(
                     "Some strings are missing from your translation, they will be added with the english version when you first save the file!",
-                    "Some strings missing",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Asterisk);
+                    "Some strings missing");
             }
         }
 
@@ -1696,7 +1688,7 @@ namespace HousePartyTranslator.Managers
             if (Properties.Settings.Default.advancedMode)
             {
                 //show warning
-                if (MessageBox.Show("This will override the lines saved online for the opened file with your local verison! Please be careful. If you read this and want to continue, please select yes", "Warning", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                if (Msg.WarningYesNoB("This will override the lines saved online for the opened file with your local verison! Please be careful. If you read this and want to continue, please select yes"))
                 {
                     //force load local version
                     LoadTranslationFile(true);

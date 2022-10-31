@@ -55,9 +55,9 @@ namespace HousePartyTranslator.Managers
         /// A Method for adding a string with timestamp at the end of the log
         /// </summary>
         /// <param name="message">The string to be added.</param>
-        public static void LogEvent(string message)
+        public static void Log(string message)
         {
-            LogEvent(message, Level.Info);
+            Log(message, Level.Info);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="message">The string to be added.</param>
         /// <param name="level">The level of the logged message</param>
-        public static void LogEvent(string message, Level level)
+        public static void Log(string message, Level level)
         {
             string _message = $"[{level}] | {DateTime.Now} | {message} \n";
 
