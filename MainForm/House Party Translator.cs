@@ -2,6 +2,7 @@
 using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -179,8 +180,7 @@ namespace HousePartyTranslator
             }
             else
             {
-                bool temp = base.ProcessCmdKey(ref msg, keyData);
-                return temp;
+                return base.ProcessCmdKey(ref msg, keyData);
             }
         }
 

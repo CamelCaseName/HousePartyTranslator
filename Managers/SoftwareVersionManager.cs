@@ -1,9 +1,13 @@
 ﻿using HousePartyTranslator.Helpers;
 using SevenZipNET;
+using System;
+using System.Deployment.Application;
 using System.IO;
 using System.Net.Http;
+using System.Runtime.Remoting.Messaging;
 using System.Text.Json;
 using System.Windows.Forms;
+using Ubiety.Dns.Core;
 
 namespace HousePartyTranslator.Managers
 {
@@ -27,80 +31,114 @@ namespace HousePartyTranslator.Managers
             DoWork();
         }
 
-        //todo compartmentalize
         private static async void DoWork()
         {
             //get data from github about the packages 
             GithubResponse response = await JsonSerializer.DeserializeAsync<GithubResponse>(await client.GetStreamAsync(APIUrl));
 
+            //check version and for need of update
+            if (!UpdateNeeded(response.TagName)) return;
+
+            //prepare files
+            (bool successfull, string newFile, string oldFile) = CreateFiles();
+            if (!successfull) return;
+
+            //inform rest of program
+            UpdatePending = true;
+
+            if (Msg.InfoYesNoB("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update - " + response.Name))
+            {
+
+                Download(response.Assets[0].BrowserDownloadUrl, newFile);
+
+                if (!UpdateFile(oldFile, newFile)) return;
+
+                //inform user
+                Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
+
+                //exit
+                Application.Exit();
+            }
+        }
+
+        //returns true if current version is up to date
+        private static bool UpdateNeeded(string githubVersion)
+        {
             //extract version number
-            string t = response.TagName;
-            LatestGithubVersion = $"{t[0]}.{t[2]}.0.0";
-            if (t.Length > 3) LatestGithubVersion = $"{t[0]}.{t[2]}.{t[3]}.0";
-            if (t.Length > 4) LatestGithubVersion = $"{t[0]}.{t[2]}.{t[3]}.{t[4]}";
-
-            //path to file if we need it
-            string releaseFile = Path.Combine(Directory.GetCurrentDirectory(), "Release.7z");
-            string releaseFolder = Directory.GetCurrentDirectory();
-
-            //delete old one if it exists
-            string oldExe = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "prev.exe");
-            if (File.Exists(oldExe)) File.Delete(oldExe);
+            LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.0.0";
+            if (githubVersion.Length > 3) LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.0";
+            if (githubVersion.Length > 4) LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.{githubVersion[4]}";
 
             //if the version on github has a higher version number
-            UpdatePending = LatestGithubVersion[0] > LocalVersion[0]/*major version*/
+            return LatestGithubVersion[0] > LocalVersion[0]/*major version*/
                 || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] > LocalVersion[2])/*minor version*/
                 || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] > LocalVersion[4])/*major release number*/
                 || (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] == LocalVersion[4] && LatestGithubVersion[6] > LocalVersion[6]);/*minor release number*/
-            if (UpdatePending)
+        }
+
+        private static (bool, string, string) CreateFiles()
+        {
+            try
             {
-                if (Msg.InfoYesNoB("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update - " + response.Name))
+                //path to file if we need it
+                string releaseFile = Path.Combine(Directory.GetCurrentDirectory(), "Release.7z");
+
+                //delete old one if it exists
+                string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "prev.exe");
+                if (File.Exists(oldFile)) File.Delete(oldFile);
+                return (true, releaseFile, oldFile);
+            }
+            catch (Exception e)
+            {
+                LogManager.Log(e.Message);
+            }
+            return (false, "", "");
+        }
+
+        private static async void Download(string downloadUrl, string newFile)
+        {
+            try
+            {
+                //get stream to the file in web location
+                using (Stream stream = await client.GetStreamAsync(downloadUrl))
                 {
-                    try
+                    //stream to the file on dis
+                    using (FileStream fileStream = new FileStream(newFile, FileMode.Create))
                     {
-                        //get stream to the file in web location
-                        using (Stream stream = await client.GetStreamAsync(response.Assets[0].BrowserDownloadUrl))
-                        {
-                            //stream to the file on dis
-                            using (FileStream fileStream = new FileStream(releaseFile, FileMode.Create))
-                            {
-                                //copy data to file on disk
-                                await stream.CopyToAsync(fileStream);
-                            }
-                        }
+                        //copy data to file on disk
+                        await stream.CopyToAsync(fileStream);
                     }
-                    catch (System.UnauthorizedAccessException e)
-                    {
-                        LogManager.Log(e.ToString(), LogManager.Level.Error);
-                        Msg.ErrorOk($"The update failed because the program could not access\n   {oldExe}\n or the folder it is in.", "Update failed");
-                        return;
-                    }
-
-                    //move currently running exe out of the way
-                    File.Move(Application.ExecutablePath, oldExe);
-
-                    //extract file to our current location and replace
-                    SevenZipExtractor extractor = new SevenZipExtractor(releaseFile);
-                    try
-                    {
-                        extractor.ExtractAll(releaseFolder, true, true);
-                    }
-                    catch (System.ComponentModel.Win32Exception e)
-                    {
-                        LogManager.Log(e.ToString(), LogManager.Level.Error);
-                        //move currently running back because something broke
-                        File.Move(oldExe, Application.ExecutablePath);
-                        if (File.Exists(oldExe)) File.Delete(oldExe);
-                        Msg.ErrorOk($"The update failed because the program could not access\n   {releaseFolder}\n or the folder it is in.", "Update failed");
-                        return;
-                    }
-
-                    //inform user
-                    Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
-
-                    //exit
-                    Application.Exit();
                 }
+            }
+            catch (System.UnauthorizedAccessException e)
+            {
+                LogManager.Log(e.ToString(), LogManager.Level.Error);
+                Msg.ErrorOk($"The update failed because the program could not access\n   {newFile}\n or the folder it is in.", "Update failed");
+                return;
+            }
+        }
+
+        private static bool UpdateFile(string oldFile, string newFile)
+        {
+
+            //move currently running exe out of the way
+            File.Move(Application.ExecutablePath, oldFile);
+
+            //extract file to our current location and replace
+            SevenZipExtractor extractor = new SevenZipExtractor(newFile);
+            try
+            {
+                extractor.ExtractAll(Directory.GetCurrentDirectory(), true, true);
+                return true;
+            }
+            catch (System.ComponentModel.Win32Exception e)
+            {
+                LogManager.Log(e.ToString(), LogManager.Level.Error);
+                //move currently running back because something broke
+                File.Move(oldFile, Application.ExecutablePath);
+                if (File.Exists(oldFile)) File.Delete(oldFile);
+                Msg.ErrorOk($"The update failed because the program could not access\n   {Directory.GetCurrentDirectory()}\n or the folder it is in.", "Update failed");
+                return false;
             }
         }
     }
