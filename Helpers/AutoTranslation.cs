@@ -39,7 +39,8 @@ namespace HousePartyTranslator.Helpers
             AutoTranslationImpl(data, LanguageCode.FromString(templateLanguage), LanguageCode.FromString(targetLanguage), OnCompletion);
         }
 
-        private static async void AutoTranslationImpl(LineData data, LanguageCode langCodeTemplate, LanguageCode langCodeTranslation, TranslationCopmpletedCallback OnError)
+        private static async void AutoTranslationImpl(LineData data, LanguageCode langCodeTemplate, LanguageCode langCodeTranslation, TranslationCopmpletedCallback OnCompletion
+            )
         {
             try
             {
@@ -55,12 +56,12 @@ namespace HousePartyTranslator.Helpers
                 if (result.Length > 0)
                 {
                     data.TranslationString = result;
-                    OnError(true, data);
+                    OnCompletion(true, data);
                 }
             }
             catch
             {
-                OnError(false, data);
+                OnCompletion(false, data);
             }
         }
     }
