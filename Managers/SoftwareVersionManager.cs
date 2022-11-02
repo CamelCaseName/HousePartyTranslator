@@ -27,6 +27,7 @@ namespace HousePartyTranslator.Managers
             DoWork();
         }
 
+        //todo compartmentalize
         private static async void DoWork()
         {
             //get data from github about the packages 

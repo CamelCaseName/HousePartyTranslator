@@ -44,7 +44,6 @@ namespace HousePartyTranslator.Managers
 
         public FileData TranslationData = new FileData();
         public bool UpdateStoryExplorerSelection = true;
-        private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
         private static Fenster MainWindow;
         private string fileName = "";
         private bool isSaveAs = false;
@@ -98,7 +97,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Provides the id of the currently selected line
         /// </summary>
-        public string SelectedId { get { return helper.CheckListBoxLeft.SelectedItem.ToString(); } }
+        public string SelectedId { get { return helper.CheckListBoxLeft.SelectedItem?.ToString() ?? helper.CheckListBoxLeft.Items[0].ToString(); } }
 
         /// <summary>
         /// The Language of the current translation.
@@ -496,8 +495,7 @@ namespace HousePartyTranslator.Managers
                     helper.TranslationTextBox.Text = TranslationData[SelectedId].TranslationString.Replace("\n", Environment.NewLine);
 
                     //translate if useful and possible
-                    if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[SelectedId].IsTranslated && !TranslationData[SelectedId].IsApproved && helper.TemplateTextBox.Text.Length > 0)
-                        ReplaceTranslationTranslatedTask(SelectedId);
+                    ConvenienceAutomaticTranslation();
 
                     //mark text if similar to english (not translated yet)
                     MarkSimilarLine(currentIndex);
@@ -517,6 +515,10 @@ namespace HousePartyTranslator.Managers
                     int t = helper.CheckListBoxLeft.SearchResults.IndexOf(currentIndex);
                     if (t >= 0) { SelectedSearchResult = t; }
                 }
+            }
+            else
+            {
+                if (helper.CheckListBoxLeft.Items.Count > 0) helper.CheckListBoxLeft.SelectedIndex = 0;
             }
             UpdateApprovedCountLabel(helper.CheckListBoxLeft.CheckedIndices.Count, helper.CheckListBoxLeft.Items.Count);
             MainWindow.Cursor = Cursors.Default;
@@ -575,38 +577,50 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// eplaces the template version of the string with a computer translated one to speed up translation.
+        /// replaces the template version of the string with a computer translated one to speed up translation.
         /// </summary>
-        /// <param name="currentIndex">The selected index of the string not yet translated</param>
-        public async void ReplaceTranslationTranslatedTask(string currentId)
+        public void RequestedAutomaticTranslation()
         {
-            if (Properties.Settings.Default.autoTranslate)
+            AutoTranslation.AutoTranslationAsync(TranslationData[SelectedId], Language, AutoTranslationCallback);
+        }
+
+        /// <summary>
+        /// replaces the template version of the string with a computer translated one to speed up translation, but only if no human input has been given on the new line so far.
+        /// </summary>
+        private void ConvenienceAutomaticTranslation()
+        {
+            if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[SelectedId].IsTranslated && !TranslationData[SelectedId].IsApproved && helper.TemplateTextBox.Text.Length > 0) 
+                AutoTranslation.AutoTranslationAsync(TranslationData[SelectedId], Language, ConvenienceTranslationCallback);
+        }
+
+        private void AutoTranslationCallback(bool successfull, LineData data)
+        {
+            if (successfull)
             {
-                try
+                TranslationData[data.ID] = data;
+                ReloadTranslationTextbox();
+            }
+                else
+            {
+                if (Msg.WarningYesNoB("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation"))
                 {
-                    string result = "";
-                    result = await Translator.TranslateAsync(new Translate()
-                    {
-                        ApiKey = "",
-                        Source = LanguageCode.English,
-                        Target = LanguageCode.FromString(Language),
-                        Text = TranslationData[currentId].TemplateString
-                    });
-                    if (result.Length > 0)
-                    {
-                        TranslationData[currentId].TranslationString = result;
-                        if (currentId == SelectedId && helper.TranslationTextBox.Text == helper.TemplateTextBox.Text)
-                        {
-                            helper.TranslationTextBox.Text = TranslationData[currentId].TranslationString;
-                        }
-                    }
+                    Properties.Settings.Default.autoTranslate = false;
                 }
-                catch
+            }
+        }
+
+        private void ConvenienceTranslationCallback(bool successfull, LineData data)
+        {
+            if (successfull && TranslationData[data.ID].TranslationString == data.TemplateString && TranslationData[data.ID].TranslationString.Length == 0)
+            {
+                TranslationData[data.ID] = data;
+                ReloadTranslationTextbox();
+            }
+            else
+            {
+                if (Msg.WarningYesNoB("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation"))
                 {
-                    if (Msg.WarningYesNoB("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation"))
-                    {
-                        Properties.Settings.Default.autoTranslate = false;
-                    }
+                    Properties.Settings.Default.autoTranslate = false;
                 }
             }
         }
@@ -975,7 +989,7 @@ namespace HousePartyTranslator.Managers
             helper.TranslationTextBox.Text.Replace('|', ' ');
             TranslationData[SelectedId].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
             UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
-            if(!selectedNew)ChangesPending = true;
+            if (!selectedNew) ChangesPending = true;
             else selectedNew = false;
         }
 
