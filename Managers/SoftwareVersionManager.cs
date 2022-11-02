@@ -1,13 +1,10 @@
 ﻿using HousePartyTranslator.Helpers;
 using SevenZipNET;
 using System;
-using System.Deployment.Application;
 using System.IO;
 using System.Net.Http;
-using System.Runtime.Remoting.Messaging;
 using System.Text.Json;
 using System.Windows.Forms;
-using Ubiety.Dns.Core;
 
 namespace HousePartyTranslator.Managers
 {

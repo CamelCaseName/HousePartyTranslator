@@ -198,19 +198,19 @@ namespace HousePartyTranslator.Managers
 
                 //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
                 case (Keys.Control | Keys.Delete):
-                    return TabManager.ActiveTranslationManager.DeleteCharactersInText(false);
+                    return Utils.DeleteCharactersInText(parent, false);
 
                 //ripple delete all alphanumerical chars to the left of the cursor
                 case (Keys.Control | Keys.Back):
-                    return TabManager.ActiveTranslationManager.DeleteCharactersInText(true);
+                    return Utils.DeleteCharactersInText(parent, true);
 
                 //move cursor to the left, clinging to words
                 case (Keys.Control | Keys.Left):
-                    return TabManager.ActiveTranslationManager.MoveCursorInText(true);
+                    return Utils.MoveCursorInText(parent, true);
 
                 //move cursor to the right, clinging to words
                 case (Keys.Control | Keys.Right):
-                    return TabManager.ActiveTranslationManager.MoveCursorInText(false);
+                    return Utils.MoveCursorInText(parent, false);
 
                 case Keys.Control | Keys.O:
                     OpenNew(presence);

@@ -316,67 +316,6 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        //todo move somewhere else, has nothing to do with translations
-        /// <summary>
-        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
-        /// </summary>
-        /// <param name="toLeft">true if deleting to the left</param>
-        /// <returns>true if successfull</returns>
-        public bool DeleteCharactersInText(bool toLeft)
-        {
-            if (MainWindow.ContainsFocus)
-            {
-                Control focused_control = MainWindow.ActiveControl;
-                try
-                {
-                    TextBox _ = (TextBox)focused_control;
-                }
-                //ignore exception, really intended
-                catch { return false; }
-                TextBox textBox = (TextBox)focused_control;
-                if (toLeft)
-                {
-                    return textBox.DeleteCharactersInTextLeft();
-                }
-                else
-                {
-                    return textBox.DeleteCharactersInTextRight();
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Moves the cursor to the beginning/end of the next word in the specified direction
-        /// </summary>
-        /// <param name="toLeft">true if to scan to the left</param>
-        /// <returns>true if succeeded</returns>
-        public bool MoveCursorInText(bool toLeft)
-        {
-            if (MainWindow.ContainsFocus)
-            {
-                Control focused_control = MainWindow.ActiveControl;
-                try
-                {
-                    TextBox _ = (TextBox)focused_control;
-                }
-                //ignore exception, really intended
-                catch { return false; }
-                TextBox textBox = (TextBox)focused_control;
-                if (toLeft)
-                {
-                    textBox.MoveCursorWordLeft();
-                    return true;
-                }
-                else
-                {
-                    textBox.MoveCursorWordRight();
-                    return true;
-                }
-            }
-            return false;
-        }
-
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>

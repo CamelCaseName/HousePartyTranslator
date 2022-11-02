@@ -474,6 +474,66 @@ namespace HousePartyTranslator.Helpers
 
             return newTab;
         }
+
+        /// <summary>
+        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
+        /// </summary>
+        /// <param name="toLeft">true if deleting to the left</param>
+        /// <returns>true if successfull</returns>
+        public static bool DeleteCharactersInText(Form form, bool toLeft)
+        {
+            if (form.ContainsFocus)
+            {
+                Control focused_control = form.ActiveControl;
+                try
+                {
+                    TextBox _ = (TextBox)focused_control;
+                }
+                //ignore exception, really intended
+                catch { return false; }
+                TextBox textBox = (TextBox)focused_control;
+                if (toLeft)
+                {
+                    return textBox.DeleteCharactersInTextLeft();
+                }
+                else
+                {
+                    return textBox.DeleteCharactersInTextRight();
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Moves the cursor to the beginning/end of the next word in the specified direction
+        /// </summary>
+        /// <param name="toLeft">true if to scan to the left</param>
+        /// <returns>true if succeeded</returns>
+        public static bool MoveCursorInText(Form form, bool toLeft)
+        {
+            if (form.ContainsFocus)
+            {
+                Control focused_control = form.ActiveControl;
+                try
+                {
+                    TextBox _ = (TextBox)focused_control;
+                }
+                //ignore exception, really intended
+                catch { return false; }
+                TextBox textBox = (TextBox)focused_control;
+                if (toLeft)
+                {
+                    textBox.MoveCursorWordLeft();
+                    return true;
+                }
+                else
+                {
+                    textBox.MoveCursorWordRight();
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     internal struct CategorizedLines
