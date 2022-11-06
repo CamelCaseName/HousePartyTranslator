@@ -44,7 +44,7 @@ namespace HousePartyTranslator.Helpers
             try
             {
                 string result = "";
-                var task = Translator.TranslateAsync(new Translate()
+                System.Threading.Tasks.Task<string> task = Translator.TranslateAsync(new Translate()
                 {
                     ApiKey = "",
                     Source = langCodeTemplate,

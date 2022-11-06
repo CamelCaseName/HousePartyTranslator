@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Windows.Forms;
-using HousePartyTranslator.Managers;
-using System.Reflection;
 using System.Globalization;
+using System.Reflection;
+using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
@@ -44,19 +43,19 @@ namespace HousePartyTranslator
             var executingAssembly = Assembly.GetExecutingAssembly();
             var assemblyName = new AssemblyName(args.Name);
 
-            var path = assemblyName.Name + ".dll";
+            string path = assemblyName.Name + ".dll";
             if (!assemblyName.CultureInfo.Equals(CultureInfo.InvariantCulture))
             {
                 path = $"{assemblyName.CultureInfo}\\${path}";
             }
 
-            using (var stream = executingAssembly.GetManifestResourceStream(path))
+            using (System.IO.Stream stream = executingAssembly.GetManifestResourceStream(path))
             {
                 if (stream == null)
                     return null;
 
-                var assemblyRawBytes = new byte[stream.Length];
-                stream.Read(assemblyRawBytes, 0, assemblyRawBytes.Length);
+                byte[] assemblyRawBytes = new byte[stream.Length];
+                _ = stream.Read(assemblyRawBytes, 0, assemblyRawBytes.Length);
                 return Assembly.Load(assemblyRawBytes);
             }
         }

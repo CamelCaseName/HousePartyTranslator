@@ -40,8 +40,8 @@ namespace HousePartyTranslator.Helpers
         /// <param name="TranslationTextBox">The textbox containing the translation</param>
         /// <param name="ReplaceButton"></param>
         public PropertyHelper(
-            CheckBox ApprovedBox, 
-            ColouredCheckedListBox CheckListBoxLeft, 
+            CheckBox ApprovedBox,
+            ColouredCheckedListBox CheckListBoxLeft,
             ToolStripComboBox LanguageBox,
             Label ApprovedCountLabel,
             Label CharacterCountLabel,

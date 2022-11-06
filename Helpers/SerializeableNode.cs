@@ -21,7 +21,7 @@ namespace HousePartyTranslator.Helpers
 
         public static explicit operator SerializeableNode(Node v)
         {
-            SerializeableNode node = new SerializeableNode
+            var node = new SerializeableNode
             {
                 ChildsVisited = v.ChildsVisited,
                 Guid = v.Guid,

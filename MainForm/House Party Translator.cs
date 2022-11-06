@@ -2,7 +2,6 @@
 using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -180,7 +179,7 @@ namespace HousePartyTranslator
         private void SearchToolStripMenuItem_click(object sender, EventArgs e)
         {
             searchToolStripTextBox.Focus();
-            if(searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "search here";
+            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "search here";
         }
 
         /// <summary>
@@ -312,7 +311,7 @@ namespace HousePartyTranslator
 
         private void SaveAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TabManager.SaveAllTabs();
+            _ = TabManager.SaveAllTabs();
         }
 
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)

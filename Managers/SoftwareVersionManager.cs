@@ -51,7 +51,7 @@ namespace HousePartyTranslator.Managers
                 if (!UpdateFile(oldFile, newFile)) return;
 
                 //inform user
-                Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
+                _ = Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
 
                 //exit
                 Application.Exit();
@@ -100,7 +100,7 @@ namespace HousePartyTranslator.Managers
                 using (Stream stream = await client.GetStreamAsync(downloadUrl))
                 {
                     //stream to the file on dis
-                    using (FileStream fileStream = new FileStream(newFile, FileMode.Create))
+                    using (var fileStream = new FileStream(newFile, FileMode.Create))
                     {
                         //copy data to file on disk
                         await stream.CopyToAsync(fileStream);
@@ -110,7 +110,7 @@ namespace HousePartyTranslator.Managers
             catch (System.UnauthorizedAccessException e)
             {
                 LogManager.Log(e.ToString(), LogManager.Level.Error);
-                Msg.ErrorOk($"The update failed because the program could not access\n   {newFile}\n or the folder it is in.", "Update failed");
+                _ = Msg.ErrorOk($"The update failed because the program could not access\n   {newFile}\n or the folder it is in.", "Update failed");
                 return;
             }
         }
@@ -122,7 +122,7 @@ namespace HousePartyTranslator.Managers
             File.Move(Application.ExecutablePath, oldFile);
 
             //extract file to our current location and replace
-            SevenZipExtractor extractor = new SevenZipExtractor(newFile);
+            var extractor = new SevenZipExtractor(newFile);
             try
             {
                 extractor.ExtractAll(Directory.GetCurrentDirectory(), true, true);
@@ -134,7 +134,7 @@ namespace HousePartyTranslator.Managers
                 //move currently running back because something broke
                 File.Move(oldFile, Application.ExecutablePath);
                 if (File.Exists(oldFile)) File.Delete(oldFile);
-                Msg.ErrorOk($"The update failed because the program could not access\n   {Directory.GetCurrentDirectory()}\n or the folder it is in.", "Update failed");
+                _ = Msg.ErrorOk($"The update failed because the program could not access\n   {Directory.GetCurrentDirectory()}\n or the folder it is in.", "Update failed");
                 return false;
             }
         }

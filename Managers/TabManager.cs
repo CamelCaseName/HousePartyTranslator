@@ -70,8 +70,8 @@ namespace HousePartyTranslator.Managers
                     {
                         //remove manager for the tab, save first
                         ActiveTranslationManager.SaveFile();
-                        translationManagers.Remove(TabControl.TabPages[ix]);
-                        properties.Remove(TabControl.TabPages[ix]);
+                        _ = translationManagers.Remove(TabControl.TabPages[ix]);
+                        _ = properties.Remove(TabControl.TabPages[ix]);
 
                         TabControl.TabPages[ix].Dispose();
                         break;
@@ -128,7 +128,7 @@ namespace HousePartyTranslator.Managers
                 TabControl.SelectedTab = newTab;
                 //create support dict
                 properties.Add(newTab, CreateActivePropertyHelper());
-                TranslationManager t = new TranslationManager(ActiveProperties);
+                var t = new TranslationManager(ActiveProperties);
                 translationManagers.Add(newTab, t);
 
                 //call startup for new translationmanager
@@ -180,7 +180,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="title">The title to set</param>
         public static void UpdateTabTitle(TranslationManager manager, string title)
         {
-            foreach (var tab in translationManagers.Keys)
+            foreach (TabPage tab in translationManagers.Keys)
             {
                 if (translationManagers[tab] == manager)
                 {
@@ -236,12 +236,12 @@ namespace HousePartyTranslator.Managers
         {
             if (TabControl.TabCount >= 1)
             {
-                int oldSelection = TabControl.SelectedIndex; 
+                int oldSelection = TabControl.SelectedIndex;
                 //save all tabs
                 foreach (TabPage tab in TabControl.TabPages)
                 {
                     if (translationManagers[tab].ChangesPending)
-                    TabControl.SelectedTab = tab;
+                        TabControl.SelectedTab = tab;
                     translationManagers[tab].SaveFile();
                 }
                 TabControl.SelectedIndex = oldSelection;

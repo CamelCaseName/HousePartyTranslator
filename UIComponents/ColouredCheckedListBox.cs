@@ -31,7 +31,7 @@ namespace HousePartyTranslator.Helpers
         /// <param name="e">The DrawItemEventArgs which will be manipulated</param>
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            DrawItemEventArgs e2 =
+            var e2 =
                 new DrawItemEventArgs
                 (
                     e.Graphics,
@@ -65,7 +65,7 @@ namespace HousePartyTranslator.Helpers
                 short y = BitConverter.ToInt16(bytes, 2);
 
                 //create point from cursor pos. low word is x, high word is y
-                Point CursorPosition = new Point(x, y);
+                var CursorPosition = new Point(x, y);
 
                 //if a new item would be selected, we can do that. or if the cursor is on one of the check marks. but else we do nothing
                 if (SelectedIndex != IndexFromPoint(CursorPosition) || x < 14)

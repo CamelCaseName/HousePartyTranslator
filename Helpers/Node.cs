@@ -134,7 +134,7 @@ namespace HousePartyTranslator.Helpers
 
         public static List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
         {
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
 
             //convert all nodes
             foreach (SerializeableNode serialNode in listToConvert)
@@ -216,7 +216,7 @@ namespace HousePartyTranslator.Helpers
 
             foreach (IEvent _event in _events)
             {
-                Node nodeEvent = new Node(_event.Id, NodeType.Event, _event.Value, this);
+                var nodeEvent = new Node(_event.Id, NodeType.Event, _event.Value, this);
 
                 nodeEvent.AddCriteria(_event.Criteria);
 
@@ -257,7 +257,7 @@ namespace HousePartyTranslator.Helpers
         {
             if (ChildNodes.Contains(childNode))
             {
-                ChildNodes.Remove(childNode);
+                _ = ChildNodes.Remove(childNode);
             }
         }
 
@@ -265,7 +265,7 @@ namespace HousePartyTranslator.Helpers
         {
             if (ParentNodes.Contains(parentNode))
             {
-                ParentNodes.Remove(parentNode);
+                _ = ParentNodes.Remove(parentNode);
             }
         }
 
