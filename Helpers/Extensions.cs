@@ -258,5 +258,35 @@ namespace HousePartyTranslator.Helpers
             }
             return toTrim.Length > length ? toTrim.Substring(0, length).Trim() + delimiter : toTrim;
         }
+
+        /// <summary>
+        /// Returns the string representatio of a category.
+        /// </summary>
+        /// <param name="type">The Category to parse.</param>
+        /// <returns>The string representing the category.</returns>
+        public static StringCategory AsStringCategory(this NodeType type)
+        {
+            return Utils.CategoryFromNode(type);
+        }
+
+        /// <summary>
+        /// Tries to parse a line into the category it indicates.
+        /// </summary>
+        /// <param name="line">The line to parse.</param>
+        /// <returns>The category representing the string, or none.</returns>
+        public static StringCategory AsCategory(this string input)
+        {
+            return Utils.GetCategoryFromString(input);
+        }
+
+        /// <summary>
+        /// Returns the string representation of a category.
+        /// </summary>
+        /// <param name="category">The Category to parse.</param>
+        /// <returns>The string representing the category.</returns>
+        public static string AsString(this StringCategory category)
+        {
+            return Utils.GetStringFromCategory(category);
+        }
     }
 }

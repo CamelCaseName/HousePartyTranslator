@@ -98,7 +98,6 @@ namespace HousePartyTranslator.Managers
                     explorerParent.UseWaitCursor = false;
                     return null;
                 }
-
             }
             catch (OperationCanceledException)
             {

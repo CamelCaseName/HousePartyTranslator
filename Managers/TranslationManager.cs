@@ -214,10 +214,10 @@ namespace HousePartyTranslator.Managers
                             {
                                 //filter out irrelevant nodes
                                 if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) && nodes[i].Type == NodeType.Event)
-                                    && Utils.CategoryFromNode(nodes[i].Type) != StringCategory.Neither
+                                    && nodes[i].Type.AsStringCategory() != StringCategory.Neither
                                     && nodes[i].ID != "")
                                 {
-                                    templates.Add(nodes[i].ID, new LineData(nodes[i].ID, story, FileName, Utils.CategoryFromNode(nodes[i].Type), nodes[i].Text, true));
+                                    templates.Add(nodes[i].ID, new LineData(nodes[i].ID, story, FileName, nodes[i].Type.AsStringCategory(), nodes[i].Text, true));
                                 }
                             }
 
@@ -615,7 +615,7 @@ namespace HousePartyTranslator.Managers
             foreach (var CategorizedLines in CategorizedStrings)
             {
                 //write category if it has any lines, else we skip the category
-                if (CategorizedLines.lines.Count > 0) OutputWriter.WriteLine(GetStringFromCategory(CategorizedLines.category));
+                if (CategorizedLines.lines.Count > 0) OutputWriter.WriteLine(CategorizedLines.category.AsString());
                 else continue;
 
                 //sort strings depending on category
@@ -934,108 +934,6 @@ namespace HousePartyTranslator.Managers
         }
 
         /// <summary>
-        /// Tries to parse a line into the category it indicates.
-        /// </summary>
-        /// <param name="line">The line to parse.</param>
-        /// <returns>The category representing the string, or none.</returns>
-        private StringCategory GetCategoryFromString(string line)
-        {
-            if (line.Contains("["))
-            {
-                if (line == "[General]")
-                {
-                    return StringCategory.General;
-                }
-                else if (line == "[Dialogues]")
-                {
-                    return StringCategory.Dialogue;
-                }
-                else if (line == "[Responses]")
-                {
-                    return StringCategory.Response;
-                }
-                else if (line == "[Quests]")
-                {
-                    return StringCategory.Quest;
-                }
-                else if (line == "[Events]")
-                {
-                    return StringCategory.Event;
-                }
-                else if (line == "[Background Chatter]")
-                {
-                    return StringCategory.BGC;
-                }
-                else if (line == "[Item Names]")
-                {
-                    return StringCategory.ItemName;
-                }
-                else if (line == "[Item Actions]")
-                {
-                    return StringCategory.ItemAction;
-                }
-                else if (line == "[Item Group Actions]")
-                {
-                    return StringCategory.ItemGroupAction;
-                }
-                else if (line == "[Achievements]")
-                {
-                    return StringCategory.Achievement;
-                }
-            }
-            return StringCategory.Neither;
-        }
-
-        /// <summary>
-        /// Returns the string representatio of a category.
-        /// </summary>
-        /// <param name="category">The Category to parse.</param>
-        /// <returns>The string representing the category.</returns>
-        private string GetStringFromCategory(StringCategory category)
-        {
-            switch (category)
-            {
-                case StringCategory.General:
-                    return "[General]";
-
-                case StringCategory.Dialogue:
-                    return "[Dialogues]";
-
-                case StringCategory.Response:
-                    return "[Responses]";
-
-                case StringCategory.Quest:
-                    return "[Quests]";
-
-                case StringCategory.Event:
-                    return "[Events]";
-
-                case StringCategory.BGC:
-                    return "[Background Chatter]";
-
-                case StringCategory.ItemName:
-                    return "[Item Names]";
-
-                case StringCategory.ItemAction:
-                    return "[Item Actions]";
-
-                case StringCategory.ItemGroupAction:
-                    return "[Item Group Actions]";
-
-                case StringCategory.Achievement:
-                    return "[Achievements]";
-
-                case StringCategory.Neither:
-                    //do nothing hehehehe
-                    return "";
-
-                default:
-                    //do nothing hehehehe
-                    return "";
-            }
-        }
-
-        /// <summary>
         /// Reads all files in all subfolders below the given path.
         /// </summary>
         /// <param name="folderPath">The path to the folder to find all files in (iterative).</param>
@@ -1264,7 +1162,7 @@ namespace HousePartyTranslator.Managers
                 }
                 else
                 {
-                    StringCategory tempCategory = GetCategoryFromString(line);
+                    StringCategory tempCategory = line.AsCategory();
                     if (tempCategory == StringCategory.Neither)
                     {
                         //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
@@ -1366,7 +1264,7 @@ namespace HousePartyTranslator.Managers
                 }
                 else
                 {
-                    StringCategory tempCategory = GetCategoryFromString(line);
+                    StringCategory tempCategory = line.AsCategory();
                     if (tempCategory == StringCategory.Neither)
                     {
                         //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)

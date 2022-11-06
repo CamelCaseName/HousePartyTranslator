@@ -158,6 +158,108 @@ namespace HousePartyTranslator.Helpers
         }
 
         /// <summary>
+        /// Tries to parse a line into the category it indicates.
+        /// </summary>
+        /// <param name="line">The line to parse.</param>
+        /// <returns>The category representing the string, or none.</returns>
+        public static StringCategory GetCategoryFromString(string line)
+        {
+            if (line.Contains("["))
+            {
+                if (line == "[General]")
+                {
+                    return StringCategory.General;
+                }
+                else if (line == "[Dialogues]")
+                {
+                    return StringCategory.Dialogue;
+                }
+                else if (line == "[Responses]")
+                {
+                    return StringCategory.Response;
+                }
+                else if (line == "[Quests]")
+                {
+                    return StringCategory.Quest;
+                }
+                else if (line == "[Events]")
+                {
+                    return StringCategory.Event;
+                }
+                else if (line == "[Background Chatter]")
+                {
+                    return StringCategory.BGC;
+                }
+                else if (line == "[Item Names]")
+                {
+                    return StringCategory.ItemName;
+                }
+                else if (line == "[Item Actions]")
+                {
+                    return StringCategory.ItemAction;
+                }
+                else if (line == "[Item Group Actions]")
+                {
+                    return StringCategory.ItemGroupAction;
+                }
+                else if (line == "[Achievements]")
+                {
+                    return StringCategory.Achievement;
+                }
+            }
+            return StringCategory.Neither;
+        }
+
+        /// <summary>
+        /// Returns the string representatio of a category.
+        /// </summary>
+        /// <param name="category">The Category to parse.</param>
+        /// <returns>The string representing the category.</returns>
+        public static string GetStringFromCategory(StringCategory category)
+        {
+            switch (category)
+            {
+                case StringCategory.General:
+                    return "[General]";
+
+                case StringCategory.Dialogue:
+                    return "[Dialogues]";
+
+                case StringCategory.Response:
+                    return "[Responses]";
+
+                case StringCategory.Quest:
+                    return "[Quests]";
+
+                case StringCategory.Event:
+                    return "[Events]";
+
+                case StringCategory.BGC:
+                    return "[Background Chatter]";
+
+                case StringCategory.ItemName:
+                    return "[Item Names]";
+
+                case StringCategory.ItemAction:
+                    return "[Item Actions]";
+
+                case StringCategory.ItemGroupAction:
+                    return "[Item Group Actions]";
+
+                case StringCategory.Achievement:
+                    return "[Achievements]";
+
+                case StringCategory.Neither:
+                    //do nothing hehehehe
+                    return "";
+
+                default:
+                    //do nothing hehehehe
+                    return "";
+            }
+        }
+
+        /// <summary>
         /// Creates a new tab with all default controls
         /// </summary>
         /// <param name="number">the number of the tab starting at 1, is only used for name and text</param>
