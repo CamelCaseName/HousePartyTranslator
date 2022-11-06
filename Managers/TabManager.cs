@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-
 namespace HousePartyTranslator.Managers
 {
     internal static class TabManager
@@ -84,6 +83,8 @@ namespace HousePartyTranslator.Managers
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tabPage1">The initial tab</param>
+        /// <param name="presenceManager"></param>
+        /// <param name="main"></param>
         public static TranslationManager Initialize(TabPage tabPage1, DiscordPresenceManager presenceManager, Fenster main)
         {
             Main = main;

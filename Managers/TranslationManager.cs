@@ -1,5 +1,4 @@
 ﻿using HousePartyTranslator.Helpers;
-using LibreTranslate.Net;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -204,10 +203,11 @@ namespace HousePartyTranslator.Managers
                             //remove old lines from server
                             DataBase.RemoveOldTemplates(FileName, story);
 
-                            FileData templates = new FileData();
-
-                            //add name as first template (its not in the file)
-                            templates.Add("Name", new LineData("Name", story, FileName, StringCategory.General, FileName));
+                            FileData templates = new FileData
+                            {
+                                //add name as first template (its not in the file)
+                                { "Name", new LineData("Name", story, FileName, StringCategory.General, FileName) }
+                            };
 
                             //Add all new lines, but check if they are relevant
                             for (int i = 0; i < nodes.Count; i++)
@@ -242,7 +242,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Depending on the cursor location the line is approved or not (on checkbox or not).
         /// </summary>
-        /// <param name="FensterRef">The window of type fenster</param>
         public void ApprovedButtonHandler()
         {
             //change checked state for the selected item,
@@ -328,6 +327,7 @@ namespace HousePartyTranslator.Managers
         /// Loads a file into the program and calls all helper routines
         /// </summary>
         /// <param name="path">The path to the file to translate</param>
+        /// <param name="presenceManager"></param>
         public void LoadFileIntoProgram(string path, DiscordPresenceManager presenceManager)
         {
             if (path.Length > 0)
@@ -1551,7 +1551,6 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
         /// </summary>
-        /// <param name="helper">A Propertyhelper to get access to the form controls.</param>
         public void SetHighlightedNode()
         {
             if (TranslationData.Count > 0)

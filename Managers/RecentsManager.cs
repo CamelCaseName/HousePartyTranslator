@@ -87,7 +87,6 @@ namespace HousePartyTranslator.Managers
         /// Sets the given path as the most recently opened file
         /// </summary>
         /// <param name="filepath">The path to set as most recent</param>
-        /// <param name="index">The index of the last selected line</param>
         public static void SetMostRecent(string filepath)
         {//if we dont ignore recents, keep number near 0 so we dont underflow
             if (ignorenextRecents-- <= 0)

@@ -151,7 +151,6 @@ namespace HousePartyTranslator.Managers
         /// <param name="fileName">The name of the file read from without the extension.</param>
         /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
         /// <param name="LineDataList">A list of all ids and categorys in LineData objects.</param>
-        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
         /// <returns>
         /// True if ids are found for this file.
         /// </returns>
@@ -376,10 +375,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Set the english template for string in the database.
         /// </summary>
-        /// <param name="id"> The id of that string as found in the file before the "|".</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="template">The template for the given id.</param>
+        /// <param name="lines">FileData object with the relevant info</param>
         /// <returns>
         /// True if exactly one row was set, false if it was not the case.
         /// </returns>
@@ -428,14 +424,9 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Sets the translation of a string in the database in the given language.
         /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="translation">The translation of the string with the given id.</param>
+        /// <param name="lineData">LineData with the lines to update<param>
         /// <param name="language">The translated language in ISO 639-1 notation.</param>
-        /// <returns>
-        /// True if at least one row was set, false if it was not the case.
-        /// </returns>
+        /// <returns> True if at least one row was set, false if it was not the case.</returns>
         public static bool UpdateTranslation(LineData lineData, string language)
         {
             string comment = "";
@@ -465,8 +456,6 @@ namespace HousePartyTranslator.Managers
         /// Updates all translated strings for the selected file
         /// </summary>
         /// <param name="translationData">A list of all loaded lines for this file</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="storyName">The name of the story the file is from, should be the name of the parent folder.</param>
         /// <param name="language">The translated language in ISO 639-1 notation.</param>
         /// <returns></returns>
         public static bool UpdateTranslations(FileData translationData, string language)

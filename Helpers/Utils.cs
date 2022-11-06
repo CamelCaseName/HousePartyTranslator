@@ -119,6 +119,11 @@ namespace HousePartyTranslator.Helpers
             return "";
         }
 
+        /// <summary>
+        /// Gets the category of a node from a node type
+        /// </summary>
+        /// <param name="type">the type to get the stringcategory form</param>
+        /// <returns>the corresponding stringcategory</returns>
         public static StringCategory CategoryFromNode(NodeType type)
         {
             switch (type)
@@ -156,6 +161,7 @@ namespace HousePartyTranslator.Helpers
         /// Creates a new tab with all default controls
         /// </summary>
         /// <param name="number">the number of the tab starting at 1, is only used for name and text</param>
+        /// <param name="form"></param>
         /// <returns>a TabPage with all controls as child controls</returns>
         public static TabPage CreateNewTab(int number, Fenster form)
         {
@@ -478,6 +484,7 @@ namespace HousePartyTranslator.Helpers
         /// <summary>
         /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
         /// </summary>
+        /// <param name="form"></param>
         /// <param name="toLeft">true if deleting to the left</param>
         /// <returns>true if successfull</returns>
         public static bool DeleteCharactersInText(Form form, bool toLeft)
@@ -507,6 +514,7 @@ namespace HousePartyTranslator.Helpers
         /// <summary>
         /// Moves the cursor to the beginning/end of the next word in the specified direction
         /// </summary>
+        /// <param name="form"></param>
         /// <param name="toLeft">true if to scan to the left</param>
         /// <returns>true if succeeded</returns>
         public static bool MoveCursorInText(Form form, bool toLeft)
