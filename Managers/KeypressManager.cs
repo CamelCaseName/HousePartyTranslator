@@ -140,7 +140,7 @@ namespace HousePartyTranslator.Managers
 
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
-                    TabManager.ActiveTranslationManager.ToggleReplaceUI();
+                    ToggleReplaceUI();
                     return true;
 
                 //save current file
@@ -339,6 +339,11 @@ namespace HousePartyTranslator.Managers
         {
             SettingsForm.SettingsForm settings = new SettingsForm.SettingsForm();
             if (!settings.IsDisposed) settings.Show();
+        }
+
+        static public void ToggleReplaceUI()
+        {
+            TabManager.ActiveTranslationManager.ToggleReplaceUI();
         }
 
         static public void TranslationTextChanged()

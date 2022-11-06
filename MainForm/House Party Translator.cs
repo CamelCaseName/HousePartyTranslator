@@ -166,6 +166,23 @@ namespace HousePartyTranslator
             KeypressManager.AutoTranslate();
         }
 
+        private void ReplaceToolStripMenuItem_click(object sender, EventArgs e)
+        {
+            KeypressManager.ToggleReplaceUI();
+        }
+
+        private void SearchAllToolStripMenuItem_click(object sender, EventArgs e)
+        {
+            searchToolStripTextBox.Focus();
+            searchToolStripTextBox.Text = "?search here";
+        }
+
+        private void SearchToolStripMenuItem_click(object sender, EventArgs e)
+        {
+            searchToolStripTextBox.Focus();
+            searchToolStripTextBox.Text = "search here";
+        }
+
         /// <summary>
         /// Override to intercept the Keystrokes windows sends us.
         /// </summary>

@@ -1,4 +1,5 @@
 ﻿using HousePartyTranslator.Helpers;
+using System;
 using System.Runtime.Remoting.Messaging;
 
 namespace HousePartyTranslator
@@ -17,11 +18,15 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openInNewTabToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem Recents;
         private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem searchAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem replaceToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
@@ -60,12 +65,13 @@ namespace HousePartyTranslator
 
         /// <summary>
         /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
+        /// the contents of this method with the code editor. - fuck you designer -
         /// </summary>
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Fenster));
             this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
@@ -75,12 +81,15 @@ namespace HousePartyTranslator
             this.openAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openInNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.overrideCloudSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.Recents = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.searchAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.searchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.replaceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveCurrentStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.overrideCloudSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -100,6 +109,7 @@ namespace HousePartyTranslator
             // 
             this.MainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
+            this.editToolStripMenuItem,
             this.saveCurrentStringToolStripMenuItem,
             this.searchToolStripTextBox,
             this.ToolStripMenuReplaceBox,
@@ -127,12 +137,54 @@ namespace HousePartyTranslator
             this.saveToolStripMenuItem,
             this.saveAllToolStripMenuItem,
             this.saveAsToolStripMenuItem,
-            this.overrideCloudSaveToolStripMenuItem,
             this.toolStripSeparator1,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
             this.fileToolStripMenuItem.Text = "&File";
+            this.fileToolStripMenuItem.ToolTipText = "All relevant controls for opening and saving a file";
+            // 
+            // editToolStripMenuItem
+            // 
+            this.editToolStripMenuItem.BackColor = Fenster.menu;
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.searchToolStripMenuItem,
+            this.searchAllToolStripMenuItem,
+            this.toolStripSeparator,
+            this.replaceToolStripMenuItem,
+            this.toolStripSeparator,
+            this.overrideCloudSaveToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
+            this.editToolStripMenuItem.Text = "&Edit";
+            this.editToolStripMenuItem.ToolTipText = "All relevant controls for editing a file, plus special controls";
+            // 
+            // searchToolStripMenuItem
+            // 
+            this.searchToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.searchToolStripMenuItem.Name = "searchToolStripMenuItem";
+            this.searchToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
+            this.searchToolStripMenuItem.Text = "&Search";
+            this.searchToolStripMenuItem.ToolTipText = "Selects the search bar";
+            this.searchToolStripMenuItem.Click += new System.EventHandler(this.SearchToolStripMenuItem_click);
+            // 
+            // searchAllToolStripMenuItem
+            // 
+            this.searchAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.searchAllToolStripMenuItem.Name = "searchAllToolStripMenuItem";
+            this.searchAllToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
+            this.searchAllToolStripMenuItem.Text = "Search &All";
+            this.searchAllToolStripMenuItem.ToolTipText = "Selects the search bar with the search all open files mode";
+            this.searchAllToolStripMenuItem.Click += new System.EventHandler(this.SearchAllToolStripMenuItem_click);
+            // 
+            // replaceToolStripMenuItem
+            //// 
+            this.replaceToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
+            this.replaceToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
+            this.replaceToolStripMenuItem.Text = "&Replace";
+            this.replaceToolStripMenuItem.ToolTipText = "opens the searchbar in replace mode";
+            this.replaceToolStripMenuItem.Click += new System.EventHandler(this.ReplaceToolStripMenuItem_click);
             // 
             // openToolStripMenuItem
             // 
@@ -293,7 +345,7 @@ namespace HousePartyTranslator
             this.storyExplorerStripMenuItem1.BackColor = Fenster.menu;
             this.storyExplorerStripMenuItem1.Name = "storyExplorerStripMenuItem1";
             this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(118, 23);
-            this.storyExplorerStripMenuItem1.Text = "Auto Story&Explorer";
+            this.storyExplorerStripMenuItem1.Text = "&Auto StoryExplorer";
             this.storyExplorerStripMenuItem1.Click += new System.EventHandler(this.StoryExplorerStripMenuItem_Click);
             // 
             // customOpenStoryExplorer
@@ -309,7 +361,7 @@ namespace HousePartyTranslator
             this.settingsToolStripMenuItem.BackColor = Fenster.menu;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
-            this.settingsToolStripMenuItem.Text = "Settings";
+            this.settingsToolStripMenuItem.Text = "Se&ttings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 
             // tabPage1
