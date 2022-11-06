@@ -1,5 +1,6 @@
 ﻿using HousePartyTranslator.Helpers;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
@@ -231,12 +232,14 @@ namespace HousePartyTranslator.Managers
     {
         readonly FileData oldTranslations, newTranslations;
         readonly TranslationManager manager;
+        readonly string language;
 
         public AllTranslationsChanged(TranslationManager manager, FileData oldTranslations, FileData newTranslations)
         {
             this.oldTranslations = new FileData(oldTranslations);
             this.newTranslations = new FileData(newTranslations);
             this.manager = manager;
+            this.language = TranslationManager.Language;
         }
 
         void ICommand.Do()
@@ -247,7 +250,7 @@ namespace HousePartyTranslator.Managers
                 manager.TranslationData.Add(item.Key, item.Value);
             }
             //update translations also on the database
-            DataBase.UpdateTranslations(newTranslations, manager.Language);
+            DataBase.UpdateTranslations(newTranslations, language);
             manager.ReloadTranslationTextbox();
         }
 
@@ -259,7 +262,7 @@ namespace HousePartyTranslator.Managers
                 manager.TranslationData.Add(item.Key, item.Value);
             }
             //update translations also on the database
-            DataBase.UpdateTranslations(oldTranslations, manager.Language);
+            DataBase.UpdateTranslations(oldTranslations, language);
             manager.ReloadTranslationTextbox();
         }
     }

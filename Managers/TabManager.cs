@@ -1,5 +1,6 @@
 ﻿using HousePartyTranslator.Helpers;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
@@ -141,7 +142,35 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void OpenAllTabs()
         {
-            TranslationManager.LoadAllFilesIntoProgram();
+            string basePath = Utils.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
+
+            if (basePath.Length > 0)
+            {
+                foreach (string path in Directory.GetDirectories(basePath))
+                {
+                    string[] folders = path.Split('\\');
+
+                    //get parent folder name
+                    string tempName = folders[folders.Length - 1];
+                    //get language text representation
+                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string languageAsText);
+                    //compare
+                    if (tempName == languageAsText && gotLanguage)
+                    {
+                        //get foler one more up
+                        basePath = path;
+                        break;
+                    }
+                }
+
+                foreach (string filePath in Directory.GetFiles(basePath))
+                {
+                    if (Path.GetExtension(filePath) == ".txt")
+                    {
+                        OpenInNewTab(filePath);
+                    }
+                }
+            }
         }
 
         /// <summary>

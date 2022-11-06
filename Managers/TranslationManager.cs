@@ -46,7 +46,7 @@ namespace HousePartyTranslator.Managers
         private static Fenster MainWindow;
         private string fileName = "";
         private bool isSaveAs = false;
-        private string language = "";
+        private static string language = "";
         private int searchTabIndex = 0;
         private bool selectedNew = false;
         private string sourceFilePath = "";
@@ -96,12 +96,12 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Provides the id of the currently selected line
         /// </summary>
-        public string SelectedId { get { return helper.CheckListBoxLeft.SelectedItem?.ToString() ?? helper.CheckListBoxLeft.Items[0].ToString(); } }
+        public string SelectedId { get { return helper.CheckListBoxLeft.SelectedItem?.ToString() ?? helper.CheckListBoxLeft.Items[0]?.ToString() ?? "Name"; } }
 
         /// <summary>
         /// The Language of the current translation.
         /// </summary>
-        public string Language
+        public static string Language
         {
             get
             {
@@ -252,42 +252,6 @@ namespace HousePartyTranslator.Managers
                 int Index = helper.CheckListBoxLeft.SelectedIndex;
                 //inverse checked state at the selected index
                 if (Index >= 0) helper.CheckListBoxLeft.SetItemChecked(Index, !helper.CheckListBoxLeft.GetItemChecked(Index));
-            }
-        }
-
-        /// <summary>
-        /// Gets the location of a single file, then tries to discover all others and load them.
-        /// </summary>
-        public static void LoadAllFilesIntoProgram()
-        {
-            string basePath = Utils.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
-
-            if (basePath.Length > 0)
-            {
-                foreach (string path in Directory.GetDirectories(basePath))
-                {
-                    string[] folders = path.Split('\\');
-
-                    //get parent folder name
-                    string tempName = folders[folders.Length - 1];
-                    //get language text representation
-                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(TabManager.ActiveTranslationManager.Language, out string languageAsText);
-                    //compare
-                    if (tempName == languageAsText && gotLanguage)
-                    {
-                        //get foler one more up
-                        basePath = path;
-                        break;
-                    }
-                }
-
-                foreach (string filePath in Directory.GetFiles(basePath))
-                {
-                    if (Path.GetExtension(filePath) == ".txt")
-                    {
-                        TabManager.OpenInNewTab(filePath);
-                    }
-                }
             }
         }
 

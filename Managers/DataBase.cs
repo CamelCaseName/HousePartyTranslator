@@ -529,7 +529,7 @@ namespace HousePartyTranslator.Managers
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId.Substring((story + fileName).Length);
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TabManager.ActiveTranslationManager.Language.Length));
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
         }
 
         /// <summary>

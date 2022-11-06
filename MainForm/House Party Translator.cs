@@ -174,13 +174,13 @@ namespace HousePartyTranslator
         private void SearchAllToolStripMenuItem_click(object sender, EventArgs e)
         {
             searchToolStripTextBox.Focus();
-            searchToolStripTextBox.Text = "?search here";
+            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "?search here";
         }
 
         private void SearchToolStripMenuItem_click(object sender, EventArgs e)
         {
             searchToolStripTextBox.Focus();
-            searchToolStripTextBox.Text = "search here";
+            if(searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "search here";
         }
 
         /// <summary>
