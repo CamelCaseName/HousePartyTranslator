@@ -13,7 +13,7 @@ namespace HousePartyTranslator.Managers
         public static readonly string CFGFOLDER_PATH = Path.Combine(APPDATA_PATH, "HousePartyTranslator");     // Path for program Settings folder
         private static readonly string CFGFILE_PATH = Path.Combine(CFGFOLDER_PATH, "log.txt");   // Path for Settings.txt file
         private static readonly List<string> FileLines = new List<string>();
-        
+
         public enum Level
         {
             Info,
@@ -26,7 +26,7 @@ namespace HousePartyTranslator.Managers
         {
             // Does the folder not exist?
             if (!Directory.Exists(CFGFOLDER_PATH))
-                Directory.CreateDirectory(CFGFOLDER_PATH); // Create the folder
+                _ = Directory.CreateDirectory(CFGFOLDER_PATH); // Create the folder
 
             // Does log.txt not exist?
             if (!File.Exists(CFGFILE_PATH))

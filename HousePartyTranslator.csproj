@@ -262,6 +262,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\AutoTranslation.cs" />
     <Compile Include="Helpers\Characters.cs" />
     <Compile Include="Helpers\ClickedNodeChangeArgs.cs" />
     <Compile Include="Helpers\Extensions.cs" />

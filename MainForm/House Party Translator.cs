@@ -165,6 +165,23 @@ namespace HousePartyTranslator
             KeypressManager.AutoTranslate();
         }
 
+        private void ReplaceToolStripMenuItem_click(object sender, EventArgs e)
+        {
+            KeypressManager.ToggleReplaceUI();
+        }
+
+        private void SearchAllToolStripMenuItem_click(object sender, EventArgs e)
+        {
+            searchToolStripTextBox.Focus();
+            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "?search here";
+        }
+
+        private void SearchToolStripMenuItem_click(object sender, EventArgs e)
+        {
+            searchToolStripTextBox.Focus();
+            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "search here";
+        }
+
         /// <summary>
         /// Override to intercept the Keystrokes windows sends us.
         /// </summary>
@@ -179,8 +196,7 @@ namespace HousePartyTranslator
             }
             else
             {
-                bool temp = base.ProcessCmdKey(ref msg, keyData);
-                return temp;
+                return base.ProcessCmdKey(ref msg, keyData);
             }
         }
 
@@ -295,7 +311,7 @@ namespace HousePartyTranslator
 
         private void SaveAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            TabManager.SaveAllTabs();
+            _ = TabManager.SaveAllTabs();
         }
 
         private void SaveAsToolStripMenuItem_Click(object sender, EventArgs e)

@@ -1,7 +1,6 @@
 ﻿using HousePartyTranslator.Helpers;
 using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -36,10 +35,10 @@ namespace HousePartyTranslator.Managers
             bool wasSuccessfull = false;
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
-            MainCommand.Parameters.AddWithValue("@language", language);
+            _ = MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
+            _ = MainCommand.Parameters.AddWithValue("@language", language);
 
-            CheckOrReopenConnection();
+            _ = CheckOrReopenConnection();
             try
             {
                 MainReader = MainCommand.ExecuteReader();
@@ -90,13 +89,13 @@ namespace HousePartyTranslator.Managers
             }
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
-            if (story != "Hints") MainCommand.Parameters.AddWithValue("@filename", fileName);
-            MainCommand.Parameters.AddWithValue("@story", story);
-            MainCommand.Parameters.AddWithValue("@language", language);
+            if (story != "Hints") _ = MainCommand.Parameters.AddWithValue("@filename", fileName);
+            _ = MainCommand.Parameters.AddWithValue("@story", story);
+            _ = MainCommand.Parameters.AddWithValue("@language", language);
 
             LineDataList = new FileData();
 
-            CheckOrReopenConnection();
+            _ = CheckOrReopenConnection();
             try
             {
                 MainReader = MainCommand.ExecuteReader();
@@ -107,7 +106,7 @@ namespace HousePartyTranslator.Managers
                     {
                         if (!MainReader.IsDBNull(0) & !MainReader.IsDBNull(9))
                         {
-                            var id = CleanId(MainReader.GetString("id"), story, fileName, false);
+                            string id = CleanId(MainReader.GetString("id"), story, fileName, false);
                             var _lineData = new LineData()
                             {
                                 Category = (StringCategory)MainReader.GetInt32("category"),
@@ -135,7 +134,7 @@ namespace HousePartyTranslator.Managers
                 }
                 else
                 {
-                    Msg.WarningOk("Ids can't be loaded", "Info");
+                    _ = Msg.WarningOk("Ids can't be loaded", "Info");
                 }
             }
             finally
@@ -151,7 +150,6 @@ namespace HousePartyTranslator.Managers
         /// <param name="fileName">The name of the file read from without the extension.</param>
         /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
         /// <param name="LineDataList">A list of all ids and categorys in LineData objects.</param>
-        /// <param name="language"> The translated language in ISO 639-1 notation.</param>
         /// <returns>
         /// True if ids are found for this file.
         /// </returns>
@@ -175,10 +173,10 @@ namespace HousePartyTranslator.Managers
             }
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
-            if (story != "Hints") MainCommand.Parameters.AddWithValue("@filename", fileName);
-            MainCommand.Parameters.AddWithValue("@story", story);
+            if (story != "Hints") _ = MainCommand.Parameters.AddWithValue("@filename", fileName);
+            _ = MainCommand.Parameters.AddWithValue("@story", story);
 
-            CheckOrReopenConnection();
+            _ = CheckOrReopenConnection();
             MainReader = MainCommand.ExecuteReader();
             LineDataList = new FileData();
 
@@ -198,7 +196,7 @@ namespace HousePartyTranslator.Managers
             }
             else
             {
-                Msg.WarningOk("Ids can't be loaded", "Info");
+                _ = Msg.WarningOk("Ids can't be loaded", "Info");
                 LogManager.Log("No template ids found for " + story + "/" + fileName);
             }
             MainReader.Close();
@@ -222,7 +220,7 @@ namespace HousePartyTranslator.Managers
                 {
                     Application.UseWaitCursor = false;
                     //Pasword has to be set first time
-                    Password Passwordbox = new Password();
+                    var Passwordbox = new Password();
                     DialogResult passwordResult = Passwordbox.ShowDialog(mainWindow);
                     if (passwordResult == DialogResult.OK)
                     {
@@ -233,7 +231,7 @@ namespace HousePartyTranslator.Managers
                     {
                         if (Passwordbox.GetPassword().Length > 1)
                         {
-                            Msg.ErrorOk("Invalid password", "Wrong password");
+                            _ = Msg.ErrorOk("Invalid password", "Wrong password");
                         }
                         else
                         {
@@ -252,7 +250,7 @@ namespace HousePartyTranslator.Managers
                         if (sqlConnection.State != System.Data.ConnectionState.Open)
                         {
                             //password may have to be changed
-                            Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
+                            _ = Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
                             Application.Exit();
                         }
                         else
@@ -262,7 +260,7 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (MySqlException e)
                     {
-                        Msg.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                        _ = Msg.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                         Application.UseWaitCursor = false;
                         return;
                     }
@@ -283,11 +281,11 @@ namespace HousePartyTranslator.Managers
             //Console.WriteLine("DB opened");
 
             //checking template version
-            MySqlCommand getVersion = new MySqlCommand("SELECT story " +
+            var getVersion = new MySqlCommand("SELECT story " +
                                                        FROM +
                                                        "WHERE ID = \"version\";", sqlConnection);
             MainReader = getVersion.ExecuteReader();
-            MainReader.Read();
+            _ = MainReader.Read();
             DBVersion = MainReader.GetString(0);
             MainReader.Close();
 
@@ -337,7 +335,7 @@ namespace HousePartyTranslator.Managers
             TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
             if (!TranslationManager.IsUpToDate && Properties.Settings.Default.advancedMode)
             {
-                Msg.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
+                _ = Msg.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
                             $" You may acquire the latest version of this program. " +
                             $"If you know that you have newer strings, you may select the template files to upload the new versions!",
                             "Updating string database");
@@ -353,9 +351,9 @@ namespace HousePartyTranslator.Managers
             string command = DELETE + @"WHERE filename = @filename AND story = @story AND SUBSTRING(id, -8) = @templateid";
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@story", story);
-            MainCommand.Parameters.AddWithValue("@fileName", fileName);
-            MainCommand.Parameters.AddWithValue("@templateid", "template");
+            _ = MainCommand.Parameters.AddWithValue("@story", story);
+            _ = MainCommand.Parameters.AddWithValue("@fileName", fileName);
+            _ = MainCommand.Parameters.AddWithValue("@templateid", "template");
 
             //return if at least one row was changed
             return ExecuteOrReOpen(MainCommand);
@@ -366,8 +364,8 @@ namespace HousePartyTranslator.Managers
             string command = DELETE + @"WHERE story = @story AND SUBSTRING(id, -8) = @templateid";
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@story", story);
-            MainCommand.Parameters.AddWithValue("@templateid", "template");
+            _ = MainCommand.Parameters.AddWithValue("@story", story);
+            _ = MainCommand.Parameters.AddWithValue("@templateid", "template");
 
             //return if at least one row was changed
             return ExecuteOrReOpen(MainCommand);
@@ -376,10 +374,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Set the english template for string in the database.
         /// </summary>
-        /// <param name="id"> The id of that string as found in the file before the "|".</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="template">The template for the given id.</param>
+        /// <param name="lines">FileData object with the relevant info</param>
         /// <returns>
         /// True if exactly one row was set, false if it was not the case.
         /// </returns>
@@ -388,18 +383,18 @@ namespace HousePartyTranslator.Managers
             int c = 0;
             for (int x = 0; x < ((lines.Count / 500) + 0.5); x++)
             {
-                StringBuilder builder = new StringBuilder(INSERT + " (id, story, filename, category, english) VALUES ", lines.Count * 100);
+                var builder = new StringBuilder(INSERT + " (id, story, filename, category, english) VALUES ", lines.Count * 100);
 
                 //add all values
                 int v = c;
                 for (int j = 0; j < 500; j++)
                 {
-                    builder.Append($"(@id{v}, @story{v}, @fileName{v}, @category{v}, @english{v}),");
+                    _ = builder.Append($"(@id{v}, @story{v}, @fileName{v}, @category{v}, @english{v}),");
                     v++;
                     if (v >= lines.Values.Count) break;
                 }
 
-                builder.Remove(builder.Length - 1, 1);
+                _ = builder.Remove(builder.Length - 1, 1);
                 string command = builder.ToString() + " ON DUPLICATE KEY UPDATE english = VALUES(english);";
 
                 MainCommand.CommandText = command;
@@ -408,17 +403,17 @@ namespace HousePartyTranslator.Managers
                 //insert all the parameters
                 for (int k = 0; k < 500; k++)
                 {
-                    var line = lines.Values.ElementAt(c);
-                    MainCommand.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + "template");
-                    MainCommand.Parameters.AddWithValue($"@story{c}", line.Story);
-                    MainCommand.Parameters.AddWithValue($"@fileName{c}", line.FileName);
-                    MainCommand.Parameters.AddWithValue($"@category{c}", (int)line.Category);
-                    MainCommand.Parameters.AddWithValue($"@english{c}", line.TemplateString);
+                    LineData line = lines.Values.ElementAt(c);
+                    _ = MainCommand.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + "template");
+                    _ = MainCommand.Parameters.AddWithValue($"@story{c}", line.Story);
+                    _ = MainCommand.Parameters.AddWithValue($"@fileName{c}", line.FileName);
+                    _ = MainCommand.Parameters.AddWithValue($"@category{c}", (int)line.Category);
+                    _ = MainCommand.Parameters.AddWithValue($"@english{c}", line.TemplateString);
                     ++c;
                     if (c >= lines.Values.Count) break;
                 }
 
-                ExecuteOrReOpen(MainCommand);
+                _ = ExecuteOrReOpen(MainCommand);
             }
 
             //return if at least ione row was changed
@@ -428,14 +423,9 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Sets the translation of a string in the database in the given language.
         /// </summary>
-        /// <param name="id">The id of that string as found in the file before the "|".</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="story">The name of the story the file is from, should be the name of the parent folder.</param>
-        /// <param name="translation">The translation of the string with the given id.</param>
+        /// <param name="lineData">LineData with the lines to update<param>
         /// <param name="language">The translated language in ISO 639-1 notation.</param>
-        /// <returns>
-        /// True if at least one row was set, false if it was not the case.
-        /// </returns>
+        /// <returns> True if at least one row was set, false if it was not the case.</returns>
         public static bool UpdateTranslation(LineData lineData, string language)
         {
             string comment = "";
@@ -448,15 +438,15 @@ namespace HousePartyTranslator.Managers
                                      ON DUPLICATE KEY UPDATE translation = @translation;";
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@id", lineData.Story + lineData.FileName + lineData.ID + language);
-            MainCommand.Parameters.AddWithValue("@story", lineData.Story);
-            MainCommand.Parameters.AddWithValue("@fileName", lineData.FileName);
-            MainCommand.Parameters.AddWithValue("@category", (int)lineData.Category);
-            MainCommand.Parameters.AddWithValue("@translated", 1);
-            MainCommand.Parameters.AddWithValue("@approved", lineData.IsApproved ? 1 : 0);
-            MainCommand.Parameters.AddWithValue("@language", language);
-            MainCommand.Parameters.AddWithValue($"@comment", comment);
-            MainCommand.Parameters.AddWithValue("@translation", lineData.TranslationString);
+            _ = MainCommand.Parameters.AddWithValue("@id", lineData.Story + lineData.FileName + lineData.ID + language);
+            _ = MainCommand.Parameters.AddWithValue("@story", lineData.Story);
+            _ = MainCommand.Parameters.AddWithValue("@fileName", lineData.FileName);
+            _ = MainCommand.Parameters.AddWithValue("@category", (int)lineData.Category);
+            _ = MainCommand.Parameters.AddWithValue("@translated", 1);
+            _ = MainCommand.Parameters.AddWithValue("@approved", lineData.IsApproved ? 1 : 0);
+            _ = MainCommand.Parameters.AddWithValue("@language", language);
+            _ = MainCommand.Parameters.AddWithValue($"@comment", comment);
+            _ = MainCommand.Parameters.AddWithValue("@translation", lineData.TranslationString);
 
             return ExecuteOrReOpen(MainCommand);
         }
@@ -465,8 +455,6 @@ namespace HousePartyTranslator.Managers
         /// Updates all translated strings for the selected file
         /// </summary>
         /// <param name="translationData">A list of all loaded lines for this file</param>
-        /// <param name="fileName">The name of the file read from without the extension.</param>
-        /// <param name="storyName">The name of the story the file is from, should be the name of the parent folder.</param>
         /// <param name="language">The translated language in ISO 639-1 notation.</param>
         /// <returns></returns>
         public static bool UpdateTranslations(FileData translationData, string language)
@@ -475,22 +463,22 @@ namespace HousePartyTranslator.Managers
             {
                 string storyName = translationData.ElementAt(0).Value.Story;
                 string fileName = translationData.ElementAt(0).Value.FileName;
-                StringBuilder builder = new StringBuilder(INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation) VALUES ", translationData.Count * 100);
+                var builder = new StringBuilder(INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation) VALUES ", translationData.Count * 100);
 
                 //add all values
                 for (int j = 0; j < translationData.Count; j++)
                 {
-                    builder.Append($"(@id{j}, @story{j}, @filename{j}, @category{j}, @translated{j}, @approved{j}, @language{j}, @comment{j}, @translation{j}),");
+                    _ = builder.Append($"(@id{j}, @story{j}, @filename{j}, @category{j}, @translated{j}, @approved{j}, @language{j}, @comment{j}, @translation{j}),");
                 }
 
-                builder.Remove(builder.Length - 1, 1);
+                _ = builder.Remove(builder.Length - 1, 1);
 
                 MainCommand.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
                 MainCommand.Parameters.Clear();
 
                 int i = 0;
                 //insert all the parameters
-                foreach (var item in translationData.Values)
+                foreach (LineData item in translationData.Values)
                 {
                     string comment = "";
                     for (int j = 0; j < item.Comments?.Length; j++)
@@ -499,15 +487,15 @@ namespace HousePartyTranslator.Managers
                             comment += item.Comments[j] + "#";
                     }
 
-                    MainCommand.Parameters.AddWithValue($"@id{i}", storyName + fileName + item.ID + language);
-                    MainCommand.Parameters.AddWithValue($"@story{i}", storyName);
-                    MainCommand.Parameters.AddWithValue($"@fileName{i}", fileName);
-                    MainCommand.Parameters.AddWithValue($"@category{i}", (int)item.Category);
-                    MainCommand.Parameters.AddWithValue($"@translated{i}", 1);
-                    MainCommand.Parameters.AddWithValue($"@approved{i}", item.IsApproved ? 1 : 0);
-                    MainCommand.Parameters.AddWithValue($"@language{i}", language);
-                    MainCommand.Parameters.AddWithValue($"@comment{i}", comment);
-                    MainCommand.Parameters.AddWithValue($"@translation{i}", item.TranslationString);
+                    _ = MainCommand.Parameters.AddWithValue($"@id{i}", storyName + fileName + item.ID + language);
+                    _ = MainCommand.Parameters.AddWithValue($"@story{i}", storyName);
+                    _ = MainCommand.Parameters.AddWithValue($"@fileName{i}", fileName);
+                    _ = MainCommand.Parameters.AddWithValue($"@category{i}", (int)item.Category);
+                    _ = MainCommand.Parameters.AddWithValue($"@translated{i}", 1);
+                    _ = MainCommand.Parameters.AddWithValue($"@approved{i}", item.IsApproved ? 1 : 0);
+                    _ = MainCommand.Parameters.AddWithValue($"@language{i}", language);
+                    _ = MainCommand.Parameters.AddWithValue($"@comment{i}", comment);
+                    _ = MainCommand.Parameters.AddWithValue($"@translation{i}", item.TranslationString);
                     ++i;
                 }
 
@@ -529,8 +517,8 @@ namespace HousePartyTranslator.Managers
                                      WHERE ID = @version;";
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
-            MainCommand.Parameters.AddWithValue("@story", Properties.Settings.Default.version);
-            MainCommand.Parameters.AddWithValue("@version", "version");
+            _ = MainCommand.Parameters.AddWithValue("@story", Properties.Settings.Default.version);
+            _ = MainCommand.Parameters.AddWithValue("@version", "version");
 
             //return if at least ione row was changed
             return ExecuteOrReOpen(MainCommand);
@@ -540,7 +528,7 @@ namespace HousePartyTranslator.Managers
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId.Substring((story + fileName).Length);
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TabManager.ActiveTranslationManager.Language.Length));
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
         }
 
         /// <summary>
@@ -563,7 +551,7 @@ namespace HousePartyTranslator.Managers
                     }
                     catch (Exception e)
                     {
-                        LogManager.Log($"While trying to execute the following command  {command.CommandText.TrimWithDelim( "[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
+                        LogManager.Log($"While trying to execute the following command  {command.CommandText.TrimWithDelim("[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
                     }
                 }
 
@@ -591,7 +579,7 @@ namespace HousePartyTranslator.Managers
             if (sqlConnection.State != System.Data.ConnectionState.Open)
             {
                 //password may have to be changed
-                Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
+                _ = Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
                 Application.Exit();
                 return false;
             }

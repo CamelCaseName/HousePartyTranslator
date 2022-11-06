@@ -12,31 +12,31 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     internal static class KeypressManager
     {
-        static private TextBox lastChangedTextBox;
-        static private string lastText;
-        static private int lastIndex = Properties.Settings.Default.recent_index, currentIndex = Properties.Settings.Default.recent_index;
+        private static TextBox lastChangedTextBox;
+        private static string lastText;
+        private static int lastIndex = Properties.Settings.Default.recent_index;
 
-        static public void ApprovedButtonChanged()
+        public static void ApprovedButtonChanged()
         {
             TabManager.ActiveTranslationManager.ApprovedButtonHandler();
         }
 
-        static public void AutoTranslate()
+        public static void AutoTranslate()
         {
-            TabManager.ActiveTranslationManager.ReplaceTranslationTranslatedTask(TabManager.ActiveProperties.CheckListBoxLeft.SelectedItem.ToString());
+            TabManager.ActiveTranslationManager.RequestedAutomaticTranslation();
         }
 
-        static public void CheckItemChanged()
+        public static void CheckItemChanged()
         {
             TabManager.ActiveTranslationManager.ApproveIfPossible(false);
         }
 
-        static async public Task<StoryExplorerForm.StoryExplorer> CreateStoryExplorer(bool autoOpen, Form explorerParent, CancellationTokenSource tokenSource)
+        public static async Task<StoryExplorerForm.StoryExplorer> CreateStoryExplorer(bool autoOpen, Form explorerParent, CancellationTokenSource tokenSource)
         {
             explorerParent.UseWaitCursor = true;
 
             // Use ParallelOptions instance to store the CancellationToken
-            ParallelOptions parallelOptions = new ParallelOptions
+            var parallelOptions = new ParallelOptions
             {
                 CancellationToken = tokenSource.Token,
                 MaxDegreeOfParallelism = Environment.ProcessorCount - 1
@@ -62,7 +62,7 @@ namespace HousePartyTranslator.Managers
                 //inform user this is going to take some time
                 if (result == DialogResult.OK)
                 {
-                    StoryExplorerForm.StoryExplorer explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, explorerParent, parallelOptions)
+                    var explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, explorerParent, parallelOptions)
                     {
                         UseWaitCursor = true
                     };
@@ -98,7 +98,6 @@ namespace HousePartyTranslator.Managers
                     explorerParent.UseWaitCursor = false;
                     return null;
                 }
-
             }
             catch (OperationCanceledException)
             {
@@ -119,7 +118,7 @@ namespace HousePartyTranslator.Managers
         /// <returns></returns>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
-        static public bool MainKeyPressHandler(ref Message msg, Keys keyData, DiscordPresenceManager presence, Form parent, CancellationTokenSource tokenSource)
+        public static bool MainKeyPressHandler(ref Message msg, Keys keyData, DiscordPresenceManager presence, Form parent, CancellationTokenSource tokenSource)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
         {
@@ -140,7 +139,7 @@ namespace HousePartyTranslator.Managers
 
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
-                    TabManager.ActiveTranslationManager.ToggleReplaceUI();
+                    ToggleReplaceUI();
                     return true;
 
                 //save current file
@@ -155,7 +154,7 @@ namespace HousePartyTranslator.Managers
 
                 //saves all open tabs
                 case (Keys.Alt | Keys.Shift | Keys.S):
-                    TabManager.SaveAllTabs();
+                    _ = TabManager.SaveAllTabs();
                     return true;
 
                 //reload currently loaded file
@@ -198,19 +197,19 @@ namespace HousePartyTranslator.Managers
 
                 //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
                 case (Keys.Control | Keys.Delete):
-                    return TabManager.ActiveTranslationManager.DeleteCharactersInText(false);
+                    return Utils.DeleteCharactersInText(parent, false);
 
                 //ripple delete all alphanumerical chars to the left of the cursor
                 case (Keys.Control | Keys.Back):
-                    return TabManager.ActiveTranslationManager.DeleteCharactersInText(true);
+                    return Utils.DeleteCharactersInText(parent, true);
 
                 //move cursor to the left, clinging to words
                 case (Keys.Control | Keys.Left):
-                    return TabManager.ActiveTranslationManager.MoveCursorInText(true);
+                    return Utils.MoveCursorInText(parent, true);
 
                 //move cursor to the right, clinging to words
                 case (Keys.Control | Keys.Right):
-                    return TabManager.ActiveTranslationManager.MoveCursorInText(false);
+                    return Utils.MoveCursorInText(parent, false);
 
                 case Keys.Control | Keys.O:
                     OpenNew(presence);
@@ -251,7 +250,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        static public void PrepareTextChanged(object textBox)
+        public static void PrepareTextChanged(object textBox)
         {
             //if we have any kind of text box selected, we save keypresses for undo, else not
             if (textBox.GetType().IsAssignableFrom(typeof(TextBox)))
@@ -264,7 +263,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Call this after performing base.WndProc, but before returning in the overriden form WndProc
         /// </summary>
-        static public void TextChangedCallback(Form parent, int selectedIndex)
+        public static void TextChangedCallback(Form parent, int selectedIndex)
         {
             if (parent.ActiveControl.GetType().IsAssignableFrom(typeof(TextBox)))
             {
@@ -278,7 +277,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        static public void OpenAll(DiscordPresenceManager presenceManager)
+        public static void OpenAll(DiscordPresenceManager presenceManager)
         {
             //opne the story in tabs
             TabManager.OpenAllTabs();
@@ -287,7 +286,7 @@ namespace HousePartyTranslator.Managers
             presenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
-        static public void OpenContextMenu(ContextMenuStrip context, MouseEventArgs e)
+        public static void OpenContextMenu(ContextMenuStrip context, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Right)
             {
@@ -297,7 +296,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        static public void OpenNew(DiscordPresenceManager presenceManager)
+        public static void OpenNew(DiscordPresenceManager presenceManager)
         {
             //get currently active translationmanager
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
@@ -307,7 +306,7 @@ namespace HousePartyTranslator.Managers
             if (translationManager.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = translationManager.FileName;
         }
 
-        static public void OpenNewTab(DiscordPresenceManager presenceManager)
+        public static void OpenNewTab(DiscordPresenceManager presenceManager)
         {
             TabManager.OpenNewTab();
 
@@ -315,7 +314,7 @@ namespace HousePartyTranslator.Managers
             presenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
-        static public void SelectedItemChanged(Helpers.ColouredCheckedListBox listBox)
+        public static void SelectedItemChanged(Helpers.ColouredCheckedListBox listBox)
         {
             if (!History.CausedByHistory)
                 History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex));
@@ -323,25 +322,30 @@ namespace HousePartyTranslator.Managers
             TabManager.ActiveTranslationManager.PopulateTextBoxes();
         }
 
-        static public void SelectedLanguageChanged()
+        public static void SelectedLanguageChanged()
         {
             TabManager.ActiveTranslationManager.SetLanguage();
         }
 
-        static public void SelectedTabChanged(DiscordPresenceManager presenceManager)
+        public static void SelectedTabChanged(DiscordPresenceManager presenceManager)
         {
             TabManager.OnSwitchTabs();
             //update tabs
             if (TabManager.ActiveTranslationManager != null) presenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
-        static public void ShowSettings()
+        public static void ShowSettings()
         {
-            SettingsForm.SettingsForm settings = new SettingsForm.SettingsForm();
+            var settings = new SettingsForm.SettingsForm();
             if (!settings.IsDisposed) settings.Show();
         }
 
-        static public void TranslationTextChanged()
+        public static void ToggleReplaceUI()
+        {
+            TabManager.ActiveTranslationManager.ToggleReplaceUI();
+        }
+
+        public static void TranslationTextChanged()
         {
             TabManager.ActiveTranslationManager.UpdateTranslationString();
         }

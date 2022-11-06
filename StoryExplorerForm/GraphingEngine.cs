@@ -46,9 +46,9 @@ namespace HousePartyTranslator.StoryExplorerForm
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
 
-        private int bytesPerPixel;
-        private int heightInPixels;
-        private int widthInPixels;
+        private readonly int bytesPerPixel;
+        private readonly int heightInPixels;
+        private readonly int widthInPixels;
 
         /*
         unsafe
@@ -314,7 +314,7 @@ namespace HousePartyTranslator.StoryExplorerForm
 
         private void DrawEdges(List<Node> nodes, Color color)
         {
-            Point[] points = new Point[nodes.Count];
+            var points = new Point[nodes.Count];
             for (int i = 0; i < nodes.Count; i++)
             {
                 points[i] = nodes[i].Position;

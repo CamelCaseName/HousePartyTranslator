@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Helpers
@@ -32,8 +31,8 @@ namespace HousePartyTranslator.Helpers
         /// <returns>The current assembly version</returns>
         public static string GetAssemblyFileVersion()
         {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            FileVersionInfo fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
+            var assembly = Assembly.GetExecutingAssembly();
+            var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
             return fileVersion.FileVersion;
         }
 
@@ -45,7 +44,7 @@ namespace HousePartyTranslator.Helpers
         {
             LogManager.Log("Exception message shown: " + message);
             LogManager.Log("Current exception count: " + ExceptionCount++);
-            Msg.ErrorOk(
+            _ = Msg.ErrorOk(
                 $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
                 $"Anyways, here is what happened: \n\n{message}\n\n " +
                 $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
@@ -66,7 +65,7 @@ namespace HousePartyTranslator.Helpers
         /// <returns>The path to the selected file.</returns>
         public static string SelectFileFromSystem()
         {
-            OpenFileDialog selectFileDialog = new OpenFileDialog
+            var selectFileDialog = new OpenFileDialog
             {
                 Title = "Choose a file for translation",
                 Filter = "Text files (*.txt)|*.txt",
@@ -100,7 +99,7 @@ namespace HousePartyTranslator.Helpers
         public static string SelectFolderFromSystem(string message)
         {
             string templatePath = Properties.Settings.Default.template_path;
-            FolderBrowserDialog selectFolderDialog = new FolderBrowserDialog
+            var selectFolderDialog = new FolderBrowserDialog
             {
                 Description = message,
                 SelectedPath = templatePath == "" ? Environment.SpecialFolder.UserProfile.ToString() : templatePath,
@@ -119,6 +118,11 @@ namespace HousePartyTranslator.Helpers
             return "";
         }
 
+        /// <summary>
+        /// Gets the category of a node from a node type
+        /// </summary>
+        /// <param name="type">the type to get the stringcategory form</param>
+        /// <returns>the corresponding stringcategory</returns>
         public static StringCategory CategoryFromNode(NodeType type)
         {
             switch (type)
@@ -153,13 +157,116 @@ namespace HousePartyTranslator.Helpers
         }
 
         /// <summary>
+        /// Tries to parse a line into the category it indicates.
+        /// </summary>
+        /// <param name="line">The line to parse.</param>
+        /// <returns>The category representing the string, or none.</returns>
+        public static StringCategory GetCategoryFromString(string line)
+        {
+            if (line.Contains("["))
+            {
+                if (line == "[General]")
+                {
+                    return StringCategory.General;
+                }
+                else if (line == "[Dialogues]")
+                {
+                    return StringCategory.Dialogue;
+                }
+                else if (line == "[Responses]")
+                {
+                    return StringCategory.Response;
+                }
+                else if (line == "[Quests]")
+                {
+                    return StringCategory.Quest;
+                }
+                else if (line == "[Events]")
+                {
+                    return StringCategory.Event;
+                }
+                else if (line == "[Background Chatter]")
+                {
+                    return StringCategory.BGC;
+                }
+                else if (line == "[Item Names]")
+                {
+                    return StringCategory.ItemName;
+                }
+                else if (line == "[Item Actions]")
+                {
+                    return StringCategory.ItemAction;
+                }
+                else if (line == "[Item Group Actions]")
+                {
+                    return StringCategory.ItemGroupAction;
+                }
+                else if (line == "[Achievements]")
+                {
+                    return StringCategory.Achievement;
+                }
+            }
+            return StringCategory.Neither;
+        }
+
+        /// <summary>
+        /// Returns the string representatio of a category.
+        /// </summary>
+        /// <param name="category">The Category to parse.</param>
+        /// <returns>The string representing the category.</returns>
+        public static string GetStringFromCategory(StringCategory category)
+        {
+            switch (category)
+            {
+                case StringCategory.General:
+                    return "[General]";
+
+                case StringCategory.Dialogue:
+                    return "[Dialogues]";
+
+                case StringCategory.Response:
+                    return "[Responses]";
+
+                case StringCategory.Quest:
+                    return "[Quests]";
+
+                case StringCategory.Event:
+                    return "[Events]";
+
+                case StringCategory.BGC:
+                    return "[Background Chatter]";
+
+                case StringCategory.ItemName:
+                    return "[Item Names]";
+
+                case StringCategory.ItemAction:
+                    return "[Item Actions]";
+
+                case StringCategory.ItemGroupAction:
+                    return "[Item Group Actions]";
+
+                case StringCategory.Achievement:
+                    return "[Achievements]";
+
+                case StringCategory.Neither:
+                    //do nothing hehehehe
+                    return "";
+
+                default:
+                    //do nothing hehehehe
+                    return "";
+            }
+        }
+
+        /// <summary>
         /// Creates a new tab with all default controls
         /// </summary>
         /// <param name="number">the number of the tab starting at 1, is only used for name and text</param>
+        /// <param name="form"></param>
         /// <returns>a TabPage with all controls as child controls</returns>
         public static TabPage CreateNewTab(int number, Fenster form)
         {
-            TabPage newTab = new TabPage()
+            var newTab = new TabPage()
             {
                 BackColor = System.Drawing.Color.Black,
                 ForeColor = System.Drawing.SystemColors.ScrollBar,
@@ -170,28 +277,28 @@ namespace HousePartyTranslator.Helpers
                 Text = $"Tab{number}",
             };
 
-            Button TranslateThis = new Button();
-            CheckBox ApprovedBox = new CheckBox();
-            ColouredCheckedListBox CheckListBoxLeft = new ColouredCheckedListBox();
-            ContextMenuStrip ListContextMenu = new ContextMenuStrip();
-            GroupBox CommentGroup = new GroupBox();
-            Label CharacterCountLabel = new Label();
-            Label SelectedFile = new Label();
-            Label WordsTranslated = new Label();
-            NoAnimationBar ProgressbarTranslated = new NoAnimationBar();
-            Panel panel1 = new Panel();
-            Panel panel2 = new Panel();
-            TableLayoutPanel mainTableLayoutPanel = new TableLayoutPanel();
-            TextBox CommentTextBox = new TextBox();
-            TextBox TemplateTextBox = new TextBox();
-            TextBox TranslatedTextBox = new TextBox();
-            ToolStripMenuItem CopyAllContextMenuButton = new ToolStripMenuItem();
-            ToolStripMenuItem CopyAsOutputContextMenuButton = new ToolStripMenuItem();
-            ToolStripMenuItem CopyFileNameContextMenuButton = new ToolStripMenuItem();
-            ToolStripMenuItem CopyIdContextMenuButton = new ToolStripMenuItem();
-            ToolStripMenuItem CopyStoryNameContextMenuButton = new ToolStripMenuItem();
-            ToolStripMenuItem CopyTemplateContextMenuButton = new ToolStripMenuItem();
-            ToolStripMenuItem CopyTranslationContextMenuButton = new ToolStripMenuItem();
+            var TranslateThis = new Button();
+            var ApprovedBox = new CheckBox();
+            var CheckListBoxLeft = new ColouredCheckedListBox();
+            var ListContextMenu = new ContextMenuStrip();
+            var CommentGroup = new GroupBox();
+            var CharacterCountLabel = new Label();
+            var SelectedFile = new Label();
+            var WordsTranslated = new Label();
+            var ProgressbarTranslated = new NoAnimationBar();
+            var panel1 = new Panel();
+            var panel2 = new Panel();
+            var mainTableLayoutPanel = new TableLayoutPanel();
+            var CommentTextBox = new TextBox();
+            var TemplateTextBox = new TextBox();
+            var TranslatedTextBox = new TextBox();
+            var CopyAllContextMenuButton = new ToolStripMenuItem();
+            var CopyAsOutputContextMenuButton = new ToolStripMenuItem();
+            var CopyFileNameContextMenuButton = new ToolStripMenuItem();
+            var CopyIdContextMenuButton = new ToolStripMenuItem();
+            var CopyStoryNameContextMenuButton = new ToolStripMenuItem();
+            var CopyTemplateContextMenuButton = new ToolStripMenuItem();
+            var CopyTranslationContextMenuButton = new ToolStripMenuItem();
             mainTableLayoutPanel.SuspendLayout();
             CommentGroup.SuspendLayout();
             panel1.SuspendLayout();
@@ -205,7 +312,7 @@ namespace HousePartyTranslator.Helpers
             TranslatedTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
             TranslatedTextBox.BackColor = background;
             TranslatedTextBox.Dock = DockStyle.Fill;
-            TranslatedTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            TranslatedTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
             TranslatedTextBox.ForeColor = brightText;
             TranslatedTextBox.ImeMode = ImeMode.On;
             TranslatedTextBox.Location = new System.Drawing.Point(689, 294);
@@ -235,7 +342,7 @@ namespace HousePartyTranslator.Helpers
             // 
             TemplateTextBox.BackColor = background;
             TemplateTextBox.Dock = DockStyle.Fill;
-            TemplateTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            TemplateTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
             TemplateTextBox.ForeColor = brightText;
             TemplateTextBox.Location = new System.Drawing.Point(689, 33);
             TemplateTextBox.Multiline = true;
@@ -309,8 +416,8 @@ namespace HousePartyTranslator.Helpers
             // mainTableLayoutPanel
             // 
             mainTableLayoutPanel.ColumnCount = 2;
-            mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.07924F));
-            mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.92076F));
+            _ = mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.07924F));
+            _ = mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.92076F));
             mainTableLayoutPanel.Controls.Add(CommentGroup, 1, 3);
             mainTableLayoutPanel.Controls.Add(TranslatedTextBox, 1, 2);
             mainTableLayoutPanel.Controls.Add(TemplateTextBox, 1, 1);
@@ -322,10 +429,10 @@ namespace HousePartyTranslator.Helpers
             mainTableLayoutPanel.Location = new System.Drawing.Point(3, 3);
             mainTableLayoutPanel.Name = "mainTableLayoutPanel";
             mainTableLayoutPanel.RowCount = 4;
-            mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 38.94275F));
-            mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 41.86569F));
-            mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 19.19156F));
+            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
+            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 38.94275F));
+            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 41.86569F));
+            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 19.19156F));
             mainTableLayoutPanel.Size = new System.Drawing.Size(1370, 702);
             mainTableLayoutPanel.TabIndex = 18;
             // 
@@ -474,6 +581,68 @@ namespace HousePartyTranslator.Helpers
 
             return newTab;
         }
+
+        /// <summary>
+        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="toLeft">true if deleting to the left</param>
+        /// <returns>true if successfull</returns>
+        public static bool DeleteCharactersInText(Form form, bool toLeft)
+        {
+            if (form.ContainsFocus)
+            {
+                Control focused_control = form.ActiveControl;
+                try
+                {
+                    var _ = (TextBox)focused_control;
+                }
+                //ignore exception, really intended
+                catch { return false; }
+                var textBox = (TextBox)focused_control;
+                if (toLeft)
+                {
+                    return textBox.DeleteCharactersInTextLeft();
+                }
+                else
+                {
+                    return textBox.DeleteCharactersInTextRight();
+                }
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Moves the cursor to the beginning/end of the next word in the specified direction
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="toLeft">true if to scan to the left</param>
+        /// <returns>true if succeeded</returns>
+        public static bool MoveCursorInText(Form form, bool toLeft)
+        {
+            if (form.ContainsFocus)
+            {
+                Control focused_control = form.ActiveControl;
+                try
+                {
+                    var _ = (TextBox)focused_control;
+                }
+                //ignore exception, really intended
+                catch { return false; }
+                var textBox = (TextBox)focused_control;
+                if (toLeft)
+                {
+                    textBox.MoveCursorWordLeft();
+                    return true;
+                }
+                else
+                {
+                    textBox.MoveCursorWordRight();
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     internal struct CategorizedLines
@@ -511,7 +680,7 @@ namespace HousePartyTranslator.Helpers
     {
         internal FileData(Dictionary<string, LineData> data)
         {
-            foreach (var item in data)
+            foreach (KeyValuePair<string, LineData> item in data)
             {
                 this.Add(item.Key, item.Value);
             }

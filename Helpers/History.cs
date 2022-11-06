@@ -1,13 +1,14 @@
 ﻿using HousePartyTranslator.Helpers;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
 {
     internal static class History
     {
-        static private readonly Stack<ICommand> history = new Stack<ICommand>();
-        static private readonly Stack<ICommand> future = new Stack<ICommand>();
-        static public bool CausedByHistory = false;
+        private static readonly Stack<ICommand> history = new Stack<ICommand>();
+        private static readonly Stack<ICommand> future = new Stack<ICommand>();
+        public static bool CausedByHistory = false;
 
 
         public static void AddAction(ICommand command)
@@ -16,7 +17,7 @@ namespace HousePartyTranslator.Managers
             if (history.Count > 110)
             {
                 //after 110 elements, we remove the oldest 10
-                Stack<ICommand> temp = new Stack<ICommand>(history.Count);
+                var temp = new Stack<ICommand>(history.Count);
                 for (int i = 0; i < history.Count; i++)
                     temp.Push(history.Pop());
 
@@ -187,7 +188,7 @@ namespace HousePartyTranslator.Managers
         readonly string oldText;
         readonly string newText;
 
-        public TranslationChanged( TranslationManager manager,string id, string oldText, string newText)
+        public TranslationChanged(TranslationManager manager, string id, string oldText, string newText)
         {
             this.manager = manager;
             this.id = id;
@@ -231,35 +232,37 @@ namespace HousePartyTranslator.Managers
     {
         readonly FileData oldTranslations, newTranslations;
         readonly TranslationManager manager;
+        readonly string language;
 
         public AllTranslationsChanged(TranslationManager manager, FileData oldTranslations, FileData newTranslations)
         {
             this.oldTranslations = new FileData(oldTranslations);
             this.newTranslations = new FileData(newTranslations);
             this.manager = manager;
+            this.language = TranslationManager.Language;
         }
 
         void ICommand.Do()
         {
             manager.TranslationData.Clear();
-            foreach (var item in newTranslations)
+            foreach (KeyValuePair<string, LineData> item in newTranslations)
             {
                 manager.TranslationData.Add(item.Key, item.Value);
             }
             //update translations also on the database
-            DataBase.UpdateTranslations(newTranslations, manager.Language);
+            _ = DataBase.UpdateTranslations(newTranslations, language);
             manager.ReloadTranslationTextbox();
         }
 
         void ICommand.Undo()
         {
             manager.TranslationData.Clear();
-            foreach (var item in oldTranslations)
+            foreach (KeyValuePair<string, LineData> item in oldTranslations)
             {
                 manager.TranslationData.Add(item.Key, item.Value);
             }
             //update translations also on the database
-            DataBase.UpdateTranslations(oldTranslations, manager.Language);
+            _ = DataBase.UpdateTranslations(oldTranslations, language);
             manager.ReloadTranslationTextbox();
         }
     }

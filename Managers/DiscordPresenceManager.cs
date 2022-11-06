@@ -1,6 +1,5 @@
 ﻿using DiscordRPC;
 using HousePartyTranslator.Helpers;
-using System;
 
 
 namespace HousePartyTranslator.Managers
@@ -31,7 +30,7 @@ namespace HousePartyTranslator.Managers
                     LargeImageText = Character
                 }
             });
-            DiscordPresenceClient.UpdateStartTime();
+            _ = DiscordPresenceClient.UpdateStartTime();
             Update();
         }
 
@@ -74,7 +73,7 @@ namespace HousePartyTranslator.Managers
         {
             if (Properties.Settings.Default.enableDiscordRP)
             {
-                DiscordPresenceClient.Invoke();
+                _ = DiscordPresenceClient.Invoke();
             }
         }
 
@@ -89,7 +88,7 @@ namespace HousePartyTranslator.Managers
             };
 
             //Connect to the RPC
-            DiscordPresenceClient.Initialize();
+            _ = DiscordPresenceClient.Initialize();
 
             //Set the rich presence
             //Call this as many times as you want and anywhere in your code.
@@ -104,7 +103,7 @@ namespace HousePartyTranslator.Managers
                 }
             });
 
-            DiscordPresenceClient.UpdateStartTime();
+            _ = DiscordPresenceClient.UpdateStartTime();
         }
 
         public void DeInitialize()

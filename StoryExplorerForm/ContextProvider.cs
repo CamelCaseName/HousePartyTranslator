@@ -21,7 +21,7 @@ namespace HousePartyTranslator
         private Dictionary<Guid, Vector2> NodeForces;
         private List<Node> CriteriaInFile;
         private List<Node> nodes;
-        private ParallelOptions options;
+        private readonly ParallelOptions options;
 
 
 
@@ -242,11 +242,11 @@ namespace HousePartyTranslator
                 try
                 {
                     //go through all nodes and apply the forces
-                    Parallel.For(0, nodes.Count, options, i1 =>
+                    _ = Parallel.For(0, nodes.Count, options, i1 =>
                     {
                         Node node = nodes[i1];
                         //create position vector for all later calculations
-                        Vector2 nodePosition = new Vector2(node.Position.X, node.Position.Y);
+                        var nodePosition = new Vector2(node.Position.X, node.Position.Y);
                         //reset force
                         NodeForces[node.Guid] = new Vector2();
 
@@ -256,7 +256,7 @@ namespace HousePartyTranslator
                             Node secondNode = nodes[i2];
                             if (node != secondNode && secondNode.Position != node.Position)
                             {
-                                Vector2 secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
+                                var secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
                                 Vector2 difference = (secondNodePosition - nodePosition);
                                 //absolute length of difference/distance
                                 float distance = difference.Length();
@@ -303,7 +303,7 @@ namespace HousePartyTranslator
 
         private List<Tuple<int, int>> GetEdges(List<Node> _nodes)
         {
-            List<Tuple<int, int>> returnList = new List<Tuple<int, int>>();
+            var returnList = new List<Tuple<int, int>>();
 
             for (int i = 0; i < _nodes.Count; i++)
             {
@@ -343,7 +343,7 @@ namespace HousePartyTranslator
         private List<Node> CombineNodes(List<Node> nodes)
         {
             //temporary list so we dont manipulate the list we read from in the for loops
-            Dictionary<Guid, Node> tempNodes = new Dictionary<Guid, Node>();
+            var tempNodes = new Dictionary<Guid, Node>();
 
             //go through all given root nodes (considered root as this stage)
             for (int i = 0; i < nodes.Count; i++)
@@ -413,7 +413,7 @@ namespace HousePartyTranslator
             }
 
             //return final list of all nodes in the story
-            List<Node> listNodes = new List<Node>();
+            var listNodes = new List<Node>();
             foreach (KeyValuePair<Guid, Node> pair in tempNodes)
             {
                 listNodes.Add(pair.Value);
@@ -493,12 +493,12 @@ namespace HousePartyTranslator
         private List<Node> GetAchievements(MainStory story)
         {
             //list to collect all achievement nodes
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
             //go through all of them
             foreach (Achievement achievement in story.Achievements ?? System.Linq.Enumerable.Empty<Achievement>())
             {
                 //node to add the description as child to, needs reference to parent, hence can't be anonymous
-                Node node = new Node(achievement.Id, NodeType.Achievement, achievement.Name);
+                var node = new Node(achievement.Id, NodeType.Achievement, achievement.Name);
                 node.AddChildNode(new Node(achievement.Id + "Description", NodeType.Achievement, achievement.Description, node));
                 //add achievement with description child to list
                 nodes.Add(node);
@@ -510,10 +510,10 @@ namespace HousePartyTranslator
 
         private List<Node> GetBackGroundChatter(CharacterStory story)
         {
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
             foreach (BackgroundChatter backgroundChatter in story.BackgroundChatter ?? System.Linq.Enumerable.Empty<BackgroundChatter>())
             {
-                Node bgcNode = new Node($"BGC{backgroundChatter.Id}", NodeType.BGC, backgroundChatter.Text);
+                var bgcNode = new Node($"BGC{backgroundChatter.Id}", NodeType.BGC, backgroundChatter.Text);
 
                 //criteria
                 bgcNode.AddCriteria(backgroundChatter.Critera);
@@ -524,7 +524,7 @@ namespace HousePartyTranslator
                 //responses
                 foreach (Response response in backgroundChatter.Responses)
                 {
-                    Node nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.Response, "see id", bgcNode);
+                    var nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.Response, "see id", bgcNode);
 
                     bgcNode.AddChildNode(nodeResponse);
                 }
@@ -535,18 +535,18 @@ namespace HousePartyTranslator
 
         private List<Node> GetDialogues(CharacterStory story)
         {
-            List<Node> nodes = new List<Node>();
-            List<Tuple<Node, int>> responseDialogueLinks = new List<Tuple<Node, int>>();
+            var nodes = new List<Node>();
+            var responseDialogueLinks = new List<Tuple<Node, int>>();
 
             foreach (Dialogue dialogue in story.Dialogues ?? System.Linq.Enumerable.Empty<Dialogue>())
             {
-                Node nodeDialogue = new Node(dialogue.ID.ToString(), NodeType.Dialogue, dialogue.Text);
+                var nodeDialogue = new Node(dialogue.ID.ToString(), NodeType.Dialogue, dialogue.Text);
                 int alternateTextCounter = 1;
 
                 //add all alternate texts to teh dialogue
                 foreach (AlternateText alternateText in dialogue.AlternateTexts ?? System.Linq.Enumerable.Empty<AlternateText>())
                 {
-                    Node nodeAlternateText = new Node($"{dialogue.ID}.{alternateTextCounter}", NodeType.Dialogue, alternateText.Text, nodeDialogue);
+                    var nodeAlternateText = new Node($"{dialogue.ID}.{alternateTextCounter}", NodeType.Dialogue, alternateText.Text, nodeDialogue);
 
                     //increasse counter to ensure valid id
                     alternateTextCounter++;
@@ -563,7 +563,7 @@ namespace HousePartyTranslator
                 //add all responses as childs to this dialogue
                 foreach (Response response in dialogue.Responses ?? System.Linq.Enumerable.Empty<Response>())
                 {
-                    Node nodeResponse = new Node(response.Id, NodeType.Response, response.Text, nodeDialogue);
+                    var nodeResponse = new Node(response.Id, NodeType.Response, response.Text, nodeDialogue);
 
                     nodeResponse.AddCriteria(response.ResponseCriteria);
 
@@ -603,12 +603,12 @@ namespace HousePartyTranslator
 
         private List<Node> GetGlobalGoodByeResponses(CharacterStory story)
         {
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
 
             //add all responses as childs to this dialogue
             foreach (GlobalGoodbyeResponse response in story.GlobalGoodbyeResponses ?? System.Linq.Enumerable.Empty<GlobalGoodbyeResponse>())
             {
-                Node nodeResponse = new Node(response.Id, NodeType.Response, response.Text);
+                var nodeResponse = new Node(response.Id, NodeType.Response, response.Text);
 
                 nodeResponse.AddCriteria(response.ResponseCriteria);
 
@@ -623,11 +623,11 @@ namespace HousePartyTranslator
 
         private List<Node> GetGlobalResponses(CharacterStory story)
         {
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
 
             foreach (GlobalResponse response in story.GlobalResponses ?? System.Linq.Enumerable.Empty<GlobalResponse>())
             {
-                Node nodeResponse = new Node(response.Id, NodeType.Response, response.Text);
+                var nodeResponse = new Node(response.Id, NodeType.Response, response.Text);
 
                 nodeResponse.AddCriteria(response.ResponseCriteria);
 
@@ -643,17 +643,17 @@ namespace HousePartyTranslator
         private List<Node> GetItemGroups(MainStory story)
         {
             //list to collect all item group nodes in the end
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
             //go through all item groups to find events
             foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors ?? System.Linq.Enumerable.Empty<ItemGroupBehavior>())
             {
                 //create item group node to add events/criteria to
-                Node nodeGroup = new Node(itemGroupBehaviour.Id, NodeType.ItemGroup, itemGroupBehaviour.Name);
+                var nodeGroup = new Node(itemGroupBehaviour.Id, NodeType.ItemGroup, itemGroupBehaviour.Name);
                 //get actions for item
                 foreach (ItemAction itemAction in itemGroupBehaviour.ItemActions)
                 {
                     //node to addevents to
-                    Node nodeAction = new Node(itemAction.ActionName, NodeType.Action, itemAction.ActionName, nodeGroup);
+                    var nodeAction = new Node(itemAction.ActionName, NodeType.Action, itemAction.ActionName, nodeGroup);
 
                     //add text that is shown when item is taken
                     nodeAction.AddEvents(itemAction.OnTakeActionEvents);
@@ -676,17 +676,17 @@ namespace HousePartyTranslator
         private List<Node> GetItemOverrides(MainStory story)
         {
             //list to store all found root nodes
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
             //go through all nodes to search them for actions
             foreach (ItemOverride itemOverride in story.ItemOverrides ?? System.Linq.Enumerable.Empty<ItemOverride>())
             {
                 //add items to list
-                Node nodeItem = new Node(itemOverride.Id, NodeType.Item, itemOverride.DisplayName);
+                var nodeItem = new Node(itemOverride.Id, NodeType.Item, itemOverride.DisplayName);
                 //get actions for item
                 foreach (ItemAction itemAction in itemOverride.ItemActions)
                 {
                     //create action node to add criteria and events to
-                    Node nodeAction = new Node(itemAction.ActionName, NodeType.Action, itemAction.ActionName, nodeItem);
+                    var nodeAction = new Node(itemAction.ActionName, NodeType.Action, itemAction.ActionName, nodeItem);
 
                     //add text that is shown when item is taken
                     nodeAction.AddEvents(itemAction.OnTakeActionEvents);
@@ -708,11 +708,11 @@ namespace HousePartyTranslator
 
         private List<Node> GetPlayerReactions(MainStory story)
         {
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
             foreach (PlayerReaction playerReaction in story.PlayerReactions ?? System.Linq.Enumerable.Empty<PlayerReaction>())
             {
                 //add items to list
-                Node nodeReaction = new Node(playerReaction.Id, NodeType.Reaction, playerReaction.Name);
+                var nodeReaction = new Node(playerReaction.Id, NodeType.Reaction, playerReaction.Name);
 
                 //get actions for item
                 nodeReaction.AddEvents(playerReaction.Events);
@@ -727,11 +727,11 @@ namespace HousePartyTranslator
 
         private List<Node> GetQuests(CharacterStory story)
         {
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
 
             foreach (Quest quest in story.Quests ?? System.Linq.Enumerable.Empty<Quest>())
             {
-                Node nodeQuest = new Node(quest.ID, NodeType.Quest, quest.Name);
+                var nodeQuest = new Node(quest.ID, NodeType.Quest, quest.Name);
 
                 //Add details
                 if (quest.Details?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}Description", NodeType.Quest, quest.Details));
@@ -755,12 +755,12 @@ namespace HousePartyTranslator
 
         private List<Node> GetReactions(CharacterStory story)
         {
-            List<Node> nodes = new List<Node>();
+            var nodes = new List<Node>();
 
             foreach (Reaction playerReaction in story.Reactions ?? System.Linq.Enumerable.Empty<Reaction>())
             {
                 //add items to list
-                Node nodeReaction = new Node(playerReaction.Id, NodeType.Reaction, playerReaction.Name);
+                var nodeReaction = new Node(playerReaction.Id, NodeType.Reaction, playerReaction.Name);
                 //get actions for item
                 nodeReaction.AddEvents(playerReaction.Events);
 

@@ -34,12 +34,14 @@ namespace HousePartyTranslator.Helpers
         /// <param name="NoProgressbar">The progress bar.</param>
         /// <param name="SearchBox">The textbox to perform searches with.</param>
         /// <param name="ReplaceBox">The textbox to replace search with.</param>
+        /// <param name="ReplaceAllButton">button to replace all occurencas of the search</param>
         /// <param name="SelectedFileLabel">The currently selected file will be displayed there.</param>
         /// <param name="TemplateTextBox">The textbox containing the template.</param>
         /// <param name="TranslationTextBox">The textbox containing the translation</param>
+        /// <param name="ReplaceButton"></param>
         public PropertyHelper(
-            CheckBox ApprovedBox, 
-            ColouredCheckedListBox CheckListBoxLeft, 
+            CheckBox ApprovedBox,
+            ColouredCheckedListBox CheckListBoxLeft,
             ToolStripComboBox LanguageBox,
             Label ApprovedCountLabel,
             Label CharacterCountLabel,

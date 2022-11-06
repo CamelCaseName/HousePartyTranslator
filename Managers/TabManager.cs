@@ -1,7 +1,7 @@
 ﻿using HousePartyTranslator.Helpers;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
-
 
 namespace HousePartyTranslator.Managers
 {
@@ -70,8 +70,8 @@ namespace HousePartyTranslator.Managers
                     {
                         //remove manager for the tab, save first
                         ActiveTranslationManager.SaveFile();
-                        translationManagers.Remove(TabControl.TabPages[ix]);
-                        properties.Remove(TabControl.TabPages[ix]);
+                        _ = translationManagers.Remove(TabControl.TabPages[ix]);
+                        _ = properties.Remove(TabControl.TabPages[ix]);
 
                         TabControl.TabPages[ix].Dispose();
                         break;
@@ -84,6 +84,8 @@ namespace HousePartyTranslator.Managers
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tabPage1">The initial tab</param>
+        /// <param name="presenceManager"></param>
+        /// <param name="main"></param>
         public static TranslationManager Initialize(TabPage tabPage1, DiscordPresenceManager presenceManager, Fenster main)
         {
             Main = main;
@@ -126,7 +128,7 @@ namespace HousePartyTranslator.Managers
                 TabControl.SelectedTab = newTab;
                 //create support dict
                 properties.Add(newTab, CreateActivePropertyHelper());
-                TranslationManager t = new TranslationManager(ActiveProperties);
+                var t = new TranslationManager(ActiveProperties);
                 translationManagers.Add(newTab, t);
 
                 //call startup for new translationmanager
@@ -140,7 +142,35 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void OpenAllTabs()
         {
-            TranslationManager.LoadAllFilesIntoProgram();
+            string basePath = Utils.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
+
+            if (basePath.Length > 0)
+            {
+                foreach (string path in Directory.GetDirectories(basePath))
+                {
+                    string[] folders = path.Split('\\');
+
+                    //get parent folder name
+                    string tempName = folders[folders.Length - 1];
+                    //get language text representation
+                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string languageAsText);
+                    //compare
+                    if (tempName == languageAsText && gotLanguage)
+                    {
+                        //get foler one more up
+                        basePath = path;
+                        break;
+                    }
+                }
+
+                foreach (string filePath in Directory.GetFiles(basePath))
+                {
+                    if (Path.GetExtension(filePath) == ".txt")
+                    {
+                        OpenInNewTab(filePath);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -150,7 +180,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="title">The title to set</param>
         public static void UpdateTabTitle(TranslationManager manager, string title)
         {
-            foreach (var tab in translationManagers.Keys)
+            foreach (TabPage tab in translationManagers.Keys)
             {
                 if (translationManagers[tab] == manager)
                 {
@@ -206,12 +236,12 @@ namespace HousePartyTranslator.Managers
         {
             if (TabControl.TabCount >= 1)
             {
-                int oldSelection = TabControl.SelectedIndex; 
+                int oldSelection = TabControl.SelectedIndex;
                 //save all tabs
                 foreach (TabPage tab in TabControl.TabPages)
                 {
                     if (translationManagers[tab].ChangesPending)
-                    TabControl.SelectedTab = tab;
+                        TabControl.SelectedTab = tab;
                     translationManagers[tab].SaveFile();
                 }
                 TabControl.SelectedIndex = oldSelection;
