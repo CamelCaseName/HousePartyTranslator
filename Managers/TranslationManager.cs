@@ -301,7 +301,7 @@ namespace HousePartyTranslator.Managers
 
                 MainWindow.Cursor = Cursors.WaitCursor;
 
-                if (!IsUpToDate && Properties.Settings.Default.advancedMode)
+                if (!IsUpToDate && Properties.Settings.Default.advancedMode && DataBase.IsOnline)
                 {
                     LoadTemplates();
                 }
@@ -709,7 +709,7 @@ namespace HousePartyTranslator.Managers
             {
                 isSaveAs = true;
                 string oldFile = SourceFilePath;
-                string SaveFile = SaveFileOnSystem();
+                string SaveFile = SelectSaveLocation();
                 SourceFilePath = SaveFile;
                 this.SaveFile();
                 SourceFilePath = oldFile;
@@ -721,7 +721,7 @@ namespace HousePartyTranslator.Managers
         /// Opens a save file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the file to save to.</returns>
-        public string SaveFileOnSystem()
+        public string SelectSaveLocation()
         {
             var saveFileDialog = new SaveFileDialog
             {
@@ -1121,7 +1121,7 @@ namespace HousePartyTranslator.Managers
         private void ReadInStringsFromFile()
         {
             //read in all strings with IDs
-            if (isTemplate)//read in templates
+            if (isTemplate && DataBase.IsOnline)//read in templates
             {
                 ReadStringsTemplateFromFile();
             }
@@ -1152,7 +1152,7 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData.Add((++templateCounter).ToString() + lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                    if (lastLine.Length != 0) TranslationData[(++templateCounter).ToString() + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
 
                     //get current line
                     lastLine = line.Split('|');
@@ -1171,7 +1171,7 @@ namespace HousePartyTranslator.Managers
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) TranslationData.Add((++templateCounter).ToString() + lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true));
+                        if (lastLine.Length != 0) TranslationData[(++templateCounter).ToString() + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
                         lastLine = new string[0];
                         multiLineCollector = "";
                         currentCategory = tempCategory;
@@ -1179,7 +1179,7 @@ namespace HousePartyTranslator.Managers
                 }
             }
             //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) TranslationData.Add((++templateCounter).ToString() + lastLine[0], new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true));
+            if (lastLine.Length != 0) TranslationData[(++templateCounter).ToString() + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true);
         }
 
         /// <summary>
@@ -1188,7 +1188,6 @@ namespace HousePartyTranslator.Managers
         private void ReadStringsTranslationsFromFile()
         {
             StringCategory currentCategory = StringCategory.General;
-            string[] lastLine = { };
 
             _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
             List<string> LinesFromFile;
@@ -1208,7 +1207,7 @@ namespace HousePartyTranslator.Managers
             //if we got lines at all
             if (LinesFromFile.Count > 0)
             {
-                SplitReadTranslations(LinesFromFile, lastLine, currentCategory, IdsToExport);
+                SplitReadTranslations(LinesFromFile, currentCategory, IdsToExport);
             }
             else
             {
@@ -1233,10 +1232,11 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        private void SplitReadTranslations(List<string> LinesFromFile, string[] lastLine, StringCategory category, FileData IdsToExport)
+        private void SplitReadTranslations(List<string> LinesFromFile, StringCategory category, FileData IdsToExport)
         {
+            string[] lastLine = new string[0];
             string multiLineCollector = "";
-            //remove last if empty, breaks line lioading for the last
+            //remove last if empty, breaks line loading for the last
             while (LinesFromFile.Count > 0)
             {
                 if (LinesFromFile.Last() == "")
@@ -1249,16 +1249,9 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0)
-                    {
-                        if (IdsToExport.TryGetValue(lastLine[0], out LineData line1))
-                            TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1] + multiLineCollector);
-                        else
-                            TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1] + multiLineCollector));
-                    }
+                    if (lastLine.Length != 0) createLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
                     //get current line
                     lastLine = line.Split('|');
-
                     //reset multiline collector
                     multiLineCollector = "";
                 }
@@ -1277,23 +1270,14 @@ namespace HousePartyTranslator.Managers
                         {
                             if (multiLineCollector.Length > 2)
                             {//write last string with id plus all lines after that minus the last new line char
-                                if (IdsToExport.TryGetValue(lastLine[0], out _))
-                                    TranslationData[lastLine[0]] =
-                                        new LineData(lastLine[0], StoryName, FileName, category, IdsToExport[lastLine[0]]?.TemplateString, lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1));
-                                else
-                                    TranslationData.Add(lastLine[0],
-                                        new LineData(lastLine[0], StoryName, FileName, category, IdsToExport[lastLine[0]]?.TemplateString, lastLine[1] + multiLineCollector.Remove(multiLineCollector.Length - 2, 1)));
+                                createLineInTranslations(lastLine, category, IdsToExport, multiLineCollector.Remove(multiLineCollector.Length - 2, 1));
                             }
                             else
                             {//write last line with id if no real line of text is afterwards
-                                if (IdsToExport.TryGetValue(lastLine[0], out _))
-                                    TranslationData[lastLine[0]] =
-                                  new LineData(lastLine[0], StoryName, FileName, category, IdsToExport[lastLine[0]]?.TemplateString, lastLine[1]);
-                                else
-                                    TranslationData.Add(lastLine[0],
-                                  new LineData(lastLine[0], StoryName, FileName, category, IdsToExport[lastLine[0]]?.TemplateString, lastLine[1]));
+                                createLineInTranslations(lastLine, category, IdsToExport, lastLine[1]);
                             }
                         }
+                        //resetting for next iteration
                         lastLine = new string[0];
                         multiLineCollector = "";
                         category = tempCategory;
@@ -1304,12 +1288,17 @@ namespace HousePartyTranslator.Managers
 
             if (lastLine.Length > 0)
             {
-                //add last line (dont care about duplicates because sql will get rid of them)
-                if (IdsToExport.TryGetValue(lastLine[0], out LineData line1))
-                    TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, line1.TemplateString, lastLine[1]);
-                else
-                    TranslationData.Add(lastLine[0], new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1]));
+                //add last line (dont care about duplicates because the dict)
+                createLineInTranslations(lastLine, category, IdsToExport, lastLine[1]);
             }
+        }
+
+        private void createLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation)
+        {
+            if (IdsToExport.TryGetValue(lastLine[0], out LineData templateLine))
+                TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation);
+            else
+                TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1] + translation);
         }
 
         private void TryFixEmptyFile()
@@ -1320,7 +1309,7 @@ namespace HousePartyTranslator.Managers
                 _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
                 foreach (LineData item in IdsToExport.Values)
                 {
-                    TranslationData.Add(item.ID, new LineData(item.ID, StoryName, FileName, item.Category));
+                    TranslationData[item.ID] = new LineData(item.ID, StoryName, FileName, item.Category);
                 }
                 SaveFile();
                 TranslationData.Clear();

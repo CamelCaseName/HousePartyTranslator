@@ -10,7 +10,7 @@ namespace HousePartyTranslator.Managers
 {
     internal static class SoftwareVersionManager
     {
-        public static readonly string LocalVersion = "0.6.1.2";
+        public static readonly string LocalVersion = "0.6.2.0";
         public static string LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new HttpClient();
@@ -30,31 +30,39 @@ namespace HousePartyTranslator.Managers
 
         private static async void DoWork()
         {
-            //get data from github about the packages 
-            GithubResponse response = await JsonSerializer.DeserializeAsync<GithubResponse>(await client.GetStreamAsync(APIUrl));
-
-            //check version and for need of update
-            if (!UpdateNeeded(response.TagName)) return;
-
-            //prepare files
-            (bool successfull, string newFile, string oldFile) = CreateFiles();
-            if (!successfull) return;
-
-            //inform rest of program
-            UpdatePending = true;
-
-            if (Msg.InfoYesNoB("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update - " + response.Name))
+            try
             {
+                //get data from github about the packages 
+                GithubResponse response = await JsonSerializer.DeserializeAsync<GithubResponse>(await client.GetStreamAsync(APIUrl));
 
-                Download(response.Assets[0].BrowserDownloadUrl, newFile);
+                //check version and for need of update
+                if (!UpdateNeeded(response.TagName)) return;
 
-                if (!UpdateFile(oldFile, newFile)) return;
+                //prepare files
+                (bool successfull, string newFile, string oldFile) = CreateFiles();
+                if (!successfull) return;
 
-                //inform user
-                _ = Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
+                //inform rest of program
+                UpdatePending = true;
 
-                //exit
-                Application.Exit();
+                if (Msg.InfoYesNoB("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update - " + response.Name))
+                {
+
+                    Download(response.Assets[0].BrowserDownloadUrl, newFile);
+
+                    if (!UpdateFile(oldFile, newFile)) return;
+
+                    //inform user
+                    _ = Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
+
+                    //exit
+                    Application.Exit();
+                }
+            }
+            catch(Exception e)
+            {
+                LogManager.Log(e.Message, LogManager.Level.Error);
+                LogManager.Log("Self update failed.", LogManager.Level.Warning);
             }
         }
 

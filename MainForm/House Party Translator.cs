@@ -2,6 +2,7 @@
 using HousePartyTranslator.Managers;
 using HousePartyTranslator.StoryExplorerForm;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -284,7 +285,7 @@ namespace HousePartyTranslator
 
             PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
 
-            LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{DataBase.DBVersion} story version:{Properties.Settings.Default.version}");
+            LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{(DataBase.IsOnline ? DataBase.DBVersion : "*offline*")} story version:{Properties.Settings.Default.version}");
             //ProgressbarWindow.Hide();
             //ProgressbarWindow.Status.Text = "progress";
             //ProgressbarWindow.Text = "Autosave";

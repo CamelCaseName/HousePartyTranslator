@@ -17,6 +17,8 @@ namespace HousePartyTranslator.Managers
         private static MySqlCommand MainCommand;
         private static MySqlDataReader MainReader;
         private static string SoftwareVersion;
+        public static bool IsOnline { get; private set; } = false;
+
 #if DEBUG
         private static readonly string FROM = "FROM debug ";
         private static readonly string INSERT = "INSERT INTO debug ";
@@ -176,31 +178,33 @@ namespace HousePartyTranslator.Managers
             if (story != "Hints") _ = MainCommand.Parameters.AddWithValue("@filename", fileName);
             _ = MainCommand.Parameters.AddWithValue("@story", story);
 
-            _ = CheckOrReopenConnection();
-            MainReader = MainCommand.ExecuteReader();
             LineDataList = new FileData();
 
-            if (MainReader.HasRows)
+            if (CheckOrReopenConnection())
             {
-                while (MainReader.Read())
-                {
-                    LineDataList.Add(CleanId(MainReader.GetString("id"), story, fileName, true),
-                        new LineData(
-                            CleanId(MainReader.GetString("id"), story, fileName, true),
-                            story,
-                            fileName,
-                            (StringCategory)MainReader.GetInt32("category"),
-                            MainReader.GetString("english"),
-                            true));
-                }
-            }
-            else
-            {
-                _ = Msg.WarningOk("Ids can't be loaded", "Info");
-                LogManager.Log("No template ids found for " + story + "/" + fileName);
-            }
-            MainReader.Close();
+                MainReader = MainCommand.ExecuteReader();
 
+                if (MainReader.HasRows)
+                {
+                    while (MainReader.Read())
+                    {
+                        LineDataList.Add(CleanId(MainReader.GetString("id"), story, fileName, true),
+                            new LineData(
+                                CleanId(MainReader.GetString("id"), story, fileName, true),
+                                story,
+                                fileName,
+                                (StringCategory)MainReader.GetInt32("category"),
+                                MainReader.GetString("english"),
+                                true));
+                    }
+                }
+                else
+                {
+                    _ = Msg.WarningOk("Ids can't be loaded", "Info");
+                    LogManager.Log("No template ids found for " + story + "/" + fileName);
+                }
+                MainReader.Close();
+            }
             Application.UseWaitCursor = false;
             return LineDataList.Count > 0;
         }
@@ -212,8 +216,7 @@ namespace HousePartyTranslator.Managers
         private static void EstablishConnection(Fenster mainWindow)
         {
             Application.UseWaitCursor = true;
-            bool isConnected = false;
-            while (!isConnected)
+            while (!IsOnline)
             {
                 string connString = GetConnString();
                 if (connString == "")
@@ -255,12 +258,22 @@ namespace HousePartyTranslator.Managers
                         }
                         else
                         {
-                            isConnected = true;
+                            IsOnline = true;
                         }
                     }
                     catch (MySqlException e)
                     {
-                        _ = Msg.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                        if (e.Code == 0)
+                        {
+                            //0 means offline
+                            _ = Msg.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
+                                "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
+                        }
+                        else if (e.Code == 1045)
+                        {
+                            //means invalid creds
+                            _ = Msg.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                        }
                         Application.UseWaitCursor = false;
                         return;
                     }
@@ -280,69 +293,76 @@ namespace HousePartyTranslator.Managers
             MainCommand = new MySqlCommand("", sqlConnection);
             //Console.WriteLine("DB opened");
 
-            //checking template version
-            var getVersion = new MySqlCommand("SELECT story " +
-                                                       FROM +
-                                                       "WHERE ID = \"version\";", sqlConnection);
-            MainReader = getVersion.ExecuteReader();
-            _ = MainReader.Read();
-            DBVersion = MainReader.GetString(0);
-            MainReader.Close();
-
-            string fileVersion = Properties.Settings.Default.version;
-            if (fileVersion == "")
+            if (!IsOnline)
             {
-                // get software version from db
-                SoftwareVersion = DBVersion;
-                Properties.Settings.Default.version = DBVersion;
+                mainWindow.Text += " (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + SoftwareVersionManager.LocalVersion + ")";
+                mainWindow.Update();
             }
             else
             {
-                //add . if it is missing
-                if (!fileVersion.Contains("."))
-                {
-                    fileVersion = "1." + fileVersion;
-                    Properties.Settings.Default.version = fileVersion;
-                }
-                //try casting wi9th invariant culture, log and try and work around it if it fails
-                if (!double.TryParse(DBVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _dbVersion))
-                {
-                    _dbVersion = 1.0;
-                    LogManager.Log($"invalid string cast to double. Offender: {DBVersion}", LogManager.Level.Warning);
-                }
-                if (!double.TryParse(fileVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _fileVersion))
-                {
-                    _fileVersion = 1.0;
-                    LogManager.Log($"invalid string cast to double. Offender: {fileVersion}", LogManager.Level.Warning);
-                }
+                //checking template version
+                var getVersion = new MySqlCommand("SELECT story " +
+                                                           FROM +
+                                                           "WHERE ID = \"version\";", sqlConnection);
+                MainReader = getVersion.ExecuteReader();
+                _ = MainReader.Read();
+                DBVersion = MainReader.GetString(0);
+                MainReader.Close();
 
-                //save comparison
-                if (_dbVersion > _fileVersion)
+                string fileVersion = Properties.Settings.Default.version;
+                if (fileVersion == "")
                 {
-                    //update local software version from db
+                    // get software version from db
                     SoftwareVersion = DBVersion;
                     Properties.Settings.Default.version = DBVersion;
                 }
                 else
                 {
-                    //set version from settings
-                    SoftwareVersion = fileVersion;
+                    //add . if it is missing
+                    if (!fileVersion.Contains("."))
+                    {
+                        fileVersion = "1." + fileVersion;
+                        Properties.Settings.Default.version = fileVersion;
+                    }
+                    //try casting wi9th invariant culture, log and try and work around it if it fails
+                    if (!double.TryParse(DBVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _dbVersion))
+                    {
+                        _dbVersion = 1.0;
+                        LogManager.Log($"invalid string cast to double. Offender: {DBVersion}", LogManager.Level.Warning);
+                    }
+                    if (!double.TryParse(fileVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _fileVersion))
+                    {
+                        _fileVersion = 1.0;
+                        LogManager.Log($"invalid string cast to double. Offender: {fileVersion}", LogManager.Level.Warning);
+                    }
+
+                    //save comparison
+                    if (_dbVersion > _fileVersion)
+                    {
+                        //update local software version from db
+                        SoftwareVersion = DBVersion;
+                        Properties.Settings.Default.version = DBVersion;
+                    }
+                    else
+                    {
+                        //set version from settings
+                        SoftwareVersion = fileVersion;
+                    }
                 }
-            }
-            Properties.Settings.Default.Save();
+                Properties.Settings.Default.Save();
 
-            //set global variable for later actions
-            TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
-            if (!TranslationManager.IsUpToDate && Properties.Settings.Default.advancedMode)
-            {
-                _ = Msg.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ." +
-                            $" You may acquire the latest version of this program. " +
-                            $"If you know that you have newer strings, you may select the template files to upload the new versions!",
-                            "Updating string database");
+                //set global variable for later actions
+                TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
+                if (!TranslationManager.IsUpToDate && Properties.Settings.Default.advancedMode)
+                {
+                    _ = Msg.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " +
+                                "You may acquire the latest version of this program. " +
+                                "If you know that you have newer strings, you may select the template files to upload the new versions!",
+                                "Updating string database");
+                }
+                mainWindow.Text += " (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + SoftwareVersionManager.LocalVersion + ")";
+                mainWindow.Update();
             }
-            mainWindow.Text += " (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + SoftwareVersionManager.LocalVersion + ")";
-            mainWindow.Update();
-
             Application.UseWaitCursor = false;
         }
 
@@ -547,6 +567,7 @@ namespace HousePartyTranslator.Managers
                     try
                     {
                         ++tries;
+                        System.Threading.Thread.Sleep(500 * tries);
                         executedSuccessfully = command.ExecuteNonQuery() > 0;
                     }
                     catch (Exception e)
@@ -568,15 +589,33 @@ namespace HousePartyTranslator.Managers
         {
             //try to reopen the connection if it died
             int tries = 0;
-            while (sqlConnection.State != System.Data.ConnectionState.Open && tries < 10)
+            while (sqlConnection.State != System.Data.ConnectionState.Open && tries < 10 && IsOnline)
             {
                 ++tries;
                 sqlConnection.Close();
-                System.Threading.Thread.Sleep(500);
-                sqlConnection.Open();
+                System.Threading.Thread.Sleep(500 * tries);
+                try
+                {
+                    sqlConnection.Open();
+                    IsOnline = true;
+                }
+                catch (MySqlException e)
+                {
+                    if (e.Code == 0)
+                    {
+                        //0 means offline
+                        return false;
+                    }
+                    else if (e.Code == 1045)
+                    {
+                        //means invalid creds
+                        _ = Msg.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                    }
+                }
             }
-
-            if (sqlConnection.State != System.Data.ConnectionState.Open)
+            //if we are already offline
+            if (!IsOnline) return false;
+            else if (sqlConnection.State != System.Data.ConnectionState.Open)
             {
                 //password may have to be changed
                 _ = Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
