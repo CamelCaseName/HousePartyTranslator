@@ -17,7 +17,7 @@ namespace HousePartyTranslator.Managers
     /// </summary>
     internal sealed class TranslationManager
     {
-        public bool ChangesPending
+        internal bool ChangesPending
         {
             get { return _changesPending; }
             set
@@ -30,20 +30,20 @@ namespace HousePartyTranslator.Managers
             }
         }
         private bool _changesPending;
-        public static bool IsUpToDate = false;
-        public List<StringCategory> CategoriesInFile = new List<StringCategory>();
-        public bool isTemplate = false;
-        public string SearchQuery = "";
+        internal static bool IsUpToDate = false;
+        internal List<StringCategory> CategoriesInFile = new List<StringCategory>();
+        internal bool isTemplate = false;
+        internal string SearchQuery = "";
 
-        public static Timer AutoSaveTimer = new Timer();
+        internal static Timer AutoSaveTimer = new Timer();
 
-        public int SelectedSearchResult = 0;
+        internal int SelectedSearchResult = 0;
 
         //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
         private int templateCounter = 0;
 
-        public FileData TranslationData = new FileData();
-        public bool UpdateStoryExplorerSelection = true;
+        internal FileData TranslationData = new FileData();
+        internal bool UpdateStoryExplorerSelection = true;
         private static Fenster MainWindow;
         private static DiscordPresenceManager PresenceManager;
         private string fileName = "";
@@ -57,13 +57,13 @@ namespace HousePartyTranslator.Managers
         private bool triedFixingOnce = false;
         private bool triedSavingFixOnce = false;
 
-        public TranslationManager(PropertyHelper _helper)
+        internal TranslationManager(PropertyHelper _helper)
         {
             this.helper = _helper;
             AutoSaveTimer.Tick += SaveFileHandler;
         }
 
-        public TranslationManager(PropertyHelper _helper, DiscordPresenceManager discord)
+        internal TranslationManager(PropertyHelper _helper, DiscordPresenceManager discord)
         {
             if (PresenceManager == null) PresenceManager = discord;
             this.helper = _helper;
@@ -87,7 +87,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// The Name of the file loaded, without the extension.
         /// </summary>
-        public string FileName
+        internal string FileName
         {
             get
             {
@@ -102,12 +102,12 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Provides the id of the currently selected line
         /// </summary>
-        public string SelectedId { get { return helper.CheckListBoxLeft.SelectedItem?.ToString() ?? helper.CheckListBoxLeft.Items[0]?.ToString() ?? "Name"; } }
+        internal string SelectedId { get { return helper.CheckListBoxLeft.SelectedItem?.ToString() ?? helper.CheckListBoxLeft.Items[0]?.ToString() ?? "Name"; } }
 
         /// <summary>
         /// The Language of the current translation.
         /// </summary>
-        public static string Language
+        internal static string Language
         {
             get
             {
@@ -139,7 +139,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// The path to the file currently loaded.
         /// </summary>
-        public string SourceFilePath
+        internal string SourceFilePath
         {
             get
             {
@@ -155,7 +155,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// The name of the parent folder of the loaded file, MUST BE the story it is from.
         /// </summary>
-        public string StoryName
+        internal string StoryName
         {
             get
             {
@@ -180,7 +180,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        public bool CustomStoryTemplateHandle(string story)
+        internal bool CustomStoryTemplateHandle(string story)
         {
             DialogResult result;
             if (Properties.Settings.Default.EnableCustomStories)
@@ -248,7 +248,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Depending on the cursor location the line is approved or not (on checkbox or not).
         /// </summary>
-        public void ApprovedButtonHandler()
+        internal void ApprovedButtonHandler()
         {
             //change checked state for the selected item,
             //but only if we are on the button with the mouse.
@@ -265,7 +265,7 @@ namespace HousePartyTranslator.Managers
         /// Approves the string in the db, if possible. Also updates UI.
         /// </summary>
         /// <param name="SelectNewAfter">A bool to determine if a new string should be selected after approval.</param>
-        public void ApproveIfPossible(bool SelectNewAfter)
+        internal void ApproveIfPossible(bool SelectNewAfter)
         {
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
             if (currentIndex >= 0)
@@ -288,7 +288,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
-        public void LoadFileIntoProgram()
+        internal void LoadFileIntoProgram()
         {
             LoadFileIntoProgram(Utils.SelectFileFromSystem());
         }
@@ -298,7 +298,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="path">The path to the file to translate</param>
         /// <param name="presenceManager"></param>
-        public void LoadFileIntoProgram(string path)
+        internal void LoadFileIntoProgram(string path)
         {
             if (path.Length > 0)
             {
@@ -383,7 +383,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Populates the Editor/Template text boxes and does some basic set/reset logic.
         /// </summary>
-        public void PopulateTextBoxes()
+        internal void PopulateTextBoxes()
         {
             MainWindow.Cursor = Cursors.WaitCursor;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
@@ -437,7 +437,7 @@ namespace HousePartyTranslator.Managers
         /// Replaces a searched string in all applicable lines by the replacement provided using the invariant culture.
         /// </summary>
         /// <param name="replacement">The string to replace all search matches with</param>
-        public void ReplaceAll(string replacement)
+        internal void ReplaceAll(string replacement)
         {
             FileData old = TranslationData;
 
@@ -462,7 +462,7 @@ namespace HousePartyTranslator.Managers
         /// Replaces a searched string in the selected line if it is a search result by the replacement provided using the invariant culture.
         /// </summary>
         /// <param name="replacement">The string to replace all search matches with</param>
-        public void ReplaceSingle(string replacement)
+        internal void ReplaceSingle(string replacement)
         {
             int i = helper.CheckListBoxLeft.SelectedIndex;
             if (helper.CheckListBoxLeft.SearchResults.Contains(i))
@@ -479,7 +479,7 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        public void ReloadTranslationTextbox()
+        internal void ReloadTranslationTextbox()
         {
             //update textbox
             helper.TranslationTextBox.Text = TranslationData[SelectedId].TranslationString.Replace("\n", Environment.NewLine);
@@ -488,7 +488,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// replaces the template version of the string with a computer translated one to speed up translation.
         /// </summary>
-        public void RequestedAutomaticTranslation()
+        internal void RequestedAutomaticTranslation()
         {
             AutoTranslation.AutoTranslationAsync(TranslationData[SelectedId], Language, AutoTranslationCallback);
         }
@@ -537,7 +537,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Saves the current string to the db
         /// </summary>
-        public void SaveCurrentString()
+        internal void SaveCurrentString()
         {
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
 
@@ -558,7 +558,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Saves all strings to the file we read from.
         /// </summary>
-        public void SaveFile()
+        internal void SaveFile()
         {
             if (!Fenster.ProgressbarWindow.Visible) Fenster.ProgressbarWindow.Show(MainWindow);
             _ = Fenster.ProgressbarWindow.Focus();
@@ -570,17 +570,11 @@ namespace HousePartyTranslator.Managers
 
             List<CategorizedLines> CategorizedStrings = InitializeCategories();
 
-            if (DataBase.IsOnline)
-            {//sort online line ids into translations but use local values for translations if applicable
-                if (DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport))
-                    SortIntoCategories(CategorizedStrings, IdsToExport);
-                else
-                    SortIntoCategories(CategorizedStrings, TranslationData);
-            }
+            //sort online line ids into translations but use local values for translations if applicable
+            if (DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase.IsOnline)
+                SortIntoCategories(CategorizedStrings, IdsToExport);
             else
-            {//use local ids for saving
                 SortIntoCategories(CategorizedStrings, TranslationData);
-            }
 
             //save all categorized lines to disk
             WriteCategorizedLinesToDisk(CategorizedStrings);
@@ -739,7 +733,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Saves all strings to a specified file location.
         /// </summary>
-        public void SaveFileAs()
+        internal void SaveFileAs()
         {
             if (SourceFilePath != "")
             {
@@ -757,7 +751,7 @@ namespace HousePartyTranslator.Managers
         /// Opens a save file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the file to save to.</returns>
-        public string SelectSaveLocation()
+        internal string SelectSaveLocation()
         {
             var saveFileDialog = new SaveFileDialog
             {
@@ -781,7 +775,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Performs a search through all lines currently loaded.
         /// </summary>
-        public void Search()
+        internal void Search()
         {
             SearchQuery = helper.SearchBox.Text;
             Search(helper.SearchBox.Text);
@@ -791,7 +785,7 @@ namespace HousePartyTranslator.Managers
         /// Performs a search through all lines currently loaded.
         /// </summary>
         /// <param name="query">The search temr to look for</param>
-        public void Search(string query)
+        internal void Search(string query)
         {
             //reset list if no search is performed
             if (query.Length > 0)
@@ -851,7 +845,7 @@ namespace HousePartyTranslator.Managers
         /// Selects a string in the listview given the id
         /// </summary>
         /// <param name="id">The id to look for.</param>
-        public void SelectLine(string id)
+        internal void SelectLine(string id)
         {
             //select line which correspondends to id
             foreach (object item in helper.CheckListBoxLeft.Items)
@@ -868,7 +862,7 @@ namespace HousePartyTranslator.Managers
         /// Selects the index given in the list of strings
         /// </summary>
         /// <param name="index">The index to select</param>
-        public void SelectLine(int index)
+        internal void SelectLine(int index)
         {
             if (index >= 0 && index < TabManager.ActiveProperties.CheckListBoxLeft.Items.Count) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
         }
@@ -876,7 +870,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Sets the language the translation is associated with
         /// </summary>
-        public void SetLanguage()
+        internal void SetLanguage()
         {
             if (helper.LanguageBox.SelectedIndex >= 0)
             {
@@ -897,7 +891,7 @@ namespace HousePartyTranslator.Managers
         /// Sets the main form this translationmanager will work on (cursor, fields, etc)
         /// </summary>
         /// <param name="mainWindow">The form to work on.</param>
-        public void SetMainForm(Fenster mainWindow)
+        internal void SetMainForm(Fenster mainWindow)
         {
             MainWindow = mainWindow;
         }
@@ -905,7 +899,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
         /// </summary>
-        public void ShowAutoSaveDialog()
+        internal void ShowAutoSaveDialog()
         {
             if (Properties.Settings.Default.askForSaveDialog && ChangesPending)
             {
@@ -922,7 +916,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Update the currently selected translation string in the TranslationData.
         /// </summary>
-        public void UpdateTranslationString()
+        internal void UpdateTranslationString()
         {
             //remove pipe to not break saving/export
             _ = helper.TranslationTextBox.Text.Replace('|', ' ');
@@ -932,7 +926,7 @@ namespace HousePartyTranslator.Managers
             else selectedNew = false;
         }
 
-        public void UpdateComments()
+        internal void UpdateComments()
         {
             //remove pipe to not break saving/export
             TranslationData[SelectedId].Comments = helper.CommentBox.Lines;
@@ -1438,7 +1432,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
         /// </summary>
-        public void SetHighlightedNode()
+        internal void SetHighlightedNode()
         {
             if (TranslationData.Count > 0)
             {
