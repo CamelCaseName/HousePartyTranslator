@@ -8,9 +8,10 @@ namespace HousePartyTranslator.Managers
     {
         private static readonly List<string> recents = new List<string>(5);
         /// <summary>
-        /// Set to the number of recents set you want to ignore, used for the first one on stasrtup here
+        /// Set to the number of recents set you want to ignore, used for the first one on startup here
         /// </summary>
         public static int ignorenextRecents = 0;
+        private static int maxNumberOfMenuItems = 0;
         private static int recentIndex = -1;
 
         /// <summary>
@@ -90,6 +91,7 @@ namespace HousePartyTranslator.Managers
             if (ignorenextRecents-- <= 0)
             {
                 if (filepath.Length > 0) recents.Insert(0, filepath);
+                if (recents.Count > 5) recents.RemoveRange(5, recents.Count - 5);
                 ignorenextRecents = 0;
             }
         }
@@ -101,7 +103,16 @@ namespace HousePartyTranslator.Managers
         {
             if (Properties.Settings.Default.autoLoadRecent)
             {
-                if (recents.Count > 0)
+                bool recentsAvailable = false;
+                for (int i = 0; i < 5; i++)
+                {
+                    if (recents[i].Length > 0)
+                    {
+                        recentsAvailable = true;
+                        break;
+                    }
+                }
+                if (recentsAvailable)
                 {
                     ignorenextRecents = 1;
                     TranslationManager t = TabManager.ActiveTranslationManager;
@@ -119,23 +130,42 @@ namespace HousePartyTranslator.Managers
         public static void UpdateMenuItems(ToolStripItemCollection collection)
         {
             ToolStripItem[] items = GetRecents();
-            if (items.Length > 0)
+            int recentsStart;
+
+            if (maxNumberOfMenuItems == 0) maxNumberOfMenuItems = collection.Count + 6;
+
+            //find start of recents
+            for (recentsStart = 0; recentsStart < collection.Count; recentsStart++)
             {
-                int recentsStart;
-                //find start of recents
-                for (recentsStart = 0; recentsStart < collection.Count; recentsStart++)
-                {
-                    if (collection[recentsStart].GetType() == typeof(ToolStripSeparator)) break;
-                }
+                if (collection[recentsStart].GetType() == typeof(ToolStripSeparator)) break;
+            }
+            //update menu
+            if (items.Length > 0 && collection.Count < maxNumberOfMenuItems)
+            {
                 recentsStart += 2;
                 for (int i = 0; i < items.Length; i++)
                 {
-                    collection.Insert(recentsStart, items[items.Length - i - 1]);
+                    //we replace until we hit seperator, then we insert
+                    if (collection[recentsStart + i].GetType() == typeof(ToolStripSeparator))
+                    {
+                        collection.Insert(recentsStart, items[items.Length - i - 1]);
+                    }
+                    else
+                    {
+                        collection.RemoveAt(recentsStart + i);
+                        collection.Insert(recentsStart, items[items.Length - i - 1]);
+                    }
                 }
 
-                collection.Insert(recentsStart + items.Length, new ToolStripSeparator());
+                if (collection[recentsStart + items.Length].GetType() != typeof(ToolStripSeparator))
+                    collection.Insert(recentsStart + items.Length, new ToolStripSeparator());
                 SaveRecents();
+                //for the name update stuff
+                recentsStart -= 2;
             }
+
+            if (items.Length == 0) collection[recentsStart  + 1].Text = "No Recents";
+            else collection[recentsStart + 1].Text = "Recents:";
         }
 
         private static void RecentsManager_Click(object sender, EventArgs e)
