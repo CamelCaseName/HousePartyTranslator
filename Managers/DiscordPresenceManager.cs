@@ -52,22 +52,25 @@ namespace HousePartyTranslator.Managers
 
         public void Update(string story, string character)
         {
-            if (Properties.Settings.Default.enableDiscordRP && DataBase.IsOnline)
+            if (DataBase.IsOnline)
             {
-                if (!DiscordPresenceClient.IsInitialized || DiscordPresenceClient.IsDisposed)
+                if (Properties.Settings.Default.enableDiscordRP)
                 {
-                    Initialize();
+                    if (!DiscordPresenceClient.IsInitialized || DiscordPresenceClient.IsDisposed)
+                    {
+                        Initialize();
+                    }
+                    Story = story;
+                    Character = character;
+
+                    SetImageKey();
+
+                    UpdatePresence();
                 }
-                Story = story;
-                Character = character;
-
-                SetImageKey();
-
-                UpdatePresence();
-            }
-            else
-            {
-                DiscordPresenceClient.ClearPresence();
+                else
+                {
+                    DiscordPresenceClient.ClearPresence();
+                }
             }
         }
 

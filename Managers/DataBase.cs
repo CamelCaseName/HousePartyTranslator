@@ -40,35 +40,41 @@ namespace HousePartyTranslator.Managers
             _ = MainCommand.Parameters.AddWithValue("@id", story + fileName + id + language);
             _ = MainCommand.Parameters.AddWithValue("@language", language);
 
-            _ = CheckOrReopenConnection();
-            try
+            if (CheckOrReopenConnection())
             {
-                MainReader = MainCommand.ExecuteReader();
-                if (MainReader.HasRows && !MainReader.IsDBNull(0))
+                try
                 {
-                    translation = new LineData()
+                    MainReader = MainCommand.ExecuteReader();
+                    if (MainReader.HasRows && !MainReader.IsDBNull(0))
                     {
-                        Category = (StringCategory)MainReader.GetInt32("category"),
-                        Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
-                        FileName = fileName,
-                        ID = CleanId(id, story, fileName, false),
-                        IsApproved = MainReader.GetInt32("approved") > 0,
-                        IsTemplate = false,
-                        IsTranslated = MainReader.GetInt32("translated") > 0,
-                        Story = story,
-                        TemplateString = "",
-                        TranslationString = MainReader.GetString("translation")
-                    };
-                    wasSuccessfull = true;
+                        translation = new LineData()
+                        {
+                            Category = (StringCategory)MainReader.GetInt32("category"),
+                            Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
+                            FileName = fileName,
+                            ID = CleanId(id, story, fileName, false),
+                            IsApproved = MainReader.GetInt32("approved") > 0,
+                            IsTemplate = false,
+                            IsTranslated = MainReader.GetInt32("translated") > 0,
+                            Story = story,
+                            TemplateString = "",
+                            TranslationString = MainReader.GetString("translation")
+                        };
+                        wasSuccessfull = true;
+                    }
+                    else
+                    {
+                        translation = new LineData(id, story, fileName, StringCategory.General);
+                    }
                 }
-                else
+                finally
                 {
-                    translation = new LineData("", "", "", StringCategory.Neither);
+                    MainReader.Close();
                 }
             }
-            finally
+            else
             {
-                MainReader.Close();
+                translation = new LineData(id, story, fileName, StringCategory.General);
             }
             return wasSuccessfull;
         }
@@ -97,51 +103,53 @@ namespace HousePartyTranslator.Managers
 
             LineDataList = new FileData();
 
-            _ = CheckOrReopenConnection();
-            try
+            if (CheckOrReopenConnection())
             {
-                MainReader = MainCommand.ExecuteReader();
-
-                if (MainReader.HasRows)
+                try
                 {
-                    while (MainReader.Read())
+                    MainReader = MainCommand.ExecuteReader();
+
+                    if (MainReader.HasRows)
                     {
-                        if (!MainReader.IsDBNull(0) & !MainReader.IsDBNull(9))
+                        while (MainReader.Read())
                         {
-                            string id = CleanId(MainReader.GetString("id"), story, fileName, false);
-                            var _lineData = new LineData()
+                            if (!MainReader.IsDBNull(0) & !MainReader.IsDBNull(9))
                             {
-                                Category = (StringCategory)MainReader.GetInt32("category"),
-                                Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
-                                FileName = fileName,
-                                ID = id,
-                                IsApproved = MainReader.GetInt32("approved") > 0,
-                                IsTemplate = false,
-                                IsTranslated = MainReader.GetInt32("translated") > 0,
-                                Story = story,
-                                TemplateString = "",
-                                TranslationString = MainReader.GetString("translation")
-                            };
-                            if (LineDataList.ContainsKey(id))
-                            {
-                                LineDataList[id] = _lineData;
-                            }
-                            else
-                            {
-                                LineDataList.Add(id, _lineData);
+                                string id = CleanId(MainReader.GetString("id"), story, fileName, false);
+                                var _lineData = new LineData()
+                                {
+                                    Category = (StringCategory)MainReader.GetInt32("category"),
+                                    Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
+                                    FileName = fileName,
+                                    ID = id,
+                                    IsApproved = MainReader.GetInt32("approved") > 0,
+                                    IsTemplate = false,
+                                    IsTranslated = MainReader.GetInt32("translated") > 0,
+                                    Story = story,
+                                    TemplateString = "",
+                                    TranslationString = MainReader.GetString("translation")
+                                };
+                                if (LineDataList.ContainsKey(id))
+                                {
+                                    LineDataList[id] = _lineData;
+                                }
+                                else
+                                {
+                                    LineDataList.Add(id, _lineData);
+                                }
                             }
                         }
+                        wasSuccessfull = true;
                     }
-                    wasSuccessfull = true;
+                    else
+                    {
+                        _ = Msg.WarningOk("Ids can't be loaded", "Info");
+                    }
                 }
-                else
+                finally
                 {
-                    _ = Msg.WarningOk("Ids can't be loaded", "Info");
+                    MainReader.Close();
                 }
-            }
-            finally
-            {
-                MainReader.Close();
             }
             return wasSuccessfull;
         }
