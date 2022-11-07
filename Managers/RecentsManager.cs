@@ -12,7 +12,6 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static int ignorenextRecents = 0;
         private static int recentIndex = -1;
-        private static DiscordPresenceManager presenceManager;
 
         /// <summary>
         /// Get the most recently opened files as a collection of ToolStriItems
@@ -54,7 +53,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Initializes the most recently opened files from the saved settings
         /// </summary>
-        public static void Initialize(DiscordPresenceManager presenceManager)
+        public static void Initialize()
         {
             //add all saved recents
             recents.Add(Properties.Settings.Default.recents_0);
@@ -63,7 +62,6 @@ namespace HousePartyTranslator.Managers
             recents.Add(Properties.Settings.Default.recents_3);
             recents.Add(Properties.Settings.Default.recents_4);
             recentIndex = Properties.Settings.Default.recent_index;
-            RecentsManager.presenceManager = presenceManager;
         }
 
         /// <summary>
@@ -107,7 +105,7 @@ namespace HousePartyTranslator.Managers
                 {
                     ignorenextRecents = 1;
                     TranslationManager t = TabManager.ActiveTranslationManager;
-                    t.LoadFileIntoProgram(recents[0], presenceManager);
+                    t.LoadFileIntoProgram(recents[0]);
                     if (Properties.Settings.Default.autoLoadRecentIndex) t.SelectLine(recentIndex);
                     else t.SelectLine(0);
                 }
@@ -123,34 +121,27 @@ namespace HousePartyTranslator.Managers
             ToolStripItem[] items = GetRecents();
             if (items.Length > 0)
             {
-                if (items.Length == 5)
+                int recentsStart;
+                //find start of recents
+                for (recentsStart = 0; recentsStart < collection.Count; recentsStart++)
                 {
-                    for (int i = 0; i < items.Length; i++)
-                    {
-                        if (collection[4].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(4);
-                        else break;
-                    }
+                    if (collection[recentsStart].GetType() == typeof(ToolStripSeparator)) break;
                 }
-                else
+                recentsStart += 2;
+                for (int i = 0; i < items.Length; i++)
                 {
-                    for (int i = 0; i < items.Length - 1; i++)
-                    {
-                        if (collection[4].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(4);
-                        else break;
-                    }
+                    collection.Insert(recentsStart, items[items.Length - i - 1]);
                 }
+
+                collection.Insert(recentsStart + items.Length, new ToolStripSeparator());
+                SaveRecents();
             }
-            for (int i = 0; i < items.Length; i++)
-            {
-                collection.Insert(4, items[items.Length - i - 1]);
-            }
-            SaveRecents();
         }
 
         private static void RecentsManager_Click(object sender, EventArgs e)
         {
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text, presenceManager);
+            translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text);
             if (Properties.Settings.Default.autoLoadRecentIndex) translationManager.SelectLine(recentIndex);
         }
     }
