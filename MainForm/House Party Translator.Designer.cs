@@ -1,6 +1,7 @@
 ﻿using HousePartyTranslator.Helpers;
 using System;
 using System.Runtime.Remoting.Messaging;
+using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
@@ -12,7 +13,6 @@ namespace HousePartyTranslator
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.MenuStrip MainMenu;
         private System.Windows.Forms.TabControl MainTabControl;
-        private System.Windows.Forms.TableLayoutPanel mainTableLayoutPanel;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.ToolStripComboBox languageToolStripComboBox;
         private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
@@ -35,9 +35,6 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceAllButton;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceButton;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
         private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
 
@@ -77,7 +74,6 @@ namespace HousePartyTranslator
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.MainTabControl = new System.Windows.Forms.TabControl();
-            this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.openAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openInNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -97,9 +93,6 @@ namespace HousePartyTranslator
             this.ToolStripMenuReplaceBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripReplaceAllButton = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripReplaceButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.MainMenu.SuspendLayout();
             this.MainTabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -121,7 +114,11 @@ namespace HousePartyTranslator
             this.settingsToolStripMenuItem});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
+            this.MainMenu.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            this.MainMenu.Margin = new System.Windows.Forms.Padding(0);
+            this.MainMenu.ForeColor = backgroundDarker;
             this.MainMenu.Size = new System.Drawing.Size(1384, 27);
+            this.MainMenu.BackColor = backgroundDarker;
             this.MainMenu.TabIndex = 17;
             // 
             // fileToolStripMenuItem
@@ -131,13 +128,13 @@ namespace HousePartyTranslator
             this.openToolStripMenuItem,
             this.openAllToolStripMenuItem,
             this.openInNewTabToolStripMenuItem,
-            this.toolStripSeparator2,
+            new ToolStripSeparator(),
             this.Recents,
-            this.toolStripSeparator,
+            new ToolStripSeparator(),
             this.saveToolStripMenuItem,
             this.saveAllToolStripMenuItem,
             this.saveAsToolStripMenuItem,
-            this.toolStripSeparator1,
+            new ToolStripSeparator(),
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
@@ -150,9 +147,9 @@ namespace HousePartyTranslator
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.searchToolStripMenuItem,
             this.searchAllToolStripMenuItem,
-            this.toolStripSeparator,
+            new ToolStripSeparator(),
             this.replaceToolStripMenuItem,
-            this.toolStripSeparator,
+            new ToolStripSeparator(),
             this.overrideCloudSaveToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
@@ -216,23 +213,13 @@ namespace HousePartyTranslator
             this.openInNewTabToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
             this.openInNewTabToolStripMenuItem.Click += new System.EventHandler(this.OpenInNewTabToolStripMenuItem_Click);
             // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(233, 6);
-            // 
             // Recents
             // 
             this.Recents.Enabled = false;
             this.Recents.Name = "Recents";
             this.Recents.ShowShortcutKeys = false;
             this.Recents.Size = new System.Drawing.Size(236, 22);
-            this.Recents.Text = "Recents";
-            // 
-            // toolStripSeparator
-            // 
-            this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(233, 6);
+            this.Recents.Text = "Recents:";
             // 
             // saveToolStripMenuItem
             // 
@@ -270,11 +257,6 @@ namespace HousePartyTranslator
             this.overrideCloudSaveToolStripMenuItem.Text = "Override &Cloud Save";
             this.overrideCloudSaveToolStripMenuItem.Click += new System.EventHandler(this.OverrideCloudSaveToolStripMenuItem_Click);
             // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(233, 6);
-            // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
@@ -295,8 +277,9 @@ namespace HousePartyTranslator
             this.searchToolStripTextBox.BackColor = Fenster.menu;
             this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.searchToolStripTextBox.AutoSize = true;
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
-            this.searchToolStripTextBox.Size = new System.Drawing.Size(300, 23);
+            this.searchToolStripTextBox.Size = new System.Drawing.Size(150, 23);
             this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
             // 
             // ToolStripMenuReplaceBox
@@ -336,6 +319,8 @@ namespace HousePartyTranslator
             // 
             this.languageToolStripComboBox.BackColor = Fenster.menu;
             this.languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
+            this.languageToolStripComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.languageToolStripComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.languageToolStripComboBox.Name = "languageToolStripComboBox";
             this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
             this.languageToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.LanguageToolStripComboBox_SelectedIndexChanged);
@@ -397,8 +382,6 @@ namespace HousePartyTranslator
             this.Shown += new System.EventHandler(this.OnFormShown);
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();
-            this.mainTableLayoutPanel.ResumeLayout(false);
-            this.mainTableLayoutPanel.PerformLayout();
             this.MainTabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.ResumeLayout(false);
