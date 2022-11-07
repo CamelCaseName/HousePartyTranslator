@@ -16,21 +16,21 @@ namespace HousePartyTranslator
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.ToolStripComboBox languageToolStripComboBox;
         private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openInNewTabToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem overrideCloudSaveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem Recents;
-        private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem searchAllToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem replaceToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem overrideCloudSaveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem searchAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceAllButton;
@@ -38,13 +38,13 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
         private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
 
-        private static System.Drawing.Color foreground = Utils.foreground;
         private static System.Drawing.Color background = Utils.background;
         private static System.Drawing.Color backgroundDarker = Utils.backgroundDarker;
         private static System.Drawing.Color brightText = Utils.brightText;
         private static System.Drawing.Color darkText = Utils.darkText;
-        private static System.Drawing.Color menu = Utils.menu;
+        private static System.Drawing.Color foreground = Utils.foreground;
         private static System.Drawing.Color frame = Utils.frame;
+        private static System.Drawing.Color menu = Utils.menu;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -114,10 +114,12 @@ namespace HousePartyTranslator
             this.settingsToolStripMenuItem});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
-            this.MainMenu.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+            this.MainMenu.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
+            this.MainMenu.AutoSize = true;
             this.MainMenu.Margin = new System.Windows.Forms.Padding(0);
             this.MainMenu.ForeColor = backgroundDarker;
-            this.MainMenu.Size = new System.Drawing.Size(1384, 27);
+            this.MainMenu.Dock = System.Windows.Forms.DockStyle.Top;
+            this.MainMenu.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             this.MainMenu.BackColor = backgroundDarker;
             this.MainMenu.TabIndex = 17;
             // 
@@ -360,7 +362,7 @@ namespace HousePartyTranslator
             this.MainTabControl.Location = new System.Drawing.Point(0, 27);
             this.MainTabControl.Name = "MainTabControl";
             this.MainTabControl.SelectedIndex = 0;
-            this.MainTabControl.Size = new System.Drawing.Size(1384, 734);
+            this.MainTabControl.SizeMode = TabSizeMode.Normal;
             this.MainTabControl.TabIndex = 9;
             this.MainTabControl.SelectedIndexChanged += new System.EventHandler(this.MainTabControl_SelectedIndexChanged);
             this.MainTabControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.CloseTab_Click);
@@ -373,7 +375,7 @@ namespace HousePartyTranslator
             this.ClientSize = new System.Drawing.Size(1384, 761);
             this.Controls.Add(this.MainTabControl);
             this.Controls.Add(this.MainMenu);
-            this.MinimumSize = new System.Drawing.Size(970, 470);
+            this.MinimumSize = new System.Drawing.Size(640, 470);
             this.Name = "Fenster";
             this.ShowIcon = false;
             this.Text = "HP Translator Helper";
