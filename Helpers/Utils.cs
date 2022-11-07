@@ -270,6 +270,7 @@ namespace HousePartyTranslator.Helpers
             {
                 BackColor = System.Drawing.Color.Black,
                 ForeColor = System.Drawing.SystemColors.ScrollBar,
+                BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle,
                 Location = new System.Drawing.Point(4, 22),
                 Name = $"TabPage{number}",
                 Padding = new Padding(3),
