@@ -1,7 +1,6 @@
 ﻿using DiscordRPC;
 using HousePartyTranslator.Helpers;
 
-
 namespace HousePartyTranslator.Managers
 {
     internal sealed class DiscordPresenceManager
@@ -53,25 +52,22 @@ namespace HousePartyTranslator.Managers
 
         public void Update(string story, string character)
         {
-            if (DataBase.IsOnline)
+            if (Properties.Settings.Default.enableDiscordRP && DataBase.IsOnline)
             {
-                if (Properties.Settings.Default.enableDiscordRP)
+                if (!DiscordPresenceClient.IsInitialized || DiscordPresenceClient.IsDisposed)
                 {
-                    if (!DiscordPresenceClient.IsInitialized || DiscordPresenceClient.IsDisposed)
-                    {
-                        Initialize();
-                    }
-                    Story = story;
-                    Character = character;
-
-                    SetImageKey();
-
-                    UpdatePresence();
+                    Initialize();
                 }
-                else
-                {
-                    DiscordPresenceClient.ClearPresence();
-                }
+                Story = story;
+                Character = character;
+
+                SetImageKey();
+
+                UpdatePresence();
+            }
+            else
+            {
+                DiscordPresenceClient.ClearPresence();
             }
         }
 
@@ -88,31 +84,28 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         private void Initialize()
         {
-            if (DataBase.IsOnline)
+            DiscordPresenceClient = new DiscordRpcClient("940326430703771688")
             {
-                DiscordPresenceClient = new DiscordRpcClient("940326430703771688")
+                SkipIdenticalPresence = true
+            };
+
+            //Connect to the RPC
+            _ = DiscordPresenceClient.Initialize();
+
+            //Set the rich presence
+            //Call this as many times as you want and anywhere in your code.
+            DiscordPresenceClient.SetPresence(new RichPresence()
+            {
+                Details = $"Working on {Story},",
+                State = $"translating {Character}",
+                Assets = new Assets()
                 {
-                    SkipIdenticalPresence = true
-                };
+                    LargeImageKey = ImageKey,
+                    LargeImageText = Character
+                }
+            });
 
-                //Connect to the RPC
-                _ = DiscordPresenceClient.Initialize();
-
-                //Set the rich presence
-                //Call this as many times as you want and anywhere in your code.
-                DiscordPresenceClient.SetPresence(new RichPresence()
-                {
-                    Details = $"Working on {Story},",
-                    State = $"translating {Character}",
-                    Assets = new Assets()
-                    {
-                        LargeImageKey = ImageKey,
-                        LargeImageText = Character
-                    }
-                });
-
-                _ = DiscordPresenceClient.UpdateStartTime();
-            }
+            _ = DiscordPresenceClient.UpdateStartTime();
         }
 
         public void DeInitialize()

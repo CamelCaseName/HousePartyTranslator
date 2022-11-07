@@ -44,6 +44,7 @@ namespace HousePartyTranslator.Managers
         public FileData TranslationData = new FileData();
         public bool UpdateStoryExplorerSelection = true;
         private static Fenster MainWindow;
+        private static DiscordPresenceManager PresenceManager;
         private string fileName = "";
         private bool isSaveAs = false;
         private static string language = "";
@@ -55,11 +56,15 @@ namespace HousePartyTranslator.Managers
         private bool triedFixingOnce = false;
         private bool triedSavingFixOnce = false;
 
-        /// <summary>
-        /// The Constructor for this class. Takes no arguments.
-        /// </summary>
         public TranslationManager(PropertyHelper _helper)
         {
+            this.helper = _helper;
+            AutoSaveTimer.Tick += SaveFileHandler;
+        }
+
+        public TranslationManager(PropertyHelper _helper, DiscordPresenceManager discord)
+        {
+            if (PresenceManager == null) PresenceManager = discord;
             this.helper = _helper;
             AutoSaveTimer.Tick += SaveFileHandler;
         }
@@ -282,9 +287,9 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
-        public void LoadFileIntoProgram(DiscordPresenceManager presenceManager)
+        public void LoadFileIntoProgram()
         {
-            LoadFileIntoProgram(Utils.SelectFileFromSystem(), presenceManager);
+            LoadFileIntoProgram(Utils.SelectFileFromSystem());
         }
 
         /// <summary>
@@ -292,7 +297,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="path">The path to the file to translate</param>
         /// <param name="presenceManager"></param>
-        public void LoadFileIntoProgram(string path, DiscordPresenceManager presenceManager)
+        public void LoadFileIntoProgram(string path)
         {
             if (path.Length > 0)
             {
@@ -324,7 +329,7 @@ namespace HousePartyTranslator.Managers
                     RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
 
                     //update presence and recents
-                    presenceManager.Update(StoryName, FileName);
+                    PresenceManager.Update(StoryName, FileName);
                 }
                 //reset cursor
                 MainWindow.Cursor = Cursors.Default;
@@ -1249,7 +1254,7 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) createLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
+                    if (lastLine.Length != 0) CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
                     //get current line
                     lastLine = line.Split('|');
                     //reset multiline collector
@@ -1270,11 +1275,11 @@ namespace HousePartyTranslator.Managers
                         {
                             if (multiLineCollector.Length > 2)
                             {//write last string with id plus all lines after that minus the last new line char
-                                createLineInTranslations(lastLine, category, IdsToExport, multiLineCollector.Remove(multiLineCollector.Length - 2, 1));
+                                CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector.Remove(multiLineCollector.Length - 2, 1));
                             }
                             else
                             {//write last line with id if no real line of text is afterwards
-                                createLineInTranslations(lastLine, category, IdsToExport, lastLine[1]);
+                                CreateLineInTranslations(lastLine, category, IdsToExport, lastLine[1]);
                             }
                         }
                         //resetting for next iteration
@@ -1289,11 +1294,11 @@ namespace HousePartyTranslator.Managers
             if (lastLine.Length > 0)
             {
                 //add last line (dont care about duplicates because the dict)
-                createLineInTranslations(lastLine, category, IdsToExport, lastLine[1]);
+                CreateLineInTranslations(lastLine, category, IdsToExport, lastLine[1]);
             }
         }
 
-        private void createLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation)
+        private void CreateLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation)
         {
             if (IdsToExport.TryGetValue(lastLine[0], out LineData templateLine))
                 TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation);

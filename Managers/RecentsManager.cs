@@ -146,15 +146,12 @@ namespace HousePartyTranslator.Managers
                 for (int i = 0; i < items.Length; i++)
                 {
                     //we replace until we hit seperator, then we insert
-                    if (collection[recentsStart + i].GetType() == typeof(ToolStripSeparator))
-                    {
-                        collection.Insert(recentsStart, items[items.Length - i - 1]);
-                    }
-                    else
+                    if (collection[recentsStart + i].GetType() != typeof(ToolStripSeparator))
                     {
                         collection.RemoveAt(recentsStart + i);
-                        collection.Insert(recentsStart, items[items.Length - i - 1]);
                     }
+
+                    collection.Insert(recentsStart, items[items.Length - i - 1]);
                 }
 
                 if (collection[recentsStart + items.Length].GetType() != typeof(ToolStripSeparator))
@@ -164,7 +161,7 @@ namespace HousePartyTranslator.Managers
                 recentsStart -= 2;
             }
 
-            if (items.Length == 0) collection[recentsStart  + 1].Text = "No Recents";
+            if (items.Length == 0) collection[recentsStart + 1].Text = "No Recents";
             else collection[recentsStart + 1].Text = "Recents:";
         }
 

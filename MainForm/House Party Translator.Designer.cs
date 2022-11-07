@@ -32,7 +32,7 @@ namespace HousePartyTranslator
         private System.Windows.Forms.ToolStripMenuItem searchAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceAllButton;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceButton;
         private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
@@ -88,7 +88,7 @@ namespace HousePartyTranslator
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.storyExplorerStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.ToolStripMenuReplaceBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripReplaceAllButton = new System.Windows.Forms.ToolStripMenuItem();
@@ -109,7 +109,7 @@ namespace HousePartyTranslator
             this.toolStripReplaceButton,
             this.toolStripReplaceAllButton,
             this.languageToolStripComboBox,
-            this.storyExplorerStripMenuItem1,
+            this.storyExplorerStripMenuItem,
             this.customOpenStoryExplorer,
             this.settingsToolStripMenuItem});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
@@ -140,6 +140,8 @@ namespace HousePartyTranslator
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
+            this.fileToolStripMenuItem.AutoSize = false;
+            this.fileToolStripMenuItem.Margin = new Padding(1);
             this.fileToolStripMenuItem.Text = "&File";
             this.fileToolStripMenuItem.ToolTipText = "All relevant controls for opening and saving a file";
             // 
@@ -155,6 +157,8 @@ namespace HousePartyTranslator
             this.overrideCloudSaveToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
+            this.editToolStripMenuItem.AutoSize = false;
+            this.editToolStripMenuItem.Margin = new Padding(1);
             this.editToolStripMenuItem.Text = "&Edit";
             this.editToolStripMenuItem.ToolTipText = "All relevant controls for editing a file, plus special controls";
             // 
@@ -271,6 +275,8 @@ namespace HousePartyTranslator
             this.saveCurrentStringToolStripMenuItem.BackColor = Fenster.menu;
             this.saveCurrentStringToolStripMenuItem.Name = "saveCurrentStringToolStripMenuItem";
             this.saveCurrentStringToolStripMenuItem.Size = new System.Drawing.Size(122, 23);
+            this.saveCurrentStringToolStripMenuItem.AutoSize = false;
+            this.saveCurrentStringToolStripMenuItem.Margin = new Padding(1);
             this.saveCurrentStringToolStripMenuItem.Text = "&Save selected string";
             this.saveCurrentStringToolStripMenuItem.Click += new System.EventHandler(this.SaveCurrentStringToolStripMenuItem_Click);
             // 
@@ -282,6 +288,7 @@ namespace HousePartyTranslator
             this.searchToolStripTextBox.AutoSize = true;
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
             this.searchToolStripTextBox.Size = new System.Drawing.Size(150, 23);
+            this.searchToolStripTextBox.Margin = new Padding(1);
             this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
             // 
             // ToolStripMenuReplaceBox
@@ -289,9 +296,10 @@ namespace HousePartyTranslator
             this.ToolStripMenuReplaceBox.BackColor = Fenster.menu;
             this.ToolStripMenuReplaceBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.ToolStripMenuReplaceBox.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.ToolStripMenuReplaceBox.Margin = new System.Windows.Forms.Padding(4, 0, 1, 0);
             this.ToolStripMenuReplaceBox.Name = "ToolStripMenuReplaceBox";
             this.ToolStripMenuReplaceBox.Size = new System.Drawing.Size(100, 23);
+            this.ToolStripMenuReplaceBox.AutoSize = true;
+            this.ToolStripMenuReplaceBox.Margin = new Padding(1);
             this.ToolStripMenuReplaceBox.Visible = false;
             this.ToolStripMenuReplaceBox.TextChanged += new System.EventHandler(this.ToolStripMenuReplaceBox_TextChanged);
             // 
@@ -299,9 +307,10 @@ namespace HousePartyTranslator
             // 
             this.toolStripReplaceAllButton.BackColor = Fenster.menu;
             this.toolStripReplaceAllButton.ForeColor = Fenster.darkText;
-            this.toolStripReplaceAllButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.toolStripReplaceAllButton.Name = "toolStripReplaceAllButton";
             this.toolStripReplaceAllButton.Size = new System.Drawing.Size(63, 23);
+            this.toolStripReplaceAllButton.AutoSize = false;
+            this.toolStripReplaceAllButton.Margin = new Padding(1);
             this.toolStripReplaceAllButton.Text = "Replace all";
             this.toolStripReplaceAllButton.Visible = false;
             this.toolStripReplaceAllButton.Click += new System.EventHandler(this.ToolStripReplaceAllButton_Click);
@@ -310,9 +319,10 @@ namespace HousePartyTranslator
             // 
             this.toolStripReplaceButton.BackColor = Fenster.menu;
             this.toolStripReplaceButton.ForeColor = Fenster.darkText;
-            this.toolStripReplaceButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.toolStripReplaceButton.Name = "toolStripReplaceButton";
             this.toolStripReplaceButton.Size = new System.Drawing.Size(63, 23);
+            this.toolStripReplaceButton.AutoSize = false;
+            this.toolStripReplaceButton.Margin = new Padding(1);
             this.toolStripReplaceButton.Text = "Replace";
             this.toolStripReplaceButton.Visible = false;
             this.toolStripReplaceButton.Click += new System.EventHandler(this.ToolStripReplaceButton_Click);
@@ -325,21 +335,27 @@ namespace HousePartyTranslator
             this.languageToolStripComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.languageToolStripComboBox.Name = "languageToolStripComboBox";
             this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
+            this.languageToolStripComboBox.AutoSize = true;
+            this.languageToolStripComboBox.Margin = new Padding(1);
             this.languageToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.LanguageToolStripComboBox_SelectedIndexChanged);
             // 
-            // storyExplorerStripMenuItem1
+            // storyExplorerStripMenuItem
             // 
-            this.storyExplorerStripMenuItem1.BackColor = Fenster.menu;
-            this.storyExplorerStripMenuItem1.Name = "storyExplorerStripMenuItem1";
-            this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(118, 23);
-            this.storyExplorerStripMenuItem1.Text = "&Auto StoryExplorer";
-            this.storyExplorerStripMenuItem1.Click += new System.EventHandler(this.StoryExplorerStripMenuItem_Click);
+            this.storyExplorerStripMenuItem.BackColor = Fenster.menu;
+            this.storyExplorerStripMenuItem.Name = "storyExplorerStripMenuItem";
+            this.storyExplorerStripMenuItem.Size = new System.Drawing.Size(118, 23);
+            this.storyExplorerStripMenuItem.AutoSize = false;
+            this.storyExplorerStripMenuItem.Margin = new Padding(1);
+            this.storyExplorerStripMenuItem.Text = "&Auto StoryExplorer";
+            this.storyExplorerStripMenuItem.Click += new System.EventHandler(this.StoryExplorerStripMenuItem_Click);
             // 
             // customOpenStoryExplorer
             // 
             this.customOpenStoryExplorer.BackColor = Fenster.menu;
             this.customOpenStoryExplorer.Name = "customOpenStoryExplorer";
             this.customOpenStoryExplorer.Size = new System.Drawing.Size(121, 23);
+            this.customOpenStoryExplorer.AutoSize = false;
+            this.customOpenStoryExplorer.Margin = new Padding(1);
             this.customOpenStoryExplorer.Text = "Open StoryE&xplorer";
             this.customOpenStoryExplorer.Click += new System.EventHandler(this.CustomStoryExplorerStripMenuItem_Click);
             // 
@@ -348,6 +364,8 @@ namespace HousePartyTranslator
             this.settingsToolStripMenuItem.BackColor = Fenster.menu;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
+            this.settingsToolStripMenuItem.AutoSize = false;
+            this.settingsToolStripMenuItem.Margin = new Padding(1);
             this.settingsToolStripMenuItem.Text = "Se&ttings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 

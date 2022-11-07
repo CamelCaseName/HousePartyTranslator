@@ -277,6 +277,7 @@ namespace HousePartyTranslator
             ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
+            RecentsManager.UpdateMenuItems(FileToolStripMenuItem.DropDownItems);
             RecentsManager.OpenMostRecent();
 
             //start timer to update presence
