@@ -1,6 +1,7 @@
 ﻿using HousePartyTranslator.Helpers;
 using System;
 using System.Runtime.Remoting.Messaging;
+using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
@@ -12,42 +13,38 @@ namespace HousePartyTranslator
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.MenuStrip MainMenu;
         private System.Windows.Forms.TabControl MainTabControl;
-        private System.Windows.Forms.TableLayoutPanel mainTableLayoutPanel;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.ToolStripComboBox languageToolStripComboBox;
         private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openInNewTabToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem overrideCloudSaveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem Recents;
-        private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem searchAllToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem replaceToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem overrideCloudSaveToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem searchAllToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceAllButton;
         private System.Windows.Forms.ToolStripMenuItem toolStripReplaceButton;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
         private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
 
-        private static System.Drawing.Color foreground = Utils.foreground;
         private static System.Drawing.Color background = Utils.background;
         private static System.Drawing.Color backgroundDarker = Utils.backgroundDarker;
         private static System.Drawing.Color brightText = Utils.brightText;
         private static System.Drawing.Color darkText = Utils.darkText;
-        private static System.Drawing.Color menu = Utils.menu;
+        private static System.Drawing.Color foreground = Utils.foreground;
         private static System.Drawing.Color frame = Utils.frame;
+        private static System.Drawing.Color menu = Utils.menu;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -77,7 +74,6 @@ namespace HousePartyTranslator
             this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
             this.MainMenu = new System.Windows.Forms.MenuStrip();
             this.MainTabControl = new System.Windows.Forms.TabControl();
-            this.mainTableLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.openAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openInNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -92,14 +88,11 @@ namespace HousePartyTranslator
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.storyExplorerStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.storyExplorerStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.ToolStripMenuReplaceBox = new System.Windows.Forms.ToolStripTextBox();
             this.toolStripReplaceAllButton = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripReplaceButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.MainMenu.SuspendLayout();
             this.MainTabControl.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -116,12 +109,18 @@ namespace HousePartyTranslator
             this.toolStripReplaceButton,
             this.toolStripReplaceAllButton,
             this.languageToolStripComboBox,
-            this.storyExplorerStripMenuItem1,
+            this.storyExplorerStripMenuItem,
             this.customOpenStoryExplorer,
             this.settingsToolStripMenuItem});
             this.MainMenu.Location = new System.Drawing.Point(0, 0);
             this.MainMenu.Name = "MainMenu";
-            this.MainMenu.Size = new System.Drawing.Size(1384, 27);
+            this.MainMenu.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
+            this.MainMenu.AutoSize = true;
+            this.MainMenu.Margin = new System.Windows.Forms.Padding(0);
+            this.MainMenu.ForeColor = backgroundDarker;
+            this.MainMenu.Dock = System.Windows.Forms.DockStyle.Top;
+            this.MainMenu.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            this.MainMenu.BackColor = backgroundDarker;
             this.MainMenu.TabIndex = 17;
             // 
             // fileToolStripMenuItem
@@ -131,16 +130,18 @@ namespace HousePartyTranslator
             this.openToolStripMenuItem,
             this.openAllToolStripMenuItem,
             this.openInNewTabToolStripMenuItem,
-            this.toolStripSeparator2,
+            new ToolStripSeparator(),
             this.Recents,
-            this.toolStripSeparator,
+            new ToolStripSeparator(),
             this.saveToolStripMenuItem,
             this.saveAllToolStripMenuItem,
             this.saveAsToolStripMenuItem,
-            this.toolStripSeparator1,
+            new ToolStripSeparator(),
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
+            this.fileToolStripMenuItem.AutoSize = false;
+            this.fileToolStripMenuItem.Margin = new Padding(1);
             this.fileToolStripMenuItem.Text = "&File";
             this.fileToolStripMenuItem.ToolTipText = "All relevant controls for opening and saving a file";
             // 
@@ -150,12 +151,14 @@ namespace HousePartyTranslator
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.searchToolStripMenuItem,
             this.searchAllToolStripMenuItem,
-            this.toolStripSeparator,
+            new ToolStripSeparator(),
             this.replaceToolStripMenuItem,
-            this.toolStripSeparator,
+            new ToolStripSeparator(),
             this.overrideCloudSaveToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
+            this.editToolStripMenuItem.AutoSize = false;
+            this.editToolStripMenuItem.Margin = new Padding(1);
             this.editToolStripMenuItem.Text = "&Edit";
             this.editToolStripMenuItem.ToolTipText = "All relevant controls for editing a file, plus special controls";
             // 
@@ -216,23 +219,13 @@ namespace HousePartyTranslator
             this.openInNewTabToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
             this.openInNewTabToolStripMenuItem.Click += new System.EventHandler(this.OpenInNewTabToolStripMenuItem_Click);
             // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(233, 6);
-            // 
             // Recents
             // 
             this.Recents.Enabled = false;
             this.Recents.Name = "Recents";
             this.Recents.ShowShortcutKeys = false;
             this.Recents.Size = new System.Drawing.Size(236, 22);
-            this.Recents.Text = "Recents";
-            // 
-            // toolStripSeparator
-            // 
-            this.toolStripSeparator.Name = "toolStripSeparator";
-            this.toolStripSeparator.Size = new System.Drawing.Size(233, 6);
+            this.Recents.Text = "Recents:";
             // 
             // saveToolStripMenuItem
             // 
@@ -270,11 +263,6 @@ namespace HousePartyTranslator
             this.overrideCloudSaveToolStripMenuItem.Text = "Override &Cloud Save";
             this.overrideCloudSaveToolStripMenuItem.Click += new System.EventHandler(this.OverrideCloudSaveToolStripMenuItem_Click);
             // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(233, 6);
-            // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
@@ -287,6 +275,8 @@ namespace HousePartyTranslator
             this.saveCurrentStringToolStripMenuItem.BackColor = Fenster.menu;
             this.saveCurrentStringToolStripMenuItem.Name = "saveCurrentStringToolStripMenuItem";
             this.saveCurrentStringToolStripMenuItem.Size = new System.Drawing.Size(122, 23);
+            this.saveCurrentStringToolStripMenuItem.AutoSize = false;
+            this.saveCurrentStringToolStripMenuItem.Margin = new Padding(1);
             this.saveCurrentStringToolStripMenuItem.Text = "&Save selected string";
             this.saveCurrentStringToolStripMenuItem.Click += new System.EventHandler(this.SaveCurrentStringToolStripMenuItem_Click);
             // 
@@ -295,8 +285,10 @@ namespace HousePartyTranslator
             this.searchToolStripTextBox.BackColor = Fenster.menu;
             this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.searchToolStripTextBox.AutoSize = true;
             this.searchToolStripTextBox.Name = "searchToolStripTextBox";
-            this.searchToolStripTextBox.Size = new System.Drawing.Size(300, 23);
+            this.searchToolStripTextBox.Size = new System.Drawing.Size(150, 23);
+            this.searchToolStripTextBox.Margin = new Padding(1);
             this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
             // 
             // ToolStripMenuReplaceBox
@@ -304,9 +296,10 @@ namespace HousePartyTranslator
             this.ToolStripMenuReplaceBox.BackColor = Fenster.menu;
             this.ToolStripMenuReplaceBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.ToolStripMenuReplaceBox.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.ToolStripMenuReplaceBox.Margin = new System.Windows.Forms.Padding(4, 0, 1, 0);
             this.ToolStripMenuReplaceBox.Name = "ToolStripMenuReplaceBox";
             this.ToolStripMenuReplaceBox.Size = new System.Drawing.Size(100, 23);
+            this.ToolStripMenuReplaceBox.AutoSize = true;
+            this.ToolStripMenuReplaceBox.Margin = new Padding(1);
             this.ToolStripMenuReplaceBox.Visible = false;
             this.ToolStripMenuReplaceBox.TextChanged += new System.EventHandler(this.ToolStripMenuReplaceBox_TextChanged);
             // 
@@ -314,9 +307,10 @@ namespace HousePartyTranslator
             // 
             this.toolStripReplaceAllButton.BackColor = Fenster.menu;
             this.toolStripReplaceAllButton.ForeColor = Fenster.darkText;
-            this.toolStripReplaceAllButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.toolStripReplaceAllButton.Name = "toolStripReplaceAllButton";
             this.toolStripReplaceAllButton.Size = new System.Drawing.Size(63, 23);
+            this.toolStripReplaceAllButton.AutoSize = false;
+            this.toolStripReplaceAllButton.Margin = new Padding(1);
             this.toolStripReplaceAllButton.Text = "Replace all";
             this.toolStripReplaceAllButton.Visible = false;
             this.toolStripReplaceAllButton.Click += new System.EventHandler(this.ToolStripReplaceAllButton_Click);
@@ -325,9 +319,10 @@ namespace HousePartyTranslator
             // 
             this.toolStripReplaceButton.BackColor = Fenster.menu;
             this.toolStripReplaceButton.ForeColor = Fenster.darkText;
-            this.toolStripReplaceButton.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.toolStripReplaceButton.Name = "toolStripReplaceButton";
             this.toolStripReplaceButton.Size = new System.Drawing.Size(63, 23);
+            this.toolStripReplaceButton.AutoSize = false;
+            this.toolStripReplaceButton.Margin = new Padding(1);
             this.toolStripReplaceButton.Text = "Replace";
             this.toolStripReplaceButton.Visible = false;
             this.toolStripReplaceButton.Click += new System.EventHandler(this.ToolStripReplaceButton_Click);
@@ -336,23 +331,31 @@ namespace HousePartyTranslator
             // 
             this.languageToolStripComboBox.BackColor = Fenster.menu;
             this.languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
+            this.languageToolStripComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.languageToolStripComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.languageToolStripComboBox.Name = "languageToolStripComboBox";
             this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
+            this.languageToolStripComboBox.AutoSize = true;
+            this.languageToolStripComboBox.Margin = new Padding(1);
             this.languageToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.LanguageToolStripComboBox_SelectedIndexChanged);
             // 
-            // storyExplorerStripMenuItem1
+            // storyExplorerStripMenuItem
             // 
-            this.storyExplorerStripMenuItem1.BackColor = Fenster.menu;
-            this.storyExplorerStripMenuItem1.Name = "storyExplorerStripMenuItem1";
-            this.storyExplorerStripMenuItem1.Size = new System.Drawing.Size(118, 23);
-            this.storyExplorerStripMenuItem1.Text = "&Auto StoryExplorer";
-            this.storyExplorerStripMenuItem1.Click += new System.EventHandler(this.StoryExplorerStripMenuItem_Click);
+            this.storyExplorerStripMenuItem.BackColor = Fenster.menu;
+            this.storyExplorerStripMenuItem.Name = "storyExplorerStripMenuItem";
+            this.storyExplorerStripMenuItem.Size = new System.Drawing.Size(118, 23);
+            this.storyExplorerStripMenuItem.AutoSize = false;
+            this.storyExplorerStripMenuItem.Margin = new Padding(1);
+            this.storyExplorerStripMenuItem.Text = "&Auto StoryExplorer";
+            this.storyExplorerStripMenuItem.Click += new System.EventHandler(this.StoryExplorerStripMenuItem_Click);
             // 
             // customOpenStoryExplorer
             // 
             this.customOpenStoryExplorer.BackColor = Fenster.menu;
             this.customOpenStoryExplorer.Name = "customOpenStoryExplorer";
             this.customOpenStoryExplorer.Size = new System.Drawing.Size(121, 23);
+            this.customOpenStoryExplorer.AutoSize = false;
+            this.customOpenStoryExplorer.Margin = new Padding(1);
             this.customOpenStoryExplorer.Text = "Open StoryE&xplorer";
             this.customOpenStoryExplorer.Click += new System.EventHandler(this.CustomStoryExplorerStripMenuItem_Click);
             // 
@@ -361,6 +364,8 @@ namespace HousePartyTranslator
             this.settingsToolStripMenuItem.BackColor = Fenster.menu;
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
+            this.settingsToolStripMenuItem.AutoSize = false;
+            this.settingsToolStripMenuItem.Margin = new Padding(1);
             this.settingsToolStripMenuItem.Text = "Se&ttings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
             // 
@@ -375,7 +380,7 @@ namespace HousePartyTranslator
             this.MainTabControl.Location = new System.Drawing.Point(0, 27);
             this.MainTabControl.Name = "MainTabControl";
             this.MainTabControl.SelectedIndex = 0;
-            this.MainTabControl.Size = new System.Drawing.Size(1384, 734);
+            this.MainTabControl.SizeMode = TabSizeMode.Normal;
             this.MainTabControl.TabIndex = 9;
             this.MainTabControl.SelectedIndexChanged += new System.EventHandler(this.MainTabControl_SelectedIndexChanged);
             this.MainTabControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.CloseTab_Click);
@@ -388,7 +393,7 @@ namespace HousePartyTranslator
             this.ClientSize = new System.Drawing.Size(1384, 761);
             this.Controls.Add(this.MainTabControl);
             this.Controls.Add(this.MainMenu);
-            this.MinimumSize = new System.Drawing.Size(970, 470);
+            this.MinimumSize = new System.Drawing.Size(640, 470);
             this.Name = "Fenster";
             this.ShowIcon = false;
             this.Text = "HP Translator Helper";
@@ -397,8 +402,6 @@ namespace HousePartyTranslator
             this.Shown += new System.EventHandler(this.OnFormShown);
             this.MainMenu.ResumeLayout(false);
             this.MainMenu.PerformLayout();
-            this.mainTableLayoutPanel.ResumeLayout(false);
-            this.mainTableLayoutPanel.PerformLayout();
             this.MainTabControl.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.ResumeLayout(false);

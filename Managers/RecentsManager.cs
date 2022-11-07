@@ -8,11 +8,11 @@ namespace HousePartyTranslator.Managers
     {
         private static readonly List<string> recents = new List<string>(5);
         /// <summary>
-        /// Set to the number of recents set you want to ignore, used for the first one on stasrtup here
+        /// Set to the number of recents set you want to ignore, used for the first one on startup here
         /// </summary>
         public static int ignorenextRecents = 0;
+        private static int maxNumberOfMenuItems = 0;
         private static int recentIndex = -1;
-        private static DiscordPresenceManager presenceManager;
 
         /// <summary>
         /// Get the most recently opened files as a collection of ToolStriItems
@@ -54,7 +54,7 @@ namespace HousePartyTranslator.Managers
         /// <summary>
         /// Initializes the most recently opened files from the saved settings
         /// </summary>
-        public static void Initialize(DiscordPresenceManager presenceManager)
+        public static void Initialize()
         {
             //add all saved recents
             recents.Add(Properties.Settings.Default.recents_0);
@@ -63,7 +63,6 @@ namespace HousePartyTranslator.Managers
             recents.Add(Properties.Settings.Default.recents_3);
             recents.Add(Properties.Settings.Default.recents_4);
             recentIndex = Properties.Settings.Default.recent_index;
-            RecentsManager.presenceManager = presenceManager;
         }
 
         /// <summary>
@@ -92,6 +91,7 @@ namespace HousePartyTranslator.Managers
             if (ignorenextRecents-- <= 0)
             {
                 if (filepath.Length > 0) recents.Insert(0, filepath);
+                if (recents.Count > 5) recents.RemoveRange(5, recents.Count - 5);
                 ignorenextRecents = 0;
             }
         }
@@ -103,11 +103,20 @@ namespace HousePartyTranslator.Managers
         {
             if (Properties.Settings.Default.autoLoadRecent)
             {
-                if (recents.Count > 0)
+                bool recentsAvailable = false;
+                for (int i = 0; i < 5; i++)
+                {
+                    if (recents[i].Length > 0)
+                    {
+                        recentsAvailable = true;
+                        break;
+                    }
+                }
+                if (recentsAvailable)
                 {
                     ignorenextRecents = 1;
                     TranslationManager t = TabManager.ActiveTranslationManager;
-                    t.LoadFileIntoProgram(recents[0], presenceManager);
+                    t.LoadFileIntoProgram(recents[0]);
                     if (Properties.Settings.Default.autoLoadRecentIndex) t.SelectLine(recentIndex);
                     else t.SelectLine(0);
                 }
@@ -121,36 +130,45 @@ namespace HousePartyTranslator.Managers
         public static void UpdateMenuItems(ToolStripItemCollection collection)
         {
             ToolStripItem[] items = GetRecents();
-            if (items.Length > 0)
+            int recentsStart;
+
+            if (maxNumberOfMenuItems == 0) maxNumberOfMenuItems = collection.Count + 6;
+
+            //find start of recents
+            for (recentsStart = 0; recentsStart < collection.Count; recentsStart++)
             {
-                if (items.Length == 5)
-                {
-                    for (int i = 0; i < items.Length; i++)
-                    {
-                        if (collection[4].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(4);
-                        else break;
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < items.Length - 1; i++)
-                    {
-                        if (collection[4].GetType() != typeof(ToolStripSeparator)) collection.RemoveAt(4);
-                        else break;
-                    }
-                }
+                if (collection[recentsStart].GetType() == typeof(ToolStripSeparator)) break;
             }
-            for (int i = 0; i < items.Length; i++)
+            //update menu
+            if (items.Length > 0 && collection.Count < maxNumberOfMenuItems)
             {
-                collection.Insert(4, items[items.Length - i - 1]);
+                recentsStart += 2;
+                for (int i = 0; i < items.Length; i++)
+                {
+                    //we replace until we hit seperator, then we insert
+                    if (collection[recentsStart + i].GetType() != typeof(ToolStripSeparator))
+                    {
+                        collection.RemoveAt(recentsStart + i);
+                    }
+
+                    collection.Insert(recentsStart, items[items.Length - i - 1]);
+                }
+
+                if (collection[recentsStart + items.Length].GetType() != typeof(ToolStripSeparator))
+                    collection.Insert(recentsStart + items.Length, new ToolStripSeparator());
+                SaveRecents();
+                //for the name update stuff
+                recentsStart -= 2;
             }
-            SaveRecents();
+
+            if (items.Length == 0) collection[recentsStart + 1].Text = "No Recents";
+            else collection[recentsStart + 1].Text = "Recents:";
         }
 
         private static void RecentsManager_Click(object sender, EventArgs e)
         {
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text, presenceManager);
+            translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text);
             if (Properties.Settings.Default.autoLoadRecentIndex) translationManager.SelectLine(recentIndex);
         }
     }

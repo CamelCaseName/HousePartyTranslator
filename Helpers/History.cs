@@ -247,7 +247,7 @@ namespace HousePartyTranslator.Managers
             manager.TranslationData.Clear();
             foreach (KeyValuePair<string, LineData> item in newTranslations)
             {
-                manager.TranslationData.Add(item.Key, item.Value);
+                manager.TranslationData[item.Key] = item.Value;
             }
             //update translations also on the database
             _ = DataBase.UpdateTranslations(newTranslations, language);
@@ -259,7 +259,7 @@ namespace HousePartyTranslator.Managers
             manager.TranslationData.Clear();
             foreach (KeyValuePair<string, LineData> item in oldTranslations)
             {
-                manager.TranslationData.Add(item.Key, item.Value);
+                manager.TranslationData[item.Key] = item.Value;
             }
             //update translations also on the database
             _ = DataBase.UpdateTranslations(oldTranslations, language);

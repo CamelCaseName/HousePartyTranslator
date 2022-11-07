@@ -1,7 +1,6 @@
 ﻿using DiscordRPC;
 using HousePartyTranslator.Helpers;
 
-
 namespace HousePartyTranslator.Managers
 {
     internal sealed class DiscordPresenceManager
@@ -14,24 +13,27 @@ namespace HousePartyTranslator.Managers
         public DiscordPresenceManager()
         {
             //init first
-            Initialize();
+            if (DataBase.IsOnline) Initialize();
 
         }
 
         private void UpdatePresence()
         {
-            DiscordPresenceClient.SetPresence(new RichPresence()
+            if (DataBase.IsOnline)
             {
-                Details = $"Working on {Story},",
-                State = $"translating {Character}",
-                Assets = new Assets()
+                DiscordPresenceClient.SetPresence(new RichPresence()
                 {
-                    LargeImageKey = ImageKey,
-                    LargeImageText = Character
-                }
-            });
-            _ = DiscordPresenceClient.UpdateStartTime();
-            Update();
+                    Details = $"Working on {Story},",
+                    State = $"translating {Character}",
+                    Assets = new Assets()
+                    {
+                        LargeImageKey = ImageKey,
+                        LargeImageText = Character
+                    }
+                });
+                _ = DiscordPresenceClient.UpdateStartTime();
+                Update();
+            }
         }
 
         private void SetImageKey()
@@ -50,28 +52,31 @@ namespace HousePartyTranslator.Managers
 
         public void Update(string story, string character)
         {
-            if (Properties.Settings.Default.enableDiscordRP)
+            if (DataBase.IsOnline)
             {
-                if (!DiscordPresenceClient.IsInitialized || DiscordPresenceClient.IsDisposed)
+                if (Properties.Settings.Default.enableDiscordRP)
                 {
-                    Initialize();
+                    if (!DiscordPresenceClient.IsInitialized || DiscordPresenceClient.IsDisposed)
+                    {
+                        Initialize();
+                    }
+                    Story = story;
+                    Character = character;
+
+                    SetImageKey();
+
+                    UpdatePresence();
                 }
-                Story = story;
-                Character = character;
-
-                SetImageKey();
-
-                UpdatePresence();
-            }
-            else
-            {
-                DiscordPresenceClient.ClearPresence();
+                else
+                {
+                    DiscordPresenceClient.ClearPresence();
+                }
             }
         }
 
         public void Update()
         {
-            if (Properties.Settings.Default.enableDiscordRP)
+            if (Properties.Settings.Default.enableDiscordRP && DataBase.IsOnline)
             {
                 _ = DiscordPresenceClient.Invoke();
             }
@@ -109,7 +114,7 @@ namespace HousePartyTranslator.Managers
         public void DeInitialize()
         {
             //Deinit to prevent a c++ side memory leak
-            DiscordPresenceClient.Dispose();
+            DiscordPresenceClient?.Dispose();
         }
     }
 }

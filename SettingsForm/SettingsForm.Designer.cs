@@ -46,6 +46,7 @@ namespace HousePartyTranslator.SettingsForm
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.propertyGrid);
+            this.ShowIcon = false;
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.SettingsForm_closing);
             this.Name = "SettingsForm";
             this.Text = "Settings";

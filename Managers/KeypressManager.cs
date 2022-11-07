@@ -118,7 +118,7 @@ namespace HousePartyTranslator.Managers
         /// <returns></returns>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
-        public static bool MainKeyPressHandler(ref Message msg, Keys keyData, DiscordPresenceManager presence, Form parent, CancellationTokenSource tokenSource)
+        public static bool MainKeyPressHandler(ref Message msg, Keys keyData, Form parent, CancellationTokenSource tokenSource)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
         {
@@ -212,7 +212,7 @@ namespace HousePartyTranslator.Managers
                     return Utils.MoveCursorInText(parent, false);
 
                 case Keys.Control | Keys.O:
-                    OpenNew(presence);
+                    OpenNew();
                     return true;
 
                 case Keys.Control | Keys.Z:
@@ -224,11 +224,11 @@ namespace HousePartyTranslator.Managers
                     return true;
 
                 case Keys.Control | Keys.Shift | Keys.O:
-                    OpenNewTab(presence);
+                    OpenNewTab();
                     return true;
 
                 case Keys.Alt | Keys.Shift | Keys.O:
-                    OpenAll(presence);
+                    OpenAll();
                     return true;
 
                 case Keys.Control | Keys.E:
@@ -277,13 +277,10 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        public static void OpenAll(DiscordPresenceManager presenceManager)
+        public static void OpenAll()
         {
             //opne the story in tabs
             TabManager.OpenAllTabs();
-
-            //update presence and recents
-            presenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         public static void OpenContextMenu(ContextMenuStrip context, MouseEventArgs e)
@@ -296,22 +293,19 @@ namespace HousePartyTranslator.Managers
             }
         }
 
-        public static void OpenNew(DiscordPresenceManager presenceManager)
+        public static void OpenNew()
         {
             //get currently active translationmanager
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram(presenceManager);
+            translationManager.LoadFileIntoProgram();
             translationManager.SetLanguage();
             //update tab name
             if (translationManager.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = translationManager.FileName;
         }
 
-        public static void OpenNewTab(DiscordPresenceManager presenceManager)
+        public static void OpenNewTab()
         {
             TabManager.OpenNewTab();
-
-            //update presence and recents
-            presenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         public static void SelectedItemChanged(Helpers.ColouredCheckedListBox listBox)
@@ -330,7 +324,7 @@ namespace HousePartyTranslator.Managers
         public static void SelectedTabChanged(DiscordPresenceManager presenceManager)
         {
             TabManager.OnSwitchTabs();
-            //update tabs
+            //update presence
             if (TabManager.ActiveTranslationManager != null) presenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
