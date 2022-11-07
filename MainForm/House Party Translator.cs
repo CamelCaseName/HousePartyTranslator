@@ -191,7 +191,7 @@ namespace HousePartyTranslator
         /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (KeypressManager.MainKeyPressHandler(ref msg, keyData, PresenceManager, this, CancelTokens))
+            if (KeypressManager.MainKeyPressHandler(ref msg, keyData, this, CancelTokens))
             {
                 return true;
             }
@@ -260,6 +260,7 @@ namespace HousePartyTranslator
         {
             ProgressbarWindow.PerformStep();
             LogManager.Log("Application initializing...");
+            DataBase.InitializeDB(this);
             PresenceManager = new DiscordPresenceManager();
 
             //get translationmanager back
@@ -270,10 +271,9 @@ namespace HousePartyTranslator
             ProgressbarWindow.PerformStep();
 
             //initialize before password check so the saving doesnt break
-            RecentsManager.Initialize(PresenceManager);
+            RecentsManager.Initialize();
 
             //Settings have to be loaded before the Database can be connected with
-            DataBase.InitializeDB(this);
             ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
@@ -297,17 +297,17 @@ namespace HousePartyTranslator
 
         private void OpenAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            KeypressManager.OpenAll(PresenceManager);
+            KeypressManager.OpenAll();
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            KeypressManager.OpenNewTab(PresenceManager);
+            KeypressManager.OpenNewTab();
         }
 
         private void OpenToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            KeypressManager.OpenNew(PresenceManager);
+            KeypressManager.OpenNew();
         }
 
         private void SaveAllToolStripMenuItem_Click(object sender, EventArgs e)
