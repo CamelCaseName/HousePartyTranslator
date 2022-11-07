@@ -171,41 +171,6 @@ namespace HousePartyTranslator
             return null;
         }
 
-        private List<Node> CalculateForceDirectedLayoutCpp(List<Node> _nodes)
-        {
-            /*
-            //prepare the arrays
-            int[] x = new int[_nodes.Count], y = new int[_nodes.Count], mass = new int[_nodes.Count];
-            //prepare the edges
-            int[] node_1 = new int[_nodes.Count * 2], node_2 = new int[_nodes.Count * 2];
-            int nodeConnectionCount = 0;
-
-            for (int i = 0; i < _nodes.Count; i++)
-            {
-                x[i] = _nodes[i].Position.X;
-                y[i] = _nodes[i].Position.Y;
-                mass[i] = _nodes[i].Mass;
-
-                for (int j = 0; j < _nodes[i].ChildNodes.Count; j++)
-                {
-                    node_1[nodeConnectionCount] = i;
-                    node_2[nodeConnectionCount++] = _nodes.FindIndex(n => n == _nodes[i].ChildNodes[j]);
-                }
-            }
-
-            FastNative.do_graph_physics(x, y, mass, _nodes.Count, node_1, node_2, nodeConnectionCount);
-
-            for (int i = 0; i < _nodes.Count; i++)
-            {
-                _nodes[i].Position.X = x[i];
-                _nodes[i].Position.Y = y[i];
-                _nodes[i].Mass = mass[i];
-            }
-
-            return _nodes;*/
-            return CalculateForceDirectedLayout(nodes);
-        }
-
         private List<Node> CalculateForceDirectedLayout(List<Node> nodes)
         {
             //You just need to think about the 3 separate forces acting on each node,
@@ -449,7 +414,7 @@ namespace HousePartyTranslator
                     nodes = CalculateStartingPositions(nodes);
 
                     //render and do the force driven calculation thingies
-                    nodes = CalculateForceDirectedLayoutCpp(nodes);
+                    nodes = CalculateForceDirectedLayout(nodes);
                 }
 
             }
@@ -484,7 +449,7 @@ namespace HousePartyTranslator
                     nodes = CalculateStartingPositions(nodes);
 
                     //render and do the force driven calculation thingies
-                    nodes = CalculateForceDirectedLayoutCpp(nodes);
+                    nodes = CalculateForceDirectedLayout(nodes);
                 }
 
             }
