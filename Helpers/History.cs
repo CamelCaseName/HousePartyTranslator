@@ -24,21 +24,24 @@ namespace HousePartyTranslator.Managers
         {
 
 #endif
-            history.Push(command);
-            if (history.Count > 110)
+            if (!CausedByHistory)
             {
-                //after 110 elements, we remove the oldest 10
-                var temp = new Stack<ICommand>(history.Count);
-                for (int i = 0; i < history.Count; i++)
-                    temp.Push(history.Pop());
+                history.Push(command);
+                if (history.Count > 110)
+                {
+                    //after 110 elements, we remove the oldest 10
+                    var temp = new Stack<ICommand>(history.Count);
+                    for (int i = 0; i < history.Count; i++)
+                        temp.Push(history.Pop());
 
-                for (int i = 0; i < 10; i++)
-                    _ = temp.Pop();
+                    for (int i = 0; i < 10; i++)
+                        _ = temp.Pop();
 
-                for (int i = 0; i < temp.Count; i++)
-                    history.Push(temp.Pop());
+                    for (int i = 0; i < temp.Count; i++)
+                        history.Push(temp.Pop());
+                }
+                future.Clear();
             }
-            future.Clear();
         }
 
         public static ICommand Peek()
@@ -62,11 +65,28 @@ namespace HousePartyTranslator.Managers
 
 #endif
             var temp = new Stack<ICommand>(history);
+            //check all history items
             for (int i = 0; i < history.Count; i++)
             {
                 ICommand item = history.Pop();
                 if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged))
                     temp.Push(item);
+            }
+            for (int i = 0; i < temp.Count; i++)
+            {
+                history.Push(temp.Pop());
+            }
+            temp.Clear();
+            //check all future items
+            for (int i = 0; i < future.Count; i++)
+            {
+                ICommand item = future.Pop();
+                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged))
+                    temp.Push(item);
+            }
+            for (int i = 0; i < temp.Count; i++)
+            {
+                future.Push(temp.Pop());
             }
         }
 
