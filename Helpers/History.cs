@@ -1,5 +1,6 @@
 ﻿using HousePartyTranslator.Helpers;
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator.Managers
@@ -29,12 +30,17 @@ namespace HousePartyTranslator.Managers
             future.Clear();
         }
 
+        public static ICommand Peek()
+        {
+            return history.Count > 0 ? history.Peek() : new ICommandInstance();
+        }
+
         /// <summary>
         /// removes all history actions tied to the file, but not the tab
         /// </summary>
         /// <param name="FileName"></param>
         /// <param name="StoryName"></param>
-        public static void FileSaved(string FileName, string StoryName)
+        public static void ClearForFile(string FileName, string StoryName)
         {
             var temp = new Stack<ICommand>(history);
             for (int i = 0; i < history.Count; i++)
@@ -89,6 +95,17 @@ namespace HousePartyTranslator.Managers
         string StoryName { get; set; }
         void Do();
         void Undo();
+    }
+
+    internal sealed class ICommandInstance : ICommand
+    {
+        public string FileName { get => "none"; set { } }
+        public string StoryName { get => "none"; set { } }
+
+        public ICommandInstance() { }
+
+        public void Do() { }
+        public void Undo() { }
     }
 
     internal sealed class TextAdded : ICommand

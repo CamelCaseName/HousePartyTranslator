@@ -303,6 +303,9 @@ namespace HousePartyTranslator.Managers
             if (path.Length > 0)
             {
                 ShowAutoSaveDialog();
+                //clear history if we have a new file, we dont need old one anymore
+                if (path != SourceFilePath)
+                    History.ClearForFile(FileName, StoryName);
                 ResetTranslationManager();
 
                 MainWindow.Cursor = Cursors.WaitCursor;
@@ -565,7 +568,7 @@ namespace HousePartyTranslator.Managers
             Fenster.ProgressbarWindow.ProgressBar.Value = 10;
             MainWindow.Cursor = Cursors.WaitCursor;
 
-            History.FileSaved(FileName, StoryName);
+            History.ClearForFile(FileName, StoryName);
 
             if (SourceFilePath == "" || Language == "") return;
             if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = Msg.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");

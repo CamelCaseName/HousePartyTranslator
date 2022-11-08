@@ -168,6 +168,7 @@ namespace HousePartyTranslator.Managers
         private static void RecentsManager_Click(object sender, EventArgs e)
         {
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
+            translationManager.ShowAutoSaveDialog();
             translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text);
             if (Properties.Settings.Default.autoLoadRecentIndex) translationManager.SelectLine(recentIndex);
         }
