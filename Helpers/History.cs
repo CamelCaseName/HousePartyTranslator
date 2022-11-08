@@ -10,7 +10,6 @@ namespace HousePartyTranslator.Managers
         private static readonly Stack<ICommand> future = new Stack<ICommand>();
         public static bool CausedByHistory = false;
 
-
         public static void AddAction(ICommand command)
         {
             history.Push(command);
@@ -28,6 +27,22 @@ namespace HousePartyTranslator.Managers
                     history.Push(temp.Pop());
             }
             future.Clear();
+        }
+
+        /// <summary>
+        /// removes all history actions tied to the file, but not the tab
+        /// </summary>
+        /// <param name="FileName"></param>
+        /// <param name="StoryName"></param>
+        public static void FileSaved(string FileName, string StoryName)
+        {
+            var temp = new Stack<ICommand>(history);
+            for (int i = 0; i < history.Count; i++)
+            {
+                ICommand item = history.Pop();
+                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged))
+                    temp.Push(item);
+            }
         }
 
         public static void Undo()
@@ -59,31 +74,45 @@ namespace HousePartyTranslator.Managers
                 }
             }
         }
+
+        public static void Clear()
+        {
+            history.Clear();
+            future.Clear();
+            CausedByHistory = false;
+        }
     }
 
     internal interface ICommand
     {
+        string FileName { get; set; }
+        string StoryName { get; set; }
         void Do();
         void Undo();
     }
 
     internal sealed class TextAdded : ICommand
     {
-        readonly System.Windows.Forms.TextBox TextBox;
+        readonly TextBox TextBox;
         readonly string AddedText;
 
-        public TextAdded(System.Windows.Forms.TextBox textBox, string addedText)
+        public TextAdded(TextBox textBox, string addedText, string fileName, string storyName)
         {
             TextBox = textBox;
             AddedText = addedText;
+            FileName = fileName;
+            StoryName = storyName;
         }
 
-        void ICommand.Do()
+        public string FileName { get; set; }
+        public string StoryName { get; set; }
+
+        public void Do()
         {
             TextBox.Text += AddedText;
         }
 
-        void ICommand.Undo()
+        public void Undo()
         {
             TextBox.Text = TextBox.Text.Remove(0, TextBox.Text.Length - AddedText.Length);
         }
@@ -91,21 +120,26 @@ namespace HousePartyTranslator.Managers
 
     internal sealed class TextRemoved : ICommand
     {
-        readonly System.Windows.Forms.TextBox TextBox;
+        readonly TextBox TextBox;
         readonly string RemovedText;
 
-        public TextRemoved(System.Windows.Forms.TextBox textBox, string removedText)
+        public TextRemoved(TextBox textBox, string removedText, string fileName, string storyName)
         {
             TextBox = textBox;
             RemovedText = removedText;
+            FileName = fileName;
+            StoryName = storyName;
         }
 
-        void ICommand.Do()
+        public string FileName { get; set; }
+        public string StoryName { get; set; }
+
+        public void Do()
         {
             TextBox.Text = TextBox.Text.Remove(0, TextBox.Text.Length - RemovedText.Length);
         }
 
-        void ICommand.Undo()
+        public void Undo()
         {
             TextBox.Text += RemovedText;
         }
@@ -113,24 +147,29 @@ namespace HousePartyTranslator.Managers
 
     internal sealed class TextChanged : ICommand
     {
-        readonly System.Windows.Forms.TextBox TextBox;
+        readonly TextBox TextBox;
         readonly string oldText;
         readonly string newText;
 
-        public TextChanged(System.Windows.Forms.TextBox textBox, string oldText, string newText)
+        public TextChanged(TextBox textBox, string oldText, string newText, string fileName, string storyName)
         {
             TextBox = textBox;
             this.oldText = oldText;
             this.newText = newText;
+            FileName = fileName;
+            StoryName = storyName;
         }
 
-        void ICommand.Do()
+        public string FileName { get; set; }
+        public string StoryName { get; set; }
+
+        public void Do()
         {
             TextBox.Text = newText;
             TextBox.SelectionStart = TextBox.Text.Length;
         }
 
-        void ICommand.Undo()
+        public void Undo()
         {
             TextBox.Text = oldText;
             TextBox.SelectionStart = TextBox.Text.Length;
@@ -140,19 +179,24 @@ namespace HousePartyTranslator.Managers
     internal sealed class ApprovedChanged : ICommand
     {
         readonly int index;
-        readonly Helpers.ColouredCheckedListBox ListBox;
-        public ApprovedChanged(int selectedIndex, Helpers.ColouredCheckedListBox listBox)
+        readonly ColouredCheckedListBox ListBox;
+        public ApprovedChanged(int selectedIndex, ColouredCheckedListBox listBox, string fileName, string storyName)
         {
             index = selectedIndex;
             ListBox = listBox;
+            FileName = fileName;
+            StoryName = storyName;
         }
 
-        void ICommand.Do()
+        public string FileName { get; set; }
+        public string StoryName { get; set; }
+
+        public void Do()
         {
             ListBox.SetItemCheckState(index, ListBox.GetItemChecked(index) ? System.Windows.Forms.CheckState.Unchecked : System.Windows.Forms.CheckState.Checked);
         }
 
-        void ICommand.Undo()
+        public void Undo()
         {
             ListBox.SetItemCheckState(index, ListBox.GetItemChecked(index) ? System.Windows.Forms.CheckState.Unchecked : System.Windows.Forms.CheckState.Checked);
         }
@@ -162,20 +206,25 @@ namespace HousePartyTranslator.Managers
     {
         readonly int oldIndex;
         readonly int newIndex;
-        readonly Helpers.ColouredCheckedListBox ListBox;
-        public SelectedLineChanged(Helpers.ColouredCheckedListBox listBox, int oldIndex, int newIndex)
+        readonly ColouredCheckedListBox ListBox;
+        public SelectedLineChanged(ColouredCheckedListBox listBox, int oldIndex, int newIndex, string fileName, string storyName)
         {
             this.oldIndex = oldIndex;
             this.newIndex = newIndex;
             ListBox = listBox;
+            FileName = fileName;
+            StoryName = storyName;
         }
 
-        void ICommand.Do()
+        public string FileName { get; set; }
+        public string StoryName { get; set; }
+
+        public void Do()
         {
             if (newIndex >= 0 && newIndex < ListBox.Items.Count) ListBox.SelectedIndex = newIndex;
         }
 
-        void ICommand.Undo()
+        public void Undo()
         {
             if (newIndex >= 0 && newIndex < ListBox.Items.Count) ListBox.SelectedIndex = oldIndex;
         }
@@ -194,14 +243,19 @@ namespace HousePartyTranslator.Managers
             this.id = id;
             this.oldText = oldText;
             this.newText = newText;
+            FileName = manager.FileName;
+            StoryName = manager.StoryName;
         }
 
-        void ICommand.Do()
+        public string FileName { get; set; }
+        public string StoryName { get; set; }
+
+        public void Do()
         {
             manager.TranslationData[id].TranslationString = newText;
         }
 
-        void ICommand.Undo()
+        public void Undo()
         {
             manager.TranslationData[id].TranslationString = oldText;
         }
@@ -217,12 +271,15 @@ namespace HousePartyTranslator.Managers
             this.newTabIndex = newTabIndex;
         }
 
-        void ICommand.Do()
+        public string FileName { get; set; } = "none";
+        public string StoryName { get; set; } = "none";
+
+        public void Do()
         {
             TabManager.SwitchToTab(newTabIndex);
         }
 
-        void ICommand.Undo()
+        public void Undo()
         {
             TabManager.SwitchToTab(oldTabIndex);
         }
@@ -240,9 +297,14 @@ namespace HousePartyTranslator.Managers
             this.newTranslations = new FileData(newTranslations);
             this.manager = manager;
             this.language = TranslationManager.Language;
+            FileName = manager.FileName;
+            StoryName = manager.StoryName;
         }
 
-        void ICommand.Do()
+        public string FileName { get; set; }
+        public string StoryName { get; set; }
+
+        public void Do()
         {
             manager.TranslationData.Clear();
             foreach (KeyValuePair<string, LineData> item in newTranslations)
@@ -254,7 +316,7 @@ namespace HousePartyTranslator.Managers
             manager.ReloadTranslationTextbox();
         }
 
-        void ICommand.Undo()
+        public void Undo()
         {
             manager.TranslationData.Clear();
             foreach (KeyValuePair<string, LineData> item in oldTranslations)

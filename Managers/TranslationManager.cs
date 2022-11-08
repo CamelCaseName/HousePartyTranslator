@@ -565,6 +565,8 @@ namespace HousePartyTranslator.Managers
             Fenster.ProgressbarWindow.ProgressBar.Value = 10;
             MainWindow.Cursor = Cursors.WaitCursor;
 
+            History.FileSaved(FileName, StoryName);
+
             if (SourceFilePath == "" || Language == "") return;
             if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = Msg.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
 

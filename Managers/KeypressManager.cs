@@ -310,7 +310,7 @@ namespace HousePartyTranslator.Managers
 
         public static void SelectedItemChanged(Helpers.ColouredCheckedListBox listBox)
         {
-            if (!History.CausedByHistory)
+            if (!History.CausedByHistory && lastIndex >= 0 && listBox.SelectedIndex >= 0)
                 History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex));
             lastIndex = listBox.SelectedIndex;
             TabManager.ActiveTranslationManager.PopulateTextBoxes();
