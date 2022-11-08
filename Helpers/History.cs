@@ -1,5 +1,7 @@
 ﻿using HousePartyTranslator.Helpers;
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Messaging;
 using System.Windows.Forms;
 
@@ -11,8 +13,17 @@ namespace HousePartyTranslator.Managers
         private static readonly Stack<ICommand> future = new Stack<ICommand>();
         public static bool CausedByHistory = false;
 
-        public static void AddAction(ICommand command)
+#if TRACE
+
+        public static void AddAction(ICommand command, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerName = "", [CallerLineNumber] int lineNumber = 0)
         {
+            Console.WriteLine("History action added by " + callerFile + '<' + callerName + ">:" + lineNumber.ToString());
+            Console.WriteLine("L__" + command.ToString() + $" - {command.StoryName}\\{command.FileName}");
+#else
+            public static void AddAction(ICommand command)
+        {
+
+#endif
             history.Push(command);
             if (history.Count > 110)
             {
@@ -40,8 +51,16 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="FileName"></param>
         /// <param name="StoryName"></param>
-        public static void ClearForFile(string FileName, string StoryName)
+#if TRACE
+        public static void ClearForFile(string FileName, string StoryName, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerName = "", [CallerLineNumber] int lineNumber = 0)
         {
+            Console.WriteLine("History cleared by " + callerFile + '<' + callerName + ">:" + lineNumber.ToString());
+            Console.WriteLine($"L__ cleared for {StoryName}\\{FileName}");
+#else
+            public static void ClearForFile(string FileName, string StoryName)
+            {
+
+#endif
             var temp = new Stack<ICommand>(history);
             for (int i = 0; i < history.Count; i++)
             {
