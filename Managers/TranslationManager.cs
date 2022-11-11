@@ -1163,7 +1163,7 @@ namespace HousePartyTranslator.Managers
         {
             if (Msg.InfoYesNoB("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?"))
             {
-                return GetTemplateFromFile(Utils.SelectFileFromSystem(false), false);
+                return GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}\\{FileName}.", FileName + ".txt"), false);
             }
             else
             {
@@ -1228,6 +1228,9 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         private FileData GetTemplateFromFile(string path, bool doIterNumbers = true)
         {
+            if (Path.GetFileNameWithoutExtension(path) != FileName)
+                return new FileData();
+ 
             var fileData = new FileData();
             StringCategory currentCategory = StringCategory.General;
             string multiLineCollector = "";

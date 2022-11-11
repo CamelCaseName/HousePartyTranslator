@@ -22,6 +22,8 @@ namespace HousePartyTranslator
         private List<Node> CriteriaInFile;
         private List<Node> nodes;
         private readonly ParallelOptions options;
+        private readonly string StoryName;
+        private readonly string FileName;
 
 
 
@@ -73,18 +75,17 @@ namespace HousePartyTranslator
                     {
                         selectFileDialog = new OpenFileDialog
                         {
-                            Title = "Choose the story file of your story for the templates",
+                            Title = $"Choose the story file ({StoryName}) for the templates",
                             Filter = "Story Files (*.story)|*.story",
                             InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false
-
                         };
                     }
                     else//character file
                     {
                         selectFileDialog = new OpenFileDialog
                         {
-                            Title = "Choose the character file of your story for the templates",
+                            Title = $"Choose the character file ({FileName}) for the templates",
                             Filter = "Character Files (*.character)|*.character",
                             InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false

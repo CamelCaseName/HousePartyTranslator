@@ -63,14 +63,15 @@ namespace HousePartyTranslator.Helpers
         /// Opens a select file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the selected file.</returns>
-        public static string SelectFileFromSystem(bool isTranslation = true)
+        public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "")
         {
             var selectFileDialog = new OpenFileDialog
             {
-                Title = "Choose a file for translation",
+                Title = Title?.Length > 0 ? Title : "Choose a file for translation",
                 Filter = "Text files (*.txt)|*.txt",
                 InitialDirectory = Properties.Settings.Default.translation_path.Length > 0 ? System.IO.Path.GetDirectoryName(Properties.Settings.Default.translation_path) : @"C:\Users\%USER%\Documents",
-                RestoreDirectory = false
+                RestoreDirectory = false,
+                FileName = preselectedFile ?? ""
             };
 
             if (selectFileDialog.ShowDialog() == DialogResult.OK)
