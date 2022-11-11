@@ -414,8 +414,8 @@ namespace HousePartyTranslator
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Fenster.backgroundDarker;
             ClientSize = new Size(1400, 760);
-            Controls.Add(MainMenu);
             Controls.Add(MainTabControl);
+            Controls.Add(MainMenu);
             MinimumSize = new Size(640, 470);
             Name = nameof(Fenster);
             ShowIcon = false;
@@ -423,10 +423,12 @@ namespace HousePartyTranslator
             FormClosing += new FormClosingEventHandler(OnFormClosing);
             MouseUp += new MouseEventHandler(TextContextOpened);
             Shown += new EventHandler(OnFormShown);
-            MainMenu.ResumeLayout(true);
+            MainMenu.ResumeLayout(false);
+            MainMenu.PerformLayout();
             MainTabControl.ResumeLayout(false);
-            tabPage1.ResumeLayout(false);
-            ResumeLayout(true);
+            tabPage1.ResumeLayout(true);
+            ResumeLayout();
+            PerformLayout();
         }
     }
 }

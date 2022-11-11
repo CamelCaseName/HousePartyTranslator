@@ -69,7 +69,11 @@ namespace HousePartyTranslator.Helpers
             {
                 Title = Title?.Length > 0 ? Title : "Choose a file for translation",
                 Filter = "Text files (*.txt)|*.txt",
-                InitialDirectory = Properties.Settings.Default.translation_path.Length > 0 ? System.IO.Path.GetDirectoryName(Properties.Settings.Default.translation_path) : @"C:\Users\%USER%\Documents",
+                InitialDirectory = Properties.Settings.Default.translation_path.Length > 0 && isTranslation ?
+                    Properties.Settings.Default.translation_path :
+                    Properties.Settings.Default.template_path.Length > 0 && !isTranslation ?
+                        Properties.Settings.Default.template_path :
+                        @"C:\Users\%USER%\Documents",
                 RestoreDirectory = false,
                 FileName = preselectedFile ?? ""
             };
@@ -77,10 +81,12 @@ namespace HousePartyTranslator.Helpers
             if (selectFileDialog.ShowDialog() == DialogResult.OK)
             {
                 if (isTranslation)
-                {
-                    Properties.Settings.Default.translation_path = selectFileDialog.FileName;
-                    Properties.Settings.Default.Save();
-                }
+                    Properties.Settings.Default.translation_path = System.IO.Path.GetDirectoryName(selectFileDialog.FileName);
+                else
+                    Properties.Settings.Default.template_path = System.IO.Path.GetDirectoryName(selectFileDialog.FileName);
+
+                Properties.Settings.Default.Save();
+
                 return selectFileDialog.FileName;
             }
             return "";

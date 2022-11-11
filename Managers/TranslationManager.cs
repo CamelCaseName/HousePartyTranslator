@@ -1208,7 +1208,10 @@ namespace HousePartyTranslator.Managers
         private FileData GetTemplateFromFile(string path, bool doIterNumbers = true)
         {
             if (Path.GetFileNameWithoutExtension(path) != FileName)
+            {
+                Msg.WarningOk("The template file must have the same name as the file you want to translate!");
                 return new FileData();
+            }
 
             var fileData = new FileData();
             StringCategory currentCategory = StringCategory.General;
