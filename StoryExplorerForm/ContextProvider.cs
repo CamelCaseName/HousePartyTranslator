@@ -78,7 +78,8 @@ namespace HousePartyTranslator
                             Title = $"Choose the story file ({StoryName}) for the templates",
                             Filter = "Story Files (*.story)|*.story",
                             InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
-                            RestoreDirectory = false
+                            RestoreDirectory = false,
+                            FileName = this.FileName + ".story"
                         };
                     }
                     else//character file
@@ -88,7 +89,8 @@ namespace HousePartyTranslator
                             Title = $"Choose the character file ({FileName}) for the templates",
                             Filter = "Character Files (*.character)|*.character",
                             InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
-                            RestoreDirectory = false
+                            RestoreDirectory = false,
+                            FileName = this.FileName + ".character"
                         };
                     }
 

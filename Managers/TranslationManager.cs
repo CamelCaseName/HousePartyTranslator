@@ -201,33 +201,10 @@ namespace HousePartyTranslator.Managers
                     DialogResult typeResult;
                     if ((typeResult = Msg.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?")) != DialogResult.Cancel)
                     {
-                        bool isStory = typeResult == DialogResult.No;
-                        var explorer = new ContextProvider(isStory, false, FileName, StoryName, null);
-                        List<Node> nodes = explorer.GetTemplateNodes();
-                        if (nodes != null)
+                        FileData templates = GetTemplatesFromStoryFile(typeResult == DialogResult.No);
+                        if (templates.Count > 0)
                         {
-                            Application.UseWaitCursor = true;
-                            //remove old lines from server
                             _ = DataBase.RemoveOldTemplates(FileName, story);
-
-                            var templates = new FileData
-                            {
-                                //add name as first template (its not in the file)
-                                { "Name", new LineData("Name", story, FileName, StringCategory.General, FileName) }
-                            };
-
-                            //Add all new lines, but check if they are relevant
-                            for (int i = 0; i < nodes.Count; i++)
-                            {
-                                //filter out irrelevant nodes
-                                if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) && nodes[i].Type == NodeType.Event)
-                                    && nodes[i].Type.AsStringCategory() != StringCategory.Neither
-                                    && nodes[i].ID != "")
-                                {
-                                    templates.Add(nodes[i].ID, new LineData(nodes[i].ID, story, FileName, nodes[i].Type.AsStringCategory(), nodes[i].Text, true));
-                                }
-                            }
-
                             _ = DataBase.UploadTemplates(templates);
 
                             Application.UseWaitCursor = false;
@@ -1174,11 +1151,11 @@ namespace HousePartyTranslator.Managers
 
         private FileData GetTemplatesFromStoryFile(bool isStory)
         {
+            Application.UseWaitCursor = true;
             var explorer = new ContextProvider(isStory, false, FileName, StoryName, null);
             List<Node> nodes = explorer.GetTemplateNodes();
             if (nodes != null)
             {
-                Application.UseWaitCursor = true;
 
                 var templates = new FileData
                             {
@@ -1201,7 +1178,9 @@ namespace HousePartyTranslator.Managers
                 Application.UseWaitCursor = false;
                 return templates;
             }
+
             _ = Msg.ErrorOk("Something broke, please try again.");
+            Application.UseWaitCursor = false;
             return null;
         }
 
@@ -1230,7 +1209,7 @@ namespace HousePartyTranslator.Managers
         {
             if (Path.GetFileNameWithoutExtension(path) != FileName)
                 return new FileData();
- 
+
             var fileData = new FileData();
             StringCategory currentCategory = StringCategory.General;
             string multiLineCollector = "";
