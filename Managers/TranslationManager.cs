@@ -1258,7 +1258,7 @@ namespace HousePartyTranslator.Managers
                 {
                     TryFixEmptyFile();
                 }
-                else if (!SoftwareVersionManager.UpdatePending && Form.ActiveForm != null)
+                else if (!SoftwareVersionManager.UpdatePending && Form.ActiveForm != null && DataBase.IsOnline)
                     //inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
                     //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
                     _ = Msg.InfoOk(
