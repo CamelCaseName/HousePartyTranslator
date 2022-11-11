@@ -22,10 +22,8 @@ namespace HousePartyTranslator
         private List<Node> CriteriaInFile;
         private List<Node> nodes;
         private readonly ParallelOptions options;
-        private readonly string StoryName;
-        private readonly string FileName;
-
-
+        private readonly string StoryName = "story";
+        private readonly string FileName = "character";
 
         public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, ParallelOptions parallelOptions)
         {
@@ -269,7 +267,7 @@ namespace HousePartyTranslator
             return nodes;
         }
 
-        private List<Tuple<int, int>> GetEdges(List<Node> _nodes)
+        public List<Tuple<int, int>> GetEdges(List<Node> _nodes)
         {
             var returnList = new List<Tuple<int, int>>();
 
@@ -357,7 +355,6 @@ namespace HousePartyTranslator
                 {
                     //set gender of childs of the event this criterion is part of if we have a gender comparison
 
-
                     //if the criterion has already been seen before
                     Node criterionInFile = CriteriaInFile.Find(n => n.Guid == node.Guid);
                     if (criterionInFile != null)//has been seen before
@@ -419,7 +416,6 @@ namespace HousePartyTranslator
                     //render and do the force driven calculation thingies
                     nodes = CalculateForceDirectedLayout(nodes);
                 }
-
             }
         }
 
@@ -454,7 +450,6 @@ namespace HousePartyTranslator
                     //render and do the force driven calculation thingies
                     nodes = CalculateForceDirectedLayout(nodes);
                 }
-
             }
         }
 
@@ -558,10 +553,7 @@ namespace HousePartyTranslator
             {
                 Node node = nodes.Find(n => n.ID == next.Item2.ToString());
 
-                if (node != null)
-                {
-                    node.AddParentNode(next.Item1);
-                }
+                node?.AddParentNode(next.Item1);
             }
 
             responseDialogueLinks.Clear();
