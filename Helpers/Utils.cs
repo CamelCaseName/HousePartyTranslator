@@ -63,7 +63,7 @@ namespace HousePartyTranslator.Helpers
         /// Opens a select file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the selected file.</returns>
-        public static string SelectFileFromSystem()
+        public static string SelectFileFromSystem(bool isTranslation = true)
         {
             var selectFileDialog = new OpenFileDialog
             {
@@ -75,8 +75,11 @@ namespace HousePartyTranslator.Helpers
 
             if (selectFileDialog.ShowDialog() == DialogResult.OK)
             {
-                Properties.Settings.Default.translation_path = selectFileDialog.FileName;
-                Properties.Settings.Default.Save();
+                if (isTranslation)
+                {
+                    Properties.Settings.Default.translation_path = selectFileDialog.FileName;
+                    Properties.Settings.Default.Save();
+                }
                 return selectFileDialog.FileName;
             }
             return "";

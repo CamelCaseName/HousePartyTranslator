@@ -102,7 +102,7 @@ namespace HousePartyTranslator
             // openToolStripMenuItem
             openToolStripMenuItem = new ToolStripMenuItem()
             {
-                Image = ((Image)(resources.GetObject("Image"))),
+                Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(openToolStripMenuItem),
                 Size = new Size(236, 22),
@@ -126,7 +126,7 @@ namespace HousePartyTranslator
             // openInNewTabToolStripMenuItem
             openInNewTabToolStripMenuItem = new ToolStripMenuItem()
             {
-                Image = ((Image)(resources.GetObject("Image"))),
+                Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(openInNewTabToolStripMenuItem),
                 Size = new Size(236, 22),
