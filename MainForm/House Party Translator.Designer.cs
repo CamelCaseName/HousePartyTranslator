@@ -1,50 +1,48 @@
 ﻿using HousePartyTranslator.Helpers;
 using System;
-using System.Runtime.Remoting.Messaging;
+using System.ComponentModel;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace HousePartyTranslator
 {
     partial class Fenster
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
-        private System.Windows.Forms.MenuStrip MainMenu;
-        private System.Windows.Forms.TabControl MainTabControl;
-        private System.Windows.Forms.TabPage tabPage1;
-        private System.Windows.Forms.ToolStripComboBox languageToolStripComboBox;
-        private System.Windows.Forms.ToolStripMenuItem customOpenStoryExplorer;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openAllToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openInNewTabToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem overrideCloudSaveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem Recents;
-        private System.Windows.Forms.ToolStripMenuItem replaceToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveAllToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveCurrentStringToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem searchAllToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem searchToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem storyExplorerStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripReplaceAllButton;
-        private System.Windows.Forms.ToolStripMenuItem toolStripReplaceButton;
-        private System.Windows.Forms.ToolStripTextBox searchToolStripTextBox;
-        private System.Windows.Forms.ToolStripTextBox ToolStripMenuReplaceBox;
+        private IContainer components = null;
+        private MenuStrip MainMenu;
+        private TabControl MainTabControl;
+        private TabPage tabPage1;
+        private ToolStripComboBox languageToolStripComboBox;
+        private ToolStripMenuItem customOpenStoryExplorer;
+        private ToolStripMenuItem editToolStripMenuItem;
+        private ToolStripMenuItem exitToolStripMenuItem;
+        private ToolStripMenuItem fileToolStripMenuItem;
+        private ToolStripMenuItem openAllToolStripMenuItem;
+        private ToolStripMenuItem openInNewTabToolStripMenuItem;
+        private ToolStripMenuItem openToolStripMenuItem;
+        private ToolStripMenuItem overrideCloudSaveToolStripMenuItem;
+        private ToolStripMenuItem Recents;
+        private ToolStripMenuItem replaceToolStripMenuItem;
+        private ToolStripMenuItem saveAllToolStripMenuItem;
+        private ToolStripMenuItem saveAsToolStripMenuItem;
+        private ToolStripMenuItem saveCurrentStringToolStripMenuItem;
+        private ToolStripMenuItem saveToolStripMenuItem;
+        private ToolStripMenuItem searchAllToolStripMenuItem;
+        private ToolStripMenuItem searchToolStripMenuItem;
+        private ToolStripMenuItem settingsToolStripMenuItem;
+        private ToolStripMenuItem storyExplorerStripMenuItem;
+        private ToolStripMenuItem toolStripReplaceAllButton;
+        private ToolStripMenuItem toolStripReplaceButton;
+        private ToolStripTextBox searchToolStripTextBox;
+        private ToolStripTextBox ToolStripMenuReplaceBox;
 
-        private static System.Drawing.Color background = Utils.background;
-        private static System.Drawing.Color backgroundDarker = Utils.backgroundDarker;
-        private static System.Drawing.Color brightText = Utils.brightText;
-        private static System.Drawing.Color darkText = Utils.darkText;
-        private static System.Drawing.Color foreground = Utils.foreground;
-        private static System.Drawing.Color frame = Utils.frame;
-        private static System.Drawing.Color menu = Utils.menu;
+        private static Color background = Utils.background;
+        private static Color backgroundDarker = Utils.backgroundDarker;
+        private static Color brightText = Utils.brightText;
+        private static Color darkText = Utils.darkText;
+        private static Color foreground = Utils.foreground;
+        private static Color frame = Utils.frame;
+        private static Color menu = Utils.menu;
 
         /// <summary>
         /// Clean up any resources being used.
@@ -59,354 +57,375 @@ namespace HousePartyTranslator
             base.Dispose(disposing);
         }
 
-
         /// <summary>
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor. - fuck you designer -
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Fenster));
-            this.customOpenStoryExplorer = new System.Windows.Forms.ToolStripMenuItem();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.languageToolStripComboBox = new System.Windows.Forms.ToolStripComboBox();
-            this.MainMenu = new System.Windows.Forms.MenuStrip();
-            this.MainTabControl = new System.Windows.Forms.TabControl();
-            this.openAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openInNewTabToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.overrideCloudSaveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.Recents = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.searchAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.searchToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.replaceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveCurrentStringToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.searchToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
-            this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.storyExplorerStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.ToolStripMenuReplaceBox = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStripReplaceAllButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripReplaceButton = new System.Windows.Forms.ToolStripMenuItem();
-            this.MainMenu.SuspendLayout();
-            this.MainTabControl.SuspendLayout();
-            this.tabPage1.SuspendLayout();
-            this.SuspendLayout();
-            // 
+            ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Fenster));
+            SuspendLayout();
+
             // MainMenu
-            // 
-            this.MainMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.fileToolStripMenuItem,
-            this.editToolStripMenuItem,
-            this.saveCurrentStringToolStripMenuItem,
-            this.searchToolStripTextBox,
-            this.ToolStripMenuReplaceBox,
-            this.toolStripReplaceButton,
-            this.toolStripReplaceAllButton,
-            this.languageToolStripComboBox,
-            this.storyExplorerStripMenuItem,
-            this.customOpenStoryExplorer,
-            this.settingsToolStripMenuItem});
-            this.MainMenu.Location = new System.Drawing.Point(0, 0);
-            this.MainMenu.Name = "MainMenu";
-            this.MainMenu.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.Flow;
-            this.MainMenu.AutoSize = true;
-            this.MainMenu.Margin = new System.Windows.Forms.Padding(0);
-            this.MainMenu.ForeColor = backgroundDarker;
-            this.MainMenu.Dock = System.Windows.Forms.DockStyle.Top;
-            this.MainMenu.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-            this.MainMenu.BackColor = backgroundDarker;
-            this.MainMenu.TabIndex = 17;
-            // 
+            MainMenu.SuspendLayout();
+            MainMenu = new MenuStrip()
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Left,
+                AutoSize = true,
+                BackColor = backgroundDarker,
+                Dock = DockStyle.Top,
+                ForeColor = backgroundDarker,
+                LayoutStyle = ToolStripLayoutStyle.Flow,
+                Location = new Point(0, 0),
+                Margin = new Padding(0),
+                Name = "MainMenu",
+                TabIndex = 17
+            };
+            MainMenu.Items.AddRange(new ToolStripItem[] {
+                fileToolStripMenuItem,
+                editToolStripMenuItem,
+                saveCurrentStringToolStripMenuItem,
+                searchToolStripTextBox,
+                ToolStripMenuReplaceBox,
+                toolStripReplaceButton,
+                toolStripReplaceAllButton,
+                languageToolStripComboBox,
+                storyExplorerStripMenuItem,
+                customOpenStoryExplorer,
+                settingsToolStripMenuItem
+            });
+
             // fileToolStripMenuItem
-            // 
-            this.fileToolStripMenuItem.BackColor = Fenster.menu;
-            this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openToolStripMenuItem,
-            this.openAllToolStripMenuItem,
-            this.openInNewTabToolStripMenuItem,
-            new ToolStripSeparator(),
-            this.Recents,
-            new ToolStripSeparator(),
-            this.saveToolStripMenuItem,
-            this.saveAllToolStripMenuItem,
-            this.saveAsToolStripMenuItem,
-            new ToolStripSeparator(),
-            this.exitToolStripMenuItem});
-            this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
-            this.fileToolStripMenuItem.AutoSize = false;
-            this.fileToolStripMenuItem.Margin = new Padding(1);
-            this.fileToolStripMenuItem.Text = "&File";
-            this.fileToolStripMenuItem.ToolTipText = "All relevant controls for opening and saving a file";
-            // 
+            fileToolStripMenuItem = new ToolStripMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = "fileToolStripMenuItem",
+                Size = new Size(37, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&File",
+                ToolTipText = "All relevant controls for opening and saving a file"
+            };
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+                openToolStripMenuItem,
+                openAllToolStripMenuItem,
+                openInNewTabToolStripMenuItem,
+                new ToolStripSeparator(),
+                Recents,
+                new ToolStripSeparator(),
+                saveToolStripMenuItem,
+                saveAllToolStripMenuItem,
+                saveAsToolStripMenuItem,
+                new ToolStripSeparator(),
+                exitToolStripMenuItem
+            });
+
             // editToolStripMenuItem
-            // 
-            this.editToolStripMenuItem.BackColor = Fenster.menu;
-            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.searchToolStripMenuItem,
-            this.searchAllToolStripMenuItem,
-            new ToolStripSeparator(),
-            this.replaceToolStripMenuItem,
-            new ToolStripSeparator(),
-            this.overrideCloudSaveToolStripMenuItem});
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(37, 23);
-            this.editToolStripMenuItem.AutoSize = false;
-            this.editToolStripMenuItem.Margin = new Padding(1);
-            this.editToolStripMenuItem.Text = "&Edit";
-            this.editToolStripMenuItem.ToolTipText = "All relevant controls for editing a file, plus special controls";
-            // 
+            editToolStripMenuItem = new ToolStripMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = "editToolStripMenuItem",
+                Size = new Size(37, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&Edit",
+                ToolTipText = "All relevant controls for editing a file, plus special controls"
+            };
+            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+                searchToolStripMenuItem,
+                searchAllToolStripMenuItem,
+                new ToolStripSeparator(),
+                replaceToolStripMenuItem,
+                new ToolStripSeparator(),
+                overrideCloudSaveToolStripMenuItem
+            });
+
             // searchToolStripMenuItem
-            // 
-            this.searchToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.searchToolStripMenuItem.Name = "searchToolStripMenuItem";
-            this.searchToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.searchToolStripMenuItem.Text = "&Search";
-            this.searchToolStripMenuItem.ToolTipText = "Selects the search bar";
-            this.searchToolStripMenuItem.Click += new System.EventHandler(this.SearchToolStripMenuItem_click);
-            // 
+            searchToolStripMenuItem = new ToolStripMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = "searchToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "&Search",
+                ToolTipText = "Selects the search bar"
+            };
+            searchToolStripMenuItem.Click += new EventHandler(SearchToolStripMenuItem_click);
+
             // searchAllToolStripMenuItem
-            // 
-            this.searchAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.searchAllToolStripMenuItem.Name = "searchAllToolStripMenuItem";
-            this.searchAllToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.searchAllToolStripMenuItem.Text = "Search &All";
-            this.searchAllToolStripMenuItem.ToolTipText = "Selects the search bar with the search all open files mode";
-            this.searchAllToolStripMenuItem.Click += new System.EventHandler(this.SearchAllToolStripMenuItem_click);
-            // 
+            searchAllToolStripMenuItem = new ToolStripMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = "searchAllToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "Search &All",
+                ToolTipText = "Selects the search bar with the search all open files mode"
+            };
+            searchAllToolStripMenuItem.Click += new EventHandler(SearchAllToolStripMenuItem_click);
+
             // replaceToolStripMenuItem
-            //// 
-            this.replaceToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.replaceToolStripMenuItem.Name = "replaceToolStripMenuItem";
-            this.replaceToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.replaceToolStripMenuItem.Text = "&Replace";
-            this.replaceToolStripMenuItem.ToolTipText = "opens the searchbar in replace mode";
-            this.replaceToolStripMenuItem.Click += new System.EventHandler(this.ReplaceToolStripMenuItem_click);
-            // 
+            replaceToolStripMenuItem = new ToolStripMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = "replaceToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "&Replace",
+                ToolTipText = "opens the searchbar in replace mode"
+            };
+            replaceToolStripMenuItem.Click += new EventHandler(ReplaceToolStripMenuItem_click);
+
             // openToolStripMenuItem
-            // 
-            this.openToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripMenuItem.Image")));
-            this.openToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.openToolStripMenuItem.Text = "&Open";
-            this.openToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.OpenToolStripMenuItem_Click);
-            // 
+            openToolStripMenuItem = new ToolStripMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = "openToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "&Open",
+                ToolTipText = "Opens a dialog to select a file"
+            };
+            openToolStripMenuItem.Click += new EventHandler(OpenToolStripMenuItem_Click);
+
             // openAllToolStripMenuItem
-            // 
-            this.openAllToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openToolStripMenuItem.Image")));
-            this.openAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.openAllToolStripMenuItem.Name = "openAllToolStripMenuItem";
-            this.openAllToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.openAllToolStripMenuItem.Text = "Open &all";
-            this.openAllToolStripMenuItem.ToolTipText = "Opens a dialog to select a file, all others will be discovered automatically. Usually.";
-            this.openAllToolStripMenuItem.Click += new System.EventHandler(this.OpenAllToolStripMenuItem_Click);
-            // 
+            openAllToolStripMenuItem = new ToolStripMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = "openAllToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "Open &all",
+                ToolTipText = "Opens a dialog to select a file, all others will be discovered automatically. Usually."
+            };
+            openAllToolStripMenuItem.Click += new EventHandler(OpenAllToolStripMenuItem_Click);
+
             // openInNewTabToolStripMenuItem
-            // 
-            this.openInNewTabToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openInNewTabToolStripMenuItem.Image")));
-            this.openInNewTabToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.openInNewTabToolStripMenuItem.Name = "openInNewTabToolStripMenuItem";
-            this.openInNewTabToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.openInNewTabToolStripMenuItem.Text = "Open in new &tab";
-            this.openInNewTabToolStripMenuItem.ToolTipText = "Opens a dialog to select a file";
-            this.openInNewTabToolStripMenuItem.Click += new System.EventHandler(this.OpenInNewTabToolStripMenuItem_Click);
-            // 
+            openInNewTabToolStripMenuItem = new ToolStripMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = "openInNewTabToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "Open in new &tab",
+                ToolTipText = "Opens a dialog to select a file"
+            };
+            openInNewTabToolStripMenuItem.Click += new EventHandler(OpenInNewTabToolStripMenuItem_Click);
+
             // Recents
-            // 
-            this.Recents.Enabled = false;
-            this.Recents.Name = "Recents";
-            this.Recents.ShowShortcutKeys = false;
-            this.Recents.Size = new System.Drawing.Size(236, 22);
-            this.Recents.Text = "Recents:";
-            // 
+            Recents = new ToolStripMenuItem()
+            {
+                Enabled = false,
+                Name = "Recents",
+                ShowShortcutKeys = false,
+                Size = new Size(236, 22),
+                Text = "Recents:"
+            };
+
             // saveToolStripMenuItem
-            // 
-            this.saveToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
-            this.saveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.saveToolStripMenuItem.Text = "&Save";
-            this.saveToolStripMenuItem.Click += new System.EventHandler(this.SaveToolStripMenuItem_Click);
-            // 
+            saveToolStripMenuItem = new ToolStripMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("saveToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = "saveToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "&Save"
+            };
+            saveToolStripMenuItem.Click += new EventHandler(SaveToolStripMenuItem_Click);
+
             // saveAllToolStripMenuItem
-            // 
-            this.saveAllToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveToolStripMenuItem.Image")));
-            this.saveAllToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.saveAllToolStripMenuItem.Name = "saveAllToolStripMenuItem";
-            this.saveAllToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.saveAllToolStripMenuItem.Text = "Sa&ve All";
-            this.saveAllToolStripMenuItem.Click += new System.EventHandler(this.SaveAllToolStripMenuItem_Click);
-            // 
+            saveAllToolStripMenuItem = new ToolStripMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("saveToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = "saveAllToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "Sa&ve All"
+            };
+            saveAllToolStripMenuItem.Click += new EventHandler(SaveAllToolStripMenuItem_Click);
+
             // saveAsToolStripMenuItem
-            // 
-            this.saveAsToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveAsToolStripMenuItem.Image")));
-            this.saveAsToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.saveAsToolStripMenuItem.Text = "Save &As";
-            this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.SaveAsToolStripMenuItem_Click);
-            // 
+            saveAsToolStripMenuItem = new ToolStripMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("saveAsToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = "saveAsToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "Save &As"
+            };
+            saveAsToolStripMenuItem.Click += new EventHandler(SaveAsToolStripMenuItem_Click);
+
             // overrideCloudSaveToolStripMenuItem
-            // 
-            this.overrideCloudSaveToolStripMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveAsToolStripMenuItem.Image")));
-            this.overrideCloudSaveToolStripMenuItem.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.overrideCloudSaveToolStripMenuItem.Name = "overrideCloudSaveAsToolStripMenuItem";
-            this.overrideCloudSaveToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.overrideCloudSaveToolStripMenuItem.Text = "Override &Cloud Save";
-            this.overrideCloudSaveToolStripMenuItem.Click += new System.EventHandler(this.OverrideCloudSaveToolStripMenuItem_Click);
-            // 
+            overrideCloudSaveToolStripMenuItem = new ToolStripMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("saveAsToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = "overrideCloudSaveAsToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "Override &Cloud Save"
+            };
+            overrideCloudSaveToolStripMenuItem.Click += new EventHandler(OverrideCloudSaveToolStripMenuItem_Click);
+
             // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(236, 22);
-            this.exitToolStripMenuItem.Text = "&Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.ExitToolStripMenuItem_Click);
-            // 
+            exitToolStripMenuItem = new ToolStripMenuItem()
+            {
+                Name = "exitToolStripMenuItem",
+                Size = new Size(236, 22),
+                Text = "&Exit"
+            };
+            exitToolStripMenuItem.Click += new EventHandler(ExitToolStripMenuItem_Click);
+
             // saveCurrentStringToolStripMenuItem
-            // 
-            this.saveCurrentStringToolStripMenuItem.BackColor = Fenster.menu;
-            this.saveCurrentStringToolStripMenuItem.Name = "saveCurrentStringToolStripMenuItem";
-            this.saveCurrentStringToolStripMenuItem.Size = new System.Drawing.Size(122, 23);
-            this.saveCurrentStringToolStripMenuItem.AutoSize = false;
-            this.saveCurrentStringToolStripMenuItem.Margin = new Padding(1);
-            this.saveCurrentStringToolStripMenuItem.Text = "&Save selected string";
-            this.saveCurrentStringToolStripMenuItem.Click += new System.EventHandler(this.SaveCurrentStringToolStripMenuItem_Click);
-            // 
+            saveCurrentStringToolStripMenuItem = new ToolStripMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = "saveCurrentStringToolStripMenuItem",
+                Size = new Size(122, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&Save selected string"
+            };
+            saveCurrentStringToolStripMenuItem.Click += new EventHandler(SaveCurrentStringToolStripMenuItem_Click);
+
             // searchToolStripTextBox
-            // 
-            this.searchToolStripTextBox.BackColor = Fenster.menu;
-            this.searchToolStripTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.searchToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.searchToolStripTextBox.AutoSize = true;
-            this.searchToolStripTextBox.Name = "searchToolStripTextBox";
-            this.searchToolStripTextBox.Size = new System.Drawing.Size(150, 23);
-            this.searchToolStripTextBox.Margin = new Padding(1);
-            this.searchToolStripTextBox.TextChanged += new System.EventHandler(this.SearchToolStripTextBox_TextChanged);
-            // 
+            searchToolStripTextBox = new ToolStripTextBox()
+            {
+                BackColor = Fenster.menu,
+                BorderStyle = BorderStyle.FixedSingle,
+                Font = new Font("Segoe UI", 9F),
+                AutoSize = true,
+                Name = "searchToolStripTextBox",
+                Size = new Size(150, 23),
+                Margin = new Padding(1)
+            };
+            searchToolStripTextBox.TextChanged += new EventHandler(SearchToolStripTextBox_TextChanged);
+
             // ToolStripMenuReplaceBox
-            // 
-            this.ToolStripMenuReplaceBox.BackColor = Fenster.menu;
-            this.ToolStripMenuReplaceBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.ToolStripMenuReplaceBox.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.ToolStripMenuReplaceBox.Name = "ToolStripMenuReplaceBox";
-            this.ToolStripMenuReplaceBox.Size = new System.Drawing.Size(100, 23);
-            this.ToolStripMenuReplaceBox.AutoSize = true;
-            this.ToolStripMenuReplaceBox.Margin = new Padding(1);
-            this.ToolStripMenuReplaceBox.Visible = false;
-            this.ToolStripMenuReplaceBox.TextChanged += new System.EventHandler(this.ToolStripMenuReplaceBox_TextChanged);
-            // 
+            ToolStripMenuReplaceBox = new ToolStripTextBox()
+            {
+                BackColor = Fenster.menu,
+                BorderStyle = BorderStyle.FixedSingle,
+                Font = new Font("Segoe UI", 9F),
+                Name = "ToolStripMenuReplaceBox",
+                Size = new Size(100, 23),
+                AutoSize = true,
+                Margin = new Padding(1),
+                Visible = false
+            };
+            ToolStripMenuReplaceBox.TextChanged += new EventHandler(ToolStripMenuReplaceBox_TextChanged);
+
             // toolStripReplaceAllButton
-            // 
-            this.toolStripReplaceAllButton.BackColor = Fenster.menu;
-            this.toolStripReplaceAllButton.ForeColor = Fenster.darkText;
-            this.toolStripReplaceAllButton.Name = "toolStripReplaceAllButton";
-            this.toolStripReplaceAllButton.Size = new System.Drawing.Size(63, 23);
-            this.toolStripReplaceAllButton.AutoSize = false;
-            this.toolStripReplaceAllButton.Margin = new Padding(1);
-            this.toolStripReplaceAllButton.Text = "Replace all";
-            this.toolStripReplaceAllButton.Visible = false;
-            this.toolStripReplaceAllButton.Click += new System.EventHandler(this.ToolStripReplaceAllButton_Click);
-            // 
+            toolStripReplaceAllButton = new ToolStripMenuItem()
+            {
+                BackColor = Fenster.menu,
+                ForeColor = Fenster.darkText,
+                Name = "toolStripReplaceAllButton",
+                Size = new Size(63, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "Replace all",
+                Visible = false
+            };
+            toolStripReplaceAllButton.Click += new EventHandler(ToolStripReplaceAllButton_Click);
+
             // toolStripReplaceButton
-            // 
-            this.toolStripReplaceButton.BackColor = Fenster.menu;
-            this.toolStripReplaceButton.ForeColor = Fenster.darkText;
-            this.toolStripReplaceButton.Name = "toolStripReplaceButton";
-            this.toolStripReplaceButton.Size = new System.Drawing.Size(63, 23);
-            this.toolStripReplaceButton.AutoSize = false;
-            this.toolStripReplaceButton.Margin = new Padding(1);
-            this.toolStripReplaceButton.Text = "Replace";
-            this.toolStripReplaceButton.Visible = false;
-            this.toolStripReplaceButton.Click += new System.EventHandler(this.ToolStripReplaceButton_Click);
-            // 
+            toolStripReplaceButton = new ToolStripMenuItem()
+            {
+                BackColor = Fenster.menu,
+                ForeColor = Fenster.darkText,
+                Name = "toolStripReplaceButton",
+                Size = new Size(63, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "Replace",
+                Visible = false
+            };
+            toolStripReplaceButton.Click += new EventHandler(ToolStripReplaceButton_Click);
+
             // languageToolStripComboBox
-            // 
-            this.languageToolStripComboBox.BackColor = Fenster.menu;
-            this.languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
-            this.languageToolStripComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.languageToolStripComboBox.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.languageToolStripComboBox.Name = "languageToolStripComboBox";
-            this.languageToolStripComboBox.Size = new System.Drawing.Size(75, 23);
-            this.languageToolStripComboBox.AutoSize = true;
-            this.languageToolStripComboBox.Margin = new Padding(1);
-            this.languageToolStripComboBox.SelectedIndexChanged += new System.EventHandler(this.LanguageToolStripComboBox_SelectedIndexChanged);
-            // 
+            languageToolStripComboBox = new ToolStripComboBox()
+            {
+                BackColor = Fenster.menu,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                FlatStyle = FlatStyle.Flat,
+                Name = "languageToolStripComboBox",
+                Size = new Size(75, 23),
+                AutoSize = true,
+                Margin = new Padding(1)
+            };
+            languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
+            languageToolStripComboBox.SelectedIndexChanged += new EventHandler(LanguageToolStripComboBox_SelectedIndexChanged);
+
             // storyExplorerStripMenuItem
-            // 
-            this.storyExplorerStripMenuItem.BackColor = Fenster.menu;
-            this.storyExplorerStripMenuItem.Name = "storyExplorerStripMenuItem";
-            this.storyExplorerStripMenuItem.Size = new System.Drawing.Size(118, 23);
-            this.storyExplorerStripMenuItem.AutoSize = false;
-            this.storyExplorerStripMenuItem.Margin = new Padding(1);
-            this.storyExplorerStripMenuItem.Text = "&Auto StoryExplorer";
-            this.storyExplorerStripMenuItem.Click += new System.EventHandler(this.StoryExplorerStripMenuItem_Click);
-            // 
+            storyExplorerStripMenuItem = new ToolStripMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = "storyExplorerStripMenuItem",
+                Size = new Size(118, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&Auto StoryExplorer"
+            };
+            storyExplorerStripMenuItem.Click += new EventHandler(StoryExplorerStripMenuItem_Click);
+
             // customOpenStoryExplorer
-            // 
-            this.customOpenStoryExplorer.BackColor = Fenster.menu;
-            this.customOpenStoryExplorer.Name = "customOpenStoryExplorer";
-            this.customOpenStoryExplorer.Size = new System.Drawing.Size(121, 23);
-            this.customOpenStoryExplorer.AutoSize = false;
-            this.customOpenStoryExplorer.Margin = new Padding(1);
-            this.customOpenStoryExplorer.Text = "Open StoryE&xplorer";
-            this.customOpenStoryExplorer.Click += new System.EventHandler(this.CustomStoryExplorerStripMenuItem_Click);
+            customOpenStoryExplorer = new ToolStripMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = "customOpenStoryExplorer",
+                Size = new Size(121, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "Open StoryE&xplorer"
+            };
+            customOpenStoryExplorer.Click += new EventHandler(CustomStoryExplorerStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
-            // 
-            this.settingsToolStripMenuItem.BackColor = Fenster.menu;
-            this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 23);
-            this.settingsToolStripMenuItem.AutoSize = false;
-            this.settingsToolStripMenuItem.Margin = new Padding(1);
-            this.settingsToolStripMenuItem.Text = "Se&ttings";
-            this.settingsToolStripMenuItem.Click += new System.EventHandler(this.SettingsToolStripMenuItem_Click);
-            // 
-            // tabPage1
-            // 
-            this.tabPage1 = Utils.CreateNewTab(1, this);
-            // 
-            // MainTabControl
-            // 
-            this.MainTabControl.Controls.Add(this.tabPage1);
-            this.MainTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.MainTabControl.Location = new System.Drawing.Point(0, 27);
-            this.MainTabControl.Name = "MainTabControl";
-            this.MainTabControl.SelectedIndex = 0;
-            this.MainTabControl.SizeMode = TabSizeMode.Normal;
-            this.MainTabControl.TabIndex = 9;
-            this.MainTabControl.SelectedIndexChanged += new System.EventHandler(this.MainTabControl_SelectedIndexChanged);
-            this.MainTabControl.MouseClick += new System.Windows.Forms.MouseEventHandler(this.CloseTab_Click);
-            // 
-            // Fenster
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = Fenster.backgroundDarker;
-            this.ClientSize = new System.Drawing.Size(1384, 761);
-            this.Controls.Add(this.MainTabControl);
-            this.Controls.Add(this.MainMenu);
-            this.MinimumSize = new System.Drawing.Size(640, 470);
-            this.Name = "Fenster";
-            this.ShowIcon = false;
-            this.Text = "HP Translator Helper";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OnFormClosing);
-            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.TextContextOpened);
-            this.Shown += new System.EventHandler(this.OnFormShown);
-            this.MainMenu.ResumeLayout(false);
-            this.MainMenu.PerformLayout();
-            this.MainTabControl.ResumeLayout(false);
-            this.tabPage1.ResumeLayout(false);
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            settingsToolStripMenuItem = new ToolStripMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = "settingsToolStripMenuItem",
+                Size = new Size(61, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "Se&ttings"
+            };
+            settingsToolStripMenuItem.Click += new EventHandler(SettingsToolStripMenuItem_Click);
 
+            // tabPage1
+            tabPage1 = Utils.CreateNewTab(1, this);
+            tabPage1.SuspendLayout();
+
+            // MainTabControl
+            MainTabControl = new TabControl()
+            {
+                Dock = DockStyle.Fill,
+                Location = new Point(0, 27),
+                Name = "MainTabControl",
+                SelectedIndex = 0,
+                SizeMode = TabSizeMode.Normal,
+                TabIndex = 9
+            };
+            MainTabControl.SuspendLayout();
+            MainTabControl.Controls.Add(tabPage1);
+            MainTabControl.SelectedIndexChanged += new EventHandler(MainTabControl_SelectedIndexChanged);
+            MainTabControl.MouseClick += new MouseEventHandler(CloseTab_Click);
+
+            // Fenster
+            AutoScaleDimensions = new SizeF(6F, 13F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Fenster.backgroundDarker;
+            ClientSize = new Size(1400, 760);
+            Controls.Add(MainMenu);
+            Controls.Add(MainTabControl);
+            MinimumSize = new Size(640, 470);
+            Name = "Fenster";
+            ShowIcon = false;
+            Text = "Translator";
+            FormClosing += new FormClosingEventHandler(OnFormClosing);
+            MouseUp += new MouseEventHandler(TextContextOpened);
+            Shown += new EventHandler(OnFormShown);
+            MainMenu.ResumeLayout(true);
+            MainTabControl.ResumeLayout(false);
+            tabPage1.ResumeLayout(false);
+            ResumeLayout(true);
         }
     }
 }
