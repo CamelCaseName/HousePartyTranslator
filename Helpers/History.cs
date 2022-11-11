@@ -14,18 +14,18 @@ namespace HousePartyTranslator.Managers
         public static bool CausedByHistory = false;
 
 #if TRACE
-
         public static void AddAction(ICommand command, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerName = "", [CallerLineNumber] int lineNumber = 0)
         {
-            Console.WriteLine("History action added by " + callerFile + '<' + callerName + ">:" + lineNumber.ToString());
-            Console.WriteLine("L__" + command.ToString() + $" - {command.StoryName}\\{command.FileName}");
 #else
             public static void AddAction(ICommand command)
         {
-
 #endif
             if (!CausedByHistory)
             {
+#if TRACE
+                Console.WriteLine("History action added by " + callerFile + '<' + callerName + ">:" + lineNumber.ToString());
+                Console.WriteLine("L__" + command.ToString() + $" - {command.StoryName}\\{command.FileName}");
+#endif
                 history.Push(command);
                 if (history.Count > 110)
                 {
