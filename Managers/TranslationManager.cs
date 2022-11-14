@@ -207,7 +207,7 @@ namespace HousePartyTranslator.Managers
                             _ = DataBase.RemoveOldTemplates(FileName, story);
                             _ = DataBase.UploadTemplates(templates);
 
-                            Application.UseWaitCursor = false;
+                            UIHandler.SignalAppUnWait();
                             return true;
                         }
                         _ = Msg.ErrorOk("Something broke, please try again.");
@@ -219,7 +219,7 @@ namespace HousePartyTranslator.Managers
                 }
             }
 
-            Application.UseWaitCursor = false;
+            UIHandler.SignalAppUnWait();
             return false;
         }
 
@@ -1023,7 +1023,7 @@ namespace HousePartyTranslator.Managers
             }
             else if (result == DialogResult.Cancel)
             {
-                Application.Exit();
+                UIHandler.SignalAppExit();
             }
         }
 
@@ -1151,12 +1151,11 @@ namespace HousePartyTranslator.Managers
 
         private FileData GetTemplatesFromStoryFile(bool isStory)
         {
-            Application.UseWaitCursor = true;
+            UIHandler.SignalAppWait();
             var explorer = new ContextProvider(isStory, false, FileName, StoryName, null);
             List<Node> nodes = explorer.GetTemplateNodes();
             if (nodes != null)
             {
-
                 var templates = new FileData
                             {
                                 //add name as first template (its not in the file)
@@ -1167,7 +1166,9 @@ namespace HousePartyTranslator.Managers
                 for (int i = 0; i < nodes.Count; i++)
                 {
                     //filter out irrelevant nodes
-                    if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) && nodes[i].Type == NodeType.Event)
+                    if (!(
+                            (int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) 
+                            && nodes[i].Type == NodeType.Event)
                         && nodes[i].Type.AsStringCategory() != StringCategory.Neither
                         && nodes[i].ID != "")
                     {
@@ -1175,12 +1176,12 @@ namespace HousePartyTranslator.Managers
                     }
                 }
 
-                Application.UseWaitCursor = false;
+                UIHandler.SignalAppUnWait();
                 return templates;
             }
 
             _ = Msg.ErrorOk("Something broke, please try again.");
-            Application.UseWaitCursor = false;
+            UIHandler.SignalAppUnWait();
             return null;
         }
 

@@ -97,6 +97,7 @@ namespace HousePartyTranslator.Managers
             }
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
+
             if (story != "Hints") _ = MainCommand.Parameters.AddWithValue("@filename", fileName);
             _ = MainCommand.Parameters.AddWithValue("@story", story);
             _ = MainCommand.Parameters.AddWithValue("@language", language);
@@ -143,7 +144,7 @@ namespace HousePartyTranslator.Managers
                     }
                     else
                     {
-                        _ = Msg.WarningOk("Ids can't be loaded", "Info");
+                        _ = Msg.WarningOk("Ids can't be loaded", "Potential issue");
                     }
                 }
                 finally
@@ -165,7 +166,7 @@ namespace HousePartyTranslator.Managers
         /// </returns>
         public static bool GetAllLineDataTemplate(string fileName, string story, out FileData LineDataList)
         {
-            Application.UseWaitCursor = true;
+            UIHandler.SignalAppWait();
             string command;
             if (story == "Hints")
             {
@@ -213,7 +214,7 @@ namespace HousePartyTranslator.Managers
                 }
                 MainReader.Close();
             }
-            Application.UseWaitCursor = false;
+            UIHandler.SignalAppUnWait();
             return LineDataList.Count > 0;
         }
 
@@ -223,13 +224,13 @@ namespace HousePartyTranslator.Managers
         /// <param name="mainWindow">the window to spawn the password box as a child of</param>
         private static void EstablishConnection(Fenster mainWindow)
         {
-            Application.UseWaitCursor = true;
+            UIHandler.SignalAppWait();
             while (!IsOnline)
             {
                 string connString = GetConnString();
                 if (connString == "")
                 {
-                    Application.UseWaitCursor = false;
+                    UIHandler.SignalAppUnWait();
                     //Pasword has to be set first time
                     var Passwordbox = new Password();
                     DialogResult passwordResult = Passwordbox.ShowDialog(mainWindow);
@@ -250,7 +251,7 @@ namespace HousePartyTranslator.Managers
                         }
                     }
 
-                    Application.UseWaitCursor = true;
+                    UIHandler.SignalAppWait();
                 }
                 else
                 {
@@ -262,7 +263,7 @@ namespace HousePartyTranslator.Managers
                         {
                             //password may have to be changed
                             _ = Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
-                            Application.Exit();
+                            UIHandler.SignalAppExit();
                         }
                         else
                         {
@@ -282,7 +283,7 @@ namespace HousePartyTranslator.Managers
                             //means invalid creds
                             _ = Msg.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                         }
-                        Application.UseWaitCursor = false;
+                        UIHandler.SignalAppUnWait();
                         return;
                     }
                 }
@@ -371,7 +372,7 @@ namespace HousePartyTranslator.Managers
                 mainWindow.Text += " (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + SoftwareVersionManager.LocalVersion + ")";
                 mainWindow.Update();
             }
-            Application.UseWaitCursor = false;
+            UIHandler.SignalAppUnWait();
         }
 
         public static bool RemoveOldTemplates(string fileName, string story)
@@ -627,7 +628,7 @@ namespace HousePartyTranslator.Managers
             {
                 //password may have to be changed
                 _ = Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
-                Application.Exit();
+                UIHandler.SignalAppExit();
                 return false;
             }
             else return true;

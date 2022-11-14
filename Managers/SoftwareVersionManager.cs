@@ -56,7 +56,7 @@ namespace HousePartyTranslator.Managers
                     _ = Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
 
                     //exit
-                    Application.Exit();
+                    UIHandler.SignalAppExit();
                 }
             }
             catch(Exception e)
