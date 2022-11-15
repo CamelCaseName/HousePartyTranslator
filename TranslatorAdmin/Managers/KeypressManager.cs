@@ -321,6 +321,7 @@ namespace Translator.Managers
             TabManager.OpenNewTab();
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static void SelectedItemChanged(Helpers.ColouredCheckedListBox listBox)
         {
             if (!History.CausedByHistory && lastIndex >= 0 && listBox.SelectedIndex >= 0)

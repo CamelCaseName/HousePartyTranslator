@@ -245,7 +245,7 @@ namespace Translator.Managers
         /// <param name="SelectNewAfter">A bool to determine if a new string should be selected after approval.</param>
         internal void ApproveIfPossible(bool SelectNewAfter)
         {
-            if(helper == null) return;
+            if (helper == null) return;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
             if (currentIndex >= 0)
             {
@@ -343,6 +343,7 @@ namespace Translator.Managers
 
         private void MarkSimilarLine(int currentIndex)
         {
+            if (helper == null) return;
             if (helper.TemplateTextBox.Text == helper.TranslationTextBox.Text && !TranslationData[SelectedId].IsTranslated && !TranslationData[SelectedId].IsApproved)
             {
                 helper.CheckListBoxLeft.SimilarStringsToEnglish.Add(currentIndex);
@@ -372,6 +373,7 @@ namespace Translator.Managers
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void PopulateTextBoxes()
         {
+            if (helper == null || MainWindow == null) return;
             MainWindow.Cursor = Cursors.WaitCursor;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
 
@@ -426,11 +428,12 @@ namespace Translator.Managers
         /// <param name="replacement">The string to replace all search matches with</param>
         internal void ReplaceAll(string replacement)
         {
+            if (helper == null) return;
             FileData old = TranslationData;
 
             foreach (int i in helper.CheckListBoxLeft.SearchResults)
             {
-                TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString = TranslationData[helper.CheckListBoxLeft.Items[i].ToString()].TranslationString.Replace(replacement, SearchQuery);
+                TranslationData[helper.CheckListBoxLeft.Items[i].ToString() ?? ""].TranslationString = TranslationData[helper.CheckListBoxLeft.Items[i].ToString() ?? ""].TranslationString.Replace(replacement, SearchQuery);
             }
 
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
@@ -451,6 +454,7 @@ namespace Translator.Managers
         /// <param name="replacement">The string to replace all search matches with</param>
         internal void ReplaceSingle(string replacement)
         {
+            if (helper == null) return;
             int i = helper.CheckListBoxLeft.SelectedIndex;
             if (helper.CheckListBoxLeft.SearchResults.Contains(i))
             {
@@ -468,6 +472,7 @@ namespace Translator.Managers
 
         internal void ReloadTranslationTextbox()
         {
+            if (helper == null) return;
             //update textbox
             helper.TranslationTextBox.Text = TranslationData[SelectedId].TranslationString.Replace("\n", Environment.NewLine);
         }
@@ -485,6 +490,7 @@ namespace Translator.Managers
         /// </summary>
         private void ConvenienceAutomaticTranslation()
         {
+            if (helper == null) return;
             if (helper.TranslationTextBox.Text == helper.TemplateTextBox.Text && !TranslationData[SelectedId].IsTranslated && !TranslationData[SelectedId].IsApproved && helper.TemplateTextBox.Text.Length > 0)
                 AutoTranslation.AutoTranslationAsync(TranslationData[SelectedId], Language, ConvenienceTranslationCallback);
         }
@@ -526,6 +532,7 @@ namespace Translator.Managers
         /// </summary>
         internal void SaveCurrentString()
         {
+            if (helper == null || MainWindow == null) return;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
 
             //if we changed the eselction and have autsave enabled
@@ -548,6 +555,7 @@ namespace Translator.Managers
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void SaveFile()
         {
+            if (MainWindow == null) return;
             if (!Fenster.ProgressbarWindow.Visible) Fenster.ProgressbarWindow.Show(MainWindow);
             _ = Fenster.ProgressbarWindow.Focus();
             Fenster.ProgressbarWindow.ProgressBar.Value = 10;
@@ -599,7 +607,7 @@ namespace Translator.Managers
         private void CopyToGameModsFolder()
         {
             //get language path
-            if (LanguageHelper.Languages.TryGetValue(Language, out string languageAsText))
+            if (LanguageHelper.Languages.TryGetValue(Language, out string? languageAsText))
             {
                 //add new to langauge if wanted
                 if (Settings.Default.useFalseFolder)
@@ -635,7 +643,7 @@ namespace Translator.Managers
                     else
                     {
                         //create file if it does not exist, as well as all folders
-                        _ = Directory.CreateDirectory(Path.GetDirectoryName(gameFilePath));
+                        _ = Directory.CreateDirectory(Path.GetDirectoryName(gameFilePath) ?? "");
                         File.Copy(SourceFilePath, gameFilePath, true);
                     }
                 }
@@ -690,9 +698,9 @@ namespace Translator.Managers
                 //add template to list if no translation is in the file
                 if (DataBase.IsOnline)
                 {
-                    if (TranslationData.TryGetValue(item.ID, out LineData TempResult))
+                    if (TranslationData.TryGetValue(item.ID, out LineData? TempResult))
                     {
-                        item.TranslationString = TempResult.TranslationString;
+                        item.TranslationString = TempResult?.TranslationString ?? IdsToExport[item.ID].TemplateString;
                     }
                     else
                     {
@@ -767,6 +775,7 @@ namespace Translator.Managers
         /// </summary>
         internal void Search()
         {
+            if (helper == null) return;
             SearchQuery = helper.SearchBox.Text;
             Search(helper.SearchBox.Text);
         }
@@ -777,6 +786,7 @@ namespace Translator.Managers
         /// <param name="query">The search temr to look for</param>
         internal void Search(string query)
         {
+            if (helper == null) return;
             //reset list if no search is performed
             if (query.Length > 0)
             {
@@ -837,6 +847,7 @@ namespace Translator.Managers
         /// <param name="id">The id to look for.</param>
         internal void SelectLine(string id)
         {
+            if (helper == null) return;
             //select line which correspondends to id
             foreach (object item in helper.CheckListBoxLeft.Items)
             {
@@ -854,7 +865,7 @@ namespace Translator.Managers
         /// <param name="index">The index to select</param>
         internal static void SelectLine(int index)
         {
-            if (index >= 0 && index < TabManager.ActiveProperties.CheckListBoxLeft.Items.Count) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
+            if (index >= 0 && index < TabManager.ActiveProperties?.CheckListBoxLeft.Items.Count) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
         }
 
         /// <summary>
@@ -862,6 +873,7 @@ namespace Translator.Managers
         /// </summary>
         internal void SetLanguage()
         {
+            if (helper == null) return;
             if (helper.LanguageBox.SelectedIndex >= 0)
             {
                 Language = helper.LanguageBox.Text;
@@ -909,6 +921,7 @@ namespace Translator.Managers
         /// </summary>
         internal void UpdateTranslationString()
         {
+            if (helper == null) return;
             //remove pipe to not break saving/export
             _ = helper.TranslationTextBox.Text.Replace('|', ' ');
             TranslationData[SelectedId].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
@@ -919,6 +932,7 @@ namespace Translator.Managers
 
         internal void UpdateComments()
         {
+            if (helper == null) return;
             //remove pipe to not break saving/export
             TranslationData[SelectedId].Comments = helper.CommentBox.Lines;
         }
@@ -1054,7 +1068,7 @@ namespace Translator.Managers
                 //get parent folder name
                 string tempStoryName = paths[^2];
                 //get language text representation
-                bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
+                bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string? languageAsText);
                 //compare
                 if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
                     //get folder one more up
@@ -1092,6 +1106,7 @@ namespace Translator.Managers
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void LoadTranslations(bool localTakesPriority = false)
         {
+            if (helper == null || MainWindow == null) return;
             MainWindow.Cursor = Cursors.WaitCursor;
 
             bool lineIsApproved = false;
@@ -1107,7 +1122,7 @@ namespace Translator.Managers
 
             foreach (string key in TranslationData.Keys)
             {
-                if (onlineLines.TryGetValue(key, out LineData tempLine))
+                if (onlineLines.TryGetValue(key, out LineData? tempLine))
                 {
                     lineIsApproved = tempLine.IsApproved;
                     TranslationData[key].Category = tempLine.Category;
@@ -1165,7 +1180,7 @@ namespace Translator.Managers
         private FileData GetTemplatesFromStoryFile(bool isStory)
         {
             UIHandler.SignalAppWait();
-            var explorer = new ContextProvider(isStory, false, FileName, StoryName, null);
+            var explorer = new ContextProvider(isStory, false, FileName, StoryName, new ParallelOptions());
             List<Node> nodes = explorer.GetTemplateNodes();
             if (nodes != null)
             {
@@ -1180,7 +1195,7 @@ namespace Translator.Managers
                 {
                     //filter out irrelevant nodes
                     if (!(
-                            (int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) 
+                            (int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2)
                             && nodes[i].Type == NodeType.Event)
                         && nodes[i].Type.AsStringCategory() != StringCategory.Neither
                         && nodes[i].ID != "")
@@ -1389,7 +1404,7 @@ namespace Translator.Managers
 
         private void CreateLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation)
         {
-            if (IdsToExport.TryGetValue(lastLine[0], out LineData templateLine))
+            if (IdsToExport.TryGetValue(lastLine[0], out LineData? templateLine))
                 TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation);
             else
                 TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1] + translation);
@@ -1420,6 +1435,7 @@ namespace Translator.Managers
         {
             ShowAutoSaveDialog();
             LoadTranslationFile();
+            if (helper == null) return;
             //select recent index
             if (Settings.Default.recent_index > 0 && Settings.Default.recent_index < TranslationData.Count) helper.CheckListBoxLeft.SelectedIndex = Settings.Default.recent_index;
         }
@@ -1429,6 +1445,7 @@ namespace Translator.Managers
         /// </summary>
         private void ResetTranslationManager()
         {
+            if (helper == null) return;
             Settings.Default.recent_index = helper.CheckListBoxLeft.SelectedIndex;
             TranslationData.Clear();
             helper.CheckListBoxLeft.Items.Clear();
@@ -1445,6 +1462,7 @@ namespace Translator.Managers
         /// <returns>True if a new result could be selected</returns>
         internal bool SelectNextResultIfApplicable()
         {
+            if (helper == null) return false;
             if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused && helper.CheckListBoxLeft.SearchResults.Any())
             {
                 //loop back to start
@@ -1501,6 +1519,7 @@ namespace Translator.Managers
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void SetHighlightedNode()
         {
+            if (MainWindow == null || helper == null) return;
             if (TranslationData.Count > 0)
             {
                 int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
@@ -1508,7 +1527,7 @@ namespace Translator.Managers
                 //Highlights the node representign the selected string in the story explorer window
                 if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
                 {
-                    MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.Nodes.Find(n => n.ID == id);
+                    MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.Nodes.Find(n => n.ID == id) ?? Node.NullNode;
                 }
             }
         }
@@ -1518,6 +1537,7 @@ namespace Translator.Managers
         /// </summary>
         internal void ToggleReplaceUI()
         {
+            if (helper == null) return;
             if (!helper.ReplaceBox.Visible)
             {
                 if (helper.TranslationTextBox.SelectedText.Length > 0)
@@ -1548,6 +1568,7 @@ namespace Translator.Managers
         /// <param name="Total">The total number of strings.</param>
         private void UpdateApprovedCountLabel(int Approved, int Total)
         {
+            if (helper == null) return;
             float percentage = Approved / (float)Total;
             helper.ApprovedCountLabel.Text = $"Approved: {Approved} / {Total} {(int)(percentage * 100)}%";
             int ProgressValue = (int)(Approved / (float)Total * 100);
@@ -1572,6 +1593,7 @@ namespace Translator.Managers
         /// <param name="TranslationCount">The number of chars in the translated string.</param>
         private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount)
         {
+            if (helper == null) return;
             if (TranslationCount <= TemplateCount)
             {
                 helper.CharacterCountLabel.ForeColor = Color.LawnGreen;
@@ -1590,6 +1612,7 @@ namespace Translator.Managers
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void OverrideCloudSave()
         {
+            if (helper == null) return;
             if (Settings.Default.advancedMode)
             {
                 //show warning

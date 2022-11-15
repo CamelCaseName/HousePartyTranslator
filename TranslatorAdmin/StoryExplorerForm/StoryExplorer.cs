@@ -3,6 +3,7 @@ using System.Windows.Forms;
 
 namespace Translator.StoryExplorerForm
 {
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class StoryExplorer : Form
     {
         private readonly ContextProvider Context;
