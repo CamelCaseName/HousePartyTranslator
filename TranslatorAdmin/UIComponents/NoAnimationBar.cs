@@ -20,6 +20,7 @@ namespace Translator.Helpers
         /// A override for the OnPaint method to draw the bar without an animation and a custom colour.
         /// </summary>
         /// <param name="e">The PaintEventArgs to manipulate.</param>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         protected override void OnPaint(PaintEventArgs e)
         {
             e.Graphics.FillRectangle(new SolidBrush(ForeColor), new Rectangle(0, 0, (int)(Width * (float)Value / Maximum), Height));

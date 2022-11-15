@@ -13,6 +13,7 @@ namespace Translator
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         static void Main()
         {
             AppDomain.CurrentDomain.AssemblyResolve += OnResolveAssembly;
@@ -22,6 +23,7 @@ namespace Translator
         /// <summary>
         /// Starts the main form
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private static void Start()
         {
             Application.EnableVisualStyles();
@@ -38,26 +40,24 @@ namespace Translator
         /// See: http://www.digitallycreated.net/Blog/61/combining-multiple-assemblies-into-a-single-exe-for-a-wpf-application
         /// borrowed from https://gist.github.com/x1unix/7bced85295bb3fbc21a7308bf541e2b8
         /// </summary>
-        private static Assembly OnResolveAssembly(object sender, ResolveEventArgs args)
+        private static Assembly? OnResolveAssembly(object? sender, ResolveEventArgs? args)
         {
             var executingAssembly = Assembly.GetExecutingAssembly();
-            var assemblyName = new AssemblyName(args.Name);
+            var assemblyName = new AssemblyName(args?.Name?? "");
 
             string path = assemblyName.Name + ".dll";
-            if (!assemblyName.CultureInfo.Equals(CultureInfo.InvariantCulture))
+            if (!assemblyName?.CultureInfo?.Equals(CultureInfo.InvariantCulture) ?? false)
             {
-                path = $"{assemblyName.CultureInfo}\\${path}";
+                path = $"{assemblyName?.CultureInfo}\\${path}";
             }
 
-            using (System.IO.Stream stream = executingAssembly.GetManifestResourceStream(path))
-            {
-                if (stream == null)
-                    return null;
+            using System.IO.Stream? stream = executingAssembly?.GetManifestResourceStream(path);
+            if (stream == null)
+                return null;
 
-                byte[] assemblyRawBytes = new byte[stream.Length];
-                _ = stream.Read(assemblyRawBytes, 0, assemblyRawBytes.Length);
-                return Assembly.Load(assemblyRawBytes);
-            }
+            byte[] assemblyRawBytes = new byte[stream.Length];
+            _ = stream.Read(assemblyRawBytes, 0, assemblyRawBytes.Length);
+            return Assembly.Load(assemblyRawBytes);
         }
     }
 }

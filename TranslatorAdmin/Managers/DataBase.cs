@@ -1,9 +1,6 @@
-﻿using Translator.Helpers;
-using MySql.Data.MySqlClient;
-using System;
-using System.Linq;
+﻿using MySql.Data.MySqlClient;
 using System.Text;
-using System.Windows.Forms;
+using Translator.Helpers;
 using TranslatorAdmin.Properties;
 
 namespace Translator.Managers
@@ -13,11 +10,11 @@ namespace Translator.Managers
     /// </summary>
     internal static class DataBase
     {
-        public static string DBVersion;
-        private static readonly MySqlConnection sqlConnection = new MySqlConnection();
-        private static MySqlCommand MainCommand;
-        private static MySqlDataReader MainReader;
-        private static string SoftwareVersion;
+        public static string DBVersion = "0.0.0";
+        private static readonly MySqlConnection sqlConnection = new();
+        private static MySqlCommand MainCommand = new();
+        private static MySqlDataReader? MainReader;
+        private static string SoftwareVersion = "0.0.0.0";
         public static bool IsOnline { get; private set; } = false;
 
 #if DEBUG
@@ -51,7 +48,7 @@ namespace Translator.Managers
                         translation = new LineData()
                         {
                             Category = (StringCategory)MainReader.GetInt32("category"),
-                            Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
+                            Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : Array.Empty<string>(),
                             FileName = fileName,
                             ID = CleanId(id, story, fileName, false),
                             IsApproved = MainReader.GetInt32("approved") > 0,
@@ -70,7 +67,7 @@ namespace Translator.Managers
                 }
                 finally
                 {
-                    MainReader.Close();
+                    MainReader?.Close();
                 }
             }
             else
@@ -121,7 +118,7 @@ namespace Translator.Managers
                                 var _lineData = new LineData()
                                 {
                                     Category = (StringCategory)MainReader.GetInt32("category"),
-                                    Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : new string[] { },
+                                    Comments = !MainReader.IsDBNull(7) ? MainReader.GetString("comment").Split('#') : Array.Empty<string>(),
                                     FileName = fileName,
                                     ID = id,
                                     IsApproved = MainReader.GetInt32("approved") > 0,
@@ -150,7 +147,7 @@ namespace Translator.Managers
                 }
                 finally
                 {
-                    MainReader.Close();
+                    MainReader?.Close();
                 }
             }
             return wasSuccessfull;
@@ -329,7 +326,7 @@ namespace Translator.Managers
                 else
                 {
                     //add . if it is missing
-                    if (!fileVersion.Contains("."))
+                    if (!fileVersion.Contains('.'))
                     {
                         fileVersion = "1." + fileVersion;
                         Settings.Default.version = fileVersion;
@@ -557,7 +554,7 @@ namespace Translator.Managers
         private static string CleanId(string DataBaseId, string story, string fileName, bool isTemplate)
         {
             if (story == "Hints" && isTemplate) fileName = "English";
-            string tempID = DataBaseId.Substring((story + fileName).Length);
+            string tempID = DataBaseId[(story + fileName).Length..];
             return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
         }
 

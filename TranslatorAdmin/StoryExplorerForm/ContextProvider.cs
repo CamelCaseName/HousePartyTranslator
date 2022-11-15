@@ -12,15 +12,20 @@ using TranslatorAdmin.Properties;
 
 namespace Translator
 {
+#pragma warning disable IDE0079
+#pragma warning disable CS8600
+#pragma warning disable CS8602
+#pragma warning disable CS8603
+#pragma warning disable CS8604
     internal sealed class ContextProvider
     {
         public bool GotCancelled = false;
         private readonly string FileId;
         private readonly bool IsStory;
-        private readonly Random Random = new Random();
+        private readonly Random Random = new();
         private string _StoryFilePath;
-        private Dictionary<Guid, Vector2> NodeForces;
-        private List<Node> CriteriaInFile;
+        private Dictionary<Guid, Vector2>? NodeForces;
+        private List<Node>? CriteriaInFile;
         private List<Node> nodes;
         private readonly ParallelOptions options;
         private readonly string StoryName = "story";
@@ -28,6 +33,7 @@ namespace Translator
 
         public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, ParallelOptions parallelOptions)
         {
+            _StoryFilePath = "";
             options = parallelOptions;
             nodes = new List<Node>();
             this.IsStory = IsStory;
@@ -97,7 +103,7 @@ namespace Translator
                     {
                         Settings.Default.story_path = Path.GetDirectoryName(selectFileDialog.FileName);
                         Settings.Default.Save();
-                        FilePath = selectFileDialog.FileName;
+                        _StoryFilePath = selectFileDialog.FileName;
                     }
                     else
                     {
@@ -124,20 +130,20 @@ namespace Translator
                 if (File.Exists(savedNodesPath))
                 {
                     //read in positions if they exist, but only if version is the same
-                    List<SerializeableNode> tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
+                    List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
                     //expand the guids back into references
-                    nodes = Node.ExpandDeserializedNodes(tempList);
+                    nodes = Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>());
                 }
                 else
                 {
                     //else create new
                     if (IsStory)
                     {
-                        DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString), true);
+                        DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory(), true);
                     }
                     else
                     {
-                        DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString), true);
+                        DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory(), true);
                     }
 
                     //save nodes
@@ -268,7 +274,7 @@ namespace Translator
             return nodes;
         }
 
-        public List<Tuple<int, int>> GetEdges(List<Node> _nodes)
+        public static List<Tuple<int, int>> GetEdges(List<Node> _nodes)
         {
             var returnList = new List<Tuple<int, int>>();
 
@@ -454,7 +460,7 @@ namespace Translator
             }
         }
 
-        private List<Node> GetAchievements(MainStory story)
+        private static List<Node> GetAchievements(MainStory story)
         {
             //list to collect all achievement nodes
             var nodes = new List<Node>();
@@ -472,7 +478,7 @@ namespace Translator
             return nodes;
         }
 
-        private List<Node> GetBackGroundChatter(CharacterStory story)
+        private static List<Node> GetBackGroundChatter(CharacterStory story)
         {
             var nodes = new List<Node>();
             foreach (BackgroundChatter backgroundChatter in story.BackgroundChatter ?? System.Linq.Enumerable.Empty<BackgroundChatter>())
@@ -497,7 +503,7 @@ namespace Translator
             return nodes;
         }
 
-        private List<Node> GetDialogues(CharacterStory story)
+        private static List<Node> GetDialogues(CharacterStory story)
         {
             var nodes = new List<Node>();
             var responseDialogueLinks = new List<Tuple<Node, int>>();
@@ -562,7 +568,7 @@ namespace Translator
             return nodes;
         }
 
-        private List<Node> GetGlobalGoodByeResponses(CharacterStory story)
+        private static List<Node> GetGlobalGoodByeResponses(CharacterStory story)
         {
             var nodes = new List<Node>();
 
@@ -582,7 +588,7 @@ namespace Translator
             return nodes;
         }
 
-        private List<Node> GetGlobalResponses(CharacterStory story)
+        private static List<Node> GetGlobalResponses(CharacterStory story)
         {
             var nodes = new List<Node>();
 
@@ -601,13 +607,14 @@ namespace Translator
             return nodes;
         }
 
-        private List<Node> GetItemGroups(MainStory story)
+        private static List<Node> GetItemGroups(MainStory story)
         {
             //list to collect all item group nodes in the end
             var nodes = new List<Node>();
             //go through all item groups to find events
             foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors ?? System.Linq.Enumerable.Empty<ItemGroupBehavior>())
             {
+                if (itemGroupBehaviour == null) continue;
                 //create item group node to add events/criteria to
                 var nodeGroup = new Node(itemGroupBehaviour.Id, NodeType.ItemGroup, itemGroupBehaviour.Name);
                 //get actions for item
@@ -634,7 +641,7 @@ namespace Translator
             return nodes;
         }
 
-        private List<Node> GetItemOverrides(MainStory story)
+        private static List<Node> GetItemOverrides(MainStory story)
         {
             //list to store all found root nodes
             var nodes = new List<Node>();
@@ -667,7 +674,7 @@ namespace Translator
             return nodes;
         }
 
-        private List<Node> GetPlayerReactions(MainStory story)
+        private static List<Node> GetPlayerReactions(MainStory story)
         {
             var nodes = new List<Node>();
             foreach (PlayerReaction playerReaction in story.PlayerReactions ?? System.Linq.Enumerable.Empty<PlayerReaction>())
@@ -686,7 +693,7 @@ namespace Translator
             return nodes;
         }
 
-        private List<Node> GetQuests(CharacterStory story)
+        private static List<Node> GetQuests(CharacterStory story)
         {
             var nodes = new List<Node>();
 
@@ -714,7 +721,7 @@ namespace Translator
             return nodes;
         }
 
-        private List<Node> GetReactions(CharacterStory story)
+        private static List<Node> GetReactions(CharacterStory story)
         {
             var nodes = new List<Node>();
 
@@ -733,4 +740,9 @@ namespace Translator
             return nodes;
         }
     }
+#pragma warning restore CS8600
+#pragma warning restore CS8602
+#pragma warning restore CS8603
+#pragma warning restore CS8604
+#pragma warning restore IDE0079
 }

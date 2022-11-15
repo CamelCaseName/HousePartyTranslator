@@ -10,9 +10,9 @@ namespace Translator.Managers
     internal static class SoftwareVersionManager
     {
         public const string LocalVersion = "0.6.2.0";
-        public static string LatestGithubVersion;
+        public static string? LatestGithubVersion;
         public static bool UpdatePending = false;
-        private static readonly HttpClient client = new HttpClient();
+        private static readonly HttpClient client = new();
         const string APIUrl = "https://api.github.com/repos/CamelCaseName/HousePartyTranslator/releases/latest";
 
         /// <summary>
@@ -32,10 +32,10 @@ namespace Translator.Managers
             try
             {
                 //get data from github about the packages 
-                GithubResponse response = await JsonSerializer.DeserializeAsync<GithubResponse>(await client.GetStreamAsync(APIUrl));
+                GithubResponse? response = await JsonSerializer.DeserializeAsync<GithubResponse>(await client.GetStreamAsync(APIUrl));
 
                 //check version and for need of update
-                if (!UpdateNeeded(response.TagName)) return;
+                if (!UpdateNeeded(response?.TagName ?? "0.0.0.0")) return;
 
                 //prepare files
                 (bool successfull, string newFile, string oldFile) = CreateFiles();
@@ -44,10 +44,11 @@ namespace Translator.Managers
                 //inform rest of program
                 UpdatePending = true;
 
-                if (Msg.InfoYesNoB("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response.Body, "Update - " + response.Name))
+                if (Msg.InfoYesNoB("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response?.Body, "Update - " + response?.Name))
                 {
+                    if(response == null || response?.Assets?.Count < 1) throw new NullReferenceException();
 
-                    Download(response.Assets[0].BrowserDownloadUrl, newFile);
+                    Download(response?.Assets?[0]?.BrowserDownloadUrl ?? "", newFile);
 
                     if (!UpdateFile(oldFile, newFile)) return;
 
@@ -88,7 +89,7 @@ namespace Translator.Managers
                 string releaseFile = Path.Combine(Directory.GetCurrentDirectory(), "Release.7z");
 
                 //delete old one if it exists
-                string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "prev.exe");
+                string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath) ?? "", "prev.exe");
                 if (File.Exists(oldFile)) File.Delete(oldFile);
                 return (true, releaseFile, oldFile);
             }
@@ -104,15 +105,11 @@ namespace Translator.Managers
             try
             {
                 //get stream to the file in web location
-                using (Stream stream = await client.GetStreamAsync(downloadUrl))
-                {
-                    //stream to the file on dis
-                    using (var fileStream = new FileStream(newFile, FileMode.Create))
-                    {
-                        //copy data to file on disk
-                        await stream.CopyToAsync(fileStream);
-                    }
-                }
+                using Stream stream = await client.GetStreamAsync(downloadUrl);
+                //stream to the file on dis
+                using var fileStream = new FileStream(newFile, FileMode.Create);
+                //copy data to file on disk
+                await stream.CopyToAsync(fileStream);
             }
             catch (System.UnauthorizedAccessException e)
             {

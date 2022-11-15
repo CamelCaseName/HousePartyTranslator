@@ -13,26 +13,27 @@ namespace Translator.Managers
     /// </summary>
     internal static class KeypressManager
     {
-        private static TextBox lastChangedTextBox;
-        private static string lastText;
+        private static TextBox? lastChangedTextBox;
+        private static string? lastText;
         private static int lastIndex = Settings.Default.recent_index;
 
         public static void ApprovedButtonChanged()
         {
-            TabManager.ActiveTranslationManager.ApprovedButtonHandler();
+            TabManager.ActiveTranslationManager?.ApprovedButtonHandler();
         }
 
         public static void AutoTranslate()
         {
-            TabManager.ActiveTranslationManager.RequestedAutomaticTranslation();
+            TabManager.ActiveTranslationManager?.RequestedAutomaticTranslation();
         }
 
         public static void CheckItemChanged()
         {
-            TabManager.ActiveTranslationManager.ApproveIfPossible(false);
+            TabManager.ActiveTranslationManager?.ApproveIfPossible(false);
         }
 
-        public static async Task<StoryExplorerForm.StoryExplorer> CreateStoryExplorer(bool autoOpen, Form explorerParent, CancellationTokenSource tokenSource)
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        public static async Task<StoryExplorerForm.StoryExplorer?> CreateStoryExplorer(bool autoOpen, Form explorerParent, CancellationTokenSource tokenSource)
         {
             explorerParent.UseWaitCursor = true;
 
@@ -42,6 +43,8 @@ namespace Translator.Managers
                 CancellationToken = tokenSource.Token,
                 MaxDegreeOfParallelism = Environment.ProcessorCount - 1
             };
+
+            if (TabManager.ActiveTranslationManager == null) return null;
 
             //get currently active translation manager
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
@@ -119,6 +122,8 @@ namespace Translator.Managers
         /// <returns></returns>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
+
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static bool MainKeyPressHandler(ref Message msg, Keys keyData, Form parent, CancellationTokenSource tokenSource)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
@@ -127,15 +132,15 @@ namespace Translator.Managers
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
                 case (Keys.Enter):
-                    return TabManager.ActiveTranslationManager.SelectNextResultIfApplicable();
+                    return TabManager.ActiveTranslationManager?.SelectNextResultIfApplicable() ?? false;
 
                 //set selected string as search string and place cursor in search box
                 case (Keys.Control | Keys.F):
-                    if (TabManager.ActiveProperties.TranslationTextBox.SelectedText.Length > 0)
+                    if (TabManager.ActiveProperties?.TranslationTextBox.SelectedText.Length > 0)
                     {
                         TabManager.ActiveProperties.CheckListBoxLeft.Text = TabManager.ActiveProperties.TranslationTextBox.SelectedText;
                     }
-                    TabManager.ActiveProperties.CheckListBoxLeft.Focus();
+                    TabManager.ActiveProperties?.CheckListBoxLeft.Focus();
                     return true;
 
                 //search, but also with replacing
@@ -145,12 +150,12 @@ namespace Translator.Managers
 
                 //save current file
                 case (Keys.Control | Keys.S):
-                    TabManager.ActiveTranslationManager.SaveFile();
+                    TabManager.ActiveTranslationManager?.SaveFile();
                     return true;
 
                 //save current string
                 case (Keys.Control | Keys.Shift | Keys.S):
-                    TabManager.ActiveTranslationManager.SaveCurrentString();
+                    TabManager.ActiveTranslationManager?.SaveCurrentString();
                     return true;
 
                 //saves all open tabs
@@ -160,17 +165,17 @@ namespace Translator.Managers
 
                 //reload currently loaded file
                 case (Keys.Control | Keys.R):
-                    TabManager.ActiveTranslationManager.ReloadFile();
+                    TabManager.ActiveTranslationManager?.ReloadFile();
                     return true;
 
                 //select string above current selection
                 case (Keys.Control | Keys.Up):
-                    if (TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex > 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex--;
+                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex > 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex--;
                     return true;
 
                 //select string below current selection
                 case (Keys.Control | Keys.Down):
-                    if (TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex < TabManager.ActiveProperties.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex++;
+                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex < TabManager.ActiveProperties?.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex++;
                     return true;
 
                 //switch tab to the left
@@ -185,15 +190,15 @@ namespace Translator.Managers
 
                 //save translation and move down one
                 case (Keys.Control | Keys.Enter):
-                    TabManager.ActiveTranslationManager.SaveCurrentString();
-                    if (TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex < TabManager.ActiveProperties.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex++;
+                    TabManager.ActiveTranslationManager?.SaveCurrentString();
+                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex < TabManager.ActiveProperties?.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex++;
                     return true;
 
                 //save translation, approve and move down one
                 case (Keys.Control | Keys.Shift | Keys.Enter):
-                    if (TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex >= 0) TabManager.ActiveProperties.CheckListBoxLeft.SetItemChecked(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex, true);
-                    else TabManager.ActiveProperties.CheckListBoxLeft.SetItemChecked(0, true);
-                    if (TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex < TabManager.ActiveProperties.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex++;
+                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex >= 0) TabManager.ActiveProperties.CheckListBoxLeft.SetItemChecked(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex, true);
+                    else TabManager.ActiveProperties?.CheckListBoxLeft.SetItemChecked(0, true);
+                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex < TabManager.ActiveProperties?.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex++;
                     return true;
 
                 //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
@@ -251,8 +256,9 @@ namespace Translator.Managers
             }
         }
 
-        public static void PrepareTextChanged(object textBox)
+        public static void PrepareTextChanged(object? textBox)
         {
+            if (textBox == null) { return; }
             //if we have any kind of text box selected, we save keypresses for undo, else not
             if (textBox.GetType().IsAssignableFrom(typeof(TextBox)))
             {
@@ -266,18 +272,22 @@ namespace Translator.Managers
         /// </summary>
         public static void TextChangedCallback(Form parent, int selectedIndex)
         {
+            if(parent.ActiveControl == null) return;
             if (parent.ActiveControl.GetType().IsAssignableFrom(typeof(TextBox)))
             {
                 if (((TextBox)parent.ActiveControl) == lastChangedTextBox
                     && lastText != lastChangedTextBox?.Text
                     && !History.CausedByHistory
-                    && lastIndex == selectedIndex)
+                    && lastIndex == selectedIndex
+                    && lastChangedTextBox != null
+                    && lastText != null)
                 {
-                    History.AddAction(new TextChanged(lastChangedTextBox, lastText, lastChangedTextBox.Text, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
+                    History.AddAction(new TextChanged(lastChangedTextBox, lastText, lastChangedTextBox.Text, TabManager.ActiveTranslationManager?.FileName ?? "none", TabManager.ActiveTranslationManager?.StoryName ?? "none"));
                 }
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static void OpenAll()
         {
             //opne the story in tabs
@@ -286,7 +296,7 @@ namespace Translator.Managers
 
         public static void OpenContextMenu(ContextMenuStrip context, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right)
+            if (e.Button == MouseButtons.Right && TabManager.ActiveProperties != null)
             {
                 TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = TabManager.ActiveProperties.CheckListBoxLeft.IndexFromPoint(e.Location);
                 if (TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex <= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = 0;
@@ -294,16 +304,18 @@ namespace Translator.Managers
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static void OpenNew()
         {
             //get currently active translationmanager
-            TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.LoadFileIntoProgram();
-            translationManager.SetLanguage();
+            TranslationManager? t = TabManager.ActiveTranslationManager;
+            t?.LoadFileIntoProgram();
+            t?.SetLanguage();
             //update tab name
-            if (translationManager.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = translationManager.FileName;
+            if (t?.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = t.FileName;
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static void OpenNewTab()
         {
             TabManager.OpenNewTab();
@@ -313,25 +325,25 @@ namespace Translator.Managers
         {
             if (!History.CausedByHistory && lastIndex >= 0 && listBox.SelectedIndex >= 0)
             {
-                if (History.Peek().FileName == TabManager.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
+                if (History.Peek().FileName == TabManager.ActiveTranslationManager?.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
                     History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
                 else
-                    History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
+                    History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager?.FileName ?? "none", TabManager.ActiveTranslationManager?.StoryName ?? "none"));
             }
             lastIndex = listBox.SelectedIndex;
-            TabManager.ActiveTranslationManager.PopulateTextBoxes();
+            TabManager.ActiveTranslationManager?.PopulateTextBoxes();
         }
 
         public static void SelectedLanguageChanged()
         {
-            TabManager.ActiveTranslationManager.SetLanguage();
+            TabManager.ActiveTranslationManager?.SetLanguage();
         }
 
-        public static void SelectedTabChanged(DiscordPresenceManager presenceManager)
+        public static void SelectedTabChanged(DiscordPresenceManager? presenceManager)
         {
             TabManager.OnSwitchTabs();
             //update presence
-            if (TabManager.ActiveTranslationManager != null) presenceManager.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+            if (TabManager.ActiveTranslationManager != null) presenceManager?.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
         }
 
         public static void ShowSettings()
@@ -342,12 +354,12 @@ namespace Translator.Managers
 
         public static void ToggleReplaceUI()
         {
-            TabManager.ActiveTranslationManager.ToggleReplaceUI();
+            TabManager.ActiveTranslationManager?.ToggleReplaceUI();
         }
 
         public static void TranslationTextChanged()
         {
-            TabManager.ActiveTranslationManager.UpdateTranslationString();
+            TabManager.ActiveTranslationManager?.UpdateTranslationString();
         }
     }
 }

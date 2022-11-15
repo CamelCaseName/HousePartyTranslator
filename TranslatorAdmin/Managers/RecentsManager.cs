@@ -7,7 +7,7 @@ namespace Translator.Managers
 {
     internal static class RecentsManager
     {
-        private static readonly List<string> recents = new List<string>(5);
+        private static readonly List<string> recents = new(5);
         /// <summary>
         /// Set to the number of recents set you want to ignore, used for the first one on startup here
         /// </summary>
@@ -19,6 +19,7 @@ namespace Translator.Managers
         /// Get the most recently opened files as a collection of ToolStriItems
         /// </summary>
         /// <returns>A Collection of ToolStripItems with a length between 0 and 5</returns>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static ToolStripItem[] GetRecents()
         {
             int count = 0;
@@ -77,7 +78,7 @@ namespace Translator.Managers
             Settings.Default.recents_2 = recents.Count > 2 ? recents[2] : "";
             Settings.Default.recents_3 = recents.Count > 3 ? recents[3] : "";
             Settings.Default.recents_4 = recents.Count > 4 ? recents[4] : "";
-            Settings.Default.recent_index = TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex;
+            Settings.Default.recent_index = TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex ?? 0;
 
             //save settings
             Settings.Default.Save();
@@ -100,6 +101,7 @@ namespace Translator.Managers
         /// <summary>
         /// Opens the most recent file
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static void OpenMostRecent()
         {
             if (Settings.Default.autoLoadRecent)
@@ -116,10 +118,9 @@ namespace Translator.Managers
                 if (recentsAvailable)
                 {
                     ignorenextRecents = 1;
-                    TranslationManager t = TabManager.ActiveTranslationManager;
-                    t.LoadFileIntoProgram(recents[0]);
-                    if (Settings.Default.autoLoadRecentIndex) t.SelectLine(recentIndex);
-                    else t.SelectLine(0);
+                    TabManager.ActiveTranslationManager?.LoadFileIntoProgram(recents[0]);
+                    if (Settings.Default.autoLoadRecentIndex) TranslationManager.SelectLine(recentIndex);
+                    else TranslationManager.SelectLine(0);
                 }
             }
         }
@@ -128,6 +129,7 @@ namespace Translator.Managers
         /// Updates the recent menuitems in the given collection
         /// </summary>
         /// <param name="collection"></param>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static void UpdateMenuItems(ToolStripItemCollection collection)
         {
             ToolStripItem[] items = GetRecents();
@@ -166,12 +168,14 @@ namespace Translator.Managers
             else collection[recentsStart + 1].Text = "Recents:";
         }
 
-        private static void RecentsManager_Click(object sender, EventArgs e)
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        private static void RecentsManager_Click(object? sender, EventArgs? e)
         {
-            TranslationManager translationManager = TabManager.ActiveTranslationManager;
-            translationManager.ShowAutoSaveDialog();
-            translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text);
-            if (Settings.Default.autoLoadRecentIndex) translationManager.SelectLine(recentIndex);
+            if (sender == null) return;
+            TranslationManager? t = TabManager.ActiveTranslationManager;
+            t?.ShowAutoSaveDialog();
+            t?.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text);
+            if (Settings.Default.autoLoadRecentIndex) TranslationManager.SelectLine(recentIndex);
         }
     }
 }

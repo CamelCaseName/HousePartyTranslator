@@ -252,7 +252,7 @@ namespace Translator.Helpers
             {
                 length = maxLength - delimLength;
             }
-            return toTrim.Length > length ? toTrim.Substring(0, length).Trim() + delimiter : toTrim;
+            return toTrim.Length > length ? toTrim[..length].Trim() + delimiter : toTrim;
         }
 
         /// <summary>

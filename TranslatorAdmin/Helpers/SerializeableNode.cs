@@ -7,8 +7,8 @@ namespace Translator.Helpers
     internal sealed class SerializeableNode
     {
         public Point Position;
-        public string ID;
-        public string Text;
+        public string? ID;
+        public string? Text;
         public NodeType Type;
         public int Mass = 1;
         public Gender Gender = 0;
@@ -16,8 +16,8 @@ namespace Translator.Helpers
         public bool ChildsVisited = false;
         public bool ParentsVisited = false;
         public Guid Guid = Guid.NewGuid();
-        public List<Guid> ParentNodes;
-        public List<Guid> ChildNodes;
+        public List<Guid>? ParentNodes;
+        public List<Guid>? ChildNodes;
 
         public static explicit operator SerializeableNode(Node v)
         {

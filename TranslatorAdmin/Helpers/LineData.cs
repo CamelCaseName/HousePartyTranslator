@@ -2,16 +2,16 @@
 
 internal sealed class LineData
 {
-    public string ID;
-    public string Story;
-    public string FileName;
-    public StringCategory Category;
-    public bool IsTranslated;
-    public bool IsApproved;
-    public bool IsTemplate;
-    public string TemplateString;
-    public string TranslationString;
-    public string[] Comments;
+    public string ID = "";
+    public string Story = "";
+    public string FileName = "";
+    public StringCategory Category = StringCategory.Neither;
+    public bool IsTranslated = false;
+    public bool IsApproved = false;
+    public bool IsTemplate = false;
+    public string TemplateString = "";
+    public string TranslationString = "";
+    public string[] Comments = Array.Empty<string>();
 
     public LineData() { }
 

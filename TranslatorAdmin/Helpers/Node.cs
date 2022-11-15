@@ -38,7 +38,7 @@ namespace Translator.Helpers
 
     internal sealed class Node
     {
-        public static readonly Node NullNode = new Node("", NodeType.Null, "");
+        public static readonly Node NullNode = new("", NodeType.Null, "");
 
         public List<Node> ChildNodes;
         public bool ChildsVisited = false;
@@ -143,11 +143,11 @@ namespace Translator.Helpers
                 {
                     ChildsVisited = serialNode.ChildsVisited,
                     Guid = serialNode.Guid,
-                    ID = serialNode.ID,
+                    ID = serialNode.ID ?? "",
                     Mass = serialNode.Mass,
                     ParentsVisited = serialNode.ParentsVisited,
                     Position = serialNode.Position,
-                    Text = serialNode.Text,
+                    Text = serialNode.Text ?? "",
                     Gender = serialNode.Gender,
                     Type = serialNode.Type,
                     Visited = serialNode.Visited,
@@ -169,7 +169,7 @@ namespace Translator.Helpers
                 {
                     foreach (Guid guid in serialNode.ChildNodes)
                     {
-                        nodeToWorkOn.AddChildNode(nodes.Find(n => n.Guid == guid));
+                        nodeToWorkOn.AddChildNode(nodes.Find(n => n.Guid == guid) ?? Node.NullNode);
                     }
                 }
 
@@ -178,7 +178,7 @@ namespace Translator.Helpers
                 {
                     foreach (Guid guid in serialNode.ParentNodes)
                     {
-                        nodeToWorkOn.AddParentNode(nodes.Find(n => n.Guid == guid));
+                        nodeToWorkOn.AddParentNode(nodes.Find(n => n.Guid == guid) ?? Node.NullNode);
                     }
                 }
             }
@@ -216,9 +216,9 @@ namespace Translator.Helpers
 
             foreach (IEvent _event in _events)
             {
-                var nodeEvent = new Node(_event.Id, NodeType.Event, _event.Value, this);
+                var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none", this);
 
-                nodeEvent.AddCriteria(_event.Criteria);
+                nodeEvent.AddCriteria(_event.Criteria ?? new List<Criterion>());
 
                 AddChildNode(nodeEvent);
             }

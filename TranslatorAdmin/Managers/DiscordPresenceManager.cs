@@ -38,7 +38,9 @@ namespace Translator.Managers
                     _ = DiscordPresenceClient?.UpdateStartTime();
                     Update();
                 }
-                catch { }
+                catch {
+                    LogManager.Log("Couldn't update presence.");
+                }
             }
         }
 
@@ -62,7 +64,7 @@ namespace Translator.Managers
             {
                 if (Settings.Default.enableDiscordRP)
                 {
-                    if (!DiscordPresenceClient.IsInitialized || DiscordPresenceClient.IsDisposed)
+                    if (!(DiscordPresenceClient?.IsInitialized ?? false) || (DiscordPresenceClient?.IsDisposed ?? false))
                     {
                         Initialize();
                     }
@@ -75,7 +77,7 @@ namespace Translator.Managers
                 }
                 else
                 {
-                    DiscordPresenceClient.ClearPresence();
+                    DiscordPresenceClient?.ClearPresence();
                 }
             }
         }
@@ -84,7 +86,7 @@ namespace Translator.Managers
         {
             if (Settings.Default.enableDiscordRP && DataBase.IsOnline)
             {
-                _ = DiscordPresenceClient.Invoke();
+                _ = DiscordPresenceClient?.Invoke();
             }
         }
 
@@ -99,11 +101,11 @@ namespace Translator.Managers
             };
 
             //Connect to the RPC
-            _ = DiscordPresenceClient.Initialize();
+            _ = DiscordPresenceClient?.Initialize();
 
             //Set the rich presence
             //Call this as many times as you want and anywhere in your code.
-            DiscordPresenceClient.SetPresence(new RichPresence()
+            DiscordPresenceClient?.SetPresence(new RichPresence()
             {
                 Details = $"Working on {Story},",
                 State = $"translating {Character}",
@@ -114,7 +116,7 @@ namespace Translator.Managers
                 }
             });
 
-            _ = DiscordPresenceClient.UpdateStartTime();
+            _ = DiscordPresenceClient?.UpdateStartTime();
         }
 
         public void DeInitialize()

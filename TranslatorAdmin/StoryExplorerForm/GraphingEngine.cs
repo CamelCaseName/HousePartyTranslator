@@ -37,7 +37,6 @@ namespace Translator.StoryExplorerForm
         private Node highlightedNode = Node.NullNode;
         private Node infoNode = Node.NullNode;
         private bool IsShiftPressed = false;
-        private bool IsCtrlPressed = false;
         private Node LastInfoNode = Node.NullNode;
         private Color LastNodeColor = Color.DarkBlue;
 
@@ -47,37 +46,7 @@ namespace Translator.StoryExplorerForm
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
 
-        private readonly int bytesPerPixel;
-        private readonly int heightInPixels;
-        private readonly int widthInPixels;
-
-        /*
-        unsafe
-        {
-            BitmapData bitmapData = processedBitmap.LockBits(new Rectangle(0, 0, processedBitmap.Width, processedBitmap.Height), ImageLockMode.ReadWrite, processedBitmap.PixelFormat);
-            int heightInPixels = bitmapData.Height;
-            int widthInBytes = bitmapData.Width * bytesPerPixel;
-            byte* ptrFirstPixel = (byte*)bitmapData.Scan0;
-         
-            for (int y = 0; y < heightInPixels; y++)
-            {
-                byte* currentLine = ptrFirstPixel + (y * bitmapData.Stride);
-                for (int x = 0; x < widthInBytes; x = x + bytesPerPixel)
-                {
-                    int oldBlue = currentLine[x];
-                    int oldGreen = currentLine[x + 1];
-                    int oldRed = currentLine[x + 2];
- 
-                    // calculate new pixel value
-                    currentLine[x] = (byte)oldBlue;
-                    currentLine[x + 1] = (byte)oldGreen;
-                    currentLine[x + 2] = (byte)oldRed;
-                }
-            }
-            processedBitmap.UnlockBits(bitmapData);
-        }
-        */
-
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public GraphingEngine(ContextProvider context, StoryExplorer explorer, Label nodeInfoLabel)
         {
             Context = context;
@@ -85,10 +54,6 @@ namespace Translator.StoryExplorerForm
             NodeInfoLabel = nodeInfoLabel;
 
             GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, PixelFormat.Format24bppRgb);
-
-            bytesPerPixel = Image.GetPixelFormatSize(GraphBitmap.PixelFormat) / 8;
-            heightInPixels = GraphBitmap.Height;
-            widthInPixels = GraphBitmap.Width * bytesPerPixel;
 
             MainGraphics = Graphics.FromImage(GraphBitmap);
             MainGraphics.DrawRectangle(Pens.Black, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
@@ -100,6 +65,7 @@ namespace Translator.StoryExplorerForm
         public delegate void ClickedNodeChangedHandler(object sender, ClickedNodeChangeArgs e);
         public event ClickedNodeChangedHandler ClickedNodeChanged;
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public Node HighlightedNode
         {
             get
@@ -143,9 +109,10 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        public void DrawNodesPaintHandler(object sender, PaintEventArgs e)
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
         {
-            if (ReadyToDraw)
+            if (ReadyToDraw && e != null)
             {
                 //convert image
                 GraphToScreen(NegativeHalfBitmapEdgeLength, NegativeHalfBitmapEdgeLength, out float ImageScreenX, out float ImageScreenY);
@@ -171,10 +138,9 @@ namespace Translator.StoryExplorerForm
         {
             //get the shift key state so we can determine later if we want to redraw the tree on node selection or not
             IsShiftPressed = e.KeyData == (Keys.ShiftKey | Keys.Shift);
-            //determine ctrl state for node moving
-            IsCtrlPressed = e.KeyData == (Keys.ControlKey | Keys.Control);
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public void HandleMouseEvents(object sender, MouseEventArgs e)
         {
             switch (e.Button)
@@ -208,6 +174,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public void PaintAllNodes()
         {
             //go on displaying graph
@@ -238,6 +205,7 @@ namespace Translator.StoryExplorerForm
             graphY = screenY / Scaling + OffsetY;
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void DisplayNodeInfo(Node infoNode, bool colourNode)
         {
             //display info on new node
@@ -246,7 +214,7 @@ namespace Translator.StoryExplorerForm
                 NodeInfoLabel.Visible = true;
                 //create header
                 string header = $"{infoNode.Type} - {infoNode.ID}".ConstrainLength();
-                if (infoNode.Gender != Gender.None) header = header + $" - {infoNode.Gender} only".ConstrainLength();
+                if (infoNode.Gender != Gender.None) header += $" - {infoNode.Gender} only".ConstrainLength();
 
                 //create info
                 //strip text of all VA performance hints, embedded in []. if user wants it
@@ -278,6 +246,7 @@ namespace Translator.StoryExplorerForm
             Explorer.Invalidate();
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
         {
             //display info on new node
@@ -287,6 +256,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void DrawColouredNode(Node node, Color color)
         {
             if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
@@ -300,7 +270,8 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        private void DrawEdge(Node node1, Node node2, Color color)
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        internal void DrawEdge(Node node1, Node node2, Color color)
         {
             if (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
             {
@@ -313,7 +284,8 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        private void DrawEdges(List<Node> nodes, Color color)
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        internal void DrawEdges(List<Node> nodes, Color color)
         {
             var points = new Point[nodes.Count];
             for (int i = 0; i < nodes.Count; i++)
@@ -325,6 +297,7 @@ namespace Translator.StoryExplorerForm
             MainGraphics.DrawLines(new Pen(color, 3f), points);
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void DrawHighlightNodeTree()
         {
             if (HighlightedNode != Node.NullNode)
@@ -354,6 +327,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void DrawNodeSet(List<Node> nodes, Node previousNode, int depth, int maxDepth, Color nodeColor, Color edgeColor, bool diluteColor)
         {
             if (depth++ < maxDepth)
@@ -387,15 +361,17 @@ namespace Translator.StoryExplorerForm
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void HighlightClickedNodeHandler(object sender, ClickedNodeChangeArgs e)
         {
             if (e.ClickType == ClickedNodeTypes.Highlight)
             {
-                TranslationManager translationManager = TabManager.ActiveTranslationManager;
+                TranslationManager? t = TabManager.ActiveTranslationManager;
+                if(t == null) return;
                 //tell translationmanager to update us or not when selected
-                translationManager.UpdateStoryExplorerSelection = !IsShiftPressed;
+                t.UpdateStoryExplorerSelection = !IsShiftPressed;
                 //select line in translation manager
-                translationManager.SelectLine(e.ChangedNode.ID);
+                t.SelectLine(e.ChangedNode.ID);
                 //put info up
                 DisplayNodeInfo(e.ChangedNode, false);
                 //draw nodes
@@ -403,6 +379,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void RemoveHighlight()
         {
             if (HighlightedNode != null)
@@ -433,6 +410,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void RemoveLastInfoNode(Node infoNode)
         {
             //remove last node highlight
@@ -452,6 +430,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void SetNewHighlightNode(Point mouseLocation)
         {
             Node ClickedNode = UpdateClickedNode(mouseLocation);

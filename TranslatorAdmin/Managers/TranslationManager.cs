@@ -27,21 +27,21 @@ namespace Translator.Managers
         }
         private bool _changesPending;
         internal static bool IsUpToDate = false;
-        internal List<StringCategory> CategoriesInFile = new List<StringCategory>();
+        internal List<StringCategory> CategoriesInFile = new();
         internal bool isTemplate = false;
         internal string SearchQuery = "";
 
-        internal static Timer AutoSaveTimer = new Timer();
+        internal static Timer AutoSaveTimer = new();
 
         internal int SelectedSearchResult = 0;
 
         //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
         private int templateCounter = 0;
 
-        internal FileData TranslationData = new FileData();
+        internal FileData TranslationData = new();
         internal bool UpdateStoryExplorerSelection = true;
-        private static Fenster MainWindow;
-        private static DiscordPresenceManager PresenceManager;
+        private static Fenster? MainWindow;
+        private static DiscordPresenceManager? PresenceManager;
         private string fileName = "";
         private bool isSaveAs = false;
         private static string language = "";
@@ -49,19 +49,21 @@ namespace Translator.Managers
         private bool selectedNew = false;
         private string sourceFilePath = "";
         private string storyName = "";
-        private readonly PropertyHelper helper;
+        private readonly PropertyHelper? helper;
         private bool triedFixingOnce = false;
         private bool triedSavingFixOnce = false;
 
-        internal TranslationManager(PropertyHelper _helper)
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        internal TranslationManager(PropertyHelper? _helper)
         {
             this.helper = _helper;
             AutoSaveTimer.Tick += SaveFileHandler;
         }
 
-        internal TranslationManager(PropertyHelper _helper, DiscordPresenceManager discord)
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        internal TranslationManager(PropertyHelper? _helper, DiscordPresenceManager? discord)
         {
-            if (PresenceManager == null) PresenceManager = discord;
+            PresenceManager ??= discord;
             this.helper = _helper;
             AutoSaveTimer.Tick += SaveFileHandler;
         }
@@ -75,7 +77,8 @@ namespace Translator.Managers
             }
         }
 
-        internal void SaveFileHandler(object sender, EventArgs e)
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        internal void SaveFileHandler(object? sender, EventArgs? e)
         {
             SaveFile();
         }
@@ -98,7 +101,7 @@ namespace Translator.Managers
         /// <summary>
         /// Provides the id of the currently selected line
         /// </summary>
-        internal string SelectedId { get { return helper.CheckListBoxLeft.SelectedItem?.ToString() ?? helper.CheckListBoxLeft.Items[0]?.ToString() ?? "Name"; } }
+        internal string SelectedId { get { return helper?.CheckListBoxLeft.SelectedItem?.ToString() ?? helper?.CheckListBoxLeft.Items[0]?.ToString() ?? "Name"; } }
 
         /// <summary>
         /// The Language of the current translation.
@@ -227,6 +230,7 @@ namespace Translator.Managers
             //change checked state for the selected item,
             //but only if we are on the button with the mouse.
             //(prevents an infinite loop when we get the change state from setting the button state in code)
+            if (helper == null) return;
             if (helper.ApprovedBox.Focused)
             {
                 int Index = helper.CheckListBoxLeft.SelectedIndex;
@@ -241,6 +245,7 @@ namespace Translator.Managers
         /// <param name="SelectNewAfter">A bool to determine if a new string should be selected after approval.</param>
         internal void ApproveIfPossible(bool SelectNewAfter)
         {
+            if(helper == null) return;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
             if (currentIndex >= 0)
             {
@@ -262,6 +267,7 @@ namespace Translator.Managers
         /// <summary>
         /// Loads a file into the program and calls all helper routines
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void LoadFileIntoProgram()
         {
             LoadFileIntoProgram(Utils.SelectFileFromSystem());
@@ -271,9 +277,10 @@ namespace Translator.Managers
         /// Loads a file into the program and calls all helper routines
         /// </summary>
         /// <param name="path">The path to the file to translate</param>
-        /// <param name="presenceManager"></param>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void LoadFileIntoProgram(string path)
         {
+            if (MainWindow == null) return;
             if (path.Length > 0)
             {
                 ShowAutoSaveDialog();
@@ -282,7 +289,7 @@ namespace Translator.Managers
                     History.ClearForFile(FileName, StoryName);
                 ResetTranslationManager();
 
-                MainWindow.Cursor = Cursors.WaitCursor;
+                Application.UseWaitCursor = false;
 
                 if (!IsUpToDate && Settings.Default.advancedMode && DataBase.IsOnline)
                 {
@@ -307,17 +314,18 @@ namespace Translator.Managers
                     RecentsManager.UpdateMenuItems(MainWindow.FileToolStripMenuItem.DropDownItems);
 
                     //update presence and recents
-                    PresenceManager.Update(StoryName, FileName);
+                    PresenceManager?.Update(StoryName, FileName);
                 }
                 //reset cursor
                 MainWindow.Cursor = Cursors.Default;
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void LoadTemplates()
         {
             string folderPath = Utils.SelectTemplateFolderFromSystem();
-            string templateFolderName = folderPath.Split('\\')[folderPath.Split('\\').Length - 1];
+            string templateFolderName = folderPath.Split('\\')[^1];
             if (templateFolderName == "TEMPLATE")
             {
                 isTemplate = true;
@@ -345,6 +353,7 @@ namespace Translator.Managers
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void UpdateStoryExplorerNode()
         {
             if (UpdateStoryExplorerSelection)
@@ -360,6 +369,7 @@ namespace Translator.Managers
         /// <summary>
         /// Populates the Editor/Template text boxes and does some basic set/reset logic.
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void PopulateTextBoxes()
         {
             MainWindow.Cursor = Cursors.WaitCursor;
@@ -392,7 +402,7 @@ namespace Translator.Managers
                     helper.ApprovedBox.Checked = helper.CheckListBoxLeft.GetItemChecked(currentIndex);
 
                     //update label
-                    UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
+                    UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Length, helper.TranslationTextBox.Text.Length);
 
                     //update explorer
                     UpdateStoryExplorerNode();
@@ -535,6 +545,7 @@ namespace Translator.Managers
         /// <summary>
         /// Saves all strings to the file we read from.
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void SaveFile()
         {
             if (!Fenster.ProgressbarWindow.Visible) Fenster.ProgressbarWindow.Show(MainWindow);
@@ -634,45 +645,44 @@ namespace Translator.Managers
         private void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings)
         {
             var culture = CultureInfo.InvariantCulture;
-            using (var OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true)))
+            using var OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true));
+            foreach (CategorizedLines CategorizedLines in CategorizedStrings)
             {
-                foreach (CategorizedLines CategorizedLines in CategorizedStrings)
+                //write category if it has any lines, else we skip the category
+                if (CategorizedLines.lines.Count > 0) OutputWriter.WriteLine(CategorizedLines.category.AsString());
+                else continue;
+
+                //sort strings depending on category
+                if (CategorizedLines.category == StringCategory.Dialogue)
                 {
-                    //write category if it has any lines, else we skip the category
-                    if (CategorizedLines.lines.Count > 0) OutputWriter.WriteLine(CategorizedLines.category.AsString());
-                    else continue;
-
-                    //sort strings depending on category
-                    if (CategorizedLines.category == StringCategory.Dialogue)
-                    {
-                        CategorizedLines.lines.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
-                    }
-                    else if (CategorizedLines.category == StringCategory.BGC)
-                    {
-                        //sort using custom IComparer
-                        CategorizedLines.lines.Sort(new BGCComparer());
-                    }
-                    else if (CategorizedLines.category == StringCategory.General)
-                    {
-                        //hints have to be sortet a bit different because the numbers can contain a u
-                        CategorizedLines.lines.Sort(new GeneralComparer());
-                    }
-                    else if (CategorizedLines.category == StringCategory.Quest || CategorizedLines.category == StringCategory.Achievement)
-                    {
-                        CategorizedLines.lines.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
-                    }
-
-                    //iterate through each and print them
-                    foreach (LineData line in CategorizedLines.lines)
-                    {
-                        OutputWriter.WriteLine(line.ToString());
-                    }
-                    //newline after each category
-                    OutputWriter.WriteLine();
+                    CategorizedLines.lines.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
                 }
+                else if (CategorizedLines.category == StringCategory.BGC)
+                {
+                    //sort using custom IComparer
+                    CategorizedLines.lines.Sort(new BGCComparer());
+                }
+                else if (CategorizedLines.category == StringCategory.General)
+                {
+                    //hints have to be sortet a bit different because the numbers can contain a u
+                    CategorizedLines.lines.Sort(new GeneralComparer());
+                }
+                else if (CategorizedLines.category == StringCategory.Quest || CategorizedLines.category == StringCategory.Achievement)
+                {
+                    CategorizedLines.lines.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
+                }
+
+                //iterate through each and print them
+                foreach (LineData line in CategorizedLines.lines)
+                {
+                    OutputWriter.WriteLine(line.ToString());
+                }
+                //newline after each category
+                OutputWriter.WriteLine();
             }
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void SortIntoCategories(List<CategorizedLines> CategorizedStrings, FileData IdsToExport)
         {
             foreach (LineData item in IdsToExport.Values)
@@ -712,6 +722,7 @@ namespace Translator.Managers
         /// <summary>
         /// Saves all strings to a specified file location.
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void SaveFileAs()
         {
             if (SourceFilePath != "")
@@ -775,7 +786,7 @@ namespace Translator.Managers
                 //decide on case sensitivity
                 if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
                 {
-                    query = query.Substring(1);
+                    query = query[1..];
                     //methodolgy: highlight items which fulfill search and show count
                     int x = 0;
                     foreach (LineData item in TranslationData.Values)
@@ -794,7 +805,7 @@ namespace Translator.Managers
                 {
                     if (query[0] == '\\') // we have an escaped flag following, so we chop of escaper and continue
                     {
-                        query = query.Substring(1);
+                        query = query[1..];
                     }
                     //methodolgy: highlight items which fulfill search and show count
                     int x = 0;
@@ -841,7 +852,7 @@ namespace Translator.Managers
         /// Selects the index given in the list of strings
         /// </summary>
         /// <param name="index">The index to select</param>
-        internal void SelectLine(int index)
+        internal static void SelectLine(int index)
         {
             if (index >= 0 && index < TabManager.ActiveProperties.CheckListBoxLeft.Items.Count) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
         }
@@ -870,7 +881,7 @@ namespace Translator.Managers
         /// Sets the main form this translationmanager will work on (cursor, fields, etc)
         /// </summary>
         /// <param name="mainWindow">The form to work on.</param>
-        internal void SetMainForm(Fenster mainWindow)
+        internal static void SetMainForm(Fenster mainWindow)
         {
             MainWindow = mainWindow;
         }
@@ -878,6 +889,7 @@ namespace Translator.Managers
         /// <summary>
         /// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void ShowAutoSaveDialog()
         {
             if (Settings.Default.askForSaveDialog && ChangesPending)
@@ -900,7 +912,7 @@ namespace Translator.Managers
             //remove pipe to not break saving/export
             _ = helper.TranslationTextBox.Text.Replace('|', ' ');
             TranslationData[SelectedId].TranslationString = helper.TranslationTextBox.Text.Replace(Environment.NewLine, "\n");
-            UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Count(), helper.TranslationTextBox.Text.Count());
+            UpdateCharacterCountLabel(helper.TemplateTextBox.Text.Length, helper.TranslationTextBox.Text.Length);
             if (!selectedNew) ChangesPending = true;
             else selectedNew = false;
         }
@@ -946,6 +958,7 @@ namespace Translator.Managers
         /// Reads all files in all subfolders below the given path.
         /// </summary>
         /// <param name="folderPath">The path to the folder to find all files in (iterative).</param>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void IterativeReadFiles(string folderPath)
         {
             var templateDir = new DirectoryInfo(folderPath);
@@ -982,6 +995,7 @@ namespace Translator.Managers
         /// Loads the templates by combining all lines from all files into one, then sending them one by one to the db.
         /// </summary>
         /// <param name="folderPath">The path to the folders to load the templates from.</param>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void LoadAndSyncTemplates(string folderPath)
         {
             //upload all new strings
@@ -1026,8 +1040,10 @@ namespace Translator.Managers
         /// <summary>
         /// Prepares the values for reading of the strings, and calls the methods necessary after successfully loading a file.
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void LoadTranslationFile(bool localTakesPriority = false)
         {
+            if (helper == null) return;
             CategoriesInFile.Clear();
             TranslationData.Clear();
             helper.CheckListBoxLeft.Items.Clear();
@@ -1036,13 +1052,13 @@ namespace Translator.Managers
                 string[] paths = SourceFilePath.Split('\\');
 
                 //get parent folder name
-                string tempStoryName = paths[paths.Length - 2];
+                string tempStoryName = paths[^2];
                 //get language text representation
                 bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string languageAsText);
                 //compare
                 if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
                     //get folder one more up
-                    tempStoryName = paths[paths.Length - 3];
+                    tempStoryName = paths[^3];
 
                 if (tempStoryName == "Languages")
                 {
@@ -1055,7 +1071,7 @@ namespace Translator.Managers
                 //actually load all strings into the program
                 ReadInStringsFromFile();
 
-                if (TranslationData.Count() > 0)
+                if (TranslationData.Count > 0)
                 {
                     string storyNameToDisplay = StoryName.TrimWithDelim();
                     string fileNameToDisplay = FileName.TrimWithDelim();
@@ -1073,6 +1089,7 @@ namespace Translator.Managers
         /// <summary>
         /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void LoadTranslations(bool localTakesPriority = false)
         {
             MainWindow.Cursor = Cursors.WaitCursor;
@@ -1178,12 +1195,13 @@ namespace Translator.Managers
 
             _ = Msg.ErrorOk("Something broke, please try again.");
             UIHandler.SignalAppUnWait();
-            return null;
+            return new();
         }
 
         /// <summary>
         /// Reads the strings depending on whether its a template or not.
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void ReadInStringsFromFile()
         {
             //read in all strings with IDs
@@ -1213,7 +1231,7 @@ namespace Translator.Managers
             var fileData = new FileData();
             StringCategory currentCategory = StringCategory.General;
             string multiLineCollector = "";
-            string[] lastLine = { };
+            string[] lastLine = Array.Empty<string>();
             //string[] lastLastLine = { };
             //read in lines
             var LinesFromFile = File.ReadAllLines(path).ToList();
@@ -1245,7 +1263,7 @@ namespace Translator.Managers
                     {
                         //if we reach a category, we can add the old string to the translation manager
                         if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : "" + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
-                        lastLine = new string[0];
+                        lastLine = Array.Empty<string>();
                         multiLineCollector = "";
                         currentCategory = tempCategory;
                     }
@@ -1260,6 +1278,7 @@ namespace Translator.Managers
         /// <summary>
         /// loads all the strings from the selected file into a list of LineData elements.
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void ReadStringsTranslationsFromFile()
         {
             StringCategory currentCategory = StringCategory.General;
@@ -1309,7 +1328,7 @@ namespace Translator.Managers
 
         private void SplitReadTranslations(List<string> LinesFromFile, StringCategory category, FileData IdsToExport)
         {
-            string[] lastLine = new string[0];
+            string[] lastLine = Array.Empty<string>();
             string multiLineCollector = "";
             //remove last if empty, breaks line loading for the last
             while (LinesFromFile.Count > 0)
@@ -1353,7 +1372,7 @@ namespace Translator.Managers
                             }
                         }
                         //resetting for next iteration
-                        lastLine = new string[0];
+                        lastLine = Array.Empty<string>();
                         multiLineCollector = "";
                         category = tempCategory;
                         CategoriesInFile.Add(category);
@@ -1376,6 +1395,7 @@ namespace Translator.Managers
                 TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1] + translation);
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private void TryFixEmptyFile()
         {
             if (!triedFixingOnce)
@@ -1395,6 +1415,7 @@ namespace Translator.Managers
         /// <summary>
         /// Reloads the file into the program as if it were selected.
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void ReloadFile()
         {
             ShowAutoSaveDialog();
@@ -1477,6 +1498,7 @@ namespace Translator.Managers
         /// <summary>
         /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
         /// </summary>
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void SetHighlightedNode()
         {
             if (TranslationData.Count > 0)
@@ -1565,6 +1587,7 @@ namespace Translator.Managers
             helper.CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
         }
 
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         internal void OverrideCloudSave()
         {
             if (Settings.Default.advancedMode)

@@ -18,13 +18,13 @@ namespace Translator.Helpers
 
         private static int ExceptionCount = 0;
 
-        public static readonly System.Drawing.Color foreground = System.Drawing.SystemColors.Window;
-        public static readonly System.Drawing.Color background = System.Drawing.SystemColors.ControlDarkDark;
-        public static readonly System.Drawing.Color backgroundDarker = System.Drawing.SystemColors.MenuText;
-        public static readonly System.Drawing.Color brightText = System.Drawing.SystemColors.HighlightText;
-        public static readonly System.Drawing.Color darkText = System.Drawing.SystemColors.WindowText;
-        public static readonly System.Drawing.Color menu = System.Drawing.SystemColors.ScrollBar;
-        public static readonly System.Drawing.Color frame = System.Drawing.SystemColors.WindowFrame;
+        public static readonly Color foreground = SystemColors.Window;
+        public static readonly Color background = SystemColors.ControlDarkDark;
+        public static readonly Color backgroundDarker = SystemColors.MenuText;
+        public static readonly Color brightText = SystemColors.HighlightText;
+        public static readonly Color darkText = SystemColors.WindowText;
+        public static readonly Color menu = SystemColors.ScrollBar;
+        public static readonly Color frame = SystemColors.WindowFrame;
 
         /// <summary>
         /// Gets the current assembly version as a string.
@@ -34,7 +34,7 @@ namespace Translator.Helpers
         {
             var assembly = Assembly.GetExecutingAssembly();
             var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
-            return fileVersion.FileVersion;
+            return fileVersion?.FileVersion ?? "0.0.0.0";
         }
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace Translator.Helpers
                 $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
                 $"Some Error found (Nr. {ExceptionCount})");
 
-            Application.OpenForms[0].Cursor = Cursors.Default;
+            Application.UseWaitCursor = false;
 
             if (ExceptionCount > 3)
             {
@@ -82,9 +82,9 @@ namespace Translator.Helpers
             if (selectFileDialog.ShowDialog() == DialogResult.OK)
             {
                 if (isTranslation)
-                    Settings.Default.translation_path = System.IO.Path.GetDirectoryName(selectFileDialog.FileName);
+                    Settings.Default.translation_path = Path.GetDirectoryName(selectFileDialog.FileName);
                 else
-                    Settings.Default.template_path = System.IO.Path.GetDirectoryName(selectFileDialog.FileName);
+                    Settings.Default.template_path = Path.GetDirectoryName(selectFileDialog.FileName);
 
                 Settings.Default.Save();
 
@@ -136,6 +136,7 @@ namespace Translator.Helpers
         /// <returns>the corresponding stringcategory</returns>
         public static StringCategory CategoryFromNode(NodeType type)
         {
+#pragma warning disable IDE0066
             switch (type)
             {
                 case NodeType.Null:
@@ -165,6 +166,7 @@ namespace Translator.Helpers
                 default:
                     return StringCategory.Neither;
             }
+#pragma warning restore IDE0066
         }
 
         /// <summary>
@@ -174,7 +176,7 @@ namespace Translator.Helpers
         /// <returns>The category representing the string, or none.</returns>
         public static StringCategory GetCategoryFromString(string line)
         {
-            if (line.Contains("["))
+            if (line.Contains('['))
             {
                 if (line == "[General]")
                 {
@@ -227,6 +229,7 @@ namespace Translator.Helpers
         /// <returns>The string representing the category.</returns>
         public static string GetStringFromCategory(StringCategory category)
         {
+#pragma warning disable IDE0066
             switch (category)
             {
                 case StringCategory.General:
@@ -267,6 +270,7 @@ namespace Translator.Helpers
                     //do nothing hehehehe
                     return "";
             }
+#pragma warning restore IDE0066
         }
 
         /// <summary>
@@ -275,14 +279,16 @@ namespace Translator.Helpers
         /// <param name="number">the number of the tab starting at 1, is only used for name and text</param>
         /// <param name="form"></param>
         /// <returns>a TabPage with all controls as child controls</returns>
-        public static TabPage CreateNewTab(int number, Fenster form)
+        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        public static TabPage? CreateNewTab(int number, Fenster? form)
         {
+            if (form == null) return null;
             var newTab = new TabPage()
             {
-                BackColor = System.Drawing.Color.Black,
-                ForeColor = System.Drawing.SystemColors.ScrollBar,
-                BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle,
-                Location = new System.Drawing.Point(4, 22),
+                BackColor = Color.Black,
+                ForeColor = SystemColors.ScrollBar,
+                BorderStyle = BorderStyle.FixedSingle,
+                Location = new Point(4, 22),
                 Name = $"TabPage{number}",
                 Padding = new Padding(3),
                 TabIndex = 0,
@@ -324,13 +330,13 @@ namespace Translator.Helpers
             TranslatedTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
             TranslatedTextBox.BackColor = background;
             TranslatedTextBox.Dock = DockStyle.Fill;
-            TranslatedTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            TranslatedTextBox.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
             TranslatedTextBox.ForeColor = brightText;
             TranslatedTextBox.ImeMode = ImeMode.On;
-            TranslatedTextBox.Location = new System.Drawing.Point(689, 294);
+            TranslatedTextBox.Location = new Point(689, 294);
             TranslatedTextBox.Multiline = true;
             TranslatedTextBox.Name = "TranslatedTextBox";
-            TranslatedTextBox.Size = new System.Drawing.Size(678, 275);
+            TranslatedTextBox.Size = new Size(678, 275);
             TranslatedTextBox.TabIndex = 0;
             TranslatedTextBox.Text = "edit here";
             TranslatedTextBox.TextChanged += new EventHandler(form.TextBoxRight_TextChanged);
@@ -342,9 +348,9 @@ namespace Translator.Helpers
             TranslateThis.AutoSize = true;
             TranslateThis.BackColor = menu;
             TranslateThis.ForeColor = darkText;
-            TranslateThis.Location = new System.Drawing.Point(80, 1);
+            TranslateThis.Location = new Point(80, 1);
             TranslateThis.Name = "AutoTranslateThis";
-            TranslateThis.Size = new System.Drawing.Size(60, 20);
+            TranslateThis.Size = new Size(60, 20);
             TranslateThis.TabIndex = 13;
             TranslateThis.Text = "Automatic Translation";
             TranslateThis.UseVisualStyleBackColor = true;
@@ -354,13 +360,13 @@ namespace Translator.Helpers
             // 
             TemplateTextBox.BackColor = background;
             TemplateTextBox.Dock = DockStyle.Fill;
-            TemplateTextBox.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, 0);
+            TemplateTextBox.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
             TemplateTextBox.ForeColor = brightText;
-            TemplateTextBox.Location = new System.Drawing.Point(689, 33);
+            TemplateTextBox.Location = new Point(689, 33);
             TemplateTextBox.Multiline = true;
             TemplateTextBox.Name = "TemplateTextBox";
             TemplateTextBox.ReadOnly = true;
-            TemplateTextBox.Size = new System.Drawing.Size(678, 255);
+            TemplateTextBox.Size = new Size(678, 255);
             TemplateTextBox.TabIndex = 9;
             TemplateTextBox.Text = "Lorem ipsum dolor sit amed";
             // 
@@ -368,12 +374,12 @@ namespace Translator.Helpers
             // 
             CommentTextBox.BackColor = background;
             CommentTextBox.Dock = DockStyle.Fill;
-            CommentTextBox.Font = new System.Drawing.Font("Consolas", 11F);
+            CommentTextBox.Font = new Font("Consolas", 11F);
             CommentTextBox.ForeColor = brightText;
-            CommentTextBox.Location = new System.Drawing.Point(3, 16);
+            CommentTextBox.Location = new Point(3, 16);
             CommentTextBox.Multiline = true;
             CommentTextBox.Name = "CommentTextBox";
-            CommentTextBox.Size = new System.Drawing.Size(672, 105);
+            CommentTextBox.Size = new Size(672, 105);
             CommentTextBox.TabIndex = 13;
             CommentTextBox.TextChanged += new EventHandler(form.Comments_TextChanged);
             CommentTextBox.MouseUp += new MouseEventHandler(form.TextContextOpened);
@@ -384,9 +390,9 @@ namespace Translator.Helpers
             CharacterCountLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             CharacterCountLabel.AutoSize = true;
             CharacterCountLabel.ForeColor = brightText;
-            CharacterCountLabel.Location = new System.Drawing.Point(23, 5);
+            CharacterCountLabel.Location = new Point(23, 5);
             CharacterCountLabel.Name = "CharacterCountLabel";
-            CharacterCountLabel.Size = new System.Drawing.Size(143, 13);
+            CharacterCountLabel.Size = new Size(143, 13);
             CharacterCountLabel.TabIndex = 20;
             CharacterCountLabel.Text = "Template: xx | Translation: xx";
             // 
@@ -394,9 +400,9 @@ namespace Translator.Helpers
             // 
             SelectedFile.AutoSize = true;
             SelectedFile.ForeColor = brightText;
-            SelectedFile.Location = new System.Drawing.Point(0, 6);
+            SelectedFile.Location = new Point(0, 6);
             SelectedFile.Name = "SelectedFile";
-            SelectedFile.Size = new System.Drawing.Size(98, 13);
+            SelectedFile.Size = new Size(98, 13);
             SelectedFile.TabIndex = 7;
             SelectedFile.Text = "Selected File: none";
             // 
@@ -405,11 +411,11 @@ namespace Translator.Helpers
             WordsTranslated.Anchor = AnchorStyles.Top;
             WordsTranslated.Parent = panel1;
             WordsTranslated.AutoSize = true;
-            WordsTranslated.BackColor = System.Drawing.Color.Transparent;
+            WordsTranslated.BackColor = Color.Transparent;
             WordsTranslated.ForeColor = brightText;
-            WordsTranslated.Location = new System.Drawing.Point(60, 6);
+            WordsTranslated.Location = new Point(60, 6);
             WordsTranslated.Name = "WordsTranslated";
-            WordsTranslated.Size = new System.Drawing.Size(47, 13);
+            WordsTranslated.Size = new Size(47, 13);
             WordsTranslated.TabIndex = 15;
             WordsTranslated.Text = "progress";
             // 
@@ -417,9 +423,9 @@ namespace Translator.Helpers
             // 
             ApprovedBox.AutoSize = true;
             ApprovedBox.ForeColor = brightText;
-            ApprovedBox.Location = new System.Drawing.Point(3, 5);
+            ApprovedBox.Location = new Point(3, 5);
             ApprovedBox.Name = "ApprovedBox";
-            ApprovedBox.Size = new System.Drawing.Size(72, 17);
+            ApprovedBox.Size = new Size(72, 17);
             ApprovedBox.TabIndex = 13;
             ApprovedBox.Text = Resources.Approved;
             ApprovedBox.UseVisualStyleBackColor = true;
@@ -438,14 +444,14 @@ namespace Translator.Helpers
             mainTableLayoutPanel.Controls.Add(panel2, 1, 0);
             mainTableLayoutPanel.Parent = newTab;
             mainTableLayoutPanel.Dock = DockStyle.Fill;
-            mainTableLayoutPanel.Location = new System.Drawing.Point(3, 3);
+            mainTableLayoutPanel.Location = new Point(3, 3);
             mainTableLayoutPanel.Name = "mainTableLayoutPanel";
             mainTableLayoutPanel.RowCount = 4;
             _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
             _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 38.94275F));
             _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 41.86569F));
             _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 19.19156F));
-            mainTableLayoutPanel.Size = new System.Drawing.Size(1370, 702);
+            mainTableLayoutPanel.Size = new Size(1370, 702);
             mainTableLayoutPanel.TabIndex = 18;
             // 
             // CommentGroup
@@ -453,9 +459,9 @@ namespace Translator.Helpers
             CommentGroup.Controls.Add(CommentTextBox);
             CommentGroup.Dock = DockStyle.Fill;
             CommentGroup.ForeColor = brightText;
-            CommentGroup.Location = new System.Drawing.Point(689, 575);
+            CommentGroup.Location = new Point(689, 575);
             CommentGroup.Name = "CommentGroup";
-            CommentGroup.Size = new System.Drawing.Size(678, 124);
+            CommentGroup.Size = new Size(678, 124);
             CommentGroup.TabIndex = 11;
             CommentGroup.TabStop = false;
             CommentGroup.Text = "Comments";
@@ -466,9 +472,9 @@ namespace Translator.Helpers
             panel1.Controls.Add(WordsTranslated);
             panel1.Controls.Add(ProgressbarTranslated);
             panel1.Dock = DockStyle.Fill;
-            panel1.Location = new System.Drawing.Point(3, 3);
+            panel1.Location = new Point(3, 3);
             panel1.Name = "panel1";
-            panel1.Size = new System.Drawing.Size(680, 24);
+            panel1.Size = new Size(680, 24);
             panel1.TabIndex = 12;
             // 
             // panel2
@@ -477,9 +483,9 @@ namespace Translator.Helpers
             panel2.Controls.Add(TranslateThis);
             panel2.Controls.Add(CharacterCountLabel);
             panel2.Dock = DockStyle.Fill;
-            panel2.Location = new System.Drawing.Point(689, 3);
+            panel2.Location = new Point(689, 3);
             panel2.Name = "panel2";
-            panel2.Size = new System.Drawing.Size(678, 24);
+            panel2.Size = new Size(678, 24);
             panel2.TabIndex = 13;
             // 
             // CheckListBoxLeft
@@ -488,10 +494,10 @@ namespace Translator.Helpers
             CheckListBoxLeft.Dock = DockStyle.Fill;
             CheckListBoxLeft.ForeColor = brightText;
             CheckListBoxLeft.FormattingEnabled = true;
-            CheckListBoxLeft.Location = new System.Drawing.Point(3, 33);
+            CheckListBoxLeft.Location = new Point(3, 33);
             CheckListBoxLeft.Name = "CheckListBoxLeft";
             mainTableLayoutPanel.SetRowSpan(CheckListBoxLeft, 3);
-            CheckListBoxLeft.Size = new System.Drawing.Size(680, 666);
+            CheckListBoxLeft.Size = new Size(680, 666);
             CheckListBoxLeft.TabIndex = 10;
             CheckListBoxLeft.ThreeDCheckBoxes = true;
             CheckListBoxLeft.ItemCheck += new ItemCheckEventHandler(form.CheckListBoxLeft_ItemCheck);
@@ -505,9 +511,9 @@ namespace Translator.Helpers
             ProgressbarTranslated.Cursor = Cursors.Default;
             ProgressbarTranslated.Dock = DockStyle.Fill;
             ProgressbarTranslated.ForeColor = foreground;
-            ProgressbarTranslated.Location = new System.Drawing.Point(0, 0);
+            ProgressbarTranslated.Location = new Point(0, 0);
             ProgressbarTranslated.Name = "ProgressbarTranslated";
-            ProgressbarTranslated.Size = new System.Drawing.Size(680, 24);
+            ProgressbarTranslated.Size = new Size(680, 24);
             ProgressbarTranslated.Step = 1;
             ProgressbarTranslated.Style = ProgressBarStyle.Continuous;
             ProgressbarTranslated.TabIndex = 8;
@@ -516,60 +522,60 @@ namespace Translator.Helpers
             // CopyIdContextMenuButton
             // 
             CopyIdContextMenuButton.Name = "CopyIdContextMenuButton";
-            CopyIdContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyIdContextMenuButton.Size = new Size(236, 22);
             CopyIdContextMenuButton.Text = "Copy Id";
-            CopyIdContextMenuButton.Click += new System.EventHandler(form.CopyIdContextMenuButton_Click);
+            CopyIdContextMenuButton.Click += new EventHandler(form.CopyIdContextMenuButton_Click);
             // 
             // CopyFileNameContextMenuButton
             // 
             CopyFileNameContextMenuButton.Name = "CopyFileNameContextMenuButton";
-            CopyFileNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyFileNameContextMenuButton.Size = new Size(236, 22);
             CopyFileNameContextMenuButton.Text = "Copy file name";
-            CopyFileNameContextMenuButton.Click += new System.EventHandler(form.CopyFileNameContextMenuButton_Click);
+            CopyFileNameContextMenuButton.Click += new EventHandler(form.CopyFileNameContextMenuButton_Click);
             // 
             // CopyStoryNameContextMenuButton
             // 
             CopyStoryNameContextMenuButton.Name = "CopyStoryNameContextMenuButton";
-            CopyStoryNameContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyStoryNameContextMenuButton.Size = new Size(236, 22);
             CopyStoryNameContextMenuButton.Text = "Copy story name";
-            CopyStoryNameContextMenuButton.Click += new System.EventHandler(form.CopyStoryNameContextMenuButton_Click);
+            CopyStoryNameContextMenuButton.Click += new EventHandler(form.CopyStoryNameContextMenuButton_Click);
             // 
             // CopyAllContextMenuButton
             // 
             CopyAllContextMenuButton.Name = "CopyAllContextMenuButton";
-            CopyAllContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyAllContextMenuButton.Size = new Size(236, 22);
             CopyAllContextMenuButton.Text = "Copy everything";
-            CopyAllContextMenuButton.Click += new System.EventHandler(form.CopyAllContextMenuButton_Click);
+            CopyAllContextMenuButton.Click += new EventHandler(form.CopyAllContextMenuButton_Click);
             // 
             // CopyAsOutputContextMenuButton
             // 
             CopyAsOutputContextMenuButton.Name = "CopyAsOutputContextMenuButton";
-            CopyAsOutputContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyAsOutputContextMenuButton.Size = new Size(236, 22);
             CopyAsOutputContextMenuButton.Text = "Copy as output";
-            CopyAsOutputContextMenuButton.Click += new System.EventHandler(form.CopyAsOutputContextMenuButton_Click);
+            CopyAsOutputContextMenuButton.Click += new EventHandler(form.CopyAsOutputContextMenuButton_Click);
             // 
             // CopyTemplateContextMenuButton
             // 
             CopyTemplateContextMenuButton.Name = "CopyTemplateContextMenuButton";
-            CopyTemplateContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyTemplateContextMenuButton.Size = new Size(236, 22);
             CopyTemplateContextMenuButton.Text = "Copy template";
-            CopyTemplateContextMenuButton.Click += new System.EventHandler(form.CopyTemplateContextMenuButton_Click);
+            CopyTemplateContextMenuButton.Click += new EventHandler(form.CopyTemplateContextMenuButton_Click);
             // 
             // CopyTranslationContextMenuButton
             // 
             CopyTranslationContextMenuButton.Name = "CopyTranslationContextMenuButton";
-            CopyTranslationContextMenuButton.Size = new System.Drawing.Size(236, 22);
+            CopyTranslationContextMenuButton.Size = new Size(236, 22);
             CopyTranslationContextMenuButton.Text = "Copy translation";
-            CopyTranslationContextMenuButton.Click += new System.EventHandler(form.CopyTranslationContextMenuButton_Click);
+            CopyTranslationContextMenuButton.Click += new EventHandler(form.CopyTranslationContextMenuButton_Click);
             //
             // ListContextMenu
             //
             ListContextMenu.Name = "ListContextMenu";
-            ListContextMenu.BackColor = System.Drawing.SystemColors.ScrollBar;
+            ListContextMenu.BackColor = SystemColors.ScrollBar;
             ListContextMenu.ShowCheckMargin = false;
             ListContextMenu.ShowImageMargin = false;
-            ListContextMenu.ForeColor = System.Drawing.SystemColors.MenuText;
-            ListContextMenu.Size = new System.Drawing.Size(236, 160);
+            ListContextMenu.ForeColor = SystemColors.MenuText;
+            ListContextMenu.Size = new Size(236, 160);
             ListContextMenu.Items.Clear();
             ListContextMenu.Items.AddRange(new ToolStripItem[]{
             CopyIdContextMenuButton,
@@ -604,13 +610,10 @@ namespace Translator.Helpers
         {
             if (form.ContainsFocus)
             {
-                Control focused_control = form.ActiveControl;
-                try
-                {
-                    var _ = (TextBox)focused_control;
-                }
-                //ignore exception, really intended
-                catch { return false; }
+                Control? focused_control = form.ActiveControl;
+                if (focused_control == null) return false;
+                if(!focused_control.GetType().IsAssignableTo(typeof(TextBox))) { return false; }
+
                 var textBox = (TextBox)focused_control;
                 if (toLeft)
                 {
@@ -632,7 +635,7 @@ namespace Translator.Helpers
         /// <returns>true if succeeded</returns>
         public static bool MoveCursorInText(Form form, bool toLeft)
         {
-            if (form.ContainsFocus)
+            if (form.ContainsFocus && form.ActiveControl != null)
             {
                 Control focused_control = form.ActiveControl;
                 try
@@ -668,14 +671,11 @@ namespace Translator.Helpers
             this.category = category;
         }
 
-        public override bool Equals(object obj) => obj is CategorizedLines other && EqualityComparer<List<LineData>>.Default.Equals(lines, other.lines) && category == other.category;
+        public override bool Equals(object? obj) => obj is CategorizedLines other && EqualityComparer<List<LineData>>.Default.Equals(lines, other.lines) && category == other.category;
 
         public override int GetHashCode()
         {
-            int hashCode = 458706445;
-            hashCode = hashCode * -1521134295 + EqualityComparer<List<LineData>>.Default.GetHashCode(lines);
-            hashCode = hashCode * -1521134295 + category.GetHashCode();
-            return hashCode;
+            return HashCode.Combine(lines, category);
         }
 
         public void Deconstruct(out List<LineData> lines, out StringCategory category)
@@ -685,7 +685,7 @@ namespace Translator.Helpers
         }
 
         public static implicit operator (List<LineData> lines, StringCategory category)(CategorizedLines value) => (value.lines, value.category);
-        public static implicit operator CategorizedLines((List<LineData> lines, StringCategory category) value) => new CategorizedLines(value.lines, value.category);
+        public static implicit operator CategorizedLines((List<LineData> lines, StringCategory category) value) => new(value.lines, value.category);
     }
 
     internal sealed class FileData : Dictionary<string, LineData>
