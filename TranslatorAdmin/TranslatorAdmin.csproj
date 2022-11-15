@@ -1,0 +1,86 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <StartupObject>Translator.App</StartupObject>
+    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>False</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Ressources\wumpus_smoll.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Ressources\wumpus_smoll.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LibreTranslate.Net" Version="1.0.1" />
+    <PackageReference Include="MySql.Data" Version="8.0.31" />
+    <PackageReference Include="NetDiscordRpc" Version="1.0.2" />
+    <PackageReference Include="SevenZipExtractor" Version="1.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="MainForm\House Party Translator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="PasswordForm\PasswordBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="ProgressbarForm\ProgressWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Update="SettingsForm\SettingsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="StoryExplorerForm\StoryExplorer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UIComponents\ColouredCheckedListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="UIComponents\NoAnimationBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <Generator>PublicResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Settings.settings">
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+      <Generator>SettingsSingleFileGenerator</Generator>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="if $(ConfigurationName) == Release $(SolutionDir)7za.exe u &quot;.\Release.7z&quot; .\HousePartyTranslator.exe .\HousePartyTranslator.exe.config .\7za.exe&#xD;&#xA;" />
+  </Target>
+
+</Project>
