@@ -86,43 +86,64 @@ namespace UICompatibilityLayer
         #endregion
 
         #region list of translations
-        int SelectedIndex();
-        ILineItem SelectedItem();
+        int SelectedLineIndex();
+        ILineItem SelectedLineItem();
         LineList GetLines();
         void SetLines(LineList lines);
-        ILineItem GetItem(int index);
-        void SelectItem(int index);
-        void SelectItem(ILineItem item);
-        void Clear();
-        void Update();
+        ILineItem GetLineItem(int index);
+        void SelectLineItem(int index);
+        void SelectLineItem(ILineItem item);
+        void ClearLines();
+        void UpdateLines();
 
         #endregion
 
         #region translation textbox
         void SetTranslationBoxText(string text);
         string GetTranslationBoxText();
+        string SelectedTranslationBoxText();
+        void SetSelectedTranslationBoxText(int start, int end);
+        void FocusTranslationBox();
 
         #endregion
 
         #region template textbox
         void SetTemplateBoxText(string text);
         string GetTemplateBoxText();
+        string SelectedTemplateBoxText();
+        void SetSelectedTemplateBoxText(int start, int end);
 
         #endregion
 
         #region comment textbox
+        void SetCommentBoxText(string text);
+        string GetCommentBoxText();
+        string SelectedCommentBoxText();
+        void SetSelectedCommentBoxText(int start, int end);
+        void FocusCommentBox();
 
         #endregion
 
         #region line controls
+        void ApproveSelectedLine();
+        void UnapproveSelectedLine();
 
         #endregion
 
         #region login user control
+        bool Login();
+        bool Logout();
 
         #endregion
 
-        #region search
+        #region search/replace
+        void FocusSearchBar();
+        void UpdateResults();
+        string GetSearchBarText();
+        void SetSearchBarText(string query);
+        void FocusReplaceBar();
+        string GetReplaceBarText();
+        void SetReplaceBarText(string replacement);
 
         #endregion
 
