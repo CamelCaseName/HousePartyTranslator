@@ -1,9 +1,4 @@
 ﻿using Translator.Helpers;
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using TranslatorAdmin.Properties;
 
 namespace Translator.Managers
