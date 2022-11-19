@@ -1,7 +1,6 @@
-﻿using Translator.Helpers;
-using System.Runtime.CompilerServices;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Translator.UICompatibilityLayer;
 
 namespace Translator.Core

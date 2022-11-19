@@ -1,7 +1,5 @@
 ﻿using System.Globalization;
 using System.Text;
-using Translator.Helpers;
-using TranslatorAdmin.Properties;
 using Timer = System.Windows.Forms.Timer;
 
 //TODO add tests

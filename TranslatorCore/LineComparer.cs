@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
 
-namespace Translator.Helpers
+namespace Translator.Core.Helpers
 {
     /// <summary>
     /// This class provides a Compare() method to compare LineData objects with a BGC ID

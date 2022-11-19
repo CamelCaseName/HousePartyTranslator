@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Translator.Helpers
+namespace Translator.Core.Helpers
 {
     /// <summary>
     /// A Class providing a list of all short keys for languages, as well the String representation of it.

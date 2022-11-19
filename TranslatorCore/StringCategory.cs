@@ -1,4 +1,4 @@
-﻿namespace Translator
+﻿namespace Translator.Core.Helpers
 {
     /// <summary>
     /// An enum consisting of all types of strings used in the House Party game.
