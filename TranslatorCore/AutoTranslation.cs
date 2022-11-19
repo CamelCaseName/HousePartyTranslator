@@ -14,7 +14,7 @@ namespace Translator.Core.Helpers
     /// </summary>
     public static class AutoTranslation
     {
-        private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
+        private static readonly LibreTranslate.Net.LibreTranslate Translator = new("https://translate.rinderha.cc");
 
         /// <summary>
         /// Starts a webrequest to https://translate.rinderha.cc" to translate the template for the current line into the given langauge if possible
