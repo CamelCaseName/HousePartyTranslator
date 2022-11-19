@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="LibreTranslate.Net" Version="1.0.1" />
+    <PackageReference Include="MySql.Data" Version="8.0.31" />
   </ItemGroup>
 
 </Project>

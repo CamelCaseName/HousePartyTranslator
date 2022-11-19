@@ -1,7 +1,9 @@
 ﻿using MySql.Data.MySqlClient;
+using System;
+using System.Linq;
 using System.Text;
 using Translator.Helpers;
-using TranslatorAdmin.Properties;
+using Translator.UICompatibilityLayer;
 
 namespace Translator.Core
 {
@@ -10,11 +12,12 @@ namespace Translator.Core
     /// </summary>
     public static class DataBase
     {
-        public static string DBVersion = "0.0.0";
+        public static string DBVersion { get; private set; } = "0.0.0";
         private static readonly MySqlConnection sqlConnection = new();
         private static MySqlCommand MainCommand = new();
         private static MySqlDataReader? MainReader;
         private static string SoftwareVersion = "0.0.0.0";
+        private static IUIHandler? UI;
         public static bool IsOnline { get; private set; } = false;
 
 #if DEBUG
@@ -142,7 +145,7 @@ namespace Translator.Core
                     }
                     else
                     {
-                        _ = Msg.WarningOk("Ids can't be loaded", "Potential issue");
+                        _ = UI?.WarningOk("Ids can't be loaded", "Potential issue");
                     }
                 }
                 finally
@@ -207,7 +210,7 @@ namespace Translator.Core
                 }
                 else
                 {
-                    _ = Msg.WarningOk("Ids can't be loaded", "Info");
+                    _ = UI?.WarningOk("Ids can't be loaded", "Info");
                     LogManager.Log("No template ids found for " + story + "/" + fileName);
                 }
                 MainReader.Close();
@@ -220,7 +223,7 @@ namespace Translator.Core
         /// Establishes the connection and handles the password stuff
         /// </summary>
         /// <param name="mainWindow">the window to spawn the password box as a child of</param>
-        private static void EstablishConnection(Fenster mainWindow)
+        private static void EstablishConnection(string password)
         {
             UIHandler.SignalAppWait();
             while (!IsOnline)
@@ -228,62 +231,41 @@ namespace Translator.Core
                 string connString = GetConnString();
                 if (connString == "")
                 {
-                    UIHandler.SignalAppUnWait();
                     //Pasword has to be set first time
-                    var Passwordbox = new Password();
-                    DialogResult passwordResult = Passwordbox.ShowDialog(mainWindow);
-                    if (passwordResult == DialogResult.OK)
+                    Settings.Default.DbPassword = password;
+                    Settings.Default.Save();
+                }
+
+                sqlConnection.ConnectionString = connString;
+                try
+                {
+                    sqlConnection.Open();
+                    if (sqlConnection.State != System.Data.ConnectionState.Open)
                     {
-                        Settings.Default.dbPassword = Passwordbox.GetPassword();
-                        Settings.Default.Save();
+                        //password may have to be changed
+                        _ = UI?.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
+                        UIHandler.SignalAppExit();
                     }
                     else
                     {
-                        if (Passwordbox.GetPassword().Length > 1)
-                        {
-                            _ = Msg.ErrorOk("Invalid password", "Wrong password");
-                        }
-                        else
-                        {
-                            Environment.Exit(-1);
-                        }
+                        IsOnline = true;
                     }
-
-                    UIHandler.SignalAppWait();
                 }
-                else
+                catch (MySqlException e)
                 {
-                    sqlConnection.ConnectionString = connString;
-                    try
+                    if (e.Code == 0)
                     {
-                        sqlConnection.Open();
-                        if (sqlConnection.State != System.Data.ConnectionState.Open)
-                        {
-                            //password may have to be changed
-                            _ = Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
-                            UIHandler.SignalAppExit();
-                        }
-                        else
-                        {
-                            IsOnline = true;
-                        }
+                        //0 means offline
+                        _ = UI?.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
+                            "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
                     }
-                    catch (MySqlException e)
+                    else if (e.Code == 1045)
                     {
-                        if (e.Code == 0)
-                        {
-                            //0 means offline
-                            _ = Msg.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
-                                "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
-                        }
-                        else if (e.Code == 1045)
-                        {
-                            //means invalid creds
-                            _ = Msg.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
-                        }
-                        UIHandler.SignalAppUnWait();
-                        return;
+                        //means invalid creds
+                        _ = UI?.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                     }
+                    UIHandler.SignalAppUnWait();
+                    return;
                 }
             }
         }
@@ -291,19 +273,19 @@ namespace Translator.Core
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
         /// </summary>
-        /// <param name="mainWindow">The windows to change the title of.</param>
-        public static void InitializeDB(Fenster mainWindow)
+        public static void InitializeDB(IUIHandler uIHandler, string password, string AppVersion)
         {
+            UI = uIHandler;
             //establish connection and handle password
-            EstablishConnection(mainWindow);
+            EstablishConnection(password);
 
             MainCommand = new MySqlCommand("", sqlConnection);
             //Console.WriteLine("DB opened");
 
             if (!IsOnline)
             {
-                mainWindow.Text += " (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + SoftwareVersionManager.LocalVersion + ")";
-                mainWindow.Update();
+                UI?.SetTitle(" (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")");
+                UI?.Update();
             }
             else
             {
@@ -316,12 +298,12 @@ namespace Translator.Core
                 DBVersion = MainReader.GetString(0);
                 MainReader.Close();
 
-                string fileVersion = Settings.Default.version;
+                string fileVersion = Settings.Default.FileVersion;
                 if (fileVersion == "")
                 {
                     // get software version from db
                     SoftwareVersion = DBVersion;
-                    Settings.Default.version = DBVersion;
+                    Settings.Default.FileVersion = DBVersion;
                 }
                 else
                 {
@@ -329,7 +311,7 @@ namespace Translator.Core
                     if (!fileVersion.Contains('.'))
                     {
                         fileVersion = "1." + fileVersion;
-                        Settings.Default.version = fileVersion;
+                        Settings.Default.FileVersion = fileVersion;
                     }
                     //try casting wi9th invariant culture, log and try and work around it if it fails
                     if (!double.TryParse(DBVersion, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double _dbVersion))
@@ -348,7 +330,7 @@ namespace Translator.Core
                     {
                         //update local software version from db
                         SoftwareVersion = DBVersion;
-                        Settings.Default.version = DBVersion;
+                        Settings.Default.FileVersion = DBVersion;
                     }
                     else
                     {
@@ -360,15 +342,12 @@ namespace Translator.Core
 
                 //set global variable for later actions
                 TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
-                if (!TranslationManager.IsUpToDate && Settings.Default.advancedMode)
+                if (!TranslationManager.IsUpToDate && Settings.Default.AdvancedModeEnabled)
                 {
-                    _ = Msg.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " +
-                                "You may acquire the latest version of this program. " +
-                                "If you know that you have newer strings, you may select the template files to upload the new versions!",
-                                "Updating string database");
+                    _ = UI?.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
                 }
-                mainWindow.Text += " (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + SoftwareVersionManager.LocalVersion + ")";
-                mainWindow.Update();
+                UI?.SetTitle(" (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")");
+                UI?.Update();
             }
             UIHandler.SignalAppUnWait();
         }
@@ -544,7 +523,7 @@ namespace Translator.Core
                                      WHERE ID = @version;";
             MainCommand.CommandText = command;
             MainCommand.Parameters.Clear();
-            _ = MainCommand.Parameters.AddWithValue("@story", Settings.Default.version);
+            _ = MainCommand.Parameters.AddWithValue("@story", Settings.Default.FileVersion);
             _ = MainCommand.Parameters.AddWithValue("@version", "version");
 
             //return if at least ione row was changed
@@ -616,7 +595,7 @@ namespace Translator.Core
                     else if (e.Code == 1045)
                     {
                         //means invalid creds
-                        _ = Msg.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                        _ = UI?.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                     }
                 }
             }
@@ -625,7 +604,7 @@ namespace Translator.Core
             else if (sqlConnection.State != System.Data.ConnectionState.Open)
             {
                 //password may have to be changed
-                _ = Msg.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
+                _ = UI?.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
                 UIHandler.SignalAppExit();
                 return false;
             }
@@ -634,7 +613,7 @@ namespace Translator.Core
 
         private static string GetConnString()
         {
-            string password = Settings.Default.dbPassword;
+            string password = Settings.Default.DbPassword;
             string returnString;
             if (password != "")
             {

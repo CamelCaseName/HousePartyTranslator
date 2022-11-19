@@ -256,6 +256,7 @@ namespace Translator.UICompatibilityLayer
 
         #region file access/system access
         void SignalAppExit();
+        void Update();
         #endregion
 
         #region tabs
