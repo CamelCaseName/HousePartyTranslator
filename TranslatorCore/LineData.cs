@@ -1,4 +1,5 @@
-﻿using Translator;
+﻿using System;
+using Translator;
 
 public sealed class LineData
 {

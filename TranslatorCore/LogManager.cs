@@ -12,7 +12,7 @@ namespace Translator.Core
         private static readonly string APPDATA_PATH = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); // AppData Local folder (different for every user)
         public static readonly string CFGFOLDER_PATH = Path.Combine(APPDATA_PATH, "HousePartyTranslator");     // Path for program Settings folder
         private static readonly string CFGFILE_PATH = Path.Combine(CFGFOLDER_PATH, "log.txt");   // Path for Settings.txt file
-        private static readonly List<string> FileLines = new List<string>();
+        private static readonly List<string> FileLines = new();
 
         public enum Level
         {
