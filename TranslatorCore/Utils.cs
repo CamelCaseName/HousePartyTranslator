@@ -3,10 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
-using System.Windows.Forms;
-using TranslatorAdmin.Properties;
 
-namespace Translator.Helpers
+namespace Translator.Core.Helpers
 {
     /// <summary>
     /// Provides some generic utility methods.

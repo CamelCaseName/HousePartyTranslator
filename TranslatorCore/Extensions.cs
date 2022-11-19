@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Translator.UICompatibilityLayer;
 
 namespace Translator.Core.Helpers
 {
@@ -75,6 +76,7 @@ namespace Translator.Core.Helpers
         /// <returns>The formatted, blockified string</returns>
         public static string ConstrainLength(this string input)
         {
+            //TODO replace by span or stringbuilder omg
             string output = "";
             bool inWord;
             int currentWordLength = 0, currentLength = 0;
@@ -122,7 +124,7 @@ namespace Translator.Core.Helpers
         /// </summary>
         /// <param name="textBox">The textbox to work on</param>
         /// <returns>true if successful</returns>
-        public static bool DeleteCharactersInTextLeft(this TextBox textBox)
+        public static bool DeleteCharactersInTextLeft(this ITextBox textBox)
         {
             int oldPos = textBox.SelectionStart;
             MoveCursorWordLeft(textBox);
@@ -138,7 +140,7 @@ namespace Translator.Core.Helpers
         /// </summary>
         /// <param name="textBox">The textbox to work on</param>
         /// <returns>true if successful</returns>
-        public static bool DeleteCharactersInTextRight(this TextBox textBox)
+        public static bool DeleteCharactersInTextRight(this ITextBox textBox)
         {
             int oldPos = textBox.SelectionStart;
             MoveCursorWordRight(textBox);
@@ -152,7 +154,7 @@ namespace Translator.Core.Helpers
         /// Moves the cursor in the given textbox to the next beginning/end of a word to the left
         /// </summary>
         /// <param name="textBox">The box to work on</param>
-        public static void MoveCursorWordLeft(this TextBox textBox)
+        public static void MoveCursorWordLeft(this ITextBox textBox)
         {
             bool broken = false;
             int oldPos = textBox.SelectionStart;
@@ -196,7 +198,7 @@ namespace Translator.Core.Helpers
         /// Moves the cursor in the given textbox to the next beginning/end of a word to the right
         /// </summary>
         /// <param name="textBox">The box to work on</param>
-        public static void MoveCursorWordRight(this TextBox textBox)
+        public static void MoveCursorWordRight(this ITextBox textBox)
         {
             bool broken = false;
             int oldPos = textBox.SelectionStart;
@@ -207,7 +209,7 @@ namespace Translator.Core.Helpers
                     ++textBox.SelectionStart;
                 }
             }
-            for (int i = textBox.SelectionStart; i < textBox.TextLength; i++)
+            for (int i = textBox.SelectionStart; i < textBox.Text.Length; i++)
             {
                 switch (textBox.Text[i].ToString())
                 {    //set up any stopping points you want
@@ -252,16 +254,6 @@ namespace Translator.Core.Helpers
                 length = maxLength - delimLength;
             }
             return toTrim.Length > length ? toTrim[..length].Trim() + delimiter : toTrim;
-        }
-
-        /// <summary>
-        /// Returns the string representatio of a category.
-        /// </summary>
-        /// <param name="type">The Category to parse.</param>
-        /// <returns>The string representing the category.</returns>
-        public static StringCategory AsStringCategory(this NodeType type)
-        {
-            return Utils.CategoryFromNode(type);
         }
 
         /// <summary>
