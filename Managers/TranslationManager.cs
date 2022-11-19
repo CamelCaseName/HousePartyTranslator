@@ -1182,7 +1182,7 @@ namespace HousePartyTranslator.Managers
 
             _ = Msg.ErrorOk("Something broke, please try again.");
             UIHandler.SignalAppUnWait();
-            return null;
+            return new FileData();
         }
 
         /// <summary>
