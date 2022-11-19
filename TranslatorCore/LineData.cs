@@ -1,6 +1,6 @@
 ﻿using Translator;
 
-internal sealed class LineData
+public sealed class LineData
 {
     public string ID = "";
     public string Story = "";

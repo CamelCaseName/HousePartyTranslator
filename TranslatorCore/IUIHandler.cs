@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 
-namespace UICompatibilityLayer
+namespace Translator.UICompatibilityLayer
 {
     public enum PopupResult
     {
@@ -110,13 +109,13 @@ namespace UICompatibilityLayer
                 throw new IndexOutOfRangeException("Given index was too big for the array");
             }
         }
-        private int _InternalSelectedIndex { get; set; }
-        public int SelectedIndex { get { return _InternalSelectedIndex; } set { SelectIndex(value); } }
+        private int _publicSelectedIndex { get; set; }
+        public int SelectedIndex { get { return _publicSelectedIndex; } set { SelectIndex(value); } }
         public void SelectIndex(int index)
         {
             try
             {
-                _InternalSelectedIndex = index;
+                _publicSelectedIndex = index;
                 SelectedLineItem = Items[index];
             }
             catch

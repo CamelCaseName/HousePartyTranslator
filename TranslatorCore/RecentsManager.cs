@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Translator.Core
 {
-    internal static class RecentsManager
+    public static class RecentsManager
     {
         private static readonly List<string> recents = new(5);
         /// <summary>

@@ -4,7 +4,7 @@ using System.Windows.Forms;
 
 namespace Translator.Helpers
 {
-    internal static class Extensions
+    public static class Extensions
     {
         /// <summary>
         /// Returns whether a story is official or not

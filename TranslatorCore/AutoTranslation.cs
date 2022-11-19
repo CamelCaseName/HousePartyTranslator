@@ -1,18 +1,18 @@
 ﻿using LibreTranslate.Net;
 
-namespace Translator.Helpers
+namespace Translator.Core.Helpers
 {
     /// <summary>
     /// Callback to extract the completed translation, or a bool indicating an error
     /// </summary>
     /// <param name="successfull">true if the translation succeeded</param>
     /// <param name="data">the updated LineData</param>
-    internal delegate void TranslationCopmpletedCallback(bool successfull, LineData data);
+    public delegate void TranslationCopmpletedCallback(bool successfull, LineData data);
 
     /// <summary>
     /// Provides a simple automatic translation interface
     /// </summary>
-    internal static class AutoTranslation
+    public static class AutoTranslation
     {
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new LibreTranslate.Net.LibreTranslate("https://translate.rinderha.cc");
 
@@ -22,7 +22,7 @@ namespace Translator.Helpers
         /// <param name="data">the LineData to work on, provides template and translation in return</param>
         /// <param name="language">the language to translate to, in 2 letter code</param>
         /// <param name="OnCompletion">callback to return the completed translation back to the program</param>
-        internal static void AutoTranslationAsync(LineData data, string language, TranslationCopmpletedCallback OnCompletion)
+        public static void AutoTranslationAsync(LineData data, string language, TranslationCopmpletedCallback OnCompletion)
         {
             AutoTranslationImpl(data, LanguageCode.English, LanguageCode.FromString(language), OnCompletion);
         }
@@ -34,7 +34,7 @@ namespace Translator.Helpers
         /// <param name="targetLanguage">the language to translate to, in 2 letter code</param>
         /// <param name="templateLanguage">the language to translate from, in 2 letter code</param>
         /// <param name="OnCompletion">callback to return the completed translation back to the program</param>
-        internal static void AutoTranslationAsync(LineData data, string targetLanguage, string templateLanguage, TranslationCopmpletedCallback OnCompletion)
+        public static void AutoTranslationAsync(LineData data, string targetLanguage, string templateLanguage, TranslationCopmpletedCallback OnCompletion)
         {
             AutoTranslationImpl(data, LanguageCode.FromString(templateLanguage), LanguageCode.FromString(targetLanguage), OnCompletion);
         }

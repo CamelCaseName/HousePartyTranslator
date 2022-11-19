@@ -5,7 +5,7 @@ namespace Translator.Helpers
     /// <summary>
     /// A Class providing a list of all short keys for languages, as well the String representation of it.
     /// </summary>
-    internal static class LanguageHelper
+    public static class LanguageHelper
     {
         /// <summary>
         /// A list of all currently supported languages in short form

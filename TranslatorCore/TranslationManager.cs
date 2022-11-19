@@ -11,9 +11,9 @@ namespace Translator.Core
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    internal sealed class TranslationManager
+    public sealed class TranslationManager
     {
-        internal bool ChangesPending
+        public bool ChangesPending
         {
             get { return _changesPending; }
             set
@@ -26,20 +26,20 @@ namespace Translator.Core
             }
         }
         private bool _changesPending;
-        internal static bool IsUpToDate = false;
-        internal List<StringCategory> CategoriesInFile = new();
-        internal bool isTemplate = false;
-        internal string SearchQuery = "";
+        public static bool IsUpToDate = false;
+        public List<StringCategory> CategoriesInFile = new();
+        public bool isTemplate = false;
+        public string SearchQuery = "";
 
-        internal static Timer AutoSaveTimer = new();
+        public static Timer AutoSaveTimer = new();
 
-        internal int SelectedSearchResult = 0;
+        public int SelectedSearchResult = 0;
 
         //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
         private int templateCounter = 0;
 
-        internal FileData TranslationData = new();
-        internal bool UpdateStoryExplorerSelection = true;
+        public FileData TranslationData = new();
+        public bool UpdateStoryExplorerSelection = true;
         private static Fenster? MainWindow;
         private static DiscordPresenceManager? PresenceManager;
         private string fileName = "";
@@ -54,14 +54,14 @@ namespace Translator.Core
         private bool triedSavingFixOnce = false;
 
         
-        internal TranslationManager(PropertyHelper? _helper)
+        public TranslationManager(PropertyHelper? _helper)
         {
             this.helper = _helper;
             AutoSaveTimer.Tick += SaveFileHandler;
         }
 
         
-        internal TranslationManager(PropertyHelper? _helper, DiscordPresenceManager? discord)
+        public TranslationManager(PropertyHelper? _helper, DiscordPresenceManager? discord)
         {
             PresenceManager ??= discord;
             this.helper = _helper;
@@ -78,7 +78,7 @@ namespace Translator.Core
         }
 
         
-        internal void SaveFileHandler(object? sender, EventArgs? e)
+        public void SaveFileHandler(object? sender, EventArgs? e)
         {
             SaveFile();
         }
@@ -86,7 +86,7 @@ namespace Translator.Core
         /// <summary>
         /// The Name of the file loaded, without the extension.
         /// </summary>
-        internal string FileName
+        public string FileName
         {
             get
             {
@@ -101,12 +101,12 @@ namespace Translator.Core
         /// <summary>
         /// Provides the id of the currently selected line
         /// </summary>
-        internal string SelectedId { get { return helper?.CheckListBoxLeft.SelectedItem?.ToString() ?? helper?.CheckListBoxLeft.Items[0]?.ToString() ?? "Name"; } }
+        public string SelectedId { get { return helper?.CheckListBoxLeft.SelectedItem?.ToString() ?? helper?.CheckListBoxLeft.Items[0]?.ToString() ?? "Name"; } }
 
         /// <summary>
         /// The Language of the current translation.
         /// </summary>
-        internal static string Language
+        public static string Language
         {
             get
             {
@@ -138,7 +138,7 @@ namespace Translator.Core
         /// <summary>
         /// The path to the file currently loaded.
         /// </summary>
-        internal string SourceFilePath
+        public string SourceFilePath
         {
             get
             {
@@ -154,7 +154,7 @@ namespace Translator.Core
         /// <summary>
         /// The name of the parent folder of the loaded file, MUST BE the story it is from.
         /// </summary>
-        internal string StoryName
+        public string StoryName
         {
             get
             {
@@ -179,7 +179,7 @@ namespace Translator.Core
             }
         }
 
-        internal bool CustomStoryTemplateHandle(string story)
+        public bool CustomStoryTemplateHandle(string story)
         {
             DialogResult result;
             if (Settings.Default.EnableCustomStories)
@@ -225,7 +225,7 @@ namespace Translator.Core
         /// <summary>
         /// Depending on the cursor location the line is approved or not (on checkbox or not).
         /// </summary>
-        internal void ApprovedButtonHandler()
+        public void ApprovedButtonHandler()
         {
             //change checked state for the selected item,
             //but only if we are on the button with the mouse.
@@ -243,7 +243,7 @@ namespace Translator.Core
         /// Approves the string in the db, if possible. Also updates UI.
         /// </summary>
         /// <param name="SelectNewAfter">A bool to determine if a new string should be selected after approval.</param>
-        internal void ApproveIfPossible(bool SelectNewAfter)
+        public void ApproveIfPossible(bool SelectNewAfter)
         {
             if (helper == null) return;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
@@ -268,7 +268,7 @@ namespace Translator.Core
         /// Loads a file into the program and calls all helper routines
         /// </summary>
         
-        internal void LoadFileIntoProgram()
+        public void LoadFileIntoProgram()
         {
             LoadFileIntoProgram(Utils.SelectFileFromSystem());
         }
@@ -278,7 +278,7 @@ namespace Translator.Core
         /// </summary>
         /// <param name="path">The path to the file to translate</param>
         
-        internal void LoadFileIntoProgram(string path)
+        public void LoadFileIntoProgram(string path)
         {
             if (MainWindow == null) return;
             if (path.Length > 0)
@@ -371,7 +371,7 @@ namespace Translator.Core
         /// Populates the Editor/Template text boxes and does some basic set/reset logic.
         /// </summary>
         
-        internal void PopulateTextBoxes()
+        public void PopulateTextBoxes()
         {
             if (helper == null || MainWindow == null) return;
             MainWindow.Cursor = Cursors.WaitCursor;
@@ -426,7 +426,7 @@ namespace Translator.Core
         /// Replaces a searched string in all applicable lines by the replacement provided using the invariant culture.
         /// </summary>
         /// <param name="replacement">The string to replace all search matches with</param>
-        internal void ReplaceAll(string replacement)
+        public void ReplaceAll(string replacement)
         {
             if (helper == null) return;
             FileData old = TranslationData;
@@ -452,7 +452,7 @@ namespace Translator.Core
         /// Replaces a searched string in the selected line if it is a search result by the replacement provided using the invariant culture.
         /// </summary>
         /// <param name="replacement">The string to replace all search matches with</param>
-        internal void ReplaceSingle(string replacement)
+        public void ReplaceSingle(string replacement)
         {
             if (helper == null) return;
             int i = helper.CheckListBoxLeft.SelectedIndex;
@@ -470,7 +470,7 @@ namespace Translator.Core
             }
         }
 
-        internal void ReloadTranslationTextbox()
+        public void ReloadTranslationTextbox()
         {
             if (helper == null) return;
             //update textbox
@@ -480,7 +480,7 @@ namespace Translator.Core
         /// <summary>
         /// replaces the template version of the string with a computer translated one to speed up translation.
         /// </summary>
-        internal void RequestedAutomaticTranslation()
+        public void RequestedAutomaticTranslation()
         {
             AutoTranslation.AutoTranslationAsync(TranslationData[SelectedId], Language, AutoTranslationCallback);
         }
@@ -530,7 +530,7 @@ namespace Translator.Core
         /// <summary>
         /// Saves the current string to the db
         /// </summary>
-        internal void SaveCurrentString()
+        public void SaveCurrentString()
         {
             if (helper == null || MainWindow == null) return;
             int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
@@ -553,7 +553,7 @@ namespace Translator.Core
         /// Saves all strings to the file we read from.
         /// </summary>
         
-        internal void SaveFile()
+        public void SaveFile()
         {
             if (MainWindow == null) return;
             if (!Fenster.ProgressbarWindow.Visible) Fenster.ProgressbarWindow.Show(MainWindow);
@@ -731,7 +731,7 @@ namespace Translator.Core
         /// Saves all strings to a specified file location.
         /// </summary>
         
-        internal void SaveFileAs()
+        public void SaveFileAs()
         {
             if (SourceFilePath != "")
             {
@@ -749,7 +749,7 @@ namespace Translator.Core
         /// Opens a save file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the file to save to.</returns>
-        internal string SelectSaveLocation()
+        public string SelectSaveLocation()
         {
             var saveFileDialog = new SaveFileDialog
             {
@@ -773,7 +773,7 @@ namespace Translator.Core
         /// <summary>
         /// Performs a search through all lines currently loaded.
         /// </summary>
-        internal void Search()
+        public void Search()
         {
             if (helper == null) return;
             SearchQuery = helper.SearchBox.Text;
@@ -784,7 +784,7 @@ namespace Translator.Core
         /// Performs a search through all lines currently loaded.
         /// </summary>
         /// <param name="query">The search temr to look for</param>
-        internal void Search(string query)
+        public void Search(string query)
         {
             if (helper == null) return;
             //reset list if no search is performed
@@ -845,7 +845,7 @@ namespace Translator.Core
         /// Selects a string in the listview given the id
         /// </summary>
         /// <param name="id">The id to look for.</param>
-        internal void SelectLine(string id)
+        public void SelectLine(string id)
         {
             if (helper == null) return;
             //select line which correspondends to id
@@ -863,7 +863,7 @@ namespace Translator.Core
         /// Selects the index given in the list of strings
         /// </summary>
         /// <param name="index">The index to select</param>
-        internal static void SelectLine(int index)
+        public static void SelectLine(int index)
         {
             if (index >= 0 && index < TabManager.ActiveProperties?.CheckListBoxLeft.Items.Count) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
         }
@@ -871,7 +871,7 @@ namespace Translator.Core
         /// <summary>
         /// Sets the language the translation is associated with
         /// </summary>
-        internal void SetLanguage()
+        public void SetLanguage()
         {
             if (helper == null) return;
             if (helper.LanguageBox.SelectedIndex >= 0)
@@ -893,7 +893,7 @@ namespace Translator.Core
         /// Sets the main form this translationmanager will work on (cursor, fields, etc)
         /// </summary>
         /// <param name="mainWindow">The form to work on.</param>
-        internal static void SetMainForm(Fenster mainWindow)
+        public static void SetMainForm(Fenster mainWindow)
         {
             MainWindow = mainWindow;
         }
@@ -902,7 +902,7 @@ namespace Translator.Core
         /// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
         /// </summary>
         
-        internal void ShowAutoSaveDialog()
+        public void ShowAutoSaveDialog()
         {
             if (Settings.Default.askForSaveDialog && ChangesPending)
             {
@@ -919,7 +919,7 @@ namespace Translator.Core
         /// <summary>
         /// Update the currently selected translation string in the TranslationData.
         /// </summary>
-        internal void UpdateTranslationString()
+        public void UpdateTranslationString()
         {
             if (helper == null) return;
             //remove pipe to not break saving/export
@@ -930,7 +930,7 @@ namespace Translator.Core
             else selectedNew = false;
         }
 
-        internal void UpdateComments()
+        public void UpdateComments()
         {
             if (helper == null) return;
             //remove pipe to not break saving/export
@@ -1431,7 +1431,7 @@ namespace Translator.Core
         /// Reloads the file into the program as if it were selected.
         /// </summary>
         
-        internal void ReloadFile()
+        public void ReloadFile()
         {
             ShowAutoSaveDialog();
             LoadTranslationFile();
@@ -1460,7 +1460,7 @@ namespace Translator.Core
         /// Selects the next search result if applicable
         /// </summary>
         /// <returns>True if a new result could be selected</returns>
-        internal bool SelectNextResultIfApplicable()
+        public bool SelectNextResultIfApplicable()
         {
             if (helper == null) return false;
             if (!helper.TranslationTextBox.Focused && !helper.CommentBox.Focused && helper.CheckListBoxLeft.SearchResults.Any())
@@ -1517,7 +1517,7 @@ namespace Translator.Core
         /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
         /// </summary>
         
-        internal void SetHighlightedNode()
+        public void SetHighlightedNode()
         {
             if (MainWindow == null || helper == null) return;
             if (TranslationData.Count > 0)
@@ -1535,7 +1535,7 @@ namespace Translator.Core
         /// <summary>
         /// Does some logic to figure out wether to show or hide the replacing ui
         /// </summary>
-        internal void ToggleReplaceUI()
+        public void ToggleReplaceUI()
         {
             if (helper == null) return;
             if (!helper.ReplaceBox.Visible)
@@ -1610,7 +1610,7 @@ namespace Translator.Core
         }
 
         
-        internal void OverrideCloudSave()
+        public void OverrideCloudSave()
         {
             if (helper == null) return;
             if (Settings.Default.advancedMode)

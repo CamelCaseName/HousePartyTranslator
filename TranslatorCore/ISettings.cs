@@ -2,7 +2,7 @@
 
 namespace TranslatorCore
 {
-    internal interface ISettings
+    public interface ISettings
     {
         bool AdvancedModeEnabled { get; set; }
         bool AllowCustomStories { get; set; }

@@ -6,7 +6,7 @@ namespace Translator.Helpers
     /// <summary>
     /// This class provides a Compare() method to compare LineData objects with a BGC ID
     /// </summary>
-    internal class BGCComparer : IComparer<LineData>
+    public class BGCComparer : IComparer<LineData>
     {
         /// <summary>
         /// Compares the id of line1 and line2 and returns an indication
@@ -49,7 +49,7 @@ namespace Translator.Helpers
     /// This class provides a Compare() methiod for LineData objects with a seminumeric ID, especially hints.
     /// Intended for hint sorting, everythin else will be sorted albhabetically.
     /// </summary>
-    internal class GeneralComparer : IComparer<LineData>
+    public class GeneralComparer : IComparer<LineData>
     {
         /// <summary>
         /// Compares the id of line1 and line2 and returns an indication

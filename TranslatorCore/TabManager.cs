@@ -5,7 +5,7 @@ using System.Windows.Forms;
 
 namespace Translator.Core
 {
-    internal static class TabManager
+    public static class TabManager
     {
         /// <summary>
         /// The TabControl in the main form, where all tabs are managed under

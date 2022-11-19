@@ -10,12 +10,12 @@ namespace Translator.Core
     /// <summary>
     /// Provides a clean Interface for managing the UI, without having to use the respective ui elements by themselves. ui platform independant in some way.
     /// </summary>
-    internal static class UIHandler
+    public static class UIHandler
     {
         /// <summary>
         /// Signals the user that the application is working and the might need to wait
         /// </summary>
-        internal static void SignalAppWait()
+        public static void SignalAppWait()
         {
             Application.UseWaitCursor= true;
         }
@@ -23,7 +23,7 @@ namespace Translator.Core
         /// <summary>
         /// Exits the application
         /// </summary>
-        internal static void SignalAppExit()
+        public static void SignalAppExit()
         {
             Application.Exit();
         }
@@ -31,7 +31,7 @@ namespace Translator.Core
         /// <summary>
         /// Signals the user that the wait is over.
         /// </summary>
-        internal static void SignalAppUnWait()
+        public static void SignalAppUnWait()
         {
             Application.UseWaitCursor= false;
         }

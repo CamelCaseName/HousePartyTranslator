@@ -660,7 +660,7 @@ namespace Translator.Helpers
         }
     }
 
-    internal struct CategorizedLines
+    public struct CategorizedLines
     {
         public List<LineData> lines;
         public StringCategory category;
@@ -688,9 +688,9 @@ namespace Translator.Helpers
         public static implicit operator CategorizedLines((List<LineData> lines, StringCategory category) value) => new(value.lines, value.category);
     }
 
-    internal sealed class FileData : Dictionary<string, LineData>
+    public sealed class FileData : Dictionary<string, LineData>
     {
-        internal FileData(Dictionary<string, LineData> data)
+        public FileData(Dictionary<string, LineData> data)
         {
             foreach (KeyValuePair<string, LineData> item in data)
             {
@@ -698,7 +698,7 @@ namespace Translator.Helpers
             }
         }
 
-        internal FileData()
+        public FileData()
         {
             this.Clear();
         }

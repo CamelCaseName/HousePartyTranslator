@@ -8,7 +8,7 @@ namespace Translator.Core
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    internal static class DataBase
+    public static class DataBase
     {
         public static string DBVersion = "0.0.0";
         private static readonly MySqlConnection sqlConnection = new();

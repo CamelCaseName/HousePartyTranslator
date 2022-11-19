@@ -7,7 +7,7 @@ namespace Translator.Core
     /// <summary>
     /// A static class to log strings with a timestamp to a logfile located in the corresponding appdata folder
     /// </summary>
-    internal static class LogManager
+    public static class LogManager
     {
         private static readonly string APPDATA_PATH = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); // AppData Local folder (different for every user)
         public static readonly string CFGFOLDER_PATH = Path.Combine(APPDATA_PATH, "HousePartyTranslator");     // Path for program Settings folder

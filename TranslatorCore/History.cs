@@ -2,11 +2,11 @@
 using System.Runtime.CompilerServices;
 using System;
 using System.Collections.Generic;
-using UICompatibilityLayer;
+using Translator.UICompatibilityLayer;
 
 namespace Translator.Core
 {
-    internal static class History
+    public static class History
     {
         private static readonly Stack<ICommand> history = new Stack<ICommand>();
         private static readonly Stack<ICommand> future = new Stack<ICommand>();
@@ -127,7 +127,7 @@ namespace Translator.Core
         }
     }
 
-    internal interface ICommand
+    public interface ICommand
     {
         string FileName { get; set; }
         string StoryName { get; set; }
@@ -135,7 +135,7 @@ namespace Translator.Core
         void Undo();
     }
 
-    internal sealed class NoneCommand : ICommand
+    public sealed class NoneCommand : ICommand
     {
         public string FileName { get => "none"; set { } }
         public string StoryName { get => "none"; set { } }
@@ -146,7 +146,7 @@ namespace Translator.Core
         public void Undo() { }
     }
 
-    internal sealed class TextAdded : ICommand
+    public sealed class TextAdded : ICommand
     {
         readonly ITextBox TextBox;
         readonly string AddedText;
@@ -173,7 +173,7 @@ namespace Translator.Core
         }
     }
 
-    internal sealed class TextRemoved : ICommand
+    public sealed class TextRemoved : ICommand
     {
         readonly ITextBox TextBox;
         readonly string RemovedText;
@@ -200,7 +200,7 @@ namespace Translator.Core
         }
     }
 
-    internal sealed class TextChanged : ICommand
+    public sealed class TextChanged : ICommand
     {
         readonly ITextBox TextBox;
         readonly string oldText;
@@ -231,7 +231,7 @@ namespace Translator.Core
         }
     }
 
-    internal sealed class ApprovedChanged : ICommand
+    public sealed class ApprovedChanged : ICommand
     {
         readonly int index;
         readonly LineList ListBox;
@@ -257,7 +257,7 @@ namespace Translator.Core
         }
     }
 
-    internal sealed class SelectedLineChanged : ICommand
+    public sealed class SelectedLineChanged : ICommand
     {
         readonly int oldIndex;
         readonly int newIndex;
@@ -285,7 +285,7 @@ namespace Translator.Core
         }
     }
 
-    internal sealed class TranslationChanged : ICommand
+    public sealed class TranslationChanged : ICommand
     {
         readonly TranslationManager manager;
         readonly string id;
@@ -316,7 +316,7 @@ namespace Translator.Core
         }
     }
 
-    internal sealed class SelectedTabChanged : ICommand
+    public sealed class SelectedTabChanged : ICommand
     {
         readonly int oldTabIndex, newTabIndex;
 
@@ -340,7 +340,7 @@ namespace Translator.Core
         }
     }
 
-    internal sealed class AllTranslationsChanged : ICommand
+    public sealed class AllTranslationsChanged : ICommand
     {
         readonly FileData oldTranslations, newTranslations;
         readonly TranslationManager manager;
