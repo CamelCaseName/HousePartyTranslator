@@ -12,6 +12,7 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static TabControl TabControl = null;
         public static bool InGlobalSearch = false;
+        private static int lastIndex = 0;
         public static Fenster Main;
         private static readonly Dictionary<TabPage, PropertyHelper> properties = new Dictionary<TabPage, PropertyHelper>();
         private static readonly Dictionary<TabPage, TranslationManager> translationManagers = new Dictionary<TabPage, TranslationManager>();
@@ -211,6 +212,13 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         public static void OnSwitchTabs()
         {
+            //update history on tab change
+            if (lastIndex != TabControl.SelectedIndex)
+            {
+                History.AddAction(new SelectedTabChanged(lastIndex, TabControl.SelectedIndex));
+                lastIndex = TabControl.SelectedIndex;
+            }
+
             //set search term to the one from the respective TranslationManager
             if (ActiveTranslationManager != null)
             {

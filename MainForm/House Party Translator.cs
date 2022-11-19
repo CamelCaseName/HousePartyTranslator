@@ -213,7 +213,7 @@ namespace HousePartyTranslator
 
         private void ExitToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Application.Exit();
+            UIHandler.SignalAppExit();
         }
 
         private void FensterUnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)

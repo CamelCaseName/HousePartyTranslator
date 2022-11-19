@@ -272,7 +272,7 @@ namespace HousePartyTranslator.Managers
                     && !History.CausedByHistory
                     && lastIndex == selectedIndex)
                 {
-                    History.AddAction(new TextChanged(lastChangedTextBox, lastText, lastChangedTextBox.Text));
+                    History.AddAction(new TextChanged(lastChangedTextBox, lastText, lastChangedTextBox.Text, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
                 }
             }
         }
@@ -310,8 +310,13 @@ namespace HousePartyTranslator.Managers
 
         public static void SelectedItemChanged(Helpers.ColouredCheckedListBox listBox)
         {
-            if (!History.CausedByHistory)
-                History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex));
+            if (!History.CausedByHistory && lastIndex >= 0 && listBox.SelectedIndex >= 0)
+            {
+                if (History.Peek().FileName == TabManager.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
+                    History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
+                else
+                    History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
+            }
             lastIndex = listBox.SelectedIndex;
             TabManager.ActiveTranslationManager.PopulateTextBoxes();
         }

@@ -55,7 +55,7 @@ namespace HousePartyTranslator.Helpers
             if (ExceptionCount > 3)
             {
                 LogManager.Log("Too many exceptions encountered, aborting", LogManager.Level.Crash);
-                Application.Exit();
+                UIHandler.SignalAppExit();
             }
         }
 
@@ -63,20 +63,30 @@ namespace HousePartyTranslator.Helpers
         /// Opens a select file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the selected file.</returns>
-        public static string SelectFileFromSystem()
+        public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "")
         {
             var selectFileDialog = new OpenFileDialog
             {
-                Title = "Choose a file for translation",
+                Title = Title?.Length > 0 ? Title : "Choose a file for translation",
                 Filter = "Text files (*.txt)|*.txt",
-                InitialDirectory = Properties.Settings.Default.translation_path.Length > 0 ? System.IO.Path.GetDirectoryName(Properties.Settings.Default.translation_path) : @"C:\Users\%USER%\Documents",
-                RestoreDirectory = false
+                InitialDirectory = Properties.Settings.Default.translation_path.Length > 0 && isTranslation ?
+                    Properties.Settings.Default.translation_path :
+                    Properties.Settings.Default.template_path.Length > 0 && !isTranslation ?
+                        Properties.Settings.Default.template_path :
+                        @"C:\Users\%USER%\Documents",
+                RestoreDirectory = false,
+                FileName = preselectedFile ?? ""
             };
 
             if (selectFileDialog.ShowDialog() == DialogResult.OK)
             {
-                Properties.Settings.Default.translation_path = selectFileDialog.FileName;
+                if (isTranslation)
+                    Properties.Settings.Default.translation_path = System.IO.Path.GetDirectoryName(selectFileDialog.FileName);
+                else
+                    Properties.Settings.Default.template_path = System.IO.Path.GetDirectoryName(selectFileDialog.FileName);
+
                 Properties.Settings.Default.Save();
+
                 return selectFileDialog.FileName;
             }
             return "";

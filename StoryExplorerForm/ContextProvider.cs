@@ -22,8 +22,8 @@ namespace HousePartyTranslator
         private List<Node> CriteriaInFile;
         private List<Node> nodes;
         private readonly ParallelOptions options;
-
-
+        private readonly string StoryName = "story";
+        private readonly string FileName = "character";
 
         public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, ParallelOptions parallelOptions)
         {
@@ -73,21 +73,22 @@ namespace HousePartyTranslator
                     {
                         selectFileDialog = new OpenFileDialog
                         {
-                            Title = "Choose the story file of your story for the templates",
+                            Title = $"Choose the story file ({StoryName}) for the templates",
                             Filter = "Story Files (*.story)|*.story",
                             InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
-                            RestoreDirectory = false
-
+                            RestoreDirectory = false,
+                            FileName = this.FileName + ".story"
                         };
                     }
                     else//character file
                     {
                         selectFileDialog = new OpenFileDialog
                         {
-                            Title = "Choose the character file of your story for the templates",
+                            Title = $"Choose the character file ({FileName}) for the templates",
                             Filter = "Character Files (*.character)|*.character",
                             InitialDirectory = Properties.Settings.Default.story_path.Length > 0 ? Properties.Settings.Default.story_path : @"C:\Users\%USER%\Documents",
-                            RestoreDirectory = false
+                            RestoreDirectory = false,
+                            FileName = this.FileName + ".character"
                         };
                     }
 
@@ -169,41 +170,6 @@ namespace HousePartyTranslator
                 return nodes;
             }
             return null;
-        }
-
-        private List<Node> CalculateForceDirectedLayoutCpp(List<Node> _nodes)
-        {
-            /*
-            //prepare the arrays
-            int[] x = new int[_nodes.Count], y = new int[_nodes.Count], mass = new int[_nodes.Count];
-            //prepare the edges
-            int[] node_1 = new int[_nodes.Count * 2], node_2 = new int[_nodes.Count * 2];
-            int nodeConnectionCount = 0;
-
-            for (int i = 0; i < _nodes.Count; i++)
-            {
-                x[i] = _nodes[i].Position.X;
-                y[i] = _nodes[i].Position.Y;
-                mass[i] = _nodes[i].Mass;
-
-                for (int j = 0; j < _nodes[i].ChildNodes.Count; j++)
-                {
-                    node_1[nodeConnectionCount] = i;
-                    node_2[nodeConnectionCount++] = _nodes.FindIndex(n => n == _nodes[i].ChildNodes[j]);
-                }
-            }
-
-            FastNative.do_graph_physics(x, y, mass, _nodes.Count, node_1, node_2, nodeConnectionCount);
-
-            for (int i = 0; i < _nodes.Count; i++)
-            {
-                _nodes[i].Position.X = x[i];
-                _nodes[i].Position.Y = y[i];
-                _nodes[i].Mass = mass[i];
-            }
-
-            return _nodes;*/
-            return CalculateForceDirectedLayout(nodes);
         }
 
         private List<Node> CalculateForceDirectedLayout(List<Node> nodes)
@@ -301,7 +267,7 @@ namespace HousePartyTranslator
             return nodes;
         }
 
-        private List<Tuple<int, int>> GetEdges(List<Node> _nodes)
+        public List<Tuple<int, int>> GetEdges(List<Node> _nodes)
         {
             var returnList = new List<Tuple<int, int>>();
 
@@ -389,7 +355,6 @@ namespace HousePartyTranslator
                 {
                     //set gender of childs of the event this criterion is part of if we have a gender comparison
 
-
                     //if the criterion has already been seen before
                     Node criterionInFile = CriteriaInFile.Find(n => n.Guid == node.Guid);
                     if (criterionInFile != null)//has been seen before
@@ -449,9 +414,8 @@ namespace HousePartyTranslator
                     nodes = CalculateStartingPositions(nodes);
 
                     //render and do the force driven calculation thingies
-                    nodes = CalculateForceDirectedLayoutCpp(nodes);
+                    nodes = CalculateForceDirectedLayout(nodes);
                 }
-
             }
         }
 
@@ -484,9 +448,8 @@ namespace HousePartyTranslator
                     nodes = CalculateStartingPositions(nodes);
 
                     //render and do the force driven calculation thingies
-                    nodes = CalculateForceDirectedLayoutCpp(nodes);
+                    nodes = CalculateForceDirectedLayout(nodes);
                 }
-
             }
         }
 
@@ -590,10 +553,7 @@ namespace HousePartyTranslator
             {
                 Node node = nodes.Find(n => n.ID == next.Item2.ToString());
 
-                if (node != null)
-                {
-                    node.AddParentNode(next.Item1);
-                }
+                node?.AddParentNode(next.Item1);
             }
 
             responseDialogueLinks.Clear();

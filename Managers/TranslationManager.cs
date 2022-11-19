@@ -198,38 +198,16 @@ namespace HousePartyTranslator.Managers
                 if (data.Count == 0)
                 {//its a custom story but no template so far on the server
                  //use contextprovider to extract the story object and get the lines
-                    if (Msg.InfoYesNoCancelB($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?"))
+                    DialogResult typeResult;
+                    if ((typeResult = Msg.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?")) != DialogResult.Cancel)
                     {
-                        bool isStory = result == DialogResult.No;
-                        var explorer = new ContextProvider(isStory, false, FileName, StoryName, null);
-                        List<Node> nodes = explorer.GetTemplateNodes();
-                        if (nodes != null)
+                        FileData templates = GetTemplatesFromStoryFile(typeResult == DialogResult.No);
+                        if (templates.Count > 0)
                         {
-                            Application.UseWaitCursor = true;
-                            //remove old lines from server
                             _ = DataBase.RemoveOldTemplates(FileName, story);
-
-                            var templates = new FileData
-                            {
-                                //add name as first template (its not in the file)
-                                { "Name", new LineData("Name", story, FileName, StringCategory.General, FileName) }
-                            };
-
-                            //Add all new lines, but check if they are relevant
-                            for (int i = 0; i < nodes.Count; i++)
-                            {
-                                //filter out irrelevant nodes
-                                if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) && nodes[i].Type == NodeType.Event)
-                                    && nodes[i].Type.AsStringCategory() != StringCategory.Neither
-                                    && nodes[i].ID != "")
-                                {
-                                    templates.Add(nodes[i].ID, new LineData(nodes[i].ID, story, FileName, nodes[i].Type.AsStringCategory(), nodes[i].Text, true));
-                                }
-                            }
-
                             _ = DataBase.UploadTemplates(templates);
 
-                            Application.UseWaitCursor = false;
+                            UIHandler.SignalAppUnWait();
                             return true;
                         }
                         _ = Msg.ErrorOk("Something broke, please try again.");
@@ -241,7 +219,7 @@ namespace HousePartyTranslator.Managers
                 }
             }
 
-            Application.UseWaitCursor = false;
+            UIHandler.SignalAppUnWait();
             return false;
         }
 
@@ -303,6 +281,9 @@ namespace HousePartyTranslator.Managers
             if (path.Length > 0)
             {
                 ShowAutoSaveDialog();
+                //clear history if we have a new file, we dont need old one anymore
+                if (path != SourceFilePath)
+                    History.ClearForFile(FileName, StoryName);
                 ResetTranslationManager();
 
                 MainWindow.Cursor = Cursors.WaitCursor;
@@ -564,6 +545,8 @@ namespace HousePartyTranslator.Managers
             _ = Fenster.ProgressbarWindow.Focus();
             Fenster.ProgressbarWindow.ProgressBar.Value = 10;
             MainWindow.Cursor = Cursors.WaitCursor;
+
+            History.ClearForFile(FileName, StoryName);
 
             if (SourceFilePath == "" || Language == "") return;
             if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = Msg.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
@@ -1040,7 +1023,7 @@ namespace HousePartyTranslator.Managers
             }
             else if (result == DialogResult.Cancel)
             {
-                Application.Exit();
+                UIHandler.SignalAppExit();
             }
         }
 
@@ -1099,8 +1082,15 @@ namespace HousePartyTranslator.Managers
             MainWindow.Cursor = Cursors.WaitCursor;
 
             bool lineIsApproved = false;
-            _ = DataBase.GetAllLineData(FileName, StoryName, out FileData onlineLines, Language);
             int currentIndex = 0;
+            FileData onlineLines;
+
+            if (DataBase.IsOnline)
+                //get template lines from online
+                _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
+            else
+                //get template lines from user if they want
+                onlineLines = GetTemplatesFromUser();
 
             foreach (string key in TranslationData.Keys)
             {
@@ -1108,13 +1098,14 @@ namespace HousePartyTranslator.Managers
                 {
                     lineIsApproved = tempLine.IsApproved;
                     TranslationData[key].Category = tempLine.Category;
-                    TranslationData[key].Comments = tempLine.Comments;
+                    if (DataBase.IsOnline) TranslationData[key].Comments = tempLine.Comments;
                     TranslationData[key].FileName = tempLine.FileName;
                     TranslationData[key].ID = tempLine.ID;
                     TranslationData[key].IsTemplate = false;
                     TranslationData[key].IsTranslated = tempLine.IsTranslated;
                     TranslationData[key].Story = tempLine.Story;
-                    if (!localTakesPriority) TranslationData[key].TranslationString = tempLine.TranslationString;
+                    if (!localTakesPriority && DataBase.IsOnline) TranslationData[key].TranslationString = tempLine.TranslationString;
+                    else if (!DataBase.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
                     TranslationData[key].IsApproved = false;
                 }
 
@@ -1145,6 +1136,55 @@ namespace HousePartyTranslator.Managers
             MainWindow.Cursor = Cursors.Default;
         }
 
+        private FileData GetTemplatesFromUser()
+        {
+            if (Msg.InfoYesNoB("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?"))
+            {
+                return GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}\\{FileName}.", FileName + ".txt"), false);
+            }
+            else
+            {
+                //if user doesnt have dons templates, we can still get them from the games files.
+                return GetTemplatesFromStoryFile(FileName == StoryName);
+            }
+        }
+
+        private FileData GetTemplatesFromStoryFile(bool isStory)
+        {
+            UIHandler.SignalAppWait();
+            var explorer = new ContextProvider(isStory, false, FileName, StoryName, null);
+            List<Node> nodes = explorer.GetTemplateNodes();
+            if (nodes != null)
+            {
+                var templates = new FileData
+                            {
+                                //add name as first template (its not in the file)
+                                { "Name", new LineData("Name", StoryName, FileName, StringCategory.General, FileName) }
+                            };
+
+                //Add all new lines, but check if they are relevant
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    //filter out irrelevant nodes
+                    if (!(
+                            (int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) 
+                            && nodes[i].Type == NodeType.Event)
+                        && nodes[i].Type.AsStringCategory() != StringCategory.Neither
+                        && nodes[i].ID != "")
+                    {
+                        templates[nodes[i].ID] = new LineData(nodes[i].ID, StoryName, FileName, nodes[i].Type.AsStringCategory(), nodes[i].Text, true);
+                    }
+                }
+
+                UIHandler.SignalAppUnWait();
+                return templates;
+            }
+
+            _ = Msg.ErrorOk("Something broke, please try again.");
+            UIHandler.SignalAppUnWait();
+            return new FileData();
+        }
+
         /// <summary>
         /// Reads the strings depending on whether its a template or not.
         /// </summary>
@@ -1153,7 +1193,7 @@ namespace HousePartyTranslator.Managers
             //read in all strings with IDs
             if (isTemplate && DataBase.IsOnline)//read in templates
             {
-                ReadStringsTemplateFromFile();
+                TranslationData = GetTemplateFromFile(SourceFilePath);
             }
             else //read in translations
             {
@@ -1166,14 +1206,21 @@ namespace HousePartyTranslator.Managers
         ///
         /// loads all the strings from the selected file into a list of LineData elements.
         /// </summary>
-        private void ReadStringsTemplateFromFile()
+        private FileData GetTemplateFromFile(string path, bool doIterNumbers = true)
         {
+            if (Path.GetFileNameWithoutExtension(path) != FileName)
+            {
+                Msg.WarningOk("The template file must have the same name as the file you want to translate!");
+                return new FileData();
+            }
+
+            var fileData = new FileData();
             StringCategory currentCategory = StringCategory.General;
             string multiLineCollector = "";
             string[] lastLine = { };
             //string[] lastLastLine = { };
             //read in lines
-            var LinesFromFile = File.ReadAllLines(SourceFilePath).ToList();
+            var LinesFromFile = File.ReadAllLines(path).ToList();
             //remove last if empty, breaks line lioading for the last
             while (LinesFromFile.Last() == "") _ = LinesFromFile.Remove(LinesFromFile.Last());
             //load lines and their data and split accordingly
@@ -1182,7 +1229,7 @@ namespace HousePartyTranslator.Managers
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) TranslationData[(++templateCounter).ToString() + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                    if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : "" + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
 
                     //get current line
                     lastLine = line.Split('|');
@@ -1201,7 +1248,7 @@ namespace HousePartyTranslator.Managers
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) TranslationData[(++templateCounter).ToString() + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                        if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : "" + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
                         lastLine = new string[0];
                         multiLineCollector = "";
                         currentCategory = tempCategory;
@@ -1209,7 +1256,9 @@ namespace HousePartyTranslator.Managers
                 }
             }
             //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) TranslationData[(++templateCounter).ToString() + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true);
+            if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : "" + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true);
+
+            return fileData;
         }
 
         /// <summary>
@@ -1253,7 +1302,7 @@ namespace HousePartyTranslator.Managers
                 {
                     TryFixEmptyFile();
                 }
-                else if (!SoftwareVersionManager.UpdatePending && Form.ActiveForm != null)
+                else if (!SoftwareVersionManager.UpdatePending && Form.ActiveForm != null && DataBase.IsOnline)
                     //inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
                     //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
                     _ = Msg.InfoOk(

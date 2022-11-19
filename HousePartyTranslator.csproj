@@ -283,7 +283,6 @@
     <Compile Include="Helpers\IEvent.cs" />
     <Compile Include="Helpers\LanguageHelper.cs" />
     <Compile Include="Helpers\Items.cs" />
-    <Compile Include="Helpers\FastNative.cs" />
     <Compile Include="Helpers\Msg.cs" />
     <Compile Include="Helpers\Node.cs" />
     <Compile Include="Helpers\SerializeableNode.cs" />
@@ -294,6 +293,7 @@
     <Compile Include="Managers\RecentsManager.cs" />
     <Compile Include="Managers\SoftwareVersionManager.cs" />
     <Compile Include="Managers\TabManager.cs" />
+    <Compile Include="Managers\UIHandler.cs" />
     <Compile Include="ProgressbarForm\ProgressWindow.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -418,8 +418,7 @@
   <Import Project="packages\7z.NET.1.0.3\build\7z.NET.targets" Condition="Exists('packages\7z.NET.1.0.3\build\7z.NET.targets')" />
   <Import Project="packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets" Condition="Exists('packages\NETStandard.Library.2.0.3\build\netstandard2.0\NETStandard.Library.targets')" />
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Release copy ..\..\x64\Release\force_directed_graph.dll .\force_directed_graph.dll
-if $(ConfigurationName) == Release .\..\Debug\7za.exe u ".\Release.7z" .\HousePartyTranslator.exe .\HousePartyTranslator.exe.config .\7za.exe .\force_directed_graph.dll
+    <PostBuildEvent>if $(ConfigurationName) == Release .\..\Debug\7za.exe u ".\Release.7z" .\HousePartyTranslator.exe .\HousePartyTranslator.exe.config .\7za.exe
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

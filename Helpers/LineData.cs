@@ -28,6 +28,7 @@ internal sealed class LineData
         ID = id;
         TemplateString = english;
         Story = story;
+        IsTranslated = true;
         FileName = filename;
         Category = category;
         IsTemplate = isTemplate;

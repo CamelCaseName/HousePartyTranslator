@@ -88,7 +88,7 @@ namespace HousePartyTranslator.Managers
         /// <param name="filepath">The path to set as most recent</param>
         public static void SetMostRecent(string filepath)
         {//if we dont ignore recents, keep number near 0 so we dont underflow
-            if (ignorenextRecents-- <= 0)
+            if (--ignorenextRecents <= 0 && filepath.Length > 0)
             {
                 if (filepath.Length > 0) recents.Insert(0, filepath);
                 if (recents.Count > 5) recents.RemoveRange(5, recents.Count - 5);
@@ -168,6 +168,7 @@ namespace HousePartyTranslator.Managers
         private static void RecentsManager_Click(object sender, EventArgs e)
         {
             TranslationManager translationManager = TabManager.ActiveTranslationManager;
+            translationManager.ShowAutoSaveDialog();
             translationManager.LoadFileIntoProgram(((ToolStripMenuItem)sender).Text);
             if (Properties.Settings.Default.autoLoadRecentIndex) translationManager.SelectLine(recentIndex);
         }
