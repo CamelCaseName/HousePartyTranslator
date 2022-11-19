@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Translator.UICompatibilityLayer
 {
@@ -18,6 +19,20 @@ namespace Translator.UICompatibilityLayer
     public class MenuItems
     {
         public readonly List<IMenuItem> Items = new();
+        public IMenuItem this[int index]
+        {
+            get { return Items[index]; }
+            set { Items[index] = value; }
+        }
+        public int Count { get { return Items.Count; } }
+
+        internal void Insert<MenuItemType>(int v, MenuItemType menuItem) where MenuItemType : class, IMenuItem {
+            Items.Insert(v, menuItem);
+        }
+        internal void RemoveAt(int v)
+        {
+            Items.RemoveAt(v);
+        }
     }
 
     public interface IMenuItem
