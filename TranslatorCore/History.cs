@@ -1,5 +1,8 @@
 ﻿using Translator.Helpers;
 using System.Runtime.CompilerServices;
+using System;
+using System.Collections.Generic;
+using UICompatibilityLayer;
 
 namespace Translator.Core
 {
@@ -42,7 +45,7 @@ namespace Translator.Core
 
         public static ICommand Peek()
         {
-            return history.Count > 0 ? history.Peek() : new ICommandInstance();
+            return history.Count > 0 ? history.Peek() : new NoneCommand();
         }
 
         /// <summary>
@@ -132,12 +135,12 @@ namespace Translator.Core
         void Undo();
     }
 
-    internal sealed class ICommandInstance : ICommand
+    internal sealed class NoneCommand : ICommand
     {
         public string FileName { get => "none"; set { } }
         public string StoryName { get => "none"; set { } }
 
-        public ICommandInstance() { }
+        public NoneCommand() { }
 
         public void Do() { }
         public void Undo() { }
@@ -145,10 +148,10 @@ namespace Translator.Core
 
     internal sealed class TextAdded : ICommand
     {
-        readonly TextBox TextBox;
+        readonly ITextBox TextBox;
         readonly string AddedText;
 
-        public TextAdded(TextBox textBox, string addedText, string fileName, string storyName)
+        public TextAdded(ITextBox textBox, string addedText, string fileName, string storyName)
         {
             TextBox = textBox;
             AddedText = addedText;
@@ -172,10 +175,10 @@ namespace Translator.Core
 
     internal sealed class TextRemoved : ICommand
     {
-        readonly TextBox TextBox;
+        readonly ITextBox TextBox;
         readonly string RemovedText;
 
-        public TextRemoved(TextBox textBox, string removedText, string fileName, string storyName)
+        public TextRemoved(ITextBox textBox, string removedText, string fileName, string storyName)
         {
             TextBox = textBox;
             RemovedText = removedText;
@@ -199,11 +202,11 @@ namespace Translator.Core
 
     internal sealed class TextChanged : ICommand
     {
-        readonly TextBox TextBox;
+        readonly ITextBox TextBox;
         readonly string oldText;
         readonly string newText;
 
-        public TextChanged(TextBox textBox, string oldText, string newText, string fileName, string storyName)
+        public TextChanged(ITextBox textBox, string oldText, string newText, string fileName, string storyName)
         {
             TextBox = textBox;
             this.oldText = oldText;
@@ -231,8 +234,8 @@ namespace Translator.Core
     internal sealed class ApprovedChanged : ICommand
     {
         readonly int index;
-        readonly ColouredCheckedListBox ListBox;
-        public ApprovedChanged(int selectedIndex, ColouredCheckedListBox listBox, string fileName, string storyName)
+        readonly LineList ListBox;
+        public ApprovedChanged(int selectedIndex, LineList listBox, string fileName, string storyName)
         {
             index = selectedIndex;
             ListBox = listBox;
@@ -245,12 +248,12 @@ namespace Translator.Core
 
         public void Do()
         {
-            ListBox.SetItemCheckState(index, ListBox.GetItemChecked(index) ? System.Windows.Forms.CheckState.Unchecked : System.Windows.Forms.CheckState.Checked);
+            ListBox.SetApprovalState(index, !ListBox.GetApprovalState(index));
         }
 
         public void Undo()
         {
-            ListBox.SetItemCheckState(index, ListBox.GetItemChecked(index) ? System.Windows.Forms.CheckState.Unchecked : System.Windows.Forms.CheckState.Checked);
+            ListBox.SetApprovalState(index, !ListBox.GetApprovalState(index));
         }
     }
 
@@ -258,8 +261,8 @@ namespace Translator.Core
     {
         readonly int oldIndex;
         readonly int newIndex;
-        readonly ColouredCheckedListBox ListBox;
-        public SelectedLineChanged(ColouredCheckedListBox listBox, int oldIndex, int newIndex, string fileName, string storyName)
+        readonly LineList ListBox;
+        public SelectedLineChanged(LineList listBox, int oldIndex, int newIndex, string fileName, string storyName)
         {
             this.oldIndex = oldIndex;
             this.newIndex = newIndex;

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
 
 namespace UICompatibilityLayer
 {
@@ -29,20 +27,126 @@ namespace UICompatibilityLayer
         EventHandler OnClick { get; init; }
     }
 
+    public interface ITextBox
+    {
+        public EventHandler OnClick { get; init; }
+        public EventHandler OnTextChanged { get; init; }
+        public int SelectionEnd { get; set; }
+        public int SelectionStart { get; set; }
+        public string Text { get; set; }
+        public void Focus();
+    }
+
     public class LineList
     {
         public readonly List<ILineItem> Items = new();
+        public ILineItem SelectedLineItem { get; set; }
+        public LineList() : this(new List<ILineItem>()) { }
+        public LineList(List<ILineItem> items, ILineItem selectedLineItem, int selectedIndex)
+        {
+            Items = items;
+            SelectedLineItem = selectedLineItem;
+            SelectedIndex = selectedIndex;
+        }
+        public LineList(List<ILineItem> items)
+        {
+            Items = items;
+            SelectedLineItem = items.Count > 0 ? items[0] : new NullLineItem();
+            SelectedIndex = items.Count > 0 ? 0 : -1;
+        }
+        public void ApproveItem(int index)
+        {
+            try
+            {
+                Items[index].Approve();
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
+        public void Clear()
+        {
+            Items.Clear();
+        }
+        public void AddLineItem(ILineItem item)
+        {
+            Items.Add(item);
+        }
+        public void RemoveLineItem(ILineItem item)
+        {
+            Items.Remove(item);
+        }
+        public void UnapproveItem(int index)
+        {
+            try
+            {
+                Items[index].Unapprove();
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
+        public void SetApprovalState(int index, bool isApproved)
+        {
+            try
+            {
+                Items[index].IsApproved = isApproved;
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
+        public bool GetApprovalState(int index)
+        {
+            try
+            {
+                return Items[index].IsApproved;
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
+        private int _InternalSelectedIndex { get; set; }
+        public int SelectedIndex { get { return _InternalSelectedIndex; } set { SelectIndex(value); } }
+        public void SelectIndex(int index)
+        {
+            try
+            {
+                _InternalSelectedIndex = index;
+                SelectedLineItem = Items[index];
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
     }
 
     public interface ILineItem
     {
         public string Text { get; init; }
-        public bool IsApproved { get; }
+        public bool IsApproved { get; set; }
         public bool IsTranslated { get; set; }
         public bool IsSearchResult { get; set; }
         EventHandler OnClick { get; init; }
         void Approve();
         void Unapprove();
+    }
+
+    public class NullLineItem : ILineItem
+    {
+        public string Text { get => string.Empty; init { } }
+        public bool IsApproved { get => false; set { } }
+        public bool IsTranslated { get => false; set { } }
+        public bool IsSearchResult { get => false; set { } }
+        public EventHandler OnClick { get { return new((object? sender, EventArgs e) => { }); } init { } }
+
+        public void Approve() { }
+        public void Unapprove() { }
     }
 
     public interface IUIHandler
