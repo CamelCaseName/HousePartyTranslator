@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Translator.UICompatibilityLayer;
+using Translator.Core.Helpers;
 
 namespace Translator.Core
 {
     public static class History
     {
-        private static readonly Stack<ICommand> history = new Stack<ICommand>();
-        private static readonly Stack<ICommand> future = new Stack<ICommand>();
-        public static bool CausedByHistory = false;
+        private static readonly Stack<ICommand> history = new();
+        private static readonly Stack<ICommand> future = new();
+        private static bool CausedByHistory = false;
 
 #if TRACE
         public static void AddAction(ICommand command, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerName = "", [CallerLineNumber] int lineNumber = 0)
@@ -44,7 +45,7 @@ namespace Translator.Core
 
         public static ICommand Peek()
         {
-            return history.Count > 0 ? history.Peek() : new NoneCommand();
+            return history.Count > 0 ? history.Peek() : NullCommand.Instance;
         }
 
         /// <summary>
@@ -134,12 +135,13 @@ namespace Translator.Core
         void Undo();
     }
 
-    public sealed class NoneCommand : ICommand
+    public sealed class NullCommand : ICommand
     {
+        public static NullCommand Instance { get; } = new();
         public string FileName { get => "none"; set { } }
         public string StoryName { get => "none"; set { } }
 
-        public NoneCommand() { }
+        public NullCommand() { }
 
         public void Do() { }
         public void Undo() { }

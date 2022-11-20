@@ -7,10 +7,7 @@ namespace Translator.Core
     public static class RecentsManager
     {
         private static readonly List<string> recents = new(5);
-        /// <summary>
-        /// Set to the number of recents set you want to ignore, used for the first one on startup here
-        /// </summary>
-        public static int IgnoreNextRecents = 0;
+        private static int IgnoreNextRecents = 0;
         private static int maxNumberOfMenuItems = 0;
         private static int recentIndex = -1;
 
@@ -79,7 +76,7 @@ namespace Translator.Core
             Settings.Default.Recents2 = recents.Count > 2 ? recents[2] : "";
             Settings.Default.Recents3 = recents.Count > 3 ? recents[3] : "";
             Settings.Default.Recents4 = recents.Count > 4 ? recents[4] : "";
-            Settings.Default.RecentIndex = TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex ?? 0;
+            Settings.Default.RecentIndex = TabManager.ActiveUI.SelectedLineIndex();
 
             //save settings
             Settings.Default.Save();

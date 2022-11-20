@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Text;
 using Translator.UICompatibilityLayer;
+using Translator.Core.Helpers;
 
 namespace Translator.Core
 {

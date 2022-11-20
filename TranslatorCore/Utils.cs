@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
+using Translator.UICompatibilityLayer;
 
 namespace Translator.Core.Helpers
 {
@@ -278,7 +279,7 @@ namespace Translator.Core.Helpers
         /// <param name="form"></param>
         /// <returns>a TabPage with all controls as child controls</returns>
         
-        public static TabPage? CreateNewTab(int number, Fenster? form)
+        public static ITab? CreateNewTab(int number)
         {
             if (form == null) return null;
             var newTab = new TabPage()

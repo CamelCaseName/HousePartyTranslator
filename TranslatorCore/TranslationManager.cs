@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Text;
+using Translator.UICompatibilityLayer;
 using Timer = System.Windows.Forms.Timer;
 
 //TODO add tests
@@ -47,12 +48,12 @@ namespace Translator.Core
         private bool selectedNew = false;
         private string sourceFilePath = "";
         private string storyName = "";
-        private readonly PropertyHelper? helper;
+        private readonly IUIHandler? helper;
         private bool triedFixingOnce = false;
         private bool triedSavingFixOnce = false;
 
         
-        public TranslationManager(PropertyHelper? _helper)
+        public TranslationManager(IUIHandler _helper)
         {
             this.helper = _helper;
             AutoSaveTimer.Tick += SaveFileHandler;
@@ -863,7 +864,7 @@ namespace Translator.Core
         /// <param name="index">The index to select</param>
         public static void SelectLine(int index)
         {
-            if (index >= 0 && index < TabManager.ActiveProperties?.CheckListBoxLeft.Items.Count) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = index;
+            if (index >= 0 && index < TabManager.ActiveUI?.CheckListBoxLeft.Items.Count) TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex = index;
         }
 
         /// <summary>

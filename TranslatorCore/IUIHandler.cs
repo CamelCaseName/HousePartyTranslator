@@ -64,7 +64,7 @@ namespace Translator.UICompatibilityLayer
         public LineList(List<ILineItem> items)
         {
             Items = items;
-            SelectedLineItem = items.Count > 0 ? items[0] : new NullLineItem();
+            SelectedLineItem = items.Count > 0 ? items[0] : NullLineItem.Instance;
             SelectedIndex = items.Count > 0 ? 0 : -1;
         }
         public void ApproveItem(int index)
@@ -123,13 +123,13 @@ namespace Translator.UICompatibilityLayer
                 throw new IndexOutOfRangeException("Given index was too big for the array");
             }
         }
-        private int _publicSelectedIndex { get; set; }
-        public int SelectedIndex { get { return _publicSelectedIndex; } set { SelectIndex(value); } }
+        private int InternalSelectedIndex { get; set; }
+        public int SelectedIndex { get { return InternalSelectedIndex; } set { SelectIndex(value); } }
         public void SelectIndex(int index)
         {
             try
             {
-                _publicSelectedIndex = index;
+                InternalSelectedIndex = index;
                 SelectedLineItem = Items[index];
             }
             catch
@@ -152,6 +152,7 @@ namespace Translator.UICompatibilityLayer
 
     public class NullLineItem : ILineItem
     {
+        public static NullLineItem Instance { get; } = new NullLineItem();
         public string Text { get => string.Empty; init { } }
         public bool IsApproved { get => false; set { } }
         public bool IsTranslated { get => false; set { } }
@@ -160,6 +161,108 @@ namespace Translator.UICompatibilityLayer
 
         public void Approve() { }
         public void Unapprove() { }
+    }
+
+    public class NullTabController : ITabController
+    {
+        public static NullTabController Instance { get; } = new NullTabController();
+
+        public ITab SelectedTab { get => NullTab.Instance; set { } }
+
+        List<ITab> ITabController.TabPages { get; } = new();
+
+        public bool CloseTab(ITab tab) => throw new NotImplementedException();
+    }
+
+    public interface ITabController
+    {
+        ITab SelectedTab { get; set; }
+        List<ITab> TabPages { get; }
+        int SelectedIndex { get; set; }
+        int TabCount { get; }
+
+        bool CloseTab(ITab tab);
+    }
+
+    public class NullTab : ITab
+    {
+        public static NullTab Instance { get; } = new NullTab();
+
+        public void Dispose() => throw new NotImplementedException();
+    }
+    public interface ITab
+    {
+        string Text { get; set; }
+
+        void Dispose();
+    }
+
+    public class NullUIHandler : IUIHandler
+    {
+        public static NullUIHandler Instance { get; } = new NullUIHandler();
+
+        public void ApproveSelectedLine() => throw new NotImplementedException();
+        public void ClearLines() => throw new NotImplementedException();
+        public PopupResult ErrorOk(string message, string title = "Error") => throw new NotImplementedException();
+        public PopupResult ErrorOkCancel(string message, string title = "Error") => throw new NotImplementedException();
+        public bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
+        public PopupResult ErrorYesNo(string message, string title = "Error") => throw new NotImplementedException();
+        public bool ErrorYesNo(string message, string title = "Error", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
+        public PopupResult ErrorYesNoCancel(string message, string title = "Error") => throw new NotImplementedException();
+        public bool ErrorYesNoCancel(string message, string title = "Error", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
+        public void FocusCommentBox() => throw new NotImplementedException();
+        public void FocusReplaceBar() => throw new NotImplementedException();
+        public void FocusSearchBar() => throw new NotImplementedException();
+        public void FocusTranslationBox() => throw new NotImplementedException();
+        public string GetCommentBoxText() => throw new NotImplementedException();
+        public MenuItems GetFileMenuItems() => throw new NotImplementedException();
+        public ILineItem GetLineItem(int index) => throw new NotImplementedException();
+        public LineList GetLines() => throw new NotImplementedException();
+        public string GetReplaceBarText() => throw new NotImplementedException();
+        public string GetSearchBarText() => throw new NotImplementedException();
+        public string GetTemplateBoxText() => throw new NotImplementedException();
+        public string GetTranslationBoxText() => throw new NotImplementedException();
+        public PopupResult InfoOk(string message, string title = "Info") => throw new NotImplementedException();
+        public PopupResult InfoOkCancel(string message, string title = "Info") => throw new NotImplementedException();
+        public bool InfoOkCancel(string message, string title = "Info", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
+        public PopupResult InfoYesNo(string message, string title = "Info") => throw new NotImplementedException();
+        public bool InfoYesNo(string message, string title = "Info", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
+        public PopupResult InfoYesNoCancel(string message, string title = "Info") => throw new NotImplementedException();
+        public bool InfoYesNoCancel(string message, string title = "Info", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
+        public bool Login() => throw new NotImplementedException();
+        public bool Logout() => throw new NotImplementedException();
+        public string SelectedCommentBoxText() => throw new NotImplementedException();
+        public int SelectedLineIndex() => throw new NotImplementedException();
+        public ILineItem SelectedLineItem() => throw new NotImplementedException();
+        public string SelectedTemplateBoxText() => throw new NotImplementedException();
+        public string SelectedTranslationBoxText() => throw new NotImplementedException();
+        public void SelectLineItem(int index) => throw new NotImplementedException();
+        public void SelectLineItem(ILineItem item) => throw new NotImplementedException();
+        public void SetCommentBoxText(string text) => throw new NotImplementedException();
+        public void SetFileMenuItems(MenuItems menuItems) => throw new NotImplementedException();
+        public void SetLines(LineList lines) => throw new NotImplementedException();
+        public void SetReplaceBarText(string replacement) => throw new NotImplementedException();
+        public void SetSearchBarText(string query) => throw new NotImplementedException();
+        public void SetSelectedCommentBoxText(int start, int end) => throw new NotImplementedException();
+        public void SetSelectedTemplateBoxText(int start, int end) => throw new NotImplementedException();
+        public void SetSelectedTranslationBoxText(int start, int end) => throw new NotImplementedException();
+        public void SetTemplateBoxText(string text) => throw new NotImplementedException();
+        public void SetTitle(string title) => throw new NotImplementedException();
+        public void SetTranslationBoxText(string text) => throw new NotImplementedException();
+        public void SignalAppExit() => throw new NotImplementedException();
+        public void SignalUserEndWait() => throw new NotImplementedException();
+        public void SignalUserWait() => throw new NotImplementedException();
+        public void UnapproveSelectedLine() => throw new NotImplementedException();
+        public void Update() => throw new NotImplementedException();
+        public void UpdateLines() => throw new NotImplementedException();
+        public void UpdateResults() => throw new NotImplementedException();
+        public PopupResult WarningOk(string message, string title = "Warning") => throw new NotImplementedException();
+        public PopupResult WarningOkCancel(string message, string title = "Warning") => throw new NotImplementedException();
+        public bool WarningOkCancel(string message, string title = "Warning", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
+        public PopupResult WarningYesNo(string message, string title = "Warning") => throw new NotImplementedException();
+        public bool WarningYesNo(string message, string title = "Warning", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
+        public PopupResult WarningYesNoCancel(string message, string title = "Warning") => throw new NotImplementedException();
+        public bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
     }
 
     public interface IUIHandler
@@ -271,6 +374,7 @@ namespace Translator.UICompatibilityLayer
         #region file access/system access
         void SignalAppExit();
         void Update();
+        void ClipboardSetText(string text);
         #endregion
 
         #region tabs
