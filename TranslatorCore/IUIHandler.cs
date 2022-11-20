@@ -169,6 +169,10 @@ namespace Translator.UICompatibilityLayer
 
         public ITab SelectedTab { get => NullTab.Instance; set { } }
 
+        public int SelectedIndex { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public int TabCount => throw new NotImplementedException();
+
         List<ITab> ITabController.TabPages { get; } = new();
 
         public bool CloseTab(ITab tab) => throw new NotImplementedException();
@@ -187,6 +191,7 @@ namespace Translator.UICompatibilityLayer
     public class NullTab : ITab
     {
         public static NullTab Instance { get; } = new NullTab();
+        public string Text { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public void Dispose() => throw new NotImplementedException();
     }
@@ -201,8 +206,11 @@ namespace Translator.UICompatibilityLayer
     {
         public static NullUIHandler Instance { get; } = new NullUIHandler();
 
+        public ITabController TabControl => throw new NotImplementedException();
+
         public void ApproveSelectedLine() => throw new NotImplementedException();
         public void ClearLines() => throw new NotImplementedException();
+        public void ClipboardSetText(string text) => throw new NotImplementedException();
         public PopupResult ErrorOk(string message, string title = "Error") => throw new NotImplementedException();
         public PopupResult ErrorOkCancel(string message, string title = "Error") => throw new NotImplementedException();
         public bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
@@ -267,6 +275,7 @@ namespace Translator.UICompatibilityLayer
 
     public interface IUIHandler
     {
+        ITabController TabControl { get; }
         #region cursor
         void SignalUserWait();
         void SignalUserEndWait();

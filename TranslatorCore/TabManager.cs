@@ -8,7 +8,7 @@ namespace Translator.Core
     public static class TabManager
     {
         public static bool InGlobalSearch { get; private set; } = false;
-        private static ITabController TabControl;
+        private static ITabController TabControl = new NullTabController; 
         private static int lastIndex = 0;
         private static readonly Dictionary<ITab, IUIHandler> handlers = new();
         private static readonly Dictionary<ITab, TranslationManager> translationManagers = new();
@@ -59,12 +59,12 @@ namespace Translator.Core
         /// </summary>
         /// <param name="tab1">The initial tab</param>
 
-        public static TranslationManager Initialize(ITab tab1, ITabController tabControl)
+        public static TranslationManager Initialize(ITab tab1, IUIHandler ui)
         {
-            TabControl = tabControl;
+            TabControl = ui.TabControl;
 
             //create new translationmanager to use with the tab open right now
-            handlers.Add(tab1, CreateActivePropertyHelper());
+            handlers.Add(tab1, ui);
             translationManagers.Add(tab1, new TranslationManager(ActiveUI));
 
             return translationManagers[tab1];
@@ -74,9 +74,9 @@ namespace Translator.Core
         /// Does all the logic to open a file in a new tab
         /// </summary>
 
-        public static void OpenNewTab()
+        public static void OpenNewTab(IUIHandler ui)
         {
-            OpenInNewTab(Utils.SelectFileFromSystem());
+            OpenInNewTab(Utils.SelectFileFromSystem(), ui);
         }
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace Translator.Core
         /// </summary>
         /// <param name="path">path to the file to open</param>
 
-        public static void OpenInNewTab(string path)
+        public static void OpenInNewTab(string path, IUIHandler ui)
         {
             if (path.Length > 0)
             {
@@ -95,7 +95,7 @@ namespace Translator.Core
                 //select new tab
                 TabControl.SelectedTab = newTab;
                 //create support dict
-                handlers.Add(newTab, CreateActivePropertyHelper());
+                handlers.Add(newTab, ui);
                 var t = new TranslationManager(ActiveUI);
                 translationManagers.Add(newTab, t);
 
@@ -109,7 +109,7 @@ namespace Translator.Core
         /// Does all the logic to open all files form a story in tabs
         /// </summary>
 
-        public static void OpenAllTabs()
+        public static void OpenAllTabs(IUIHandler ui)
         {
             string basePath = Utils.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
 
@@ -136,7 +136,7 @@ namespace Translator.Core
                 {
                     if (Path.GetExtension(filePath) == ".txt")
                     {
-                        OpenInNewTab(filePath);
+                        OpenInNewTab(filePath, ui);
                     }
                 }
             }
@@ -341,32 +341,6 @@ namespace Translator.Core
         public static void CopyTemplate()
         {
             ActiveUI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].TemplateString ?? "");
-        }
-
-        private static IUIHandler CreateActivePropertyHelper()
-        {
-            while (!Main?.Visible ?? true && Main == null)
-            {
-
-            }
-            if (Main == null) throw new NullReferenceException();
-            Fenster fenster = Main;
-            return new PropertyHelper(
-                (CheckBox)TabControl.SelectedTab.Controls.Find("ApprovedBox", true)[0],
-                (ColouredCheckedListBox)TabControl.SelectedTab.Controls.Find("CheckListBoxLeft", true)[0],
-                fenster.LanguageBox,
-                (Label)TabControl.SelectedTab.Controls.Find("WordsTranslated", true)[0],
-                (Label)TabControl.SelectedTab.Controls.Find("CharacterCountLabel", true)[0],
-                (Label)TabControl.SelectedTab.Controls.Find("SelectedFile", true)[0],
-                (NoAnimationBar)TabControl.SelectedTab.Controls.Find("ProgressbarTranslated", true)[0],
-                (TextBox)TabControl.SelectedTab.Controls.Find("CommentTextBox", true)[0],
-                fenster.SearchBox,
-                fenster.ReplaceBox,
-                fenster.ReplaceAllButton,
-                (TextBox)TabControl.SelectedTab.Controls.Find("TemplateTextBox", true)[0],
-                (TextBox)TabControl.SelectedTab.Controls.Find("TranslatedTextBox", true)[0],
-                fenster.ReplaceButton
-                );
         }
 
         public static void ReplaceAll()
