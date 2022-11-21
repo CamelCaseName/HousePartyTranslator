@@ -3,7 +3,6 @@ using System;
 
 namespace Translator.UICompatibilityLayer.StubImpls
 {
-
     public class NullFileDialog : IFileDialog
     {
         public static NullFileDialog Instance { get; } = new();

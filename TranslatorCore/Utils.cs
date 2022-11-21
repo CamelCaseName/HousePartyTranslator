@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using Translator.UICompatibilityLayer;
+using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.Core.Helpers
 {
