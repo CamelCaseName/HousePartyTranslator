@@ -4,20 +4,21 @@ using System.Linq;
 using System.Text;
 using Translator.UICompatibilityLayer;
 using Translator.Core.Helpers;
+using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.Core
 {
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    public static class DataBase<FType> where FType : class, IFileDialog, new()
+    public static class DataBase
     {
         public static string DBVersion { get; private set; } = "0.0.0";
         private static readonly MySqlConnection sqlConnection = new();
         private static MySqlCommand MainCommand = new();
         private static MySqlDataReader? MainReader;
         private static string SoftwareVersion = "0.0.0.0";
-        private static IUIHandler<FType>? UI;
+        private static IUIHandler UI = new NullUIHandler();
         public static bool IsOnline { get; private set; } = false;
 
 #if DEBUG
@@ -145,7 +146,7 @@ namespace Translator.Core
                     }
                     else
                     {
-                        _ = UI?.WarningOk("Ids can't be loaded", "Potential issue");
+                        _ = UI.WarningOk("Ids can't be loaded", "Potential issue");
                     }
                 }
                 finally
@@ -167,7 +168,7 @@ namespace Translator.Core
         /// </returns>
         public static bool GetAllLineDataTemplate(string fileName, string story, out FileData LineDataList)
         {
-            UI?.SignalUserWait();
+            UI.SignalUserWait();
             string command;
             if (story == "Hints")
             {
@@ -210,12 +211,12 @@ namespace Translator.Core
                 }
                 else
                 {
-                    _ = UI?.WarningOk("Ids can't be loaded", "Info");
+                    _ = UI.WarningOk("Ids can't be loaded", "Info");
                     LogManager.Log("No template ids found for " + story + "/" + fileName);
                 }
                 MainReader.Close();
             }
-            UI?.SignalUserEndWait();
+            UI.SignalUserEndWait();
             return LineDataList.Count > 0;
         }
 
@@ -225,7 +226,7 @@ namespace Translator.Core
         /// <param name="mainWindow">the window to spawn the password box as a child of</param>
         private static void EstablishConnection(string password)
         {
-            UI?.SignalUserWait();
+            UI.SignalUserWait();
             while (!IsOnline)
             {
                 string connString = GetConnString();
@@ -243,8 +244,8 @@ namespace Translator.Core
                     if (sqlConnection.State != System.Data.ConnectionState.Open)
                     {
                         //password may have to be changed
-                        _ = UI?.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
-                        UI?.SignalAppExit();
+                        _ = UI.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
+                        UI.SignalAppExit();
                     }
                     else
                     {
@@ -256,15 +257,15 @@ namespace Translator.Core
                     if (e.Code == 0)
                     {
                         //0 means offline
-                        _ = UI?.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
+                        _ = UI.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
                             "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
                     }
                     else if (e.Code == 1045)
                     {
                         //means invalid creds
-                        _ = UI?.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                        _ = UI.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                     }
-                    UI?.SignalUserEndWait();
+                    UI.SignalUserEndWait();
                     return;
                 }
             }
@@ -273,7 +274,7 @@ namespace Translator.Core
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
         /// </summary>
-        public static void InitializeDB(IUIHandler<FType> uIHandler, string password, string AppVersion)
+        public static void InitializeDB(IUIHandler uIHandler, string password, string AppVersion)
         {
             UI = uIHandler;
             //establish connection and handle password
@@ -281,12 +282,12 @@ namespace Translator.Core
 
             MainCommand = new MySqlCommand("", sqlConnection);
             //Console.WriteLine("DB opened");
-            UI?.SignalUserWait();
+            UI.SignalUserWait();
 
             if (!IsOnline)
             {
-                UI?.SetTitle(" (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")");
-                UI?.Update();
+                UI.SetTitle(" (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")");
+                UI.Update();
             }
             else
             {
@@ -345,12 +346,12 @@ namespace Translator.Core
                 TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
                 if (!TranslationManager.IsUpToDate && Settings.Default.AdvancedModeEnabled)
                 {
-                    _ = UI?.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
+                    _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
                 }
-                UI?.SetTitle(" (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")");
-                UI?.Update();
+                UI.SetTitle(" (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")");
+                UI.Update();
             }
-            UI?.SignalUserEndWait();
+            UI.SignalUserEndWait();
         }
 
         public static bool RemoveOldTemplates(string fileName, string story)
@@ -596,7 +597,7 @@ namespace Translator.Core
                     else if (e.Code == 1045)
                     {
                         //means invalid creds
-                        _ = UI?.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                        _ = UI.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                     }
                 }
             }
@@ -605,8 +606,8 @@ namespace Translator.Core
             else if (sqlConnection.State != System.Data.ConnectionState.Open)
             {
                 //password may have to be changed
-                _ = UI?.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
-                UI?.SignalAppExit();
+                _ = UI.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
+                UI.SignalAppExit();
                 return false;
             }
             else return true;
