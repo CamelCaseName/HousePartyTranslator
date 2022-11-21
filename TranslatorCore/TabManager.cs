@@ -8,7 +8,7 @@ namespace Translator.Core
     public static class TabManager
     {
         public static bool InGlobalSearch { get; private set; } = false;
-        private static ITabController TabControl = new NullTabController; 
+        private static ITabController TabControl = new NullTabController(); 
         private static int lastIndex = 0;
         private static readonly Dictionary<ITab, IUIHandler> handlers = new();
         private static readonly Dictionary<ITab, TranslationManager> translationManagers = new();
@@ -22,7 +22,8 @@ namespace Translator.Core
             get
             {
                 _ = handlers.TryGetValue(TabControl.SelectedTab, out IUIHandler? property);
-                return property ?? NullUIHandler.Instance;
+                return property
+                    ?? NullUIHandler.Instance;
             }
         }
 
@@ -61,6 +62,7 @@ namespace Translator.Core
 
         public static TranslationManager Initialize(ITab tab1, IUIHandler ui)
         {
+            Utils.Initialize(ui);
             TabControl = ui.TabControl;
 
             //create new translationmanager to use with the tab open right now
@@ -89,7 +91,8 @@ namespace Translator.Core
             if (path.Length > 0)
             {
                 //create new support objects
-                ITab newTab = Utils.CreateNewTab(translationManagers.Count + 1) ?? new NullTab();
+                ITab newTab = ui.CreateNewTab() ?? new NullTab();
+                newTab.Text = $"Tab {translationManagers.Count + 1}";
                 //Add tab to form control
                 TabControl.TabPages.Add(newTab);
                 //select new tab

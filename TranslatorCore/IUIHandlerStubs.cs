@@ -1,0 +1,4 @@
+﻿namespace Translator.UICompatibilityLayer.StubImpls
+{
+
+}

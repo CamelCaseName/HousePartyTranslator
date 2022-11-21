@@ -10,14 +10,14 @@ namespace Translator.Core
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    public static class DataBase
+    public static class DataBase<FType> where FType : class, IFileDialog, new()
     {
         public static string DBVersion { get; private set; } = "0.0.0";
         private static readonly MySqlConnection sqlConnection = new();
         private static MySqlCommand MainCommand = new();
         private static MySqlDataReader? MainReader;
         private static string SoftwareVersion = "0.0.0.0";
-        private static IUIHandler? UI;
+        private static IUIHandler<FType>? UI;
         public static bool IsOnline { get; private set; } = false;
 
 #if DEBUG
@@ -167,7 +167,7 @@ namespace Translator.Core
         /// </returns>
         public static bool GetAllLineDataTemplate(string fileName, string story, out FileData LineDataList)
         {
-            UIHandler.SignalAppWait();
+            UI?.SignalUserWait();
             string command;
             if (story == "Hints")
             {
@@ -215,7 +215,7 @@ namespace Translator.Core
                 }
                 MainReader.Close();
             }
-            UIHandler.SignalAppUnWait();
+            UI?.SignalUserEndWait();
             return LineDataList.Count > 0;
         }
 
@@ -225,7 +225,7 @@ namespace Translator.Core
         /// <param name="mainWindow">the window to spawn the password box as a child of</param>
         private static void EstablishConnection(string password)
         {
-            UIHandler.SignalAppWait();
+            UI?.SignalUserWait();
             while (!IsOnline)
             {
                 string connString = GetConnString();
@@ -244,7 +244,7 @@ namespace Translator.Core
                     {
                         //password may have to be changed
                         _ = UI?.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
-                        UIHandler.SignalAppExit();
+                        UI?.SignalAppExit();
                     }
                     else
                     {
@@ -264,7 +264,7 @@ namespace Translator.Core
                         //means invalid creds
                         _ = UI?.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                     }
-                    UIHandler.SignalAppUnWait();
+                    UI?.SignalUserEndWait();
                     return;
                 }
             }
@@ -273,7 +273,7 @@ namespace Translator.Core
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
         /// </summary>
-        public static void InitializeDB(IUIHandler uIHandler, string password, string AppVersion)
+        public static void InitializeDB(IUIHandler<FType> uIHandler, string password, string AppVersion)
         {
             UI = uIHandler;
             //establish connection and handle password
@@ -281,6 +281,7 @@ namespace Translator.Core
 
             MainCommand = new MySqlCommand("", sqlConnection);
             //Console.WriteLine("DB opened");
+            UI?.SignalUserWait();
 
             if (!IsOnline)
             {
@@ -349,7 +350,7 @@ namespace Translator.Core
                 UI?.SetTitle(" (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")");
                 UI?.Update();
             }
-            UIHandler.SignalAppUnWait();
+            UI?.SignalUserEndWait();
         }
 
         public static bool RemoveOldTemplates(string fileName, string story)
@@ -605,7 +606,7 @@ namespace Translator.Core
             {
                 //password may have to be changed
                 _ = UI?.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
-                UIHandler.SignalAppExit();
+                UI?.SignalAppExit();
                 return false;
             }
             else return true;

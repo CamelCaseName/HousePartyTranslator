@@ -169,13 +169,13 @@ namespace Translator.UICompatibilityLayer
 
         public ITab SelectedTab { get => NullTab.Instance; set { } }
 
-        public int SelectedIndex { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int SelectedIndex { get => 0; set { } }
 
-        public int TabCount => throw new NotImplementedException();
+        public int TabCount => 0;
 
         List<ITab> ITabController.TabPages { get; } = new();
 
-        public bool CloseTab(ITab tab) => throw new NotImplementedException();
+        public bool CloseTab(ITab tab) { return false; }
     }
 
     public interface ITabController
@@ -191,10 +191,11 @@ namespace Translator.UICompatibilityLayer
     public class NullTab : ITab
     {
         public static NullTab Instance { get; } = new NullTab();
-        public string Text { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Text { get => ""; set { } }
 
-        public void Dispose() => throw new NotImplementedException();
+        public void Dispose() { }
     }
+
     public interface ITab
     {
         string Text { get; set; }
@@ -202,15 +203,55 @@ namespace Translator.UICompatibilityLayer
         void Dispose();
     }
 
-    public class NullUIHandler : IUIHandler
+    public class NullFileDialog : IFileDialog
+    {
+        public static NullFileDialog Instance { get; } = new();
+        public string Title { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string InitialDirectory { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string FileName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Filter { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public PopupResult ShowDialog() => throw new NotImplementedException();
+    }
+
+    public interface IFileDialog
+    {
+        string Title { get; set; }
+        string InitialDirectory { get; set; }
+        string FileName { get; set;}
+        string Filter { get; set;}
+        string SelectedPath { get; }
+
+        PopupResult ShowDialog();
+    }
+
+    public class NullFolderDialog : IFolderDialog
+    {
+        public string Message { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string SelectedFolderPath { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public PopupResult ShowDialog() => throw new NotImplementedException();
+    }
+
+    public interface IFolderDialog
+    {
+        string Message { get; set; }
+        string SelectedFolderPath { get; set; }
+        PopupResult ShowDialog();
+    }
+
+    public class NullUIHandler: IUIHandler
     {
         public static NullUIHandler Instance { get; } = new NullUIHandler();
 
         public ITabController TabControl => throw new NotImplementedException();
 
+        public Type FileDialogType { get => typeof(NullFileDialog); init { } }
+        public Type FolderDialogType { get => typeof(NullFolderDialog); init { } }
+
         public void ApproveSelectedLine() => throw new NotImplementedException();
         public void ClearLines() => throw new NotImplementedException();
         public void ClipboardSetText(string text) => throw new NotImplementedException();
+        public ITab? CreateNewTab() => throw new NotImplementedException();
         public PopupResult ErrorOk(string message, string title = "Error") => throw new NotImplementedException();
         public PopupResult ErrorOkCancel(string message, string title = "Error") => throw new NotImplementedException();
         public bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
@@ -275,7 +316,6 @@ namespace Translator.UICompatibilityLayer
 
     public interface IUIHandler
     {
-        ITabController TabControl { get; }
         #region cursor
         void SignalUserWait();
         void SignalUserEndWait();
@@ -384,10 +424,14 @@ namespace Translator.UICompatibilityLayer
         void SignalAppExit();
         void Update();
         void ClipboardSetText(string text);
+        ITab? CreateNewTab();
+
+        Type FileDialogType { get; init; }
+        Type FolderDialogType { get; init; }
         #endregion
 
         #region tabs
-
+        ITabController TabControl { get; }
         #endregion
     }
 }
