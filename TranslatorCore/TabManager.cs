@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
@@ -26,6 +27,11 @@ namespace Translator.Core
                 return property
                     ?? NullUIHandler.Instance;
             }
+        }
+
+        public static ITab SelectedTab
+        {
+            get { return TabControl.SelectedTab; }
         }
 
         /// <summary>
@@ -61,14 +67,16 @@ namespace Translator.Core
         /// </summary>
         /// <param name="tab1">The initial tab</param>
 
-        public static TranslationManager Initialize(ITab tab1, IUIHandler ui)
+        public static TranslationManager Initialize(ITab tab1, IUIHandler ui,Type MenuItem, Type MenuItemSeperator, string password, string appVersion)
         {
             Utils.Initialize(ui);
+            DataBase.Initialize(ui, password, appVersion);
+            RecentsManager.Initialize(MenuItem, MenuItemSeperator);
             TabControl = ui.TabControl;
 
             //create new translationmanager to use with the tab open right now
             handlers.Add(tab1, ui);
-            translationManagers.Add(tab1, new TranslationManager(ActiveUI));
+            translationManagers.Add(tab1, new TranslationManager(ActiveUI, tab1));
 
             return translationManagers[tab1];
         }
@@ -100,7 +108,7 @@ namespace Translator.Core
                 TabControl.SelectedTab = newTab;
                 //create support dict
                 handlers.Add(newTab, ui);
-                var t = new TranslationManager(ActiveUI);
+                var t = new TranslationManager(ActiveUI, newTab);
                 translationManagers.Add(newTab, t);
 
                 //call startup for new translationmanager

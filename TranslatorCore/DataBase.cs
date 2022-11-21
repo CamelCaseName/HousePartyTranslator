@@ -274,7 +274,7 @@ namespace Translator.Core
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
         /// </summary>
-        public static void InitializeDB(IUIHandler uIHandler, string password, string AppVersion)
+        public static void Initialize(IUIHandler uIHandler, string password, string AppVersion)
         {
             UI = uIHandler;
             //establish connection and handle password

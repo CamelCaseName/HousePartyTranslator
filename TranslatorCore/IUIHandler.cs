@@ -35,6 +35,7 @@ namespace Translator.UICompatibilityLayer
 
     public interface ILineItem
     {
+        public LineList Parent { get; init; }
         public bool IsApproved { get; set; }
         public bool IsSearchResult { get; set; }
         public bool IsTranslated { get; set; }
@@ -53,8 +54,72 @@ namespace Translator.UICompatibilityLayer
     public interface ITab
     {
         string Text { get; set; }
+        bool IsApproveButtonFocused { get; }
+
+        LineList Lines { get { return GetLines(); } }
+
+        List<string> SimilarStringsToEnglish { get; }
 
         void Dispose();
+
+        #region list of translations
+        void ClearLines();
+
+        ILineItem GetLineItem(int index);
+
+        LineList GetLines();
+
+        int SelectedLineIndex();
+        ILineItem SelectedLineItem();
+        void SelectLineItem(int index);
+
+        void SelectLineItem(ILineItem item);
+
+        void SetLines(LineList lines);
+        void UpdateLines();
+
+        #endregion
+
+        #region translation textbox
+        void FocusTranslationBox();
+
+        string GetTranslationBoxText();
+
+        string SelectedTranslationBoxText();
+
+        void SetSelectedTranslationBoxText(int start, int end);
+
+        void SetTranslationBoxText(string text);
+        #endregion
+
+        #region template textbox
+        string GetTemplateBoxText();
+
+        string SelectedTemplateBoxText();
+
+        void SetSelectedTemplateBoxText(int start, int end);
+
+        void SetTemplateBoxText(string text);
+        #endregion
+
+        #region comment textbox
+        void FocusCommentBox();
+
+        string GetCommentBoxText();
+
+        string SelectedCommentBoxText();
+
+        void SetCommentBoxText(string text);
+        void SetSelectedCommentBoxText(int start, int end);
+        #endregion
+
+        #region line controls
+        void ApproveSelectedLine();
+        void UnapproveSelectedLine();
+        bool GetApprovedButtonChecked();
+        void SetApprovedButtonChecked(bool v);
+
+        #endregion
     }
 
     public interface ITabController
@@ -128,63 +193,6 @@ namespace Translator.UICompatibilityLayer
         void SetTitle(string title);
         #endregion
 
-        #region list of translations
-        void ClearLines();
-
-        ILineItem GetLineItem(int index);
-
-        LineList GetLines();
-
-        int SelectedLineIndex();
-        ILineItem SelectedLineItem();
-        void SelectLineItem(int index);
-
-        void SelectLineItem(ILineItem item);
-
-        void SetLines(LineList lines);
-        void UpdateLines();
-
-        #endregion
-
-        #region translation textbox
-        void FocusTranslationBox();
-
-        string GetTranslationBoxText();
-
-        string SelectedTranslationBoxText();
-
-        void SetSelectedTranslationBoxText(int start, int end);
-
-        void SetTranslationBoxText(string text);
-        #endregion
-
-        #region template textbox
-        string GetTemplateBoxText();
-
-        string SelectedTemplateBoxText();
-
-        void SetSelectedTemplateBoxText(int start, int end);
-
-        void SetTemplateBoxText(string text);
-        #endregion
-
-        #region comment textbox
-        void FocusCommentBox();
-
-        string GetCommentBoxText();
-
-        string SelectedCommentBoxText();
-
-        void SetCommentBoxText(string text);
-        void SetSelectedCommentBoxText(int start, int end);
-        #endregion
-
-        #region line controls
-        void ApproveSelectedLine();
-        void UnapproveSelectedLine();
-
-        #endregion
-
         #region login user control
         bool Login();
         bool Logout();
@@ -221,6 +229,7 @@ namespace Translator.UICompatibilityLayer
 
         void SignalAppExit();
         void Update();
+        void UpdateProgress();
         #endregion
 
         #region tabs
@@ -231,6 +240,9 @@ namespace Translator.UICompatibilityLayer
     public class LineList
     {
         public readonly List<ILineItem> Items = new();
+
+        public int Count => Items.Count;
+        public int ApprovedCount { get; internal set; }
         public LineList() : this(new List<ILineItem>()) { }
 
         public LineList(List<ILineItem> items, ILineItem selectedLineItem, int selectedIndex)
@@ -261,16 +273,20 @@ namespace Translator.UICompatibilityLayer
             try
             {
                 Items[index].Approve();
+                ++ApprovedCount;
             }
             catch
             {
                 throw new IndexOutOfRangeException("Given index was too big for the array");
             }
         }
+
         public void Clear()
         {
             Items.Clear();
+            ApprovedCount = 0;
         }
+
         public bool GetApprovalState(int index)
         {
             try
@@ -285,8 +301,10 @@ namespace Translator.UICompatibilityLayer
 
         public void RemoveLineItem(ILineItem item)
         {
+            if (item.IsApproved) --ApprovedCount;
             Items.Remove(item);
         }
+
         public void SelectIndex(int index)
         {
             try
@@ -304,6 +322,7 @@ namespace Translator.UICompatibilityLayer
         {
             try
             {
+                if (!Items[index].IsApproved && isApproved) ++ApprovedCount;
                 Items[index].IsApproved = isApproved;
             }
             catch
@@ -317,6 +336,7 @@ namespace Translator.UICompatibilityLayer
             try
             {
                 Items[index].Unapprove();
+                --ApprovedCount;
             }
             catch
             {
