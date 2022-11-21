@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.UICompatibilityLayer
 {
@@ -15,29 +16,54 @@ namespace Translator.UICompatibilityLayer
         IGNORE
     }
 
-    public class MenuItems
+    public interface IFileDialog
     {
-        public readonly List<IMenuItem> Items = new();
-        public IMenuItem this[int index]
-        {
-            get { return Items[index]; }
-            set { Items[index] = value; }
-        }
-        public int Count { get { return Items.Count; } }
+        string FileName { get; set; }
+        string Filter { get; set; }
+        string InitialDirectory { get; set; }
+        string SelectedPath { get; }
+        string Title { get; set; }
+        PopupResult ShowDialog();
+    }
 
-        internal void Insert<MenuItemType>(int v, MenuItemType menuItem) where MenuItemType : class, IMenuItem {
-            Items.Insert(v, menuItem);
-        }
-        internal void RemoveAt(int v)
-        {
-            Items.RemoveAt(v);
-        }
+    public interface IFolderDialog
+    {
+        string SelectedFolderPath { get; set; }
+        string Text { get; set; }
+        PopupResult ShowDialog();
+    }
+
+    public interface ILineItem
+    {
+        public bool IsApproved { get; set; }
+        public bool IsSearchResult { get; set; }
+        public bool IsTranslated { get; set; }
+        EventHandler OnClick { get; init; }
+        public string Text { get; init; }
+        void Approve();
+        void Unapprove();
     }
 
     public interface IMenuItem
     {
-        public string Text { get; set; }
         EventHandler OnClick { get; init; }
+        public string Text { get; set; }
+    }
+
+    public interface ITab
+    {
+        string Text { get; set; }
+
+        void Dispose();
+    }
+
+    public interface ITabController
+    {
+        int SelectedIndex { get; set; }
+        ITab SelectedTab { get; set; }
+        int TabCount { get; }
+        List<ITab> TabPages { get; }
+        bool CloseTab(ITab tab);
     }
 
     public interface ITextBox
@@ -50,347 +76,107 @@ namespace Translator.UICompatibilityLayer
         public void Focus();
     }
 
-    public class LineList
-    {
-        public readonly List<ILineItem> Items = new();
-        public ILineItem SelectedLineItem { get; set; }
-        public LineList() : this(new List<ILineItem>()) { }
-        public LineList(List<ILineItem> items, ILineItem selectedLineItem, int selectedIndex)
-        {
-            Items = items;
-            SelectedLineItem = selectedLineItem;
-            SelectedIndex = selectedIndex;
-        }
-        public LineList(List<ILineItem> items)
-        {
-            Items = items;
-            SelectedLineItem = items.Count > 0 ? items[0] : NullLineItem.Instance;
-            SelectedIndex = items.Count > 0 ? 0 : -1;
-        }
-        public void ApproveItem(int index)
-        {
-            try
-            {
-                Items[index].Approve();
-            }
-            catch
-            {
-                throw new IndexOutOfRangeException("Given index was too big for the array");
-            }
-        }
-        public void Clear()
-        {
-            Items.Clear();
-        }
-        public void AddLineItem(ILineItem item)
-        {
-            Items.Add(item);
-        }
-        public void RemoveLineItem(ILineItem item)
-        {
-            Items.Remove(item);
-        }
-        public void UnapproveItem(int index)
-        {
-            try
-            {
-                Items[index].Unapprove();
-            }
-            catch
-            {
-                throw new IndexOutOfRangeException("Given index was too big for the array");
-            }
-        }
-        public void SetApprovalState(int index, bool isApproved)
-        {
-            try
-            {
-                Items[index].IsApproved = isApproved;
-            }
-            catch
-            {
-                throw new IndexOutOfRangeException("Given index was too big for the array");
-            }
-        }
-        public bool GetApprovalState(int index)
-        {
-            try
-            {
-                return Items[index].IsApproved;
-            }
-            catch
-            {
-                throw new IndexOutOfRangeException("Given index was too big for the array");
-            }
-        }
-        private int InternalSelectedIndex { get; set; }
-        public int SelectedIndex { get { return InternalSelectedIndex; } set { SelectIndex(value); } }
-        public void SelectIndex(int index)
-        {
-            try
-            {
-                InternalSelectedIndex = index;
-                SelectedLineItem = Items[index];
-            }
-            catch
-            {
-                throw new IndexOutOfRangeException("Given index was too big for the array");
-            }
-        }
-    }
-
-    public interface ILineItem
-    {
-        public string Text { get; init; }
-        public bool IsApproved { get; set; }
-        public bool IsTranslated { get; set; }
-        public bool IsSearchResult { get; set; }
-        EventHandler OnClick { get; init; }
-        void Approve();
-        void Unapprove();
-    }
-
-    public class NullLineItem : ILineItem
-    {
-        public static NullLineItem Instance { get; } = new NullLineItem();
-        public string Text { get => string.Empty; init { } }
-        public bool IsApproved { get => false; set { } }
-        public bool IsTranslated { get => false; set { } }
-        public bool IsSearchResult { get => false; set { } }
-        public EventHandler OnClick { get { return new((object? sender, EventArgs e) => { }); } init { } }
-
-        public void Approve() { }
-        public void Unapprove() { }
-    }
-
-    public class NullTabController : ITabController
-    {
-        public static NullTabController Instance { get; } = new NullTabController();
-
-        public ITab SelectedTab { get => NullTab.Instance; set { } }
-
-        public int SelectedIndex { get => 0; set { } }
-
-        public int TabCount => 0;
-
-        List<ITab> ITabController.TabPages { get; } = new();
-
-        public bool CloseTab(ITab tab) { return false; }
-    }
-
-    public interface ITabController
-    {
-        ITab SelectedTab { get; set; }
-        List<ITab> TabPages { get; }
-        int SelectedIndex { get; set; }
-        int TabCount { get; }
-
-        bool CloseTab(ITab tab);
-    }
-
-    public class NullTab : ITab
-    {
-        public static NullTab Instance { get; } = new NullTab();
-        public string Text { get => ""; set { } }
-
-        public void Dispose() { }
-    }
-
-    public interface ITab
-    {
-        string Text { get; set; }
-
-        void Dispose();
-    }
-
-    public class NullFileDialog : IFileDialog
-    {
-        public static NullFileDialog Instance { get; } = new();
-        public string Title { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string InitialDirectory { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string FileName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string Filter { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public PopupResult ShowDialog() => throw new NotImplementedException();
-    }
-
-    public interface IFileDialog
-    {
-        string Title { get; set; }
-        string InitialDirectory { get; set; }
-        string FileName { get; set;}
-        string Filter { get; set;}
-        string SelectedPath { get; }
-
-        PopupResult ShowDialog();
-    }
-
-    public class NullFolderDialog : IFolderDialog
-    {
-        public string Message { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string SelectedFolderPath { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        public PopupResult ShowDialog() => throw new NotImplementedException();
-    }
-
-    public interface IFolderDialog
-    {
-        string Message { get; set; }
-        string SelectedFolderPath { get; set; }
-        PopupResult ShowDialog();
-    }
-
-    public class NullUIHandler: IUIHandler
-    {
-        public static NullUIHandler Instance { get; } = new NullUIHandler();
-
-        public ITabController TabControl => throw new NotImplementedException();
-
-        public Type FileDialogType { get => typeof(NullFileDialog); init { } }
-        public Type FolderDialogType { get => typeof(NullFolderDialog); init { } }
-
-        public void ApproveSelectedLine() => throw new NotImplementedException();
-        public void ClearLines() => throw new NotImplementedException();
-        public void ClipboardSetText(string text) => throw new NotImplementedException();
-        public ITab? CreateNewTab() => throw new NotImplementedException();
-        public PopupResult ErrorOk(string message, string title = "Error") => throw new NotImplementedException();
-        public PopupResult ErrorOkCancel(string message, string title = "Error") => throw new NotImplementedException();
-        public bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
-        public PopupResult ErrorYesNo(string message, string title = "Error") => throw new NotImplementedException();
-        public bool ErrorYesNo(string message, string title = "Error", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public PopupResult ErrorYesNoCancel(string message, string title = "Error") => throw new NotImplementedException();
-        public bool ErrorYesNoCancel(string message, string title = "Error", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public void FocusCommentBox() => throw new NotImplementedException();
-        public void FocusReplaceBar() => throw new NotImplementedException();
-        public void FocusSearchBar() => throw new NotImplementedException();
-        public void FocusTranslationBox() => throw new NotImplementedException();
-        public string GetCommentBoxText() => throw new NotImplementedException();
-        public MenuItems GetFileMenuItems() => throw new NotImplementedException();
-        public ILineItem GetLineItem(int index) => throw new NotImplementedException();
-        public LineList GetLines() => throw new NotImplementedException();
-        public string GetReplaceBarText() => throw new NotImplementedException();
-        public string GetSearchBarText() => throw new NotImplementedException();
-        public string GetTemplateBoxText() => throw new NotImplementedException();
-        public string GetTranslationBoxText() => throw new NotImplementedException();
-        public PopupResult InfoOk(string message, string title = "Info") => throw new NotImplementedException();
-        public PopupResult InfoOkCancel(string message, string title = "Info") => throw new NotImplementedException();
-        public bool InfoOkCancel(string message, string title = "Info", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
-        public PopupResult InfoYesNo(string message, string title = "Info") => throw new NotImplementedException();
-        public bool InfoYesNo(string message, string title = "Info", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public PopupResult InfoYesNoCancel(string message, string title = "Info") => throw new NotImplementedException();
-        public bool InfoYesNoCancel(string message, string title = "Info", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public bool Login() => throw new NotImplementedException();
-        public bool Logout() => throw new NotImplementedException();
-        public string SelectedCommentBoxText() => throw new NotImplementedException();
-        public int SelectedLineIndex() => throw new NotImplementedException();
-        public ILineItem SelectedLineItem() => throw new NotImplementedException();
-        public string SelectedTemplateBoxText() => throw new NotImplementedException();
-        public string SelectedTranslationBoxText() => throw new NotImplementedException();
-        public void SelectLineItem(int index) => throw new NotImplementedException();
-        public void SelectLineItem(ILineItem item) => throw new NotImplementedException();
-        public void SetCommentBoxText(string text) => throw new NotImplementedException();
-        public void SetFileMenuItems(MenuItems menuItems) => throw new NotImplementedException();
-        public void SetLines(LineList lines) => throw new NotImplementedException();
-        public void SetReplaceBarText(string replacement) => throw new NotImplementedException();
-        public void SetSearchBarText(string query) => throw new NotImplementedException();
-        public void SetSelectedCommentBoxText(int start, int end) => throw new NotImplementedException();
-        public void SetSelectedTemplateBoxText(int start, int end) => throw new NotImplementedException();
-        public void SetSelectedTranslationBoxText(int start, int end) => throw new NotImplementedException();
-        public void SetTemplateBoxText(string text) => throw new NotImplementedException();
-        public void SetTitle(string title) => throw new NotImplementedException();
-        public void SetTranslationBoxText(string text) => throw new NotImplementedException();
-        public void SignalAppExit() => throw new NotImplementedException();
-        public void SignalUserEndWait() => throw new NotImplementedException();
-        public void SignalUserWait() => throw new NotImplementedException();
-        public void UnapproveSelectedLine() => throw new NotImplementedException();
-        public void Update() => throw new NotImplementedException();
-        public void UpdateLines() => throw new NotImplementedException();
-        public void UpdateResults() => throw new NotImplementedException();
-        public PopupResult WarningOk(string message, string title = "Warning") => throw new NotImplementedException();
-        public PopupResult WarningOkCancel(string message, string title = "Warning") => throw new NotImplementedException();
-        public bool WarningOkCancel(string message, string title = "Warning", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
-        public PopupResult WarningYesNo(string message, string title = "Warning") => throw new NotImplementedException();
-        public bool WarningYesNo(string message, string title = "Warning", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public PopupResult WarningYesNoCancel(string message, string title = "Warning") => throw new NotImplementedException();
-        public bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-    }
-
     public interface IUIHandler
     {
         #region cursor
-        void SignalUserWait();
         void SignalUserEndWait();
 
+        void SignalUserWait();
         #endregion
 
         #region message popup
-        PopupResult InfoOk(string message, string title = "Info");
-        PopupResult InfoOkCancel(string message, string title = "Info");
-        PopupResult InfoYesNo(string message, string title = "Info");
-        PopupResult InfoYesNoCancel(string message, string title = "Info");
-        PopupResult WarningOk(string message, string title = "Warning");
-        PopupResult WarningOkCancel(string message, string title = "Warning");
-        PopupResult WarningYesNo(string message, string title = "Warning");
-        PopupResult WarningYesNoCancel(string message, string title = "Warning");
         PopupResult ErrorOk(string message, string title = "Error");
+
         PopupResult ErrorOkCancel(string message, string title = "Error");
-        PopupResult ErrorYesNo(string message, string title = "Error");
-        PopupResult ErrorYesNoCancel(string message, string title = "Error");
-        bool InfoOkCancel(string message, string title = "Info", PopupResult result = PopupResult.OK);
-        bool InfoYesNo(string message, string title = "Info", PopupResult result = PopupResult.YES);
-        bool InfoYesNoCancel(string message, string title = "Info", PopupResult result = PopupResult.YES);
-        bool WarningOkCancel(string message, string title = "Warning", PopupResult result = PopupResult.OK);
-        bool WarningYesNo(string message, string title = "Warning", PopupResult result = PopupResult.YES);
-        bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES);
+
         bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK);
+
+        PopupResult ErrorYesNo(string message, string title = "Error");
+
         bool ErrorYesNo(string message, string title = "Error", PopupResult result = PopupResult.YES);
+
+        PopupResult ErrorYesNoCancel(string message, string title = "Error");
+
         bool ErrorYesNoCancel(string message, string title = "Error", PopupResult result = PopupResult.YES);
 
+        PopupResult InfoOk(string message, string title = "Info");
+        PopupResult InfoOkCancel(string message, string title = "Info");
+        bool InfoOkCancel(string message, string title = "Info", PopupResult result = PopupResult.OK);
+
+        PopupResult InfoYesNo(string message, string title = "Info");
+        bool InfoYesNo(string message, string title = "Info", PopupResult result = PopupResult.YES);
+
+        PopupResult InfoYesNoCancel(string message, string title = "Info");
+        bool InfoYesNoCancel(string message, string title = "Info", PopupResult result = PopupResult.YES);
+
+        PopupResult WarningOk(string message, string title = "Warning");
+        PopupResult WarningOkCancel(string message, string title = "Warning");
+        bool WarningOkCancel(string message, string title = "Warning", PopupResult result = PopupResult.OK);
+
+        PopupResult WarningYesNo(string message, string title = "Warning");
+        bool WarningYesNo(string message, string title = "Warning", PopupResult result = PopupResult.YES);
+
+        PopupResult WarningYesNoCancel(string message, string title = "Warning");
+        bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES);
         #endregion
 
         #region main window
-        void SetTitle(string title);
         MenuItems GetFileMenuItems();
+
         void SetFileMenuItems(MenuItems menuItems);
 
+        void SetTitle(string title);
         #endregion
 
         #region list of translations
+        void ClearLines();
+
+        ILineItem GetLineItem(int index);
+
+        LineList GetLines();
+
         int SelectedLineIndex();
         ILineItem SelectedLineItem();
-        LineList GetLines();
-        void SetLines(LineList lines);
-        ILineItem GetLineItem(int index);
         void SelectLineItem(int index);
+
         void SelectLineItem(ILineItem item);
-        void ClearLines();
+
+        void SetLines(LineList lines);
         void UpdateLines();
 
         #endregion
 
         #region translation textbox
-        void SetTranslationBoxText(string text);
-        string GetTranslationBoxText();
-        string SelectedTranslationBoxText();
-        void SetSelectedTranslationBoxText(int start, int end);
         void FocusTranslationBox();
 
+        string GetTranslationBoxText();
+
+        string SelectedTranslationBoxText();
+
+        void SetSelectedTranslationBoxText(int start, int end);
+
+        void SetTranslationBoxText(string text);
         #endregion
 
         #region template textbox
-        void SetTemplateBoxText(string text);
         string GetTemplateBoxText();
+
         string SelectedTemplateBoxText();
+
         void SetSelectedTemplateBoxText(int start, int end);
 
+        void SetTemplateBoxText(string text);
         #endregion
 
         #region comment textbox
-        void SetCommentBoxText(string text);
-        string GetCommentBoxText();
-        string SelectedCommentBoxText();
-        void SetSelectedCommentBoxText(int start, int end);
         void FocusCommentBox();
 
+        string GetCommentBoxText();
+
+        string SelectedCommentBoxText();
+
+        void SetCommentBoxText(string text);
+        void SetSelectedCommentBoxText(int start, int end);
         #endregion
 
         #region line controls
@@ -406,14 +192,18 @@ namespace Translator.UICompatibilityLayer
         #endregion
 
         #region search/replace
-        void FocusSearchBar();
-        void UpdateResults();
-        string GetSearchBarText();
-        void SetSearchBarText(string query);
         void FocusReplaceBar();
+
+        void FocusSearchBar();
         string GetReplaceBarText();
+
+        string GetSearchBarText();
+
         void SetReplaceBarText(string replacement);
 
+        void SetSearchBarText(string query);
+
+        void UpdateResults();
         #endregion
 
         #region menubar
@@ -421,17 +211,137 @@ namespace Translator.UICompatibilityLayer
         #endregion
 
         #region file access/system access
-        void SignalAppExit();
-        void Update();
+        Type FileDialogType { get; init; }
+
+        Type FolderDialogType { get; init; }
+
         void ClipboardSetText(string text);
+
         ITab? CreateNewTab();
 
-        Type FileDialogType { get; init; }
-        Type FolderDialogType { get; init; }
+        void SignalAppExit();
+        void Update();
         #endregion
 
         #region tabs
         ITabController TabControl { get; }
         #endregion
+    }
+
+    public class LineList
+    {
+        public readonly List<ILineItem> Items = new();
+        public LineList() : this(new List<ILineItem>()) { }
+
+        public LineList(List<ILineItem> items, ILineItem selectedLineItem, int selectedIndex)
+        {
+            Items = items;
+            SelectedLineItem = selectedLineItem;
+            SelectedIndex = selectedIndex;
+        }
+
+        public LineList(List<ILineItem> items)
+        {
+            Items = items;
+            SelectedLineItem = items.Count > 0 ? items[0] : NullLineItem.Instance;
+            SelectedIndex = items.Count > 0 ? 0 : -1;
+        }
+
+        public int SelectedIndex { get { return InternalSelectedIndex; } set { SelectIndex(value); } }
+        public ILineItem SelectedLineItem { get; set; }
+        private int InternalSelectedIndex { get; set; }
+
+        public void AddLineItem(ILineItem item)
+        {
+            Items.Add(item);
+        }
+
+        public void ApproveItem(int index)
+        {
+            try
+            {
+                Items[index].Approve();
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
+        public void Clear()
+        {
+            Items.Clear();
+        }
+        public bool GetApprovalState(int index)
+        {
+            try
+            {
+                return Items[index].IsApproved;
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
+
+        public void RemoveLineItem(ILineItem item)
+        {
+            Items.Remove(item);
+        }
+        public void SelectIndex(int index)
+        {
+            try
+            {
+                InternalSelectedIndex = index;
+                SelectedLineItem = Items[index];
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
+
+        public void SetApprovalState(int index, bool isApproved)
+        {
+            try
+            {
+                Items[index].IsApproved = isApproved;
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
+
+        public void UnapproveItem(int index)
+        {
+            try
+            {
+                Items[index].Unapprove();
+            }
+            catch
+            {
+                throw new IndexOutOfRangeException("Given index was too big for the array");
+            }
+        }
+    }
+
+    public class MenuItems
+    {
+        public readonly List<IMenuItem> Items = new();
+        public int Count { get { return Items.Count; } }
+
+        public IMenuItem this[int index]
+        {
+            get { return Items[index]; }
+            set { Items[index] = value; }
+        }
+        internal void Insert<MenuItemType>(int v, MenuItemType menuItem) where MenuItemType : class, IMenuItem
+        {
+            Items.Insert(v, menuItem);
+        }
+        internal void RemoveAt(int v)
+        {
+            Items.RemoveAt(v);
+        }
     }
 }

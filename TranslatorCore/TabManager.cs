@@ -2,6 +2,7 @@
 using System.IO;
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
+using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.Core
 {
