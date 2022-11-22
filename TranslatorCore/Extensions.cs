@@ -24,7 +24,7 @@ namespace Translator.Core.Helpers
         /// <param name="replacement">The replacement for all matches</param>
         /// <param name="search">the pattern to search for</param>
         /// <returns>the replaced string</returns>
-        public static string Replace(this string input, string replacement, string search)
+        public static string ReplaceImpl(this string input, string replacement, string search)
         {
             return ReplaceRegex(input, replacement, Regex.Escape(search));
         }

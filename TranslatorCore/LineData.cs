@@ -15,6 +15,9 @@ namespace Translator.Core.Helpers
         public string TranslationString = "";
         public string[] Comments = Array.Empty<string>();
 
+        public int TemplateLength => TemplateString.Length;
+        public int TranslationLength => TranslationString.Length;
+
         public LineData() { }
 
         public LineData(string id, string story, string filename, StringCategory category)

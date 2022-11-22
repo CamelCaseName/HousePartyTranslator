@@ -54,7 +54,7 @@ namespace Translator.Core
         /// <param name="FileName"></param>
         /// <param name="StoryName"></param>
 #if TRACE
-        public static void ClearForFile(string FileName, string StoryName, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerName = "", [CallerLineNumber] int lineNumber = 0)
+        public static void ClearForFile<T>(string FileName, string StoryName, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerName = "", [CallerLineNumber] int lineNumber = 0) where T : class, ILineItem, new()
         {
             Console.WriteLine("History cleared by " + callerFile + '<' + callerName + ">:" + lineNumber.ToString());
             Console.WriteLine($"L__ cleared for {StoryName}\\{FileName}");
@@ -68,7 +68,7 @@ namespace Translator.Core
             for (int i = 0; i < history.Count; i++)
             {
                 ICommand item = history.Pop();
-                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged))
+                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged<T>))
                     temp.Push(item);
             }
             for (int i = 0; i < temp.Count; i++)
@@ -80,7 +80,7 @@ namespace Translator.Core
             for (int i = 0; i < future.Count; i++)
             {
                 ICommand item = future.Pop();
-                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged))
+                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged<T>))
                     temp.Push(item);
             }
             for (int i = 0; i < temp.Count; i++)
@@ -232,11 +232,11 @@ namespace Translator.Core
         }
     }
 
-    public sealed class ApprovedChanged : ICommand
+    public sealed class ApprovedChanged<T> : ICommand where T : class, ILineItem, new()
     {
         readonly int index;
-        readonly LineList ListBox;
-        public ApprovedChanged(int selectedIndex, LineList listBox, string fileName, string storyName)
+        readonly LineList<T> ListBox;
+        public ApprovedChanged(int selectedIndex, LineList<T> listBox, string fileName, string storyName)
         {
             index = selectedIndex;
             ListBox = listBox;
@@ -258,12 +258,12 @@ namespace Translator.Core
         }
     }
 
-    public sealed class SelectedLineChanged : ICommand
+    public sealed class SelectedLineChanged<T> : ICommand where T : class, ILineItem, new()
     {
         readonly int oldIndex;
         readonly int newIndex;
-        readonly LineList ListBox;
-        public SelectedLineChanged(LineList listBox, int oldIndex, int newIndex, string fileName, string storyName)
+        readonly LineList<T> ListBox;
+        public SelectedLineChanged(LineList<T> listBox, int oldIndex, int newIndex, string fileName, string storyName)
         {
             this.oldIndex = oldIndex;
             this.newIndex = newIndex;
@@ -286,14 +286,14 @@ namespace Translator.Core
         }
     }
 
-    public sealed class TranslationChanged : ICommand
+    public sealed class TranslationChanged<T> : ICommand where T : class, ILineItem, new()
     {
-        readonly TranslationManager manager;
+        readonly TranslationManager<T> manager;
         readonly string id;
         readonly string oldText;
         readonly string newText;
 
-        public TranslationChanged(TranslationManager manager, string id, string oldText, string newText)
+        public TranslationChanged(TranslationManager<T> manager, string id, string oldText, string newText)
         {
             this.manager = manager;
             this.id = id;
@@ -317,7 +317,7 @@ namespace Translator.Core
         }
     }
 
-    public sealed class SelectedTabChanged : ICommand
+    public sealed class SelectedTabChanged<T> : ICommand where T : class, ILineItem, new()
     {
         readonly int oldTabIndex, newTabIndex;
 
@@ -332,27 +332,27 @@ namespace Translator.Core
 
         public void Do()
         {
-            TabManager.SwitchToTab(newTabIndex);
+            TabManager<T>.SwitchToTab(newTabIndex);
         }
 
         public void Undo()
         {
-            TabManager.SwitchToTab(oldTabIndex);
+            TabManager<T>.SwitchToTab(oldTabIndex);
         }
     }
 
-    public sealed class AllTranslationsChanged : ICommand
+    public sealed class AllTranslationsChanged<T> : ICommand where T : class, ILineItem, new()
     {
         readonly FileData oldTranslations, newTranslations;
-        readonly TranslationManager manager;
+        readonly TranslationManager<T> manager;
         readonly string language;
 
-        public AllTranslationsChanged(TranslationManager manager, FileData oldTranslations, FileData newTranslations)
+        public AllTranslationsChanged(TranslationManager<T> manager, FileData oldTranslations, FileData newTranslations)
         {
             this.oldTranslations = new FileData(oldTranslations);
             this.newTranslations = new FileData(newTranslations);
             this.manager = manager;
-            this.language = TranslationManager.Language;
+            this.language = TranslationManager<T>.Language;
             FileName = manager.FileName;
             StoryName = manager.StoryName;
         }

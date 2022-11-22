@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Translator.Core;
 using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.UICompatibilityLayer
@@ -25,7 +26,17 @@ namespace Translator.UICompatibilityLayer
         string Title { get; set; }
         PopupResult ShowDialog();
     }
+    public interface ISaveFileDialog
+    {
+        string FileName { get; set; }
+        string InitialDirectory { get; set; }
+        string Title { get; set; }
+        string Extension { get; set; }
+        bool PromptCreate { get; set; }
+        bool PromptOverwrite { get; set; }
 
+        PopupResult ShowDialog();
+    }
     public interface IFolderDialog
     {
         string SelectedFolderPath { get; set; }
@@ -35,7 +46,6 @@ namespace Translator.UICompatibilityLayer
 
     public interface ILineItem
     {
-        public LineList Parent { get; init; }
         public bool IsApproved { get; set; }
         public bool IsSearchResult { get; set; }
         public bool IsTranslated { get; set; }
@@ -51,13 +61,17 @@ namespace Translator.UICompatibilityLayer
         public string Text { get; set; }
     }
 
-    public interface ITab
+    public interface ITab<T> where T : class, ILineItem, new()
     {
+        public int LineCount => Lines.Count;
         string Text { get; set; }
         bool IsApproveButtonFocused { get; }
 
-        LineList Lines { get { return GetLines(); } }
+        LineList<T> Lines { get { return GetLines(); } }
 
+        /// <summary>
+        /// Contains the ids of strings similar to the original template
+        /// </summary>
         List<string> SimilarStringsToEnglish { get; }
 
         void Dispose();
@@ -65,17 +79,18 @@ namespace Translator.UICompatibilityLayer
         #region list of translations
         void ClearLines();
 
-        ILineItem GetLineItem(int index);
+        T GetLineItem(int index);
 
-        LineList GetLines();
+        LineList<T> GetLines();
 
-        int SelectedLineIndex();
-        ILineItem SelectedLineItem();
+        int SelectedLineIndex { get; }
+        T SelectedLineItem { get; }
+        string SelectedLine { get { return SelectedLineItem.Text; } }
         void SelectLineItem(int index);
 
-        void SelectLineItem(ILineItem item);
+        void SelectLineItem(T item);
 
-        void SetLines(LineList lines);
+        void SetLines(LineList<T> lines);
         void UpdateLines();
 
         #endregion
@@ -106,10 +121,12 @@ namespace Translator.UICompatibilityLayer
         void FocusCommentBox();
 
         string GetCommentBoxText();
+        string[] GetCommentBoxTextArr();
 
         string SelectedCommentBoxText();
 
         void SetCommentBoxText(string text);
+        void SetCommentBoxText(string[] lines);
         void SetSelectedCommentBoxText(int start, int end);
         #endregion
 
@@ -117,18 +134,18 @@ namespace Translator.UICompatibilityLayer
         void ApproveSelectedLine();
         void UnapproveSelectedLine();
         bool GetApprovedButtonChecked();
-        void SetApprovedButtonChecked(bool v);
-
+        void SetApprovedButtonChecked(bool isChecked);
+        void SetFileInfoText(string info);
         #endregion
     }
 
-    public interface ITabController
+    public interface ITabController<T> where T : class, ILineItem, new()
     {
         int SelectedIndex { get; set; }
-        ITab SelectedTab { get; set; }
+        ITab<T> SelectedTab { get; set; }
         int TabCount { get; }
-        List<ITab> TabPages { get; }
-        bool CloseTab(ITab tab);
+        List<ITab<T>> TabPages { get; }
+        bool CloseTab(ITab<T> tab);
     }
 
     public interface ITextBox
@@ -141,7 +158,7 @@ namespace Translator.UICompatibilityLayer
         public void Focus();
     }
 
-    public interface IUIHandler
+    public interface IUIHandler<T> where T : class, ILineItem, new()
     {
         #region cursor
         void SignalUserEndWait();
@@ -186,6 +203,7 @@ namespace Translator.UICompatibilityLayer
         #endregion
 
         #region main window
+
         MenuItems GetFileMenuItems();
 
         void SetFileMenuItems(MenuItems menuItems);
@@ -219,13 +237,18 @@ namespace Translator.UICompatibilityLayer
         #endregion
 
         #region file access/system access
-        Type FileDialogType { get; init; }
+        Type InternalFileDialogType { get; protected set; }
+        Type FileDialogType { get => InternalFileDialogType; init => InternalFileDialogType = typeof(NullFileDialog); }
+        Type InternalFolderDialogType { get; protected set; }
+        Type FolderDialogType { get => InternalFolderDialogType; init => InternalFileDialogType = typeof(NullFolderDialog); }
+        Type InternalSaveFileDialogType { get; protected set; }
+        Type SaveFileDialogType { get => InternalSaveFileDialogType; init => InternalFileDialogType = typeof(NullSaveFileDialog); }
 
-        Type FolderDialogType { get; init; }
+        CreateTemplateDataDelegate CreateTemplateData { get; set; }
 
         void ClipboardSetText(string text);
 
-        ITab? CreateNewTab();
+        ITab<T>? CreateNewTab();
 
         void SignalAppExit();
         void Update();
@@ -233,37 +256,41 @@ namespace Translator.UICompatibilityLayer
         #endregion
 
         #region tabs
-        ITabController TabControl { get; }
+        ITabController<T> TabControl { get; }
+        string Language { get; set; }
         #endregion
     }
 
-    public class LineList
+    public class LineList<T> where T : class, ILineItem, new()
     {
-        public readonly List<ILineItem> Items = new();
+        public readonly List<T> Items = new();
 
         public int Count => Items.Count;
         public int ApprovedCount { get; internal set; }
-        public LineList() : this(new List<ILineItem>()) { }
+        public LineList() : this(new List<T>()) { }
 
-        public LineList(List<ILineItem> items, ILineItem selectedLineItem, int selectedIndex)
+        public LineList(List<T> items, T selectedLineItem, int selectedIndex)
         {
             Items = items;
             SelectedLineItem = selectedLineItem;
             SelectedIndex = selectedIndex;
         }
 
-        public LineList(List<ILineItem> items)
+        public LineList(List<T> items)
         {
             Items = items;
-            SelectedLineItem = items.Count > 0 ? items[0] : NullLineItem.Instance;
+            SelectedLineItem = items.Count > 0 ? items[0] : new T();
             SelectedIndex = items.Count > 0 ? 0 : -1;
         }
 
-        public int SelectedIndex { get { return InternalSelectedIndex; } set { SelectIndex(value); } }
-        public ILineItem SelectedLineItem { get; set; }
-        private int InternalSelectedIndex { get; set; }
+        public T this[int index] { get { return Items[index]; } set { Items[index] = value; } }
 
-        public void AddLineItem(ILineItem item)
+        public int SelectedIndex { get { return InternalSelectedIndex; } set { SelectIndex(value); } }
+        public T SelectedLineItem { get; set; }
+        private int InternalSelectedIndex { get; set; }
+        public List<int> SearchResults { get; internal set; } = new();
+
+        public void AddLineItem(T item)
         {
             Items.Add(item);
         }
@@ -299,7 +326,7 @@ namespace Translator.UICompatibilityLayer
             }
         }
 
-        public void RemoveLineItem(ILineItem item)
+        public void RemoveLineItem(T item)
         {
             if (item.IsApproved) --ApprovedCount;
             Items.Remove(item);
@@ -343,8 +370,12 @@ namespace Translator.UICompatibilityLayer
                 throw new IndexOutOfRangeException("Given index was too big for the array");
             }
         }
-    }
 
+        public void Add(string iD, bool lineIsApproved)
+        {
+            Items.Add(new T() { Text = iD, IsApproved = lineIsApproved });
+        }
+    }
     public class MenuItems
     {
         public readonly List<IMenuItem> Items = new();

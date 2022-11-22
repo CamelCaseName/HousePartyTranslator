@@ -83,7 +83,7 @@ namespace Translator.Core
             Settings.Default.Recents2 = recents.Count > 2 ? recents[2] : "";
             Settings.Default.Recents3 = recents.Count > 3 ? recents[3] : "";
             Settings.Default.Recents4 = recents.Count > 4 ? recents[4] : "";
-            Settings.Default.RecentIndex = TabManager.SelectedTab.SelectedLineIndex();
+            Settings.Default.RecentIndex = TabManager.SelectedTab.GetSelectedLineIndex();
 
             //save settings
             Settings.Default.Save();

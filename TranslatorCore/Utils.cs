@@ -12,13 +12,13 @@ namespace Translator.Core.Helpers
     /// <summary>
     /// Provides some generic utility methods.
     /// </summary>
-    public static class Utils
+    public static class Utils<T> where T : class, ILineItem, new()
     {
         public const int MaxTextLength = 100;
         public const int MaxWordLength = 15;
 
         private static int ExceptionCount = 0;
-        private static IUIHandler MainUI = new NullUIHandler();
+        private static IUIHandler<T> MainUI = (IUIHandler<T>)new NullUIHandler();
 
         public static readonly Color foreground = SystemColors.Window;
         public static readonly Color background = SystemColors.ControlDarkDark;
@@ -28,7 +28,7 @@ namespace Translator.Core.Helpers
         public static readonly Color menu = SystemColors.ScrollBar;
         public static readonly Color frame = SystemColors.WindowFrame;
 
-        internal static void Initialize(IUIHandler ui)
+        internal static void Initialize(IUIHandler<T> ui)
         {
             MainUI = ui;
         }
@@ -73,6 +73,8 @@ namespace Translator.Core.Helpers
         /// <returns>The path to the selected file.</returns>
         public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "")
         {
+            if (!MainUI.FileDialogType.IsAssignableTo(typeof(IFileDialog))) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
+
             IFileDialog? selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI.FileDialogType,new object?[]
             {
                 Title?.Length > 0 ? Title : "Choose a file for translation",
@@ -116,7 +118,9 @@ namespace Translator.Core.Helpers
         /// <returns>The folder path selected.</returns>
         public static string SelectFolderFromSystem(string message)
         {
-            IFileDialog? selectFolderDialog = (IFileDialog?)Activator.CreateInstance(MainUI.FileDialogType, new object?[]
+            if (!MainUI.FolderDialogType.IsAssignableTo(typeof(IFolderDialog))) throw new ArgumentException($"{nameof(MainUI.FolderDialogType)} does not inherit {nameof(IFolderDialog)}");
+
+            IFolderDialog? selectFolderDialog = (IFolderDialog?)Activator.CreateInstance(MainUI.FileDialogType, new object?[]
             {
                 message,
                 Settings.Default.TemplatePath == string.Empty ? Environment.SpecialFolder.UserProfile.ToString() : Settings.Default.TemplatePath,
@@ -125,7 +129,7 @@ namespace Translator.Core.Helpers
 
             if (selectFolderDialog.ShowDialog() == PopupResult.OK)
             {
-                string t = selectFolderDialog.SelectedPath;
+                string t = selectFolderDialog.SelectedFolderPath;
                 if (t != null)
                 {
                     Settings.Default.TemplatePath = t;
