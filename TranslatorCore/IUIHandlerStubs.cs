@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using Translator.Core;
 
 namespace Translator.UICompatibilityLayer.StubImpls
 {
@@ -24,7 +25,14 @@ namespace Translator.UICompatibilityLayer.StubImpls
 
     public class NullSaveFileDialog : ISaveFileDialog
     {
+        public string FileName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string InitialDirectory { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Title { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Extension { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool PromptCreate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public bool PromptOverwrite { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
+        public PopupResult ShowDialog() => throw new NotImplementedException();
     }
 
     public class NullLineItem : ILineItem
@@ -51,6 +59,14 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public static NullTab Instance { get; } = new NullTab();
         public string Text { get => ""; set { } }
 
+        public bool IsApproveButtonFocused => throw new NotImplementedException();
+
+        public List<string> SimilarStringsToEnglish => throw new NotImplementedException();
+
+        public int SelectedLineIndex => throw new NotImplementedException();
+
+        public NullLineItem SelectedLineItem => throw new NotImplementedException();
+
         public void ApproveSelectedLine() => throw new NotImplementedException();
         public void ClearLines() => throw new NotImplementedException();
 
@@ -71,7 +87,7 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public void SelectLineItem(int index) => throw new NotImplementedException();
         public void SelectLineItem(ILineItem item) => throw new NotImplementedException();
         public void SetCommentBoxText(string text) => throw new NotImplementedException();
-        public void SetLines(LineList lines) => throw new NotImplementedException();
+        public void SetLines(LineList<NullLineItem> lines) => throw new NotImplementedException();
         public void SetSelectedCommentBoxText(int start, int end) => throw new NotImplementedException();
         public void SetSelectedTemplateBoxText(int start, int end) => throw new NotImplementedException();
         public void SetSelectedTranslationBoxText(int start, int end) => throw new NotImplementedException();
@@ -79,6 +95,13 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public void SetTranslationBoxText(string text) => throw new NotImplementedException();
         public void UnapproveSelectedLine() => throw new NotImplementedException();
         public void UpdateLines() => throw new NotImplementedException();
+        NullLineItem ITab<NullLineItem>.GetLineItem(int index) => throw new NotImplementedException();
+        public void SelectLineItem(NullLineItem item) => throw new NotImplementedException();
+        public string[] GetCommentBoxTextArr() => throw new NotImplementedException();
+        public void SetCommentBoxText(string[] lines) => throw new NotImplementedException();
+        public bool GetApprovedButtonChecked() => throw new NotImplementedException();
+        public void SetApprovedButtonChecked(bool isChecked) => throw new NotImplementedException();
+        public void SetFileInfoText(string info) => throw new NotImplementedException();
     }
 
     public class NullTabController : ITabController<NullLineItem>
@@ -96,6 +119,7 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public bool CloseTab(ITab<NullLineItem> tab) { return false; }
     }
 
+#pragma warning disable IDE0060
     public class NullUIHandler : IUIHandler<NullLineItem>
     {
         public static NullUIHandler Instance { get; } = new NullUIHandler();
@@ -105,6 +129,7 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public ITabController<NullLineItem> TabControl => throw new NotImplementedException();
 
         public string Language { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public CreateTemplateDataDelegate CreateTemplateData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         ITabController<NullLineItem> IUIHandler<NullLineItem>.TabControl => throw new NotImplementedException();
 
@@ -196,4 +221,5 @@ namespace Translator.UICompatibilityLayer.StubImpls
         PopupResult IUIHandler<NullLineItem>.WarningYesNoCancel(string message, string title) => throw new NotImplementedException();
         bool IUIHandler<NullLineItem>.WarningYesNoCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
     }
+#pragma warning restore
 }

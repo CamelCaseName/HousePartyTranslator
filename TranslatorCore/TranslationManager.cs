@@ -34,7 +34,7 @@ namespace Translator.Core
             }
         }
         private bool _changesPending;
-        public static bool IsUpToDate { get; private set; } = false;
+        public static bool IsUpToDate { get; internal set; } = false;
         public List<StringCategory> CategoriesInFile = new();
         public bool isTemplate = false;
         public string SearchQuery = "";
@@ -195,7 +195,7 @@ namespace Translator.Core
             {
                 UI.SignalUserWait();
                 //check if the template has been added and generated once before
-                _ = DataBase.GetAllLineDataTemplate(fileName, story, out FileData data);
+                _ = DataBase<T>.GetAllLineDataTemplate(fileName, story, out FileData data);
                 if (data.Count == 0)
                 {//its a custom story but no template so far on the server
                  //use contextprovider to extract the story object and get the lines
@@ -205,8 +205,8 @@ namespace Translator.Core
                         if (UI.CreateTemplateData(story, fileName, SourceFilePath, out var templates))
                             if (templates.Count > 0)
                             {
-                                _ = DataBase.RemoveOldTemplates(FileName, story);
-                                _ = DataBase.UploadTemplates(templates);
+                                _ = DataBase<T>.RemoveOldTemplates(FileName, story);
+                                _ = DataBase<T>.UploadTemplates(templates);
 
                                 UI.SignalUserEndWait();
                                 return true;
@@ -286,7 +286,7 @@ namespace Translator.Core
                     History.ClearForFile<T>(FileName, StoryName);
                 ResetTranslationManager();
 
-                if (!IsUpToDate && Settings.Default.AdvancedModeEnabled && DataBase.IsOnline)
+                if (!IsUpToDate && Settings.Default.AdvancedModeEnabled && DataBase<T>.IsOnline)
                 {
                     LoadTemplates();
                 }
@@ -328,7 +328,7 @@ namespace Translator.Core
                 _ = UI.WarningOk(
                     $"Please the template folder named 'TEMPLATE' so we can upload them. " +
                     $"Your Current Folder shows as {templateFolderName}.",
-                    "Updating string database");
+                    "Updating string DataBase<T>");
             }
         }
 
@@ -505,8 +505,8 @@ namespace Translator.Core
             {
                 UI.SignalUserWait();
 
-                //update translation in the database
-                _ = DataBase.UpdateTranslation(SelectedLine, Language);
+                //update translation in the DataBase<T>
+                _ = DataBase<T>.UpdateTranslation(SelectedLine, Language);
 
                 if (TabUI.SimilarStringsToEnglish.Contains(SelectedId)) _ = TabUI.SimilarStringsToEnglish.Remove(SelectedId);
 
@@ -524,12 +524,12 @@ namespace Translator.Core
             History.ClearForFile<T>(FileName, StoryName);
 
             if (SourceFilePath == "" || Language == "") return;
-            if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+            if (!DataBase<T>.UpdateTranslations(TranslationData, Language) || !DataBase<T>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
 
             List<CategorizedLines> CategorizedStrings = InitializeCategories();
 
             //sort online line ids into translations but use local values for translations if applicable
-            if (DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase.IsOnline)
+            if (DataBase<T>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase<T>.IsOnline)
                 SortIntoCategories(CategorizedStrings, IdsToExport);
             else
                 SortIntoCategories(CategorizedStrings, TranslationData);
@@ -654,7 +654,7 @@ namespace Translator.Core
             foreach (LineData item in IdsToExport.Values)
             {
                 //add template to list if no translation is in the file
-                if (DataBase.IsOnline)
+                if (DataBase<T>.IsOnline)
                 {
                     if (TranslationData.TryGetValue(item.ID, out LineData? TempResult))
                     {
@@ -960,21 +960,21 @@ namespace Translator.Core
             }
 
             //remove old lines from server
-            _ = DataBase.RemoveOldTemplates(StoryName);
+            _ = DataBase<T>.RemoveOldTemplates(StoryName);
 
             //add all the new strings
-            _ = DataBase.UploadTemplates(TranslationData);
+            _ = DataBase<T>.UploadTemplates(TranslationData);
 
             PopupResult result = UI.WarningYesNoCancel(
                 "This should be done uploading. It should be :)\n" +
                 "If you are done uploading, please select YES. ELSE NO. Be wise please!",
-                "Updating string database..."
+                "Updating string DataBase<T>..."
                 );
 
             //update if successfull
             if (result == PopupResult.YES)
             {
-                if (DataBase.UpdateDBVersion())
+                if (DataBase<T>.UpdateDBVersion())
                 {
                     IsUpToDate = true;
                     isTemplate = false;
@@ -1044,9 +1044,9 @@ namespace Translator.Core
             int currentIndex = 0;
             FileData onlineLines;
 
-            if (DataBase.IsOnline)
+            if (DataBase<T>.IsOnline)
                 //get template lines from online
-                _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
+                _ = DataBase<T>.GetAllLineData(FileName, StoryName, out onlineLines, Language);
             else
                 //get template lines from user if they want
                 onlineLines = GetTemplatesFromUser();
@@ -1057,14 +1057,14 @@ namespace Translator.Core
                 {
                     lineIsApproved = tempLine.IsApproved;
                     TranslationData[key].Category = tempLine.Category;
-                    if (DataBase.IsOnline) TranslationData[key].Comments = tempLine.Comments;
+                    if (DataBase<T>.IsOnline) TranslationData[key].Comments = tempLine.Comments;
                     TranslationData[key].FileName = tempLine.FileName;
                     TranslationData[key].ID = key;
                     TranslationData[key].IsTemplate = false;
                     TranslationData[key].IsTranslated = tempLine.IsTranslated;
                     TranslationData[key].Story = tempLine.Story;
-                    if (!localTakesPriority && DataBase.IsOnline) TranslationData[key].TranslationString = tempLine.TranslationString;
-                    else if (!DataBase.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
+                    if (!localTakesPriority && DataBase<T>.IsOnline) TranslationData[key].TranslationString = tempLine.TranslationString;
+                    else if (!DataBase<T>.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
                     TranslationData[key].IsApproved = false;
                 }
 
@@ -1110,7 +1110,7 @@ namespace Translator.Core
         private void ReadInStringsFromFile()
         {
             //read in all strings with IDs
-            if (isTemplate && DataBase.IsOnline)//read in templates
+            if (isTemplate && DataBase<T>.IsOnline)//read in templates
             {
                 TranslationData = GetTemplateFromFile(SourceFilePath);
             }
@@ -1187,7 +1187,7 @@ namespace Translator.Core
         {
             StringCategory currentCategory = StringCategory.General;
 
-            _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
+            _ = DataBase<T>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
             List<string> LinesFromFile;
             try
             {
@@ -1221,7 +1221,7 @@ namespace Translator.Core
                 {
                     TryFixEmptyFile();
                 }
-                else if (DataBase.IsOnline)
+                else if (DataBase<T>.IsOnline)
                     //inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
                     //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
                     _ = UI.InfoOk(
@@ -1304,7 +1304,7 @@ namespace Translator.Core
             if (!triedFixingOnce)
             {
                 triedFixingOnce = true;
-                _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
+                _ = DataBase<T>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
                 foreach (LineData item in IdsToExport.Values)
                 {
                     TranslationData[item.ID] = new LineData(item.ID, StoryName, FileName, item.Category);
@@ -1324,7 +1324,7 @@ namespace Translator.Core
             LoadTranslationFile();
             if (UI == null) return;
             //select recent index
-            if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.SelectedLineIndex = Settings.Default.RecentIndex;
+            if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.SelectLineItem( Settings.Default.RecentIndex);
         }
 
         /// <summary>
@@ -1493,7 +1493,6 @@ namespace Translator.Core
             }
             UI.CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
         }
-
 
         public void OverrideCloudSave()
         {
