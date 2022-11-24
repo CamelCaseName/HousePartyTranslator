@@ -53,6 +53,16 @@ namespace Translator.Core
             }
         }
 
+        public static int SelectedTabIndex
+        {
+            get { return TabControl.SelectedIndex; }
+            set { TabControl.SelectedIndex = value; }
+        }
+        public static int TabCount
+        {
+            get { return TabControl.TabCount; }
+        }
+
         public static void CloseTab(ITab<T> tab)
         {
             //remove manager for the tab, save first

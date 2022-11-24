@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -1348,44 +1349,44 @@ namespace Translator.Core
         /// <returns>True if a new result could be selected</returns>
         public bool SelectNextResultIfApplicable()
         {
-            if (!UI.TranslationTextBox.Focused && !UI.CommentBox.Focused && UI.CheckListBoxLeft.SearchResults.Any())
+            if (!TabUI.IsTranslationBoxFocused && !TabUI.IsCommentBoxFocused && TabUI.Lines.SearchResults.Any())
             {
                 //loop back to start
-                if (SelectedSearchResult > UI.CheckListBoxLeft.SearchResults.Count - 1)
+                if (SelectedSearchResult > TabUI.Lines.SearchResults.Count - 1)
                 {
                     SelectedSearchResult = 0;
                     //loop over to new tab when in global search
-                    if (TabManager.InGlobalSearch)
+                    if (TabManager<T>.InGlobalSearch)
                     {
-                        searchTabIndex = TabManager.TabControl.SelectedIndex;
-                        TabManager.SwitchToTab(++searchTabIndex);
+                        searchTabIndex = TabManager<T>.SelectedTabIndex;
+                        TabManager<T>.SwitchToTab(++searchTabIndex);
                     }
                     else
                     {
                         //select next index from list of matches
-                        if (UI.CheckListBoxLeft.SearchResults[SelectedSearchResult] < TabUI.Lines.Count)
+                        if (TabUI.Lines.SearchResults[SelectedSearchResult] < TabUI.Lines.Count)
                         {
-                            UI.CheckListBoxLeft.SelectedIndex = UI.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                            TabUI.Lines.SelectedIndex = TabUI.Lines.SearchResults[SelectedSearchResult];
                         }
                     }
                 }
                 else
                 {
-                    if (UI.CheckListBoxLeft.SearchResults[SelectedSearchResult] < TabUI.Lines.Count)
+                    if (TabUI.Lines.SearchResults[SelectedSearchResult] < TabUI.Lines.Count)
                     {
-                        UI.CheckListBoxLeft.SelectedIndex = UI.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                        TabUI.Lines.SelectedIndex = TabUI.Lines.SearchResults[SelectedSearchResult];
                         ++SelectedSearchResult;
                     }
-                    else if (TabManager.InGlobalSearch && TabManager.TabControl.TabCount > 1)
+                    else if (TabManager<T>.InGlobalSearch && TabManager<T>.TabCount > 1)
                     {
-                        searchTabIndex = TabManager.TabControl.SelectedIndex;
-                        TabManager.SwitchToTab(++searchTabIndex);
+                        searchTabIndex = TabManager<T>.SelectedTabIndex;
+                        TabManager<T>.SwitchToTab(++searchTabIndex);
                         return true;
                     }
                     else
                     {
                         SelectedSearchResult = 0;
-                        UI.CheckListBoxLeft.SelectedIndex = UI.CheckListBoxLeft.SearchResults[SelectedSearchResult];
+                        TabUI.Lines.SelectedIndex = TabUI.Lines.SearchResults[SelectedSearchResult];
                         ++SelectedSearchResult;
                     }
                 }
@@ -1399,50 +1400,26 @@ namespace Translator.Core
         }
 
         /// <summary>
-        /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
-        /// </summary>
-
-        public void SetHighlightedNode()
-        {
-            if (MainWindow == null || UI == null) return;
-            if (TranslationData.Count > 0)
-            {
-                int currentIndex = UI.CheckListBoxLeft.SelectedIndex;
-                string id = currentIndex < TranslationData.Count && currentIndex >= 0 ? SelectedLine.ID : "Name";
-                //Highlights the node representign the selected string in the story explorer window
-                if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
-                {
-                    MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.Nodes.Find(n => n.ID == id) ?? Node.NullNode;
-                }
-            }
-        }
-
-        /// <summary>
         /// Does some logic to figure out wether to show or hide the replacing ui
         /// </summary>
         public void ToggleReplaceUI()
         {
-            if (UI == null) return;
-            if (!UI.ReplaceBox.Visible)
+            if (!UI.ReplaceBarIsVisible)
             {
-                if (UI.TranslationTextBox.SelectedText.Length > 0)
+                if (TabUI.GetTranslationBoxText().Length > 0)
                 {
-                    UI.SearchBox.Text = UI.TranslationTextBox.SelectedText;
+                    UI.SetSearchBarText(TabUI.SelectedTranslationBoxText());
                 }
-                UI.ReplaceBox.Visible = true;
-                UI.ReplaceAllButton.Visible = true;
-                UI.ReplaceButton.Visible = true;
+                UI.SetReplaceMenuVisible();
 
                 //set focus to most needed text box, search first
-                if (UI.SearchBox.Text.Length > 0) UI.ReplaceBox.Focus();
-                else UI.SearchBox.Focus();
+                if (UI.GetSearchBarText().Length > 0) UI.FocusReplaceBar();
+                else UI.FocusSearchBar();
             }
             else
             {
-                UI.ReplaceButton.Visible = false;
-                UI.ReplaceAllButton.Visible = false;
-                UI.ReplaceBox.Visible = false;
-                _ = UI.TranslationTextBox.Focus();
+                UI.SetReplaceMenuInVisible();
+                TabUI.FocusTranslationBox();
             }
         }
 
@@ -1453,21 +1430,20 @@ namespace Translator.Core
         /// <param name="Total">The total number of strings.</param>
         private void UpdateApprovedCountLabel(int Approved, int Total)
         {
-            if (UI == null) return;
             float percentage = Approved / (float)Total;
-            UI.ApprovedCountLabel.Text = $"Approved: {Approved} / {Total} {(int)(percentage * 100)}%";
+            TabUI.SetApprovedLabelText( $"Approved: {Approved} / {Total} {(int)(percentage * 100)}%");
             int ProgressValue = (int)(Approved / (float)Total * 100);
-            if (ProgressValue != UI.NoProgressbar.Value)
+            if (ProgressValue != TabUI.ProgressValue)
             {
                 if (ProgressValue > 0 && ProgressValue <= 100)
                 {
-                    UI.NoProgressbar.Value = ProgressValue;
+                    TabUI.ProgressValue = ProgressValue;
                 }
                 else
                 {
-                    UI.NoProgressbar.Value = 0;
+                    TabUI.ProgressValue = 0;
                 }
-                UI.NoProgressbar.Invalidate();
+                UI.UpdateProgress();
             }
         }
 
@@ -1476,36 +1452,34 @@ namespace Translator.Core
         /// </summary>
         /// <param name="TemplateCount">The number of chars in the template string.</param>
         /// <param name="TranslationCount">The number of chars in the translated string.</param>
-        private void UpdateCharacterCountLabel(int TemplateCount, int TranslationCount)
+        public void UpdateCharacterCountLabel(int TranslationCount, int TemplateCount)
         {
-            if (UI == null) return;
             if (TranslationCount <= TemplateCount)
             {
-                UI.CharacterCountLabel.ForeColor = Color.LawnGreen;
+                TabUI.SetCharacterLabelColor( Color.LawnGreen);
             }//if bigger by no more than 20 percent
             else if (TranslationCount <= TemplateCount * 1.2f)
             {
-                UI.CharacterCountLabel.ForeColor = Color.DarkOrange;
+                TabUI.SetCharacterLabelColor(Color.DarkOrange);
             }
             else
             {
-                UI.CharacterCountLabel.ForeColor = Color.Red;
+                TabUI.SetCharacterLabelColor(Color.Red);
             }
-            UI.CharacterCountLabel.Text = $"Template: {TemplateCount} | Translation: {TranslationCount}";
+            TabUI.SetCharacterCountLabelText($"Template: {TemplateCount} | Translation: {TranslationCount}");
         }
 
         public void OverrideCloudSave()
         {
-            if (UI == null) return;
-            if (Settings.Default.advancedMode)
+            if (Settings.Default.AdvancedModeEnabled)
             {
                 //show warning
-                if (UI.WarningYesNoB("This will override the lines saved online for the opened file with your local verison! Please be careful. If you read this and want to continue, please select yes"))
+                if (UI.WarningYesNo("This will override the lines saved online for the opened file with your local verison! Please be careful. If you read this and want to continue, please select yes", result: PopupResult.YES))
                 {
                     //force load local version
                     LoadTranslationFile(true);
                     //select recent index
-                    if (Settings.Default.recent_index > 0 && Settings.Default.recent_index < TranslationData.Count) UI.CheckListBoxLeft.SelectedIndex = Settings.Default.recent_index;
+                    if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.Lines.SelectedIndex = Settings.Default.RecentIndex;
                     //update to online
                     SaveFile();
                     //reload latest online, should be the same as local by then

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Translator.Core;
 using Translator.UICompatibilityLayer.StubImpls;
 
@@ -86,6 +87,11 @@ namespace Translator.UICompatibilityLayer
         int SelectedLineIndex { get; }
         T SelectedLineItem { get; }
         string SelectedLine { get { return SelectedLineItem.Text; } }
+
+        bool IsTranslationBoxFocused { get; }
+        bool IsCommentBoxFocused { get; }
+        int ProgressValue { get; set; }
+
         void SelectLineItem(int index);
 
         void SelectLineItem(T item);
@@ -136,6 +142,9 @@ namespace Translator.UICompatibilityLayer
         bool GetApprovedButtonChecked();
         void SetApprovedButtonChecked(bool isChecked);
         void SetFileInfoText(string info);
+        void SetApprovedLabelText(string v);
+        void SetCharacterLabelColor(Color lawnGreen);
+        void SetCharacterCountLabelText(string v);
         #endregion
     }
 
@@ -253,11 +262,14 @@ namespace Translator.UICompatibilityLayer
         void SignalAppExit();
         void Update();
         void UpdateProgress();
+        void SetReplaceMenuVisible();
+        void SetReplaceMenuInVisible();
         #endregion
 
         #region tabs
         ITabController<T> TabControl { get; }
         string Language { get; set; }
+        bool ReplaceBarIsVisible { get; }
         #endregion
     }
 

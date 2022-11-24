@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System;
 using Translator.Core;
+using System.Drawing;
 
 namespace Translator.UICompatibilityLayer.StubImpls
 {
@@ -67,6 +68,12 @@ namespace Translator.UICompatibilityLayer.StubImpls
 
         public NullLineItem SelectedLineItem => throw new NotImplementedException();
 
+        public bool IsTranslationBoxFocused => throw new NotImplementedException();
+
+        public bool IsCommentBoxFocused => throw new NotImplementedException();
+
+        public int ProgressValue { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public void ApproveSelectedLine() => throw new NotImplementedException();
         public void ClearLines() => throw new NotImplementedException();
 
@@ -102,6 +109,9 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public bool GetApprovedButtonChecked() => throw new NotImplementedException();
         public void SetApprovedButtonChecked(bool isChecked) => throw new NotImplementedException();
         public void SetFileInfoText(string info) => throw new NotImplementedException();
+        public void SetApprovedLabelText(string v) => throw new NotImplementedException();
+        public void SetCharacterLabelColor(Color lawnGreen) => throw new NotImplementedException();
+        public void SetCharacterCountLabelText(string v) => throw new NotImplementedException();
     }
 
     public class NullTabController : ITabController<NullLineItem>
@@ -130,6 +140,8 @@ namespace Translator.UICompatibilityLayer.StubImpls
 
         public string Language { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public CreateTemplateDataDelegate CreateTemplateData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+        public bool ReplaceBarIsVisible => throw new NotImplementedException();
 
         ITabController<NullLineItem> IUIHandler<NullLineItem>.TabControl => throw new NotImplementedException();
 
@@ -165,6 +177,8 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public bool Logout() => throw new NotImplementedException();
         public void SetFileMenuItems(MenuItems menuItems) => throw new NotImplementedException();
         public void SetReplaceBarText(string replacement) => throw new NotImplementedException();
+        public void SetReplaceMenuInVisible() => throw new NotImplementedException();
+        public void SetReplaceMenuVisible() => throw new NotImplementedException();
         public void SetSearchBarText(string query) => throw new NotImplementedException();
         public void SetTitle(string title) => throw new NotImplementedException();
         public void SignalAppExit() => throw new NotImplementedException();
