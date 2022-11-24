@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Translator.UICompatibilityLayer;
+using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.Core.Helpers
 {
@@ -97,13 +98,13 @@ namespace Translator.Core.Helpers
                 currentLength++;
 
                 //if line is short still
-                if (currentLength <= Utils.MaxTextLength)
+                if (currentLength <= Utils<NullLineItem>.MaxTextLength)
                 {
                     output += c;
                 }
                 else
                 {
-                    if (inWord && currentWordLength < Utils.MaxWordLength)
+                    if (inWord && currentWordLength < Utils<NullLineItem>.MaxWordLength)
                     {
                         //line is too long but we in a word
                         output += c;
@@ -263,7 +264,7 @@ namespace Translator.Core.Helpers
         /// <returns>The category representing the string, or none.</returns>
         public static StringCategory AsCategory(this string input)
         {
-            return Utils.GetCategoryFromString(input);
+            return Utils<NullLineItem>.GetCategoryFromString(input);
         }
 
         /// <summary>
@@ -273,7 +274,7 @@ namespace Translator.Core.Helpers
         /// <returns>The string representing the category.</returns>
         public static string AsString(this StringCategory category)
         {
-            return Utils.GetStringFromCategory(category);
+            return Utils<NullLineItem>.GetStringFromCategory(category);
         }
     }
 }

@@ -79,7 +79,7 @@ namespace Translator.Core
         public static TranslationManager<T> Initialize(ITab<T> tab1, IUIHandler<T> ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion)
         {
             Utils<T>.Initialize(ui);
-            DataBase.Initialize(ui, password, appVersion);
+            DataBase<T>.Initialize(ui, password, appVersion);
             RecentsManager.Initialize(MenuItem, MenuItemSeperator);
             TabControl = ui.TabControl;
 
@@ -204,7 +204,7 @@ namespace Translator.Core
             //update history on tab change
             if (lastIndex != TabControl.SelectedIndex)
             {
-                History.AddAction(new SelectedTabChanged(lastIndex, TabControl.SelectedIndex));
+                History.AddAction(new SelectedTabChanged<T>(lastIndex, TabControl.SelectedIndex));
                 lastIndex = TabControl.SelectedIndex;
             }
 
@@ -368,8 +368,8 @@ namespace Translator.Core
                 for (int i = 0; i < TabControl.TabCount; i++)
                 {
                     //save history
-                    if (i != 0) History.AddAction(new SelectedTabChanged(i - 1, i));
-                    else History.AddAction(new SelectedTabChanged(0, i));
+                    if (i != 0) History.AddAction(new SelectedTabChanged<T>(i - 1, i));
+                    else History.AddAction(new SelectedTabChanged<T>(0, i));
 
                     translationManagers[TabControl.TabPages[i]].ReplaceAll(ActiveUI.GetReplaceBarText() ?? "");
                 }

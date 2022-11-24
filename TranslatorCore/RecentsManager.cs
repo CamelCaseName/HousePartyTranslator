@@ -78,12 +78,12 @@ namespace Translator.Core
         public static void SaveRecents()
         {
             //set most recent to the last file open in the selected tab so the index is correct
-            Settings.Default.Recents0 = TabManager.ActiveTranslationManager?.SourceFilePath ?? "";
+            Settings.Default.Recents0 = TabManager<NullLineItem>.ActiveTranslationManager?.SourceFilePath ?? "";
             Settings.Default.Recents1 = recents.Count > 1 ? recents[1] : "";
             Settings.Default.Recents2 = recents.Count > 2 ? recents[2] : "";
             Settings.Default.Recents3 = recents.Count > 3 ? recents[3] : "";
             Settings.Default.Recents4 = recents.Count > 4 ? recents[4] : "";
-            Settings.Default.RecentIndex = TabManager.SelectedTab.GetSelectedLineIndex();
+            Settings.Default.RecentIndex = TabManager<NullLineItem>.SelectedTab.SelectedLineIndex;
 
             //save settings
             Settings.Default.Save();
@@ -106,8 +106,7 @@ namespace Translator.Core
         /// <summary>
         /// Opens the most recent file
         /// </summary>
-
-        public static void OpenMostRecent()
+        public static void OpenMostRecent<T>() where T : class, ILineItem, new()
         {
             if (Settings.Default.AutoLoadRecent)
             {
@@ -123,9 +122,9 @@ namespace Translator.Core
                 if (recentsAvailable)
                 {
                     IgnoreNextRecents = 1;
-                    TabManager.ActiveTranslationManager?.LoadFileIntoProgram(recents[0]);
-                    if (Settings.Default.AutoLoadRecentIndex) TranslationManager.SelectLine(recentIndex);
-                    else TranslationManager.SelectLine(0);
+                    TabManager<T>.ActiveTranslationManager?.LoadFileIntoProgram(recents[0]);
+                    if (Settings.Default.AutoLoadRecentIndex) TranslationManager<T>.SelectLine(recentIndex);
+                    else TranslationManager<T>.SelectLine(0);
                 }
             }
         }
@@ -134,7 +133,6 @@ namespace Translator.Core
         /// Updates the recent menuitems in the given collection
         /// </summary>
         /// <param name="collection"></param>
-
         public static void UpdateMenuItems(MenuItems collection)
         {
             IMenuItem[] items = GetRecents();
@@ -175,10 +173,10 @@ namespace Translator.Core
 
         private static void RecentsManager_Click(object? sender, EventArgs? e)
         {
-            if (sender == null || TabManager.ActiveTranslationManager == null) return;
-            TabManager.ActiveTranslationManager?.ShowAutoSaveDialog();
-            TabManager.ActiveTranslationManager?.LoadFileIntoProgram(((IMenuItem)sender).Text);
-            if (Settings.Default.AutoLoadRecentIndex) TranslationManager.SelectLine(recentIndex);
+            if (sender == null || TabManager<NullLineItem>.ActiveTranslationManager == null) return;
+            TabManager<NullLineItem>.ActiveTranslationManager?.ShowAutoSaveDialog();
+            TabManager<NullLineItem>.ActiveTranslationManager?.LoadFileIntoProgram(((IMenuItem)sender).Text);
+            if (Settings.Default.AutoLoadRecentIndex) TranslationManager<NullLineItem>.SelectLine(recentIndex);
         }
     }
 }

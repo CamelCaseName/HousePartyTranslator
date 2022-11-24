@@ -12,6 +12,7 @@ namespace Translator.Core.Helpers
     /// <summary>
     /// Provides some generic utility methods.
     /// </summary>
+    
     public static class Utils<T> where T : class, ILineItem, new()
     {
         public const int MaxTextLength = 100;
