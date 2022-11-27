@@ -213,11 +213,11 @@ namespace Translator.Core
             {
                 if (InGlobalSearch)
                 {
-                    ActiveTranslationManager.Search(ActiveUI.GetSearchBarText()[1..] ?? "");
+                    ActiveTranslationManager.Search(ActiveUI.SearchBarText[1..] ?? "");
                 }
                 else
                 {
-                    ActiveUI.SetSearchBarText(ActiveTranslationManager.SearchQuery);
+                    ActiveUI.                    SearchBarText = ActiveTranslationManager.SearchQuery;
                 }
             }
         }
@@ -268,10 +268,10 @@ namespace Translator.Core
         {
             if (ActiveUI == null) return false;
 
-            if (ActiveUI.GetSearchBarText().Length > 0)
+            if (ActiveUI.SearchBarText.Length > 0)
             {
                 //global search has to start with the ?
-                if (ActiveUI.GetSearchBarText()[0] == '?')
+                if (ActiveUI.SearchBarText[0] == '?')
                 {
                     InGlobalSearch = true;
                     return true;
@@ -297,7 +297,7 @@ namespace Translator.Core
             }
             else
             {
-                ActiveTranslationManager?.Search(ActiveUI.GetSearchBarText()[1..] ?? "");
+                ActiveTranslationManager?.Search(ActiveUI.SearchBarText[1..] ?? "");
             }
         }
 
@@ -371,18 +371,18 @@ namespace Translator.Core
                     if (i != 0) History.AddAction(new SelectedTabChanged<T>(i - 1, i));
                     else History.AddAction(new SelectedTabChanged<T>(0, i));
 
-                    translationManagers[TabControl.TabPages[i]].ReplaceAll(ActiveUI.GetReplaceBarText() ?? "");
+                    translationManagers[TabControl.TabPages[i]].ReplaceAll(ActiveUI.ReplaceBarText ?? "");
                 }
             }
             else
             {
-                ActiveTranslationManager?.ReplaceAll(ActiveUI.GetReplaceBarText() ?? "");
+                ActiveTranslationManager?.ReplaceAll(ActiveUI.ReplaceBarText ?? "");
             }
         }
 
         public static void Replace()
         {
-            ActiveTranslationManager?.ReplaceSingle(ActiveUI.GetReplaceBarText() ?? "");
+            ActiveTranslationManager?.ReplaceSingle(ActiveUI.ReplaceBarText ?? "");
         }
     }
 }

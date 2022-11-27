@@ -51,7 +51,7 @@ namespace Translator.UICompatibilityLayer.StubImpls
     public class NullMenuItem : IMenuItem
     {
         public static NullMenuItem Instance { get; } = new();
-        public EventHandler OnClick { get => new((object? sender, EventArgs e)=> { }); init { } }
+        public EventHandler OnClick { get => new((object? sender, EventArgs e) => { }); init { } }
         public string Text { get => string.Empty; set { } }
     }
 
@@ -81,33 +81,32 @@ namespace Translator.UICompatibilityLayer.StubImpls
 
         public void FocusCommentBox() => throw new NotImplementedException();
         public void FocusTranslationBox() => throw new NotImplementedException();
-        public string GetCommentBoxText() => throw new NotImplementedException();
+        public string CommentBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public ILineItem GetLineItem(int index) => throw new NotImplementedException();
-        public LineList<NullLineItem> GetLines() => throw new NotImplementedException();
-        public string GetTemplateBoxText() => throw new NotImplementedException();
-        public string GetTranslationBoxText() => throw new NotImplementedException();
+        public LineList<NullLineItem> Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string TemplateBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string TranslationBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public string SelectedCommentBoxText() => throw new NotImplementedException();
         public int GetSelectedLineIndex() => throw new NotImplementedException();
         public ILineItem GetSelectedLineItem() => throw new NotImplementedException();
-        public string SelectedTemplateBoxText() => throw new NotImplementedException();
-        public string SelectedTranslationBoxText() => throw new NotImplementedException();
+        public string SelectedTemplateBoxText => throw new NotImplementedException();
+        public string SelectedTranslationBoxText => throw new NotImplementedException();
         public void SelectLineItem(int index) => throw new NotImplementedException();
         public void SelectLineItem(ILineItem item) => throw new NotImplementedException();
-        public void SetCommentBoxText(string text) => throw new NotImplementedException();
-        public void SetLines(LineList<NullLineItem> lines) => throw new NotImplementedException();
         public void SetSelectedCommentBoxText(int start, int end) => throw new NotImplementedException();
         public void SetSelectedTemplateBoxText(int start, int end) => throw new NotImplementedException();
         public void SetSelectedTranslationBoxText(int start, int end) => throw new NotImplementedException();
-        public void SetTemplateBoxText(string text) => throw new NotImplementedException();
-        public void SetTranslationBoxText(string text) => throw new NotImplementedException();
         public void UnapproveSelectedLine() => throw new NotImplementedException();
         public void UpdateLines() => throw new NotImplementedException();
-        NullLineItem ITab<NullLineItem>.GetLineItem(int index) => throw new NotImplementedException();
+        NullLineItem ITab<NullLineItem>.AtIndex(int index) => throw new NotImplementedException();
         public void SelectLineItem(NullLineItem item) => throw new NotImplementedException();
-        public string[] GetCommentBoxTextArr() => throw new NotImplementedException();
+        public string[] CommentBoxTextArr => throw new NotImplementedException();
         public void SetCommentBoxText(string[] lines) => throw new NotImplementedException();
-        public bool GetApprovedButtonChecked() => throw new NotImplementedException();
-        public void SetApprovedButtonChecked(bool isChecked) => throw new NotImplementedException();
+        public bool ApprovedButtonChecked { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        string[] ITab<NullLineItem>.CommentBoxTextArr { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public void SetFileInfoText(string info) => throw new NotImplementedException();
         public void SetApprovedLabelText(string v) => throw new NotImplementedException();
         public void SetCharacterLabelColor(Color lawnGreen) => throw new NotImplementedException();
@@ -205,9 +204,14 @@ namespace Translator.UICompatibilityLayer.StubImpls
         bool IUIHandler<NullLineItem>.ErrorYesNoCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
         void IUIHandler<NullLineItem>.FocusReplaceBar() => throw new NotImplementedException();
         void IUIHandler<NullLineItem>.FocusSearchBar() => throw new NotImplementedException();
-        MenuItems IUIHandler<NullLineItem>.GetFileMenuItems() => throw new NotImplementedException();
-        string IUIHandler<NullLineItem>.GetReplaceBarText() => throw new NotImplementedException();
-        string IUIHandler<NullLineItem>.GetSearchBarText() => throw new NotImplementedException();
+        MenuItems IUIHandler<NullLineItem>.FileMenuItems { get => throw new NotImplementedException(); set { } }
+        string IUIHandler<NullLineItem>.ReplaceBarText { get => throw new NotImplementedException(); set { } }
+        string IUIHandler<NullLineItem>.SearchBarText { get => throw new NotImplementedException(); set { } }
+
+        public MenuItems FileMenuItems { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string ReplaceBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string SearchBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         PopupResult IUIHandler<NullLineItem>.InfoOk(string message, string title) => throw new NotImplementedException();
         PopupResult IUIHandler<NullLineItem>.InfoOkCancel(string message, string title) => throw new NotImplementedException();
         bool IUIHandler<NullLineItem>.InfoOkCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
@@ -217,9 +221,6 @@ namespace Translator.UICompatibilityLayer.StubImpls
         bool IUIHandler<NullLineItem>.InfoYesNoCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
         bool IUIHandler<NullLineItem>.Login() => throw new NotImplementedException();
         bool IUIHandler<NullLineItem>.Logout() => throw new NotImplementedException();
-        void IUIHandler<NullLineItem>.SetFileMenuItems(MenuItems menuItems) => throw new NotImplementedException();
-        void IUIHandler<NullLineItem>.SetReplaceBarText(string replacement) => throw new NotImplementedException();
-        void IUIHandler<NullLineItem>.SetSearchBarText(string query) => throw new NotImplementedException();
         void IUIHandler<NullLineItem>.SetTitle(string title) => throw new NotImplementedException();
         void IUIHandler<NullLineItem>.SignalAppExit() => throw new NotImplementedException();
         void IUIHandler<NullLineItem>.SignalUserEndWait() => throw new NotImplementedException();

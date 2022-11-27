@@ -101,7 +101,7 @@ namespace Translator.Core
         /// <summary>
         /// Provides the id of the currently selected line
         /// </summary>
-        public string SelectedId { get { return TabUI.SelectedLineItem.Text ?? TabUI.GetLineItem(0)?.Text ?? "Name"; } }
+        public string SelectedId { get { return TabUI.SelectedLineItem.Text ?? TabUI.AtIndex(0)?.Text ?? "Name"; } }
 
         public LineData SelectedLine { get { return TranslationData[SelectedId]; } }
 
@@ -251,8 +251,9 @@ namespace Translator.Core
             if (currentIndex >= 0)
             {
                 //set checkbox state
-                TabUI.SetApprovedButtonChecked(!TabUI.Lines.GetApprovalState(currentIndex));
-                SelectedLine.IsApproved = TabUI.GetApprovedButtonChecked();
+                TabUI.                //set checkbox state
+                ApprovedButtonChecked = !TabUI.Lines.GetApprovalState(currentIndex);
+                SelectedLine.IsApproved = TabUI.ApprovedButtonChecked;
 
                 //move one string down if possible
                 if (SelectNewAfter)
@@ -307,7 +308,7 @@ namespace Translator.Core
 
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
-                    RecentsManager.UpdateMenuItems(UI.GetFileMenuItems());
+                    RecentsManager.UpdateMenuItems(UI.FileMenuItems);
                 }
                 //reset cursor
                 UI.SignalUserEndWait();
@@ -335,7 +336,7 @@ namespace Translator.Core
 
         private void MarkSimilarLine()
         {
-            if (TabUI.GetTranslationBoxText() == TabUI.GetTemplateBoxText() && !SelectedLine.IsTranslated && !SelectedLine.IsApproved)
+            if (TabUI.TranslationBoxText == TabUI.TemplateBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved)
             {
                 TabUI.SimilarStringsToEnglish.Add(SelectedId);
             }
@@ -355,14 +356,16 @@ namespace Translator.Core
 
             if (currentIndex >= 0)
             {
-                TabUI.SetTemplateBoxText(SelectedLine.TemplateString.Replace("\n", Environment.NewLine));
+                TabUI.                TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine);
 
                 if (!isTemplate)
                 {
                     selectedNew = true;
 
                     //display the string in the editable window
-                    TabUI.SetTranslationBoxText(SelectedLine.TranslationString.Replace("\n", Environment.NewLine));
+                    TabUI.
+                    //display the string in the editable window
+                    TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine);
 
                     //translate if useful and possible
                     ConvenienceAutomaticTranslation();
@@ -370,10 +373,12 @@ namespace Translator.Core
                     //mark text if similar to english (not translated yet)
                     MarkSimilarLine();
 
-                    TabUI.SetCommentBoxText(SelectedLine.Comments);
+                    TabUI.CommentBoxTextArr = SelectedLine.Comments;
 
                     //sync approvedbox and list
-                    TabUI.SetApprovedButtonChecked(TabUI.Lines[currentIndex].IsApproved);
+                    TabUI.
+                    //sync approvedbox and list
+                    ApprovedButtonChecked = TabUI.Lines[currentIndex].IsApproved;
 
                     //update label
                     UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
@@ -442,7 +447,8 @@ namespace Translator.Core
         public void ReloadTranslationTextbox()
         {
             //update textbox
-            TabUI.SetTranslationBoxText(SelectedLine.TranslationString.Replace("\n", Environment.NewLine));
+            TabUI.            //update textbox
+            TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine);
         }
 
         /// <summary>
@@ -458,7 +464,7 @@ namespace Translator.Core
         /// </summary>
         private void ConvenienceAutomaticTranslation()
         {
-            if (TabUI.GetTemplateBoxText() == TabUI.GetTranslationBoxText() && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
+            if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
                 AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
         }
 
@@ -735,7 +741,7 @@ namespace Translator.Core
         /// </summary>
         public void Search()
         {
-            SearchQuery = UI.GetSearchBarText();
+            SearchQuery = UI.SearchBarText;
             Search(SearchQuery);
         }
 
@@ -864,8 +870,9 @@ namespace Translator.Core
         public void UpdateTranslationString()
         {
             //remove pipe to not break saving/export
-            TabUI.SetTranslationBoxText(TabUI.GetTranslationBoxText().Replace('|', ' '));
-            SelectedLine.TranslationString = TabUI.GetTranslationBoxText().Replace(Environment.NewLine, "\n");
+            TabUI.            //remove pipe to not break saving/export
+            TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
+            SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
             UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
             ChangesPending = !selectedNew;
         }
@@ -873,7 +880,7 @@ namespace Translator.Core
         public void UpdateComments()
         {
             //remove pipe to not break saving/export
-            SelectedLine.Comments = TabUI.GetCommentBoxTextArr();
+            SelectedLine.Comments = TabUI.CommentBoxTextArr;
         }
 
         /// <summary>
@@ -1406,14 +1413,14 @@ namespace Translator.Core
         {
             if (!UI.ReplaceBarIsVisible)
             {
-                if (TabUI.GetTranslationBoxText().Length > 0)
+                if (TabUI.TranslationBoxText.Length > 0)
                 {
-                    UI.SetSearchBarText(TabUI.SelectedTranslationBoxText());
+                    UI.                    SearchBarText = TabUI.SelectedTranslationBoxText;
                 }
                 UI.SetReplaceMenuVisible();
 
                 //set focus to most needed text box, search first
-                if (UI.GetSearchBarText().Length > 0) UI.FocusReplaceBar();
+                if (UI.SearchBarText.Length > 0) UI.FocusReplaceBar();
                 else UI.FocusSearchBar();
             }
             else

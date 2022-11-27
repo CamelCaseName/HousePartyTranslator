@@ -68,8 +68,6 @@ namespace Translator.UICompatibilityLayer
         string Text { get; set; }
         bool IsApproveButtonFocused { get; }
 
-        LineList<T> Lines { get { return GetLines(); } }
-
         /// <summary>
         /// Contains the ids of strings similar to the original template
         /// </summary>
@@ -80,10 +78,9 @@ namespace Translator.UICompatibilityLayer
         #region list of translations
         void ClearLines();
 
-        T GetLineItem(int index);
+        T AtIndex(int index);
 
-        LineList<T> GetLines();
-
+        LineList<T> Lines { get; set; }
         int SelectedLineIndex { get; }
         T SelectedLineItem { get; }
         string SelectedLine { get { return SelectedLineItem.Text; } }
@@ -95,8 +92,6 @@ namespace Translator.UICompatibilityLayer
         void SelectLineItem(int index);
 
         void SelectLineItem(T item);
-
-        void SetLines(LineList<T> lines);
         void UpdateLines();
 
         #endregion
@@ -104,47 +99,41 @@ namespace Translator.UICompatibilityLayer
         #region translation textbox
         void FocusTranslationBox();
 
-        string GetTranslationBoxText();
+        string TranslationBoxText { get; set; }
 
-        string SelectedTranslationBoxText();
+        string SelectedTranslationBoxText { get; }
 
         void SetSelectedTranslationBoxText(int start, int end);
-
-        void SetTranslationBoxText(string text);
         #endregion
 
         #region template textbox
-        string GetTemplateBoxText();
+        string TemplateBoxText { get; set; }
 
-        string SelectedTemplateBoxText();
+        string SelectedTemplateBoxText { get; }
 
         void SetSelectedTemplateBoxText(int start, int end);
-
-        void SetTemplateBoxText(string text);
         #endregion
 
         #region comment textbox
         void FocusCommentBox();
 
-        string GetCommentBoxText();
-        string[] GetCommentBoxTextArr();
+        string CommentBoxText { get; set; }
+
+        string[] CommentBoxTextArr { get; set; }
 
         string SelectedCommentBoxText();
-
-        void SetCommentBoxText(string text);
-        void SetCommentBoxText(string[] lines);
         void SetSelectedCommentBoxText(int start, int end);
         #endregion
 
         #region line controls
         void ApproveSelectedLine();
         void UnapproveSelectedLine();
-        bool GetApprovedButtonChecked();
-        void SetApprovedButtonChecked(bool isChecked);
+        bool ApprovedButtonChecked { get; set; }
+
         void SetFileInfoText(string info);
-        void SetApprovedLabelText(string v);
+        void SetApprovedLabelText(string text);
         void SetCharacterLabelColor(Color lawnGreen);
-        void SetCharacterCountLabelText(string v);
+        void SetCharacterCountLabelText(string text);
         #endregion
     }
 
@@ -213,9 +202,7 @@ namespace Translator.UICompatibilityLayer
 
         #region main window
 
-        MenuItems GetFileMenuItems();
-
-        void SetFileMenuItems(MenuItems menuItems);
+        MenuItems FileMenuItems { get; set; }
 
         void SetTitle(string title);
         #endregion
@@ -230,13 +217,9 @@ namespace Translator.UICompatibilityLayer
         void FocusReplaceBar();
 
         void FocusSearchBar();
-        string GetReplaceBarText();
+        string ReplaceBarText { get; set; }
 
-        string GetSearchBarText();
-
-        void SetReplaceBarText(string replacement);
-
-        void SetSearchBarText(string query);
+        string SearchBarText { get; set; }
 
         void UpdateResults();
         #endregion
