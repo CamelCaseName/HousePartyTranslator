@@ -541,9 +541,9 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         internal void SaveFile()
         {
-            if (!Fenster.ProgressbarWindow.Visible) Fenster.ProgressbarWindow.Show(MainWindow);
-            _ = Fenster.ProgressbarWindow.Focus();
-            Fenster.ProgressbarWindow.ProgressBar.Value = 10;
+            //if (!Fenster.ProgressbarWindow.Visible) Fenster.ProgressbarWindow.Show(MainWindow);
+            //_ = Fenster.ProgressbarWindow.Focus();
+            //Fenster.ProgressbarWindow.ProgressBar.Value = 10;
             MainWindow.Cursor = Cursors.WaitCursor;
 
             History.ClearForFile(FileName, StoryName);
@@ -571,7 +571,7 @@ namespace HousePartyTranslator.Managers
             ChangesPending = false;
 
             MainWindow.Cursor = Cursors.Default;
-            Fenster.ProgressbarWindow.Hide();
+            //Fenster.ProgressbarWindow.Hide();
         }
 
         private List<CategorizedLines> InitializeCategories()

@@ -7,6 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HousePartyTranslator", "Hou
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug - Offline|Any CPU = Debug - Offline|Any CPU
+		Debug - Offline|x64 = Debug - Offline|x64
+		Debug - Offline|x86 = Debug - Offline|x86
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
@@ -15,6 +18,12 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DF7F311D-CF31-46FA-A275-1CCEAC31D716}.Debug - Offline|Any CPU.ActiveCfg = Debug - Offline|Any CPU
+		{DF7F311D-CF31-46FA-A275-1CCEAC31D716}.Debug - Offline|Any CPU.Build.0 = Debug - Offline|Any CPU
+		{DF7F311D-CF31-46FA-A275-1CCEAC31D716}.Debug - Offline|x64.ActiveCfg = Debug - Offline|Any CPU
+		{DF7F311D-CF31-46FA-A275-1CCEAC31D716}.Debug - Offline|x64.Build.0 = Debug - Offline|Any CPU
+		{DF7F311D-CF31-46FA-A275-1CCEAC31D716}.Debug - Offline|x86.ActiveCfg = Debug - Offline|Any CPU
+		{DF7F311D-CF31-46FA-A275-1CCEAC31D716}.Debug - Offline|x86.Build.0 = Debug - Offline|Any CPU
 		{DF7F311D-CF31-46FA-A275-1CCEAC31D716}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DF7F311D-CF31-46FA-A275-1CCEAC31D716}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF7F311D-CF31-46FA-A275-1CCEAC31D716}.Debug|x64.ActiveCfg = Debug|Any CPU

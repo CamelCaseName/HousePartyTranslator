@@ -28,19 +28,19 @@ namespace HousePartyTranslator
             //custom exception handlers to handle mysql exceptions
             AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
             Application.ThreadException += ThreadExceptionHandler;
-            ProgressbarWindow = new ProgressbarForm.ProgressWindow();
-            ProgressbarWindow.Status.Text = "starting...";
-            ProgressbarWindow.Text = "Startup";
+            //ProgressbarWindow = new ProgressbarForm.ProgressWindow();
+            //ProgressbarWindow.Status.Text = "starting...";
+            //ProgressbarWindow.Text = "Startup";
             //ProgressbarWindow.Hide();
-            ProgressbarWindow.Show();
+            //ProgressbarWindow.Show();
 
             //check for update and replace if we want one
             SoftwareVersionManager.ReplaceFileIfNew();
-            ProgressbarWindow.PerformStep();
+            //ProgressbarWindow.PerformStep();
 
             //init all form components
             InitializeComponent();
-            ProgressbarWindow.PerformStep();
+            //ProgressbarWindow.PerformStep();
 
             CheckListBoxLeft = (ColouredCheckedListBox)tabPage1.Controls.Find("CheckListBoxLeft", true)[0];
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
@@ -258,7 +258,7 @@ namespace HousePartyTranslator
 
         private void OnFormShown(object sender, EventArgs e)
         {
-            ProgressbarWindow.PerformStep();
+            //ProgressbarWindow.PerformStep();
             LogManager.Log("Application initializing...");
             DataBase.InitializeDB(this);
             PresenceManager = new DiscordPresenceManager();
@@ -268,13 +268,13 @@ namespace HousePartyTranslator
             translationManager.SetLanguage();
             translationManager.SetMainForm(this);
 
-            ProgressbarWindow.PerformStep();
+            //ProgressbarWindow.PerformStep();
 
             //initialize before password check so the saving doesnt break
             RecentsManager.Initialize();
 
             //Settings have to be loaded before the Database can be connected with
-            ProgressbarWindow.PerformStep();
+            //ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
             RecentsManager.UpdateMenuItems(FileToolStripMenuItem.DropDownItems);
