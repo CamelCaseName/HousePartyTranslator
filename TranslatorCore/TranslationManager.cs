@@ -251,8 +251,8 @@ namespace Translator.Core
             if (currentIndex >= 0)
             {
                 //set checkbox state
-                TabUI.                //set checkbox state
-                ApprovedButtonChecked = !TabUI.Lines.GetApprovalState(currentIndex);
+                TabUI.ApprovedButtonChecked = !TabUI.Lines.GetApprovalState(currentIndex);
+                //set checkbox state
                 SelectedLine.IsApproved = TabUI.ApprovedButtonChecked;
 
                 //move one string down if possible

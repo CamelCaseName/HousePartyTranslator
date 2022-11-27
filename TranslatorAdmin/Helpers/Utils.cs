@@ -1,133 +1,20 @@
-﻿using Translator.Managers;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Reflection;
-using System.Windows.Forms;
+using Translator.Core;
+using Translator.Core.Helpers;
+using Translator.Managers;
 using TranslatorAdmin.Properties;
+using Settings = Translator.Core.Settings;
 
 namespace Translator.Helpers
 {
     /// <summary>
     /// Provides some generic utility methods.
     /// </summary>
-    public static class Utils
+    public static class WinUtils
     {
-        public const int MaxTextLength = 100;
-        public const int MaxWordLength = 15;
 
-        private static int ExceptionCount = 0;
 
-        public static readonly Color foreground = SystemColors.Window;
-        public static readonly Color background = SystemColors.ControlDarkDark;
-        public static readonly Color backgroundDarker = SystemColors.MenuText;
-        public static readonly Color brightText = SystemColors.HighlightText;
-        public static readonly Color darkText = SystemColors.WindowText;
-        public static readonly Color menu = SystemColors.ScrollBar;
-        public static readonly Color frame = SystemColors.WindowFrame;
-
-        /// <summary>
-        /// Gets the current assembly version as a string.
-        /// </summary>
-        /// <returns>The current assembly version</returns>
-        public static string GetAssemblyFileVersion()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
-            return fileVersion?.FileVersion ?? "0.0.0.0";
-        }
-
-        /// <summary>
-        /// Displays a window with the necessary info about the exception.
-        /// </summary>
-        /// <param name="message">The error message to display</param>
-        public static void DisplayExceptionMessage(string message)
-        {
-            LogManager.Log("Exception message shown: " + message);
-            LogManager.Log("Current exception count: " + ExceptionCount++);
-            _ = Msg.ErrorOk(
-                $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
-                $"Anyways, here is what happened: \n\n{message}\n\n " +
-                $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
-                $"Some Error found (Nr. {ExceptionCount})");
-
-            Application.UseWaitCursor = false;
-
-            if (ExceptionCount > 3)
-            {
-                LogManager.Log("Too many exceptions encountered, aborting", LogManager.Level.Crash);
-                UIHandler.SignalAppExit();
-            }
-        }
-
-        /// <summary>
-        /// Opens a select file dialogue and returns the selected file as a path.
-        /// </summary>
-        /// <returns>The path to the selected file.</returns>
-        public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "")
-        {
-            var selectFileDialog = new OpenFileDialog
-            {
-                Title = Title?.Length > 0 ? Title : "Choose a file for translation",
-                Filter = "Text files (*.txt)|*.txt",
-                InitialDirectory = Settings.Default.translation_path.Length > 0 && isTranslation ?
-                    Settings.Default.translation_path :
-                    Settings.Default.template_path.Length > 0 && !isTranslation ?
-                        Settings.Default.template_path :
-                        @"C:\Users\%USER%\Documents",
-                RestoreDirectory = false,
-                FileName = preselectedFile ?? ""
-            };
-
-            if (selectFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                if (isTranslation)
-                    Settings.Default.translation_path = Path.GetDirectoryName(selectFileDialog.FileName);
-                else
-                    Settings.Default.template_path = Path.GetDirectoryName(selectFileDialog.FileName);
-
-                Settings.Default.Save();
-
-                return selectFileDialog.FileName;
-            }
-            return "";
-        }
-
-        /// <summary>
-        /// Opens a select folder dialogue to find the template folder and returns the selected folder as a path.
-        /// </summary>
-        /// <returns>The folder path selected.</returns>
-        public static string SelectTemplateFolderFromSystem()
-        {
-            return SelectFolderFromSystem("Please select the 'TEMPLATE' folder like in the repo");
-        }
-
-        /// <summary>
-        /// Opens a select folder dialogue and returns the selected folder as a path.
-        /// </summary>
-        /// <param name="message">The description of the dialogue to display</param>
-        /// <returns>The folder path selected.</returns>
-        public static string SelectFolderFromSystem(string message)
-        {
-            string templatePath = Settings.Default.template_path;
-            var selectFolderDialog = new FolderBrowserDialog
-            {
-                Description = message,
-                SelectedPath = templatePath == "" ? Environment.SpecialFolder.UserProfile.ToString() : templatePath,
-            };
-
-            if (selectFolderDialog.ShowDialog() == DialogResult.OK)
-            {
-                string t = selectFolderDialog.SelectedPath;
-                if (templatePath != null)
-                {
-                    Settings.Default.template_path = t;
-                    Settings.Default.Save();
-                }
-                return t;
-            }
-            return "";
-        }
 
         /// <summary>
         /// Gets the category of a node from a node type
@@ -167,59 +54,6 @@ namespace Translator.Helpers
                     return StringCategory.Neither;
             }
 #pragma warning restore IDE0066
-        }
-
-        /// <summary>
-        /// Tries to parse a line into the category it indicates.
-        /// </summary>
-        /// <param name="line">The line to parse.</param>
-        /// <returns>The category representing the string, or none.</returns>
-        public static StringCategory GetCategoryFromString(string line)
-        {
-            if (line.Contains('['))
-            {
-                if (line == "[General]")
-                {
-                    return StringCategory.General;
-                }
-                else if (line == "[Dialogues]")
-                {
-                    return StringCategory.Dialogue;
-                }
-                else if (line == "[Responses]")
-                {
-                    return StringCategory.Response;
-                }
-                else if (line == "[Quests]")
-                {
-                    return StringCategory.Quest;
-                }
-                else if (line == "[Events]")
-                {
-                    return StringCategory.Event;
-                }
-                else if (line == "[Background Chatter]")
-                {
-                    return StringCategory.BGC;
-                }
-                else if (line == "[Item Names]")
-                {
-                    return StringCategory.ItemName;
-                }
-                else if (line == "[Item Actions]")
-                {
-                    return StringCategory.ItemAction;
-                }
-                else if (line == "[Item Group Actions]")
-                {
-                    return StringCategory.ItemGroupAction;
-                }
-                else if (line == "[Achievements]")
-                {
-                    return StringCategory.Achievement;
-                }
-            }
-            return StringCategory.Neither;
         }
 
         /// <summary>
@@ -598,109 +432,6 @@ namespace Translator.Helpers
             newTab.ResumeLayout();
 
             return newTab;
-        }
-
-        /// <summary>
-        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
-        /// </summary>
-        /// <param name="form"></param>
-        /// <param name="toLeft">true if deleting to the left</param>
-        /// <returns>true if successfull</returns>
-        public static bool DeleteCharactersInText(Form form, bool toLeft)
-        {
-            if (form.ContainsFocus)
-            {
-                Control? focused_control = form.ActiveControl;
-                if (focused_control == null) return false;
-                if(!focused_control.GetType().IsAssignableTo(typeof(TextBox))) { return false; }
-
-                var textBox = (TextBox)focused_control;
-                if (toLeft)
-                {
-                    return textBox.DeleteCharactersInTextLeft();
-                }
-                else
-                {
-                    return textBox.DeleteCharactersInTextRight();
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        /// Moves the cursor to the beginning/end of the next word in the specified direction
-        /// </summary>
-        /// <param name="form"></param>
-        /// <param name="toLeft">true if to scan to the left</param>
-        /// <returns>true if succeeded</returns>
-        public static bool MoveCursorInText(Form form, bool toLeft)
-        {
-            if (form.ContainsFocus && form.ActiveControl != null)
-            {
-                Control focused_control = form.ActiveControl;
-                try
-                {
-                    var _ = (TextBox)focused_control;
-                }
-                //ignore exception, really intended
-                catch { return false; }
-                var textBox = (TextBox)focused_control;
-                if (toLeft)
-                {
-                    textBox.MoveCursorWordLeft();
-                    return true;
-                }
-                else
-                {
-                    textBox.MoveCursorWordRight();
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
-    internal struct CategorizedLines
-    {
-        public List<LineData> lines;
-        public StringCategory category;
-
-        public CategorizedLines(List<LineData> lines, StringCategory category)
-        {
-            this.lines = lines;
-            this.category = category;
-        }
-
-        public override bool Equals(object? obj) => obj is CategorizedLines other && EqualityComparer<List<LineData>>.Default.Equals(lines, other.lines) && category == other.category;
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(lines, category);
-        }
-
-        public void Deconstruct(out List<LineData> lines, out StringCategory category)
-        {
-            lines = this.lines;
-            category = this.category;
-        }
-
-        public static implicit operator (List<LineData> lines, StringCategory category)(CategorizedLines value) => (value.lines, value.category);
-        public static implicit operator CategorizedLines((List<LineData> lines, StringCategory category) value) => new(value.lines, value.category);
-    }
-
-    internal sealed class FileData : Dictionary<string, LineData>
-    {
-        internal FileData(Dictionary<string, LineData> data)
-        {
-            foreach (KeyValuePair<string, LineData> item in data)
-            {
-                this.Add(item.Key, item.Value);
-            }
-        }
-
-        internal FileData()
-        {
-            this.Clear();
         }
     }
 }

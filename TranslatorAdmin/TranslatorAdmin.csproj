@@ -29,10 +29,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibreTranslate.Net" Version="1.0.1" />
-    <PackageReference Include="MySql.Data" Version="8.0.31" />
     <PackageReference Include="NetDiscordRpc" Version="1.0.2" />
     <PackageReference Include="SevenZipExtractor" Version="1.0.17" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TranslatorCore\TranslatorCore.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -82,6 +84,10 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
       <Generator>SettingsSingleFileGenerator</Generator>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="InterfaceImpls\" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

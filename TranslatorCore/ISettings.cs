@@ -66,6 +66,7 @@ namespace Translator.Core
         public string TemplatePath { get; set; }
         public string TranslationPath { get; set; }
         public TimeSpan AutoSaveInterval { get; set; }
+
         public void Save();
     }
 }
