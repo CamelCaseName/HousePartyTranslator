@@ -42,7 +42,7 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public bool IsApproved { get => false; set { } }
         public bool IsSearchResult { get => false; set { } }
         public bool IsTranslated { get => false; set { } }
-        public EventHandler OnClick { get { return new((sender, e) => { }); } init { } }
+        public event EventHandler Click { add { } remove { } }
         public string Text { get => string.Empty; init { } }
         public void Approve() { }
         public void Unapprove() { }

@@ -50,7 +50,6 @@ namespace Translator.UICompatibilityLayer
         public bool IsApproved { get; set; }
         public bool IsSearchResult { get; set; }
         public bool IsTranslated { get; set; }
-        EventHandler OnClick { get; init; }
         public string Text { get; init; }
         void Approve();
         void Unapprove();
@@ -148,8 +147,8 @@ namespace Translator.UICompatibilityLayer
 
     public interface ITextBox
     {
-        public EventHandler OnClick { get; init; }
-        public EventHandler OnTextChanged { get; init; }
+        public event EventHandler Click { add { } remove { } }
+        public event EventHandler TextChanged { add { } remove { } }
         public int SelectionEnd { get; set; }
         public int SelectionStart { get; set; }
         public string Text { get; set; }

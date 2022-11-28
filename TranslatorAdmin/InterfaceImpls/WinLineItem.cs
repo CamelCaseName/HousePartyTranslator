@@ -1,12 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
+using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class WinLineItem
+    internal class WinLineItem : object, ILineItem
     {
+        public bool IsApproved { get; set; } = false;
+        public bool IsSearchResult { get; set; } = false;
+        public bool IsTranslated { get; set; } = false;
+        public string Text { get; init; } = string.Empty;
+
+        public void Approve() => IsApproved = IsTranslated = true;
+        public void Unapprove() => IsApproved = false;
     }
 }
