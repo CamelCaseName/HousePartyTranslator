@@ -1,10 +1,5 @@
-﻿using System.Diagnostics;
-using System.Reflection;
-using Translator.Core;
-using Translator.Core.Helpers;
-using Translator.Managers;
+﻿using Translator.Core.Helpers;
 using TranslatorAdmin.Properties;
-using Settings = Translator.Core.Settings;
 
 namespace Translator.Helpers
 {
@@ -13,9 +8,6 @@ namespace Translator.Helpers
     /// </summary>
     public static class WinUtils
     {
-
-
-
         /// <summary>
         /// Gets the category of a node from a node type
         /// </summary>
