@@ -58,7 +58,7 @@ namespace Translator.UICompatibilityLayer
 
     public interface IMenuItem
     {
-        EventHandler OnClick { get; init; }
+        public event EventHandler Click { add { } remove { } }
         public string Text { get; set; }
     }
 

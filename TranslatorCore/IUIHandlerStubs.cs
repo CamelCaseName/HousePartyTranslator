@@ -51,7 +51,7 @@ namespace Translator.UICompatibilityLayer.StubImpls
     public class NullMenuItem : IMenuItem
     {
         public static NullMenuItem Instance { get; } = new();
-        public EventHandler OnClick { get => new((object? sender, EventArgs e) => { }); init { } }
+        public event EventHandler Click { add { } remove { } }
         public string Text { get => string.Empty; set { } }
     }
 

@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class WinMenuItem
+    internal class WinMenuItem : ToolStripMenuItem, IMenuItem
     {
+        public new event EventHandler Click { add => base.Click += value; remove => base.Click -= value; }
+        public new string Text { get => base.Text; set => base.Text = value; }
     }
 }
