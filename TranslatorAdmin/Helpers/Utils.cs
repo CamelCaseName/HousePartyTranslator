@@ -1,4 +1,5 @@
 ﻿using Translator.Core.Helpers;
+using Translator.UICompatibilityLayer;
 using TranslatorAdmin.Properties;
 
 namespace Translator.Helpers
@@ -8,6 +9,34 @@ namespace Translator.Helpers
     /// </summary>
     public static class WinUtils
     {
+        public static PopupResult ToPopupResult(this DialogResult result)
+        {
+            switch (result)
+            {
+                case DialogResult.None:
+                    return PopupResult.NONE;
+                case DialogResult.OK:
+                    return PopupResult.OK;
+                case DialogResult.Cancel:
+                    return PopupResult.CANCEL;
+                case DialogResult.Abort:
+                    return PopupResult.ABORT;
+                case DialogResult.Retry:
+                    return PopupResult.NONE;
+                case DialogResult.Ignore:
+                    return PopupResult.IGNORE;
+                case DialogResult.Yes:
+                    return PopupResult.YES;
+                case DialogResult.No:
+                    return PopupResult.NO;
+                case DialogResult.TryAgain:
+                    return PopupResult.NONE;
+                case DialogResult.Continue:
+                    return PopupResult.CONTINUE;
+                default:
+                    return PopupResult.NONE;
+            }
+        }
         /// <summary>
         /// Gets the category of a node from a node type
         /// </summary>
