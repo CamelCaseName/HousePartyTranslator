@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using Translator.UICompatibilityLayer;
+﻿using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
@@ -12,5 +11,6 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public void Approve() => IsApproved = IsTranslated = true;
         public void Unapprove() => IsApproved = false;
+        public override string ToString() => Text;
     }
 }
