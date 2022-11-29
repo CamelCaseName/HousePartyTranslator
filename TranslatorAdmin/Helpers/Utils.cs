@@ -1,5 +1,6 @@
 ﻿using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
+using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Properties;
 
 namespace Translator.Helpers
@@ -11,31 +12,20 @@ namespace Translator.Helpers
     {
         public static PopupResult ToPopupResult(this DialogResult result)
         {
-            switch (result)
+            return result switch
             {
-                case DialogResult.None:
-                    return PopupResult.NONE;
-                case DialogResult.OK:
-                    return PopupResult.OK;
-                case DialogResult.Cancel:
-                    return PopupResult.CANCEL;
-                case DialogResult.Abort:
-                    return PopupResult.ABORT;
-                case DialogResult.Retry:
-                    return PopupResult.NONE;
-                case DialogResult.Ignore:
-                    return PopupResult.IGNORE;
-                case DialogResult.Yes:
-                    return PopupResult.YES;
-                case DialogResult.No:
-                    return PopupResult.NO;
-                case DialogResult.TryAgain:
-                    return PopupResult.NONE;
-                case DialogResult.Continue:
-                    return PopupResult.CONTINUE;
-                default:
-                    return PopupResult.NONE;
-            }
+                DialogResult.None => PopupResult.NONE,
+                DialogResult.OK => PopupResult.OK,
+                DialogResult.Cancel => PopupResult.CANCEL,
+                DialogResult.Abort => PopupResult.ABORT,
+                DialogResult.Retry => PopupResult.NONE,
+                DialogResult.Ignore => PopupResult.IGNORE,
+                DialogResult.Yes => PopupResult.YES,
+                DialogResult.No => PopupResult.NO,
+                DialogResult.TryAgain => PopupResult.NONE,
+                DialogResult.Continue => PopupResult.CONTINUE,
+                _ => PopupResult.NONE,
+            };
         }
         /// <summary>
         /// Gets the category of a node from a node type
@@ -183,10 +173,10 @@ namespace Translator.Helpers
             TranslatedTextBox.AcceptsReturn = true;
             TranslatedTextBox.AllowDrop = true;
             TranslatedTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
-            TranslatedTextBox.BackColor = background;
+            TranslatedTextBox.BackColor = Utils<WinLineItem>.background;
             TranslatedTextBox.Dock = DockStyle.Fill;
             TranslatedTextBox.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            TranslatedTextBox.ForeColor = brightText;
+            TranslatedTextBox.ForeColor = Utils<WinLineItem>.brightText;
             TranslatedTextBox.ImeMode = ImeMode.On;
             TranslatedTextBox.Location = new Point(689, 294);
             TranslatedTextBox.Multiline = true;
@@ -201,8 +191,8 @@ namespace Translator.Helpers
             // AutoTranslateThis
             // 
             TranslateThis.AutoSize = true;
-            TranslateThis.BackColor = menu;
-            TranslateThis.ForeColor = darkText;
+            TranslateThis.BackColor = Utils<WinLineItem>.menu;
+            TranslateThis.ForeColor = Utils<WinLineItem>.darkText;
             TranslateThis.Location = new Point(80, 1);
             TranslateThis.Name = "AutoTranslateThis";
             TranslateThis.Size = new Size(60, 20);
@@ -213,10 +203,10 @@ namespace Translator.Helpers
             // 
             // TemplateTextBox
             // 
-            TemplateTextBox.BackColor = background;
+            TemplateTextBox.BackColor = Utils<WinLineItem>.background;
             TemplateTextBox.Dock = DockStyle.Fill;
             TemplateTextBox.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            TemplateTextBox.ForeColor = brightText;
+            TemplateTextBox.ForeColor = Utils<WinLineItem>.brightText;
             TemplateTextBox.Location = new Point(689, 33);
             TemplateTextBox.Multiline = true;
             TemplateTextBox.Name = "TemplateTextBox";
@@ -227,10 +217,10 @@ namespace Translator.Helpers
             // 
             // CommentTextBox
             // 
-            CommentTextBox.BackColor = background;
+            CommentTextBox.BackColor = Utils<WinLineItem>.background;
             CommentTextBox.Dock = DockStyle.Fill;
             CommentTextBox.Font = new Font("Consolas", 11F);
-            CommentTextBox.ForeColor = brightText;
+            CommentTextBox.ForeColor = Utils<WinLineItem>.brightText;
             CommentTextBox.Location = new Point(3, 16);
             CommentTextBox.Multiline = true;
             CommentTextBox.Name = "CommentTextBox";
@@ -244,7 +234,7 @@ namespace Translator.Helpers
             // 
             CharacterCountLabel.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             CharacterCountLabel.AutoSize = true;
-            CharacterCountLabel.ForeColor = brightText;
+            CharacterCountLabel.ForeColor = Utils<WinLineItem>.brightText;
             CharacterCountLabel.Location = new Point(23, 5);
             CharacterCountLabel.Name = "CharacterCountLabel";
             CharacterCountLabel.Size = new Size(143, 13);
@@ -254,7 +244,7 @@ namespace Translator.Helpers
             // SelectedFile
             // 
             SelectedFile.AutoSize = true;
-            SelectedFile.ForeColor = brightText;
+            SelectedFile.ForeColor = Utils<WinLineItem>.brightText;
             SelectedFile.Location = new Point(0, 6);
             SelectedFile.Name = "SelectedFile";
             SelectedFile.Size = new Size(98, 13);
@@ -267,7 +257,7 @@ namespace Translator.Helpers
             WordsTranslated.Parent = panel1;
             WordsTranslated.AutoSize = true;
             WordsTranslated.BackColor = Color.Transparent;
-            WordsTranslated.ForeColor = brightText;
+            WordsTranslated.ForeColor = Utils<WinLineItem>.brightText;
             WordsTranslated.Location = new Point(60, 6);
             WordsTranslated.Name = "WordsTranslated";
             WordsTranslated.Size = new Size(47, 13);
@@ -277,7 +267,7 @@ namespace Translator.Helpers
             // ApprovedBox
             // 
             ApprovedBox.AutoSize = true;
-            ApprovedBox.ForeColor = brightText;
+            ApprovedBox.ForeColor = Utils<WinLineItem>.brightText;
             ApprovedBox.Location = new Point(3, 5);
             ApprovedBox.Name = "ApprovedBox";
             ApprovedBox.Size = new Size(72, 17);
@@ -313,7 +303,7 @@ namespace Translator.Helpers
             // 
             CommentGroup.Controls.Add(CommentTextBox);
             CommentGroup.Dock = DockStyle.Fill;
-            CommentGroup.ForeColor = brightText;
+            CommentGroup.ForeColor = Utils<WinLineItem>.brightText;
             CommentGroup.Location = new Point(689, 575);
             CommentGroup.Name = "CommentGroup";
             CommentGroup.Size = new Size(678, 124);
@@ -345,9 +335,9 @@ namespace Translator.Helpers
             // 
             // CheckListBoxLeft
             // 
-            CheckListBoxLeft.BackColor = frame;
+            CheckListBoxLeft.BackColor = Utils<WinLineItem>.frame;
             CheckListBoxLeft.Dock = DockStyle.Fill;
-            CheckListBoxLeft.ForeColor = brightText;
+            CheckListBoxLeft.ForeColor = Utils<WinLineItem>.brightText;
             CheckListBoxLeft.FormattingEnabled = true;
             CheckListBoxLeft.Location = new Point(3, 33);
             CheckListBoxLeft.Name = "CheckListBoxLeft";
@@ -362,10 +352,10 @@ namespace Translator.Helpers
             // 
             // ProgressbarTranslated
             // 
-            ProgressbarTranslated.BackColor = background;
+            ProgressbarTranslated.BackColor = Utils<WinLineItem>.background;
             ProgressbarTranslated.Cursor = Cursors.Default;
             ProgressbarTranslated.Dock = DockStyle.Fill;
-            ProgressbarTranslated.ForeColor = foreground;
+            ProgressbarTranslated.ForeColor = Utils<WinLineItem>.foreground;
             ProgressbarTranslated.Location = new Point(0, 0);
             ProgressbarTranslated.Name = "ProgressbarTranslated";
             ProgressbarTranslated.Size = new Size(680, 24);
