@@ -1193,7 +1193,8 @@ namespace HousePartyTranslator.Managers
             //read in all strings with IDs
             if (isTemplate && DataBase.IsOnline)//read in templates
             {
-                TranslationData = GetTemplateFromFile(SourceFilePath);
+                foreach (var line in GetTemplateFromFile(SourceFilePath))
+                    TranslationData.Add(line.Key, line.Value);
             }
             else //read in translations
             {

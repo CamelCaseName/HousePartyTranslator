@@ -112,7 +112,6 @@ namespace HousePartyTranslator.Managers
         /// </summary>
         /// <param name="msg">Windows message contaning the info on the event.</param>
         /// <param name="keyData">Keydata containing all currently pressed keys.</param>
-        /// <param name="presence"></param>
         /// <param name="parent"></param>
         /// <param name="tokenSource"></param>
         /// <returns></returns>

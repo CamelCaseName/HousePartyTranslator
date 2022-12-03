@@ -17,7 +17,7 @@ namespace HousePartyTranslator
         private readonly ColouredCheckedListBox CheckListBoxLeft;
         private readonly ContextMenuStrip ListContextMenu;
         private readonly System.Timers.Timer PresenceTimer = new System.Timers.Timer(2000);
-        public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
+        //public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
         private DiscordPresenceManager PresenceManager;
         private StoryExplorer SExplorer;
         /// <summary>
