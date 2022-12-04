@@ -1,5 +1,4 @@
-﻿using Translator.Helpers;
-using Translator.UICompatibilityLayer;
+﻿using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
