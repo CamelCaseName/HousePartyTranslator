@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class WinTextBox : TextBox, Translator.UICompatibilityLayer.ITextBox
+    internal class WinTextBox : TextBox, ITextBox
     {
         public int SelectionEnd
         {
