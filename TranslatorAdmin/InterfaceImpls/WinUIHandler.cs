@@ -4,6 +4,7 @@ using Translator;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
+using Translator.Managers;
 using Translator.UICompatibilityLayer;
 using TranslatorAdmin.Managers;
 
@@ -32,9 +33,9 @@ namespace TranslatorAdmin.InterfaceImpls
         Type IUIHandler<WinLineItem>.InternalFolderDialogType => typeof(WinFolderDialog);
         Type IUIHandler<WinLineItem>.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
 
-        public void ClipboardSetText(string text) => throw new NotImplementedException();
-        public ITab<WinLineItem>? CreateNewTab() => throw new NotImplementedException();
-        public PopupResult ErrorOk(string message, string title = "Error") => throw new NotImplementedException();
+        public void ClipboardSetText(string text) => Clipboard.SetText(text);
+        public ITab<WinLineItem>? CreateNewTab() => new WinTab();
+        public PopupResult ErrorOk(string message, string title = "Error") => Msg.ErrorOk(message, title).ToPopupResult();
         public PopupResult ErrorOkCancel(string message, string title = "Error") => throw new NotImplementedException();
         public bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
         public PopupResult ErrorYesNo(string message, string title = "Error") => throw new NotImplementedException();
