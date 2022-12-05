@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Translator.Core;
+﻿using Translator.Core;
 using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
     internal class WinUIHandler : IUIHandler<WinLineItem>
     {
-        public MenuItems FileMenuItems { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public MenuItems FileMenuItems { get; set; } = 
         public string ReplaceBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string SearchBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public CreateTemplateDataDelegate CreateTemplateData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
