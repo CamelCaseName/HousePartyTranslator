@@ -4,9 +4,9 @@ using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    public static class WinExtensions
+    internal static partial class WinExtensions
     {
-        public static PopupResult ToPopupResult(this DialogResult result)
+        internal static PopupResult ToPopupResult(this DialogResult result)
         {
             return result switch
             {
@@ -29,7 +29,7 @@ namespace TranslatorAdmin.InterfaceImpls
         /// </summary>
         /// <param name="type">the type to get the stringcategory form</param>
         /// <returns>the corresponding stringcategory</returns>
-        public static StringCategory CategoryFromNode(this NodeType type)
+        internal static StringCategory CategoryFromNode(this NodeType type)
         {
             return type switch
             {

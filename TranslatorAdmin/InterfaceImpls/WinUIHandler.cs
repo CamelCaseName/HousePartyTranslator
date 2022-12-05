@@ -1,34 +1,36 @@
-﻿using Translator.Core;
+﻿using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+using Translator;
+using Translator.Core;
+using Translator.Core.Helpers;
+using Translator.Helpers;
 using Translator.UICompatibilityLayer;
+using TranslatorAdmin.Managers;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class WinUIHandler : IUIHandler<WinLineItem>
+
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    internal sealed class WinUIHandler : IUIHandler<WinLineItem>
     {
-        public MenuItems FileMenuItems { get; set; } = 
-        public string ReplaceBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string SearchBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public CreateTemplateDataDelegate CreateTemplateData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        #region interface
+        public MenuItems FileMenuItems => (MenuItems)(App.MainForm.MainMenuStrip?.Items.Cast<IMenuItem>() ?? new MenuItems());
 
-        public ITabController<WinLineItem> TabControl => throw new NotImplementedException();
+        public string ReplaceBarText { get => App.MainForm.ReplaceBox.Text; set => App.MainForm.ReplaceBox.Text = value; }
+        public string SearchBarText { get => App.MainForm.SearchBox.Text; set => App.MainForm.SearchBox.Text = value; }
 
-        public string Language { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        private WinTranslationManager WinTranslation => WinTranslation ?? new(this);
+        public CreateTemplateFromStoryDelegate CreateTemplateFromStory { get => WinTranslation.CreateTemplateFromStory; }
 
-        public bool ReplaceBarIsVisible => throw new NotImplementedException();
+        public ITabController<WinLineItem> TabControl => App.MainForm.TabControl;
 
-        MenuItems IUIHandler<WinLineItem>.FileMenuItems { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        string IUIHandler<WinLineItem>.ReplaceBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        string IUIHandler<WinLineItem>.SearchBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        Type IUIHandler<WinLineItem>.InternalFileDialogType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        Type IUIHandler<WinLineItem>.InternalFolderDialogType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        Type IUIHandler<WinLineItem>.InternalSaveFileDialogType { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        CreateTemplateDataDelegate IUIHandler<WinLineItem>.CreateTemplateData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Language { get => App.MainForm.LanguageBox.Text; set => App.MainForm.LanguageBox.Text = value; }
 
-        ITabController<WinLineItem> IUIHandler<WinLineItem>.TabControl => throw new NotImplementedException();
+        public bool ReplaceBarIsVisible => App.MainForm.ReplaceAllButton.Visible && App.MainForm.ReplaceButton.Visible && App.MainForm.ReplaceBox.Visible;
 
-        string IUIHandler<WinLineItem>.Language { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-
-        bool IUIHandler<WinLineItem>.ReplaceBarIsVisible => throw new NotImplementedException();
+        Type IUIHandler<WinLineItem>.InternalFileDialogType => typeof(WinFileDialog);
+        Type IUIHandler<WinLineItem>.InternalFolderDialogType => typeof(WinFolderDialog);
+        Type IUIHandler<WinLineItem>.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
 
         public void ClipboardSetText(string text) => throw new NotImplementedException();
         public ITab<WinLineItem>? CreateNewTab() => throw new NotImplementedException();
@@ -66,41 +68,9 @@ namespace TranslatorAdmin.InterfaceImpls
         public bool WarningYesNo(string message, string title = "Warning", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
         public PopupResult WarningYesNoCancel(string message, string title = "Warning") => throw new NotImplementedException();
         public bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.ClipboardSetText(string text) => throw new NotImplementedException();
-        ITab<WinLineItem>? IUIHandler<WinLineItem>.CreateNewTab() => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.ErrorOk(string message, string title) => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.ErrorOkCancel(string message, string title) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.ErrorOkCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.ErrorYesNo(string message, string title) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.ErrorYesNo(string message, string title, PopupResult result) => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.ErrorYesNoCancel(string message, string title) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.ErrorYesNoCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.FocusReplaceBar() => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.FocusSearchBar() => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.InfoOk(string message, string title) => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.InfoOkCancel(string message, string title) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.InfoOkCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.InfoYesNo(string message, string title) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.InfoYesNo(string message, string title, PopupResult result) => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.InfoYesNoCancel(string message, string title) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.InfoYesNoCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.Login() => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.Logout() => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.SetReplaceMenuInVisible() => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.SetReplaceMenuVisible() => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.SetTitle(string title) => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.SignalAppExit() => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.SignalUserEndWait() => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.SignalUserWait() => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.Update() => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.UpdateProgress() => throw new NotImplementedException();
-        void IUIHandler<WinLineItem>.UpdateResults() => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.WarningOk(string message, string title) => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.WarningOkCancel(string message, string title) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.WarningOkCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.WarningYesNo(string message, string title) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.WarningYesNo(string message, string title, PopupResult result) => throw new NotImplementedException();
-        PopupResult IUIHandler<WinLineItem>.WarningYesNoCancel(string message, string title) => throw new NotImplementedException();
-        bool IUIHandler<WinLineItem>.WarningYesNoCancel(string message, string title, PopupResult result) => throw new NotImplementedException();
+        #endregion
+
+
+
     }
 }

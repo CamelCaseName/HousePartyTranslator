@@ -6,14 +6,14 @@ using System.Windows.Forms;
 namespace Translator
 {
 
-    static class App
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    public static class App
     {
-
+        public static Fenster MainForm { get; private set; } = new Fenster();
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         static void Main()
         {
             AppDomain.CurrentDomain.AssemblyResolve += OnResolveAssembly;
@@ -23,12 +23,11 @@ namespace Translator
         /// <summary>
         /// Starts the main form
         /// </summary>
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         private static void Start()
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Fenster());
+            Application.Run(MainForm);
         }
 
         /// <summary>

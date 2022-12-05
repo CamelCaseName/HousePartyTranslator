@@ -16,7 +16,7 @@ using Timer = System.Timers.Timer;
 
 namespace Translator.Core
 {
-    public delegate bool CreateTemplateDataDelegate(string story, string filename, string path, out FileData data);
+    public delegate bool CreateTemplateFromStoryDelegate(string story, string filename, string path, out FileData data);
 
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
@@ -204,7 +204,7 @@ namespace Translator.Core
                     PopupResult typeResult;
                     if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?")) != PopupResult.CANCEL)
                     {
-                        if (UI.CreateTemplateData(story, fileName, SourceFilePath, out var templates))
+                        if (UI.CreateTemplateFromStory(story, fileName, SourceFilePath, out var templates))
                             if (templates.Count > 0)
                             {
                                 _ = DataBase<T>.RemoveOldTemplates(FileName, story);

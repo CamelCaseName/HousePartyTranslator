@@ -201,7 +201,7 @@ namespace Translator.UICompatibilityLayer
 
         #region main window
 
-        MenuItems FileMenuItems { get; set; }
+        MenuItems FileMenuItems { get; }
 
         void SetTitle(string title);
         #endregion
@@ -228,14 +228,14 @@ namespace Translator.UICompatibilityLayer
         #endregion
 
         #region file access/system access
-        Type InternalFileDialogType { get; protected set; }
-        Type FileDialogType { get => InternalFileDialogType; init => InternalFileDialogType = typeof(NullFileDialog); }
-        Type InternalFolderDialogType { get; protected set; }
-        Type FolderDialogType { get => InternalFolderDialogType; init => InternalFileDialogType = typeof(NullFolderDialog); }
-        Type InternalSaveFileDialogType { get; protected set; }
-        Type SaveFileDialogType { get => InternalSaveFileDialogType; init => InternalFileDialogType = typeof(NullSaveFileDialog); }
+        Type? InternalFileDialogType { get; }
+        Type FileDialogType { get => InternalFileDialogType ?? typeof(NullFileDialog); }
+        Type? InternalFolderDialogType { get; }
+        Type FolderDialogType { get => InternalFolderDialogType ?? typeof(NullFolderDialog);  }
+        Type? InternalSaveFileDialogType { get; }
+        Type SaveFileDialogType { get => InternalSaveFileDialogType ?? typeof(NullSaveFileDialog); }
 
-        CreateTemplateDataDelegate CreateTemplateData { get; set; }
+        CreateTemplateFromStoryDelegate CreateTemplateFromStory { get; }
 
         void ClipboardSetText(string text);
 
@@ -370,23 +370,10 @@ namespace Translator.UICompatibilityLayer
             Items.Add(new T() { Text = iD, IsApproved = lineIsApproved });
         }
     }
-    public class MenuItems
+    public class MenuItems : List<IMenuItem>
     {
-        public readonly List<IMenuItem> Items = new();
-        public int Count { get { return Items.Count; } }
+        public MenuItems() : base() { }
 
-        public IMenuItem this[int index]
-        {
-            get { return Items[index]; }
-            set { Items[index] = value; }
-        }
-        internal void Insert<MenuItemType>(int v, MenuItemType menuItem) where MenuItemType : class, IMenuItem
-        {
-            Items.Insert(v, menuItem);
-        }
-        internal void RemoveAt(int v)
-        {
-            Items.RemoveAt(v);
-        }
+        public MenuItems(int capacity) : base(capacity) { }
     }
 }

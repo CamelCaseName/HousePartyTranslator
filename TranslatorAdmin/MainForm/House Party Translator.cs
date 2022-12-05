@@ -1,12 +1,9 @@
 ﻿using Translator.Helpers;
 using Translator.Managers;
 using Translator.StoryExplorerForm;
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Windows.Forms;
+using Translator.UICompatibilityLayer;
+using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Properties;
-using System.Security.Policy;
 
 namespace Translator
 {
@@ -20,7 +17,17 @@ namespace Translator
         private readonly ColouredCheckedListBox CheckListBoxLeft;
         private readonly ContextMenuStrip? ListContextMenu;
         private readonly System.Timers.Timer PresenceTimer = new(2000);
+        internal readonly WinTabController TabControl = new() {
+            Dock = DockStyle.Fill,
+            Location = new Point(0, 27),
+            Name = nameof(TabControl),
+            SelectedIndex = 0,
+            SizeMode = TabSizeMode.Normal,
+            TabIndex = 9
+        };
+
         public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
+        public static Fenster Instance { get; private set; }
         private DiscordPresenceManager? PresenceManager;
         private StoryExplorer? SExplorer;
 

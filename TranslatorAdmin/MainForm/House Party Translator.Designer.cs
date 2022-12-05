@@ -3,6 +3,8 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using Translator.Core.Helpers;
+using TranslatorAdmin.InterfaceImpls;
 
 namespace Translator
 {
@@ -10,7 +12,6 @@ namespace Translator
     {
         private IContainer components = null;
         private MenuStrip MainMenu;
-        private TabControl MainTabControl;
         private TabPage tabPage1;
         private ToolStripComboBox languageToolStripComboBox;
         private ToolStripMenuItem customOpenStoryExplorer;
@@ -390,31 +391,17 @@ namespace Translator
                 settingsToolStripMenuItem
             });
 
-            // tabPage1
-            tabPage1 = Utils.CreateNewTab(1, this);
-            tabPage1.SuspendLayout();
-
-            // MainTabControl
-            MainTabControl = new TabControl()
-            {
-                Dock = DockStyle.Fill,
-                Location = new Point(0, 27),
-                Name = nameof(MainTabControl),
-                SelectedIndex = 0,
-                SizeMode = TabSizeMode.Normal,
-                TabIndex = 9
-            };
-            MainTabControl.SuspendLayout();
-            MainTabControl.Controls.Add(tabPage1);
-            MainTabControl.SelectedIndexChanged += new EventHandler(MainTabControl_SelectedIndexChanged);
-            MainTabControl.MouseClick += new MouseEventHandler(CloseTab_Click);
+            TabControl.SuspendLayout();
+            TabControl.Controls.Add(tabPage1);
+            TabControl.SelectedIndexChanged += new EventHandler(MainTabControl_SelectedIndexChanged);
+            TabControl.MouseClick += new MouseEventHandler(CloseTab_Click);
 
             // Fenster
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Fenster.backgroundDarker;
             ClientSize = new Size(1400, 760);
-            Controls.Add(MainTabControl);
+            Controls.Add(TabControl);
             Controls.Add(MainMenu);
             MinimumSize = new Size(640, 470);
             Name = nameof(Fenster);
@@ -425,7 +412,7 @@ namespace Translator
             Shown += new EventHandler(OnFormShown);
             MainMenu.ResumeLayout(false);
             MainMenu.PerformLayout();
-            MainTabControl.ResumeLayout(false);
+            TabControl.ResumeLayout(false);
             tabPage1.ResumeLayout(true);
             ResumeLayout();
             PerformLayout();
