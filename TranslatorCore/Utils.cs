@@ -25,17 +25,6 @@ namespace Translator.Core.Helpers
         }
 
         /// <summary>
-        /// Gets the current assembly version as a string.
-        /// </summary>
-        /// <returns>The current assembly version</returns>
-        public static string GetAssemblyFileVersion()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
-            return fileVersion?.FileVersion ?? "0.0.0.0";
-        }
-
-        /// <summary>
         /// Displays a window with the necessary info about the exception.
         /// </summary>
         /// <param name="message">The error message to display</param>
@@ -130,110 +119,6 @@ namespace Translator.Core.Helpers
             }
             return string.Empty;
         }
-
-        /// <summary>
-        /// Tries to parse a line into the category it indicates.
-        /// </summary>
-        /// <param name="line">The line to parse.</param>
-        /// <returns>The category representing the string, or none.</returns>
-        public static StringCategory GetCategoryFromString(string line)
-        {
-            if (line.Contains('['))
-            {
-                if (line == "[General]")
-                {
-                    return StringCategory.General;
-                }
-                else if (line == "[Dialogues]")
-                {
-                    return StringCategory.Dialogue;
-                }
-                else if (line == "[Responses]")
-                {
-                    return StringCategory.Response;
-                }
-                else if (line == "[Quests]")
-                {
-                    return StringCategory.Quest;
-                }
-                else if (line == "[Events]")
-                {
-                    return StringCategory.Event;
-                }
-                else if (line == "[Background Chatter]")
-                {
-                    return StringCategory.BGC;
-                }
-                else if (line == "[Item Names]")
-                {
-                    return StringCategory.ItemName;
-                }
-                else if (line == "[Item Actions]")
-                {
-                    return StringCategory.ItemAction;
-                }
-                else if (line == "[Item Group Actions]")
-                {
-                    return StringCategory.ItemGroupAction;
-                }
-                else if (line == "[Achievements]")
-                {
-                    return StringCategory.Achievement;
-                }
-            }
-            return StringCategory.Neither;
-        }
-
-        /// <summary>
-        /// Returns the string representatio of a category.
-        /// </summary>
-        /// <param name="category">The Category to parse.</param>
-        /// <returns>The string representing the category.</returns>
-        public static string GetStringFromCategory(StringCategory category)
-        {
-#pragma warning disable IDE0066
-            switch (category)
-            {
-                case StringCategory.General:
-                    return "[General]";
-
-                case StringCategory.Dialogue:
-                    return "[Dialogues]";
-
-                case StringCategory.Response:
-                    return "[Responses]";
-
-                case StringCategory.Quest:
-                    return "[Quests]";
-
-                case StringCategory.Event:
-                    return "[Events]";
-
-                case StringCategory.BGC:
-                    return "[Background Chatter]";
-
-                case StringCategory.ItemName:
-                    return "[Item Names]";
-
-                case StringCategory.ItemAction:
-                    return "[Item Actions]";
-
-                case StringCategory.ItemGroupAction:
-                    return "[Item Group Actions]";
-
-                case StringCategory.Achievement:
-                    return "[Achievements]";
-
-                case StringCategory.Neither:
-                    //do nothing hehehehe
-                    return "";
-
-                default:
-                    //do nothing hehehehe
-                    return "";
-            }
-#pragma warning restore IDE0066
-        }
     }
 
     public static partial class Utils
@@ -247,6 +132,76 @@ namespace Translator.Core.Helpers
         public static readonly Color darkText = SystemColors.WindowText;
         public static readonly Color menu = SystemColors.ScrollBar;
         public static readonly Color frame = SystemColors.WindowFrame;
+        /// <summary>
+        /// Gets the current assembly version as a string.
+        /// </summary>
+        /// <returns>The current assembly version</returns>
+        public static string GetAssemblyFileVersion()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
+            return fileVersion?.FileVersion ?? "0.0.0.0";
+        }
+        /// <summary>
+        /// Tries to parse a line into the category it indicates.
+        /// </summary>
+        /// <param name="line">The line to parse.</param>
+        /// <returns>The category representing the string, or none.</returns>
+        public static StringCategory GetCategoryFromString(string line)
+        {
+            if (line.Contains('['))
+            {
+                switch (line)
+                {
+                    case "[General]":
+                        return StringCategory.General;
+                    case "[Dialogues]":
+                        return StringCategory.Dialogue;
+                    case "[Responses]":
+                        return StringCategory.Response;
+                    case "[Events]":
+                        return StringCategory.Event;
+                    case "[Background Chatter]":
+                        return StringCategory.BGC;
+                    case "[Quests]":
+                        return StringCategory.Quest;
+                    case "[Item Names]":
+                        return StringCategory.ItemName;
+                    case "[Item Action]":
+                        return StringCategory.ItemAction;
+                    case "[Item Group Action]":
+                        return StringCategory.ItemGroupAction;
+                    case "[Achievements]":
+                        return StringCategory.Achievement;
+                    default:
+                        break;
+                }
+            }
+            return StringCategory.Neither;
+        }
+        /// <summary>
+        /// Returns the string representatio of a category.
+        /// </summary>
+        /// <param name="category">The Category to parse.</param>
+        /// <returns>The string representing the category.</returns>
+        public static string GetStringFromCategory(StringCategory category)
+        {
+            return category switch
+            {
+                StringCategory.General => "[General]",
+                StringCategory.Dialogue => "[Dialogues]",
+                StringCategory.Response => "[Responses]",
+                StringCategory.Quest => "[Quests]",
+                StringCategory.Event => "[Events]",
+                StringCategory.BGC => "[Background Chatter]",
+                StringCategory.ItemName => "[Item Names]",
+                StringCategory.ItemAction => "[Item Actions]",
+                StringCategory.ItemGroupAction => "[Item Group Actions]",
+                StringCategory.Achievement => "[Achievements]",
+                StringCategory.Neither => "",//do nothing hehehehe
+                _ => "",//do nothing hehehehe
+            };
+        }
     }
 
     public struct CategorizedLines
