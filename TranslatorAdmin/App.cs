@@ -1,7 +1,5 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Reflection;
-using System.Windows.Forms;
 
 namespace Translator
 {
@@ -50,7 +48,7 @@ namespace Translator
                 path = $"{assemblyName?.CultureInfo}\\${path}";
             }
 
-            using System.IO.Stream? stream = executingAssembly?.GetManifestResourceStream(path);
+            using Stream? stream = executingAssembly?.GetManifestResourceStream(path);
             if (stream == null)
                 return null;
 

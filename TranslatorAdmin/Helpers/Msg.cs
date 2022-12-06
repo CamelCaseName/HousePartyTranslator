@@ -1,11 +1,9 @@
-﻿using System.Windows.Forms;
-
-namespace Translator.Helpers
+﻿namespace Translator.Helpers
 {
     /// <summary>
     /// Helper class to make messagebox calls smaller and more concise
     /// </summary>
-    internal static class Msg
+    public static class Msg
     {
         /// <summary>
         /// Shows a messagebox with the given message and title, info icon and ok button

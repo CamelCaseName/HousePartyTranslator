@@ -243,7 +243,7 @@ namespace Translator.UICompatibilityLayer
 
         void SignalAppExit();
         void Update();
-        void UpdateProgress();
+        void UpdateTranslationProgressIndicator();
         void SetReplaceMenuVisible();
         void SetReplaceMenuInVisible();
         #endregion

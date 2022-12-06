@@ -263,7 +263,7 @@ namespace Translator.Core
                 }
 
                 UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.Lines.ApprovedCount);
-                UI.UpdateProgress();
+                UI.UpdateTranslationProgressIndicator();
             }
         }
 
@@ -1451,7 +1451,7 @@ namespace Translator.Core
                 {
                     TabUI.ProgressValue = 0;
                 }
-                UI.UpdateProgress();
+                UI.UpdateTranslationProgressIndicator();
             }
         }
 

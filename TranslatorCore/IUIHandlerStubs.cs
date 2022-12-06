@@ -177,7 +177,7 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public void SignalUserEndWait() => throw new NotImplementedException();
         public void SignalUserWait() => throw new NotImplementedException();
         public void Update() => throw new NotImplementedException();
-        public void UpdateProgress() => throw new NotImplementedException();
+        public void UpdateTranslationProgressIndicator() => throw new NotImplementedException();
         public void UpdateResults() => throw new NotImplementedException();
         public PopupResult WarningOk(string message, string title = "Warning") => throw new NotImplementedException();
         public PopupResult WarningOkCancel(string message, string title = "Warning") => throw new NotImplementedException();

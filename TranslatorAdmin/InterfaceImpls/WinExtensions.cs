@@ -24,6 +24,21 @@ namespace TranslatorAdmin.InterfaceImpls
             };
         }
 
+        internal static DialogResult ToDialogResult(this PopupResult result) {
+            return result switch
+            {
+                PopupResult.NONE => DialogResult.None,
+                PopupResult.OK => DialogResult.OK,
+                PopupResult.YES => DialogResult.Yes,
+                PopupResult.NO => DialogResult.No,
+                PopupResult.CANCEL => DialogResult.Cancel,
+                PopupResult.ABORT => DialogResult.Abort,
+                PopupResult.CONTINUE => DialogResult.Continue,
+                PopupResult.IGNORE => DialogResult.Ignore,
+                _ => DialogResult.None,
+            };
+        }
+
         /// <summary>
         /// Gets the category of a node from a node type
         /// </summary>
