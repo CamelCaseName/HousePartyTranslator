@@ -264,7 +264,7 @@ namespace Translator.Core.Helpers
         /// <returns>The category representing the string, or none.</returns>
         public static StringCategory AsCategory(this string input)
         {
-            return Utils<NullLineItem>.GetCategoryFromString(input);
+            return Utils.GetCategoryFromString(input);
         }
 
         /// <summary>
@@ -274,7 +274,7 @@ namespace Translator.Core.Helpers
         /// <returns>The string representing the category.</returns>
         public static string AsString(this StringCategory category)
         {
-            return Utils<NullLineItem>.GetStringFromCategory(category);
+            return Utils.GetStringFromCategory(category);
         }
     }
 }
