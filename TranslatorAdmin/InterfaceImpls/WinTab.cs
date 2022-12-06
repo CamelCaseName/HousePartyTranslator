@@ -331,6 +331,8 @@ namespace TranslatorAdmin.InterfaceImpls
             panel2.PerformLayout();
             ResumeLayout();
         }
+
+        //todo
         public bool IsApproveButtonFocused => throw new NotImplementedException();
 
         public List<string> SimilarStringsToEnglish => throw new NotImplementedException();

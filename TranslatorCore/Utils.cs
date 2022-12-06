@@ -13,21 +13,11 @@ namespace Translator.Core.Helpers
     /// Provides some generic utility methods.
     /// </summary>
     
-    public static class Utils<T> where T : class, ILineItem, new()
+    public static partial class Utils<T> where T : class, ILineItem, new()
     {
-        public const int MaxTextLength = 100;
-        public const int MaxWordLength = 15;
 
         private static int ExceptionCount = 0;
         private static IUIHandler<T> MainUI = (IUIHandler<T>)new NullUIHandler();
-
-        public static readonly Color foreground = SystemColors.Window;
-        public static readonly Color background = SystemColors.ControlDarkDark;
-        public static readonly Color backgroundDarker = SystemColors.MenuText;
-        public static readonly Color brightText = SystemColors.HighlightText;
-        public static readonly Color darkText = SystemColors.WindowText;
-        public static readonly Color menu = SystemColors.ScrollBar;
-        public static readonly Color frame = SystemColors.WindowFrame;
 
         internal static void Initialize(IUIHandler<T> ui)
         {
@@ -244,6 +234,19 @@ namespace Translator.Core.Helpers
             }
 #pragma warning restore IDE0066
         }
+    }
+
+    public static partial class Utils
+    {
+        public const int MaxTextLength = 100;
+        public const int MaxWordLength = 15;
+        public static readonly Color foreground = SystemColors.Window;
+        public static readonly Color background = SystemColors.ControlDarkDark;
+        public static readonly Color backgroundDarker = SystemColors.MenuText;
+        public static readonly Color brightText = SystemColors.HighlightText;
+        public static readonly Color darkText = SystemColors.WindowText;
+        public static readonly Color menu = SystemColors.ScrollBar;
+        public static readonly Color frame = SystemColors.WindowFrame;
     }
 
     public struct CategorizedLines

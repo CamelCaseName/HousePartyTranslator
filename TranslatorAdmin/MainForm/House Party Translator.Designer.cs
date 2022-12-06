@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using TranslatorAdmin.InterfaceImpls;
+using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator
 {
@@ -12,7 +13,6 @@ namespace Translator
     {
         private IContainer components = null;
         private MenuStrip MainMenu;
-        private TabPage tabPage1;
         private ToolStripComboBox languageToolStripComboBox;
         private ToolStripMenuItem customOpenStoryExplorer;
         private ToolStripMenuItem editToolStripMenuItem;
@@ -392,7 +392,7 @@ namespace Translator
             });
 
             TabControl.SuspendLayout();
-            TabControl.Controls.Add(tabPage1);
+            TabControl.TabPages.Add(new WinTab());
             TabControl.SelectedIndexChanged += new EventHandler(MainTabControl_SelectedIndexChanged);
             TabControl.MouseClick += new MouseEventHandler(CloseTab_Click);
 
@@ -413,7 +413,6 @@ namespace Translator
             MainMenu.ResumeLayout(false);
             MainMenu.PerformLayout();
             TabControl.ResumeLayout(false);
-            tabPage1.ResumeLayout(true);
             ResumeLayout();
             PerformLayout();
         }

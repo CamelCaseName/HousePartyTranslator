@@ -368,7 +368,7 @@ namespace Translator.Core
                 manager.TranslationData[item.Key] = item.Value;
             }
             //update translations also on the database
-            _ = DataBase<T>.UpdateTranslations(newTranslations, language);
+            _ = DataBase.UpdateTranslations(newTranslations, language);
             manager.ReloadTranslationTextbox();
         }
 
@@ -380,7 +380,7 @@ namespace Translator.Core
                 manager.TranslationData[item.Key] = item.Value;
             }
             //update translations also on the database
-            _ = DataBase<T>.UpdateTranslations(oldTranslations, language);
+            _ = DataBase.UpdateTranslations(oldTranslations, language);
             manager.ReloadTranslationTextbox();
         }
     }

@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Windows.Forms;
 using TranslatorAdmin.Properties;
+using Translator.Core;
 
 namespace Translator.StoryExplorerForm
 {

@@ -12,14 +12,14 @@ namespace Translator.Core
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    public static class DataBase<T> where T : class, ILineItem, new()
+    public static class DataBase
     {
         public static string DBVersion { get; private set; } = "0.0.0";
         private static readonly MySqlConnection sqlConnection = new();
         private static MySqlCommand MainCommand = new();
         private static MySqlDataReader? MainReader;
         private static string SoftwareVersion = "0.0.0.0";
-        private static IUIHandler<T> UI = (IUIHandler<T>) NullUIHandler.Instance;
+        private static IUIHandler<NullLineItem> UI = NullUIHandler.Instance;
         public static bool IsOnline { get; private set; } = false;
 
 #if DEBUG
@@ -275,9 +275,9 @@ namespace Translator.Core
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
         /// </summary>
-        public static void Initialize(IUIHandler<T> uIHandler, string password, string AppVersion)
+        public static void Initialize<T>(IUIHandler<T> uIHandler, string password, string AppVersion) where T : class, ILineItem, new()
         {
-            UI = uIHandler;
+            UI = (IUIHandler<NullLineItem>)uIHandler;
             //establish connection and handle password
             EstablishConnection(password);
 
@@ -537,7 +537,7 @@ namespace Translator.Core
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId[(story + fileName).Length..];
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<T>.Language.Length));
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<NullLineItem>.Language.Length));
         }
 
         /// <summary>

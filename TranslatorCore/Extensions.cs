@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 using Translator.UICompatibilityLayer;
 using Translator.UICompatibilityLayer.StubImpls;
@@ -77,12 +78,11 @@ namespace Translator.Core.Helpers
         /// <returns>The formatted, blockified string</returns>
         public static string ConstrainLength(this string input)
         {
-            //TODO replace by span or stringbuilder omg
-            string output = "";
-            bool inWord;
             int currentWordLength = 0, currentLength = 0;
+            bool inWord;
+            StringBuilder builder= new StringBuilder(input.Length);
 
-            foreach (char c in input)
+            foreach (char c in input.AsSpan())
             {
                 if (c != ' ' && c != '\n' && c != '\r')
                 {
@@ -98,26 +98,26 @@ namespace Translator.Core.Helpers
                 currentLength++;
 
                 //if line is short still
-                if (currentLength <= Utils<NullLineItem>.MaxTextLength)
+                if (currentLength <= Utils.MaxTextLength)
                 {
-                    output += c;
+                    builder.Append(c);
                 }
                 else
                 {
-                    if (inWord && currentWordLength < Utils<NullLineItem>.MaxWordLength)
+                    if (inWord && currentWordLength < Utils.MaxWordLength)
                     {
                         //line is too long but we in a word
-                        output += c;
+                        builder.Append(c);
                     }
                     else
                     {
-                        output += c + "\n";
+                        builder.Append(c + "\n");
                         currentLength = 0;
                     }
                 }
             }
 
-            return output;
+            return builder.ToString();
         }
 
         /// <summary>

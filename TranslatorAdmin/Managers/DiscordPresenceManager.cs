@@ -1,5 +1,6 @@
 ﻿using NetDiscordRpc;
 using NetDiscordRpc.RPC;
+using Translator.Core;
 using Translator.Helpers;
 using TranslatorAdmin.Properties;
 

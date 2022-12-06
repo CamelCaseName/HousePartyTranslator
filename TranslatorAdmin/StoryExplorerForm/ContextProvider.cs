@@ -9,6 +9,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TranslatorAdmin.Properties;
+using Translator.Core;
 
 namespace Translator
 {

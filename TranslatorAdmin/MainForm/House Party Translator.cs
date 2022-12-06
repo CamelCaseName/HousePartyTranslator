@@ -1,7 +1,7 @@
-﻿using Translator.Helpers;
+﻿using Translator.Core;
+using Translator.Helpers;
 using Translator.Managers;
 using Translator.StoryExplorerForm;
-using Translator.UICompatibilityLayer;
 using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Properties;
 
@@ -17,7 +17,8 @@ namespace Translator
         private readonly ColouredCheckedListBox CheckListBoxLeft;
         private readonly ContextMenuStrip? ListContextMenu;
         private readonly System.Timers.Timer PresenceTimer = new(2000);
-        internal readonly WinTabController TabControl = new() {
+        internal readonly WinTabController TabControl = new()
+        {
             Dock = DockStyle.Fill,
             Location = new Point(0, 27),
             Name = nameof(TabControl),
@@ -52,6 +53,8 @@ namespace Translator
             AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
             Application.ThreadException += ThreadExceptionHandler;
 
+            TabManager<WinLineItem>.Initialize(new WinUIHandler(), typeof(ToolStripMenuItem), typeof(ToolStripSeparator), "", SoftwareVersionManager.LocalVersion, new WinTab());
+
             //check for update and replace if we want one
             SoftwareVersionManager.ReplaceFileIfNew();
             ProgressbarWindow.PerformStep();
@@ -60,7 +63,7 @@ namespace Translator
             InitializeComponent();
             ProgressbarWindow.PerformStep();
 
-            CheckListBoxLeft = (ColouredCheckedListBox)tabPage1.Controls.Find("CheckListBoxLeft", true)[0];
+            CheckListBoxLeft = (ColouredCheckedListBox)((WinTab)TabManager<WinLineItem>.SelectedTab).Controls.Find("CheckListBoxLeft", true)[0];
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
         }
 
@@ -89,23 +92,17 @@ namespace Translator
             }
         }
 
-        public ToolStripMenuItem FileToolStripMenuItem
-        { get { return fileToolStripMenuItem; } }
+        internal ToolStripMenuItem FileToolStripMenuItem => fileToolStripMenuItem;
 
-        public ToolStripComboBox LanguageBox
-        { get { return languageToolStripComboBox; } }
+        internal ToolStripComboBox LanguageBox => languageToolStripComboBox;
 
-        public ToolStripMenuItem ReplaceAllButton
-        { get { return toolStripReplaceAllButton; } }
+        internal ToolStripMenuItem ReplaceAllButton => toolStripReplaceAllButton;
 
-        public ToolStripTextBox ReplaceBox
-        { get { return ToolStripMenuReplaceBox; } }
+        internal ToolStripTextBox ReplaceBox => ToolStripMenuReplaceBox;
 
-        public ToolStripMenuItem ReplaceButton
-        { get { return toolStripReplaceButton; } }
+        internal ToolStripMenuItem ReplaceButton => toolStripReplaceButton;
 
-        public ToolStripTextBox SearchBox
-        { get { return searchToolStripTextBox; } }
+        internal ToolStripTextBox SearchBox => searchToolStripTextBox;
 
         public void ApprovedBox_CheckedChanged(object? sender, EventArgs? e)
         {

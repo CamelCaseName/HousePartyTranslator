@@ -1,15 +1,11 @@
-﻿using Translator.Helpers;
-using System;
-using System.IO;
-using System.Net.Http;
-using System.Text.Json;
-using System.Windows.Forms;
+﻿using System.Text.Json;
+using Translator.Helpers;
 
 namespace Translator.Managers
 {
     internal static class SoftwareVersionManager
     {
-        public const string LocalVersion = "0.6.2.0";
+        public const string LocalVersion = "0.6.2.2";
         public static string? LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new();

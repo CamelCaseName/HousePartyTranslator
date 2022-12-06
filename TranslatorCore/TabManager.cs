@@ -75,19 +75,21 @@ namespace Translator.Core
         /// <summary>
         /// Has to be called on start to set the first tab
         /// </summary>
-        /// <param name="tab1">The initial tab</param>
-        public static TranslationManager<T> Initialize(ITab<T> tab1, IUIHandler<T> ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion)
+        /// <param name="tab">The initial tab</param>
+        public static TranslationManager<T> Initialize(IUIHandler<T> ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion, ITab<T> tab) 
         {
             Utils<T>.Initialize(ui);
-            DataBase<T>.Initialize(ui, password, appVersion);
+            DataBase.Initialize(ui, password, appVersion);
             RecentsManager.Initialize(MenuItem, MenuItemSeperator);
             TabControl = ui.TabControl;
 
-            //create new translationmanager to use with the tab open right now
-            handlers.Add(tab1, ui);
-            translationManagers.Add(tab1, new TranslationManager<T>(ActiveUI, tab1));
+            if(!TabControl.TabPages.Contains(tab)) TabControl.TabPages.Add(tab);
 
-            return translationManagers[tab1];
+            //create new translationmanager to use with the tab open right now
+            handlers.Add(tab, ui);
+            translationManagers.Add(tab, new TranslationManager<T>(ActiveUI, tab));
+
+            return translationManagers[tab];
         }
 
         /// <summary>
