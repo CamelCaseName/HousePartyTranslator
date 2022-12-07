@@ -3,12 +3,12 @@ using Translator.Core.Helpers;
 using Translator.Helpers;
 using Translator.Managers;
 using TranslatorAdmin.InterfaceImpls;
-using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler>;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController>;
 
 namespace TranslatorAdmin.Managers
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class WinTranslationManager : Translator.Core.TranslationManager<WinLineItem, WinUIHandler>
+    internal class WinTranslationManager : Translator.Core.TranslationManager<WinLineItem, WinUIHandler, WinTabController>
     {
         public bool UpdateStoryExplorerSelection = true;
         private readonly WinUIHandler UI;

@@ -3,7 +3,7 @@ using Translator.Core.Helpers;
 using Translator.Helpers;
 using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
-using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler>;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController>;
 
 namespace Translator.StoryExplorerForm
 {

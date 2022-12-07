@@ -4,12 +4,12 @@ using Translator.Helpers;
 using Translator.Managers;
 using Translator.StoryExplorerForm;
 using Translator.UICompatibilityLayer;
-using Translator.UICompatibilityLayer.StubImpls;
 using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
-using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler>;
-using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler>;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController>;
+using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController>;
+using WinUtils = Translator.Core.Helpers.Utils<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController>;
 
 namespace Translator
 {
@@ -228,7 +228,7 @@ namespace Translator
 
         private void CloseTab_Click(object? sender, MouseEventArgs? e)
         {
-            TabManager.CloseTab((WinTab?)sender ?? (WinTab)(ITab<WinLineItem>)NullTab.Instance);
+            TabManager.CloseTab((WinTab?)sender ?? (WinTab)new object());
         }
 
         private async void CustomStoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
@@ -252,11 +252,11 @@ namespace Translator
 
                 if (e.ExceptionObject.GetType().IsAssignableTo(typeof(Exception)))
                 {
-                    Utils<WinLineItem, WinUIHandler>.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
+                    WinUtils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
                 }
                 else
                 {
-                    Utils<WinLineItem, WinUIHandler>.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
+                    WinUtils.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
                 }
             }
         }
@@ -276,7 +276,7 @@ namespace Translator
             //prevent discord from getting angry
             PresenceManager?.DeInitialize();
 
-            RecentsManager.SaveRecents<WinLineItem, WinUIHandler>();
+            RecentsManager.SaveRecents<WinLineItem, WinUIHandler, WinTabController>();
 
             CancelTokens.Cancel();
 
@@ -302,8 +302,8 @@ namespace Translator
             ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
-            RecentsManager.UpdateMenuItems<WinLineItem, WinUIHandler>((MenuItems)FileToolStripMenuItem.DropDownItems.Cast<WinMenuItem>());
-            RecentsManager.OpenMostRecent<WinLineItem, WinUIHandler>();
+            RecentsManager.UpdateMenuItems<WinLineItem, WinUIHandler, WinTabController>((MenuItems)FileToolStripMenuItem.DropDownItems.Cast<WinMenuItem>());
+            RecentsManager.OpenMostRecent<WinLineItem, WinUIHandler, WinTabController>();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
@@ -382,7 +382,7 @@ namespace Translator
             if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
 
             LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
-            Utils<WinLineItem, WinUIHandler>.DisplayExceptionMessage(e.Exception.Message);
+            WinUtils.DisplayExceptionMessage(e.Exception.Message);
         }
 
         private void ToolStripMenuReplaceBox_TextChanged(object? sender, EventArgs? e)

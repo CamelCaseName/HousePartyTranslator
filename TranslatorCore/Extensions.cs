@@ -2,7 +2,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Translator.UICompatibilityLayer;
-using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.Core.Helpers
 {

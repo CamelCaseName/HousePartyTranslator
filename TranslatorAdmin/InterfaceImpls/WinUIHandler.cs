@@ -8,7 +8,7 @@ namespace TranslatorAdmin.InterfaceImpls
 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal sealed class WinUIHandler : IUIHandler<WinLineItem>
+    internal sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController>
     {
         #region interface
         public MenuItems FileMenuItems => (MenuItems)(App.MainForm.MainMenuStrip?.Items.Cast<IMenuItem>() ?? new MenuItems());
@@ -19,15 +19,15 @@ namespace TranslatorAdmin.InterfaceImpls
         private WinTranslationManager WinTranslation => WinTranslation ?? new(this);
         public CreateTemplateFromStoryDelegate CreateTemplateFromStory { get => WinTranslation.CreateTemplateFromStory; }
 
-        public ITabController<WinLineItem> TabControl => App.MainForm.TabControl;
+        public WinTabController TabControl => App.MainForm.TabControl;
 
         public string Language { get => App.MainForm.LanguageBox.Text; set => App.MainForm.LanguageBox.Text = value; }
 
         public bool ReplaceBarIsVisible => App.MainForm.ReplaceAllButton.Visible && App.MainForm.ReplaceButton.Visible && App.MainForm.ReplaceBox.Visible;
 
-        Type IUIHandler<WinLineItem>.InternalFileDialogType => typeof(WinFileDialog);
-        Type IUIHandler<WinLineItem>.InternalFolderDialogType => typeof(WinFolderDialog);
-        Type IUIHandler<WinLineItem>.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
+        Type IUIHandler<WinLineItem, WinTabController>.InternalFileDialogType => typeof(WinFileDialog);
+        Type IUIHandler<WinLineItem, WinTabController>.InternalFolderDialogType => typeof(WinFolderDialog);
+        Type IUIHandler<WinLineItem, WinTabController>.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
 
         public int TranslationBoxTextLength => TabControl.SelectedTab.TranslationBoxText.Length;
 
