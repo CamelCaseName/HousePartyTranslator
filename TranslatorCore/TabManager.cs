@@ -65,6 +65,11 @@ namespace Translator.Core
             get { return TabControl.TabCount; }
         }
 
+        public static void CloseTab(int index)
+        {
+            CloseTab(TabControl.TabPages[index]);
+        }
+
         public static void CloseTab(ITab<T> tab)
         {
             //remove manager for the tab, save first
