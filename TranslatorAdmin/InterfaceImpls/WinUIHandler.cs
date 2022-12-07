@@ -39,6 +39,9 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public ITab<WinLineItem> SelectedTab => TabControl.SelectedTab;
 
+        public string TranslationBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
+        public string TemplateBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
+
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
         public ITab<WinLineItem>? CreateNewTab() => new WinTab();
         public PopupResult ErrorOk(string message, string title = "Error") => Msg.ErrorOk(message, title).ToPopupResult();

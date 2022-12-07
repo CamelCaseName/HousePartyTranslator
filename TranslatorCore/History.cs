@@ -235,8 +235,8 @@ namespace Translator.Core
     public sealed class ApprovedChanged<T> : ICommand where T : class, ILineItem, new()
     {
         readonly int index;
-        readonly LineList<T> ListBox;
-        public ApprovedChanged(int selectedIndex, LineList<T> listBox, string fileName, string storyName)
+        readonly NullLineList<T> ListBox;
+        public ApprovedChanged(int selectedIndex, NullLineList<T> listBox, string fileName, string storyName)
         {
             index = selectedIndex;
             ListBox = listBox;
@@ -262,8 +262,8 @@ namespace Translator.Core
     {
         readonly int oldIndex;
         readonly int newIndex;
-        readonly LineList<T> ListBox;
-        public SelectedLineChanged(LineList<T> listBox, int oldIndex, int newIndex, string fileName, string storyName)
+        readonly NullLineList<T> ListBox;
+        public SelectedLineChanged(NullLineList<T> listBox, int oldIndex, int newIndex, string fileName, string storyName)
         {
             this.oldIndex = oldIndex;
             this.newIndex = newIndex;

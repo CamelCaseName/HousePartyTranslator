@@ -15,11 +15,11 @@ namespace Translator.Helpers
         /// <summary>
         /// List containing all indices that are part of the search result
         /// </summary>
-        public List<int> SearchResults = new List<int>();
+        public List<object> SearchResults = new();
         /// <summary>
         /// list containing all indices that are duplicates fo the english string
         /// </summary>
-        public List<int> SimilarStringsToEnglish = new List<int>();
+        public List<object> SimilarStringsToEnglish = new();
 
         /// <summary>
         /// Use double buffering, removes flicker
@@ -41,7 +41,7 @@ namespace Translator.Helpers
                     e.Index,
                     e.State,
                     e.ForeColor, //colour yellow if it is part of the search, else colour normally
-                    SearchResults.Contains(e.Index) ? Color.DarkOrange : SimilarStringsToEnglish.Contains(e.Index) ? Color.FromArgb(130, 80, 130) : CheckedIndices.Contains(e.Index) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
+                    SearchResults.Contains(e) ? Color.DarkOrange : SimilarStringsToEnglish.Contains(e) ? Color.FromArgb(130, 80, 130) : CheckedItems.Contains(e) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
                 );
             base.OnDrawItem(e2);
         }

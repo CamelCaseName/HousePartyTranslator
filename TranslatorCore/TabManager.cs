@@ -20,7 +20,7 @@ namespace Translator.Core
         /// Method returning a Propertyhelper containing all relevant UI elements.
         /// </summary>
         /// <returns>the relevant Propertyhelper</returns>
-        public static IUIHandler<T> ActiveUI
+        public static IUIHandler<T> UI
         {
             get
             {
@@ -90,7 +90,7 @@ namespace Translator.Core
 
             //create new translationmanager to use with the tab open right now
             handlers.Add(tab, ui);
-            translationManagers.Add(tab, new TranslationManager<T>(ActiveUI, tab));
+            translationManagers.Add(tab, new TranslationManager<T>(UI, tab));
 
             return translationManagers[tab];
         }
@@ -120,7 +120,7 @@ namespace Translator.Core
                 TabControl.SelectedTab = newTab;
                 //create support dict
                 handlers.Add(newTab, ui);
-                var t = new TranslationManager<T>(ActiveUI, newTab);
+                var t = new TranslationManager<T>(UI, newTab);
                 translationManagers.Add(newTab, t);
 
                 //call startup for new translationmanager
@@ -214,15 +214,15 @@ namespace Translator.Core
             }
 
             //set search term to the one from the respective TranslationManager
-            if (ActiveTranslationManager != null && ActiveUI != null)
+            if (ActiveTranslationManager != null && UI != null)
             {
                 if (InGlobalSearch)
                 {
-                    ActiveTranslationManager.Search(ActiveUI.SearchBarText[1..] ?? "");
+                    ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? "");
                 }
                 else
                 {
-                    ActiveUI.SearchBarText = ActiveTranslationManager.SearchQuery;
+                    UI.SearchBarText = ActiveTranslationManager.SearchQuery;
                 }
             }
         }
@@ -271,12 +271,12 @@ namespace Translator.Core
         /// <returns>True if we want to search all, performs the search also. False when single tab search is intended.</returns>
         private static bool SearchAll()
         {
-            if (ActiveUI == null) return false;
+            if (UI == null) return false;
 
-            if (ActiveUI.SearchBarText.Length > 0)
+            if (UI.SearchBarText.Length > 0)
             {
                 //global search has to start with the ?
-                if (ActiveUI.SearchBarText[0] == '?')
+                if (UI.SearchBarText[0] == '?')
                 {
                     InGlobalSearch = true;
                     return true;
@@ -302,7 +302,7 @@ namespace Translator.Core
             }
             else
             {
-                ActiveTranslationManager?.Search(ActiveUI.SearchBarText[1..] ?? "");
+                ActiveTranslationManager?.Search(UI.SearchBarText[1..] ?? "");
             }
         }
 
@@ -311,7 +311,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyId()
         {
-            ActiveUI.ClipboardSetText(ActiveTranslationManager?.SelectedId ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager?.SelectedId ?? "");
         }
 
         /// <summary>
@@ -319,7 +319,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyFileName()
         {
-            ActiveUI.ClipboardSetText(ActiveTranslationManager?.FileName ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager?.FileName ?? "");
         }
 
         /// <summary>
@@ -327,7 +327,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyStoryName()
         {
-            ActiveUI.ClipboardSetText(ActiveTranslationManager?.StoryName ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager?.StoryName ?? "");
         }
 
         /// <summary>
@@ -335,7 +335,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyAll()
         {
-            ActiveUI.ClipboardSetText(
+            UI.ClipboardSetText(
                 ActiveTranslationManager?.StoryName +
                 "/" + ActiveTranslationManager?.FileName +
                 " : " +
@@ -347,7 +347,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyAsOutput()
         {
-            ActiveUI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].ToString() ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].ToString() ?? "");
         }
 
         /// <summary>
@@ -355,7 +355,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTranslation()
         {
-            ActiveUI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].TranslationString ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].TranslationString ?? "");
         }
 
         /// <summary>
@@ -363,7 +363,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTemplate()
         {
-            ActiveUI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].TemplateString ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].TemplateString ?? "");
         }
 
         public static void ReplaceAll()
@@ -376,18 +376,18 @@ namespace Translator.Core
                     if (i != 0) History.AddAction(new SelectedTabChanged<T>(i - 1, i));
                     else History.AddAction(new SelectedTabChanged<T>(0, i));
 
-                    translationManagers[TabControl.TabPages[i]].ReplaceAll(ActiveUI.ReplaceBarText ?? "");
+                    translationManagers[TabControl.TabPages[i]].ReplaceAll(UI.ReplaceBarText ?? "");
                 }
             }
             else
             {
-                ActiveTranslationManager?.ReplaceAll(ActiveUI.ReplaceBarText ?? "");
+                ActiveTranslationManager?.ReplaceAll(UI.ReplaceBarText ?? "");
             }
         }
 
         public static void Replace()
         {
-            ActiveTranslationManager?.ReplaceSingle(ActiveUI.ReplaceBarText ?? "");
+            ActiveTranslationManager?.ReplaceSingle(UI.ReplaceBarText ?? "");
         }
     }
 }

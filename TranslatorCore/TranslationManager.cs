@@ -43,7 +43,8 @@ namespace Translator.Core
 
         private static readonly Timer AutoSaveTimer = new();
 
-        public int SelectedSearchResult = 0;
+        public int SelectedResultIndex = 0;
+        public ILineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : NullLineItem.Instance;
 
         //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
         private int templateCounter = 0;
@@ -356,7 +357,7 @@ namespace Translator.Core
 
             if (currentIndex >= 0)
             {
-                TabUI.                TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine);
+                TabUI.TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine);
 
                 if (!isTemplate)
                 {
@@ -384,8 +385,8 @@ namespace Translator.Core
                     UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
 
                     //renew search result if possible
-                    int t = TabUI.Lines.SearchResults.IndexOf(currentIndex);
-                    if (t >= 0) { SelectedSearchResult = t; }
+                    int t = TabUI.Lines.SearchResults.IndexOf(TabUI.SelectedLineItem);
+                    if (t >= 0) { SelectedResultIndex = t; }
                 }
             }
             else
@@ -407,7 +408,7 @@ namespace Translator.Core
             int x;
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
-                x = TabUI.Lines.SearchResults[i];
+                x = TabUI.Lines.SearchResults.IndexOf(TabUI.Lines.SearchResults[i]);
                 TranslationData[TabUI.Lines[x].Text].TranslationString = TranslationData[TabUI.Lines[x].Text].TranslationString.Replace(replacement, SearchQuery);
             }
 
@@ -429,8 +430,7 @@ namespace Translator.Core
         /// <param name="replacement">The string to replace all search matches with</param>
         public void ReplaceSingle(string replacement)
         {
-            int i = TabUI.SelectedLineIndex;
-            if (TabUI.Lines.SearchResults.Contains(i))
+            if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineItem))
             {
                 string temp = SelectedLine.TranslationString.Replace(replacement, SearchQuery);
                 History.AddAction(new TranslationChanged<T>(this, SelectedId, SelectedLine.TranslationString, temp));
@@ -770,7 +770,7 @@ namespace Translator.Core
                             && item.TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
                             || item.ID.Contains(query))/*if the id contains the searched part*/
                         {
-                            TabUI.Lines.SearchResults.Add(x);//add index to highligh list
+                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x]);//add index to highligh list
                         }
                         ++x;
                     }
@@ -790,7 +790,7 @@ namespace Translator.Core
                             && item.TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
                             || item.ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
                         {
-                            TabUI.Lines.SearchResults.Add(x);//add index to highligh list
+                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x]);//add index to highligh list
                         }
                         ++x;
                     }
@@ -799,7 +799,7 @@ namespace Translator.Core
             else
             {
                 TabUI.Lines.SearchResults.Clear();
-                SelectedSearchResult = 0;
+                SelectedResultIndex = 0;
             }
 
             UI.UpdateResults();
@@ -1332,7 +1332,7 @@ namespace Translator.Core
             LoadTranslationFile();
             if (UI == null) return;
             //select recent index
-            if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.SelectLineItem( Settings.Default.RecentIndex);
+            if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.SelectLineItem(Settings.Default.RecentIndex);
         }
 
         /// <summary>
@@ -1345,7 +1345,7 @@ namespace Translator.Core
             TabUI.Lines.Clear();
             CategoriesInFile.Clear();
             TabUI.SimilarStringsToEnglish.Clear();
-            SelectedSearchResult = 0;
+            SelectedResultIndex = 0;
             TabManager<T>.SelectedTab.Text = "Tab";
             UpdateApprovedCountLabel(1, 1);
         }
@@ -1359,9 +1359,9 @@ namespace Translator.Core
             if (!TabUI.IsTranslationBoxFocused && !TabUI.IsCommentBoxFocused && TabUI.Lines.SearchResults.Any())
             {
                 //loop back to start
-                if (SelectedSearchResult > TabUI.Lines.SearchResults.Count - 1)
+                if (SelectedResultIndex > TabUI.Lines.SearchResults.Count - 1)
                 {
-                    SelectedSearchResult = 0;
+                    SelectedResultIndex = 0;
                     //loop over to new tab when in global search
                     if (TabManager<T>.InGlobalSearch)
                     {
@@ -1371,18 +1371,18 @@ namespace Translator.Core
                     else
                     {
                         //select next index from list of matches
-                        if (TabUI.Lines.SearchResults[SelectedSearchResult] < TabUI.Lines.Count)
+                        if (SelectedSearchResultItem != NullLineItem.Instance)
                         {
-                            TabUI.Lines.SelectedIndex = TabUI.Lines.SearchResults[SelectedSearchResult];
+                            TabUI.Lines.SelectedIndex = SelectedResultIndex;
                         }
                     }
                 }
                 else
                 {
-                    if (TabUI.Lines.SearchResults[SelectedSearchResult] < TabUI.Lines.Count)
+                    if (SelectedSearchResultItem != NullLineItem.Instance)
                     {
-                        TabUI.Lines.SelectedIndex = TabUI.Lines.SearchResults[SelectedSearchResult];
-                        ++SelectedSearchResult;
+                        TabUI.Lines.SelectedIndex = SelectedResultIndex;
+                        ++SelectedResultIndex;
                     }
                     else if (TabManager<T>.InGlobalSearch && TabManager<T>.TabCount > 1)
                     {
@@ -1392,9 +1392,9 @@ namespace Translator.Core
                     }
                     else
                     {
-                        SelectedSearchResult = 0;
-                        TabUI.Lines.SelectedIndex = TabUI.Lines.SearchResults[SelectedSearchResult];
-                        ++SelectedSearchResult;
+                        SelectedResultIndex = 0;
+                        TabUI.Lines.SelectedIndex = SelectedResultIndex;
+                        ++SelectedResultIndex;
                     }
                 }
 
@@ -1415,7 +1415,7 @@ namespace Translator.Core
             {
                 if (TabUI.TranslationBoxText.Length > 0)
                 {
-                    UI.                    SearchBarText = TabUI.SelectedTranslationBoxText;
+                    UI.SearchBarText = TabUI.SelectedTranslationBoxText;
                 }
                 UI.SetReplaceMenuVisible();
 
@@ -1438,7 +1438,7 @@ namespace Translator.Core
         private void UpdateApprovedCountLabel(int Approved, int Total)
         {
             float percentage = Approved / (float)Total;
-            TabUI.SetApprovedLabelText( $"Approved: {Approved} / {Total} {(int)(percentage * 100)}%");
+            TabUI.SetApprovedLabelText($"Approved: {Approved} / {Total} {(int)(percentage * 100)}%");
             int ProgressValue = (int)(Approved / (float)Total * 100);
             if (ProgressValue != TabUI.ProgressValue)
             {
@@ -1463,7 +1463,7 @@ namespace Translator.Core
         {
             if (TranslationCount <= TemplateCount)
             {
-                TabUI.SetCharacterLabelColor( Color.LawnGreen);
+                TabUI.SetCharacterLabelColor(Color.LawnGreen);
             }//if bigger by no more than 20 percent
             else if (TranslationCount <= TemplateCount * 1.2f)
             {

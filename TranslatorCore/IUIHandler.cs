@@ -79,7 +79,7 @@ namespace Translator.UICompatibilityLayer
 
         T AtIndex(int index);
 
-        LineList<T> Lines { get; set; }
+        NullLineList<T> Lines { get; set; }
         int SelectedLineIndex { get; }
         T SelectedLineItem { get; }
         string SelectedLine { get { return SelectedLineItem.Text; } }
@@ -260,25 +260,48 @@ namespace Translator.UICompatibilityLayer
         int TemplateBoxSelectedTextLength { get; }
         int TranslationBoxSelectedTextLength { get; }
         ITab<T> SelectedTab { get; }
+        string TranslationBoxText { get; set; }
+        string TemplateBoxText { get; set; }
         #endregion
     }
 
-    public class LineList<T> where T : class, ILineItem, new()
+    public interface ILineList<T> where T : class, ILineItem, new()
+    {
+        T this[int index] { get; set; }
+        int ApprovedCount { get; }
+        int Count { get; }
+        List<ILineItem> SearchResults { get; }
+        int SelectedIndex { get; set; }
+        T SelectedLineItem { get; set; }
+        List<ILineItem> TranslationSimilarToTemplate { get; }
+
+        void Add(string iD, bool lineIsApproved);
+        void AddLineItem(T item);
+        void ApproveItem(int index);
+        void Clear();
+        bool GetApprovalState(int index);
+        void RemoveLineItem(T item);
+        void SelectIndex(int index);
+        void SetApprovalState(int index, bool isApproved);
+        void UnapproveItem(int index);
+    }
+
+    public class NullLineList<T> : ILineList<T> where T : class, ILineItem, new()
     {
         public readonly List<T> Items = new();
 
         public int Count => Items.Count;
         public int ApprovedCount { get; internal set; }
-        public LineList() : this(new List<T>()) { }
+        public NullLineList() : this(new List<T>()) { }
 
-        public LineList(List<T> items, T selectedLineItem, int selectedIndex)
+        public NullLineList(List<T> items, T selectedLineItem, int selectedIndex)
         {
             Items = items;
             SelectedLineItem = selectedLineItem;
             SelectedIndex = selectedIndex;
         }
 
-        public LineList(List<T> items)
+        public NullLineList(List<T> items)
         {
             Items = items;
             SelectedLineItem = items.Count > 0 ? items[0] : new T();
@@ -290,7 +313,8 @@ namespace Translator.UICompatibilityLayer
         public int SelectedIndex { get { return InternalSelectedIndex; } set { SelectIndex(value); } }
         public T SelectedLineItem { get; set; }
         private int InternalSelectedIndex { get; set; }
-        public List<int> SearchResults { get; internal set; } = new();
+        public List<ILineItem> SearchResults { get; internal set; } = new();
+        public List<ILineItem> TranslationSimilarToTemplate { get; internal set; } = new();
 
         public void AddLineItem(T item)
         {

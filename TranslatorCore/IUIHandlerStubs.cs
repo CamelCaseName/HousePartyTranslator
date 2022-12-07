@@ -82,7 +82,7 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public void FocusTranslationBox() { }
         public string CommentBoxText { get { return string.Empty; } set { } }
 
-        public LineList<NullLineItem> Lines { get { return new LineList<NullLineItem>(); } set { } }
+        public NullLineList<NullLineItem> Lines { get { return new NullLineList<NullLineItem>(); } set { } }
         public string TemplateBoxText { get { return string.Empty; } set { } }
         public string TranslationBoxText { get { return string.Empty; } set { } }
 
@@ -153,6 +153,9 @@ namespace Translator.UICompatibilityLayer.StubImpls
         ITab<NullLineItem> IUIHandler<NullLineItem>.SelectedTab => NullTab.Instance;
 
         MenuItems IUIHandler<NullLineItem>.FileMenuItems => throw new NotImplementedException();
+
+        public string TranslationBoxText { get => string.Empty; set { } }
+        public string TemplateBoxText { get => string.Empty; set { } }
 
         public void ClipboardSetText(string text) { }
         public ITab<NullLineItem>? CreateNewTab() { return NullTab.Instance; }

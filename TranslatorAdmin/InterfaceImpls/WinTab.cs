@@ -337,7 +337,7 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public List<string> SimilarStringsToEnglish => throw new NotImplementedException();
 
-        public LineList<WinLineItem> Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public NullLineList<WinLineItem> Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public int SelectedLineIndex => throw new NotImplementedException();
 
@@ -359,7 +359,7 @@ namespace TranslatorAdmin.InterfaceImpls
         public string CommentBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string[] CommentBoxTextArr { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool ApprovedButtonChecked { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        LineList<WinLineItem> ITab<WinLineItem>.Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        NullLineList<WinLineItem> ITab<WinLineItem>.Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public void ApproveSelectedLine() => throw new NotImplementedException();
         public WinLineItem AtIndex(int index) => throw new NotImplementedException();
