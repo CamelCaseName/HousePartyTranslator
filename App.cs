@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HousePartyTranslator.Properties;
+using System;
 using System.Globalization;
 using System.Reflection;
 using System.Windows.Forms;
@@ -26,6 +27,14 @@ namespace HousePartyTranslator
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            if (Settings.Default.UpdateSettings)
+            {
+                Settings.Default.Upgrade();
+                Settings.Default.UpdateSettings = false;
+                Settings.Default.Save();
+            }
+
             Application.Run(new Fenster());
         }
 
