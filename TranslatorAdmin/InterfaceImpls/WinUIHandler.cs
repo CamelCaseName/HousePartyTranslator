@@ -1,10 +1,6 @@
-﻿using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using Translator;
+﻿using Translator;
 using Translator.Core;
-using Translator.Core.Helpers;
 using Translator.Helpers;
-using Translator.Managers;
 using Translator.UICompatibilityLayer;
 using TranslatorAdmin.Managers;
 

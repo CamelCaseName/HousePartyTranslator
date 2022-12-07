@@ -1,15 +1,8 @@
-﻿using Translator.Helpers;
-using Translator.Managers;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+﻿using Newtonsoft.Json;
 using System.Numerics;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using TranslatorAdmin.Properties;
 using Translator.Core;
+using Translator.Helpers;
+using Settings = TranslatorAdmin.Properties.Settings;
 
 namespace Translator
 {

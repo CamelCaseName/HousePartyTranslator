@@ -1,8 +1,11 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.Versioning;
+using System.Text.Json;
+using Translator.Core;
 using Translator.Helpers;
 
 namespace Translator.Managers
 {
+    [SupportedOSPlatform("Windows")]
     internal static class SoftwareVersionManager
     {
         public const string LocalVersion = "0.6.2.2";
@@ -52,7 +55,7 @@ namespace Translator.Managers
                     _ = Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
 
                     //exit
-                    UIHandler.SignalAppExit();
+                    App.MainForm.UI.SignalAppExit();
                 }
             }
             catch(Exception e)

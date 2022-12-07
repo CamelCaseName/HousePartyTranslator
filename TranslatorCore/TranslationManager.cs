@@ -21,7 +21,7 @@ namespace Translator.Core
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    public sealed class TranslationManager<T> where T : class, ILineItem, new()
+    public class TranslationManager<T> where T : class, ILineItem, new()
     {
         public bool ChangesPending
         {

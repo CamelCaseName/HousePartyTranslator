@@ -1,9 +1,12 @@
 ﻿using Translator.Core;
+using Translator.Core.Helpers;
 using Translator.Helpers;
 using Translator.Managers;
 using Translator.StoryExplorerForm;
+using Translator.UICompatibilityLayer;
 using TranslatorAdmin.InterfaceImpls;
-using TranslatorAdmin.Properties;
+using Settings = TranslatorAdmin.Properties.Settings;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
 
 namespace Translator
 {
@@ -31,6 +34,7 @@ namespace Translator
         public static Fenster Instance { get; private set; }
         private DiscordPresenceManager? PresenceManager;
         private StoryExplorer? SExplorer;
+        internal WinUIHandler UI = new();
 
         /// <summary>
         /// static constructor for static fields
@@ -53,7 +57,8 @@ namespace Translator
             AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
             Application.ThreadException += ThreadExceptionHandler;
 
-            TabManager<WinLineItem>.Initialize(new WinUIHandler(), typeof(ToolStripMenuItem), typeof(ToolStripSeparator), "", SoftwareVersionManager.LocalVersion, new WinTab());
+            //initialize settings
+            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), "", SoftwareVersionManager.LocalVersion, new WinTab(), new WinAdminSettings());
 
             //check for update and replace if we want one
             SoftwareVersionManager.ReplaceFileIfNew();
@@ -63,7 +68,7 @@ namespace Translator
             InitializeComponent();
             ProgressbarWindow.PerformStep();
 
-            CheckListBoxLeft = (ColouredCheckedListBox)((WinTab)TabManager<WinLineItem>.SelectedTab).Controls.Find("CheckListBoxLeft", true)[0];
+            CheckListBoxLeft = (ColouredCheckedListBox)((WinTab)TabManager.SelectedTab).Controls.Find("CheckListBoxLeft", true)[0];
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
         }
 
@@ -121,7 +126,7 @@ namespace Translator
 
         public void Comments_TextChanged(object? sender, EventArgs? e)
         {
-            TabManager.ActiveTranslationManager?.UpdateComments();
+            TabManager.ActiveTranslationManager.UpdateComments();
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
         }
 
@@ -231,7 +236,7 @@ namespace Translator
 
         private void ExitToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            UIHandler.SignalAppExit();
+            UI.SignalAppExit();
         }
 
         private void FensterUnhandledExceptionHandler(object? sender, UnhandledExceptionEventArgs? e)
@@ -245,11 +250,11 @@ namespace Translator
 
                 if (e.ExceptionObject.GetType().IsAssignableTo(typeof(Exception)))
                 {
-                    Utils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
+                    Utils<WinLineItem>.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
                 }
                 else
                 {
-                    Utils.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
+                    Utils<WinLineItem>.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
                 }
             }
         }
@@ -285,7 +290,6 @@ namespace Translator
         {
             ProgressbarWindow.PerformStep();
             LogManager.Log("Application initializing...");
-            DataBase.InitializeDB(this);
             PresenceManager = new DiscordPresenceManager();
 
             //get translationmanager back
@@ -295,15 +299,12 @@ namespace Translator
 
             ProgressbarWindow.PerformStep();
 
-            //initialize before password check so the saving doesnt break
-            RecentsManager.Initialize();
-
             //Settings have to be loaded before the Database can be connected with
             ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
-            RecentsManager.UpdateMenuItems(FileToolStripMenuItem.DropDownItems);
-            RecentsManager.OpenMostRecent();
+            RecentsManager.UpdateMenuItems(FileToolStripMenuItem.DropDownItems.Cast<WinMenuItem>());
+            RecentsManager.OpenMostRecent<WinLineItem>();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };

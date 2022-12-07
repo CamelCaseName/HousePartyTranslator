@@ -2,14 +2,18 @@
 
 namespace Translator.Core
 {
-    public class Settings
+    public static class Settings
     {
         public static ISettings Default { get; private set; } = new DefaultSettings();
         public static bool IsInitialized { get; private set; }
-        public Settings(ISettings settings)
+        internal static bool Initialize(ISettings settings)
         {
-            Default = settings;
-            IsInitialized = true;
+            if (!IsInitialized)
+            {
+                Default = settings;
+                IsInitialized = true;
+            }
+            return IsInitialized;
         }
     }
 

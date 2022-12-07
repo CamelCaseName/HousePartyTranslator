@@ -6,12 +6,12 @@ using TranslatorAdmin.InterfaceImpls;
 namespace TranslatorAdmin.Managers
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class WinTranslationManager
+    internal class WinTranslationManager : Translator.Core.TranslationManager<WinLineItem>
     {
-        private readonly WinUIHandler UI = new();
-        internal WinTranslationManager(WinUIHandler ui)
+        private readonly WinUIHandler UI;
+        internal WinTranslationManager(WinUIHandler ui) : base(ui, ui.TabControl.SelectedTab)
         {
-            UI = ui;
+            UI ??= ui;
         }
         internal bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
         {

@@ -1,5 +1,8 @@
-﻿using Translator.Helpers;
-using TranslatorAdmin.Properties;
+﻿using Translator.Core;
+using Translator.Core.Helpers;
+using Translator.Helpers;
+using Settings = TranslatorAdmin.Properties.Settings;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
 
 namespace Translator.Managers
 {
@@ -131,11 +134,11 @@ namespace Translator.Managers
 
                 //set selected string as search string and place cursor in search box
                 case (Keys.Control | Keys.F):
-                    if (TabManager.ActiveProperties?.TranslationTextBox.SelectedText.Length > 0)
+                    if (TabManager.ActiveUI.TranslationTextBox.SelectedText.Length > 0)
                     {
-                        TabManager.ActiveProperties.CheckListBoxLeft.Text = TabManager.ActiveProperties.TranslationTextBox.SelectedText;
+                        TabManager.ActiveUI.CheckListBoxLeft.Text = TabManager.ActiveUI.TranslationTextBox.SelectedText;
                     }
-                    TabManager.ActiveProperties?.CheckListBoxLeft.Focus();
+                    TabManager.ActiveUI.CheckListBoxLeft.Focus();
                     return true;
 
                 //search, but also with replacing
@@ -165,12 +168,12 @@ namespace Translator.Managers
 
                 //select string above current selection
                 case (Keys.Control | Keys.Up):
-                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex > 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex--;
+                    if (TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex > 0) TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex--;
                     return true;
 
                 //select string below current selection
                 case (Keys.Control | Keys.Down):
-                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex < TabManager.ActiveProperties?.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex++;
+                    if (TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex < TabManager.ActiveUI.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex++;
                     return true;
 
                 //switch tab to the left
@@ -186,14 +189,14 @@ namespace Translator.Managers
                 //save translation and move down one
                 case (Keys.Control | Keys.Enter):
                     TabManager.ActiveTranslationManager?.SaveCurrentString();
-                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex < TabManager.ActiveProperties?.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex++;
+                    if (TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex < TabManager.ActiveUI.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex++;
                     return true;
 
                 //save translation, approve and move down one
                 case (Keys.Control | Keys.Shift | Keys.Enter):
-                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex >= 0) TabManager.ActiveProperties.CheckListBoxLeft.SetItemChecked(TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex, true);
-                    else TabManager.ActiveProperties?.CheckListBoxLeft.SetItemChecked(0, true);
-                    if (TabManager.ActiveProperties?.CheckListBoxLeft.SelectedIndex < TabManager.ActiveProperties?.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex++;
+                    if (TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex >= 0) TabManager.ActiveUI.CheckListBoxLeft.SetItemChecked(TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex, true);
+                    else TabManager.ActiveUI.CheckListBoxLeft.SetItemChecked(0, true);
+                    if (TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex < TabManager.ActiveUI.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex++;
                     return true;
 
                 //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
@@ -291,10 +294,10 @@ namespace Translator.Managers
 
         public static void OpenContextMenu(ContextMenuStrip context, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right && TabManager.ActiveProperties != null)
+            if (e.Button == MouseButtons.Right && TabManager.ActiveUI != null)
             {
-                TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = TabManager.ActiveProperties.CheckListBoxLeft.IndexFromPoint(e.Location);
-                if (TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex <= 0) TabManager.ActiveProperties.CheckListBoxLeft.SelectedIndex = 0;
+                TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex = TabManager.ActiveUI.CheckListBoxLeft.IndexFromPoint(e.Location);
+                if (TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex <= 0) TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex = 0;
                 context.Show();
             }
         }
@@ -317,9 +320,9 @@ namespace Translator.Managers
         }
 
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-        public static void SelectedItemChanged(Helpers.ColouredCheckedListBox listBox)
+        public static void SelectedItemChanged(ColouredCheckedListBox listBox)
         {
-            if (!History.CausedByHistory && lastIndex >= 0 && listBox.SelectedIndex >= 0)
+            if (lastIndex >= 0 && listBox.SelectedIndex >= 0)
             {
                 if (History.Peek().FileName == TabManager.ActiveTranslationManager?.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
                     History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));

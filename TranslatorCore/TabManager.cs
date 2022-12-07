@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
@@ -38,7 +39,7 @@ namespace Translator.Core
         /// Returns the active translation manager for the currently selected tab
         /// </summary>
         /// <returns>Current translationmanager</returns>
-        public static TranslationManager<T>? ActiveTranslationManager
+        public static TranslationManager<T> ActiveTranslationManager
         {
             get
             {
@@ -48,7 +49,8 @@ namespace Translator.Core
                 }
                 else
                 {
-                    return null;
+                    throw new UnreachableException("There should never be no tab/no translationmanager.");
+                    //return new((IUIHandler<T>)NullUIHandler.Instance, (ITab<T>)NullTab.Instance);
                 }
             }
         }
@@ -76,14 +78,15 @@ namespace Translator.Core
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tab">The initial tab</param>
-        public static TranslationManager<T> Initialize(IUIHandler<T> ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion, ITab<T> tab) 
+        public static TranslationManager<T> Initialize(IUIHandler<T> ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion, ITab<T> tab, ISettings settings)
         {
+            Settings.Initialize(settings);
             Utils<T>.Initialize(ui);
             DataBase.Initialize(ui, password, appVersion);
             RecentsManager.Initialize(MenuItem, MenuItemSeperator);
             TabControl = ui.TabControl;
 
-            if(!TabControl.TabPages.Contains(tab)) TabControl.TabPages.Add(tab);
+            if (!TabControl.TabPages.Contains(tab)) TabControl.TabPages.Add(tab);
 
             //create new translationmanager to use with the tab open right now
             handlers.Add(tab, ui);
@@ -219,7 +222,7 @@ namespace Translator.Core
                 }
                 else
                 {
-                    ActiveUI.                    SearchBarText = ActiveTranslationManager.SearchQuery;
+                    ActiveUI.SearchBarText = ActiveTranslationManager.SearchQuery;
                 }
             }
         }

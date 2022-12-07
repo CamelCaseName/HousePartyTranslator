@@ -1,12 +1,7 @@
-﻿using Translator.Helpers;
-using Translator.Managers;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Windows.Forms;
-using TranslatorAdmin.Properties;
-using Translator.Core;
+﻿using System.Drawing.Imaging;
+using Translator.Helpers;
+using Settings = TranslatorAdmin.Properties.Settings;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
 
 namespace Translator.StoryExplorerForm
 {
