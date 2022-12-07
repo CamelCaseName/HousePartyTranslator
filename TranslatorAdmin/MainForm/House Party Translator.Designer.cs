@@ -5,7 +5,6 @@ using System.Drawing;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using TranslatorAdmin.InterfaceImpls;
-using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator
 {

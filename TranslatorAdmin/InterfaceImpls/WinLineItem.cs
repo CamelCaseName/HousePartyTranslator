@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using Translator.UICompatibilityLayer;
-using Translator.UICompatibilityLayer.StubImpls;
+﻿using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
@@ -14,10 +12,5 @@ namespace TranslatorAdmin.InterfaceImpls
         public void Approve() => IsApproved = IsTranslated = true;
         public void Unapprove() => IsApproved = false;
         public override string ToString() => Text;
-
-        public static explicit operator WinLineItem(NullLineItem item)
-        {
-            return new WinLineItem() { Text = item.Text };
-        }
     }
 }
