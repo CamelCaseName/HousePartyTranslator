@@ -1,5 +1,6 @@
 ﻿using Translator.Helpers;
 using Translator.UICompatibilityLayer;
+using Translator.UICompatibilityLayer.StubImpls;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
@@ -27,14 +28,14 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public WinLineItem this[int index] { get { return (WinLineItem)Items[index]; } set { Items[index] = value; } }
 
-        WinLineItem ILineList<WinLineItem>.SelectedLineItem { get; set; }
+        WinLineItem ILineList<WinLineItem>.SelectedLineItem { get; set; } = (WinLineItem)(ILineItem)NullLineItem.Instance;
         public List<int> TranslationSimilarToTemplate { get; internal set; } = new();
 
         List<ILineItem> ILineList<WinLineItem>.SearchResults => (List<ILineItem>)SearchResults.Cast<WinLineItem>();
 
-        List<ILineItem> ILineList<WinLineItem>.TranslationSimilarToTemplate => throw new NotImplementedException();
+        List<ILineItem> ILineList<WinLineItem>.TranslationSimilarToTemplate => new();
 
-        WinLineItem ILineList<WinLineItem>.this[int index] { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        WinLineItem ILineList<WinLineItem>.this[int index] { get => (WinLineItem)Items[index]; set => Items[index] = value; }
 
         void ILineList<WinLineItem>.AddLineItem(WinLineItem item)
         {

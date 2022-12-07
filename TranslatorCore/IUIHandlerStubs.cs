@@ -82,7 +82,7 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public void FocusTranslationBox() { }
         public string CommentBoxText { get { return string.Empty; } set { } }
 
-        public NullLineList<NullLineItem> Lines { get { return new NullLineList<NullLineItem>(); } set { } }
+        public ILineList<NullLineItem> Lines { get { return new NullLineList<NullLineItem>(); } set { } }
         public string TemplateBoxText { get { return string.Empty; } set { } }
         public string TranslationBoxText { get { return string.Empty; } set { } }
 

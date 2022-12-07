@@ -79,7 +79,7 @@ namespace Translator.UICompatibilityLayer
 
         T AtIndex(int index);
 
-        NullLineList<T> Lines { get; set; }
+        ILineList<T> Lines { get; set; }
         int SelectedLineIndex { get; }
         T SelectedLineItem { get; }
         string SelectedLine { get { return SelectedLineItem.Text; } }

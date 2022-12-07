@@ -1,6 +1,8 @@
 ﻿using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
+using Translator.UICompatibilityLayer;
+using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
@@ -139,7 +141,7 @@ namespace Translator.Managers
                     {
                         TabManager.UI.SearchBarText = TabManager.UI.TranslationBoxText;
                     }
-                    TabManager.UI.SelectedTab.Lines.Focus();
+                    ((LineList)TabManager.UI.SelectedTab.Lines).Focus();
                     return true;
 
                 //search, but also with replacing
@@ -169,22 +171,22 @@ namespace Translator.Managers
 
                 //select string above current selection
                 case (Keys.Control | Keys.Up):
-                    if (TabManager.UI.CheckListBoxLeft.SelectedIndex > 0) TabManager.UI.CheckListBoxLeft.SelectedIndex--;
+                    if (TabManager.UI.SelectedTab.Lines.SelectedIndex > 0) TabManager.UI.SelectedTab.Lines.SelectedIndex--;
                     return true;
 
                 //select string below current selection
                 case (Keys.Control | Keys.Down):
-                    if (TabManager.UI.CheckListBoxLeft.SelectedIndex < TabManager.UI.CheckListBoxLeft.Items.Count - 1) TabManager.UI.CheckListBoxLeft.SelectedIndex++;
+                    if (TabManager.UI.SelectedTab.Lines.SelectedIndex < TabManager.UI.SelectedTab.LineCount - 1) TabManager.UI.SelectedTab.Lines.SelectedIndex++;
                     return true;
 
                 //switch tab to the left
                 case (Keys.Alt | Keys.Left):
-                    if (TabManager.TabControl.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex - 1);
+                    if (TabManager.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex - 1);
                     return true;
 
                 //switch tab to the right
                 case (Keys.Alt | Keys.Right):
-                    if (TabManager.TabControl.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex + 1);
+                    if (TabManager.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex + 1);
                     return true;
 
                 //save translation and move down one
@@ -271,7 +273,7 @@ namespace Translator.Managers
         /// </summary>
         public static void TextChangedCallback(Form parent, int selectedIndex)
         {
-            if(parent.ActiveControl == null) return;
+            if (parent.ActiveControl == null) return;
             if (parent.ActiveControl.GetType().IsAssignableFrom(typeof(TextBox)))
             {
                 if (((TextBox)parent.ActiveControl) == lastChangedTextBox
