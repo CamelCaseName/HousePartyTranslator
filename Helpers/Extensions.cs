@@ -177,6 +177,12 @@ namespace HousePartyTranslator.Helpers
                     case "/":
                     case "\\":
                     case "\n":
+                    case "(":
+                    case ")":
+                    case "[":
+                    case "]":
+                    case "{":
+                    case "}":
                         textBox.SelectionStart = i;
                         broken = true;
                         break;
@@ -222,6 +228,12 @@ namespace HousePartyTranslator.Helpers
                     case "/":
                     case "\\":
                     case "\n":
+                    case "(":
+                    case ")":
+                    case "[":
+                    case "]":
+                    case "{":
+                    case "}":
                         textBox.SelectionStart = i;
                         broken = true;
                         break;
