@@ -5,7 +5,18 @@ namespace TranslatorAdmin.InterfaceImpls
     internal class WinAdminSettings : ISettings
     {
         //todo
-        public bool AdvancedModeEnabled { get => true; set { } }
+        public bool AdvancedModeEnabled
+        {
+            get
+            {
+#if DEBUG || RELEASE
+                return true;
+#elif DEBUG_USER || RELEASE_USER
+                return false;
+#endif
+            }
+            set { }
+        }
         public bool AllowCustomStories { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool AlsoSaveToGame { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool AskForSaveDialog { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
