@@ -49,7 +49,6 @@ namespace Translator.Core
         private int templateCounter = 0;
 
         public FileData TranslationData = new();
-        public bool UpdateStoryExplorerSelection = true;
         private string fileName = "";
         private bool isSaveAs = false;
         private static string language = "";

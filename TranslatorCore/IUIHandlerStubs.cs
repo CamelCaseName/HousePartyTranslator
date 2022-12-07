@@ -26,14 +26,14 @@ namespace Translator.UICompatibilityLayer.StubImpls
 
     public class NullSaveFileDialog : ISaveFileDialog
     {
-        public string FileName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string InitialDirectory { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string Title { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string Extension { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool PromptCreate { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool PromptOverwrite { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string FileName { get { return string.Empty; } set { } }
+        public string InitialDirectory { get { return string.Empty; } set { } }
+        public string Title { get { return string.Empty; } set { } }
+        public string Extension { get { return string.Empty; } set { } }
+        public bool PromptCreate { get { return false; } set { } }
+        public bool PromptOverwrite { get { return false; } set { } }
 
-        public PopupResult ShowDialog() => throw new NotImplementedException();
+        public PopupResult ShowDialog() { return PopupResult.NONE; }
     }
 
     public class NullLineItem : ILineItem
@@ -59,57 +59,53 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public static NullTab Instance { get; } = new NullTab();
         public string Text { get => ""; set { } }
 
-        public bool IsApproveButtonFocused => throw new NotImplementedException();
+        public bool IsApproveButtonFocused => false;
 
-        public List<string> SimilarStringsToEnglish => throw new NotImplementedException();
+        public List<string> SimilarStringsToEnglish => new();
 
-        public int SelectedLineIndex => throw new NotImplementedException();
+        public int SelectedLineIndex => 0;
 
-        public NullLineItem SelectedLineItem => throw new NotImplementedException();
+        public NullLineItem SelectedLineItem => NullLineItem.Instance;
 
-        public bool IsTranslationBoxFocused => throw new NotImplementedException();
+        public bool IsTranslationBoxFocused => false;
 
-        public bool IsCommentBoxFocused => throw new NotImplementedException();
+        public bool IsCommentBoxFocused => false;
 
-        public int ProgressValue { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int ProgressValue { get { return 0; } set { } }
 
-        public void ApproveSelectedLine() => throw new NotImplementedException();
-        public void ClearLines() => throw new NotImplementedException();
+        public void ApproveSelectedLine() { }
+        public void ClearLines() { }
 
         public void Dispose() { }
 
-        public void FocusCommentBox() => throw new NotImplementedException();
-        public void FocusTranslationBox() => throw new NotImplementedException();
-        public string CommentBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public void FocusCommentBox() { }
+        public void FocusTranslationBox() { }
+        public string CommentBoxText { get { return string.Empty; } set { } }
 
-        public ILineItem GetLineItem(int index) => throw new NotImplementedException();
-        public LineList<NullLineItem> Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string TemplateBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string TranslationBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public LineList<NullLineItem> Lines { get { return new LineList<NullLineItem>(); } set { } }
+        public string TemplateBoxText { get { return string.Empty; } set { } }
+        public string TranslationBoxText { get { return string.Empty; } set { } }
 
-        public string SelectedCommentBoxText() => throw new NotImplementedException();
-        public int GetSelectedLineIndex() => throw new NotImplementedException();
-        public ILineItem GetSelectedLineItem() => throw new NotImplementedException();
-        public string SelectedTemplateBoxText => throw new NotImplementedException();
-        public string SelectedTranslationBoxText => throw new NotImplementedException();
-        public void SelectLineItem(int index) => throw new NotImplementedException();
-        public void SelectLineItem(ILineItem item) => throw new NotImplementedException();
-        public void SetSelectedCommentBoxText(int start, int end) => throw new NotImplementedException();
-        public void SetSelectedTemplateBoxText(int start, int end) => throw new NotImplementedException();
-        public void SetSelectedTranslationBoxText(int start, int end) => throw new NotImplementedException();
-        public void UnapproveSelectedLine() => throw new NotImplementedException();
-        public void UpdateLines() => throw new NotImplementedException();
-        NullLineItem ITab<NullLineItem>.AtIndex(int index) => throw new NotImplementedException();
-        public void SelectLineItem(NullLineItem item) => throw new NotImplementedException();
-        public string[] CommentBoxTextArr => throw new NotImplementedException();
-        public void SetCommentBoxText(string[] lines) => throw new NotImplementedException();
-        public bool ApprovedButtonChecked { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        string[] ITab<NullLineItem>.CommentBoxTextArr { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string SelectedCommentBoxText() { return string.Empty; }
+        public void SelectLineItem(int index) { }
+        public void SetSelectedCommentBoxText(int start, int end) { }
+        public void SetSelectedTemplateBoxText(int start, int end) { }
+        public void SetSelectedTranslationBoxText(int start, int end) { }
+        public void UnapproveSelectedLine() { }
+        public void UpdateLines() { }
+        NullLineItem ITab<NullLineItem>.AtIndex(int index) { return NullLineItem.Instance; }
+        public void SelectLineItem(NullLineItem item) { }
+        public bool ApprovedButtonChecked { get { return false; } set { } }
+        string[] ITab<NullLineItem>.CommentBoxTextArr { get { return Array.Empty<string>(); } set { } }
 
-        public void SetFileInfoText(string info) => throw new NotImplementedException();
-        public void SetApprovedLabelText(string v) => throw new NotImplementedException();
-        public void SetCharacterLabelColor(Color lawnGreen) => throw new NotImplementedException();
-        public void SetCharacterCountLabelText(string v) => throw new NotImplementedException();
+        string ITab<NullLineItem>.SelectedTranslationBoxText => string.Empty;
+
+        string ITab<NullLineItem>.SelectedTemplateBoxText => string.Empty;
+
+        public void SetFileInfoText(string info) { }
+        public void SetApprovedLabelText(string v) { }
+        public void SetCharacterLabelColor(Color lawnGreen) { }
+        public void SetCharacterCountLabelText(string v) { }
     }
 
     public class NullTabController : ITabController<NullLineItem>
@@ -120,8 +116,6 @@ namespace Translator.UICompatibilityLayer.StubImpls
         public ITab<NullLineItem> SelectedTab { get => (ITab<NullLineItem>)NullTab.Instance; set { } }
         public int TabCount => 0;
 
-        public List<ITab<NullLineItem>> TabPages => throw new NotImplementedException();
-
         List<ITab<NullLineItem>> ITabController<NullLineItem>.TabPages { get; } = new();
 
         public bool CloseTab(ITab<NullLineItem> tab) { return false; }
@@ -131,10 +125,8 @@ namespace Translator.UICompatibilityLayer.StubImpls
     {
         public static NullUIHandler Instance { get; } = new NullUIHandler();
 
-        public MenuItems FileMenuItems => throw new NotImplementedException();
-
-        public string ReplaceBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string SearchBarText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string ReplaceBarText { get { return string.Empty; } set { } }
+        public string SearchBarText { get { return string.Empty; } set { } }
 
         public Type? InternalFileDialogType => null;
 
@@ -142,49 +134,61 @@ namespace Translator.UICompatibilityLayer.StubImpls
 
         public Type? InternalSaveFileDialogType => null;
 
-        public CreateTemplateFromStoryDelegate CreateTemplateFromStory => throw new NotImplementedException();
+        CreateTemplateFromStoryDelegate IUIHandler<NullLineItem>.CreateTemplateFromStory => throw new NotImplementedException();
 
-        public ITabController<NullLineItem> TabControl => throw new NotImplementedException();
+        ITabController<NullLineItem> IUIHandler<NullLineItem>.TabControl => NullTabController.Instance;
 
-        public string Language { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string Language { get { return string.Empty; } set { } }
 
-        public bool ReplaceBarIsVisible => throw new NotImplementedException();
+        bool IUIHandler<NullLineItem>.ReplaceBarIsVisible => false;
 
-        public void ClipboardSetText(string text) => throw new NotImplementedException();
-        public ITab<NullLineItem>? CreateNewTab() => throw new NotImplementedException();
-        public PopupResult ErrorOk(string message, string title = "Error") => throw new NotImplementedException();
-        public PopupResult ErrorOkCancel(string message, string title = "Error") => throw new NotImplementedException();
-        public bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
-        public PopupResult ErrorYesNo(string message, string title = "Error") => throw new NotImplementedException();
-        public bool ErrorYesNo(string message, string title = "Error", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public PopupResult ErrorYesNoCancel(string message, string title = "Error") => throw new NotImplementedException();
-        public bool ErrorYesNoCancel(string message, string title = "Error", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public void FocusReplaceBar() => throw new NotImplementedException();
-        public void FocusSearchBar() => throw new NotImplementedException();
-        public PopupResult InfoOk(string message, string title = "Info") => throw new NotImplementedException();
-        public PopupResult InfoOkCancel(string message, string title = "Info") => throw new NotImplementedException();
-        public bool InfoOkCancel(string message, string title = "Info", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
-        public PopupResult InfoYesNo(string message, string title = "Info") => throw new NotImplementedException();
-        public bool InfoYesNo(string message, string title = "Info", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public PopupResult InfoYesNoCancel(string message, string title = "Info") => throw new NotImplementedException();
-        public bool InfoYesNoCancel(string message, string title = "Info", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public bool Login() => throw new NotImplementedException();
-        public bool Logout() => throw new NotImplementedException();
-        public void SetReplaceMenuInVisible() => throw new NotImplementedException();
-        public void SetReplaceMenuVisible() => throw new NotImplementedException();
-        public void SetTitle(string title) => throw new NotImplementedException();
-        public void SignalAppExit() => throw new NotImplementedException();
-        public void SignalUserEndWait() => throw new NotImplementedException();
-        public void SignalUserWait() => throw new NotImplementedException();
-        public void Update() => throw new NotImplementedException();
-        public void UpdateTranslationProgressIndicator() => throw new NotImplementedException();
-        public void UpdateResults() => throw new NotImplementedException();
-        public PopupResult WarningOk(string message, string title = "Warning") => throw new NotImplementedException();
-        public PopupResult WarningOkCancel(string message, string title = "Warning") => throw new NotImplementedException();
-        public bool WarningOkCancel(string message, string title = "Warning", PopupResult result = PopupResult.OK) => throw new NotImplementedException();
-        public PopupResult WarningYesNo(string message, string title = "Warning") => throw new NotImplementedException();
-        public bool WarningYesNo(string message, string title = "Warning", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
-        public PopupResult WarningYesNoCancel(string message, string title = "Warning") => throw new NotImplementedException();
-        public bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES) => throw new NotImplementedException();
+        int IUIHandler<NullLineItem>.TranslationBoxTextLength => 0;
+
+        int IUIHandler<NullLineItem>.TemplateBoxTextLength => 0;
+
+        int IUIHandler<NullLineItem>.TemplateBoxSelectedTextLength => 0;
+
+        int IUIHandler<NullLineItem>.TranslationBoxSelectedTextLength => 0;
+
+        ITab<NullLineItem> IUIHandler<NullLineItem>.SelectedTab => NullTab.Instance;
+
+        MenuItems IUIHandler<NullLineItem>.FileMenuItems => throw new NotImplementedException();
+
+        public void ClipboardSetText(string text) { }
+        public ITab<NullLineItem>? CreateNewTab() { return NullTab.Instance; }
+        public PopupResult ErrorOk(string message, string title = "Error") { return PopupResult.NONE; }
+        public PopupResult ErrorOkCancel(string message, string title = "Error") { return PopupResult.NONE; }
+        public bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK) { return false; }
+        public PopupResult ErrorYesNo(string message, string title = "Error") { return PopupResult.NONE; }
+        public bool ErrorYesNo(string message, string title = "Error", PopupResult result = PopupResult.YES) { return false; }
+        public PopupResult ErrorYesNoCancel(string message, string title = "Error") { return PopupResult.NONE; }
+        public bool ErrorYesNoCancel(string message, string title = "Error", PopupResult result = PopupResult.YES) { return false; }
+        public void FocusReplaceBar() { }
+        public void FocusSearchBar() { }
+        public PopupResult InfoOk(string message, string title = "Info") { return PopupResult.NONE; }
+        public PopupResult InfoOkCancel(string message, string title = "Info") { return PopupResult.NONE; }
+        public bool InfoOkCancel(string message, string title = "Info", PopupResult result = PopupResult.OK) { return false; }
+        public PopupResult InfoYesNo(string message, string title = "Info") { return PopupResult.NONE; }
+        public bool InfoYesNo(string message, string title = "Info", PopupResult result = PopupResult.YES) { return false; }
+        public PopupResult InfoYesNoCancel(string message, string title = "Info") { return PopupResult.NONE; }
+        public bool InfoYesNoCancel(string message, string title = "Info", PopupResult result = PopupResult.YES) { return false; }
+        public bool Login() { return false; }
+        public bool Logout() { return false; }
+        public void SetReplaceMenuInVisible() { }
+        public void SetReplaceMenuVisible() { }
+        public void SetTitle(string title) { }
+        public void SignalAppExit() { }
+        public void SignalUserEndWait() { }
+        public void SignalUserWait() { }
+        public void Update() { }
+        public void UpdateTranslationProgressIndicator() { }
+        public void UpdateResults() { }
+        public PopupResult WarningOk(string message, string title = "Warning") { return PopupResult.NONE; }
+        public PopupResult WarningOkCancel(string message, string title = "Warning") { return PopupResult.NONE; }
+        public bool WarningOkCancel(string message, string title = "Warning", PopupResult result = PopupResult.OK) { return false; }
+        public PopupResult WarningYesNo(string message, string title = "Warning") { return PopupResult.NONE; }
+        public bool WarningYesNo(string message, string title = "Warning", PopupResult result = PopupResult.YES) { return false; }
+        public PopupResult WarningYesNoCancel(string message, string title = "Warning") { return PopupResult.NONE; }
+        public bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES) { return false; }
     }
 }

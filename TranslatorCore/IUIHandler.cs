@@ -231,7 +231,7 @@ namespace Translator.UICompatibilityLayer
         Type? InternalFileDialogType { get; }
         Type FileDialogType { get => InternalFileDialogType ?? typeof(NullFileDialog); }
         Type? InternalFolderDialogType { get; }
-        Type FolderDialogType { get => InternalFolderDialogType ?? typeof(NullFolderDialog);  }
+        Type FolderDialogType { get => InternalFolderDialogType ?? typeof(NullFolderDialog); }
         Type? InternalSaveFileDialogType { get; }
         Type SaveFileDialogType { get => InternalSaveFileDialogType ?? typeof(NullSaveFileDialog); }
 
@@ -252,6 +252,14 @@ namespace Translator.UICompatibilityLayer
         ITabController<T> TabControl { get; }
         string Language { get; set; }
         bool ReplaceBarIsVisible { get; }
+        #endregion
+
+        #region counts
+        int TranslationBoxTextLength { get; }
+        int TemplateBoxTextLength { get; }
+        int TemplateBoxSelectedTextLength { get; }
+        int TranslationBoxSelectedTextLength { get; }
+        ITab<T> SelectedTab { get; }
         #endregion
     }
 

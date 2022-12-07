@@ -1,4 +1,5 @@
 ﻿using Translator;
+using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
 using TranslatorAdmin.InterfaceImpls;
@@ -8,6 +9,7 @@ namespace TranslatorAdmin.Managers
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal class WinTranslationManager : Translator.Core.TranslationManager<WinLineItem>
     {
+        public bool UpdateStoryExplorerSelection = true;
         private readonly WinUIHandler UI;
         internal WinTranslationManager(WinUIHandler ui) : base(ui, ui.TabControl.SelectedTab)
         {
@@ -51,5 +53,21 @@ namespace TranslatorAdmin.Managers
             return false;
         }
 
+        /// <summary>
+        /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
+        /// </summary>
+        internal void SetHighlightedNode()
+        {
+            if (TranslationData.Count > 0)
+            {
+                int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
+                string id = currentIndex < TranslationData.Count && currentIndex >= 0 ? TranslationData[SelectedId].ID : "Name";
+                //Highlights the node representign the selected string in the story explorer window
+                if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
+                {
+                    MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.Nodes.Find(n => n.ID == id);
+                }
+            }
+        }
     }
 }

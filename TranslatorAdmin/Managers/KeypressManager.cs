@@ -1,6 +1,7 @@
 ﻿using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
+using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
 
@@ -17,17 +18,17 @@ namespace Translator.Managers
 
         public static void ApprovedButtonChanged()
         {
-            TabManager.ActiveTranslationManager?.ApprovedButtonHandler();
+            TabManager.ActiveTranslationManager.ApprovedButtonHandler();
         }
 
         public static void AutoTranslate()
         {
-            TabManager.ActiveTranslationManager?.RequestedAutomaticTranslation();
+            TabManager.ActiveTranslationManager.RequestedAutomaticTranslation();
         }
 
         public static void CheckItemChanged()
         {
-            TabManager.ActiveTranslationManager?.ApproveIfPossible(false);
+            TabManager.ActiveTranslationManager.ApproveIfPossible(false);
         }
 
         [System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -45,7 +46,7 @@ namespace Translator.Managers
             if (TabManager.ActiveTranslationManager == null) return null;
 
             //get currently active translation manager
-            TranslationManager translationManager = TabManager.ActiveTranslationManager;
+            WinTranslationManager translationManager = (WinTranslationManager)TabManager.ActiveTranslationManager;
             bool isStory = translationManager.StoryName.ToLowerInvariant() == translationManager.FileName.ToLowerInvariant();
             try
             {
@@ -130,11 +131,11 @@ namespace Translator.Managers
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
                 case (Keys.Enter):
-                    return TabManager.ActiveTranslationManager?.SelectNextResultIfApplicable() ?? false;
+                    return TabManager.ActiveTranslationManager.SelectNextResultIfApplicable() ?? false;
 
                 //set selected string as search string and place cursor in search box
                 case (Keys.Control | Keys.F):
-                    if (TabManager.ActiveUI.TranslationTextBox.SelectedText.Length > 0)
+                    if (TabManager.ActiveUI.TabControl.SelectedTab.SelectedTranslationBoxText.Length > 0)
                     {
                         TabManager.ActiveUI.CheckListBoxLeft.Text = TabManager.ActiveUI.TranslationTextBox.SelectedText;
                     }
@@ -148,12 +149,12 @@ namespace Translator.Managers
 
                 //save current file
                 case (Keys.Control | Keys.S):
-                    TabManager.ActiveTranslationManager?.SaveFile();
+                    TabManager.ActiveTranslationManager.SaveFile();
                     return true;
 
                 //save current string
                 case (Keys.Control | Keys.Shift | Keys.S):
-                    TabManager.ActiveTranslationManager?.SaveCurrentString();
+                    TabManager.ActiveTranslationManager.SaveCurrentString();
                     return true;
 
                 //saves all open tabs
@@ -163,7 +164,7 @@ namespace Translator.Managers
 
                 //reload currently loaded file
                 case (Keys.Control | Keys.R):
-                    TabManager.ActiveTranslationManager?.ReloadFile();
+                    TabManager.ActiveTranslationManager.ReloadFile();
                     return true;
 
                 //select string above current selection
@@ -188,7 +189,7 @@ namespace Translator.Managers
 
                 //save translation and move down one
                 case (Keys.Control | Keys.Enter):
-                    TabManager.ActiveTranslationManager?.SaveCurrentString();
+                    TabManager.ActiveTranslationManager.SaveCurrentString();
                     if (TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex < TabManager.ActiveUI.CheckListBoxLeft.Items.Count - 1) TabManager.ActiveUI.CheckListBoxLeft.SelectedIndex++;
                     return true;
 
@@ -280,7 +281,7 @@ namespace Translator.Managers
                     && lastChangedTextBox != null
                     && lastText != null)
                 {
-                    History.AddAction(new TextChanged(lastChangedTextBox, lastText, lastChangedTextBox.Text, TabManager.ActiveTranslationManager?.FileName ?? "none", TabManager.ActiveTranslationManager?.StoryName ?? "none"));
+                    History.AddAction(new TextChanged(lastChangedTextBox, lastText, lastChangedTextBox.Text, TabManager.ActiveTranslationManager.FileName ?? "none", TabManager.ActiveTranslationManager.StoryName ?? "none"));
                 }
             }
         }
@@ -324,18 +325,18 @@ namespace Translator.Managers
         {
             if (lastIndex >= 0 && listBox.SelectedIndex >= 0)
             {
-                if (History.Peek().FileName == TabManager.ActiveTranslationManager?.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
+                if (History.Peek().FileName == TabManager.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
                     History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
                 else
-                    History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager?.FileName ?? "none", TabManager.ActiveTranslationManager?.StoryName ?? "none"));
+                    History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName ?? "none", TabManager.ActiveTranslationManager.StoryName ?? "none"));
             }
             lastIndex = listBox.SelectedIndex;
-            TabManager.ActiveTranslationManager?.PopulateTextBoxes();
+            TabManager.ActiveTranslationManager.PopulateTextBoxes();
         }
 
         public static void SelectedLanguageChanged()
         {
-            TabManager.ActiveTranslationManager?.SetLanguage();
+            TabManager.ActiveTranslationManager.SetLanguage();
         }
 
         public static void SelectedTabChanged(DiscordPresenceManager? presenceManager)
@@ -353,12 +354,12 @@ namespace Translator.Managers
 
         public static void ToggleReplaceUI()
         {
-            TabManager.ActiveTranslationManager?.ToggleReplaceUI();
+            TabManager.ActiveTranslationManager.ToggleReplaceUI();
         }
 
         public static void TranslationTextChanged()
         {
-            TabManager.ActiveTranslationManager?.UpdateTranslationString();
+            TabManager.ActiveTranslationManager.UpdateTranslationString();
         }
     }
 }

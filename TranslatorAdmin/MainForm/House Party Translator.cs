@@ -281,7 +281,7 @@ namespace Translator
             CancelTokens.Dispose();
 
             //show save unsaved changes dialog
-            TabManager.ActiveTranslationManager?.ShowAutoSaveDialog();
+            TabManager.ActiveTranslationManager.ShowAutoSaveDialog();
 
             LogManager.SaveLogFile();
         }
@@ -310,7 +310,7 @@ namespace Translator
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
             PresenceTimer.Start();
 
-            PresenceManager.Update(TabManager.ActiveTranslationManager?.StoryName ?? "None", TabManager.ActiveTranslationManager?.FileName ?? "None");
+            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName ?? "None", TabManager.ActiveTranslationManager.FileName ?? "None");
 
             LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{(DataBase.IsOnline ? DataBase.DBVersion : "*offline*")} story version:{Settings.Default.version}");
             //ProgressbarWindow.Hide();
@@ -344,22 +344,22 @@ namespace Translator
 
         private void SaveAsToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            TabManager.ActiveTranslationManager?.SaveFileAs();
+            TabManager.ActiveTranslationManager.SaveFileAs();
         }
 
         private void OverrideCloudSaveToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            TabManager.ActiveTranslationManager?.OverrideCloudSave();
+            TabManager.ActiveTranslationManager.OverrideCloudSave();
         }
 
         private void SaveCurrentStringToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            TabManager.ActiveTranslationManager?.SaveCurrentString();
+            TabManager.ActiveTranslationManager.SaveCurrentString();
         }
 
         private void SaveToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            TabManager.ActiveTranslationManager?.SaveFile();
+            TabManager.ActiveTranslationManager.SaveFile();
         }
 
         private void SearchToolStripTextBox_TextChanged(object? sender, EventArgs? e)

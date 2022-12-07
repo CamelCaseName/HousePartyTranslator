@@ -1,5 +1,9 @@
 ﻿using System.Drawing.Imaging;
+using Translator.Core;
+using Translator.Core.Helpers;
 using Translator.Helpers;
+using TranslatorAdmin.InterfaceImpls;
+using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
 
@@ -362,8 +366,7 @@ namespace Translator.StoryExplorerForm
         {
             if (e.ClickType == ClickedNodeTypes.Highlight)
             {
-                TranslationManager? t = TabManager.ActiveTranslationManager;
-                if(t == null) return;
+                WinTranslationManager t = (WinTranslationManager)TabManager.ActiveTranslationManager;
                 //tell translationmanager to update us or not when selected
                 t.UpdateStoryExplorerSelection = !IsShiftPressed;
                 //select line in translation manager
