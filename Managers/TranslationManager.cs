@@ -22,11 +22,9 @@ namespace HousePartyTranslator.Managers
             get { return _changesPending; }
             set
             {
+                if (value != _changesPending)
+                    TabManager.UpdateTabTitle(this, value ? FileName + "*" : FileName ?? "");
                 _changesPending = value;
-                if (value)
-                    TabManager.UpdateTabTitle(this, FileName + "*");
-                else
-                    TabManager.UpdateTabTitle(this, FileName ?? "");
             }
         }
         private bool _changesPending;
@@ -1167,7 +1165,7 @@ namespace HousePartyTranslator.Managers
                 {
                     //filter out irrelevant nodes
                     if (!(
-                            (int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2) 
+                            (int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2)
                             && nodes[i].Type == NodeType.Event)
                         && nodes[i].Type.AsStringCategory() != StringCategory.Neither
                         && nodes[i].ID != "")
