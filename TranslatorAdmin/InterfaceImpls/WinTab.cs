@@ -12,21 +12,21 @@ namespace TranslatorAdmin.InterfaceImpls
     {
         private static Fenster MainForm { get; set; } = new Fenster() { Visible = false };
 
-        private static int number { get; set; } = 0;
+        private static int Number { get; set; } = 0;
 
         internal static void Initialize(Fenster fenster) => MainForm = fenster;
 
         public WinTab()
         {
-            ++number;
+            ++Number;
             BackColor = Color.Black;
             ForeColor = SystemColors.ScrollBar;
             BorderStyle = BorderStyle.FixedSingle;
             Location = new Point(4, 22);
-            Name = $"TabPage{number}";
+            Name = $"TabPage{Number}";
             Padding = new Padding(3);
             TabIndex = 0;
-            Text = $"Tab{number}";
+            Text = $"Tab{Number}";
             var TranslateThis = new Button();
             var ApprovedBox = new CheckBox();
             var CheckListBoxLeft = new ColouredCheckedListBox();

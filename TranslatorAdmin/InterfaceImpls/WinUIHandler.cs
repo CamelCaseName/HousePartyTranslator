@@ -29,6 +29,16 @@ namespace TranslatorAdmin.InterfaceImpls
         Type IUIHandler<WinLineItem>.InternalFolderDialogType => typeof(WinFolderDialog);
         Type IUIHandler<WinLineItem>.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
 
+        public int TranslationBoxTextLength => TabControl.SelectedTab.TranslationBoxText.Length;
+
+        public int TemplateBoxTextLength => TabControl.SelectedTab.TemplateBoxText.Length;
+
+        public int TemplateBoxSelectedTextLength => TabControl.SelectedTab.SelectedTranslationBoxText.Length;
+
+        public int TranslationBoxSelectedTextLength => TabControl.SelectedTab.SelectedTemplateBoxText.Length;
+
+        public ITab<WinLineItem> SelectedTab => TabControl.SelectedTab;
+
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
         public ITab<WinLineItem>? CreateNewTab() => new WinTab();
         public PopupResult ErrorOk(string message, string title = "Error") => Msg.ErrorOk(message, title).ToPopupResult();
