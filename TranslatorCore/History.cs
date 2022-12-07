@@ -262,8 +262,8 @@ namespace Translator.Core
     {
         readonly int oldIndex;
         readonly int newIndex;
-        readonly NullLineList<T> ListBox;
-        public SelectedLineChanged(NullLineList<T> listBox, int oldIndex, int newIndex, string fileName, string storyName)
+        readonly ILineList<T> ListBox;
+        public SelectedLineChanged(ILineList<T> listBox, int oldIndex, int newIndex, string fileName, string storyName)
         {
             this.oldIndex = oldIndex;
             this.newIndex = newIndex;
@@ -277,12 +277,12 @@ namespace Translator.Core
 
         public void Do()
         {
-            if (newIndex >= 0 && newIndex < ListBox.Items.Count) ListBox.SelectedIndex = newIndex;
+            if (newIndex >= 0 && newIndex < ListBox.Count) ListBox.SelectedIndex = newIndex;
         }
 
         public void Undo()
         {
-            if (newIndex >= 0 && newIndex < ListBox.Items.Count) ListBox.SelectedIndex = oldIndex;
+            if (newIndex >= 0 && newIndex < ListBox.Count) ListBox.SelectedIndex = oldIndex;
         }
     }
 

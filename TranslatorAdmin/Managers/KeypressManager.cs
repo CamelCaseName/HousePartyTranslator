@@ -12,6 +12,7 @@ namespace Translator.Managers
     /// <summary>
     /// Class that handles all keyboard presses and calls the appropiate methods if a hotkey was detected
     /// </summary>
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal static class KeypressManager
     {
         private static TextBox? lastChangedTextBox;
@@ -33,7 +34,7 @@ namespace Translator.Managers
             TabManager.ActiveTranslationManager.ApproveIfPossible(false);
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    
         public static async Task<StoryExplorerForm.StoryExplorer?> CreateStoryExplorer(bool autoOpen, Form explorerParent, CancellationTokenSource tokenSource)
         {
             explorerParent.UseWaitCursor = true;
@@ -124,7 +125,7 @@ namespace Translator.Managers
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    
         public static bool MainKeyPressHandler(ref Message msg, Keys keyData, Form parent, CancellationTokenSource tokenSource)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
@@ -181,25 +182,25 @@ namespace Translator.Managers
 
                 //switch tab to the left
                 case (Keys.Alt | Keys.Left):
-                    if (TabManager.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex - 1);
+                    if (TabManager.TabCount > 1) TabManager.SwitchToTab(TabManager.SelectedTabIndex - 1);
                     return true;
 
                 //switch tab to the right
                 case (Keys.Alt | Keys.Right):
-                    if (TabManager.TabCount > 1) TabManager.SwitchToTab(TabManager.TabControl.SelectedIndex + 1);
+                    if (TabManager.TabCount > 1) TabManager.SwitchToTab(TabManager.SelectedTabIndex + 1);
                     return true;
 
                 //save translation and move down one
                 case (Keys.Control | Keys.Enter):
                     TabManager.ActiveTranslationManager.SaveCurrentString();
-                    if (TabManager.UI.CheckListBoxLeft.SelectedIndex < TabManager.UI.CheckListBoxLeft.Items.Count - 1) TabManager.UI.CheckListBoxLeft.SelectedIndex++;
+                    if (TabManager.UI.SelectedTab.Lines.SelectedIndex < TabManager.UI.SelectedTab.Lines.Count - 1) TabManager.UI.SelectedTab.Lines.SelectedIndex++;
                     return true;
 
                 //save translation, approve and move down one
                 case (Keys.Control | Keys.Shift | Keys.Enter):
-                    if (TabManager.UI.CheckListBoxLeft.SelectedIndex >= 0) TabManager.UI.CheckListBoxLeft.SetItemChecked(TabManager.UI.CheckListBoxLeft.SelectedIndex, true);
-                    else TabManager.UI.CheckListBoxLeft.SetItemChecked(0, true);
-                    if (TabManager.UI.CheckListBoxLeft.SelectedIndex < TabManager.UI.CheckListBoxLeft.Items.Count - 1) TabManager.UI.CheckListBoxLeft.SelectedIndex++;
+                    if (TabManager.UI.SelectedTab.Lines.SelectedIndex >= 0) TabManager.UI.SelectedTab.Lines.ApproveItem(TabManager.UI.SelectedTab.Lines.SelectedIndex);
+                    else TabManager.UI.SelectedTab.Lines.ApproveItem(0);
+                    if (TabManager.UI.SelectedTab.Lines.SelectedIndex < TabManager.UI.SelectedTab.LineCount - 1) TabManager.UI.SelectedTab.Lines.SelectedIndex++;
                     return true;
 
                 //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
@@ -278,17 +279,16 @@ namespace Translator.Managers
             {
                 if (((TextBox)parent.ActiveControl) == lastChangedTextBox
                     && lastText != lastChangedTextBox?.Text
-                    && !History.CausedByHistory
                     && lastIndex == selectedIndex
                     && lastChangedTextBox != null
                     && lastText != null)
                 {
-                    History.AddAction(new TextChanged(lastChangedTextBox, lastText, lastChangedTextBox.Text, TabManager.ActiveTranslationManager.FileName ?? "none", TabManager.ActiveTranslationManager.StoryName ?? "none"));
+                    History.AddAction(new TextChanged((ITextBox)lastChangedTextBox, lastText, lastChangedTextBox.Text, TabManager.ActiveTranslationManager.FileName ?? "none", TabManager.ActiveTranslationManager.StoryName ?? "none"));
                 }
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    
         public static void OpenAll()
         {
             //opne the story in tabs
@@ -299,38 +299,33 @@ namespace Translator.Managers
         {
             if (e.Button == MouseButtons.Right && TabManager.UI != null)
             {
-                TabManager.UI.CheckListBoxLeft.SelectedIndex = TabManager.UI.CheckListBoxLeft.IndexFromPoint(e.Location);
-                if (TabManager.UI.CheckListBoxLeft.SelectedIndex <= 0) TabManager.UI.CheckListBoxLeft.SelectedIndex = 0;
+                TabManager.UI.SelectedTab.Lines.SelectedIndex = ((LineList)TabManager.UI.SelectedTab.Lines).IndexFromPoint(e.Location);
+                if (TabManager.UI.SelectedTab.Lines.SelectedIndex <= 0) TabManager.UI.SelectedTab.Lines.SelectedIndex = 0;
                 context.Show();
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    
         public static void OpenNew()
         {
             //get currently active translationmanager
-            TranslationManager? t = TabManager.ActiveTranslationManager;
-            t?.LoadFileIntoProgram();
-            t?.SetLanguage();
-            //update tab name
-            if (t?.FileName.Length > 0) TabManager.TabControl.SelectedTab.Text = t.FileName;
+            TabManager.OpenNewFile();
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
         public static void OpenNewTab()
         {
             TabManager.OpenNewTab();
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-        public static void SelectedItemChanged(ColouredCheckedListBox listBox)
+    
+        public static void SelectedItemChanged(LineList listBox)
         {
             if (lastIndex >= 0 && listBox.SelectedIndex >= 0)
             {
                 if (History.Peek().FileName == TabManager.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
-                    History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
+                    History.AddAction(new SelectedLineChanged<WinLineItem>(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
                 else
-                    History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName ?? "none", TabManager.ActiveTranslationManager.StoryName ?? "none"));
+                    History.AddAction(new SelectedLineChanged<WinLineItem>(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName ?? "none", TabManager.ActiveTranslationManager.StoryName ?? "none"));
             }
             lastIndex = listBox.SelectedIndex;
             TabManager.ActiveTranslationManager.PopulateTextBoxes();
@@ -338,7 +333,7 @@ namespace Translator.Managers
 
         public static void SelectedLanguageChanged()
         {
-            TabManager.ActiveTranslationManager.SetLanguage();
+            TranslationManager<WinLineItem>.SetLanguage();
         }
 
         public static void SelectedTabChanged(DiscordPresenceManager? presenceManager)

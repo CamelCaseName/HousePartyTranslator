@@ -103,28 +103,28 @@ namespace Translator.Core
         /// <summary>
         /// Does all the logic to open a file in a new tab
         /// </summary>
-        public static void OpenNewTab(IUIHandler<T> ui)
+        public static void OpenNewTab()
         {
-            OpenInNewTab(Utils<T>.SelectFileFromSystem(), ui);
+            OpenInNewTab(Utils<T>.SelectFileFromSystem());
         }
 
         /// <summary>
         /// Opens the given file in a new tab.
         /// </summary>
         /// <param name="path">path to the file to open</param>
-        public static void OpenInNewTab(string path, IUIHandler<T> ui)
+        public static void OpenInNewTab(string path)
         {
             if (path.Length > 0)
             {
                 //create new support objects
-                ITab<T> newTab = ui.CreateNewTab() ?? (ITab<T>)new NullTab();
+                ITab<T> newTab = UI.CreateNewTab() ?? (ITab<T>)new NullTab();
                 newTab.Text = $"Tab {translationManagers.Count + 1}";
                 //Add tab to form control
                 TabControl.TabPages.Add(newTab);
                 //select new tab
                 TabControl.SelectedTab = newTab;
                 //create support dict
-                handlers.Add(newTab, ui);
+                handlers.Add(newTab, UI);
                 var t = new TranslationManager<T>(UI, newTab);
                 translationManagers.Add(newTab, t);
 
@@ -137,7 +137,7 @@ namespace Translator.Core
         /// <summary>
         /// Does all the logic to open all files form a story in tabs
         /// </summary>
-        public static void OpenAllTabs(IUIHandler<T> ui)
+        public static void OpenAllTabs()
         {
             string basePath = Utils<T>.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
 
@@ -164,7 +164,7 @@ namespace Translator.Core
                 {
                     if (Path.GetExtension(filePath) == ".txt")
                     {
-                        OpenInNewTab(filePath, ui);
+                        OpenInNewTab(filePath);
                     }
                 }
             }
@@ -393,6 +393,14 @@ namespace Translator.Core
         public static void Replace()
         {
             ActiveTranslationManager?.ReplaceSingle(UI.ReplaceBarText ?? "");
+        }
+
+        public static void OpenNewFile()
+        {
+            //load new file
+            ActiveTranslationManager.LoadFileIntoProgram();
+            //update tab name
+            SelectedTab.Text = ActiveTranslationManager.FileName;
         }
     }
 }
