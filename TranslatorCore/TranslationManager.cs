@@ -9,7 +9,6 @@ using System.Text;
 using System.Timers;
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
-using Translator.UICompatibilityLayer.StubImpls;
 using Timer = System.Timers.Timer;
 
 //TODO add tests
@@ -21,7 +20,7 @@ namespace Translator.Core
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    public class TranslationManager<T, V> where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
+    public class TranslationManager<T, V, X> where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
     {
         public bool ChangesPending
         {
@@ -30,9 +29,9 @@ namespace Translator.Core
             {
                 _changesPending = value;
                 if (value)
-                    TabManager<T, V>.UpdateTabTitle(this, FileName + "*");
+                    TabManager<T, V, X>.UpdateTabTitle(this, FileName + "*");
                 else
-                    TabManager<T, V>.UpdateTabTitle(this, FileName ?? "");
+                    TabManager<T, V, X>.UpdateTabTitle(this, FileName ?? "");
             }
         }
         private bool _changesPending;
@@ -44,7 +43,7 @@ namespace Translator.Core
         private static readonly Timer AutoSaveTimer = new();
 
         public int SelectedResultIndex = 0;
-        public ILineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : NullLineItem.Instance;
+        public ILineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : new T();
 
         //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
         private int templateCounter = 0;
@@ -57,13 +56,13 @@ namespace Translator.Core
         private bool selectedNew = false;
         private string sourceFilePath = "";
         private string storyName = "";
-        private static IUIHandler<T> UI = (IUIHandler<T>)new NullUIHandler();
+        private static IUIHandler<T, X>? UI;
         private static bool StaticUIInitialized = false;
         private readonly ITab<T> TabUI;
         private bool triedFixingOnce = false;
         private bool triedSavingFixOnce = false;
 
-        public TranslationManager(IUIHandler<T> ui, ITab<T> tab)
+        public TranslationManager(IUIHandler<T, X> ui, ITab<T> tab)
         {
             if (!StaticUIInitialized) { UI = ui; StaticUIInitialized = true; }
             TabUI = tab;
@@ -197,18 +196,18 @@ namespace Translator.Core
             {
                 UI.SignalUserWait();
                 //check if the template has been added and generated once before
-                _ = DataBase<T, V>.GetAllLineDataTemplate(fileName, story, out FileData data);
+                _ = DataBase<T, V, X>.GetAllLineDataTemplate(fileName, story, out FileData data);
                 if (data.Count == 0)
                 {//its a custom story but no template so far on the server
                  //use contextprovider to extract the story object and get the lines
                     PopupResult typeResult;
                     if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?")) != PopupResult.CANCEL)
                     {
-                        if (UI.CreateTemplateFromStory(story, fileName, SourceFilePath, out var templates))
+                        if (UI.CreateTemplateFromStory(story, fileName, SourceFilePath, out FileData templates))
                             if (templates.Count > 0)
                             {
-                                _ = DataBase<T, V>.RemoveOldTemplates(FileName, story);
-                                _ = DataBase<T, V>.UploadTemplates(templates);
+                                _ = DataBase<T, V, X>.RemoveOldTemplates(FileName, story);
+                                _ = DataBase<T, V, X>.UploadTemplates(templates);
 
                                 UI.SignalUserEndWait();
                                 return true;
@@ -272,7 +271,7 @@ namespace Translator.Core
         /// </summary>
         public void LoadFileIntoProgram()
         {
-            LoadFileIntoProgram(Utils<T, V>.SelectFileFromSystem());
+            LoadFileIntoProgram(Utils<T, V, X>.SelectFileFromSystem());
         }
 
         /// <summary>
@@ -286,10 +285,10 @@ namespace Translator.Core
                 ShowAutoSaveDialog();
                 //clear history if we have a new file, we dont need old one anymore
                 if (path != SourceFilePath)
-                    History.ClearForFile<T, V>(FileName, StoryName);
+                    History.ClearForFile<T, V, X>(FileName, StoryName);
                 ResetTranslationManager();
 
-                if (!IsUpToDate && Settings.Default.AdvancedModeEnabled && DataBase<T, V>.IsOnline)
+                if (!IsUpToDate && Settings.Default.AdvancedModeEnabled && DataBase<T, V, X>.IsOnline)
                 {
                     LoadTemplates();
                 }
@@ -305,11 +304,11 @@ namespace Translator.Core
                     LogManager.Log($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
                     //update tab name
-                    TabManager<T, V>.UpdateTabTitle(FileName);
+                    TabManager<T, V, X>.UpdateTabTitle(FileName);
 
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
-                    RecentsManager.UpdateMenuItems<T, V>(UI.FileMenuItems);
+                    RecentsManager.UpdateMenuItems<T, V, X>(UI.FileMenuItems);
                 }
                 //reset cursor
                 UI.SignalUserEndWait();
@@ -318,7 +317,7 @@ namespace Translator.Core
 
         private void LoadTemplates()
         {
-            string folderPath = Utils<T, V>.SelectTemplateFolderFromSystem();
+            string folderPath = Utils<T, V, X>.SelectTemplateFolderFromSystem();
             string templateFolderName = folderPath.Split('\\')[^1];
             if (templateFolderName == "TEMPLATE")
             {
@@ -412,7 +411,7 @@ namespace Translator.Core
                 TranslationData[TabUI.Lines[x].Text].TranslationString = TranslationData[TabUI.Lines[x].Text].TranslationString.Replace(replacement, SearchQuery);
             }
 
-            History.AddAction(new AllTranslationsChanged<T, V>(this, old, TranslationData));
+            History.AddAction(new AllTranslationsChanged<T, V, X>(this, old, TranslationData));
 
             //update search results
             Search();
@@ -433,7 +432,7 @@ namespace Translator.Core
             if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineItem))
             {
                 string temp = SelectedLine.TranslationString.Replace(replacement, SearchQuery);
-                History.AddAction(new TranslationChanged<T, V>(this, SelectedId, SelectedLine.TranslationString, temp));
+                History.AddAction(new TranslationChanged<T, V, X>(this, SelectedId, SelectedLine.TranslationString, temp));
                 SelectedLine.TranslationString = temp;
 
                 //update search results
@@ -513,7 +512,7 @@ namespace Translator.Core
                 UI.SignalUserWait();
 
                 //update translation in the DataBase
-                _ = DataBase<T, V>.UpdateTranslation(SelectedLine, Language);
+                _ = DataBase<T, V, X>.UpdateTranslation(SelectedLine, Language);
 
                 if (TabUI.SimilarStringsToEnglish.Contains(SelectedId)) _ = TabUI.SimilarStringsToEnglish.Remove(SelectedId);
 
@@ -528,15 +527,15 @@ namespace Translator.Core
         {
             UI.SignalUserWait();
 
-            History.ClearForFile<T, V>(FileName, StoryName);
+            History.ClearForFile<T, V, X>(FileName, StoryName);
 
             if (SourceFilePath == "" || Language == "") return;
-            if (!DataBase<T, V>.UpdateTranslations(TranslationData, Language) || !DataBase<T, V>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+            if (!DataBase<T, V, X>.UpdateTranslations(TranslationData, Language) || !DataBase<T, V, X>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
 
             List<CategorizedLines> CategorizedStrings = InitializeCategories();
 
             //sort online line ids into translations but use local values for translations if applicable
-            if (DataBase<T, V>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase<T, V>.IsOnline)
+            if (DataBase<T, V, X>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase<T, V, X>.IsOnline)
                 SortIntoCategories(CategorizedStrings, IdsToExport);
             else
                 SortIntoCategories(CategorizedStrings, TranslationData);
@@ -661,7 +660,7 @@ namespace Translator.Core
             foreach (LineData item in IdsToExport.Values)
             {
                 //add template to list if no translation is in the file
-                if (DataBase<T, V>.IsOnline)
+                if (DataBase<T, V, X>.IsOnline)
                 {
                     if (TranslationData.TryGetValue(item.ID, out LineData? TempResult))
                     {
@@ -824,7 +823,7 @@ namespace Translator.Core
         /// <param name="index">The index to select</param>
         public static void SelectLine(int index)
         {
-            if (index >= 0 && index < TabManager<T, V>.SelectedTab.LineCount) TabManager<T, V>.SelectedTab.SelectLineItem(index);
+            if (index >= 0 && index < TabManager<T, V, X>.SelectedTab.LineCount) TabManager<T, V, X>.SelectedTab.SelectLineItem(index);
         }
 
         /// <summary>
@@ -856,7 +855,7 @@ namespace Translator.Core
             {
                 if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
                 {
-                    if (!TabManager<T, V>.SaveAllTabs())
+                    if (!TabManager<T, V, X>.SaveAllTabs())
                     {
                         SaveFile();
                     }
@@ -964,14 +963,14 @@ namespace Translator.Core
             catch (UnauthorizedAccessException e)
             {
                 LogManager.Log(e.ToString(), LogManager.Level.Warning);
-                Utils<T, V>.DisplayExceptionMessage(e.ToString());
+                Utils<T, V, X>.DisplayExceptionMessage(e.ToString());
             }
 
             //remove old lines from server
-            _ = DataBase<T, V>.RemoveOldTemplates(StoryName);
+            _ = DataBase<T, V, X>.RemoveOldTemplates(StoryName);
 
             //add all the new strings
-            _ = DataBase<T, V>.UploadTemplates(TranslationData);
+            _ = DataBase<T, V, X>.UploadTemplates(TranslationData);
 
             PopupResult result = UI.WarningYesNoCancel(
                 "This should be done uploading. It should be :)\n" +
@@ -982,7 +981,7 @@ namespace Translator.Core
             //update if successfull
             if (result == PopupResult.YES)
             {
-                if (DataBase<T, V>.UpdateDBVersion())
+                if (DataBase<T, V, X>.UpdateDBVersion())
                 {
                     IsUpToDate = true;
                     isTemplate = false;
@@ -1037,7 +1036,7 @@ namespace Translator.Core
                     UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 }
                 //update tab name
-                TabManager<T, V>.UpdateTabTitle(FileName);
+                TabManager<T, V, X>.UpdateTabTitle(FileName);
             }
         }
 
@@ -1052,9 +1051,9 @@ namespace Translator.Core
             int currentIndex = 0;
             FileData onlineLines;
 
-            if (DataBase<T, V>.IsOnline)
+            if (DataBase<T, V, X>.IsOnline)
                 //get template lines from online
-                _ = DataBase<T, V>.GetAllLineData(FileName, StoryName, out onlineLines, Language);
+                _ = DataBase<T, V, X>.GetAllLineData(FileName, StoryName, out onlineLines, Language);
             else
                 //get template lines from user if they want
                 onlineLines = GetTemplatesFromUser();
@@ -1065,14 +1064,14 @@ namespace Translator.Core
                 {
                     lineIsApproved = tempLine.IsApproved;
                     TranslationData[key].Category = tempLine.Category;
-                    if (DataBase<T, V>.IsOnline) TranslationData[key].Comments = tempLine.Comments;
+                    if (DataBase<T, V, X>.IsOnline) TranslationData[key].Comments = tempLine.Comments;
                     TranslationData[key].FileName = tempLine.FileName;
                     TranslationData[key].ID = key;
                     TranslationData[key].IsTemplate = false;
                     TranslationData[key].IsTranslated = tempLine.IsTranslated;
                     TranslationData[key].Story = tempLine.Story;
-                    if (!localTakesPriority && DataBase<T, V>.IsOnline) TranslationData[key].TranslationString = tempLine.TranslationString;
-                    else if (!DataBase<T, V>.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
+                    if (!localTakesPriority && DataBase<T, V, X>.IsOnline) TranslationData[key].TranslationString = tempLine.TranslationString;
+                    else if (!DataBase<T, V, X>.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
                     TranslationData[key].IsApproved = false;
                 }
 
@@ -1107,7 +1106,7 @@ namespace Translator.Core
         {
             if (UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES))
             {
-                return GetTemplateFromFile(Utils<T, V>.SelectFileFromSystem(false, $"Choose the template for {StoryName}\\{FileName}.", FileName + ".txt"), false);
+                return GetTemplateFromFile(Utils<T, V, X>.SelectFileFromSystem(false, $"Choose the template for {StoryName}\\{FileName}.", FileName + ".txt"), false);
             }
             return new FileData();
         }
@@ -1118,7 +1117,7 @@ namespace Translator.Core
         private void ReadInStringsFromFile()
         {
             //read in all strings with IDs
-            if (isTemplate && DataBase<T, V>.IsOnline)//read in templates
+            if (isTemplate && DataBase<T, V, X>.IsOnline)//read in templates
             {
                 TranslationData = GetTemplateFromFile(SourceFilePath);
             }
@@ -1195,7 +1194,7 @@ namespace Translator.Core
         {
             StringCategory currentCategory = StringCategory.General;
 
-            _ = DataBase<T, V>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
+            _ = DataBase<T, V, X>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
             List<string> LinesFromFile;
             try
             {
@@ -1229,7 +1228,7 @@ namespace Translator.Core
                 {
                     TryFixEmptyFile();
                 }
-                else if (DataBase<T, V>.IsOnline)
+                else if (DataBase<T, V, X>.IsOnline)
                     //inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
                     //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
                     _ = UI.InfoOk(
@@ -1312,7 +1311,7 @@ namespace Translator.Core
             if (!triedFixingOnce)
             {
                 triedFixingOnce = true;
-                _ = DataBase<T, V>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
+                _ = DataBase<T, V, X>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
                 foreach (LineData item in IdsToExport.Values)
                 {
                     TranslationData[item.ID] = new LineData(item.ID, StoryName, FileName, item.Category);
@@ -1346,7 +1345,7 @@ namespace Translator.Core
             CategoriesInFile.Clear();
             TabUI.SimilarStringsToEnglish.Clear();
             SelectedResultIndex = 0;
-            TabManager<T, V>.SelectedTab.Text = "Tab";
+            TabManager<T, V, X>.SelectedTab.Text = "Tab";
             UpdateApprovedCountLabel(1, 1);
         }
 
@@ -1363,15 +1362,15 @@ namespace Translator.Core
                 {
                     SelectedResultIndex = 0;
                     //loop over to new tab when in global search
-                    if (TabManager<T, V>.InGlobalSearch)
+                    if (TabManager<T, V, X>.InGlobalSearch)
                     {
-                        searchTabIndex = TabManager<T, V>.SelectedTabIndex;
-                        TabManager<T, V>.SwitchToTab(++searchTabIndex);
+                        searchTabIndex = TabManager<T, V, X>.SelectedTabIndex;
+                        TabManager<T, V, X>.SwitchToTab(++searchTabIndex);
                     }
                     else
                     {
                         //select next index from list of matches
-                        if (SelectedSearchResultItem != NullLineItem.Instance)
+                        if (SelectedResultIndex < TabUI.LineCount)
                         {
                             TabUI.Lines.SelectedIndex = SelectedResultIndex;
                         }
@@ -1379,15 +1378,15 @@ namespace Translator.Core
                 }
                 else
                 {
-                    if (SelectedSearchResultItem != NullLineItem.Instance)
+                    if (SelectedResultIndex < TabUI.LineCount)
                     {
                         TabUI.Lines.SelectedIndex = SelectedResultIndex;
                         ++SelectedResultIndex;
                     }
-                    else if (TabManager<T, V>.InGlobalSearch && TabManager<T, V>.TabCount > 1)
+                    else if (TabManager<T, V, X>.InGlobalSearch && TabManager<T, V, X>.TabCount > 1)
                     {
-                        searchTabIndex = TabManager<T, V>.SelectedTabIndex;
-                        TabManager<T, V>.SwitchToTab(++searchTabIndex);
+                        searchTabIndex = TabManager<T, V, X>.SelectedTabIndex;
+                        TabManager<T, V, X>.SwitchToTab(++searchTabIndex);
                         return true;
                     }
                     else

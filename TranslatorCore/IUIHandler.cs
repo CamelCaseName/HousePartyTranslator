@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using Translator.Core;
-using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.UICompatibilityLayer
 {
@@ -155,7 +154,7 @@ namespace Translator.UICompatibilityLayer
         public void Focus();
     }
 
-    public interface IUIHandler<T> where T : class, ILineItem, new()
+    public interface IUIHandler<T, X> where T : class, ILineItem, new() where X : class, ITabController<T>, new()
     {
         #region cursor
         void SignalUserEndWait();
@@ -229,11 +228,11 @@ namespace Translator.UICompatibilityLayer
 
         #region file access/system access
         Type? InternalFileDialogType { get; }
-        Type FileDialogType { get => InternalFileDialogType ?? typeof(NullFileDialog); }
+        Type FileDialogType { get => InternalFileDialogType ?? typeof(IFileDialog); }
         Type? InternalFolderDialogType { get; }
-        Type FolderDialogType { get => InternalFolderDialogType ?? typeof(NullFolderDialog); }
+        Type FolderDialogType { get => InternalFolderDialogType ?? typeof(IFolderDialog); }
         Type? InternalSaveFileDialogType { get; }
-        Type SaveFileDialogType { get => InternalSaveFileDialogType ?? typeof(NullSaveFileDialog); }
+        Type SaveFileDialogType { get => InternalSaveFileDialogType ?? typeof(ISaveFileDialog); }
 
         CreateTemplateFromStoryDelegate CreateTemplateFromStory { get; }
 
@@ -249,7 +248,7 @@ namespace Translator.UICompatibilityLayer
         #endregion
 
         #region tabs
-        ITabController<T> TabControl { get; }
+        X TabControl { get; }
         string Language { get; set; }
         bool ReplaceBarIsVisible { get; }
         #endregion

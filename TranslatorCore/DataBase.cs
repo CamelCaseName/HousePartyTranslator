@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Translator.UICompatibilityLayer;
 using Translator.Core.Helpers;
-using Translator.UICompatibilityLayer.StubImpls;
 using System.Transactions;
 
 namespace Translator.Core
@@ -12,7 +11,7 @@ namespace Translator.Core
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    public static class DataBase<T, V> where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
+    public static class DataBase<T, V, X> where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
     {
         public static string DBVersion { get; private set; } = "0.0.0";
         private static readonly MySqlConnection sqlConnection = new();
@@ -344,8 +343,8 @@ namespace Translator.Core
                 Settings.Default.Save();
 
                 //set global variable for later actions
-                TranslationManager<T, V>.IsUpToDate = DBVersion == SoftwareVersion;
-                if (!TranslationManager<T, V>.IsUpToDate && Settings.Default.AdvancedModeEnabled)
+                TranslationManager<T, V, X>.IsUpToDate = DBVersion == SoftwareVersion;
+                if (!TranslationManager<T, V, X>.IsUpToDate && Settings.Default.AdvancedModeEnabled)
                 {
                     _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
                 }
@@ -537,7 +536,7 @@ namespace Translator.Core
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId[(story + fileName).Length..];
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<NullLineItem, NullUIHandler>.Language.Length));
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<T,V,X>.Language.Length));
         }
 
         /// <summary>

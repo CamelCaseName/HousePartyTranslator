@@ -4,22 +4,21 @@ using System.Diagnostics;
 using System.IO;
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
-using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.Core
 {
-    public static class TabManager<T, V> where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
+    public static class TabManager<T, V, X> where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
     {
         public static bool InGlobalSearch { get; private set; } = false;
-        private static ITabController<T> TabControl = (ITabController<T>)new NullTabController();
+        private static X TabControl = new();
         private static int lastIndex = 0;
-        private static readonly Dictionary<ITab<T>, TranslationManager<T, V>> translationManagers = new();
+        private static readonly Dictionary<ITab<T>, TranslationManager<T, V, X>> translationManagers = new();
 
         /// <summary>
         /// Method returning a Propertyhelper containing all relevant UI elements.
         /// </summary>
         /// <returns>the relevant Propertyhelper</returns>
-        public static V UI => UI ?? new V();
+        public static V? UI { get; set; }
 
         public static ITab<T> SelectedTab
         {
@@ -30,11 +29,11 @@ namespace Translator.Core
         /// Returns the active translation manager for the currently selected tab
         /// </summary>
         /// <returns>Current translationmanager</returns>
-        public static TranslationManager<T, V> ActiveTranslationManager
+        public static TranslationManager<T, V, X> ActiveTranslationManager
         {
             get
             {
-                if (translationManagers.TryGetValue(TabControl.SelectedTab, out TranslationManager<T, V>? translationManager))
+                if (translationManagers.TryGetValue(TabControl.SelectedTab, out TranslationManager<T, V, X>? translationManager))
                 {
                     return translationManager;
                 }
@@ -76,18 +75,19 @@ namespace Translator.Core
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tab">The initial tab</param>
-        public static TranslationManager<T, V> Initialize(V ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion, ITab<T> tab, ISettings settings)
+        public static TranslationManager<T, V, X> Initialize(V ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion, ITab<T> tab, ISettings settings)
         {
+            UI = ui;
             Settings.Initialize(settings);
-            Utils<T, V>.Initialize(ui);
-            DataBase<T, V>.Initialize(ui, password, appVersion);
+            Utils<T, V, X>.Initialize(ui);
+            DataBase<T, V, X>.Initialize(ui, password, appVersion);
             RecentsManager.Initialize(MenuItem, MenuItemSeperator);
             TabControl = ui.TabControl;
 
             if (!TabControl.TabPages.Contains(tab)) TabControl.TabPages.Add(tab);
 
             //create new translationmanager to use with the tab open right now
-            translationManagers.Add(tab, new TranslationManager<T, V>(UI, tab));
+            translationManagers.Add(tab, new TranslationManager<T, V, X>(UI, tab));
 
             return translationManagers[tab];
         }
@@ -97,7 +97,7 @@ namespace Translator.Core
         /// </summary>
         public static void OpenNewTab()
         {
-            OpenInNewTab(Utils<T, V>.SelectFileFromSystem());
+            OpenInNewTab(Utils<T, V, X>.SelectFileFromSystem());
         }
 
         /// <summary>
@@ -109,18 +109,19 @@ namespace Translator.Core
             if (path.Length > 0)
             {
                 //create new support objects
-                ITab<T> newTab = UI.CreateNewTab() ?? (ITab<T>)new NullTab();
+                ITab<T>? newTab = UI?.CreateNewTab();
+                if (newTab == null) return;
                 newTab.Text = $"Tab {translationManagers.Count + 1}";
                 //Add tab to form control
                 TabControl.TabPages.Add(newTab);
                 //select new tab
                 TabControl.SelectedTab = newTab;
                 //create support dict
-                var t = new TranslationManager<T, V>(UI, newTab);
+                var t = new TranslationManager<T, V, X>(UI, newTab);
                 translationManagers.Add(newTab, t);
 
                 //call startup for new translationmanager
-                TranslationManager<T, V>.SetLanguage();
+                TranslationManager<T, V, X>.SetLanguage();
                 t.LoadFileIntoProgram(path);
             }
         }
@@ -130,7 +131,7 @@ namespace Translator.Core
         /// </summary>
         public static void OpenAllTabs()
         {
-            string basePath = Utils<T, V>.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
+            string basePath = Utils<T, V, X>.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
 
             if (basePath.Length > 0)
             {
@@ -141,7 +142,7 @@ namespace Translator.Core
                     //get parent folder name
                     string tempName = folders[^1];
                     //get language text representation
-                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager<T, V>.Language, out string? languageAsText);
+                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager<T, V, X>.Language, out string? languageAsText);
                     //compare
                     if (tempName == languageAsText && gotLanguage)
                     {
@@ -166,7 +167,7 @@ namespace Translator.Core
         /// </summary>
         /// <param name="manager">The corresponding tab will be updated</param>
         /// <param name="title">The title to set</param>
-        public static void UpdateTabTitle(TranslationManager<T, V> manager, string title)
+        public static void UpdateTabTitle(TranslationManager<T, V, X> manager, string title)
         {
             foreach (ITab<T> tab in translationManagers.Keys)
             {
@@ -205,7 +206,7 @@ namespace Translator.Core
             //update history on tab change
             if (lastIndex != TabControl.SelectedIndex)
             {
-                History.AddAction(new SelectedTabChanged<T, V>(lastIndex, TabControl.SelectedIndex));
+                History.AddAction(new SelectedTabChanged<T, V, X>(lastIndex, TabControl.SelectedIndex));
                 lastIndex = TabControl.SelectedIndex;
             }
 
@@ -369,8 +370,8 @@ namespace Translator.Core
                 for (int i = 0; i < TabControl.TabCount; i++)
                 {
                     //save history
-                    if (i != 0) History.AddAction(new SelectedTabChanged<T, V>(i - 1, i));
-                    else History.AddAction(new SelectedTabChanged<T, V>(0, i));
+                    if (i != 0) History.AddAction(new SelectedTabChanged<T, V, X>(i - 1, i));
+                    else History.AddAction(new SelectedTabChanged<T, V, X>(0, i));
 
                     translationManagers[TabControl.TabPages[i]].ReplaceAll(UI.ReplaceBarText ?? "");
                 }

@@ -27,7 +27,7 @@ namespace TranslatorAdmin.InterfaceImpls
         public bool DoDiscordRichPresence { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool UseFalseFolder { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public int RecentIndex { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string DbPassword { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string DbPassword { get => Properties.Settings.Default.dbPassword; set => Properties.Settings.Default.dbPassword = value; }
         public string DbUserName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string FileVersion { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string Language { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -40,6 +40,6 @@ namespace TranslatorAdmin.InterfaceImpls
         public string TranslationPath { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public TimeSpan AutoSaveInterval { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public void Save() => throw new NotImplementedException();
+        public void Save() => Properties.Settings.Default.Save();
     }
 }

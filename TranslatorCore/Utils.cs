@@ -5,7 +5,6 @@ using System.Drawing;
 using System.IO;
 using System.Reflection;
 using Translator.UICompatibilityLayer;
-using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.Core.Helpers
 {
@@ -13,7 +12,7 @@ namespace Translator.Core.Helpers
     /// Provides some generic utility methods.
     /// </summary>
 
-    public static partial class Utils<T, V> where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
+    public static partial class Utils<T, V, X> where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
     {
         private static int ExceptionCount = 0;
         private static V? MainUI { get; set; }
@@ -54,7 +53,7 @@ namespace Translator.Core.Helpers
         {
             if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
 
-            IFileDialog? selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(NullFileDialog), new object?[]
+            IFileDialog? selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(IFileDialog), new object?[]
             {
                 Title?.Length > 0 ? Title : "Choose a file for translation",
                 "Text files (*.txt)|*.txt",
@@ -99,7 +98,7 @@ namespace Translator.Core.Helpers
         {
             if (!MainUI?.FolderDialogType.IsAssignableTo(typeof(IFolderDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FolderDialogType)} does not inherit {nameof(IFolderDialog)}");
 
-            IFolderDialog? selectFolderDialog = (IFolderDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(NullFileDialog), new object?[]
+            IFolderDialog? selectFolderDialog = (IFolderDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(IFileDialog), new object?[]
             {
                 message,
                 Settings.Default.TemplatePath == string.Empty ? Environment.SpecialFolder.UserProfile.ToString() : Settings.Default.TemplatePath,
