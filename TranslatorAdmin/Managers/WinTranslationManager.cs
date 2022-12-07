@@ -1,8 +1,9 @@
 ﻿using Translator;
-using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
+using Translator.Managers;
 using TranslatorAdmin.InterfaceImpls;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
 
 namespace TranslatorAdmin.Managers
 {
@@ -11,15 +12,19 @@ namespace TranslatorAdmin.Managers
     {
         public bool UpdateStoryExplorerSelection = true;
         private readonly WinUIHandler UI;
+
+        public static DiscordPresenceManager? DiscordPresence { get; internal set; }
+
         internal WinTranslationManager(WinUIHandler ui) : base(ui, ui.TabControl.SelectedTab)
         {
             UI ??= ui;
         }
+
         internal bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
         {
             UI.SignalUserWait();
             data = new FileData();
-            var explorer = new ContextProvider(story == Path.GetFileNameWithoutExtension(path), false, filename, story, null);
+            var explorer = new ContextProvider(story == Path.GetFileNameWithoutExtension(path), false, filename, story, new ParallelOptions());
             List<Node> nodes = explorer.GetTemplateNodes();
             if (nodes != null)
             {
@@ -60,12 +65,12 @@ namespace TranslatorAdmin.Managers
         {
             if (TranslationData.Count > 0)
             {
-                int currentIndex = helper.CheckListBoxLeft.SelectedIndex;
+                int currentIndex = TabManager.UI.SelectedTab.SelectedLineIndex;
                 string id = currentIndex < TranslationData.Count && currentIndex >= 0 ? TranslationData[SelectedId].ID : "Name";
                 //Highlights the node representign the selected string in the story explorer window
-                if (MainWindow.Explorer != null && !MainWindow.Explorer.IsDisposed)
+                if (App.MainForm.Explorer != null && !App.MainForm.Explorer.IsDisposed)
                 {
-                    MainWindow.Explorer.Grapher.HighlightedNode = MainWindow.Explorer.Grapher.Context.Nodes.Find(n => n.ID == id);
+                    App.MainForm.Explorer.Grapher.HighlightedNode = App.MainForm.Explorer?.Grapher.Context.Nodes.Find(n => n.ID == id) ?? Node.NullNode;
                 }
             }
         }

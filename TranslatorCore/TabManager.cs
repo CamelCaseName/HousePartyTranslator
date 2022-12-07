@@ -73,10 +73,13 @@ namespace Translator.Core
         public static void CloseTab(ITab<T> tab)
         {
             //remove manager for the tab, save first
-            translationManagers[tab].SaveFile();
-            _ = translationManagers.Remove(tab);
-            _ = handlers.Remove(tab);
-            TabControl.CloseTab(tab);
+            if (TabControl.TabPages.Contains(tab))
+            {
+                translationManagers[tab].SaveFile();
+                _ = translationManagers.Remove(tab);
+                _ = handlers.Remove(tab);
+                TabControl.CloseTab(tab);
+            }
         }
 
         /// <summary>

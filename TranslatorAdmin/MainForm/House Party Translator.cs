@@ -4,7 +4,9 @@ using Translator.Helpers;
 using Translator.Managers;
 using Translator.StoryExplorerForm;
 using Translator.UICompatibilityLayer;
+using Translator.UICompatibilityLayer.StubImpls;
 using TranslatorAdmin.InterfaceImpls;
+using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
 
@@ -31,7 +33,6 @@ namespace Translator
         };
 
         public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
-        public static Fenster Instance { get; private set; }
         private DiscordPresenceManager? PresenceManager;
         private StoryExplorer? SExplorer;
         internal WinUIHandler UI = new();
@@ -121,7 +122,7 @@ namespace Translator
 
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
-            KeypressManager.SelectedItemChanged(CheckListBoxLeft);
+            KeypressManager.SelectedItemChanged((LineList)CheckListBoxLeft);
         }
 
         public void Comments_TextChanged(object? sender, EventArgs? e)
@@ -214,7 +215,7 @@ namespace Translator
         /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (KeypressManager.MainKeyPressHandler(ref msg, keyData, this, CancelTokens))
+            if (KeypressManager.MainKeyPressHandler(ref msg, keyData, CancelTokens))
             {
                 return true;
             }
@@ -226,7 +227,7 @@ namespace Translator
 
         private void CloseTab_Click(object? sender, MouseEventArgs? e)
         {
-            TabManager.CloseTab(sender, e);
+            TabManager.CloseTab((WinTab?)sender ?? (WinTab)(ITab<WinLineItem>)NullTab.Instance);
         }
 
         private async void CustomStoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
@@ -292,10 +293,7 @@ namespace Translator
             LogManager.Log("Application initializing...");
             PresenceManager = new DiscordPresenceManager();
 
-            //get translationmanager back
-            TranslationManager translationManager = TabManager.Initialize(tabPage1, PresenceManager, this);
-            translationManager.SetLanguage();
-            TranslationManager.SetMainForm(this);
+            WinTranslationManager.DiscordPresence = PresenceManager;
 
             ProgressbarWindow.PerformStep();
 
@@ -303,7 +301,7 @@ namespace Translator
             ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
-            RecentsManager.UpdateMenuItems(FileToolStripMenuItem.DropDownItems.Cast<WinMenuItem>());
+            RecentsManager.UpdateMenuItems((MenuItems)FileToolStripMenuItem.DropDownItems.Cast<WinMenuItem>());
             RecentsManager.OpenMostRecent<WinLineItem>();
 
             //start timer to update presence
@@ -383,7 +381,7 @@ namespace Translator
             if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
 
             LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
-            Utils.DisplayExceptionMessage(e.Exception.Message);
+            Utils<WinLineItem>.DisplayExceptionMessage(e.Exception.Message);
         }
 
         private void ToolStripMenuReplaceBox_TextChanged(object? sender, EventArgs? e)
@@ -399,6 +397,62 @@ namespace Translator
         private void ToolStripReplaceButton_Click(object? sender, EventArgs? e)
         {
             TabManager.Replace();
+        }
+        
+        /// <summary>
+         /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
+         /// </summary>
+         /// <param name="form"></param>
+         /// <param name="toLeft">true if deleting to the left</param>
+         /// <returns>true if successfull</returns>
+        public bool DeleteCharactersInText(bool toLeft)
+        {
+            Control? focused_control = ActiveControl;
+            try
+            {
+                _ = (TextBox?)focused_control;
+            }
+            //ignore exception, really intended
+            catch { return false; }
+            if (focused_control == null) return false;
+            var textBox = (TextBox)focused_control;
+            if (toLeft)
+            {
+                return ((ITextBox)textBox).DeleteCharactersInTextLeft();
+            }
+            else
+            {
+                return ((ITextBox)textBox).DeleteCharactersInTextRight();
+            }
+        }
+
+        /// <summary>
+        /// Moves the cursor to the beginning/end of the next word in the specified direction
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="toLeft">true if to scan to the left</param>
+        /// <returns>true if succeeded</returns>
+        public bool MoveCursorInText(bool toLeft)
+        {
+            Control? focused_control = ActiveControl;
+            try
+            {
+                _ = (TextBox?)focused_control;
+            }
+            //ignore exception, really intended
+            catch { return false; }
+            if (focused_control == null) return false;
+            var textBox = (TextBox)focused_control;
+            if (toLeft)
+            {
+                ((ITextBox)textBox).MoveCursorWordLeft();
+                return true;
+            }
+            else
+            {
+                ((ITextBox)textBox).MoveCursorWordRight();
+                return true;
+            }
         }
     }
 }

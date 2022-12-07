@@ -126,7 +126,7 @@ namespace Translator.Managers
 #pragma warning disable IDE0060 // Remove unused parameter
 
     
-        public static bool MainKeyPressHandler(ref Message msg, Keys keyData, Form parent, CancellationTokenSource tokenSource)
+        public static bool MainKeyPressHandler(ref Message msg, Keys keyData, CancellationTokenSource tokenSource)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
         {
@@ -205,19 +205,19 @@ namespace Translator.Managers
 
                 //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
                 case (Keys.Control | Keys.Delete):
-                    return Utils.DeleteCharactersInText(parent, false);
+                    return App.MainForm.DeleteCharactersInText(false);
 
                 //ripple delete all alphanumerical chars to the left of the cursor
                 case (Keys.Control | Keys.Back):
-                    return Utils.DeleteCharactersInText(parent, true);
+                    return App.MainForm.DeleteCharactersInText(true);
 
                 //move cursor to the left, clinging to words
                 case (Keys.Control | Keys.Left):
-                    return Utils.MoveCursorInText(parent, true);
+                    return App.MainForm.MoveCursorInText(true);
 
                 //move cursor to the right, clinging to words
                 case (Keys.Control | Keys.Right):
-                    return Utils.MoveCursorInText(parent, false);
+                    return App.MainForm.MoveCursorInText(false);
 
                 case Keys.Control | Keys.O:
                     OpenNew();
@@ -240,11 +240,11 @@ namespace Translator.Managers
                     return true;
 
                 case Keys.Control | Keys.E:
-                    _ = CreateStoryExplorer(true, parent, tokenSource);
+                    _ = CreateStoryExplorer(true, App.MainForm, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.T:
-                    _ = CreateStoryExplorer(false, parent, tokenSource);
+                    _ = CreateStoryExplorer(false, App.MainForm, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.P:
@@ -252,7 +252,7 @@ namespace Translator.Managers
                     return true;
 
                 default:
-                    PrepareTextChanged(parent.ActiveControl);
+                    PrepareTextChanged(App.MainForm.ActiveControl);
                     //return false, we dont consume the keypresses, only save a state to monitor for change
                     return false;
             }
