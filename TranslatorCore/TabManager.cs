@@ -8,27 +8,18 @@ using Translator.UICompatibilityLayer.StubImpls;
 
 namespace Translator.Core
 {
-    public static class TabManager<T> where T : class, ILineItem, new()
+    public static class TabManager<T, V> where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
     {
         public static bool InGlobalSearch { get; private set; } = false;
         private static ITabController<T> TabControl = (ITabController<T>)new NullTabController();
         private static int lastIndex = 0;
-        private static readonly Dictionary<ITab<T>, IUIHandler<T>> handlers = new();
-        private static readonly Dictionary<ITab<T>, TranslationManager<T>> translationManagers = new();
+        private static readonly Dictionary<ITab<T>, TranslationManager<T, V>> translationManagers = new();
 
         /// <summary>
         /// Method returning a Propertyhelper containing all relevant UI elements.
         /// </summary>
         /// <returns>the relevant Propertyhelper</returns>
-        public static IUIHandler<T> UI
-        {
-            get
-            {
-                _ = handlers.TryGetValue(TabControl.SelectedTab, out IUIHandler<T>? property);
-                return property
-                    ?? (IUIHandler<T>)NullUIHandler.Instance;
-            }
-        }
+        public static V UI => UI ?? new V();
 
         public static ITab<T> SelectedTab
         {
@@ -39,11 +30,11 @@ namespace Translator.Core
         /// Returns the active translation manager for the currently selected tab
         /// </summary>
         /// <returns>Current translationmanager</returns>
-        public static TranslationManager<T> ActiveTranslationManager
+        public static TranslationManager<T, V> ActiveTranslationManager
         {
             get
             {
-                if (translationManagers.TryGetValue(TabControl.SelectedTab, out TranslationManager<T>? translationManager))
+                if (translationManagers.TryGetValue(TabControl.SelectedTab, out TranslationManager<T, V>? translationManager))
                 {
                     return translationManager;
                 }
@@ -77,7 +68,6 @@ namespace Translator.Core
             {
                 translationManagers[tab].SaveFile();
                 _ = translationManagers.Remove(tab);
-                _ = handlers.Remove(tab);
                 TabControl.CloseTab(tab);
             }
         }
@@ -86,19 +76,18 @@ namespace Translator.Core
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tab">The initial tab</param>
-        public static TranslationManager<T> Initialize(IUIHandler<T> ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion, ITab<T> tab, ISettings settings)
+        public static TranslationManager<T, V> Initialize(V ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion, ITab<T> tab, ISettings settings)
         {
             Settings.Initialize(settings);
-            Utils<T>.Initialize(ui);
-            DataBase.Initialize(ui, password, appVersion);
+            Utils<T, V>.Initialize(ui);
+            DataBase<T, V>.Initialize(ui, password, appVersion);
             RecentsManager.Initialize(MenuItem, MenuItemSeperator);
             TabControl = ui.TabControl;
 
             if (!TabControl.TabPages.Contains(tab)) TabControl.TabPages.Add(tab);
 
             //create new translationmanager to use with the tab open right now
-            handlers.Add(tab, ui);
-            translationManagers.Add(tab, new TranslationManager<T>(UI, tab));
+            translationManagers.Add(tab, new TranslationManager<T, V>(UI, tab));
 
             return translationManagers[tab];
         }
@@ -108,7 +97,7 @@ namespace Translator.Core
         /// </summary>
         public static void OpenNewTab()
         {
-            OpenInNewTab(Utils<T>.SelectFileFromSystem());
+            OpenInNewTab(Utils<T, V>.SelectFileFromSystem());
         }
 
         /// <summary>
@@ -127,12 +116,11 @@ namespace Translator.Core
                 //select new tab
                 TabControl.SelectedTab = newTab;
                 //create support dict
-                handlers.Add(newTab, UI);
-                var t = new TranslationManager<T>(UI, newTab);
+                var t = new TranslationManager<T, V>(UI, newTab);
                 translationManagers.Add(newTab, t);
 
                 //call startup for new translationmanager
-                TranslationManager<T>.SetLanguage();
+                TranslationManager<T, V>.SetLanguage();
                 t.LoadFileIntoProgram(path);
             }
         }
@@ -142,7 +130,7 @@ namespace Translator.Core
         /// </summary>
         public static void OpenAllTabs()
         {
-            string basePath = Utils<T>.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
+            string basePath = Utils<T, V>.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
 
             if (basePath.Length > 0)
             {
@@ -153,7 +141,7 @@ namespace Translator.Core
                     //get parent folder name
                     string tempName = folders[^1];
                     //get language text representation
-                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager<T>.Language, out string? languageAsText);
+                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager<T, V>.Language, out string? languageAsText);
                     //compare
                     if (tempName == languageAsText && gotLanguage)
                     {
@@ -178,7 +166,7 @@ namespace Translator.Core
         /// </summary>
         /// <param name="manager">The corresponding tab will be updated</param>
         /// <param name="title">The title to set</param>
-        public static void UpdateTabTitle(TranslationManager<T> manager, string title)
+        public static void UpdateTabTitle(TranslationManager<T, V> manager, string title)
         {
             foreach (ITab<T> tab in translationManagers.Keys)
             {
@@ -217,7 +205,7 @@ namespace Translator.Core
             //update history on tab change
             if (lastIndex != TabControl.SelectedIndex)
             {
-                History.AddAction(new SelectedTabChanged<T>(lastIndex, TabControl.SelectedIndex));
+                History.AddAction(new SelectedTabChanged<T, V>(lastIndex, TabControl.SelectedIndex));
                 lastIndex = TabControl.SelectedIndex;
             }
 
@@ -306,11 +294,11 @@ namespace Translator.Core
         {
             if (!SearchAll())
             {
-                ActiveTranslationManager?.Search();
+                ActiveTranslationManager.Search();
             }
             else
             {
-                ActiveTranslationManager?.Search(UI.SearchBarText[1..] ?? "");
+                ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? "");
             }
         }
 
@@ -319,7 +307,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyId()
         {
-            UI.ClipboardSetText(ActiveTranslationManager?.SelectedId ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.SelectedId ?? "");
         }
 
         /// <summary>
@@ -327,7 +315,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyFileName()
         {
-            UI.ClipboardSetText(ActiveTranslationManager?.FileName ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.FileName ?? "");
         }
 
         /// <summary>
@@ -335,7 +323,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyStoryName()
         {
-            UI.ClipboardSetText(ActiveTranslationManager?.StoryName ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.StoryName ?? "");
         }
 
         /// <summary>
@@ -344,10 +332,10 @@ namespace Translator.Core
         public static void CopyAll()
         {
             UI.ClipboardSetText(
-                ActiveTranslationManager?.StoryName +
-                "/" + ActiveTranslationManager?.FileName +
+                ActiveTranslationManager.StoryName +
+                "/" + ActiveTranslationManager.FileName +
                 " : " +
-                ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].ToString());
+                ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? ""].ToString());
         }
 
         /// <summary>
@@ -355,7 +343,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyAsOutput()
         {
-            UI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].ToString() ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? ""].ToString() ?? "");
         }
 
         /// <summary>
@@ -363,7 +351,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTranslation()
         {
-            UI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].TranslationString ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? ""].TranslationString ?? "");
         }
 
         /// <summary>
@@ -371,7 +359,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTemplate()
         {
-            UI.ClipboardSetText(ActiveTranslationManager?.TranslationData[ActiveTranslationManager?.SelectedId ?? ""].TemplateString ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? ""].TemplateString ?? "");
         }
 
         public static void ReplaceAll()
@@ -381,21 +369,21 @@ namespace Translator.Core
                 for (int i = 0; i < TabControl.TabCount; i++)
                 {
                     //save history
-                    if (i != 0) History.AddAction(new SelectedTabChanged<T>(i - 1, i));
-                    else History.AddAction(new SelectedTabChanged<T>(0, i));
+                    if (i != 0) History.AddAction(new SelectedTabChanged<T, V>(i - 1, i));
+                    else History.AddAction(new SelectedTabChanged<T, V>(0, i));
 
                     translationManagers[TabControl.TabPages[i]].ReplaceAll(UI.ReplaceBarText ?? "");
                 }
             }
             else
             {
-                ActiveTranslationManager?.ReplaceAll(UI.ReplaceBarText ?? "");
+                ActiveTranslationManager.ReplaceAll(UI.ReplaceBarText ?? "");
             }
         }
 
         public static void Replace()
         {
-            ActiveTranslationManager?.ReplaceSingle(UI.ReplaceBarText ?? "");
+            ActiveTranslationManager.ReplaceSingle(UI.ReplaceBarText ?? "");
         }
 
         public static void OpenNewFile()

@@ -12,14 +12,14 @@ namespace Translator.Core
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    public static class DataBase
+    public static class DataBase<T, V> where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
     {
         public static string DBVersion { get; private set; } = "0.0.0";
         private static readonly MySqlConnection sqlConnection = new();
         private static MySqlCommand MainCommand = new();
         private static MySqlDataReader? MainReader;
         private static string SoftwareVersion = "0.0.0.0";
-        private static IUIHandler<NullLineItem> UI = NullUIHandler.Instance;
+        private static V UI = new();
         public static bool IsOnline { get; private set; } = false;
 
 #if DEBUG
@@ -275,9 +275,9 @@ namespace Translator.Core
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
         /// </summary>
-        public static void Initialize<T>(IUIHandler<T> uIHandler, string password, string AppVersion) where T : class, ILineItem, new()
+        public static void Initialize(V uIHandler, string password, string AppVersion)
         {
-            UI = (IUIHandler<NullLineItem>)uIHandler;
+            UI = uIHandler;
             //establish connection and handle password
             EstablishConnection(password);
 
@@ -344,8 +344,8 @@ namespace Translator.Core
                 Settings.Default.Save();
 
                 //set global variable for later actions
-                TranslationManager<T>.IsUpToDate = DBVersion == SoftwareVersion;
-                if (!TranslationManager<T>.IsUpToDate && Settings.Default.AdvancedModeEnabled)
+                TranslationManager<T, V>.IsUpToDate = DBVersion == SoftwareVersion;
+                if (!TranslationManager<T, V>.IsUpToDate && Settings.Default.AdvancedModeEnabled)
                 {
                     _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
                 }
@@ -537,7 +537,7 @@ namespace Translator.Core
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId[(story + fileName).Length..];
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<NullLineItem>.Language.Length));
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<NullLineItem, NullUIHandler>.Language.Length));
         }
 
         /// <summary>

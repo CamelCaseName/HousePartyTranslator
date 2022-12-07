@@ -3,12 +3,12 @@ using Translator.Core.Helpers;
 using Translator.Helpers;
 using Translator.Managers;
 using TranslatorAdmin.InterfaceImpls;
-using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler>;
 
 namespace TranslatorAdmin.Managers
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal class WinTranslationManager : Translator.Core.TranslationManager<WinLineItem>
+    internal class WinTranslationManager : Translator.Core.TranslationManager<WinLineItem, WinUIHandler>
     {
         public bool UpdateStoryExplorerSelection = true;
         private readonly WinUIHandler UI;
@@ -68,7 +68,7 @@ namespace TranslatorAdmin.Managers
                 int currentIndex = TabManager.UI.SelectedTab.SelectedLineIndex;
                 string id = currentIndex < TranslationData.Count && currentIndex >= 0 ? TranslationData[SelectedId].ID : "Name";
                 //Highlights the node representign the selected string in the story explorer window
-                if (App.MainForm.Explorer != null && !App.MainForm.Explorer.IsDisposed)
+                if (App.MainForm?.Explorer != null && !App.MainForm.Explorer.IsDisposed)
                 {
                     App.MainForm.Explorer.Grapher.HighlightedNode = App.MainForm.Explorer?.Grapher.Context.Nodes.Find(n => n.ID == id) ?? Node.NullNode;
                 }

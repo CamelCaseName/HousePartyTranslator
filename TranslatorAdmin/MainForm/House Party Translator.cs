@@ -8,7 +8,8 @@ using Translator.UICompatibilityLayer.StubImpls;
 using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
-using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler>;
+using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler>;
 
 namespace Translator
 {
@@ -59,7 +60,7 @@ namespace Translator
             Application.ThreadException += ThreadExceptionHandler;
 
             //initialize settings
-            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), "", SoftwareVersionManager.LocalVersion, new WinTab(), new WinAdminSettings());
+            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), "", SoftwareVersionManager.LocalVersion, new WinTab(this), new WinAdminSettings());
 
             //check for update and replace if we want one
             SoftwareVersionManager.ReplaceFileIfNew();
@@ -251,11 +252,11 @@ namespace Translator
 
                 if (e.ExceptionObject.GetType().IsAssignableTo(typeof(Exception)))
                 {
-                    Utils<WinLineItem>.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
+                    Utils<WinLineItem, WinUIHandler>.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
                 }
                 else
                 {
-                    Utils<WinLineItem>.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
+                    Utils<WinLineItem, WinUIHandler>.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
                 }
             }
         }
@@ -275,7 +276,7 @@ namespace Translator
             //prevent discord from getting angry
             PresenceManager?.DeInitialize();
 
-            RecentsManager.SaveRecents();
+            RecentsManager.SaveRecents<WinLineItem, WinUIHandler>();
 
             CancelTokens.Cancel();
 
@@ -301,8 +302,8 @@ namespace Translator
             ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
-            RecentsManager.UpdateMenuItems((MenuItems)FileToolStripMenuItem.DropDownItems.Cast<WinMenuItem>());
-            RecentsManager.OpenMostRecent<WinLineItem>();
+            RecentsManager.UpdateMenuItems<WinLineItem, WinUIHandler>((MenuItems)FileToolStripMenuItem.DropDownItems.Cast<WinMenuItem>());
+            RecentsManager.OpenMostRecent<WinLineItem, WinUIHandler>();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
@@ -381,7 +382,7 @@ namespace Translator
             if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
 
             LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
-            Utils<WinLineItem>.DisplayExceptionMessage(e.Exception.Message);
+            Utils<WinLineItem, WinUIHandler>.DisplayExceptionMessage(e.Exception.Message);
         }
 
         private void ToolStripMenuReplaceBox_TextChanged(object? sender, EventArgs? e)
@@ -398,13 +399,13 @@ namespace Translator
         {
             TabManager.Replace();
         }
-        
+
         /// <summary>
-         /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
-         /// </summary>
-         /// <param name="form"></param>
-         /// <param name="toLeft">true if deleting to the left</param>
-         /// <returns>true if successfull</returns>
+        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="toLeft">true if deleting to the left</param>
+        /// <returns>true if successfull</returns>
         public bool DeleteCharactersInText(bool toLeft)
         {
             Control? focused_control = ActiveControl;

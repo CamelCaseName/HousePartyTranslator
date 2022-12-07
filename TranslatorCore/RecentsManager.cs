@@ -12,13 +12,13 @@ namespace Translator.Core
         private static int maxNumberOfMenuItems = 0;
         private static int recentIndex = -1;
         private static Type MenuItem = (Type)Type.Missing;
-        private static Type MenuItemSeperator= (Type)Type.Missing;
+        private static Type MenuItemSeperator = (Type)Type.Missing;
 
         /// <summary>
         /// Get the most recently opened files as a collection of ToolStriItems
         /// </summary>
         /// <returns>A Collection of ToolStripItems with a length between 0 and 5</returns>
-        public static IMenuItem[] GetRecents()
+        public static IMenuItem[] GetRecents<T, V>() where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
         {
             if (MenuItem.IsAssignableTo(typeof(IMenuItem))) return Array.Empty<IMenuItem>();
 
@@ -40,7 +40,7 @@ namespace Translator.Core
                     items[k] = (IMenuItem)(Activator.CreateInstance(MenuItem, new object?[]
                     {
                         recents[i],
-                        (object)RecentsManager_Click
+                        (object)RecentsManager_Click<T, V>
                     }) ?? NullMenuItem.Instance);
                 }
                 if (k < 4)
@@ -75,15 +75,15 @@ namespace Translator.Core
         /// <summary>
         /// Save the recently opened file paths to the settings
         /// </summary>
-        public static void SaveRecents()
+        public static void SaveRecents<T, V>() where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
         {
             //set most recent to the last file open in the selected tab so the index is correct
-            Settings.Default.Recents0 = TabManager<NullLineItem>.ActiveTranslationManager?.SourceFilePath ?? "";
+            Settings.Default.Recents0 = TabManager<NullLineItem, NullUIHandler>.ActiveTranslationManager.SourceFilePath ?? "";
             Settings.Default.Recents1 = recents.Count > 1 ? recents[1] : "";
             Settings.Default.Recents2 = recents.Count > 2 ? recents[2] : "";
             Settings.Default.Recents3 = recents.Count > 3 ? recents[3] : "";
             Settings.Default.Recents4 = recents.Count > 4 ? recents[4] : "";
-            Settings.Default.RecentIndex = TabManager<NullLineItem>.SelectedTab.SelectedLineIndex;
+            Settings.Default.RecentIndex = TabManager<NullLineItem, NullUIHandler>.SelectedTab.SelectedLineIndex;
 
             //save settings
             Settings.Default.Save();
@@ -106,7 +106,7 @@ namespace Translator.Core
         /// <summary>
         /// Opens the most recent file
         /// </summary>
-        public static void OpenMostRecent<T>() where T : class, ILineItem, new()
+        public static void OpenMostRecent<T, V>() where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
         {
             if (Settings.Default.AutoLoadRecent)
             {
@@ -122,9 +122,9 @@ namespace Translator.Core
                 if (recentsAvailable)
                 {
                     IgnoreNextRecents = 1;
-                    TabManager<T>.ActiveTranslationManager?.LoadFileIntoProgram(recents[0]);
-                    if (Settings.Default.AutoLoadRecentIndex) TranslationManager<T>.SelectLine(recentIndex);
-                    else TranslationManager<T>.SelectLine(0);
+                    TabManager<T, V>.ActiveTranslationManager.LoadFileIntoProgram(recents[0]);
+                    if (Settings.Default.AutoLoadRecentIndex) TranslationManager<T, V>.SelectLine(recentIndex);
+                    else TranslationManager<T, V>.SelectLine(0);
                 }
             }
         }
@@ -133,9 +133,9 @@ namespace Translator.Core
         /// Updates the recent menuitems in the given collection
         /// </summary>
         /// <param name="collection"></param>
-        public static void UpdateMenuItems(MenuItems collection)
+        public static void UpdateMenuItems<T, V>(MenuItems collection) where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
         {
-            IMenuItem[] items = GetRecents();
+            IMenuItem[] items = GetRecents<T, V>();
             int recentsStart;
 
             if (maxNumberOfMenuItems == 0) maxNumberOfMenuItems = collection.Count + 6;
@@ -162,7 +162,7 @@ namespace Translator.Core
 
                 if (collection[recentsStart + items.Length].GetType() != MenuItemSeperator)
                     collection.Insert(recentsStart + items.Length, (IMenuItem)(Activator.CreateInstance(MenuItemSeperator) ?? NullMenuItem.Instance));
-                SaveRecents();
+                SaveRecents<T, V>();
                 //for the name update stuff
                 recentsStart -= 2;
             }
@@ -171,12 +171,12 @@ namespace Translator.Core
             else collection[recentsStart + 1].Text = "Recents:";
         }
 
-        private static void RecentsManager_Click(object? sender, EventArgs? e)
+        private static void RecentsManager_Click<T, V>(object? sender, EventArgs? e) where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
         {
-            if (sender == null || TabManager<NullLineItem>.ActiveTranslationManager == null) return;
-            TabManager<NullLineItem>.ActiveTranslationManager?.ShowAutoSaveDialog();
-            TabManager<NullLineItem>.ActiveTranslationManager?.LoadFileIntoProgram(((IMenuItem)sender).Text);
-            if (Settings.Default.AutoLoadRecentIndex) TranslationManager<NullLineItem>.SelectLine(recentIndex);
+            if (sender == null || TabManager<T, V>.ActiveTranslationManager == null) return;
+            TabManager<T, V>.ActiveTranslationManager.ShowAutoSaveDialog();
+            TabManager<T, V>.ActiveTranslationManager.LoadFileIntoProgram(((IMenuItem)sender).Text);
+            if (Settings.Default.AutoLoadRecentIndex) TranslationManager<T, V>.SelectLine(recentIndex);
         }
     }
 }

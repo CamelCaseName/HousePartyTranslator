@@ -7,7 +7,7 @@ namespace Translator
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class App
     {
-        public static Fenster MainForm { get; private set; } = new Fenster();
+        public static Fenster? MainForm { get; private set; }
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -25,6 +25,7 @@ namespace Translator
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            MainForm = new Fenster();
             Application.Run(MainForm);
         }
 
@@ -40,7 +41,7 @@ namespace Translator
         private static Assembly? OnResolveAssembly(object? sender, ResolveEventArgs? args)
         {
             var executingAssembly = Assembly.GetExecutingAssembly();
-            var assemblyName = new AssemblyName(args?.Name?? "");
+            var assemblyName = new AssemblyName(args?.Name ?? "");
 
             string path = assemblyName.Name + ".dll";
             if (!assemblyName?.CultureInfo?.Equals(CultureInfo.InvariantCulture) ?? false)

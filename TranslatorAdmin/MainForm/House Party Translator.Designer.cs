@@ -392,7 +392,7 @@ namespace Translator
             });
 
             TabControl.SuspendLayout();
-            TabControl.TabPages.Add(new WinTab());
+            TabControl.TabPages.Add(new WinTab(App.MainForm));
             TabControl.SelectedIndexChanged += new EventHandler(MainTabControl_SelectedIndexChanged);
             TabControl.MouseClick += new MouseEventHandler(CloseTab_Click);
 

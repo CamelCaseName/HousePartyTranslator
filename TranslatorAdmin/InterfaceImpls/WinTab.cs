@@ -10,14 +10,13 @@ namespace TranslatorAdmin.InterfaceImpls
     [SupportedOSPlatform("Windows")]
     internal class WinTab : TabPage, ITab<WinLineItem>
     {
-        private static Fenster MainForm { get; set; } = new Fenster() { Visible = false };
+        internal Fenster MainForm { get; init; }
 
         private static int Number { get; set; } = 0;
 
-        internal static void Initialize(Fenster fenster) => MainForm = fenster;
-
-        public WinTab()
+        public WinTab(Fenster fenster)
         {
+            MainForm = fenster;
             ++Number;
             BackColor = Color.Black;
             ForeColor = SystemColors.ScrollBar;

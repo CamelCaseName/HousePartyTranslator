@@ -12,14 +12,13 @@ namespace Translator.Core.Helpers
     /// <summary>
     /// Provides some generic utility methods.
     /// </summary>
-    
-    public static partial class Utils<T> where T : class, ILineItem, new()
+
+    public static partial class Utils<T, V> where T : class, ILineItem, new() where V : class, IUIHandler<T>, new()
     {
-
         private static int ExceptionCount = 0;
-        private static IUIHandler<T> MainUI = (IUIHandler<T>)new NullUIHandler();
+        private static V? MainUI { get; set; }
 
-        internal static void Initialize(IUIHandler<T> ui)
+        internal static void Initialize(V ui)
         {
             MainUI = ui;
         }
@@ -32,18 +31,18 @@ namespace Translator.Core.Helpers
         {
             LogManager.Log("Exception message shown: " + message);
             LogManager.Log("Current exception count: " + ExceptionCount++);
-            _ = MainUI.ErrorOk(
+            _ = MainUI?.ErrorOk(
                 $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
                 $"Anyways, here is what happened: \n\n{message}\n\n " +
                 $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
                 $"Some Error found (Nr. {ExceptionCount})");
 
-            MainUI.SignalUserEndWait();
+            MainUI?.SignalUserEndWait();
 
             if (ExceptionCount > 3)
             {
                 LogManager.Log("Too many exceptions encountered, aborting", LogManager.Level.Crash);
-                MainUI.SignalAppExit();
+                MainUI?.SignalAppExit();
             }
         }
 
@@ -53,9 +52,9 @@ namespace Translator.Core.Helpers
         /// <returns>The path to the selected file.</returns>
         public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "")
         {
-            if (!MainUI.FileDialogType.IsAssignableTo(typeof(IFileDialog))) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
+            if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
 
-            IFileDialog? selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI.FileDialogType,new object?[]
+            IFileDialog? selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(NullFileDialog), new object?[]
             {
                 Title?.Length > 0 ? Title : "Choose a file for translation",
                 "Text files (*.txt)|*.txt",
@@ -98,14 +97,14 @@ namespace Translator.Core.Helpers
         /// <returns>The folder path selected.</returns>
         public static string SelectFolderFromSystem(string message)
         {
-            if (!MainUI.FolderDialogType.IsAssignableTo(typeof(IFolderDialog))) throw new ArgumentException($"{nameof(MainUI.FolderDialogType)} does not inherit {nameof(IFolderDialog)}");
+            if (!MainUI?.FolderDialogType.IsAssignableTo(typeof(IFolderDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FolderDialogType)} does not inherit {nameof(IFolderDialog)}");
 
-            IFolderDialog? selectFolderDialog = (IFolderDialog?)Activator.CreateInstance(MainUI.FileDialogType, new object?[]
+            IFolderDialog? selectFolderDialog = (IFolderDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(NullFileDialog), new object?[]
             {
                 message,
                 Settings.Default.TemplatePath == string.Empty ? Environment.SpecialFolder.UserProfile.ToString() : Settings.Default.TemplatePath,
             });
-            if(selectFolderDialog == null) { return string.Empty; }
+            if (selectFolderDialog == null) { return string.Empty; }
 
             if (selectFolderDialog.ShowDialog() == PopupResult.OK)
             {

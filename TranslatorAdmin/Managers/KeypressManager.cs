@@ -5,7 +5,8 @@ using Translator.UICompatibilityLayer;
 using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
-using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem>;
+using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler>;
+using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler>;
 
 namespace Translator.Managers
 {
@@ -333,7 +334,7 @@ namespace Translator.Managers
 
         public static void SelectedLanguageChanged()
         {
-            TranslationManager<WinLineItem>.SetLanguage();
+            TranslationManager<WinLineItem, WinUIHandler>.SetLanguage();
         }
 
         public static void SelectedTabChanged(DiscordPresenceManager? presenceManager)
