@@ -60,7 +60,7 @@ namespace Translator
             Application.ThreadException += ThreadExceptionHandler;
 
             //initialize settings
-            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), GetPassword(), SoftwareVersionManager.LocalVersion, new WinTab(this), new WinAdminSettings());
+            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), GetPassword(), SoftwareVersionManager.LocalVersion, new WinTab(this), new WinSettings());
 
             Text = DataBase.AppTitle;
 

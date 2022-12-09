@@ -310,5 +310,17 @@ namespace TranslatorAdmin.Properties {
                 this["advancedMode"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("User")]
+        public string dbUserName {
+            get {
+                return ((string)(this["dbUserName"]));
+            }
+            set {
+                this["dbUserName"] = value;
+            }
+        }
     }
 }
