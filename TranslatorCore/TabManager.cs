@@ -14,6 +14,8 @@ namespace Translator.Core
         private static int lastIndex = 0;
         private static readonly Dictionary<ITab<T>, TranslationManager<T, V, X>> translationManagers = new();
 
+        private static ITab<T>? firstTab;
+
         /// <summary>
         /// Method returning a Propertyhelper containing all relevant UI elements.
         /// </summary>
@@ -75,20 +77,29 @@ namespace Translator.Core
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tab">The initial tab</param>
-        public static TranslationManager<T, V, X> Initialize(V ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion, ITab<T> tab, ISettings settings)
+        public static void Initialize(V ui, Type MenuItem, Type MenuItemSeperator, string password, string appVersion, ITab<T> tab, ISettings settings)
         {
             UI = ui;
             Settings.Initialize(settings);
             Utils<T, V, X>.Initialize(ui);
             DataBase<T, V, X>.Initialize(ui, password, appVersion);
             RecentsManager.Initialize(MenuItem, MenuItemSeperator);
+            firstTab = tab;
+        }
 
-            if (!TabControl.TabPages.Contains(tab)) TabControl.TabPages.Add(tab);
+        /// <summary>
+        /// This has to be called after the form constructor is done, and the form is registered to windows, else the tab adding fails silently
+        /// </summary>
+        /// <param name="tab">the first tab to be added to the app</param>
+        public static void FinalizeInitializer()
+        {
+            if (UI == null || firstTab == null) throw new InvalidOperationException("You cant finalize the initialization if it hasnt completed");
+
+            if (!UI.TabControl.TabPages.Contains(firstTab)) UI.TabControl.TabPages.Add(firstTab);
+            else UI.TabControl.TabPages.Clear(); UI.TabControl.TabPages.Add(firstTab);
 
             //create new translationmanager to use with the tab open right now
-            translationManagers.Add(tab, new TranslationManager<T, V, X>(UI, tab));
-
-            return translationManagers[tab];
+            translationManagers.Add(firstTab, new TranslationManager<T, V, X>(UI, firstTab));
         }
 
         /// <summary>

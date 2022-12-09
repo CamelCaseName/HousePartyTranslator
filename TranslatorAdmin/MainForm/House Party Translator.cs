@@ -61,8 +61,11 @@ namespace Translator
 
             UI = new(TabControl);
 
-            //initialize settings
-            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), GetPassword(), SoftwareVersionManager.LocalVersion, new WinTab(this), new WinSettings());
+            //initialize ui, controllers, database and so on
+            var tab = new WinTab(this);
+            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), GetPassword(), SoftwareVersionManager.LocalVersion, tab, new WinSettings());
+            CheckListBoxLeft = tab.CheckedListBox;
+            ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
 
             Text = DataBase.AppTitle;
 
@@ -73,9 +76,6 @@ namespace Translator
             //check for update and replace if we want one
             SoftwareVersionManager.ReplaceFileIfNew();
             ProgressbarWindow.PerformStep();
-
-            CheckListBoxLeft = ((WinTab)TabManager.SelectedTab).CheckedListBox;
-            ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
         }
 
         private string GetPassword()
@@ -317,6 +317,8 @@ namespace Translator
 
         private void OnFormShown(object? sender, EventArgs? e)
         {
+            TabManager.FinalizeInitializer();
+
             ProgressbarWindow.PerformStep();
             LogManager.Log("Application initializing...");
             PresenceManager = new DiscordPresenceManager();
