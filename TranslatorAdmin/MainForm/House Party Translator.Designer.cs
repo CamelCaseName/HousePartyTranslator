@@ -1,8 +1,4 @@
-﻿using Translator.Helpers;
-using System;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
+﻿using System.ComponentModel;
 using Translator.Core.Helpers;
 using TranslatorAdmin.InterfaceImpls;
 
@@ -10,7 +6,7 @@ namespace Translator
 {
     partial class Fenster
     {
-        private IContainer components = null;
+        private IContainer components;
         private MenuStrip MainMenu;
         private ToolStripComboBox languageToolStripComboBox;
         private ToolStripMenuItem customOpenStoryExplorer;
@@ -391,7 +387,6 @@ namespace Translator
             });
 
             TabControl.SuspendLayout();
-            TabControl.TabPages.Add(new WinTab(App.MainForm));
             TabControl.SelectedIndexChanged += new EventHandler(MainTabControl_SelectedIndexChanged);
             TabControl.MouseClick += new MouseEventHandler(CloseTab_Click);
 

@@ -36,7 +36,7 @@ namespace Translator
         public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
         private DiscordPresenceManager? PresenceManager;
         private StoryExplorer? SExplorer;
-        internal WinUIHandler UI = new();
+        internal WinUIHandler UI;
 
         /// <summary>
         /// static constructor for static fields
@@ -59,20 +59,22 @@ namespace Translator
             AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
             Application.ThreadException += ThreadExceptionHandler;
 
+            UI = new(TabControl);
+
             //initialize settings
             TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), GetPassword(), SoftwareVersionManager.LocalVersion, new WinTab(this), new WinSettings());
 
             Text = DataBase.AppTitle;
 
-            //check for update and replace if we want one
-            SoftwareVersionManager.ReplaceFileIfNew();
-            ProgressbarWindow.PerformStep();
-
             //init all form components
             InitializeComponent();
             ProgressbarWindow.PerformStep();
 
-            CheckListBoxLeft = (ColouredCheckedListBox)((WinTab)TabManager.SelectedTab).Controls.Find("CheckListBoxLeft", true)[0];
+            //check for update and replace if we want one
+            SoftwareVersionManager.ReplaceFileIfNew();
+            ProgressbarWindow.PerformStep();
+
+            CheckListBoxLeft = ((WinTab)TabManager.SelectedTab).CheckedListBox;
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
         }
 

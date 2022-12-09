@@ -10,7 +10,7 @@ namespace Translator.Core
     public static class TabManager<T, V, X> where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
     {
         public static bool InGlobalSearch { get; private set; } = false;
-        private static X TabControl = new();
+        private static X TabControl => UI?.TabControl ?? new();
         private static int lastIndex = 0;
         private static readonly Dictionary<ITab<T>, TranslationManager<T, V, X>> translationManagers = new();
 
@@ -82,7 +82,6 @@ namespace Translator.Core
             Utils<T, V, X>.Initialize(ui);
             DataBase<T, V, X>.Initialize(ui, password, appVersion);
             RecentsManager.Initialize(MenuItem, MenuItemSeperator);
-            TabControl = ui.TabControl;
 
             if (!TabControl.TabPages.Contains(tab)) TabControl.TabPages.Add(tab);
 

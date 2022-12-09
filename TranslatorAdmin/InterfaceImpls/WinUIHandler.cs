@@ -10,6 +10,13 @@ namespace TranslatorAdmin.InterfaceImpls
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController>
     {
+        public WinUIHandler() { }
+        
+        internal WinUIHandler(ITabController<WinLineItem> control)
+        {
+            TabControl = (WinTabController)control;
+        }
+
         #region interface
         public MenuItems FileMenuItems => (MenuItems)(App.MainForm.MainMenuStrip?.Items.Cast<IMenuItem>() ?? new MenuItems());
 
@@ -19,7 +26,7 @@ namespace TranslatorAdmin.InterfaceImpls
         private WinTranslationManager WinTranslation => WinTranslation ?? new(this);
         public CreateTemplateFromStoryDelegate CreateTemplateFromStory { get => WinTranslation.CreateTemplateFromStory; }
 
-        public WinTabController TabControl => App.MainForm.TabControl;
+        public WinTabController TabControl { get; } = new();
 
         public string Language { get => App.MainForm.LanguageBox.Text; set => App.MainForm.LanguageBox.Text = value; }
 

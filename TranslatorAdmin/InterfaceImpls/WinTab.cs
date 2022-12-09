@@ -14,6 +14,29 @@ namespace TranslatorAdmin.InterfaceImpls
 
         private static int Number { get; set; } = 0;
 
+        private readonly Button TranslateThis = new();
+        private readonly CheckBox ApprovedBox = new();
+        private readonly ColouredCheckedListBox CheckListBoxLeft = new();
+        private readonly ContextMenuStrip ListContextMenu = new();
+        private readonly GroupBox CommentGroup = new();
+        private readonly Label CharacterCountLabel = new();
+        private readonly Label SelectedFile = new();
+        private readonly Label WordsTranslated = new();
+        private readonly NoAnimationBar ProgressbarTranslated = new();
+        private readonly Panel panel1 = new();
+        private readonly Panel panel2 = new();
+        private readonly TableLayoutPanel mainTableLayoutPanel = new();
+        private readonly WinTextBox CommentTextBox = new();
+        private readonly WinTextBox TemplateTextBox = new();
+        private readonly WinTextBox TranslatedTextBox = new();
+        private readonly ToolStripMenuItem CopyAllContextMenuButton = new();
+        private readonly ToolStripMenuItem CopyAsOutputContextMenuButton = new();
+        private readonly ToolStripMenuItem CopyFileNameContextMenuButton = new();
+        private readonly ToolStripMenuItem CopyIdContextMenuButton = new();
+        private readonly ToolStripMenuItem CopyStoryNameContextMenuButton = new();
+        private readonly ToolStripMenuItem CopyTemplateContextMenuButton = new();
+        private readonly ToolStripMenuItem CopyTranslationContextMenuButton = new();
+
         public WinTab(Fenster fenster)
         {
             MainForm = fenster;
@@ -26,28 +49,6 @@ namespace TranslatorAdmin.InterfaceImpls
             Padding = new Padding(3);
             TabIndex = 0;
             Text = $"Tab{Number}";
-            var TranslateThis = new Button();
-            var ApprovedBox = new CheckBox();
-            var CheckListBoxLeft = new ColouredCheckedListBox();
-            var ListContextMenu = new ContextMenuStrip();
-            var CommentGroup = new GroupBox();
-            var CharacterCountLabel = new Label();
-            var SelectedFile = new Label();
-            var WordsTranslated = new Label();
-            var ProgressbarTranslated = new NoAnimationBar();
-            var panel1 = new Panel();
-            var panel2 = new Panel();
-            var mainTableLayoutPanel = new TableLayoutPanel();
-            var CommentTextBox = new TextBox();
-            var TemplateTextBox = new TextBox();
-            var TranslatedTextBox = new TextBox();
-            var CopyAllContextMenuButton = new ToolStripMenuItem();
-            var CopyAsOutputContextMenuButton = new ToolStripMenuItem();
-            var CopyFileNameContextMenuButton = new ToolStripMenuItem();
-            var CopyIdContextMenuButton = new ToolStripMenuItem();
-            var CopyStoryNameContextMenuButton = new ToolStripMenuItem();
-            var CopyTemplateContextMenuButton = new ToolStripMenuItem();
-            var CopyTranslationContextMenuButton = new ToolStripMenuItem();
             mainTableLayoutPanel.SuspendLayout();
             CommentGroup.SuspendLayout();
             panel1.SuspendLayout();
@@ -331,12 +332,12 @@ namespace TranslatorAdmin.InterfaceImpls
             ResumeLayout();
         }
 
+        public ColouredCheckedListBox CheckedListBox => CheckListBoxLeft;
+
         //todo
         public bool IsApproveButtonFocused => throw new NotImplementedException();
 
         public List<string> SimilarStringsToEnglish => throw new NotImplementedException();
-
-        public NullLineList<WinLineItem> Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public int SelectedLineIndex => throw new NotImplementedException();
 

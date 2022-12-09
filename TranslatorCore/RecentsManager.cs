@@ -10,8 +10,8 @@ namespace Translator.Core
         private static int IgnoreNextRecents = 0;
         private static int maxNumberOfMenuItems = 0;
         private static int recentIndex = -1;
-        private static Type MenuItem = (Type)Type.Missing;
-        private static Type MenuItemSeperator = (Type)Type.Missing;
+        private static Type MenuItem = typeof(IMenuItem);
+        private static Type MenuItemSeperator = typeof(IMenuItem);
 
         /// <summary>
         /// Get the most recently opened files as a collection of ToolStriItems
