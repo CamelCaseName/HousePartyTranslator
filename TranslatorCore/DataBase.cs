@@ -14,6 +14,7 @@ namespace Translator.Core
     public static class DataBase<T, V, X> where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
     {
         public static string DBVersion { get; private set; } = "0.0.0";
+        public static string AppTitle { get; private set; } = string.Empty;
         private static readonly MySqlConnection sqlConnection = new();
         private static MySqlCommand MainCommand = new();
         private static MySqlDataReader? MainReader;
@@ -229,15 +230,7 @@ namespace Translator.Core
             UI.SignalUserWait();
             while (!IsOnline)
             {
-                string connString = GetConnString();
-                if (connString == "")
-                {
-                    //Pasword has to be set first time
-                    Settings.Default.DbPassword = password;
-                    Settings.Default.Save();
-                }
-
-                sqlConnection.ConnectionString = connString;
+                sqlConnection.ConnectionString = GetConnString();
                 try
                 {
                     sqlConnection.Open();
@@ -286,8 +279,7 @@ namespace Translator.Core
 
             if (!IsOnline)
             {
-                UI.SetTitle(" (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")");
-                UI.Update();
+                AppTitle = " (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
             }
             else
             {
@@ -348,8 +340,7 @@ namespace Translator.Core
                 {
                     _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
                 }
-                UI.SetTitle(" (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")");
-                UI.Update();
+                AppTitle = " (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
             }
             UI.SignalUserEndWait();
         }

@@ -8,6 +8,7 @@ namespace Translator
     /// </summary>
     public partial class Password : Form
     {
+        public bool PasswordSubmitted { get; private set; } = false;
         /// <summary>
         /// The default constructor. Takes no arguments.
         /// </summary>
@@ -27,7 +28,7 @@ namespace Translator
 
         private void SubmitButton_Click(object sender, EventArgs e)
         {
-
+            PasswordSubmitted = true;
         }
     }
 }

@@ -60,7 +60,9 @@ namespace Translator
             Application.ThreadException += ThreadExceptionHandler;
 
             //initialize settings
-            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), "", SoftwareVersionManager.LocalVersion, new WinTab(this), new WinAdminSettings());
+            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), GetPassword(), SoftwareVersionManager.LocalVersion, new WinTab(this), new WinAdminSettings());
+
+            Text = DataBase.AppTitle;
 
             //check for update and replace if we want one
             SoftwareVersionManager.ReplaceFileIfNew();
@@ -72,6 +74,29 @@ namespace Translator
 
             CheckListBoxLeft = (ColouredCheckedListBox)((WinTab)TabManager.SelectedTab).Controls.Find("CheckListBoxLeft", true)[0];
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
+        }
+
+        private string GetPassword()
+        {
+            var Passwordbox = new Password();
+            DialogResult passwordResult = Passwordbox.ShowDialog(this);
+            if (passwordResult == DialogResult.OK)
+            {
+                Settings.Default.dbPassword = Passwordbox.GetPassword();
+                Settings.Default.Save();
+            }
+            else
+            {
+                if (Passwordbox.GetPassword().Length > 1)
+                {
+                    _ = Msg.ErrorOk("Invalid password", "Wrong password");
+                }
+                else
+                {
+                    Environment.Exit(-1);
+                }
+            }
+            return Settings.Default.dbPassword;
         }
 
         /// <summary>
