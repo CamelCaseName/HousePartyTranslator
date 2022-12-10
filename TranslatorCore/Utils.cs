@@ -59,14 +59,14 @@ namespace Translator.Core.Helpers
 
             IFileDialog? selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(IFileDialog), new object?[]
             {
-                Title?.Length > 0 ? Title : "Choose a file for translation",
-                "Text files (*.txt)|*.txt",
-                Settings.Default.TranslationPath.Length > 0 && isTranslation ?
+                /*title*/Title?.Length > 0 ? Title : "Choose a file for translation",
+                /*filter*/"Text files (*.txt)|*.txt",
+                /*initialDirectory*/Settings.Default.TranslationPath.Length > 0 && isTranslation ?
                     Settings.Default.TranslationPath :
                     Settings.Default.TemplatePath.Length > 0 && !isTranslation ?
                         Settings.Default.TemplatePath :
                         @"C:\Users\%USER%\Documents",
-                preselectedFile ?? ""
+                /*filename*/preselectedFile ?? ""
             });
             if (selectFileDialog == null) { return string.Empty; }
 
@@ -104,8 +104,8 @@ namespace Translator.Core.Helpers
 
             IFolderDialog? selectFolderDialog = (IFolderDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(IFileDialog), new object?[]
             {
-                message,
-                Settings.Default.TemplatePath == string.Empty ? Environment.SpecialFolder.UserProfile.ToString() : Settings.Default.TemplatePath,
+                /*title*/message,
+                /*selectedPath*/Settings.Default.TemplatePath == string.Empty ? Environment.SpecialFolder.UserProfile.ToString() : Settings.Default.TemplatePath,
             });
             if (selectFolderDialog == null) { return string.Empty; }
 

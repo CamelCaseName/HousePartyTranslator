@@ -23,7 +23,7 @@ namespace Translator.Core
             where X : class, ITabController<T, W>, new()
             where W : class, ITab<T>, new()
         {
-            if (MenuItem.IsAssignableTo(typeof(IMenuItem))) return Array.Empty<IMenuItem>();
+            if (!MenuItem.IsAssignableTo(typeof(IMenuItem))) return Array.Empty<IMenuItem>();
 
             int count = 0;
             for (int i = 0; i < recents.Count; i++)

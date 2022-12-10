@@ -7,6 +7,15 @@ namespace TranslatorAdmin.InterfaceImpls
     public class WinSaveFileDialog : ISaveFileDialog
     {
         public WinSaveFileDialog() { }
+        public WinSaveFileDialog(string title, string extension, bool createPrompt, bool overwritePromt, string fileName, string initialDirectory)
+        {
+            Title = title;
+            Extension = extension;
+            PromptCreate = createPrompt;
+            PromptOverwrite = overwritePromt;
+            FileName = fileName;
+            InitialDirectory = initialDirectory;
+        }
         private readonly SaveFileDialog dialog = new();
         public string FileName { get => dialog.FileName; set => dialog.FileName = value; }
         public string InitialDirectory { get => dialog.InitialDirectory; set => dialog.InitialDirectory = value; }

@@ -17,6 +17,7 @@ namespace TranslatorAdmin.InterfaceImpls
         }
 
         #region interface
+        //todo replace update of the menuitems by a change, then save new ones, not using reference
         public MenuItems FileMenuItems => (MenuItems)(App.MainForm.MainMenuStrip?.Items.Cast<IMenuItem>() ?? new MenuItems());
 
         public string ReplaceBarText { get => App.MainForm.ReplaceBox.Text; set => App.MainForm.ReplaceBox.Text = value; }
@@ -77,8 +78,6 @@ namespace TranslatorAdmin.InterfaceImpls
         public void SignalUserEndWait() => Application.UseWaitCursor = false;
         public void SignalUserWait() => Application.UseWaitCursor = true;
         public void Update() => App.MainForm.Update();
-
-        //todo these here
         public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Update();
         public void UpdateResults() => SelectedTab.CheckedListBox.Update();
 

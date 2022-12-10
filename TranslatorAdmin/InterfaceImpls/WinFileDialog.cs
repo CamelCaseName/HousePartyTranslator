@@ -7,6 +7,12 @@ namespace TranslatorAdmin.InterfaceImpls
     public class WinFileDialog : IFileDialog
     {
         public WinFileDialog() { }
+        public WinFileDialog(string title, string filter, string initialDirectory, string fileName) {
+            Title = title;
+            Filter = filter;
+            InitialDirectory = initialDirectory;
+            FileName = fileName;
+        }
 
         private readonly OpenFileDialog dialog = new();
         public string FileName { get => dialog.SafeFileName; set => Path.Combine(Path.GetDirectoryName(dialog.FileName.AsSpan()).ToString(), value); }
