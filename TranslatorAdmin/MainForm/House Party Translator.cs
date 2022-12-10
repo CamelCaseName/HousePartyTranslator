@@ -20,7 +20,7 @@ namespace Translator
     public partial class Fenster : Form
     {
         private readonly CancellationTokenSource CancelTokens = new();
-        private readonly ColouredCheckedListBox CheckListBoxLeft;
+        private readonly LineList CheckListBoxLeft;
         private readonly ContextMenuStrip? ListContextMenu;
         private readonly System.Timers.Timer PresenceTimer = new(2000);
         internal readonly WinTabController TabControl = new()
@@ -65,7 +65,7 @@ namespace Translator
             //initialize ui, controllers, database and so on
             var tab = new WinTab(this);
             TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), GetPassword(), SoftwareVersionManager.LocalVersion, tab, new WinSettings());
-            CheckListBoxLeft = tab.CheckedListBox;
+            CheckListBoxLeft = tab.Lines;
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
 
             Text = DataBase.AppTitle;

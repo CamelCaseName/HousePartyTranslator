@@ -20,7 +20,10 @@ namespace TranslatorAdmin.InterfaceImpls
         public LineList(List<WinLineItem> items)
         {
             Items.Clear();
-            Items.AddRange((ListBox.ObjectCollection)items.Cast<object>());
+            for (int i = 0; i < items.Count; i++)
+            {
+                Items.Add(items[i]);
+            }
             ((ILineList<WinLineItem>)this).SelectedLineItem = items.Count > 0 ? items[0] : new WinLineItem();
             SelectedIndex = items.Count > 0 ? 0 : -1;
         }

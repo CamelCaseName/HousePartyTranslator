@@ -79,7 +79,7 @@ namespace TranslatorAdmin.InterfaceImpls
         public void SignalUserWait() => Application.UseWaitCursor = true;
         public void Update() => App.MainForm.Update();
         public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Update();
-        public void UpdateResults() => SelectedTab.CheckedListBox.Update();
+        public void UpdateResults() => SelectedTab.Lines.Update();
 
         public PopupResult WarningOk(string message, string title = "Warning") => Msg.WarningOk(message, title).ToPopupResult();
         public PopupResult WarningOkCancel(string message, string title = "Warning") => Msg.WarningOkCancel(message, title).ToPopupResult();

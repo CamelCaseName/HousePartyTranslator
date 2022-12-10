@@ -18,7 +18,7 @@ namespace TranslatorAdmin.InterfaceImpls
 
         private readonly Button TranslateThis = new();
         private readonly CheckBox ApprovedBox = new();
-        private readonly ColouredCheckedListBox CheckListBoxLeft = new();
+        private readonly LineList CheckListBoxLeft = new();
         private readonly ContextMenuStrip ListContextMenu = new();
         private readonly GroupBox CommentGroup = new();
         private readonly Label CharacterCountLabel = new();
@@ -334,35 +334,43 @@ namespace TranslatorAdmin.InterfaceImpls
             ResumeLayout();
         }
 
-        public ColouredCheckedListBox CheckedListBox => CheckListBoxLeft;
-
         //todo
-        public bool IsApproveButtonFocused => throw new NotImplementedException();
+        public bool IsApproveButtonFocused => ApprovedBox.Checked;
 
-        public List<string> SimilarStringsToEnglish => throw new NotImplementedException();
+        public List<string> SimilarStringsToEnglish => Lines.SimilarStringsToEnglish;
 
-        public int SelectedLineIndex => throw new NotImplementedException();
+        public int SelectedLineIndex => Lines.SelectedIndex;
 
-        public WinLineItem SelectedLineItem => throw new NotImplementedException();
+        public WinLineItem SelectedLineItem => (WinLineItem?)Lines.SelectedItem ?? new WinLineItem();
 
-        public bool IsTranslationBoxFocused => throw new NotImplementedException();
+        public bool IsTranslationBoxFocused => TranslatedTextBox.Focused;
 
-        public bool IsCommentBoxFocused => throw new NotImplementedException();
+        public bool IsCommentBoxFocused => CommentTextBox.Focused;
 
-        public int ProgressValue { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string TranslationBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public int ProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
+        public string TranslationBoxText { get => TranslatedTextBox.Text; set => TranslatedTextBox.Text = value; }
 
-        public string SelectedTranslationBoxText => throw new NotImplementedException();
+        public string SelectedTranslationBoxText => TranslatedTextBox.SelectedText;
 
-        public string TemplateBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public string TemplateBoxText { get => TemplateTextBox.Text; set => TemplateTextBox.Text = value; }
 
-        public string SelectedTemplateBoxText => throw new NotImplementedException();
+        public string SelectedTemplateBoxText => TemplateTextBox.SelectedText;
 
-        public string CommentBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public string[] CommentBoxTextArr { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public bool ApprovedButtonChecked { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public LineList Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        ILineList<WinLineItem> ITab<WinLineItem>.Lines { get => Lines; set => this.Lines = (LineList)value; }
+        public string CommentBoxText { get => CommentTextBox.Text; set => CommentTextBox.Text = value; }
+        public string[] CommentBoxTextArr { get => CommentTextBox.Lines; set => CommentTextBox.Lines = value; }
+        public bool ApprovedButtonChecked { get => ApprovedBox.Checked; set => ApprovedBox.Checked = value; }
+        public LineList Lines { get => CheckListBoxLeft; }
+        ILineList<WinLineItem> ITab<WinLineItem>.Lines
+        {
+            get => Lines; 
+            set
+            {
+                Lines.Clear(); for (int i = 0; i < value.Count; i++)
+                {
+                    Lines.Add(value[i].Text, value[i].IsApproved);
+                }
+            }
+        }
 
         public int LineCount { get => Lines.Count; }
 
