@@ -79,8 +79,8 @@ namespace TranslatorAdmin.InterfaceImpls
         public void Update() => App.MainForm.Update();
 
         //todo these here
-        public void UpdateTranslationProgressIndicator() => throw new NotImplementedException();
-        public void UpdateResults() => throw new NotImplementedException();
+        public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Update();
+        public void UpdateResults() => SelectedTab.CheckedListBox.Update();
 
         public PopupResult WarningOk(string message, string title = "Warning") => Msg.WarningOk(message, title).ToPopupResult();
         public PopupResult WarningOkCancel(string message, string title = "Warning") => Msg.WarningOkCancel(message, title).ToPopupResult();

@@ -24,7 +24,7 @@ namespace TranslatorAdmin.InterfaceImpls
         private readonly Label CharacterCountLabel = new();
         private readonly Label SelectedFile = new();
         private readonly Label WordsTranslated = new();
-        private readonly NoAnimationBar ProgressbarTranslated = new();
+        public readonly NoAnimationBar ProgressbarTranslated = new();
         private readonly Panel panel1 = new();
         private readonly Panel panel2 = new();
         private readonly TableLayoutPanel mainTableLayoutPanel = new();
