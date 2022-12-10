@@ -1,6 +1,7 @@
 ﻿using Translator.Core.Helpers;
 using Translator.Helpers;
 using Translator.UICompatibilityLayer;
+using static System.Windows.Forms.TabControl;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
@@ -24,7 +25,8 @@ namespace TranslatorAdmin.InterfaceImpls
             };
         }
 
-        internal static DialogResult ToDialogResult(this PopupResult result) {
+        internal static DialogResult ToDialogResult(this PopupResult result)
+        {
             return result switch
             {
                 PopupResult.NONE => DialogResult.None,
@@ -62,6 +64,46 @@ namespace TranslatorAdmin.InterfaceImpls
                 NodeType.BGC => StringCategory.BGC,
                 _ => StringCategory.Neither,
             };
+        }
+
+        internal static MenuItems ToMenuItems(this ToolStripItemCollection collection)
+        {
+            var items = new MenuItems(collection.Count);
+            for (int i = 0; i < collection.Count; i++)
+            {
+                items.Add((WinMenuItem)collection[i]);
+            }
+            return items;
+        }
+
+        internal static ToolStripItemCollection ToToolStripItemCollection(this MenuItems collection, ToolStrip owner)
+        {
+            var items = new ToolStripItemCollection(owner, new ToolStripItem[collection.Count]);
+            for (int i = 0; i < collection.Count; i++)
+            {
+                items.Add((WinMenuItem)collection[i]);
+            }
+            return items;
+        }
+
+        internal static List<ITab<WinLineItem>> ToTabList(this TabPageCollection collection)
+        {
+            var items = new List<ITab<WinLineItem>>(collection.Count);
+            for (int i = 0; i < collection.Count; i++)
+            {
+                items.Add((WinTab)collection[i]);
+            }
+            return items;
+        }
+
+        internal static TabPageCollection ToTabPageCollection(this List<ITab<WinLineItem>> collection, TabControl owner)
+        {
+            var items = new TabPageCollection(owner);
+            for (int i = 0; i < collection.Count; i++)
+            {
+                items.Add((WinTab)collection[i]);
+            }
+            return items;
         }
     }
 }

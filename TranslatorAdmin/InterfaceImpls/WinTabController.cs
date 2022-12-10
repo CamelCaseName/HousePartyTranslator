@@ -9,7 +9,7 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public new int TabCount => TabPages.Count;
 
-        public new List<ITab<WinLineItem>> TabPages => base.TabPages.Cast<ITab<WinLineItem>>().ToList();
+        public new List<ITab<WinLineItem>> TabPages => base.TabPages.ToTabList();
 
         public bool CloseTab(ITab<WinLineItem> tab) => throw new NotImplementedException();
     }

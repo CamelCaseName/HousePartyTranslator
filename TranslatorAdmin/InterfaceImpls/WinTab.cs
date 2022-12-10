@@ -29,13 +29,13 @@ namespace TranslatorAdmin.InterfaceImpls
         private readonly WinTextBox CommentTextBox = new();
         private readonly WinTextBox TemplateTextBox = new();
         private readonly WinTextBox TranslatedTextBox = new();
-        private readonly ToolStripMenuItem CopyAllContextMenuButton = new();
-        private readonly ToolStripMenuItem CopyAsOutputContextMenuButton = new();
-        private readonly ToolStripMenuItem CopyFileNameContextMenuButton = new();
-        private readonly ToolStripMenuItem CopyIdContextMenuButton = new();
-        private readonly ToolStripMenuItem CopyStoryNameContextMenuButton = new();
-        private readonly ToolStripMenuItem CopyTemplateContextMenuButton = new();
-        private readonly ToolStripMenuItem CopyTranslationContextMenuButton = new();
+        private readonly WinMenuItem CopyAllContextMenuButton = new();
+        private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
+        private readonly WinMenuItem CopyFileNameContextMenuButton = new();
+        private readonly WinMenuItem CopyIdContextMenuButton = new();
+        private readonly WinMenuItem CopyStoryNameContextMenuButton = new();
+        private readonly WinMenuItem CopyTemplateContextMenuButton = new();
+        private readonly WinMenuItem CopyTranslationContextMenuButton = new();
 
         public WinTab(Fenster fenster)
         {

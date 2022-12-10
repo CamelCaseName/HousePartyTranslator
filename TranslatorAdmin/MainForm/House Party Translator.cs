@@ -56,14 +56,15 @@ namespace Translator
         {
             ProgressbarWindow.Show();
             //custom exception handlers to handle mysql exceptions
+#if RELEASE || USER_RELEASE
             AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
             Application.ThreadException += ThreadExceptionHandler;
-
+#endif
             UI = new(TabControl);
 
             //initialize ui, controllers, database and so on
             var tab = new WinTab(this);
-            TabManager.Initialize(UI, typeof(ToolStripMenuItem), typeof(ToolStripSeparator), GetPassword(), SoftwareVersionManager.LocalVersion, tab, new WinSettings());
+            TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), GetPassword(), SoftwareVersionManager.LocalVersion, tab, new WinSettings());
             CheckListBoxLeft = tab.CheckedListBox;
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
 
@@ -126,15 +127,15 @@ namespace Translator
             }
         }
 
-        internal ToolStripMenuItem FileToolStripMenuItem => fileToolStripMenuItem;
+        internal WinMenuItem FileToolStripMenuItem => fileToolStripMenuItem;
 
         internal ToolStripComboBox LanguageBox => languageToolStripComboBox;
 
-        internal ToolStripMenuItem ReplaceAllButton => toolStripReplaceAllButton;
+        internal WinMenuItem ReplaceAllButton => toolStripReplaceAllButton;
 
         internal ToolStripTextBox ReplaceBox => ToolStripMenuReplaceBox;
 
-        internal ToolStripMenuItem ReplaceButton => toolStripReplaceButton;
+        internal WinMenuItem ReplaceButton => toolStripReplaceButton;
 
         internal ToolStripTextBox SearchBox => searchToolStripTextBox;
 
@@ -331,7 +332,7 @@ namespace Translator
             ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
-            RecentsManager.UpdateMenuItems<WinLineItem, WinUIHandler, WinTabController>((MenuItems)FileToolStripMenuItem.DropDownItems.Cast<WinMenuItem>());
+            RecentsManager.UpdateMenuItems<WinLineItem, WinUIHandler, WinTabController>(FileToolStripMenuItem.DropDownItems.ToMenuItems());
             RecentsManager.OpenMostRecent<WinLineItem, WinUIHandler, WinTabController>();
 
             //start timer to update presence

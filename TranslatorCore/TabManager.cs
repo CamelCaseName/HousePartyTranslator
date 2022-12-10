@@ -91,12 +91,19 @@ namespace Translator.Core
         /// This has to be called after the form constructor is done, and the form is registered to windows, else the tab adding fails silently
         /// </summary>
         /// <param name="tab">the first tab to be added to the app</param>
-        public static void FinalizeInitializer()
+        public static void FinalizeInitializer() 
         {
             if (UI == null || firstTab == null) throw new InvalidOperationException("You cant finalize the initialization if it hasnt completed");
 
-            if (!UI.TabControl.TabPages.Contains(firstTab)) UI.TabControl.TabPages.Add(firstTab);
-            else UI.TabControl.TabPages.Clear(); UI.TabControl.TabPages.Add(firstTab);
+            if (!UI.TabControl.TabPages.Contains(firstTab))
+            {
+                UI.TabControl.TabPages.Add(firstTab);
+            }
+            else
+            {
+                UI.TabControl.TabPages.Clear();
+                UI.TabControl.TabPages.Add(firstTab);
+            }
 
             //create new translationmanager to use with the tab open right now
             translationManagers.Add(firstTab, new TranslationManager<T, V, X>(UI, firstTab));

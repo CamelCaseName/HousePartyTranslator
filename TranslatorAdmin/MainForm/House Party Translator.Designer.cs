@@ -9,26 +9,26 @@ namespace Translator
         private IContainer components;
         private MenuStrip MainMenu;
         private ToolStripComboBox languageToolStripComboBox;
-        private ToolStripMenuItem customOpenStoryExplorer;
-        private ToolStripMenuItem editToolStripMenuItem;
-        private ToolStripMenuItem exitToolStripMenuItem;
-        private ToolStripMenuItem fileToolStripMenuItem;
-        private ToolStripMenuItem openAllToolStripMenuItem;
-        private ToolStripMenuItem openInNewTabToolStripMenuItem;
-        private ToolStripMenuItem openToolStripMenuItem;
-        private ToolStripMenuItem overrideCloudSaveToolStripMenuItem;
-        private ToolStripMenuItem Recents;
-        private ToolStripMenuItem replaceToolStripMenuItem;
-        private ToolStripMenuItem saveAllToolStripMenuItem;
-        private ToolStripMenuItem saveAsToolStripMenuItem;
-        private ToolStripMenuItem saveCurrentStringToolStripMenuItem;
-        private ToolStripMenuItem saveToolStripMenuItem;
-        private ToolStripMenuItem searchAllToolStripMenuItem;
-        private ToolStripMenuItem searchToolStripMenuItem;
-        private ToolStripMenuItem settingsToolStripMenuItem;
-        private ToolStripMenuItem storyExplorerStripMenuItem;
-        private ToolStripMenuItem toolStripReplaceAllButton;
-        private ToolStripMenuItem toolStripReplaceButton;
+        private WinMenuItem customOpenStoryExplorer;
+        private WinMenuItem editToolStripMenuItem;
+        private WinMenuItem exitToolStripMenuItem;
+        private WinMenuItem fileToolStripMenuItem;
+        private WinMenuItem openAllToolStripMenuItem;
+        private WinMenuItem openInNewTabToolStripMenuItem;
+        private WinMenuItem openToolStripMenuItem;
+        private WinMenuItem overrideCloudSaveToolStripMenuItem;
+        private WinMenuItem Recents;
+        private WinMenuItem replaceToolStripMenuItem;
+        private WinMenuItem saveAllToolStripMenuItem;
+        private WinMenuItem saveAsToolStripMenuItem;
+        private WinMenuItem saveCurrentStringToolStripMenuItem;
+        private WinMenuItem saveToolStripMenuItem;
+        private WinMenuItem searchAllToolStripMenuItem;
+        private WinMenuItem searchToolStripMenuItem;
+        private WinMenuItem settingsToolStripMenuItem;
+        private WinMenuItem storyExplorerStripMenuItem;
+        private WinMenuItem toolStripReplaceAllButton;
+        private WinMenuItem toolStripReplaceButton;
         private ToolStripTextBox searchToolStripTextBox;
         private ToolStripTextBox ToolStripMenuReplaceBox;
 
@@ -63,7 +63,7 @@ namespace Translator
             SuspendLayout();
 
             // searchToolStripMenuItem
-            searchToolStripMenuItem = new ToolStripMenuItem()
+            searchToolStripMenuItem = new WinMenuItem()
             {
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(searchToolStripMenuItem),
@@ -74,7 +74,7 @@ namespace Translator
             searchToolStripMenuItem.Click += new EventHandler(SearchToolStripMenuItem_click);
 
             // searchAllToolStripMenuItem
-            searchAllToolStripMenuItem = new ToolStripMenuItem()
+            searchAllToolStripMenuItem = new WinMenuItem()
             {
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(searchAllToolStripMenuItem),
@@ -85,7 +85,7 @@ namespace Translator
             searchAllToolStripMenuItem.Click += new EventHandler(SearchAllToolStripMenuItem_click);
 
             // replaceToolStripMenuItem
-            replaceToolStripMenuItem = new ToolStripMenuItem()
+            replaceToolStripMenuItem = new WinMenuItem()
             {
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(replaceToolStripMenuItem),
@@ -96,7 +96,7 @@ namespace Translator
             replaceToolStripMenuItem.Click += new EventHandler(ReplaceToolStripMenuItem_click);
 
             // openToolStripMenuItem
-            openToolStripMenuItem = new ToolStripMenuItem()
+            openToolStripMenuItem = new WinMenuItem()
             {
                 Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
                 ImageTransparentColor = Color.Magenta,
@@ -108,7 +108,7 @@ namespace Translator
             openToolStripMenuItem.Click += new EventHandler(OpenToolStripMenuItem_Click);
 
             // openAllToolStripMenuItem
-            openAllToolStripMenuItem = new ToolStripMenuItem()
+            openAllToolStripMenuItem = new WinMenuItem()
             {
                 Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
                 ImageTransparentColor = Color.Magenta,
@@ -120,7 +120,7 @@ namespace Translator
             openAllToolStripMenuItem.Click += new EventHandler(OpenAllToolStripMenuItem_Click);
 
             // openInNewTabToolStripMenuItem
-            openInNewTabToolStripMenuItem = new ToolStripMenuItem()
+            openInNewTabToolStripMenuItem = new WinMenuItem()
             {
                 Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
                 ImageTransparentColor = Color.Magenta,
@@ -132,7 +132,7 @@ namespace Translator
             openInNewTabToolStripMenuItem.Click += new EventHandler(OpenInNewTabToolStripMenuItem_Click);
 
             // Recents
-            Recents = new ToolStripMenuItem()
+            Recents = new WinMenuItem()
             {
                 Enabled = false,
                 Name = nameof(Recents),
@@ -142,7 +142,7 @@ namespace Translator
             };
 
             // saveToolStripMenuItem
-            saveToolStripMenuItem = new ToolStripMenuItem()
+            saveToolStripMenuItem = new WinMenuItem()
             {
                 Image = ((Image)(resources.GetObject("saveToolStripMenuItem.Image"))),
                 ImageTransparentColor = Color.Magenta,
@@ -153,7 +153,7 @@ namespace Translator
             saveToolStripMenuItem.Click += new EventHandler(SaveToolStripMenuItem_Click);
 
             // saveAllToolStripMenuItem
-            saveAllToolStripMenuItem = new ToolStripMenuItem()
+            saveAllToolStripMenuItem = new WinMenuItem()
             {
                 Image = ((Image)(resources.GetObject("saveToolStripMenuItem.Image"))),
                 ImageTransparentColor = Color.Magenta,
@@ -164,7 +164,7 @@ namespace Translator
             saveAllToolStripMenuItem.Click += new EventHandler(SaveAllToolStripMenuItem_Click);
 
             // saveAsToolStripMenuItem
-            saveAsToolStripMenuItem = new ToolStripMenuItem()
+            saveAsToolStripMenuItem = new WinMenuItem()
             {
                 Image = ((Image)(resources.GetObject("saveAsToolStripMenuItem.Image"))),
                 ImageTransparentColor = Color.Magenta,
@@ -175,7 +175,7 @@ namespace Translator
             saveAsToolStripMenuItem.Click += new EventHandler(SaveAsToolStripMenuItem_Click);
 
             // overrideCloudSaveToolStripMenuItem
-            overrideCloudSaveToolStripMenuItem = new ToolStripMenuItem()
+            overrideCloudSaveToolStripMenuItem = new WinMenuItem()
             {
                 Image = ((Image)(resources.GetObject("saveAsToolStripMenuItem.Image"))),
                 ImageTransparentColor = Color.Magenta,
@@ -186,7 +186,7 @@ namespace Translator
             overrideCloudSaveToolStripMenuItem.Click += new EventHandler(OverrideCloudSaveToolStripMenuItem_Click);
 
             // exitToolStripMenuItem
-            exitToolStripMenuItem = new ToolStripMenuItem()
+            exitToolStripMenuItem = new WinMenuItem()
             {
                 Name = nameof(exitToolStripMenuItem),
                 Size = new Size(236, 22),
@@ -195,7 +195,7 @@ namespace Translator
             exitToolStripMenuItem.Click += new EventHandler(ExitToolStripMenuItem_Click);
 
             // saveCurrentStringToolStripMenuItem
-            saveCurrentStringToolStripMenuItem = new ToolStripMenuItem()
+            saveCurrentStringToolStripMenuItem = new WinMenuItem()
             {
                 BackColor = Fenster.menu,
                 Name = nameof(saveCurrentStringToolStripMenuItem),
@@ -234,7 +234,7 @@ namespace Translator
             ToolStripMenuReplaceBox.TextChanged += new EventHandler(ToolStripMenuReplaceBox_TextChanged);
 
             // toolStripReplaceAllButton
-            toolStripReplaceAllButton = new ToolStripMenuItem()
+            toolStripReplaceAllButton = new WinMenuItem()
             {
                 BackColor = Fenster.menu,
                 ForeColor = Fenster.darkText,
@@ -248,7 +248,7 @@ namespace Translator
             toolStripReplaceAllButton.Click += new EventHandler(ToolStripReplaceAllButton_Click);
 
             // toolStripReplaceButton
-            toolStripReplaceButton = new ToolStripMenuItem()
+            toolStripReplaceButton = new WinMenuItem()
             {
                 BackColor = Fenster.menu,
                 ForeColor = Fenster.darkText,
@@ -277,7 +277,7 @@ namespace Translator
             languageToolStripComboBox.SelectedIndexChanged += new EventHandler(LanguageToolStripComboBox_SelectedIndexChanged);
 
             // storyExplorerStripMenuItem
-            storyExplorerStripMenuItem = new ToolStripMenuItem()
+            storyExplorerStripMenuItem = new WinMenuItem()
             {
                 BackColor = Fenster.menu,
                 Name = nameof(storyExplorerStripMenuItem),
@@ -289,7 +289,7 @@ namespace Translator
             storyExplorerStripMenuItem.Click += new EventHandler(StoryExplorerStripMenuItem_Click);
 
             // customOpenStoryExplorer
-            customOpenStoryExplorer = new ToolStripMenuItem()
+            customOpenStoryExplorer = new WinMenuItem()
             {
                 BackColor = Fenster.menu,
                 Name = nameof(customOpenStoryExplorer),
@@ -301,7 +301,7 @@ namespace Translator
             customOpenStoryExplorer.Click += new EventHandler(CustomStoryExplorerStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem
-            settingsToolStripMenuItem = new ToolStripMenuItem()
+            settingsToolStripMenuItem = new WinMenuItem()
             {
                 BackColor = Fenster.menu,
                 Name = nameof(settingsToolStripMenuItem),
@@ -313,7 +313,7 @@ namespace Translator
             settingsToolStripMenuItem.Click += new EventHandler(SettingsToolStripMenuItem_Click);
 
             // editToolStripMenuItem
-            editToolStripMenuItem = new ToolStripMenuItem()
+            editToolStripMenuItem = new WinMenuItem()
             {
                 BackColor = Fenster.menu,
                 Name = nameof(editToolStripMenuItem),
@@ -326,14 +326,14 @@ namespace Translator
             editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
                 searchToolStripMenuItem,
                 searchAllToolStripMenuItem,
-                new ToolStripSeparator(),
+                new WinMenuSeperator(),
                 replaceToolStripMenuItem,
-                new ToolStripSeparator(),
+                new WinMenuSeperator(),
                 overrideCloudSaveToolStripMenuItem
             });
 
             // fileToolStripMenuItem
-            fileToolStripMenuItem = new ToolStripMenuItem()
+            fileToolStripMenuItem = new WinMenuItem()
             {
                 BackColor = Fenster.menu,
                 Name = nameof(fileToolStripMenuItem),
@@ -347,13 +347,13 @@ namespace Translator
                 openToolStripMenuItem,
                 openAllToolStripMenuItem,
                 openInNewTabToolStripMenuItem,
-                new ToolStripSeparator(),
+                new WinMenuSeperator(),
                 Recents,
-                new ToolStripSeparator(),
+                new WinMenuSeperator(),
                 saveToolStripMenuItem,
                 saveAllToolStripMenuItem,
                 saveAsToolStripMenuItem,
-                new ToolStripSeparator(),
+                new WinMenuSeperator(),
                 exitToolStripMenuItem
             });
 

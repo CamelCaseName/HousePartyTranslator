@@ -21,9 +21,11 @@ namespace TranslatorAdmin.InterfaceImpls
         public MenuItems FileMenuItems => (MenuItems)(App.MainForm.MainMenuStrip?.Items.Cast<IMenuItem>() ?? new MenuItems());
 
         public string ReplaceBarText { get => App.MainForm.ReplaceBox.Text; set => App.MainForm.ReplaceBox.Text = value; }
+
         public string SearchBarText { get => App.MainForm.SearchBox.Text; set => App.MainForm.SearchBox.Text = value; }
 
         private WinTranslationManager WinTranslation => WinTranslation ?? new(this);
+
         public CreateTemplateFromStoryDelegate CreateTemplateFromStory { get => WinTranslation.CreateTemplateFromStory; }
 
         public WinTabController TabControl { get; } = new();
@@ -80,6 +82,7 @@ namespace TranslatorAdmin.InterfaceImpls
         //todo these here
         public void UpdateTranslationProgressIndicator() => throw new NotImplementedException();
         public void UpdateResults() => throw new NotImplementedException();
+
         public PopupResult WarningOk(string message, string title = "Warning") => Msg.WarningOk(message, title).ToPopupResult();
         public PopupResult WarningOkCancel(string message, string title = "Warning") => Msg.WarningOkCancel(message, title).ToPopupResult();
         public bool WarningOkCancel(string message, string title = "Warning", PopupResult result = PopupResult.OK) => Msg.WarningOkCancelB(message, title, result.ToDialogResult());
