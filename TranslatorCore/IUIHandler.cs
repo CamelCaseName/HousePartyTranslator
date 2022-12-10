@@ -60,9 +60,10 @@ namespace Translator.UICompatibilityLayer
         public string Text { get; set; }
     }
 
-    public interface ITab<T> where T : class, ILineItem, new()
+    public interface ITab<T> 
+		where T : class, ILineItem, new()
     {
-        public int LineCount => Lines.Count;
+        int LineCount => Lines.Count;
         string Text { get; set; }
         bool IsApproveButtonFocused { get; }
 
@@ -135,13 +136,16 @@ namespace Translator.UICompatibilityLayer
         #endregion
     }
 
-    public interface ITabController<T> where T : class, ILineItem, new()
+    public interface ITabController<T, W> 
+		where T : class, ILineItem, new() 
+		where W : class, ITab<T>, new()
     {
         int SelectedIndex { get; set; }
-        ITab<T> SelectedTab { get; set; }
+        W SelectedTab { get; set; }
         int TabCount { get; }
-        List<ITab<T>> TabPages { get; }
-        bool CloseTab(ITab<T> tab);
+        List<W> TabPages { get; }
+        void AddTab(W tab);
+        bool CloseTab(W tab);
     }
 
     public interface ITextBox
@@ -154,7 +158,10 @@ namespace Translator.UICompatibilityLayer
         public void Focus();
     }
 
-    public interface IUIHandler<T, X> where T : class, ILineItem, new() where X : class, ITabController<T>, new()
+    public interface IUIHandler<T, X, W> 
+		where T : class, ILineItem, new() 
+		where X : class, ITabController<T, W>, new() 
+		where W : class, ITab<T>, new()
     {
         #region cursor
         void SignalUserEndWait();
@@ -238,7 +245,7 @@ namespace Translator.UICompatibilityLayer
 
         void ClipboardSetText(string text);
 
-        ITab<T>? CreateNewTab();
+        W? CreateNewTab();
 
         void SignalAppExit();
         void Update();
@@ -258,13 +265,14 @@ namespace Translator.UICompatibilityLayer
         int TemplateBoxTextLength { get; }
         int TemplateBoxSelectedTextLength { get; }
         int TranslationBoxSelectedTextLength { get; }
-        ITab<T> SelectedTab { get; }
+        W SelectedTab { get; }
         string TranslationBoxText { get; set; }
         string TemplateBoxText { get; set; }
         #endregion
     }
 
-    public interface ILineList<T> where T : class, ILineItem, new()
+    public interface ILineList<T> 
+		where T : class, ILineItem, new()
     {
         T this[int index] { get; set; }
         int ApprovedCount { get; }
@@ -285,7 +293,8 @@ namespace Translator.UICompatibilityLayer
         void UnapproveItem(int index);
     }
 
-    public class NullLineList<T> : ILineList<T> where T : class, ILineItem, new()
+    public class NullLineList<T> : ILineList<T> 
+		where T : class, ILineItem, new()
     {
         public readonly List<T> Items = new();
 

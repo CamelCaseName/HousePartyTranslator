@@ -11,7 +11,11 @@ namespace Translator.Core
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    public static class DataBase<T, V, X> where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
+    public static class DataBase<T, V, X, W> 
+		where T : class, ILineItem, new() 
+		where V : class, IUIHandler<T, X, W>, new() 
+		where X : class, ITabController<T, W>, new() 
+		where W : class, ITab<T>, new()
     {
         public static string DBVersion { get; private set; } = "0.0.0";
         public static string AppTitle { get; private set; } = string.Empty;
@@ -335,8 +339,8 @@ namespace Translator.Core
                 Settings.Default.Save();
 
                 //set global variable for later actions
-                TranslationManager<T, V, X>.IsUpToDate = DBVersion == SoftwareVersion;
-                if (!TranslationManager<T, V, X>.IsUpToDate && Settings.Default.AdvancedModeEnabled)
+                TranslationManager<T, V, X, W>.IsUpToDate = DBVersion == SoftwareVersion;
+                if (!TranslationManager<T, V, X, W>.IsUpToDate && Settings.Default.AdvancedModeEnabled)
                 {
                     _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
                 }
@@ -527,7 +531,7 @@ namespace Translator.Core
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId[(story + fileName).Length..];
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<T,V,X>.Language.Length));
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<T, V, X, W>.Language.Length));
         }
 
         /// <summary>

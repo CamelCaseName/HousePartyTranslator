@@ -110,7 +110,7 @@ namespace Translator.Managers
                 //copy data to file on disk
                 await stream.CopyToAsync(fileStream);
             }
-            catch (System.UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException e)
             {
                 LogManager.Log(e.ToString(), LogManager.Level.Error);
                 _ = Msg.ErrorOk($"The update failed because the program could not access\n   {newFile}\n or the folder it is in.", "Update failed");

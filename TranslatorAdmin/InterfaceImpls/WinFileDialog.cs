@@ -1,9 +1,13 @@
-﻿using Translator.UICompatibilityLayer;
+﻿using System.Runtime.Versioning;
+using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class WinFileDialog : IFileDialog
+    [SupportedOSPlatform("Windows")]
+    public class WinFileDialog : IFileDialog
     {
+        public WinFileDialog() { }
+
         private readonly OpenFileDialog dialog = new();
         public string FileName { get => dialog.SafeFileName; set => Path.Combine(Path.GetDirectoryName(dialog.FileName.AsSpan()).ToString(), value); }
         public string Filter { get => dialog.Filter; set => dialog.Filter = value; }

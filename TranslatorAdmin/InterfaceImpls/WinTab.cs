@@ -8,8 +8,10 @@ using TranslatorAdmin.Properties;
 namespace TranslatorAdmin.InterfaceImpls
 {
     [SupportedOSPlatform("Windows")]
-    internal class WinTab : TabPage, ITab<WinLineItem>
+    public class WinTab : TabPage, ITab<WinLineItem>
     {
+        public WinTab() { MainForm = (Fenster)new Form(); }
+
         internal Fenster MainForm { get; init; }
 
         private static int Number { get; set; } = 0;
@@ -359,7 +361,10 @@ namespace TranslatorAdmin.InterfaceImpls
         public string CommentBoxText { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public string[] CommentBoxTextArr { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         public bool ApprovedButtonChecked { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        ILineList<WinLineItem> ITab<WinLineItem>.Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public LineList Lines { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        ILineList<WinLineItem> ITab<WinLineItem>.Lines { get => Lines; set => this.Lines = (LineList)value; }
+
+        public int LineCount { get => Lines.Count; }
 
         public void ApproveSelectedLine() => throw new NotImplementedException();
         public WinLineItem AtIndex(int index) => throw new NotImplementedException();

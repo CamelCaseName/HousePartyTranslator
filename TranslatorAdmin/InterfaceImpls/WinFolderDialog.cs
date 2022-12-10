@@ -1,9 +1,12 @@
-﻿using Translator.UICompatibilityLayer;
+﻿using System.Runtime.Versioning;
+using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class WinFolderDialog : IFolderDialog
+    [SupportedOSPlatform("Windows")]
+    public class WinFolderDialog : IFolderDialog
     {
+        public WinFolderDialog() { }
         private readonly FolderBrowserDialog dialog = new() { UseDescriptionForTitle = true , RootFolder = Environment.SpecialFolder.Recent};
         public string SelectedFolderPath { get => dialog.SelectedPath; set => dialog.SelectedPath = value; }
         public string Text { get => dialog.Description; set => dialog.Description = value; }

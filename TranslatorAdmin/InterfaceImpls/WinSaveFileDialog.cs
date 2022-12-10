@@ -1,9 +1,12 @@
-﻿using Translator.UICompatibilityLayer;
+﻿using System.Runtime.Versioning;
+using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class WinSaveFileDialog : ISaveFileDialog
+    [SupportedOSPlatform("Windows")]
+    public class WinSaveFileDialog : ISaveFileDialog
     {
+        public WinSaveFileDialog() { }
         private readonly SaveFileDialog dialog = new();
         public string FileName { get => dialog.FileName; set => dialog.FileName = value; }
         public string InitialDirectory { get => dialog.InitialDirectory; set => dialog.InitialDirectory = value; }

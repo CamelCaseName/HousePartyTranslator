@@ -54,7 +54,11 @@ namespace Translator.Core
         /// <param name="FileName"></param>
         /// <param name="StoryName"></param>
 #if TRACE
-        public static void ClearForFile<T, V, X>(string FileName, string StoryName, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerName = "", [CallerLineNumber] int lineNumber = 0) where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
+        public static void ClearForFile<T, V, X, W>(string FileName, string StoryName, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerName = "", [CallerLineNumber] int lineNumber = 0)
+            where T : class, ILineItem, new()
+            where V : class, IUIHandler<T, X, W>, new()
+            where X : class, ITabController<T, W>, new()
+            where W : class, ITab<T>, new()
         {
             Console.WriteLine("History cleared by " + callerFile + '<' + callerName + ">:" + lineNumber.ToString());
             Console.WriteLine($"L__ cleared for {StoryName}\\{FileName}");
@@ -68,7 +72,7 @@ namespace Translator.Core
             for (int i = 0; i < history.Count; i++)
             {
                 ICommand item = history.Pop();
-                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged<T, V, X>))
+                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged<T, V, X, W>))
                     temp.Push(item);
             }
             for (int i = 0; i < temp.Count; i++)
@@ -80,7 +84,7 @@ namespace Translator.Core
             for (int i = 0; i < future.Count; i++)
             {
                 ICommand item = future.Pop();
-                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged<T, V, X>))
+                if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged<T, V, X, W>))
                     temp.Push(item);
             }
             for (int i = 0; i < temp.Count; i++)
@@ -232,7 +236,8 @@ namespace Translator.Core
         }
     }
 
-    public sealed class ApprovedChanged<T> : ICommand where T : class, ILineItem, new()
+    public sealed class ApprovedChanged<T> : ICommand
+        where T : class, ILineItem, new()
     {
         readonly int index;
         readonly NullLineList<T> ListBox;
@@ -258,7 +263,8 @@ namespace Translator.Core
         }
     }
 
-    public sealed class SelectedLineChanged<T> : ICommand where T : class, ILineItem, new()
+    public sealed class SelectedLineChanged<T> : ICommand
+        where T : class, ILineItem, new()
     {
         readonly int oldIndex;
         readonly int newIndex;
@@ -286,14 +292,18 @@ namespace Translator.Core
         }
     }
 
-    public sealed class TranslationChanged<T, V, X> : ICommand where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
+    public sealed class TranslationChanged<T, V, X, W> : ICommand
+        where T : class, ILineItem, new()
+        where V : class, IUIHandler<T, X, W>, new()
+        where X : class, ITabController<T, W>, new()
+        where W : class, ITab<T>, new()
     {
-        readonly TranslationManager<T, V, X> manager;
+        readonly TranslationManager<T, V, X, W> manager;
         readonly string id;
         readonly string oldText;
         readonly string newText;
 
-        public TranslationChanged(TranslationManager<T, V, X> manager, string id, string oldText, string newText)
+        public TranslationChanged(TranslationManager<T, V, X, W> manager, string id, string oldText, string newText)
         {
             this.manager = manager;
             this.id = id;
@@ -317,7 +327,11 @@ namespace Translator.Core
         }
     }
 
-    public sealed class SelectedTabChanged<T, V, X> : ICommand where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X : class, ITabController<T>, new()
+    public sealed class SelectedTabChanged<T, V, X, W> : ICommand
+        where T : class, ILineItem, new()
+        where V : class, IUIHandler<T, X, W>, new()
+        where X : class, ITabController<T, W>, new()
+        where W : class, ITab<T>, new()
     {
         readonly int oldTabIndex, newTabIndex;
 
@@ -332,27 +346,31 @@ namespace Translator.Core
 
         public void Do()
         {
-            TabManager<T, V, X>.SwitchToTab(newTabIndex);
+            TabManager<T, V, X, W>.SwitchToTab(newTabIndex);
         }
 
         public void Undo()
         {
-            TabManager<T, V, X>.SwitchToTab(oldTabIndex);
+            TabManager<T, V, X, W>.SwitchToTab(oldTabIndex);
         }
     }
 
-    public sealed class AllTranslationsChanged<T, V, X> : ICommand where T : class, ILineItem, new() where V : class, IUIHandler<T, X>, new() where X: class, ITabController<T>, new()
+    public sealed class AllTranslationsChanged<T, V, X, W> : ICommand
+        where T : class, ILineItem, new()
+        where V : class, IUIHandler<T, X, W>, new()
+        where X : class, ITabController<T, W>, new()
+        where W : class, ITab<T>, new()
     {
         readonly FileData oldTranslations, newTranslations;
-        readonly TranslationManager<T, V, X> manager;
+        readonly TranslationManager<T, V, X, W> manager;
         readonly string language;
 
-        public AllTranslationsChanged(TranslationManager<T, V, X> manager, FileData oldTranslations, FileData newTranslations)
+        public AllTranslationsChanged(TranslationManager<T, V, X, W> manager, FileData oldTranslations, FileData newTranslations)
         {
             this.oldTranslations = new FileData(oldTranslations);
             this.newTranslations = new FileData(newTranslations);
             this.manager = manager;
-            this.language = TranslationManager<T, V, X>.Language;
+            this.language = TranslationManager<T, V, X, W>.Language;
             FileName = manager.FileName;
             StoryName = manager.StoryName;
         }
@@ -368,7 +386,7 @@ namespace Translator.Core
                 manager.TranslationData[item.Key] = item.Value;
             }
             //update translations also on the database
-            _ = DataBase<T, V, X>.UpdateTranslations(newTranslations, language);
+            _ = DataBase<T, V, X, W>.UpdateTranslations(newTranslations, language);
             manager.ReloadTranslationTextbox();
         }
 
@@ -380,7 +398,7 @@ namespace Translator.Core
                 manager.TranslationData[item.Key] = item.Value;
             }
             //update translations also on the database
-            _ = DataBase<T, V, X>.UpdateTranslations(oldTranslations, language);
+            _ = DataBase<T, V, X, W>.UpdateTranslations(oldTranslations, language);
             manager.ReloadTranslationTextbox();
         }
     }

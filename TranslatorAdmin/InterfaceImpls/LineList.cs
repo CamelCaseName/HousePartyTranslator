@@ -3,7 +3,7 @@ using Translator.UICompatibilityLayer;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class LineList : ColouredCheckedListBox, ILineList<WinLineItem>
+    public class LineList : ColouredCheckedListBox, ILineList<WinLineItem>
     {
         public int Count => Items.Count;
         public int ApprovedCount { get; internal set; }

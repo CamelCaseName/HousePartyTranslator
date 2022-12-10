@@ -2,7 +2,7 @@
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class WinLineItem : object, ILineItem
+    public class WinLineItem : object, ILineItem
     {
         public bool IsApproved { get; set; } = false;
         public bool IsSearchResult { get; set; } = false;

@@ -71,7 +71,8 @@ namespace Translator.Core.Helpers
         }
 
         /// <summary>
-        /// Constrains the lenght of a single string to a multi line version of said string, where every MaxTextLength characters a newline is inserted.
+        /// Constrains the lenght of a single string to a multi line version of said string, 
+		/// where every MaxTextLength characters a newline is inserted.
         /// </summary>
         /// <param name="input">The string to format</param>
         /// <returns>The formatted, blockified string</returns>

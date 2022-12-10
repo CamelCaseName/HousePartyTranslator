@@ -1,10 +1,12 @@
-﻿using Translator.Core.Helpers;
+﻿using System.Runtime.Versioning;
+using Translator.Core.Helpers;
 using Translator.Helpers;
 using Translator.UICompatibilityLayer;
 using static System.Windows.Forms.TabControl;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
+    [SupportedOSPlatform("Windows")]
     internal static partial class WinExtensions
     {
         internal static PopupResult ToPopupResult(this DialogResult result)
@@ -71,7 +73,7 @@ namespace TranslatorAdmin.InterfaceImpls
             var items = new MenuItems(collection.Count);
             for (int i = 0; i < collection.Count; i++)
             {
-                items.Add((WinMenuItem)collection[i]);
+                items.Add((IMenuItem)collection[i]);
             }
             return items;
         }
@@ -86,9 +88,9 @@ namespace TranslatorAdmin.InterfaceImpls
             return items;
         }
 
-        internal static List<ITab<WinLineItem>> ToTabList(this TabPageCollection collection)
+        internal static List<WinTab> ToTabList(this TabPageCollection collection)
         {
-            var items = new List<ITab<WinLineItem>>(collection.Count);
+            var items = new List<WinTab>(collection.Count);
             for (int i = 0; i < collection.Count; i++)
             {
                 items.Add((WinTab)collection[i]);
@@ -96,12 +98,12 @@ namespace TranslatorAdmin.InterfaceImpls
             return items;
         }
 
-        internal static TabPageCollection ToTabPageCollection(this List<ITab<WinLineItem>> collection, TabControl owner)
+        internal static TabPageCollection ToTabPageCollection(this List<WinTab> collection, TabControl owner)
         {
             var items = new TabPageCollection(owner);
             for (int i = 0; i < collection.Count; i++)
             {
-                items.Add((WinTab)collection[i]);
+                items.Add(collection[i]);
             }
             return items;
         }

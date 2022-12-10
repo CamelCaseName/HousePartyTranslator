@@ -3,7 +3,7 @@ using NetDiscordRpc.RPC;
 using Translator.Core;
 using Translator.Helpers;
 using Settings = TranslatorAdmin.Properties.Settings;
-using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController>;
+using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 
 namespace Translator.Managers
 {
@@ -29,8 +29,8 @@ namespace Translator.Managers
                 {
                     DiscordPresenceClient?.SetPresence(new RichPresence()
                     {
-                        Details = $"Working on {Story},",
-                        State = $"translating {Character}",
+                        Details = $"Working on {(Story.Length > 0 ? Story : "nothing")},",
+                        State = $"translating {(Character.Length > 0 ? Character : "no one :)")}",
                         Assets = new Assets()
                         {
                             LargeImageKey = ImageKey,

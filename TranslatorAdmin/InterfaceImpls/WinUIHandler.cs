@@ -6,13 +6,12 @@ using TranslatorAdmin.Managers;
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController>
+    internal sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController, WinTab>
     {
         public WinUIHandler() { }
         
-        internal WinUIHandler(ITabController<WinLineItem> control)
+        internal WinUIHandler(ITabController<WinLineItem, WinTab> control)
         {
             TabControl = (WinTabController)control;
         }
@@ -34,9 +33,9 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public bool ReplaceBarIsVisible => App.MainForm.ReplaceAllButton.Visible && App.MainForm.ReplaceButton.Visible && App.MainForm.ReplaceBox.Visible;
 
-        Type IUIHandler<WinLineItem, WinTabController>.InternalFileDialogType => typeof(WinFileDialog);
-        Type IUIHandler<WinLineItem, WinTabController>.InternalFolderDialogType => typeof(WinFolderDialog);
-        Type IUIHandler<WinLineItem, WinTabController>.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
+        Type IUIHandler<WinLineItem, WinTabController, WinTab>.InternalFileDialogType => typeof(WinFileDialog);
+        Type IUIHandler<WinLineItem, WinTabController, WinTab>.InternalFolderDialogType => typeof(WinFolderDialog);
+        Type IUIHandler<WinLineItem, WinTabController, WinTab>.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
 
         public int TranslationBoxTextLength => TabControl.SelectedTab.TranslationBoxText.Length;
 
@@ -46,13 +45,13 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public int TranslationBoxSelectedTextLength => TabControl.SelectedTab.SelectedTemplateBoxText.Length;
 
-        public ITab<WinLineItem> SelectedTab => TabControl.SelectedTab;
+        public WinTab SelectedTab => TabControl.SelectedTab;
 
         public string TranslationBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
         public string TemplateBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
 
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
-        public ITab<WinLineItem>? CreateNewTab() => new WinTab(App.MainForm);
+        public WinTab? CreateNewTab() => new(App.MainForm);
         public PopupResult ErrorOk(string message, string title = "Error") => Msg.ErrorOk(message, title).ToPopupResult();
         public PopupResult ErrorOkCancel(string message, string title = "Error") => Msg.ErrorOkCancel(message, title).ToPopupResult();
         public bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK) => Msg.ErrorOkCancelB(message, title, result.ToDialogResult());
