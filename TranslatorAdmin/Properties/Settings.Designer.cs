@@ -313,7 +313,7 @@ namespace TranslatorAdmin.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("User")]
+        [global::System.Configuration.DefaultSettingValueAttribute("user")]
         public string dbUserName {
             get {
                 return ((string)(this["dbUserName"]));

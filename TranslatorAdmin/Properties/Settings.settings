@@ -75,7 +75,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="dbUserName" Type="System.String" Scope="User">
-      <Value Profile="(Default)">User</Value>
+      <Value Profile="(Default)">user</Value>
     </Setting>
   </Settings>
 </SettingsFile>
