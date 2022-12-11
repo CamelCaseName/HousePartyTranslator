@@ -578,6 +578,7 @@ namespace Translator
                 Margin = new Padding(1)
             };
             languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
+            languageToolStripComboBox.SelectedItem= Settings.Default.language;
             languageToolStripComboBox.SelectedIndexChanged += new EventHandler(LanguageToolStripComboBox_SelectedIndexChanged);
 
             // storyExplorerStripMenuItem
@@ -727,6 +728,8 @@ namespace Translator
 
         private void OnFormClosing(object? sender, FormClosingEventArgs? e)
         {
+            Settings.Default.Save();
+
             //prevent discord from getting angry
             PresenceManager?.DeInitialize();
 

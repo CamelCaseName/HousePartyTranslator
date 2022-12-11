@@ -55,7 +55,7 @@ namespace Translator.Core
         public FileData TranslationData = new();
         private string fileName = "";
         private bool isSaveAs = false;
-        private static string language = "";
+        private static string language = Settings.Default.Language;
         private int searchTabIndex = 0;
         private bool selectedNew = false;
         private string sourceFilePath = "";
