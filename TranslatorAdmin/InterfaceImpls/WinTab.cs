@@ -23,14 +23,14 @@ namespace TranslatorAdmin.InterfaceImpls
         private readonly GroupBox CommentGroup = new();
         private readonly Label CharacterCountLabel = new();
         private readonly Label SelectedFile = new();
-        private readonly Label WordsTranslated = new();
+        private readonly Label LinesTranslated = new();
         public readonly NoAnimationBar ProgressbarTranslated = new();
         private readonly Panel panel1 = new();
         private readonly Panel panel2 = new();
         private readonly TableLayoutPanel mainTableLayoutPanel = new();
         private readonly WinTextBox CommentTextBox = new();
         private readonly WinTextBox TemplateTextBox = new();
-        private readonly WinTextBox TranslatedTextBox = new();
+        private readonly WinTextBox TranslationTextBox = new();
         private readonly WinMenuItem CopyAllContextMenuButton = new();
         private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
         private readonly WinMenuItem CopyFileNameContextMenuButton = new();
@@ -57,25 +57,25 @@ namespace TranslatorAdmin.InterfaceImpls
             panel2.SuspendLayout();
             SuspendLayout();
             // 
-            // TranslatedTextBox
+            // TranslationTextBox
             // 
-            TranslatedTextBox.AcceptsReturn = true;
-            TranslatedTextBox.AllowDrop = true;
-            TranslatedTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
-            TranslatedTextBox.BackColor = Utils.background;
-            TranslatedTextBox.Dock = DockStyle.Fill;
-            TranslatedTextBox.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            TranslatedTextBox.ForeColor = Utils.brightText;
-            TranslatedTextBox.ImeMode = ImeMode.On;
-            TranslatedTextBox.Location = new Point(689, 294);
-            TranslatedTextBox.Multiline = true;
-            TranslatedTextBox.Name = "TranslatedTextBox";
-            TranslatedTextBox.Size = new Size(678, 275);
-            TranslatedTextBox.TabIndex = 0;
-            TranslatedTextBox.Text = "edit here";
-            TranslatedTextBox.TextChanged += new EventHandler(MainForm.TextBoxRight_TextChanged);
-            TranslatedTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
-            TranslatedTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
+            TranslationTextBox.AcceptsReturn = true;
+            TranslationTextBox.AllowDrop = true;
+            TranslationTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
+            TranslationTextBox.BackColor = Utils.background;
+            TranslationTextBox.Dock = DockStyle.Fill;
+            TranslationTextBox.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            TranslationTextBox.ForeColor = Utils.brightText;
+            TranslationTextBox.ImeMode = ImeMode.On;
+            TranslationTextBox.Location = new Point(689, 294);
+            TranslationTextBox.Multiline = true;
+            TranslationTextBox.Name = "TranslationTextBox";
+            TranslationTextBox.Size = new Size(678, 275);
+            TranslationTextBox.TabIndex = 0;
+            TranslationTextBox.Text = "edit here";
+            TranslationTextBox.TextChanged += new EventHandler(MainForm.TextBoxRight_TextChanged);
+            TranslationTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
+            TranslationTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
             // 
             // AutoTranslateThis
             // 
@@ -140,18 +140,18 @@ namespace TranslatorAdmin.InterfaceImpls
             SelectedFile.TabIndex = 7;
             SelectedFile.Text = "Selected File: none";
             // 
-            // WordsTranslated
+            // LinesTranslated
             // 
-            WordsTranslated.Anchor = AnchorStyles.Top;
-            WordsTranslated.Parent = panel1;
-            WordsTranslated.AutoSize = true;
-            WordsTranslated.BackColor = Color.Transparent;
-            WordsTranslated.ForeColor = Utils.brightText;
-            WordsTranslated.Location = new Point(60, 6);
-            WordsTranslated.Name = "WordsTranslated";
-            WordsTranslated.Size = new Size(47, 13);
-            WordsTranslated.TabIndex = 15;
-            WordsTranslated.Text = "progress";
+            LinesTranslated.Anchor = AnchorStyles.Top;
+            LinesTranslated.Parent = panel1;
+            LinesTranslated.AutoSize = true;
+            LinesTranslated.BackColor = Color.Transparent;
+            LinesTranslated.ForeColor = Utils.brightText;
+            LinesTranslated.Location = new Point(60, 6);
+            LinesTranslated.Name = "LinesTranslated";
+            LinesTranslated.Size = new Size(47, 13);
+            LinesTranslated.TabIndex = 15;
+            LinesTranslated.Text = "progress";
             // 
             // ApprovedBox
             // 
@@ -171,7 +171,7 @@ namespace TranslatorAdmin.InterfaceImpls
             _ = mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.07924F));
             _ = mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.92076F));
             mainTableLayoutPanel.Controls.Add(CommentGroup, 1, 3);
-            mainTableLayoutPanel.Controls.Add(TranslatedTextBox, 1, 2);
+            mainTableLayoutPanel.Controls.Add(TranslationTextBox, 1, 2);
             mainTableLayoutPanel.Controls.Add(TemplateTextBox, 1, 1);
             mainTableLayoutPanel.Controls.Add(CheckListBoxLeft, 0, 1);
             mainTableLayoutPanel.Controls.Add(panel1, 0, 0);
@@ -203,7 +203,7 @@ namespace TranslatorAdmin.InterfaceImpls
             // panel1
             // 
             panel1.Controls.Add(SelectedFile);
-            panel1.Controls.Add(WordsTranslated);
+            panel1.Controls.Add(LinesTranslated);
             panel1.Controls.Add(ProgressbarTranslated);
             panel1.Dock = DockStyle.Fill;
             panel1.Location = new Point(3, 3);
@@ -343,14 +343,14 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public WinLineItem SelectedLineItem => (WinLineItem?)Lines.SelectedItem ?? new WinLineItem();
 
-        public bool IsTranslationBoxFocused => TranslatedTextBox.Focused;
+        public bool IsTranslationBoxFocused => TranslationTextBox.Focused;
 
         public bool IsCommentBoxFocused => CommentTextBox.Focused;
 
         public int ProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
-        public string TranslationBoxText { get => TranslatedTextBox.Text; set => TranslatedTextBox.Text = value; }
+        public string TranslationBoxText { get => TranslationTextBox.Text; set => TranslationTextBox.Text = value; }
 
-        public string SelectedTranslationBoxText => TranslatedTextBox.SelectedText;
+        public string SelectedTranslationBoxText => TranslationTextBox.SelectedText;
 
         public string TemplateBoxText { get => TemplateTextBox.Text; set => TemplateTextBox.Text = value; }
 
@@ -374,22 +374,22 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public int LineCount { get => Lines.Count; }
 
-        public void ApproveSelectedLine() => throw new NotImplementedException();
-        public WinLineItem AtIndex(int index) => throw new NotImplementedException();
-        public void ClearLines() => throw new NotImplementedException();
-        public void FocusCommentBox() => throw new NotImplementedException();
-        public void FocusTranslationBox() => throw new NotImplementedException();
-        public string SelectedCommentBoxText() => throw new NotImplementedException();
-        public void SelectLineItem(int index) => throw new NotImplementedException();
-        public void SelectLineItem(WinLineItem item) => throw new NotImplementedException();
-        public void SetApprovedLabelText(string text) => throw new NotImplementedException();
-        public void SetCharacterCountLabelText(string text) => throw new NotImplementedException();
-        public void SetCharacterLabelColor(Color lawnGreen) => throw new NotImplementedException();
-        public void SetFileInfoText(string info) => throw new NotImplementedException();
-        public void SetSelectedCommentBoxText(int start, int end) => throw new NotImplementedException();
-        public void SetSelectedTemplateBoxText(int start, int end) => throw new NotImplementedException();
-        public void SetSelectedTranslationBoxText(int start, int end) => throw new NotImplementedException();
-        public void UnapproveSelectedLine() => throw new NotImplementedException();
-        public void UpdateLines() => throw new NotImplementedException();
+        public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
+        public WinLineItem AtIndex(int index) => CheckListBoxLeft[index];
+        public void ClearLines() => CheckListBoxLeft.Clear();
+        public void FocusCommentBox() => CommentTextBox.Focus();
+        public void FocusTranslationBox() => TranslationTextBox.Focus();
+        public string SelectedCommentBoxText() => CommentTextBox.SelectedText;
+        public void SelectLineItem(int index) => CheckListBoxLeft.SelectedIndex = index;
+        public void SelectLineItem(WinLineItem item) => CheckListBoxLeft.SelectedItem = item;
+        public void SetApprovedLabelText(string text) => LinesTranslated.Text = text;
+        public void SetCharacterCountLabelText(string text) => CharacterCountLabel.Text = text;
+        public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
+        public void SetFileInfoText(string info) => SelectedFile.Text = info;
+        public void SetSelectedCommentBoxText(int start, int end) { CommentTextBox.SelectionStart = start; CommentTextBox.SelectionEnd = end ; }
+        public void SetSelectedTemplateBoxText(int start, int end) { TemplateTextBox.SelectionStart = start; TemplateTextBox.SelectionEnd = end; }
+        public void SetSelectedTranslationBoxText(int start, int end) { TranslationTextBox.SelectionStart = start; TranslationTextBox.SelectionEnd = end; }
+        public void UnapproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, false);
+        public void UpdateLines() => CheckListBoxLeft.Update();
     }
 }

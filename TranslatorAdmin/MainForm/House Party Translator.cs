@@ -68,8 +68,6 @@ namespace Translator
             CheckListBoxLeft = tab.Lines;
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
 
-            Text = DataBase.AppTitle;
-
             //init all form components
             InitializeComponent();
             ProgressbarWindow.PerformStep();
@@ -81,6 +79,8 @@ namespace Translator
 
         private string GetPassword()
         {
+            if(Settings.Default.dbPassword.Length > 0) return Settings.Default.dbPassword;
+
             var Passwordbox = new Password();
             DialogResult passwordResult = Passwordbox.ShowDialog(this);
             if (passwordResult == DialogResult.OK)
@@ -320,15 +320,14 @@ namespace Translator
         {
             TabManager.FinalizeInitializer();
 
+            Text = DataBase.AppTitle;
+
             ProgressbarWindow.PerformStep();
             LogManager.Log("Application initializing...");
             PresenceManager = new DiscordPresenceManager();
 
             WinTranslationManager.DiscordPresence = PresenceManager;
 
-            ProgressbarWindow.PerformStep();
-
-            //Settings have to be loaded before the Database can be connected with
             ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized

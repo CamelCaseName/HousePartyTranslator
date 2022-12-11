@@ -73,13 +73,13 @@ namespace Translator.Core.Helpers
             if (selectFileDialog.ShowDialog() == PopupResult.OK)
             {
                 if (isTranslation)
-                    Settings.Default.TranslationPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? Settings.Default.TranslationPath;
+                    Settings.Default.TranslationPath = Path.GetDirectoryName(selectFileDialog.SelectedPath) ?? Settings.Default.TranslationPath;
                 else
-                    Settings.Default.TemplatePath = Path.GetDirectoryName(selectFileDialog.FileName) ?? Settings.Default.TemplatePath;
+                    Settings.Default.TemplatePath = Path.GetDirectoryName(selectFileDialog.SelectedPath) ?? Settings.Default.TemplatePath;
 
                 Settings.Default.Save();
 
-                return selectFileDialog.FileName;
+                return selectFileDialog.SelectedPath;
             }
             return string.Empty;
         }

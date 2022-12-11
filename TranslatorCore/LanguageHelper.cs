@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Translator.Core.Helpers
 {
@@ -7,6 +8,12 @@ namespace Translator.Core.Helpers
     /// </summary>
     public static class LanguageHelper
     {
+        public class LanguageException : Exception
+        {
+            public LanguageException() : base("You need to enter or select a valid language first"){ }
+            public LanguageException(string message) : base(message){ }
+        }
+
         /// <summary>
         /// A list of all currently supported languages in short form
         /// </summary>

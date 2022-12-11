@@ -131,7 +131,7 @@ namespace Translator.UICompatibilityLayer
 
         void SetFileInfoText(string info);
         void SetApprovedLabelText(string text);
-        void SetCharacterLabelColor(Color lawnGreen);
+        void SetCharacterLabelColor(Color color);
         void SetCharacterCountLabelText(string text);
         #endregion
     }

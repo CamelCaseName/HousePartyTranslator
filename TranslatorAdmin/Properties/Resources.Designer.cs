@@ -367,11 +367,11 @@ namespace TranslatorAdmin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TranslatedTextBox.
+        ///   Looks up a localized string similar to TranslationTextBox.
         /// </summary>
         public static string TranslatedTextBox {
             get {
-                return ResourceManager.GetString("TranslatedTextBox", resourceCulture);
+                return ResourceManager.GetString("TranslationTextBox", resourceCulture);
             }
         }
         
@@ -385,11 +385,11 @@ namespace TranslatorAdmin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WordsTranslated.
+        ///   Looks up a localized string similar to LinesTranslated.
         /// </summary>
         public static string WordsTranslated {
             get {
-                return ResourceManager.GetString("WordsTranslated", resourceCulture);
+                return ResourceManager.GetString("LinesTranslated", resourceCulture);
             }
         }
     }

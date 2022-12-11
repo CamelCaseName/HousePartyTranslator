@@ -20,11 +20,11 @@ namespace Translator.Core
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    public class TranslationManager<T, V, X, W> 
-		where T : class, ILineItem, new() 
-		where V : class, IUIHandler<T, X, W>, new() 
-		where X : class, ITabController<T, W>, new() 
-		where W : class, ITab<T>, new()
+    public class TranslationManager<T, V, X, W>
+        where T : class, ILineItem, new()
+        where V : class, IUIHandler<T, X, W>, new()
+        where X : class, ITabController<T, W>, new()
+        where W : class, ITab<T>, new()
     {
         public bool ChangesPending
         {
@@ -118,8 +118,7 @@ namespace Translator.Core
             {
                 if (language.Length == 0)
                 {
-                    _ = UI.InfoOk("Please enter a valid language or select one.", "Enter valid language");
-                    return "";
+                    throw new LanguageHelper.LanguageException();
                 }
                 else
                 {
@@ -130,7 +129,7 @@ namespace Translator.Core
             {
                 if (value.Length == 0)
                 {
-                    _ = UI.InfoOk("Please enter a valid language or select one.", "Enter valid language");
+                    throw new LanguageHelper.LanguageException();
                 }
                 else
                 {
@@ -1009,23 +1008,9 @@ namespace Translator.Core
             {
                 string[] paths = SourceFilePath.Split('\\');
 
-                //get parent folder name
-                string tempStoryName = paths[^2];
+                //get parent folder name and check if it is the story, else search around a bit
                 //get language text representation
-                bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string? languageAsText);
-                //compare
-                if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
-                    //get folder one more up
-                    tempStoryName = paths[^3];
-
-                if (tempStoryName == "Languages")
-                {
-                    //get folder one more up
-                    tempStoryName = "UI";
-                }
-
-                StoryName = tempStoryName;
-
+                SetUpStoryName(paths);
                 //actually load all strings into the program
                 ReadInStringsFromFile();
 
@@ -1042,6 +1027,28 @@ namespace Translator.Core
                 //update tab name
                 TabManager<T, V, X, W>.UpdateTabTitle(FileName);
             }
+        }
+
+        private void SetUpStoryName(string[] paths)
+        {
+            if (paths.Length < 3) throw new ArgumentException("file needs to be at least 2 folders deep from your drive?");
+
+            string tempStoryName = paths[^2];
+            bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string? languageAsText);
+            if (!gotLanguage) throw new LanguageHelper.LanguageException();
+                //compare
+                if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
+                    //get folder one more up
+                    tempStoryName = paths[^3];
+
+                if (tempStoryName == "Languages")
+                {
+                    //get folder one more up
+                    tempStoryName = "UI";
+                }
+
+                StoryName = tempStoryName;
+            
         }
 
         /// <summary>
