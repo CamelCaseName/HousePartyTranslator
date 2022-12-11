@@ -88,6 +88,10 @@ namespace TranslatorAdmin.InterfaceImpls
         public bool WarningYesNo(string message, string title = "Warning", PopupResult result = PopupResult.YES) => Msg.WarningYesNoB(message, title, result.ToDialogResult());
         public PopupResult WarningYesNoCancel(string message, string title = "Warning") => Msg.WarningYesNoCancel(message, title).ToPopupResult();
         public bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES) => Msg.WarningYesNoCancelB(message, title, result.ToDialogResult());
+        public void SetFileMenuItems(MenuItems menuItems) {
+            App.MainForm.FileToolStripMenuItem.DropDownItems.Clear();
+            App.MainForm.FileToolStripMenuItem.DropDownItems.AddRange(menuItems.ToToolStripItemCollection(App.MainForm.MainMenu ?? new MenuStrip()));
+        }
         #endregion
 
 

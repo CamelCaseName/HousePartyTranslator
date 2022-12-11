@@ -144,7 +144,7 @@ namespace Translator.Core
         /// Updates the recent menuitems in the given collection
         /// </summary>
         /// <param name="collection"></param>
-        public static void UpdateMenuItems<T, V, X, W>(MenuItems collection)
+        public static MenuItems GetUpdatedMenuItems<T, V, X, W>(MenuItems collection)
             where T : class, ILineItem, new()
             where V : class, IUIHandler<T, X, W>, new()
             where X : class, ITabController<T, W>, new()
@@ -184,6 +184,7 @@ namespace Translator.Core
 
             if (items.Length == 0) collection[recentsStart + 1].Text = "No Recents";
             else collection[recentsStart + 1].Text = "Recents:";
+            return collection;
         }
 
         private static void RecentsManager_Click<T, V, X, W>(object? sender, EventArgs? e)

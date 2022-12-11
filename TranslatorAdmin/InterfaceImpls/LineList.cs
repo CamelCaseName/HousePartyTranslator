@@ -33,6 +33,7 @@ namespace TranslatorAdmin.InterfaceImpls
         WinLineItem ILineList<WinLineItem>.SelectedLineItem { get; set; } = new WinLineItem();
         public List<int> TranslationSimilarToTemplate { get; internal set; } = new();
 
+        //todo make better lol
         List<ILineItem> ILineList<WinLineItem>.SearchResults => (List<ILineItem>)SearchResults.Cast<WinLineItem>();
 
         List<ILineItem> ILineList<WinLineItem>.TranslationSimilarToTemplate => new();

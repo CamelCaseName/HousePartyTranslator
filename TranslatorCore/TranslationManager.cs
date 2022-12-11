@@ -311,7 +311,7 @@ namespace Translator.Core
 
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
-                    RecentsManager.UpdateMenuItems<T, V, X, W>(UI.FileMenuItems);
+                    UI.SetFileMenuItems(RecentsManager.GetUpdatedMenuItems<T, V, X, W>(UI.FileMenuItems));
                 }
                 //reset cursor
                 UI.SignalUserEndWait();

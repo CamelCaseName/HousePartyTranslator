@@ -252,6 +252,7 @@ namespace Translator.UICompatibilityLayer
         void UpdateTranslationProgressIndicator();
         void SetReplaceMenuVisible();
         void SetReplaceMenuInVisible();
+        void SetFileMenuItems(MenuItems menuItems);
         #endregion
 
         #region tabs
