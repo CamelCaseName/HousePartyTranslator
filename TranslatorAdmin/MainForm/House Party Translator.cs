@@ -10,6 +10,7 @@ using Settings = TranslatorAdmin.Properties.Settings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using WinUtils = Translator.Core.Helpers.Utils<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
+using System.ComponentModel;
 
 namespace Translator
 {
@@ -19,10 +20,7 @@ namespace Translator
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class Fenster : Form
     {
-        private readonly CancellationTokenSource CancelTokens = new();
-        private readonly LineList CheckListBoxLeft;
-        private readonly ContextMenuStrip? ListContextMenu;
-        private readonly System.Timers.Timer PresenceTimer = new(2000);
+        public MenuStrip MainMenu;
         internal readonly WinTabController TabControl = new()
         {
             Dock = DockStyle.Fill,
@@ -33,11 +31,43 @@ namespace Translator
             TabIndex = 9
         };
 
-        public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
-        private DiscordPresenceManager? PresenceManager;
-        private StoryExplorer? SExplorer;
         internal WinUIHandler UI;
-
+        private static Color background = Utils.background;
+        private static Color backgroundDarker = Utils.backgroundDarker;
+        private static Color brightText = Utils.brightText;
+        private static Color darkText = Utils.darkText;
+        private static Color foreground = Utils.foreground;
+        private static Color frame = Utils.frame;
+        private static Color menu = Utils.menu;
+        private readonly CancellationTokenSource CancelTokens = new();
+        private readonly LineList CheckListBoxLeft;
+        private readonly ContextMenuStrip? ListContextMenu;
+        private readonly System.Timers.Timer PresenceTimer = new(2000);
+        private WinMenuItem customOpenStoryExplorer;
+        private WinMenuItem editToolStripMenuItem;
+        private WinMenuItem exitToolStripMenuItem;
+        private WinMenuItem fileToolStripMenuItem;
+        private ToolStripComboBox languageToolStripComboBox;
+        private WinMenuItem openAllToolStripMenuItem;
+        private WinMenuItem openInNewTabToolStripMenuItem;
+        private WinMenuItem openToolStripMenuItem;
+        private WinMenuItem overrideCloudSaveToolStripMenuItem;
+        private DiscordPresenceManager? PresenceManager;
+        private WinMenuItem Recents;
+        private WinMenuItem replaceToolStripMenuItem;
+        private WinMenuItem saveAllToolStripMenuItem;
+        private WinMenuItem saveAsToolStripMenuItem;
+        private WinMenuItem saveCurrentStringToolStripMenuItem;
+        private WinMenuItem saveToolStripMenuItem;
+        private WinMenuItem searchAllToolStripMenuItem;
+        private WinMenuItem searchToolStripMenuItem;
+        private ToolStripTextBox searchToolStripTextBox;
+        private WinMenuItem settingsToolStripMenuItem;
+        private StoryExplorer? SExplorer;
+        private WinMenuItem storyExplorerStripMenuItem;
+        private ToolStripTextBox ToolStripMenuReplaceBox;
+        private WinMenuItem toolStripReplaceAllButton;
+        private WinMenuItem toolStripReplaceButton;
         /// <summary>
         /// static constructor for static fields
         /// </summary>
@@ -77,31 +107,7 @@ namespace Translator
             ProgressbarWindow.PerformStep();
         }
 
-        private string GetPassword()
-        {
-            if(Settings.Default.dbPassword.Length > 0) return Settings.Default.dbPassword;
-
-            var Passwordbox = new Password();
-            DialogResult passwordResult = Passwordbox.ShowDialog(this);
-            if (passwordResult == DialogResult.OK)
-            {
-                Settings.Default.dbPassword = Passwordbox.GetPassword();
-                Settings.Default.Save();
-            }
-            else
-            {
-                if (Passwordbox.GetPassword().Length > 1)
-                {
-                    _ = Msg.ErrorOk("Invalid password", "Wrong password");
-                }
-                else
-                {
-                    Environment.Exit(-1);
-                }
-            }
-            return Settings.Default.dbPassword;
-        }
-
+        public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
         /// <summary>
         /// Instance of the Story Explorer, but the owner is checked so only the Storyexplorer class itself can instantiate it.
         /// </summary>
@@ -195,6 +201,62 @@ namespace Translator
             TabManager.CopyTranslation();
         }
 
+        /// <summary>
+        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="toLeft">true if deleting to the left</param>
+        /// <returns>true if successfull</returns>
+        public bool DeleteCharactersInText(bool toLeft)
+        {
+            Control? focused_control = ActiveControl;
+            try
+            {
+                _ = (TextBox?)focused_control;
+            }
+            //ignore exception, really intended
+            catch { return false; }
+            if (focused_control == null) return false;
+            var textBox = (TextBox)focused_control;
+            if (toLeft)
+            {
+                return ((ITextBox)textBox).DeleteCharactersInTextLeft();
+            }
+            else
+            {
+                return ((ITextBox)textBox).DeleteCharactersInTextRight();
+            }
+        }
+
+        /// <summary>
+        /// Moves the cursor to the beginning/end of the next word in the specified direction
+        /// </summary>
+        /// <param name="form"></param>
+        /// <param name="toLeft">true if to scan to the left</param>
+        /// <returns>true if succeeded</returns>
+        public bool MoveCursorInText(bool toLeft)
+        {
+            Control? focused_control = ActiveControl;
+            try
+            {
+                _ = (TextBox?)focused_control;
+            }
+            //ignore exception, really intended
+            catch { return false; }
+            if (focused_control == null) return false;
+            var textBox = (TextBox)focused_control;
+            if (toLeft)
+            {
+                ((ITextBox)textBox).MoveCursorWordLeft();
+                return true;
+            }
+            else
+            {
+                ((ITextBox)textBox).MoveCursorWordRight();
+                return true;
+            }
+        }
+
         public void OpeningContextMenu(object? sender, MouseEventArgs? e)
         {
             if (e == null || ListContextMenu == null)
@@ -217,23 +279,6 @@ namespace Translator
         public void TranslateThis_Click(object? sender, EventArgs? e)
         {
             KeypressManager.AutoTranslate();
-        }
-
-        private void ReplaceToolStripMenuItem_click(object? sender, EventArgs? e)
-        {
-            KeypressManager.ToggleReplaceUI();
-        }
-
-        private void SearchAllToolStripMenuItem_click(object? sender, EventArgs? e)
-        {
-            searchToolStripTextBox.Focus();
-            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "?search here";
-        }
-
-        private void SearchToolStripMenuItem_click(object? sender, EventArgs? e)
-        {
-            searchToolStripTextBox.Focus();
-            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "search here";
         }
 
         /// <summary>
@@ -289,6 +334,384 @@ namespace Translator
             }
         }
 
+        private string GetPassword()
+        {
+            if (Settings.Default.dbPassword.Length > 0) return Settings.Default.dbPassword;
+
+            var Passwordbox = new Password();
+            DialogResult passwordResult = Passwordbox.ShowDialog(this);
+            if (passwordResult == DialogResult.OK)
+            {
+                Settings.Default.dbPassword = Passwordbox.GetPassword();
+                Settings.Default.Save();
+            }
+            else
+            {
+                if (Passwordbox.GetPassword().Length > 1)
+                {
+                    _ = Msg.ErrorOk("Invalid password", "Wrong password");
+                }
+                else
+                {
+                    Environment.Exit(-1);
+                }
+            }
+            return Settings.Default.dbPassword;
+        }
+        private void InitializeComponent()
+        {
+            ComponentResourceManager resources = new ComponentResourceManager(typeof(Fenster));
+            SuspendLayout();
+
+            // searchToolStripMenuItem
+            searchToolStripMenuItem = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(searchToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "&Search",
+                ToolTipText = "Selects the search bar"
+            };
+            searchToolStripMenuItem.Click += new EventHandler(SearchToolStripMenuItem_click);
+
+            // searchAllToolStripMenuItem
+            searchAllToolStripMenuItem = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(searchAllToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "Search &All",
+                ToolTipText = "Selects the search bar with the search all open files mode"
+            };
+            searchAllToolStripMenuItem.Click += new EventHandler(SearchAllToolStripMenuItem_click);
+
+            // replaceToolStripMenuItem
+            replaceToolStripMenuItem = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(replaceToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "&Replace",
+                ToolTipText = "opens the searchbar in replace mode"
+            };
+            replaceToolStripMenuItem.Click += new EventHandler(ReplaceToolStripMenuItem_click);
+
+            // openToolStripMenuItem
+            openToolStripMenuItem = new WinMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(openToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "&Open",
+                ToolTipText = "Opens a dialog to select a file"
+            };
+            openToolStripMenuItem.Click += new EventHandler(OpenToolStripMenuItem_Click);
+
+            // openAllToolStripMenuItem
+            openAllToolStripMenuItem = new WinMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(openAllToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "Open &all",
+                ToolTipText = "Opens a dialog to select a file, all others will be discovered automatically. Usually."
+            };
+            openAllToolStripMenuItem.Click += new EventHandler(OpenAllToolStripMenuItem_Click);
+
+            // openInNewTabToolStripMenuItem
+            openInNewTabToolStripMenuItem = new WinMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(openInNewTabToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "Open in new &tab",
+                ToolTipText = "Opens a dialog to select a file"
+            };
+            openInNewTabToolStripMenuItem.Click += new EventHandler(OpenInNewTabToolStripMenuItem_Click);
+
+            // Recents
+            Recents = new WinMenuItem()
+            {
+                Enabled = false,
+                Name = nameof(Recents),
+                ShowShortcutKeys = false,
+                Size = new Size(236, 22),
+                Text = "Recents:"
+            };
+
+            // saveToolStripMenuItem
+            saveToolStripMenuItem = new WinMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("saveToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(saveToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "&Save"
+            };
+            saveToolStripMenuItem.Click += new EventHandler(SaveToolStripMenuItem_Click);
+
+            // saveAllToolStripMenuItem
+            saveAllToolStripMenuItem = new WinMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("saveToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(saveAllToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "Sa&ve All"
+            };
+            saveAllToolStripMenuItem.Click += new EventHandler(SaveAllToolStripMenuItem_Click);
+
+            // saveAsToolStripMenuItem
+            saveAsToolStripMenuItem = new WinMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("saveAsToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(saveAsToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "Save &As"
+            };
+            saveAsToolStripMenuItem.Click += new EventHandler(SaveAsToolStripMenuItem_Click);
+
+            // overrideCloudSaveToolStripMenuItem
+            overrideCloudSaveToolStripMenuItem = new WinMenuItem()
+            {
+                Image = ((Image)(resources.GetObject("saveAsToolStripMenuItem.Image"))),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(overrideCloudSaveToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "Override &Cloud Save"
+            };
+            overrideCloudSaveToolStripMenuItem.Click += new EventHandler(OverrideCloudSaveToolStripMenuItem_Click);
+
+            // exitToolStripMenuItem
+            exitToolStripMenuItem = new WinMenuItem()
+            {
+                Name = nameof(exitToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "&Exit"
+            };
+            exitToolStripMenuItem.Click += new EventHandler(ExitToolStripMenuItem_Click);
+
+            // saveCurrentStringToolStripMenuItem
+            saveCurrentStringToolStripMenuItem = new WinMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = nameof(saveCurrentStringToolStripMenuItem),
+                Size = new Size(122, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&Save selected string"
+            };
+            saveCurrentStringToolStripMenuItem.Click += new EventHandler(SaveCurrentStringToolStripMenuItem_Click);
+
+            // searchToolStripTextBox
+            searchToolStripTextBox = new ToolStripTextBox()
+            {
+                BackColor = Fenster.menu,
+                BorderStyle = BorderStyle.FixedSingle,
+                Font = new Font("Segoe UI", 9F),
+                AutoSize = true,
+                Name = nameof(searchToolStripTextBox),
+                Size = new Size(150, 23),
+                Margin = new Padding(1)
+            };
+            searchToolStripTextBox.TextChanged += new EventHandler(SearchToolStripTextBox_TextChanged);
+
+            // ToolStripMenuReplaceBox
+            ToolStripMenuReplaceBox = new ToolStripTextBox()
+            {
+                BackColor = Fenster.menu,
+                BorderStyle = BorderStyle.FixedSingle,
+                Font = new Font("Segoe UI", 9F),
+                Name = nameof(ToolStripMenuReplaceBox),
+                Size = new Size(100, 23),
+                AutoSize = true,
+                Margin = new Padding(1),
+                Visible = false
+            };
+            ToolStripMenuReplaceBox.TextChanged += new EventHandler(ToolStripMenuReplaceBox_TextChanged);
+
+            // toolStripReplaceAllButton
+            toolStripReplaceAllButton = new WinMenuItem()
+            {
+                BackColor = Fenster.menu,
+                ForeColor = Fenster.darkText,
+                Name = nameof(toolStripReplaceAllButton),
+                Size = new Size(63, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "Replace all",
+                Visible = false
+            };
+            toolStripReplaceAllButton.Click += new EventHandler(ToolStripReplaceAllButton_Click);
+
+            // toolStripReplaceButton
+            toolStripReplaceButton = new WinMenuItem()
+            {
+                BackColor = Fenster.menu,
+                ForeColor = Fenster.darkText,
+                Name = nameof(toolStripReplaceButton),
+                Size = new Size(63, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "Replace",
+                Visible = false
+            };
+            toolStripReplaceButton.Click += new EventHandler(ToolStripReplaceButton_Click);
+
+            // languageToolStripComboBox
+            languageToolStripComboBox = new ToolStripComboBox()
+            {
+                BackColor = Fenster.menu,
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                FlatStyle = FlatStyle.Flat,
+                Name = nameof(languageToolStripComboBox),
+                Size = new Size(50, 23),
+                MaxLength = 4,
+                AutoSize = true,
+                Margin = new Padding(1)
+            };
+            languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
+            languageToolStripComboBox.SelectedIndexChanged += new EventHandler(LanguageToolStripComboBox_SelectedIndexChanged);
+
+            // storyExplorerStripMenuItem
+            storyExplorerStripMenuItem = new WinMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = nameof(storyExplorerStripMenuItem),
+                Size = new Size(118, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&Auto StoryExplorer"
+            };
+            storyExplorerStripMenuItem.Click += new EventHandler(StoryExplorerStripMenuItem_Click);
+
+            // customOpenStoryExplorer
+            customOpenStoryExplorer = new WinMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = nameof(customOpenStoryExplorer),
+                Size = new Size(121, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "Open StoryE&xplorer"
+            };
+            customOpenStoryExplorer.Click += new EventHandler(CustomStoryExplorerStripMenuItem_Click);
+            // 
+            // settingsToolStripMenuItem
+            settingsToolStripMenuItem = new WinMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = nameof(settingsToolStripMenuItem),
+                Size = new Size(61, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "Se&ttings"
+            };
+            settingsToolStripMenuItem.Click += new EventHandler(SettingsToolStripMenuItem_Click);
+
+            // editToolStripMenuItem
+            editToolStripMenuItem = new WinMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = nameof(editToolStripMenuItem),
+                Size = new Size(37, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&Edit",
+                ToolTipText = "All relevant controls for editing a file, plus special controls"
+            };
+            editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+                searchToolStripMenuItem,
+                searchAllToolStripMenuItem,
+                new WinMenuSeperator(),
+                replaceToolStripMenuItem,
+                new WinMenuSeperator(),
+                overrideCloudSaveToolStripMenuItem
+            });
+
+            // fileToolStripMenuItem
+            fileToolStripMenuItem = new WinMenuItem()
+            {
+                BackColor = Fenster.menu,
+                Name = nameof(fileToolStripMenuItem),
+                Size = new Size(37, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&File",
+                ToolTipText = "All relevant controls for opening and saving a file"
+            };
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+                openToolStripMenuItem,
+                openAllToolStripMenuItem,
+                openInNewTabToolStripMenuItem,
+                new WinMenuSeperator(),
+                Recents,
+                new WinMenuSeperator(),
+                saveToolStripMenuItem,
+                saveAllToolStripMenuItem,
+                saveAsToolStripMenuItem,
+                new WinMenuSeperator(),
+                exitToolStripMenuItem
+            });
+
+            // MainMenu
+            MainMenu = new MenuStrip()
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Left,
+                AutoSize = true,
+                BackColor = backgroundDarker,
+                Dock = DockStyle.Top,
+                ForeColor = backgroundDarker,
+                LayoutStyle = ToolStripLayoutStyle.Flow,
+                Location = new Point(0, 0),
+                Margin = new Padding(0),
+                Name = nameof(MainMenu),
+                TabIndex = 17
+            };
+            MainMenu.SuspendLayout();
+            MainMenu.Items.AddRange(new ToolStripItem[] {
+                fileToolStripMenuItem,
+                editToolStripMenuItem,
+                saveCurrentStringToolStripMenuItem,
+                searchToolStripTextBox,
+                ToolStripMenuReplaceBox,
+                toolStripReplaceButton,
+                toolStripReplaceAllButton,
+                languageToolStripComboBox,
+                storyExplorerStripMenuItem,
+                customOpenStoryExplorer,
+                settingsToolStripMenuItem
+            });
+
+            TabControl.SuspendLayout();
+            TabControl.SelectedIndexChanged += new EventHandler(MainTabControl_SelectedIndexChanged);
+            TabControl.MouseClick += new MouseEventHandler(CloseTab_Click);
+
+            // Fenster
+            AutoScaleDimensions = new SizeF(6F, 13F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Fenster.backgroundDarker;
+            ClientSize = new Size(1400, 760);
+            Controls.Add(TabControl);
+            Controls.Add(MainMenu);
+            MinimumSize = new Size(640, 470);
+            Name = nameof(Fenster);
+            ShowIcon = false;
+            Text = "Translator";
+            FormClosing += new FormClosingEventHandler(OnFormClosing);
+            MouseUp += new MouseEventHandler(TextContextOpened);
+            Shown += new EventHandler(OnFormShown);
+            MainMenu.ResumeLayout(false);
+            MainMenu.PerformLayout();
+            TabControl.ResumeLayout(false);
+            ResumeLayout();
+            PerformLayout();
+        }
+
         private void LanguageToolStripComboBox_SelectedIndexChanged(object? sender, EventArgs? e)
         {
             KeypressManager.SelectedLanguageChanged();
@@ -331,7 +754,7 @@ namespace Translator
             ProgressbarWindow.PerformStep();
 
             //open most recent after db is initialized
-            RecentsManager.UpdateMenuItems<WinLineItem, WinUIHandler, WinTabController, WinTab>(FileToolStripMenuItem.DropDownItems.ToMenuItems());
+            UpdateFileMenuItems();
             RecentsManager.OpenMostRecent<WinLineItem, WinUIHandler, WinTabController, WinTab>();
 
             //start timer to update presence
@@ -365,6 +788,16 @@ namespace Translator
             KeypressManager.OpenNew();
         }
 
+        private void OverrideCloudSaveToolStripMenuItem_Click(object? sender, EventArgs? e)
+        {
+            TabManager.ActiveTranslationManager.OverrideCloudSave();
+        }
+
+        private void ReplaceToolStripMenuItem_click(object? sender, EventArgs? e)
+        {
+            KeypressManager.ToggleReplaceUI();
+        }
+
         private void SaveAllToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
             _ = TabManager.SaveAllTabs();
@@ -373,11 +806,6 @@ namespace Translator
         private void SaveAsToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
             TabManager.ActiveTranslationManager.SaveFileAs();
-        }
-
-        private void OverrideCloudSaveToolStripMenuItem_Click(object? sender, EventArgs? e)
-        {
-            TabManager.ActiveTranslationManager.OverrideCloudSave();
         }
 
         private void SaveCurrentStringToolStripMenuItem_Click(object? sender, EventArgs? e)
@@ -390,6 +818,17 @@ namespace Translator
             TabManager.ActiveTranslationManager.SaveFile();
         }
 
+        private void SearchAllToolStripMenuItem_click(object? sender, EventArgs? e)
+        {
+            searchToolStripTextBox.Focus();
+            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "?search here";
+        }
+
+        private void SearchToolStripMenuItem_click(object? sender, EventArgs? e)
+        {
+            searchToolStripTextBox.Focus();
+            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "search here";
+        }
         private void SearchToolStripTextBox_TextChanged(object? sender, EventArgs? e)
         {
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
@@ -429,60 +868,11 @@ namespace Translator
             TabManager.Replace();
         }
 
-        /// <summary>
-        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
-        /// </summary>
-        /// <param name="form"></param>
-        /// <param name="toLeft">true if deleting to the left</param>
-        /// <returns>true if successfull</returns>
-        public bool DeleteCharactersInText(bool toLeft)
+        private void UpdateFileMenuItems()
         {
-            Control? focused_control = ActiveControl;
-            try
-            {
-                _ = (TextBox?)focused_control;
-            }
-            //ignore exception, really intended
-            catch { return false; }
-            if (focused_control == null) return false;
-            var textBox = (TextBox)focused_control;
-            if (toLeft)
-            {
-                return ((ITextBox)textBox).DeleteCharactersInTextLeft();
-            }
-            else
-            {
-                return ((ITextBox)textBox).DeleteCharactersInTextRight();
-            }
-        }
-
-        /// <summary>
-        /// Moves the cursor to the beginning/end of the next word in the specified direction
-        /// </summary>
-        /// <param name="form"></param>
-        /// <param name="toLeft">true if to scan to the left</param>
-        /// <returns>true if succeeded</returns>
-        public bool MoveCursorInText(bool toLeft)
-        {
-            Control? focused_control = ActiveControl;
-            try
-            {
-                _ = (TextBox?)focused_control;
-            }
-            //ignore exception, really intended
-            catch { return false; }
-            if (focused_control == null) return false;
-            var textBox = (TextBox)focused_control;
-            if (toLeft)
-            {
-                ((ITextBox)textBox).MoveCursorWordLeft();
-                return true;
-            }
-            else
-            {
-                ((ITextBox)textBox).MoveCursorWordRight();
-                return true;
-            }
+            var items = RecentsManager.GetUpdatedMenuItems<WinLineItem, WinUIHandler, WinTabController, WinTab>(FileToolStripMenuItem.DropDownItems.ToMenuItems());
+            FileToolStripMenuItem.DropDownItems.Clear();
+            FileToolStripMenuItem.DropDownItems.AddRange(items.ToToolStripItemCollection(MainMenu));
         }
     }
 }
