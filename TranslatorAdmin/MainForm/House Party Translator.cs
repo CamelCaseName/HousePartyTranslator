@@ -1,4 +1,5 @@
-﻿using Translator.Core;
+﻿using System.ComponentModel;
+using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
 using Translator.Managers;
@@ -6,11 +7,10 @@ using Translator.StoryExplorerForm;
 using Translator.UICompatibilityLayer;
 using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Managers;
+using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using Settings = TranslatorAdmin.Properties.Settings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using WinUtils = Translator.Core.Helpers.Utils<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using System.ComponentModel;
 
 namespace Translator
 {
@@ -32,13 +32,13 @@ namespace Translator
         };
 
         internal WinUIHandler UI;
-        private static Color background = Utils.background;
-        private static Color backgroundDarker = Utils.backgroundDarker;
-        private static Color brightText = Utils.brightText;
-        private static Color darkText = Utils.darkText;
-        private static Color foreground = Utils.foreground;
-        private static Color frame = Utils.frame;
-        private static Color menu = Utils.menu;
+        private static readonly Color background = Utils.background;
+        private static readonly Color backgroundDarker = Utils.backgroundDarker;
+        private static readonly Color brightText = Utils.brightText;
+        private static readonly Color darkText = Utils.darkText;
+        private static readonly Color foreground = Utils.foreground;
+        private static readonly Color frame = Utils.frame;
+        private static readonly Color menu = Utils.menu;
         private readonly CancellationTokenSource CancelTokens = new();
         private readonly LineList CheckListBoxLeft;
         private readonly ContextMenuStrip? ListContextMenu;
@@ -68,6 +68,7 @@ namespace Translator
         private ToolStripTextBox ToolStripMenuReplaceBox;
         private WinMenuItem toolStripReplaceAllButton;
         private WinMenuItem toolStripReplaceButton;
+
         /// <summary>
         /// static constructor for static fields
         /// </summary>
@@ -108,6 +109,7 @@ namespace Translator
         }
 
         public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
+
         /// <summary>
         /// Instance of the Story Explorer, but the owner is checked so only the Storyexplorer class itself can instantiate it.
         /// </summary>
@@ -358,9 +360,10 @@ namespace Translator
             }
             return Settings.Default.dbPassword;
         }
+
         private void InitializeComponent()
         {
-            ComponentResourceManager resources = new ComponentResourceManager(typeof(Fenster));
+            ComponentResourceManager resources = new(typeof(Fenster));
             SuspendLayout();
 
             // searchToolStripMenuItem
@@ -829,6 +832,7 @@ namespace Translator
             searchToolStripTextBox.Focus();
             if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "search here";
         }
+
         private void SearchToolStripTextBox_TextChanged(object? sender, EventArgs? e)
         {
             KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
@@ -872,7 +876,10 @@ namespace Translator
         {
             var items = RecentsManager.GetUpdatedMenuItems<WinLineItem, WinUIHandler, WinTabController, WinTab>(FileToolStripMenuItem.DropDownItems.ToMenuItems());
             FileToolStripMenuItem.DropDownItems.Clear();
-            FileToolStripMenuItem.DropDownItems.AddRange(items.ToToolStripItemCollection(MainMenu));
+            for (int i = 0; i < items.Count; i++)
+            {
+                FileToolStripMenuItem.DropDownItems.Add((ToolStripItem)items[i]);
+            }
         }
     }
 }

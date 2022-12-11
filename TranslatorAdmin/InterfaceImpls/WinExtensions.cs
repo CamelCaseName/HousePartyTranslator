@@ -80,12 +80,12 @@ namespace TranslatorAdmin.InterfaceImpls
 
         internal static ToolStripItemCollection ToToolStripItemCollection(this MenuItems collection, ToolStrip owner)
         {
-            var items = new ToolStripItemCollection(owner, new ToolStripItem[collection.Count]);
+            var items = new ToolStripItem[collection.Count];
             for (int i = 0; i < collection.Count; i++)
             {
-                items.Add((WinMenuItem)collection[i]);
+                items[i] = (ToolStripItem)collection[i];
             }
-            return items;
+            return new ToolStripItemCollection(owner, items);
         }
 
         internal static List<WinTab> ToTabList(this TabPageCollection collection)
