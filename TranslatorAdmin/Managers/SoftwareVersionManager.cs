@@ -8,7 +8,7 @@ namespace Translator.Managers
     [SupportedOSPlatform("Windows")]
     internal static class SoftwareVersionManager
     {
-        public const string LocalVersion = "1.0.0.0";
+        public const string LocalVersion = "0.7.0.0";
         public static string? LatestGithubVersion;
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new();
