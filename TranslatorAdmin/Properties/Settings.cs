@@ -1,4 +1,4 @@
-﻿namespace HousePartyTranslator.Properties
+﻿namespace TranslatorAdmin.Properties
 {
 
 

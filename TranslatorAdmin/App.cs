@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Reflection;
+using TranslatorAdmin.Properties;
 
 namespace Translator
 {
@@ -25,6 +26,14 @@ namespace Translator
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+
+            if (Settings.Default.UpdateSettings)
+            {
+                Settings.Default.Upgrade();
+                Settings.Default.UpdateSettings = false;
+                Settings.Default.Save();
+            }
+
             MainForm = new Fenster();
             Application.Run(MainForm);
         }
