@@ -20,6 +20,10 @@ namespace Translator
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class Fenster : Form
     {
+        private StoryExplorer? SExplorer;
+        private readonly ContextMenuStrip? ListContextMenu;
+        private DiscordPresenceManager? PresenceManager;
+#nullable disable
         public MenuStrip MainMenu;
         internal readonly WinTabController TabControl = new()
         {
@@ -41,7 +45,6 @@ namespace Translator
         private static readonly Color menu = Utils.menu;
         private readonly CancellationTokenSource CancelTokens = new();
         private readonly LineList CheckListBoxLeft;
-        private readonly ContextMenuStrip? ListContextMenu;
         private readonly System.Timers.Timer PresenceTimer = new(2000);
         private WinMenuItem customOpenStoryExplorer;
         private WinMenuItem editToolStripMenuItem;
@@ -52,7 +55,6 @@ namespace Translator
         private WinMenuItem openInNewTabToolStripMenuItem;
         private WinMenuItem openToolStripMenuItem;
         private WinMenuItem overrideCloudSaveToolStripMenuItem;
-        private DiscordPresenceManager? PresenceManager;
         private WinMenuItem Recents;
         private WinMenuItem replaceToolStripMenuItem;
         private WinMenuItem saveAllToolStripMenuItem;
@@ -63,11 +65,11 @@ namespace Translator
         private WinMenuItem searchToolStripMenuItem;
         private ToolStripTextBox searchToolStripTextBox;
         private WinMenuItem settingsToolStripMenuItem;
-        private StoryExplorer? SExplorer;
         private WinMenuItem storyExplorerStripMenuItem;
         private ToolStripTextBox ToolStripMenuReplaceBox;
         private WinMenuItem toolStripReplaceAllButton;
         private WinMenuItem toolStripReplaceButton;
+#nullable restore
 
         /// <summary>
         /// static constructor for static fields
@@ -481,7 +483,7 @@ namespace Translator
             // overrideCloudSaveToolStripMenuItem
             overrideCloudSaveToolStripMenuItem = new WinMenuItem()
             {
-                Image = (Image)resources.GetObject("saveAsToolStripMenuItem.Image"),
+                Image = (Image?)resources.GetObject("saveAsToolStripMenuItem.Image"),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(overrideCloudSaveToolStripMenuItem),
                 Size = new Size(236, 22),

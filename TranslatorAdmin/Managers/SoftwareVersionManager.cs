@@ -28,6 +28,7 @@ namespace Translator.Managers
 
         private static async void DoWork()
         {
+            if (App.MainForm?.UI == null) return;
             try
             {
                 //get data from github about the packages 

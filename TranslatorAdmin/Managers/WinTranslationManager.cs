@@ -63,6 +63,7 @@ namespace TranslatorAdmin.Managers
         /// </summary>
         internal void SetHighlightedNode()
         {
+            if (TabManager.UI == null) return;
             if (TranslationData.Count > 0)
             {
                 int currentIndex = TabManager.UI.SelectedTab.SelectedLineIndex;

@@ -1,4 +1,5 @@
 ﻿using System.Drawing.Imaging;
+using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.Helpers;
 using TranslatorAdmin.Managers;
@@ -7,6 +8,7 @@ using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.Win
 
 namespace Translator.StoryExplorerForm
 {
+    [SupportedOSPlatform("Windows")]
     internal sealed class GraphingEngine
     {
         public const int BitmapEdgeLength = 7000;

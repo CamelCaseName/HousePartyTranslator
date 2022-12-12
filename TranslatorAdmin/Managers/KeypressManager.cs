@@ -7,6 +7,7 @@ using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
+using System.Runtime.Intrinsics.X86;
 
 namespace Translator.Managers
 {
@@ -35,9 +36,10 @@ namespace Translator.Managers
             TabManager.ActiveTranslationManager.ApproveIfPossible(false);
         }
 
-    
-        public static async Task<StoryExplorerForm.StoryExplorer?> CreateStoryExplorer(bool autoOpen, Form explorerParent, CancellationTokenSource tokenSource)
+
+        public static async Task<StoryExplorerForm.StoryExplorer?> CreateStoryExplorer(bool autoOpen, Form? explorerParent, CancellationTokenSource tokenSource)
         {
+            if (explorerParent == null) return null;
             explorerParent.UseWaitCursor = true;
 
             // Use ParallelOptions instance to store the CancellationToken
@@ -126,11 +128,12 @@ namespace Translator.Managers
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
 
-    
+
         public static bool MainKeyPressHandler(ref Message msg, Keys keyData, CancellationTokenSource tokenSource)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
         {
+            if (TabManager.UI == null || App.MainForm == null) return false;
             switch (keyData)
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
@@ -143,7 +146,7 @@ namespace Translator.Managers
                     {
                         TabManager.UI.SearchBarText = TabManager.UI.TranslationBoxText;
                     }
-                    ((LineList)TabManager.UI.SelectedTab.Lines).Focus();
+                    TabManager.UI.SelectedTab.Lines.Focus();
                     return true;
 
                 //search, but also with replacing
@@ -289,7 +292,7 @@ namespace Translator.Managers
             }
         }
 
-    
+
         public static void OpenAll()
         {
             //opne the story in tabs
@@ -306,7 +309,7 @@ namespace Translator.Managers
             }
         }
 
-    
+
         public static void OpenNew()
         {
             //get currently active translationmanager
@@ -318,7 +321,7 @@ namespace Translator.Managers
             TabManager.OpenNewTab();
         }
 
-    
+
         public static void SelectedItemChanged(LineList listBox)
         {
             if (lastIndex >= 0 && listBox.SelectedIndex >= 0)
