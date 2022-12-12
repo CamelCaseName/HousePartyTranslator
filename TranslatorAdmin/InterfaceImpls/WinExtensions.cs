@@ -7,7 +7,7 @@ using static System.Windows.Forms.TabControl;
 namespace TranslatorAdmin.InterfaceImpls
 {
     [SupportedOSPlatform("Windows")]
-    internal static partial class WinExtensions
+    internal static class WinExtensions
     {
         internal static PopupResult ToPopupResult(this DialogResult result)
         {
@@ -106,6 +106,24 @@ namespace TranslatorAdmin.InterfaceImpls
                 items.Add(collection[i]);
             }
             return items;
+        }
+
+        public static void AddRangeFix(this ToolStripItemCollection collection, ToolStripItemCollection toolStripItems)
+        {
+            for (int i = 0; i < toolStripItems.Count; i++)
+            {
+                collection.Add(toolStripItems[i]);
+                collection[^1].Owner = collection[0].Owner;
+            }
+        }
+
+        public static void AddRangeFix(this ToolStripItemCollection collection, ToolStripItem[] toolStripItems)
+        {
+            for (int i = 0; i < toolStripItems.Length; i++)
+            {
+                collection.Add(toolStripItems[i]);
+                collection[^1].Owner = collection[0].Owner;
+            }
         }
     }
 }

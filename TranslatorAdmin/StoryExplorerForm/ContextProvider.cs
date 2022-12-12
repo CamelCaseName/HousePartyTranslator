@@ -4,6 +4,7 @@ using Translator.Core;
 using Translator.Helpers;
 using Settings = TranslatorAdmin.Properties.Settings;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
+using System.Runtime.Versioning;
 
 namespace Translator
 {
@@ -12,6 +13,8 @@ namespace Translator
 #pragma warning disable CS8602
 #pragma warning disable CS8603
 #pragma warning disable CS8604
+
+    [SupportedOSPlatform("Windows")]
     internal sealed class ContextProvider
     {
         public bool GotCancelled = false;

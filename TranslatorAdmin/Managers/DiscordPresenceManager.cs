@@ -4,9 +4,11 @@ using Translator.Core;
 using Translator.Helpers;
 using Settings = TranslatorAdmin.Properties.Settings;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
+using System.Runtime.Versioning;
 
 namespace Translator.Managers
 {
+    [SupportedOSPlatform("Windows")]
     internal sealed class DiscordPresenceManager
     {
         public DiscordRPC? DiscordPresenceClient;

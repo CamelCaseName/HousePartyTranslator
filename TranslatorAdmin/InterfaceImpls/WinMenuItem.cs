@@ -2,7 +2,7 @@
 
 namespace TranslatorAdmin.InterfaceImpls
 {
-    internal class WinMenuItem : ToolStripMenuItem, IMenuItem
+    public class WinMenuItem : ToolStripMenuItem, IMenuItem
     {
         public WinMenuItem() { }
         public WinMenuItem(string title) { Text = title; }

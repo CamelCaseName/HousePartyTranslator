@@ -402,7 +402,7 @@ namespace Translator
             // openToolStripMenuItem
             openToolStripMenuItem = new WinMenuItem()
             {
-                Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
+                Image = (Image?)resources.GetObject("openToolStripMenuItem.Image"),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(openToolStripMenuItem),
                 Size = new Size(236, 22),
@@ -414,7 +414,7 @@ namespace Translator
             // openAllToolStripMenuItem
             openAllToolStripMenuItem = new WinMenuItem()
             {
-                Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
+                Image = (Image?)resources.GetObject("openToolStripMenuItem.Image"),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(openAllToolStripMenuItem),
                 Size = new Size(236, 22),
@@ -426,7 +426,7 @@ namespace Translator
             // openInNewTabToolStripMenuItem
             openInNewTabToolStripMenuItem = new WinMenuItem()
             {
-                Image = ((Image)(resources.GetObject("openToolStripMenuItem.Image"))),
+                Image = (Image?)resources.GetObject("openToolStripMenuItem.Image"),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(openInNewTabToolStripMenuItem),
                 Size = new Size(236, 22),
@@ -448,7 +448,7 @@ namespace Translator
             // saveToolStripMenuItem
             saveToolStripMenuItem = new WinMenuItem()
             {
-                Image = ((Image)(resources.GetObject("saveToolStripMenuItem.Image"))),
+                Image = (Image?)resources.GetObject("saveToolStripMenuItem.Image"),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(saveToolStripMenuItem),
                 Size = new Size(236, 22),
@@ -459,7 +459,7 @@ namespace Translator
             // saveAllToolStripMenuItem
             saveAllToolStripMenuItem = new WinMenuItem()
             {
-                Image = ((Image)(resources.GetObject("saveToolStripMenuItem.Image"))),
+                Image = (Image?)resources.GetObject("saveToolStripMenuItem.Image"),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(saveAllToolStripMenuItem),
                 Size = new Size(236, 22),
@@ -470,7 +470,7 @@ namespace Translator
             // saveAsToolStripMenuItem
             saveAsToolStripMenuItem = new WinMenuItem()
             {
-                Image = ((Image)(resources.GetObject("saveAsToolStripMenuItem.Image"))),
+                Image = (Image?)resources.GetObject("saveAsToolStripMenuItem.Image"),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(saveAsToolStripMenuItem),
                 Size = new Size(236, 22),
@@ -481,7 +481,7 @@ namespace Translator
             // overrideCloudSaveToolStripMenuItem
             overrideCloudSaveToolStripMenuItem = new WinMenuItem()
             {
-                Image = ((Image)(resources.GetObject("saveAsToolStripMenuItem.Image"))),
+                Image = (Image)resources.GetObject("saveAsToolStripMenuItem.Image"),
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(overrideCloudSaveToolStripMenuItem),
                 Size = new Size(236, 22),

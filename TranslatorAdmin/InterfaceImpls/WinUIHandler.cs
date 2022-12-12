@@ -17,12 +17,11 @@ namespace TranslatorAdmin.InterfaceImpls
         }
 
         #region interface
-        //todo replace update of the menuitems by a change, then save new ones, not using reference
-        public MenuItems FileMenuItems => (MenuItems)(App.MainForm.MainMenuStrip?.Items.Cast<IMenuItem>() ?? new MenuItems());
+        public MenuItems FileMenuItems => App.MainForm?.FileToolStripMenuItem.DropDownItems.ToMenuItems() ?? new MenuItems();
 
-        public string ReplaceBarText { get => App.MainForm.ReplaceBox.Text; set => App.MainForm.ReplaceBox.Text = value; }
+        public string ReplaceBarText { get => App.MainForm?.ReplaceBox.Text ?? string.Empty; set => App.MainForm.ReplaceBox.Text = value; }
 
-        public string SearchBarText { get => App.MainForm.SearchBox.Text; set => App.MainForm.SearchBox.Text = value; }
+        public string SearchBarText { get => App.MainForm?.SearchBox.Text ?? string.Empty; set => App.MainForm.SearchBox.Text = value; }
 
         private WinTranslationManager WinTranslation => WinTranslation ?? new(this);
 
@@ -52,7 +51,12 @@ namespace TranslatorAdmin.InterfaceImpls
         public string TemplateBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
 
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
-        public WinTab? CreateNewTab() => new(App.MainForm);
+        public WinTab? CreateNewTab()
+        {
+            if (App.MainForm == null) return null;
+            return new(App.MainForm);
+        }
+
         public PopupResult ErrorOk(string message, string title = "Error") => Msg.ErrorOk(message, title).ToPopupResult();
         public PopupResult ErrorOkCancel(string message, string title = "Error") => Msg.ErrorOkCancel(message, title).ToPopupResult();
         public bool ErrorOkCancel(string message, string title = "Error", PopupResult result = PopupResult.OK) => Msg.ErrorOkCancelB(message, title, result.ToDialogResult());
@@ -89,8 +93,9 @@ namespace TranslatorAdmin.InterfaceImpls
         public PopupResult WarningYesNoCancel(string message, string title = "Warning") => Msg.WarningYesNoCancel(message, title).ToPopupResult();
         public bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES) => Msg.WarningYesNoCancelB(message, title, result.ToDialogResult());
         public void SetFileMenuItems(MenuItems menuItems) {
+            if (App.MainForm == null) return;
             App.MainForm.FileToolStripMenuItem.DropDownItems.Clear();
-            App.MainForm.FileToolStripMenuItem.DropDownItems.AddRange(menuItems.ToToolStripItemCollection(App.MainForm.MainMenu ?? new MenuStrip()));
+            App.MainForm.FileToolStripMenuItem.DropDownItems.AddRangeFix(menuItems.ToToolStripItemCollection(App.MainForm.MainMenu ?? new MenuStrip()));
         }
         #endregion
 
