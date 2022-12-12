@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Timers;
@@ -60,7 +59,9 @@ namespace Translator.Core
         private bool selectedNew = false;
         private string sourceFilePath = "";
         private string storyName = "";
-        private static IUIHandler<T, X, W>? UI;
+#nullable disable
+        private static IUIHandler<T, X, W> UI;
+#nullable restore
         private static bool StaticUIInitialized = false;
         private readonly ITab<T> TabUI;
         private bool triedFixingOnce = false;
@@ -719,7 +720,6 @@ namespace Translator.Core
         {
             if (!UI.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog))) throw new ArgumentException($"{nameof(UI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
 
-            //todo create respective constructor (for all dialog interfaces)and try setting them, else falls back to access and setting
             ISaveFileDialog? saveFileDialog = (ISaveFileDialog?)Activator.CreateInstance(UI.SaveFileDialogType, new object?[]
             {
                 /*Title*/"Choose a file to save the translations to",

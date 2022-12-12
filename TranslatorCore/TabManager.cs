@@ -24,7 +24,9 @@ namespace Translator.Core
         /// Method returning a Propertyhelper containing all relevant UI elements.
         /// </summary>
         /// <returns>the relevant Propertyhelper</returns>
-        public static V? UI { get; set; }
+#nullable disable
+        public static V UI { get; set; }
+#nullable restore
 
         public static W SelectedTab
         {
@@ -130,7 +132,7 @@ namespace Translator.Core
             if (path.Length > 0)
             {
                 //create new support objects
-                W? newTab = UI?.CreateNewTab();
+                W? newTab = UI.CreateNewTab();
                 if (newTab == null) return;
                 newTab.Text = $"Tab {translationManagers.Count + 1}";
                 //Add tab to form control
