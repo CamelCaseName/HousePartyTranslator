@@ -7,7 +7,6 @@ namespace TranslatorAdmin.InterfaceImpls
         public WinMenuItem() { }
         public WinMenuItem(string title) { Text = title; }
         public WinMenuItem(string title, EventHandler eventHandler) { Click += eventHandler; Text = title; }
-        public WinMenuItem(string title, object eventHandler) { Click += (EventHandler)eventHandler; Text = title; }
 
         public new event EventHandler Click { add => base.Click += value; remove => base.Click -= value; }
 

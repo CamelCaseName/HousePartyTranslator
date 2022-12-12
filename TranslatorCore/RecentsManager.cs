@@ -43,7 +43,7 @@ namespace Translator.Core
                     items[k] = (IMenuItem)(Activator.CreateInstance(MenuItem, new object?[]
                     {
                         recents[i],
-                        (object)RecentsManager_Click<T, V, X, W>
+                        (EventHandler)RecentsManager_Click<T, V, X, W>
                     }) ?? new object());
                 }
                 if (k < 4)
@@ -164,7 +164,7 @@ namespace Translator.Core
             if (items.Length > 0 && collection.Count < maxNumberOfMenuItems)
             {
                 recentsStart += 2;
-                for (int i = 0; i < items.Length; i++)
+                for (int i = 0; recentsStart + i < items.Length; i++)
                 {
                     //we replace until we hit seperator, then we insert
                     if (collection[recentsStart + i].GetType() != MenuItemSeperator)
