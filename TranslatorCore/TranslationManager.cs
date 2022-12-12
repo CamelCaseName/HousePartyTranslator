@@ -388,7 +388,7 @@ namespace Translator.Core
                     UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
 
                     //renew search result if possible
-                    int t = TabUI.Lines.SearchResults.IndexOf(TabUI.SelectedLineItem);
+                    int t = TabUI.Lines.SearchResults.IndexOf(TabUI.SelectedLineItem.Text);
                     if (t >= 0) { SelectedResultIndex = t; }
                 }
             }
@@ -433,7 +433,7 @@ namespace Translator.Core
         /// <param name="replacement">The string to replace all search matches with</param>
         public void ReplaceSingle(string replacement)
         {
-            if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineItem))
+            if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineItem.Text))
             {
                 string temp = SelectedLine.TranslationString.Replace(replacement, SearchQuery);
                 History.AddAction(new TranslationChanged<T, V, X, W>(this, SelectedId, SelectedLine.TranslationString, temp));
@@ -772,7 +772,7 @@ namespace Translator.Core
                             && item.TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
                             || item.ID.Contains(query))/*if the id contains the searched part*/
                         {
-                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x]);//add index to highligh list
+                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x].Text);//add index to highligh list
                         }
                         ++x;
                     }
@@ -792,7 +792,7 @@ namespace Translator.Core
                             && item.TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
                             || item.ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
                         {
-                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x]);//add index to highligh list
+                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x].Text);//add index to highligh list
                         }
                         ++x;
                     }
