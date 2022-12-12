@@ -34,9 +34,9 @@ namespace TranslatorAdmin.InterfaceImpls
         public List<int> TranslationSimilarToTemplate { get; internal set; } = new();
 
         //todo make better lol
-        List<ILineItem> ILineList<WinLineItem>.SearchResults => (List<ILineItem>)SearchResults.Cast<WinLineItem>();
+        List<string> ILineList<WinLineItem>.SearchResults => SearchResults;
 
-        List<ILineItem> ILineList<WinLineItem>.TranslationSimilarToTemplate => new();
+        List<string> ILineList<WinLineItem>.TranslationSimilarToTemplate { get; } = new();
 
         WinLineItem ILineList<WinLineItem>.this[int index] { get => (WinLineItem)Items[index]; set => Items[index] = value; }
 

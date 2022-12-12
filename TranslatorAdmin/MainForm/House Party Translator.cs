@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
@@ -17,7 +18,7 @@ namespace Translator
     /// <summary>
     /// The main class which handles the UI for the House Party Translator Window
     /// </summary>
-    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows")]
     public partial class Fenster : Form
     {
         private StoryExplorer? SExplorer;

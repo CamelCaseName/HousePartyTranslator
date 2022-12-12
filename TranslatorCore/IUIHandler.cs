@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Net.Http.Headers;
 using Translator.Core;
 
 namespace Translator.UICompatibilityLayer
@@ -278,10 +279,10 @@ namespace Translator.UICompatibilityLayer
         T this[int index] { get; set; }
         int ApprovedCount { get; }
         int Count { get; }
-        List<ILineItem> SearchResults { get; }
+        List<string> SearchResults { get; }
         int SelectedIndex { get; set; }
         T SelectedLineItem { get; set; }
-        List<ILineItem> TranslationSimilarToTemplate { get; }
+        List<string> TranslationSimilarToTemplate { get; }
 
         void Add(string iD, bool lineIsApproved);
         void AddLineItem(T item);
@@ -322,8 +323,8 @@ namespace Translator.UICompatibilityLayer
         public int SelectedIndex { get { return InternalSelectedIndex; } set { SelectIndex(value); } }
         public T SelectedLineItem { get; set; }
         private int InternalSelectedIndex { get; set; }
-        public List<ILineItem> SearchResults { get; internal set; } = new();
-        public List<ILineItem> TranslationSimilarToTemplate { get; internal set; } = new();
+        public List<string> SearchResults { get; internal set; } = new();
+        public List<string> TranslationSimilarToTemplate { get; internal set; } = new();
 
         public void AddLineItem(T item)
         {
