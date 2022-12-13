@@ -45,14 +45,14 @@ namespace Translator.Core
                         recents[i],
                         (EventHandler)RecentsManager_Click<T, V, X, W>
                     }) ?? new object());
-                }
-                if (k < 4)
-                {
-                    k++;
-                }
-                else
-                {
-                    break;
+                    if (k < 4)
+                    {
+                        k++;
+                    }
+                    else
+                    {
+                        break;
+                    }
                 }
             }
 

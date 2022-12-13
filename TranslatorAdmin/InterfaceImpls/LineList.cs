@@ -5,6 +5,8 @@ namespace TranslatorAdmin.InterfaceImpls
 {
     public class LineList : ColouredCheckedListBox, ILineList<WinLineItem>
     {
+        //todo not unaprove lines on selection
+        protected override void WndProc(ref Message m) => base.WndProc(ref m);
         protected override void OnDrawItem(DrawItemEventArgs e) => base.OnDrawItem(e);
         public int Count => Items.Count;
         public int ApprovedCount { get { return CheckedIndices.Count; }}
@@ -34,7 +36,6 @@ namespace TranslatorAdmin.InterfaceImpls
         WinLineItem ILineList<WinLineItem>.SelectedLineItem { get; set; } = new WinLineItem();
         public List<int> TranslationSimilarToTemplate { get; internal set; } = new();
 
-        //todo make better lol
         List<string> ILineList<WinLineItem>.SearchResults => SearchResults;
 
         List<string> ILineList<WinLineItem>.TranslationSimilarToTemplate { get; } = new();
@@ -51,6 +52,7 @@ namespace TranslatorAdmin.InterfaceImpls
             try
             {
                 ((WinLineItem)Items[index]).Approve();
+                SetItemChecked(index, true);
             }
             catch
             {
@@ -67,7 +69,7 @@ namespace TranslatorAdmin.InterfaceImpls
         {
             try
             {
-                return ((WinLineItem)Items[index]).IsApproved;
+                return ((WinLineItem)Items[index]).IsApproved && GetItemChecked(index);
             }
             catch
             {
@@ -97,6 +99,7 @@ namespace TranslatorAdmin.InterfaceImpls
             try
             {
                 ((WinLineItem)Items[index]).IsApproved = isApproved;
+                SetItemChecked(index, isApproved);
             }
             catch
             {
@@ -109,6 +112,7 @@ namespace TranslatorAdmin.InterfaceImpls
             try
             {
                 ((WinLineItem)Items[index]).Unapprove();
+                SetItemChecked(index, false);
             }
             catch
             {
@@ -118,7 +122,7 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public void Add(string iD, bool lineIsApproved)
         {
-            Items.Add(new WinLineItem() { Text = iD, IsApproved = lineIsApproved });
+            Items.Add(new WinLineItem() { Text = iD, IsApproved = lineIsApproved }, lineIsApproved);
         }
     }
 }

@@ -1070,7 +1070,6 @@ namespace Translator.Core
             {
                 if (onlineLines.TryGetValue(key, out LineData? tempLine))
                 {
-                    lineIsApproved = tempLine.IsApproved;
                     TranslationData[key].Category = tempLine.Category;
                     if (DataBase<T, V, X, W>.IsOnline) TranslationData[key].Comments = tempLine.Comments;
                     TranslationData[key].FileName = tempLine.FileName;
@@ -1080,15 +1079,12 @@ namespace Translator.Core
                     TranslationData[key].Story = tempLine.Story;
                     if (!localTakesPriority && DataBase<T, V, X, W>.IsOnline) TranslationData[key].TranslationString = tempLine.TranslationString;
                     else if (!DataBase<T, V, X, W>.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
-                    TranslationData[key].IsApproved = false;
+                    TranslationData[key].IsApproved = tempLine.IsApproved;
                 }
 
                 if (TranslationData[key].TemplateString == null) TranslationData[key].TemplateString = "";
 
-                TabUI.Lines.Add(key, lineIsApproved);
-
-                //do after adding or it will trigger reset
-                TranslationData[key].IsApproved = lineIsApproved;
+                TabUI.Lines.Add(key, TranslationData[key].IsApproved);
 
                 //colour string if similar to the english one
                 if (!TranslationData[key].IsTranslated && !TranslationData[key].IsApproved)
