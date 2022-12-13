@@ -41,7 +41,7 @@ namespace Translator.Helpers
                     e.Index,
                     e.State,
                     e.ForeColor, //colour yellow if it is part of the search, else colour normally
-                    SearchResults.Contains(e.ToString() ?? string.Empty) ? Color.DarkOrange : SimilarStringsToEnglish.Contains(e.ToString() ?? string.Empty) ? Color.FromArgb(130, 80, 130) : CheckedItems.Contains(e) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
+                    SearchResults.Contains(Items[e.Index].ToString() ?? string.Empty) ? Color.DarkOrange : SimilarStringsToEnglish.Contains(Items[e.Index].ToString() ?? string.Empty) ? Color.FromArgb(130, 80, 130) : CheckedIndices.Contains(e.Index) ? Color.FromArgb(80, 130, 80) : Color.FromArgb(130, 80, 80)
                 );
             base.OnDrawItem(e2);
         }

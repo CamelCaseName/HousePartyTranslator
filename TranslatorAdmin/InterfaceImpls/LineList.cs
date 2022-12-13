@@ -5,8 +5,9 @@ namespace TranslatorAdmin.InterfaceImpls
 {
     public class LineList : ColouredCheckedListBox, ILineList<WinLineItem>
     {
+        protected override void OnDrawItem(DrawItemEventArgs e) => base.OnDrawItem(e);
         public int Count => Items.Count;
-        public int ApprovedCount { get; internal set; }
+        public int ApprovedCount { get { return CheckedIndices.Count; }}
         public LineList() : this(new List<WinLineItem>()) { }
 
         public LineList(List<WinLineItem> items, WinLineItem selectedLineItem, int selectedIndex)
@@ -50,7 +51,6 @@ namespace TranslatorAdmin.InterfaceImpls
             try
             {
                 ((WinLineItem)Items[index]).Approve();
-                ++ApprovedCount;
             }
             catch
             {
@@ -61,7 +61,6 @@ namespace TranslatorAdmin.InterfaceImpls
         public void Clear()
         {
             Items.Clear();
-            ApprovedCount = 0;
         }
 
         public bool GetApprovalState(int index)
@@ -78,7 +77,6 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public void RemoveLineItem(WinLineItem item)
         {
-            if (item.IsApproved) --ApprovedCount;
             Items.Remove(item);
         }
 
@@ -98,7 +96,6 @@ namespace TranslatorAdmin.InterfaceImpls
         {
             try
             {
-                if (!((WinLineItem)Items[index]).IsApproved && isApproved) ++ApprovedCount;
                 ((WinLineItem)Items[index]).IsApproved = isApproved;
             }
             catch
@@ -112,7 +109,6 @@ namespace TranslatorAdmin.InterfaceImpls
             try
             {
                 ((WinLineItem)Items[index]).Unapprove();
-                --ApprovedCount;
             }
             catch
             {
