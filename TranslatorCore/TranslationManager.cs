@@ -307,9 +307,6 @@ namespace Translator.Core
                     //log file loading if successfull
                     LogManager.Log($"File opened: {StoryName}/{FileName} at {DateTime.Now}");
 
-                    //update tab name
-                    TabManager<T, V, X, W>.UpdateTabTitle(FileName);
-
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
                     UI.SetFileMenuItems(RecentsManager.GetUpdatedMenuItems<T, V, X, W>(UI.FileMenuItems));
