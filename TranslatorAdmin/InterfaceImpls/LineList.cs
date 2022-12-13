@@ -9,7 +9,7 @@ namespace TranslatorAdmin.InterfaceImpls
         protected override void WndProc(ref Message m) => base.WndProc(ref m);
         protected override void OnDrawItem(DrawItemEventArgs e) => base.OnDrawItem(e);
         public int Count => Items.Count;
-        public int ApprovedCount { get { return CheckedIndices.Count; }}
+        public int ApprovedCount { get { return CheckedIndices.Count; } }
         public LineList() : this(new List<WinLineItem>()) { }
 
         public LineList(List<WinLineItem> items, WinLineItem selectedLineItem, int selectedIndex)
@@ -34,6 +34,7 @@ namespace TranslatorAdmin.InterfaceImpls
         public WinLineItem this[int index] { get { return (WinLineItem)Items[index]; } set { Items[index] = value; } }
 
         WinLineItem ILineList<WinLineItem>.SelectedLineItem { get; set; } = new WinLineItem();
+
         public List<int> TranslationSimilarToTemplate { get; internal set; } = new();
 
         List<string> ILineList<WinLineItem>.SearchResults => SearchResults;
@@ -123,6 +124,12 @@ namespace TranslatorAdmin.InterfaceImpls
         public void Add(string iD, bool lineIsApproved)
         {
             Items.Add(new WinLineItem() { Text = iD, IsApproved = lineIsApproved }, lineIsApproved);
+        }
+
+        protected override void OnItemCheck(ItemCheckEventArgs ice)
+        {
+            ((WinLineItem)Items[ice.Index]).IsApproved = ice.NewValue == CheckState.Checked ? true : false;
+            base.OnItemCheck(ice);
         }
     }
 }

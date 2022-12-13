@@ -335,7 +335,7 @@ namespace TranslatorAdmin.InterfaceImpls
         }
 
         //todo
-        public bool IsApproveButtonFocused => ApprovedBox.Checked;
+        public bool IsApproveButtonFocused => ApprovedBox.Focused;
 
         public List<string> SimilarStringsToEnglish => Lines.SimilarStringsToEnglish;
 
