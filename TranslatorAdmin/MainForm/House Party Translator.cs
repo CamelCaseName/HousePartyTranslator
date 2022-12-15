@@ -306,7 +306,7 @@ namespace Translator
 
         private void CloseTab_Click(object? sender, MouseEventArgs? e)
         {
-            TabManager.CloseTab((WinTab?)sender ?? (WinTab)new object());
+            if (e?.Button == MouseButtons.Right) TabManager.CloseTab(((WinTabController?)sender)?.SelectedTab ?? (WinTab)new object());
         }
 
         private async void CustomStoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
@@ -581,7 +581,7 @@ namespace Translator
                 Margin = new Padding(1)
             };
             languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
-            languageToolStripComboBox.SelectedItem= Settings.Default.language;
+            languageToolStripComboBox.SelectedItem = Settings.Default.language;
             languageToolStripComboBox.SelectedIndexChanged += new EventHandler(LanguageToolStripComboBox_SelectedIndexChanged);
 
             // storyExplorerStripMenuItem

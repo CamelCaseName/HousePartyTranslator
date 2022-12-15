@@ -71,7 +71,7 @@ namespace Translator.Core
         public static void CloseTab(W tab)
         {
             //remove manager for the tab, save first
-            if (TabControl.TabPages.Contains(tab))
+            if (TabControl.TabPages.Contains(tab) && TabCount > 0)
             {
                 translationManagers[tab].SaveFile();
                 _ = translationManagers.Remove(tab);
@@ -136,15 +136,15 @@ namespace Translator.Core
                 if (newTab == null) return;
                 newTab.Text = $"Tab {translationManagers.Count + 1}";
                 //Add tab to form control
-                TabControl.TabPages.Add(newTab);
-                //select new tab
-                TabControl.SelectedTab = newTab;
+                TabControl.AddTab(newTab);
                 //create support dict
                 var t = new TranslationManager<T, V, X, W>(UI, newTab);
                 translationManagers.Add(newTab, t);
 
+                //select new tab
+                TabControl.SelectedTab = newTab;
+
                 //call startup for new translationmanager
-                TranslationManager<T, V, X, W>.SetLanguage();
                 t.LoadFileIntoProgram(path);
             }
         }

@@ -1055,7 +1055,6 @@ namespace Translator.Core
         {
             UI.SignalUserWait();
 
-            bool lineIsApproved = false;
             int currentIndex = 0;
             FileData onlineLines;
 
@@ -1094,7 +1093,6 @@ namespace Translator.Core
 
                 //increase index to aid colouring
                 currentIndex++;
-                lineIsApproved = false;
             }
             //reload once so the order of lines is correct after we fixed an empty or broken file
             if (triedFixingOnce)
