@@ -10,11 +10,11 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public WinFolderDialog(string text, string selectedPath)
         {
-            Text= text;
-            SelectedFolderPath= selectedPath;
+            Text = text;
+            SelectedFolderPath = selectedPath;
         }
 
-        private readonly FolderBrowserDialog dialog = new() { UseDescriptionForTitle = true , RootFolder = Environment.SpecialFolder.Recent};
+        private readonly FolderBrowserDialog dialog = new() { UseDescriptionForTitle = true, RootFolder = Environment.SpecialFolder.Recent };
         public string SelectedFolderPath { get => dialog.SelectedPath; set => dialog.SelectedPath = value; }
         public string Text { get => dialog.Description; set => dialog.Description = value; }
 

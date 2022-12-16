@@ -103,7 +103,7 @@ namespace Translator.Core.Helpers
         {
             if (!MainUI?.FolderDialogType.IsAssignableTo(typeof(IFolderDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FolderDialogType)} does not inherit {nameof(IFolderDialog)}");
 
-            IFolderDialog? selectFolderDialog = (IFolderDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(IFileDialog), new object?[]
+            IFolderDialog? selectFolderDialog = (IFolderDialog?)Activator.CreateInstance(MainUI?.FolderDialogType ?? typeof(IFileDialog), new object?[]
             {
                 /*title*/message,
                 /*selectedPath*/Settings.Default.TemplatePath == string.Empty ? Environment.SpecialFolder.UserProfile.ToString() : Settings.Default.TemplatePath,
