@@ -14,6 +14,10 @@ namespace TranslatorAdmin.InterfaceImpls
         public new List<WinTab> TabPages => base.TabPages.ToTabList();
 
         public void AddTab(WinTab tab) => base.TabPages.Add(tab);
-        public bool CloseTab(WinTab tab) => throw new NotImplementedException();
+        public bool CloseTab(WinTab tab)
+        {
+            base.TabPages.Remove(tab);
+            return true;
+        }
     }
 }

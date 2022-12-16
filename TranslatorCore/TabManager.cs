@@ -71,11 +71,11 @@ namespace Translator.Core
         public static void CloseTab(W tab)
         {
             //remove manager for the tab, save first
-            if (TabControl.TabPages.Contains(tab) && TabCount > 0)
+            if (TabControl.TabPages.Contains(tab) && TabCount > 1)
             {
                 translationManagers[tab].SaveFile();
                 _ = translationManagers.Remove(tab);
-                TabControl.CloseTab(tab);
+                _ = TabControl.CloseTab(tab);
             }
         }
 

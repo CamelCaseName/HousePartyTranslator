@@ -306,7 +306,16 @@ namespace Translator
 
         private void CloseTab_Click(object? sender, MouseEventArgs? e)
         {
-            if (e?.Button == MouseButtons.Right) TabManager.CloseTab(((WinTabController?)sender)?.SelectedTab ?? (WinTab)new object());
+            if (e?.Button == MouseButtons.Right)
+            {
+                for (int i = 0; i < TabControl.TabCount; i++)
+                {
+                    if (TabControl.GetTabRect(i).Contains(e.Location)){
+                        TabManager.CloseTab(((WinTabController?)sender)?.TabPages[i] ?? (WinTab)new object());
+                        return;
+                    }
+                }
+            }
         }
 
         private async void CustomStoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
