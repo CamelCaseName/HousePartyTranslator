@@ -1054,6 +1054,7 @@ namespace Translator.Core
         private void LoadTranslations(bool localTakesPriority = false)
         {
             UI.SignalUserWait();
+            //todo stop updating the linelist while lines are added, implement interface for that
 
             int currentIndex = 0;
             FileData onlineLines;

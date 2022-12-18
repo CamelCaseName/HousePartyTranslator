@@ -5,7 +5,6 @@ namespace TranslatorAdmin.InterfaceImpls
 {
     public class LineList : ColouredCheckedListBox, ILineList<WinLineItem>
     {
-        //todo not unaprove lines on selection
         protected override void WndProc(ref Message m) => base.WndProc(ref m);
         protected override void OnDrawItem(DrawItemEventArgs e) => base.OnDrawItem(e);
         public int Count => Items.Count;
