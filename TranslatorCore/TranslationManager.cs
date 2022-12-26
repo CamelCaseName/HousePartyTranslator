@@ -106,7 +106,7 @@ namespace Translator.Core
         /// <summary>
         /// Provides the id of the currently selected line
         /// </summary>
-        public string SelectedId { get { return TabUI.SelectedLineItem.Text ?? TabUI.AtIndex(0)?.Text ?? "Name"; } }
+        public string SelectedId { get { return TabUI.SelectedLineItem.Text; } }
 
         public LineData SelectedLine { get { return TranslationData[SelectedId]; } }
 
@@ -397,6 +397,7 @@ namespace Translator.Core
             UI.SignalUserEndWait();
         }
 
+        //todo doesnt work/not shown if updated
         /// <summary>
         /// Replaces a searched string in all applicable lines by the replacement provided using the invariant culture.
         /// </summary>
@@ -421,7 +422,7 @@ namespace Translator.Core
             ReloadTranslationTextbox();
 
             //show confirmation
-            _ = UI.InfoOk("ReplaceImpl successful!", "Success");
+            _ = UI.InfoOk("Replace successful!", "Success");
         }
 
         /// <summary>
@@ -740,6 +741,7 @@ namespace Translator.Core
         /// </summary>
         public void Search()
         {
+            //todo fix enter handling on search
             SearchQuery = UI.SearchBarText;
             Search(SearchQuery);
         }

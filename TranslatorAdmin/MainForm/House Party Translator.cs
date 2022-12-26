@@ -64,10 +64,10 @@ namespace Translator
         private WinMenuItem saveToolStripMenuItem;
         private WinMenuItem searchAllToolStripMenuItem;
         private WinMenuItem searchToolStripMenuItem;
-        private ToolStripTextBox searchToolStripTextBox;
+        private WinToolStripTextBox searchToolStripTextBox;
         private WinMenuItem settingsToolStripMenuItem;
         private WinMenuItem storyExplorerStripMenuItem;
-        private ToolStripTextBox ToolStripMenuReplaceBox;
+        private WinToolStripTextBox ToolStripMenuReplaceBox;
         private WinMenuItem toolStripReplaceAllButton;
         private WinMenuItem toolStripReplaceButton;
 #nullable restore
@@ -513,7 +513,7 @@ namespace Translator
             // saveCurrentStringToolStripMenuItem
             saveCurrentStringToolStripMenuItem = new WinMenuItem()
             {
-                BackColor = Fenster.menu,
+                BackColor = menu,
                 Name = nameof(saveCurrentStringToolStripMenuItem),
                 Size = new Size(122, 23),
                 AutoSize = false,
@@ -523,9 +523,9 @@ namespace Translator
             saveCurrentStringToolStripMenuItem.Click += new EventHandler(SaveCurrentStringToolStripMenuItem_Click);
 
             // searchToolStripTextBox
-            searchToolStripTextBox = new ToolStripTextBox()
+            searchToolStripTextBox = new WinToolStripTextBox()
             {
-                BackColor = Fenster.menu,
+                BackColor = menu,
                 BorderStyle = BorderStyle.FixedSingle,
                 Font = new Font("Segoe UI", 9F),
                 AutoSize = true,
@@ -536,9 +536,9 @@ namespace Translator
             searchToolStripTextBox.TextChanged += new EventHandler(SearchToolStripTextBox_TextChanged);
 
             // ToolStripMenuReplaceBox
-            ToolStripMenuReplaceBox = new ToolStripTextBox()
+            ToolStripMenuReplaceBox = new WinToolStripTextBox()
             {
-                BackColor = Fenster.menu,
+                BackColor = menu,
                 BorderStyle = BorderStyle.FixedSingle,
                 Font = new Font("Segoe UI", 9F),
                 Name = nameof(ToolStripMenuReplaceBox),
@@ -552,8 +552,8 @@ namespace Translator
             // toolStripReplaceAllButton
             toolStripReplaceAllButton = new WinMenuItem()
             {
-                BackColor = Fenster.menu,
-                ForeColor = Fenster.darkText,
+                BackColor = menu,
+                ForeColor = darkText,
                 Name = nameof(toolStripReplaceAllButton),
                 Size = new Size(63, 23),
                 AutoSize = false,
@@ -566,8 +566,8 @@ namespace Translator
             // toolStripReplaceButton
             toolStripReplaceButton = new WinMenuItem()
             {
-                BackColor = Fenster.menu,
-                ForeColor = Fenster.darkText,
+                BackColor = menu,
+                ForeColor = darkText,
                 Name = nameof(toolStripReplaceButton),
                 Size = new Size(63, 23),
                 AutoSize = false,
@@ -580,7 +580,7 @@ namespace Translator
             // languageToolStripComboBox
             languageToolStripComboBox = new ToolStripComboBox()
             {
-                BackColor = Fenster.menu,
+                BackColor = menu,
                 DropDownStyle = ComboBoxStyle.DropDownList,
                 FlatStyle = FlatStyle.Flat,
                 Name = nameof(languageToolStripComboBox),
@@ -596,7 +596,7 @@ namespace Translator
             // storyExplorerStripMenuItem
             storyExplorerStripMenuItem = new WinMenuItem()
             {
-                BackColor = Fenster.menu,
+                BackColor = menu,
                 Name = nameof(storyExplorerStripMenuItem),
                 Size = new Size(118, 23),
                 AutoSize = false,
@@ -608,7 +608,7 @@ namespace Translator
             // customOpenStoryExplorer
             customOpenStoryExplorer = new WinMenuItem()
             {
-                BackColor = Fenster.menu,
+                BackColor = menu,
                 Name = nameof(customOpenStoryExplorer),
                 Size = new Size(121, 23),
                 AutoSize = false,
@@ -620,7 +620,7 @@ namespace Translator
             // settingsToolStripMenuItem
             settingsToolStripMenuItem = new WinMenuItem()
             {
-                BackColor = Fenster.menu,
+                BackColor = menu,
                 Name = nameof(settingsToolStripMenuItem),
                 Size = new Size(61, 23),
                 AutoSize = false,
@@ -632,7 +632,7 @@ namespace Translator
             // editToolStripMenuItem
             editToolStripMenuItem = new WinMenuItem()
             {
-                BackColor = Fenster.menu,
+                BackColor = menu,
                 Name = nameof(editToolStripMenuItem),
                 Size = new Size(37, 23),
                 AutoSize = false,
@@ -652,7 +652,7 @@ namespace Translator
             // fileToolStripMenuItem
             fileToolStripMenuItem = new WinMenuItem()
             {
-                BackColor = Fenster.menu,
+                BackColor = menu,
                 Name = nameof(fileToolStripMenuItem),
                 Size = new Size(37, 23),
                 AutoSize = false,
@@ -710,7 +710,7 @@ namespace Translator
             // Fenster
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = Fenster.backgroundDarker;
+            BackColor = backgroundDarker;
             ClientSize = new Size(1400, 760);
             Controls.Add(TabControl);
             Controls.Add(MainMenu);
