@@ -406,11 +406,11 @@ namespace Translator.Core
         {
             //save old lines for history
             FileData old = new(TranslationData);
-            int x;
+
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
-                x = TabUI.Lines.SearchResults.IndexOf(TabUI.Lines.SearchResults[i]);
-                TranslationData[TabUI.Lines[x].Text].TranslationString = TranslationData[TabUI.Lines[x].Text].TranslationString.Replace(replacement, SearchQuery);
+                if (TabUI.Lines.SearchResults[i].Length == 0) continue;
+                TranslationData[TabUI.Lines.SearchResults[i]].TranslationString = TranslationData[TabUI.Lines.SearchResults[i]].TranslationString.ReplaceImpl(SearchQuery, replacement);
             }
 
             History.AddAction(new AllTranslationsChanged<T, V, X, W>(this, old, TranslationData));
@@ -431,9 +431,9 @@ namespace Translator.Core
         /// <param name="replacement">The string to replace all search matches with</param>
         public void ReplaceSingle(string replacement)
         {
-            if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineItem.Text))
+            if (TabUI.Lines.SearchResults.Contains(SelectedId))
             {
-                string temp = SelectedLine.TranslationString.Replace(replacement, SearchQuery);
+                string temp = SelectedLine.TranslationString.Replace(SearchQuery, replacement);
                 History.AddAction(new TranslationChanged<T, V, X, W>(this, SelectedId, SelectedLine.TranslationString, temp));
                 SelectedLine.TranslationString = temp;
 
@@ -448,8 +448,8 @@ namespace Translator.Core
         public void ReloadTranslationTextbox()
         {
             //update textbox
-            TabUI.            //update textbox
-            TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine);
+            if (SelectedId != string.Empty)
+                TabUI.TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine);
         }
 
         /// <summary>
@@ -766,10 +766,11 @@ namespace Translator.Core
                     int x = 0;
                     foreach (LineData item in TranslationData.Values)
                     {
-                        if (item.TranslationString.Contains(query) /*if the translated text contaisn the search string*/
+                        if ((item.TranslationString.Contains(query) /*if the translated text contaisn the search string*/
                             || (item.TemplateString != null
                             && item.TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
-                            || item.ID.Contains(query))/*if the id contains the searched part*/
+                            || item.ID.Contains(query))
+                            && item.TranslationLength > 0)/*if the id contains the searched part*/
                         {
                             TabUI.Lines.SearchResults.Add(TabUI.Lines[x].Text);//add index to highligh list
                         }
@@ -789,7 +790,8 @@ namespace Translator.Core
                         if (item.TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
                             || (item.TemplateString != null
                             && item.TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
-                            || item.ID.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the id contains the searched part*/
+                            || item.ID.ToLowerInvariant().Contains(query.ToLowerInvariant())
+                            && item.TranslationLength > 0)/*if the id contains the searched part*/
                         {
                             TabUI.Lines.SearchResults.Add(TabUI.Lines[x].Text);//add index to highligh list
                         }
@@ -1035,19 +1037,19 @@ namespace Translator.Core
             string tempStoryName = paths[^2];
             bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string? languageAsText);
             if (!gotLanguage) throw new LanguageHelper.LanguageException();
-                //compare
-                if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
-                    //get folder one more up
-                    tempStoryName = paths[^3];
+            //compare
+            if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
+                //get folder one more up
+                tempStoryName = paths[^3];
 
-                if (tempStoryName == "Languages")
-                {
-                    //get folder one more up
-                    tempStoryName = "UI";
-                }
+            if (tempStoryName == "Languages")
+            {
+                //get folder one more up
+                tempStoryName = "UI";
+            }
 
-                StoryName = tempStoryName;
-            
+            StoryName = tempStoryName;
+
         }
 
         /// <summary>
@@ -1377,7 +1379,7 @@ namespace Translator.Core
                         //select next index from list of matches
                         if (SelectedResultIndex < TabUI.LineCount)
                         {
-                            TabUI.Lines.SelectedIndex = SelectedResultIndex;
+                            SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
                         }
                     }
                 }
@@ -1385,7 +1387,7 @@ namespace Translator.Core
                 {
                     if (SelectedResultIndex < TabUI.LineCount)
                     {
-                        TabUI.Lines.SelectedIndex = SelectedResultIndex;
+                        SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
                         ++SelectedResultIndex;
                     }
                     else if (TabManager<T, V, X, W>.InGlobalSearch && TabManager<T, V, X, W>.TabCount > 1)
@@ -1396,9 +1398,8 @@ namespace Translator.Core
                     }
                     else
                     {
-                        SelectedResultIndex = 0;
-                        TabUI.Lines.SelectedIndex = SelectedResultIndex;
-                        ++SelectedResultIndex;
+                        SelectedResultIndex = 1;
+                        SelectLine(TabUI.Lines.SearchResults[0]);
                     }
                 }
 
