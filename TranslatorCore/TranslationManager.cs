@@ -1417,7 +1417,7 @@ namespace Translator.Core
         {
             if (!UI.ReplaceBarIsVisible)
             {
-                if (TabUI.TranslationBoxText.Length > 0)
+                if (TabUI.SelectedTranslationBoxText.Length > 0)
                 {
                     UI.SearchBarText = TabUI.SelectedTranslationBoxText;
                 }
