@@ -217,7 +217,7 @@ namespace Translator
             Control? focused_control = ActiveControl;
             try
             {
-                _ = (TextBox?)focused_control;
+                _ = (WinTextBox?)(TextBox?)focused_control;
             }
             //ignore exception, really intended
             catch { return false; }
@@ -225,11 +225,11 @@ namespace Translator
             var textBox = (TextBox)focused_control;
             if (toLeft)
             {
-                return ((ITextBox)textBox).DeleteCharactersInTextLeft();
+                return ((ITextBox)(WinTextBox)textBox).DeleteCharactersInTextLeft();
             }
             else
             {
-                return ((ITextBox)textBox).DeleteCharactersInTextRight();
+                return ((ITextBox)(WinTextBox)textBox).DeleteCharactersInTextRight();
             }
         }
 
@@ -244,7 +244,7 @@ namespace Translator
             Control? focused_control = ActiveControl;
             try
             {
-                _ = (TextBox?)focused_control;
+                _ = (WinTextBox?)(TextBox?)focused_control;
             }
             //ignore exception, really intended
             catch { return false; }
@@ -252,12 +252,12 @@ namespace Translator
             var textBox = (TextBox)focused_control;
             if (toLeft)
             {
-                ((ITextBox)textBox).MoveCursorWordLeft();
+                ((ITextBox)(WinTextBox)textBox).MoveCursorWordLeft();
                 return true;
             }
             else
             {
-                ((ITextBox)textBox).MoveCursorWordRight();
+                ((ITextBox)(WinTextBox)textBox).MoveCursorWordRight();
                 return true;
             }
         }
