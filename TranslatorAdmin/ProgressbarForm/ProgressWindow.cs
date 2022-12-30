@@ -1,5 +1,4 @@
 ﻿using Translator.Helpers;
-using System.Windows.Forms;
 
 namespace Translator.ProgressbarForm
 {
@@ -13,6 +12,8 @@ namespace Translator.ProgressbarForm
             noAnimationBar1.Step = 1;
             ProgressBar = noAnimationBar1;
             Status = label1;
+
+            IsInitialized = true;
         }
 
         public NoAnimationBar ProgressBar
@@ -24,6 +25,7 @@ namespace Translator.ProgressbarForm
         {
             get;
         }
+        public bool IsInitialized { get; internal set; }
 
         public void PerformStep()
         {

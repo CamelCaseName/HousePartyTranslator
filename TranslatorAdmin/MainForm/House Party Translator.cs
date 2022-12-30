@@ -80,7 +80,8 @@ namespace Translator
             ProgressbarWindow = new ProgressbarForm.ProgressWindow();
             ProgressbarWindow.Status.Text = "starting...";
             ProgressbarWindow.Text = "Startup";
-            ProgressbarWindow.Hide();
+            ProgressbarWindow.Show();
+            while (!ProgressbarWindow.IsInitialized) ;
         }
 
         /// <summary>
@@ -88,7 +89,6 @@ namespace Translator
         /// </summary>
         public Fenster()
         {
-            ProgressbarWindow.Show();
             //custom exception handlers to handle mysql exceptions
 #if RELEASE || USER_RELEASE
             AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
