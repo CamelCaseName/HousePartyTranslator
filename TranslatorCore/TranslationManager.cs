@@ -41,7 +41,8 @@ namespace Translator.Core
         public static bool IsUpToDate { get; internal set; } = false;
         public List<StringCategory> CategoriesInFile = new();
         public bool isTemplate = false;
-        public string SearchQuery = "";
+        public string SearchQuery { get; private set; } = string.Empty;
+        public string CleanedSearchQuery { get; private set; } = string.Empty;
 
         private static readonly Timer AutoSaveTimer = new();
 
@@ -410,7 +411,7 @@ namespace Translator.Core
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
                 if (TabUI.Lines.SearchResults[i].Length == 0) continue;
-                TranslationData[TabUI.Lines.SearchResults[i]].TranslationString = TranslationData[TabUI.Lines.SearchResults[i]].TranslationString.ReplaceImpl(SearchQuery, replacement);
+                TranslationData[TabUI.Lines.SearchResults[i]].TranslationString = TranslationData[TabUI.Lines.SearchResults[i]].TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
             }
 
             History.AddAction(new AllTranslationsChanged<T, V, X, W>(this, old, TranslationData));
@@ -433,7 +434,7 @@ namespace Translator.Core
         {
             if (TabUI.Lines.SearchResults.Contains(SelectedId))
             {
-                string temp = SelectedLine.TranslationString.Replace(SearchQuery, replacement);
+                string temp = SelectedLine.TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
                 History.AddAction(new TranslationChanged<T, V, X, W>(this, SelectedId, SelectedLine.TranslationString, temp));
                 SelectedLine.TranslationString = temp;
 
@@ -741,7 +742,6 @@ namespace Translator.Core
         /// </summary>
         public void Search()
         {
-            //todo fix enter handling on search
             SearchQuery = UI.SearchBarText;
             Search(SearchQuery);
         }
@@ -798,11 +798,14 @@ namespace Translator.Core
                         ++x;
                     }
                 }
+                CleanedSearchQuery = query;
             }
             else
             {
                 TabUI.Lines.SearchResults.Clear();
                 SelectedResultIndex = 0;
+                SearchQuery = string.Empty;
+                CleanedSearchQuery = string.Empty;
             }
 
             UI.UpdateResults();
