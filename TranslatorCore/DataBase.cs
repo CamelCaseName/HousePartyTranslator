@@ -565,7 +565,7 @@ namespace Translator.Core
 
             //try to reopen the connection if it is not open
             int tries = 0;
-            while (sqlConnection.State != System.Data.ConnectionState.Open && tries < 10 && IsOnline)
+            while (sqlConnection.State != System.Data.ConnectionState.Open && tries < 10)
             {
                 ++tries;
                 sqlConnection.Close();
@@ -574,6 +574,7 @@ namespace Translator.Core
                 {
                     sqlConnection.Open();
                     IsOnline = true;
+                    return true;
                 }
                 catch (MySqlException e)
                 {
