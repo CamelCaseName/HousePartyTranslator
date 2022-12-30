@@ -61,8 +61,8 @@ namespace Translator.UICompatibilityLayer
         public string Text { get; set; }
     }
 
-    public interface ITab<T> 
-		where T : class, ILineItem, new()
+    public interface ITab<T>
+        where T : class, ILineItem, new()
     {
         int LineCount => Lines.Count;
         string Text { get; set; }
@@ -137,9 +137,9 @@ namespace Translator.UICompatibilityLayer
         #endregion
     }
 
-    public interface ITabController<T, W> 
-		where T : class, ILineItem, new() 
-		where W : class, ITab<T>, new()
+    public interface ITabController<T, W>
+        where T : class, ILineItem, new()
+        where W : class, ITab<T>, new()
     {
         int SelectedIndex { get; set; }
         W SelectedTab { get; set; }
@@ -159,10 +159,10 @@ namespace Translator.UICompatibilityLayer
         public void Focus();
     }
 
-    public interface IUIHandler<T, X, W> 
-		where T : class, ILineItem, new() 
-		where X : class, ITabController<T, W>, new() 
-		where W : class, ITab<T>, new()
+    public interface IUIHandler<T, X, W>
+        where T : class, ILineItem, new()
+        where X : class, ITabController<T, W>, new()
+        where W : class, ITab<T>, new()
     {
         #region cursor
         void SignalUserEndWait();
@@ -273,8 +273,8 @@ namespace Translator.UICompatibilityLayer
         #endregion
     }
 
-    public interface ILineList<T> 
-		where T : class, ILineItem, new()
+    public interface ILineList<T>
+        where T : class, ILineItem, new()
     {
         T this[int index] { get; set; }
         int ApprovedCount { get; }
@@ -288,15 +288,17 @@ namespace Translator.UICompatibilityLayer
         void AddLineItem(T item);
         void ApproveItem(int index);
         void Clear();
+        void FreezeLayout();
         bool GetApprovalState(int index);
         void RemoveLineItem(T item);
         void SelectIndex(int index);
         void SetApprovalState(int index, bool isApproved);
         void UnapproveItem(int index);
+        void UnFreezeLayout();
     }
 
-    public class NullLineList<T> : ILineList<T> 
-		where T : class, ILineItem, new()
+    public class NullLineList<T> : ILineList<T>
+        where T : class, ILineItem, new()
     {
         public readonly List<T> Items = new();
 
@@ -411,6 +413,9 @@ namespace Translator.UICompatibilityLayer
         {
             Items.Add(new T() { Text = iD, IsApproved = lineIsApproved });
         }
+
+        public void FreezeLayout() { }
+        public void UnFreezeLayout() { }
     }
     public class MenuItems : List<IMenuItem>
     {

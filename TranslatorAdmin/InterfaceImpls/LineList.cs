@@ -127,8 +127,11 @@ namespace TranslatorAdmin.InterfaceImpls
 
         protected override void OnItemCheck(ItemCheckEventArgs ice)
         {
-            ((WinLineItem)Items[ice.Index]).IsApproved = ice.NewValue == CheckState.Checked ? true : false;
+            ((WinLineItem)Items[ice.Index]).IsApproved = ice.NewValue == CheckState.Checked;
             base.OnItemCheck(ice);
         }
+
+        public void FreezeLayout() => SuspendLayout();
+        public void UnFreezeLayout() => ResumeLayout();
     }
 }

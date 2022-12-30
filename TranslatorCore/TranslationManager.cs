@@ -398,7 +398,6 @@ namespace Translator.Core
             UI.SignalUserEndWait();
         }
 
-        //todo doesnt work/not shown if updated
         /// <summary>
         /// Replaces a searched string in all applicable lines by the replacement provided using the invariant culture.
         /// </summary>
@@ -1073,6 +1072,8 @@ namespace Translator.Core
                 //get template lines from user if they want
                 onlineLines = GetTemplatesFromUser();
 
+            TabUI.Lines.FreezeLayout();
+
             foreach (string key in TranslationData.Keys)
             {
                 if (onlineLines.TryGetValue(key, out LineData? tempLine))
@@ -1102,6 +1103,9 @@ namespace Translator.Core
                 //increase index to aid colouring
                 currentIndex++;
             }
+
+            TabUI.Lines.UnFreezeLayout();
+
             //reload once so the order of lines is correct after we fixed an empty or broken file
             if (triedFixingOnce)
             {
