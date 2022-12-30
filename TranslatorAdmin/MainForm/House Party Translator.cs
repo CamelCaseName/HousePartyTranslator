@@ -78,10 +78,11 @@ namespace Translator
         static Fenster()
         {
             ProgressbarWindow = new ProgressbarForm.ProgressWindow();
-            ProgressbarWindow.Status.Text = "starting...";
+            ProgressbarWindow.Status.Text = "Creating UI";
             ProgressbarWindow.Text = "Startup";
             ProgressbarWindow.Show();
             while (!ProgressbarWindow.IsInitialized) ;
+            ProgressbarWindow.PerformStep();
         }
 
         /// <summary>
@@ -106,9 +107,9 @@ namespace Translator
 
             //init all form components
             InitializeComponent();
-            ProgressbarWindow.PerformStep();
 
             //check for update and replace if we want one
+            ProgressbarWindow.Status.Text = "Checking for an update";
             SoftwareVersionManager.ReplaceFileIfNew();
             ProgressbarWindow.PerformStep();
         }
@@ -760,18 +761,20 @@ namespace Translator
 
         private void OnFormShown(object? sender, EventArgs? e)
         {
+            ProgressbarWindow.Status.Text = "Finishing startup";
             TabManager.FinalizeInitializer();
 
             Text = DataBase.AppTitle;
-
             ProgressbarWindow.PerformStep();
+
             LogManager.Log("Application initializing...");
+            ProgressbarWindow.Status.Text = "Starting discord worker";
             PresenceManager = new DiscordPresenceManager();
 
             WinTranslationManager.DiscordPresence = PresenceManager;
-
             ProgressbarWindow.PerformStep();
 
+            ProgressbarWindow.Status.Text = "Loading recents";
             //open most recent after db is initialized
             UpdateFileMenuItems();
             RecentsManager.OpenMostRecent<WinLineItem, WinUIHandler, WinTabController, WinTab>();
@@ -782,14 +785,15 @@ namespace Translator
 
             PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName ?? "None", TabManager.ActiveTranslationManager.FileName ?? "None");
 
+            //done
+            ProgressbarWindow.PerformStep();
             LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{(DataBase.IsOnline ? DataBase.DBVersion : "*offline*")} story version:{Settings.Default.version}");
-            //ProgressbarWindow.Hide();
-            //ProgressbarWindow.Status.Text = "progress";
-            //ProgressbarWindow.Text = "Autosave";
 
             //hide override button if not in advanced mode
             if (!Settings.Default.advancedMode)
                 overrideCloudSaveToolStripMenuItem.Enabled = false;
+
+            ProgressbarWindow.Hide();
         }
 
         private void OpenAllToolStripMenuItem_Click(object? sender, EventArgs? e)

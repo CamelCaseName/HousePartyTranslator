@@ -273,7 +273,7 @@ namespace Translator.Core
 
             if (!IsOnline)
             {
-                AppTitle = " (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
+                AppTitle = "Translator (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
             }
             else
             {
@@ -334,7 +334,7 @@ namespace Translator.Core
                 {
                     _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
                 }
-                AppTitle = " (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
+                AppTitle = "Translator (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
             }
             UI.SignalUserEndWait();
         }

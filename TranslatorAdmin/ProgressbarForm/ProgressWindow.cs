@@ -7,7 +7,7 @@ namespace Translator.ProgressbarForm
         public ProgressWindow()
         {
             InitializeComponent();
-            noAnimationBar1.Maximum = 10;
+            noAnimationBar1.Maximum = 5;
             noAnimationBar1.Value = 0;
             noAnimationBar1.Step = 1;
             ProgressBar = noAnimationBar1;
