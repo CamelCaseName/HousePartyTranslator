@@ -11,11 +11,11 @@ namespace Translator.Core
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    public static class DataBase<T, V, X, W> 
-		where T : class, ILineItem, new() 
-		where V : class, IUIHandler<T, X, W>, new() 
-		where X : class, ITabController<T, W>, new() 
-		where W : class, ITab<T>, new()
+    public static class DataBase<T, V, X, W>
+        where T : class, ILineItem, new()
+        where V : class, IUIHandler<T, X, W>, new()
+        where X : class, ITabController<T, W>, new()
+        where W : class, ITab<T>, new()
     {
         public static string DBVersion { get; private set; } = "0.0.0";
         public static string AppTitle { get; private set; } = string.Empty;
@@ -237,17 +237,7 @@ namespace Translator.Core
                 sqlConnection.ConnectionString = GetConnString();
                 try
                 {
-                    sqlConnection.Open();
-                    if (sqlConnection.State != System.Data.ConnectionState.Open)
-                    {
-                        //password may have to be changed
-                        _ = UI.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
-                        UI.SignalAppExit();
-                    }
-                    else
-                    {
-                        IsOnline = true;
-                    }
+                    _ = CheckOrReopenConnection();
                 }
                 catch (MySqlException e)
                 {
@@ -570,7 +560,10 @@ namespace Translator.Core
         /// <returns>true if the connection is open and could be opened within 10 tries</returns>
         private static bool CheckOrReopenConnection()
         {
-            //try to reopen the connection if it died
+            //end early
+            if (sqlConnection.State == System.Data.ConnectionState.Open) return true;
+
+            //try to reopen the connection if it is not open
             int tries = 0;
             while (sqlConnection.State != System.Data.ConnectionState.Open && tries < 10 && IsOnline)
             {
@@ -587,6 +580,8 @@ namespace Translator.Core
                     if (e.Code == 0)
                     {
                         //0 means offline
+                        _ = UI.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
+                                        "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
                         return false;
                     }
                     else if (e.Code == 1045)
@@ -596,11 +591,10 @@ namespace Translator.Core
                     }
                 }
             }
-            //if we are already offline
+            //if we are still offline
             if (!IsOnline) return false;
             else if (sqlConnection.State != System.Data.ConnectionState.Open)
             {
-                //password may have to be changed
                 _ = UI.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
                 UI.SignalAppExit();
                 return false;
