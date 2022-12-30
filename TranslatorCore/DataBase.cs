@@ -229,7 +229,7 @@ namespace Translator.Core
         /// Establishes the connection and handles the password stuff
         /// </summary>
         /// <param name="mainWindow">the window to spawn the password box as a child of</param>
-        private static void EstablishConnection(string password)
+        private static void EstablishConnection()
         {
             UI.SignalUserWait();
             while (!IsOnline)
@@ -261,11 +261,11 @@ namespace Translator.Core
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
         /// </summary>
-        public static void Initialize(V uIHandler, string password, string AppVersion)
+        public static void Initialize(V uIHandler, string AppVersion)
         {
             UI = uIHandler;
             //establish connection and handle password
-            EstablishConnection(password);
+            EstablishConnection();
 
             MainCommand = new MySqlCommand("", sqlConnection);
             //Console.WriteLine("DB opened");

@@ -98,7 +98,9 @@ namespace Translator
 
             //initialize ui, controllers, database and so on
             var tab = new WinTab(this);
-            TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), GetPassword(), SoftwareVersionManager.LocalVersion, tab, new WinSettings());
+            CheckForPassword();
+
+            TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), SoftwareVersionManager.LocalVersion, tab, new WinSettings());
             CheckListBoxLeft = tab.Lines;
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
 
@@ -348,9 +350,9 @@ namespace Translator
             }
         }
 
-        private string GetPassword()
+        private void CheckForPassword()
         {
-            if (Settings.Default.dbPassword.Length > 0) return Settings.Default.dbPassword;
+            if (Settings.Default.dbPassword.Length > 0) return;
 
             var Passwordbox = new Password();
             DialogResult passwordResult = Passwordbox.ShowDialog(this);
@@ -370,7 +372,6 @@ namespace Translator
                     Environment.Exit(-1);
                 }
             }
-            return Settings.Default.dbPassword;
         }
 
         private void InitializeComponent()
