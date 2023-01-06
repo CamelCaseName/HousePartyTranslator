@@ -720,6 +720,7 @@ namespace Translator
             Name = nameof(Fenster);
             ShowIcon = false;
             Text = "Translator";
+            StartPosition= FormStartPosition.CenterScreen;
             FormClosing += new FormClosingEventHandler(OnFormClosing);
             MouseUp += new MouseEventHandler(TextContextOpened);
             Shown += new EventHandler(OnFormShown);
