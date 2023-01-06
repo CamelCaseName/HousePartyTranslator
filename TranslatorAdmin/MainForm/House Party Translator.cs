@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Runtime.Versioning;
+using System.Transactions;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
@@ -12,6 +13,7 @@ using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLine
 using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using WinUtils = Translator.Core.Helpers.Utils<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
+using TranslationManager = Translator.Core.TranslationManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 
 namespace Translator
 {
@@ -165,7 +167,11 @@ namespace Translator
 
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
-            KeypressManager.SelectedItemChanged((LineList)CheckListBoxLeft);
+            KeypressManager.SelectedItemChanged(CheckListBoxLeft);
+            if (Explorer != null
+                && Explorer.StoryName == TabManager.ActiveTranslationManager.StoryName
+                && Explorer.FileName == TabManager.ActiveTranslationManager.FileName)
+                TabManager.ActiveTranslationManager.SetHighlightedNode();
         }
 
         public void Comments_TextChanged(object? sender, EventArgs? e)
@@ -313,7 +319,8 @@ namespace Translator
             {
                 for (int i = 0; i < TabControl.TabCount; i++)
                 {
-                    if (TabControl.GetTabRect(i).Contains(e.Location)){
+                    if (TabControl.GetTabRect(i).Contains(e.Location))
+                    {
                         TabManager.CloseTab(((WinTabController?)sender)?.TabPages[i] ?? (WinTab)new object());
                         return;
                     }
@@ -323,7 +330,87 @@ namespace Translator
 
         private async void CustomStoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            Explorer = await KeypressManager.CreateStoryExplorer(false, this, CancelTokens);
+            Explorer = await CreateStoryExplorer(false, CancelTokens);
+        }
+
+        public static async Task<StoryExplorer?> CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
+        {
+            if (ActiveForm == null) return null;
+            ActiveForm.UseWaitCursor = true;
+
+            // Use ParallelOptions instance to store the CancellationToken
+            var parallelOptions = new ParallelOptions
+            {
+                CancellationToken = tokenSource.Token,
+                MaxDegreeOfParallelism = Environment.ProcessorCount - 1
+            };
+
+            if (TabManager.ActiveTranslationManager == null) return null;
+
+            //get currently active translation manager
+            TranslationManager manager = TabManager.ActiveTranslationManager;
+
+            bool isStory = manager.StoryName.ToLowerInvariant() == manager.FileName.ToLowerInvariant();
+            try
+            {
+                //create an id to differentiate between the different calculated layouts later
+                string FileId = manager.StoryName + manager.FileName + DataBase.DBVersion;
+                string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
+                DialogResult result = DialogResult.OK;
+                if (!File.Exists(savedNodesPath))
+                {
+                    result = Msg.WarningOkCancel("If you never opened this character in the explorer before, " +
+                       "be aware that this can take some time (5+ minutes) and is really cpu intensive. " +
+                       "This only has to be done once for each character!\n" +
+                       "You may notice stutters and stuff hanging. ",
+                       "Warning!");
+                }
+                //inform user this is going to take some time
+                if (result == DialogResult.OK)
+                {
+                    var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, ActiveForm, parallelOptions)
+                    {
+                        UseWaitCursor = true
+                    };
+
+                    //task to offload initialization workload
+                    var explorerTask = Task.Run(() =>
+                    {
+                        explorer.Initialize();
+                        return true;
+                    });
+
+                    if (await explorerTask)
+                    {
+                        if (!explorer.IsDisposed)
+                        {//reset cursor and display window
+                            explorer.UseWaitCursor = false;
+                            explorer.Invalidate();
+                            explorer.Show();
+                        }
+
+                        manager.SetHighlightedNode();
+                        ActiveForm.UseWaitCursor = false;
+                        return explorer;
+                    }
+                    else
+                    {
+                        ActiveForm.UseWaitCursor = false;
+                        return null;
+                    }
+                }
+                else
+                {
+                    ActiveForm.UseWaitCursor = false;
+                    return null;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                ActiveForm.UseWaitCursor = false;
+                LogManager.Log("Explorer closed during creation");
+                return null;
+            }
         }
 
         private void ExitToolStripMenuItem_Click(object? sender, EventArgs? e)
@@ -720,7 +807,7 @@ namespace Translator
             Name = nameof(Fenster);
             ShowIcon = false;
             Text = "Translator";
-            StartPosition= FormStartPosition.CenterScreen;
+            StartPosition = FormStartPosition.CenterScreen;
             FormClosing += new FormClosingEventHandler(OnFormClosing);
             MouseUp += new MouseEventHandler(TextContextOpened);
             Shown += new EventHandler(OnFormShown);
@@ -867,7 +954,7 @@ namespace Translator
 
         private async void StoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            Explorer = await KeypressManager.CreateStoryExplorer(true, this, CancelTokens);
+            Explorer = await CreateStoryExplorer(true, CancelTokens);
         }
 
         private void ThreadExceptionHandler(object? sender, ThreadExceptionEventArgs? e)

@@ -7,6 +7,8 @@
         private readonly GraphingEngine engine;
         private readonly Form parentForm;
         private readonly string parentName;
+        public readonly string FileName;
+        public readonly string StoryName;
 
         public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, ParallelOptions parallelOptions)
         {
@@ -15,6 +17,8 @@
             //indicate ownership
             parentName = Parent.Name;
             parentForm = Parent;
+            this.StoryName = StoryName;
+            this.FileName = FileName;
 
             //change draw order for this windows from bottom to top to top to bottom to remove flickering
             //use double buffering for that

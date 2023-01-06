@@ -448,7 +448,6 @@ namespace Translator.StoryExplorerForm
 
         private void SetPanOffset(Point location)
         {
-
             StartPanOffsetX = location.X;
             StartPanOffsetY = location.Y;
         }

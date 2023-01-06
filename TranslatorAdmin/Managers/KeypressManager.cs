@@ -1,13 +1,8 @@
 ﻿using Translator.Core;
-using Translator.Core.Helpers;
-using Translator.Helpers;
 using Translator.UICompatibilityLayer;
 using TranslatorAdmin.InterfaceImpls;
-using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using TranslationManager = Translator.Core.TranslationManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 
 namespace Translator.Managers
 {
@@ -36,86 +31,6 @@ namespace Translator.Managers
             TabManager.ActiveTranslationManager.ApproveIfPossible(false);
         }
 
-        public static async Task<StoryExplorerForm.StoryExplorer?> CreateStoryExplorer(bool autoOpen, Form? explorerParent, CancellationTokenSource tokenSource)
-        {
-            if (explorerParent == null) return null;
-            explorerParent.UseWaitCursor = true;
-
-            // Use ParallelOptions instance to store the CancellationToken
-            var parallelOptions = new ParallelOptions
-            {
-                CancellationToken = tokenSource.Token,
-                MaxDegreeOfParallelism = Environment.ProcessorCount - 1
-            };
-
-            if (TabManager.ActiveTranslationManager == null) return null;
-
-            //get currently active translation manager
-            TranslationManager manager = TabManager.ActiveTranslationManager;
-
-            bool isStory = manager.StoryName.ToLowerInvariant() == manager.FileName.ToLowerInvariant();
-            try
-            {
-                //create an id to differentiate between the different calculated layouts later
-                string FileId = manager.StoryName + manager.FileName + DataBase.DBVersion;
-                string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
-                DialogResult result = DialogResult.OK;
-                if (!File.Exists(savedNodesPath))
-                {
-                    result = Msg.WarningOkCancel("If you never opened this character in the explorer before, " +
-                       "be aware that this can take some time (5+ minutes) and is really cpu intensive. " +
-                       "This only has to be done once for each character!\n" +
-                       "You may notice stutters and stuff hanging. ",
-                       "Warning!");
-                }
-                //inform user this is going to take some time
-                if (result == DialogResult.OK)
-                {
-                    var explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, explorerParent, parallelOptions)
-                    {
-                        UseWaitCursor = true
-                    };
-
-                    //task to offload initialization workload
-                    var explorerTask = Task.Run(() =>
-                    {
-                        explorer.Initialize();
-                        return true;
-                    });
-
-                    if (await explorerTask)
-                    {
-                        if (!explorer.IsDisposed)
-                        {//reset cursor and display window
-                            explorer.UseWaitCursor = false;
-                            explorer.Invalidate();
-                            explorer.Show();
-                        }
-
-                        manager.SetHighlightedNode();
-                        explorerParent.UseWaitCursor = false;
-                        return explorer;
-                    }
-                    else
-                    {
-                        explorerParent.UseWaitCursor = false;
-                        return null;
-                    }
-                }
-                else
-                {
-                    explorerParent.UseWaitCursor = false;
-                    return null;
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                explorerParent.UseWaitCursor = false;
-                LogManager.Log("Explorer closed during creation");
-                return null;
-            }
-        }
-
         /// <summary>
         /// Detects for hotkeys used, if they are consumed we return true, else false is returned. Call TextChangedCallback if this returned false and the base.WndProc has finished to call back on text changes.
         /// </summary>
@@ -127,7 +42,6 @@ namespace Translator.Managers
         /// <returns></returns>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
-
         public static bool MainKeyPressHandler(ref Message msg, Keys keyData, CancellationTokenSource tokenSource)
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
@@ -243,11 +157,11 @@ namespace Translator.Managers
                     return true;
 
                 case Keys.Control | Keys.E:
-                    _ = CreateStoryExplorer(true, App.MainForm, tokenSource);
+                    _ = Fenster.CreateStoryExplorer(true, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.T:
-                    _ = CreateStoryExplorer(false, App.MainForm, tokenSource);
+                    _ = Fenster.CreateStoryExplorer(false, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.P:
@@ -334,6 +248,7 @@ namespace Translator.Managers
         public static void SelectedLanguageChanged()
         {
             TranslationManager<WinLineItem, WinUIHandler, WinTabController, WinTab>.SetLanguage();
+            TabManager.ActiveTranslationManager.ReloadFile();
         }
 
         public static void SelectedTabChanged(DiscordPresenceManager? presenceManager)
