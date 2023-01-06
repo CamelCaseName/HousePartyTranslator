@@ -34,14 +34,13 @@
             // 
             // label1
             // 
-            this.label1.BackColor = System.Drawing.Color.Transparent;
-            this.label1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.label1.BackColor = System.Drawing.SystemColors.WindowFrame;
             this.label1.Font = new System.Drawing.Font("Consolas", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.label1.ForeColor = System.Drawing.SystemColors.HighlightText;
             this.label1.Location = new System.Drawing.Point(0, 0);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(448, 128);
+            this.label1.Size = new System.Drawing.Size(448, 52);
             this.label1.TabIndex = 1;
             this.label1.Text = "progress";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
