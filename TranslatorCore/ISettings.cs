@@ -47,6 +47,7 @@ namespace Translator.Core
 
     public interface ISettings
     {
+        public static ISettings Default { get { return Default ?? throw new NullReferenceException("Default settings were not initialized."); } }
         public bool AdvancedModeEnabled { get; set; }
         public bool AllowCustomStories { get; set; }
         public bool AlsoSaveToGame { get; set; }

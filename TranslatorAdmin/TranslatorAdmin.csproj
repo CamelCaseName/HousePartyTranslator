@@ -98,7 +98,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if $(ConfigurationName) == Release $(SolutionDir)7za.exe u &quot;.\Release.7z&quot; .\HousePartyTranslator.exe .\HousePartyTranslator.exe.config .\7za.exe&#xD;&#xA;" />
+    <Exec Command="if &quot;$(ConfigurationName)&quot; == Release $(SolutionDir)7za.exe u &quot;.\Release.7z&quot; .\HousePartyTranslator.exe .\HousePartyTranslator.exe.config .\7za.exe&#xD;&#xA;" />
   </Target>
 
 </Project>

@@ -9,7 +9,7 @@ using Translator.UICompatibilityLayer;
 using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Managers;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using Settings = TranslatorAdmin.Properties.Settings;
+using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using WinUtils = Translator.Core.Helpers.Utils<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 
@@ -353,13 +353,13 @@ namespace Translator
 
         private void CheckForPassword()
         {
-            if (Settings.Default.dbPassword.Length > 0) return;
+            if (Settings.Default.DbPassword.Length > 0) return;
 
             var Passwordbox = new Password();
             DialogResult passwordResult = Passwordbox.ShowDialog(this);
             if (passwordResult == DialogResult.OK)
             {
-                Settings.Default.dbPassword = Passwordbox.GetPassword();
+                Settings.Default.DbPassword = Passwordbox.GetPassword();
                 Settings.Default.Save();
             }
             else
@@ -592,7 +592,7 @@ namespace Translator
                 Margin = new Padding(1)
             };
             languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
-            languageToolStripComboBox.SelectedItem = Settings.Default.language;
+            languageToolStripComboBox.SelectedItem = Settings.Default.Language;
             languageToolStripComboBox.SelectedIndexChanged += new EventHandler(LanguageToolStripComboBox_SelectedIndexChanged);
 
             // storyExplorerStripMenuItem
@@ -787,10 +787,10 @@ namespace Translator
 
             //done
             ProgressbarWindow.PerformStep();
-            LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{(DataBase.IsOnline ? DataBase.DBVersion : "*offline*")} story version:{Settings.Default.version}");
+            LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{(DataBase.IsOnline ? DataBase.DBVersion : "*offline*")} story version:{Settings.Default.FileVersion}");
 
             //hide override button if not in advanced mode
-            if (!Settings.Default.advancedMode)
+            if (!Settings.Default.AdvancedModeEnabled)
                 overrideCloudSaveToolStripMenuItem.Enabled = false;
 
             ProgressbarWindow.Hide();

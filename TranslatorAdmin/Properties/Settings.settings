@@ -71,9 +71,6 @@
     <Setting Name="AutoSaveInterval" Type="System.TimeSpan" Scope="User">
       <Value Profile="(Default)">00:00:00</Value>
     </Setting>
-    <Setting Name="advancedMode" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="dbUserName" Type="System.String" Scope="User">
       <Value Profile="(Default)">user</Value>
     </Setting>
