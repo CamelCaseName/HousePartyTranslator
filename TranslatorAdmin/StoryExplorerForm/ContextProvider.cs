@@ -35,6 +35,8 @@ namespace Translator
             options = parallelOptions;
             nodes = new List<Node>();
             this.IsStory = IsStory;
+            this.FileName = FileName;
+            this.StoryName = StoryName;
 
             if (Settings.Default.story_path != "" && AutoSelectFile && FileName != "" && StoryName != "")
             {
@@ -190,7 +192,7 @@ namespace Translator
             //Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
 
             const float maxForce = 0;
-            const int iterations = 300;
+            const int iterations = 30;
             float attraction = 750f;//attraction force multiplier, between 0 and much
             float cooldown = 0.97f;
             float currentMaxForce = maxForce + 0.1f;

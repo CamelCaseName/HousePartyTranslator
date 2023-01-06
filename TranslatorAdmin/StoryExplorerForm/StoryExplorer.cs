@@ -1,7 +1,4 @@
-﻿using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace Translator.StoryExplorerForm
+﻿namespace Translator.StoryExplorerForm
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class StoryExplorer : Form

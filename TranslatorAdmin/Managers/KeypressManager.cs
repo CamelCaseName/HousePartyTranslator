@@ -7,7 +7,7 @@ using TranslatorAdmin.Managers;
 using Settings = TranslatorAdmin.Properties.Settings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using System.Runtime.Intrinsics.X86;
+using TranslationManager = Translator.Core.TranslationManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 
 namespace Translator.Managers
 {
@@ -36,7 +36,6 @@ namespace Translator.Managers
             TabManager.ActiveTranslationManager.ApproveIfPossible(false);
         }
 
-
         public static async Task<StoryExplorerForm.StoryExplorer?> CreateStoryExplorer(bool autoOpen, Form? explorerParent, CancellationTokenSource tokenSource)
         {
             if (explorerParent == null) return null;
@@ -52,12 +51,13 @@ namespace Translator.Managers
             if (TabManager.ActiveTranslationManager == null) return null;
 
             //get currently active translation manager
-            WinTranslationManager translationManager = (WinTranslationManager)TabManager.ActiveTranslationManager;
-            bool isStory = translationManager.StoryName.ToLowerInvariant() == translationManager.FileName.ToLowerInvariant();
+            TranslationManager manager = TabManager.ActiveTranslationManager;
+
+            bool isStory = manager.StoryName.ToLowerInvariant() == manager.FileName.ToLowerInvariant();
             try
             {
                 //create an id to differentiate between the different calculated layouts later
-                string FileId = translationManager.StoryName + translationManager.FileName + DataBase.DBVersion;
+                string FileId = manager.StoryName + manager.FileName + DataBase.DBVersion;
                 string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
                 DialogResult result = DialogResult.OK;
                 if (!File.Exists(savedNodesPath))
@@ -71,7 +71,7 @@ namespace Translator.Managers
                 //inform user this is going to take some time
                 if (result == DialogResult.OK)
                 {
-                    var explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, translationManager.FileName, translationManager.StoryName, explorerParent, parallelOptions)
+                    var explorer = new StoryExplorerForm.StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, explorerParent, parallelOptions)
                     {
                         UseWaitCursor = true
                     };
@@ -92,7 +92,7 @@ namespace Translator.Managers
                             explorer.Show();
                         }
 
-                        translationManager.SetHighlightedNode();
+                        manager.SetHighlightedNode();
                         explorerParent.UseWaitCursor = false;
                         return explorer;
                     }
@@ -127,7 +127,6 @@ namespace Translator.Managers
         /// <returns></returns>
 #pragma warning disable IDE0079 // Remove unnecessary suppression
 #pragma warning disable IDE0060 // Remove unused parameter
-
 
         public static bool MainKeyPressHandler(ref Message msg, Keys keyData, CancellationTokenSource tokenSource)
 #pragma warning restore IDE0060 // Remove unused parameter
@@ -292,7 +291,6 @@ namespace Translator.Managers
             }
         }
 
-
         public static void OpenAll()
         {
             //opne the story in tabs
@@ -309,7 +307,6 @@ namespace Translator.Managers
             }
         }
 
-
         public static void OpenNew()
         {
             //get currently active translationmanager
@@ -320,7 +317,6 @@ namespace Translator.Managers
         {
             TabManager.OpenNewTab();
         }
-
 
         public static void SelectedItemChanged(LineList listBox)
         {

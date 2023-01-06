@@ -19,7 +19,7 @@ namespace Translator.Core
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    public class TranslationManager<T, V, X, W>
+    public class TranslationManager<T, V, X, W> : ITranslationManager<T> 
         where T : class, ILineItem, new()
         where V : class, IUIHandler<T, X, W>, new()
         where X : class, ITabController<T, W>, new()
@@ -47,7 +47,7 @@ namespace Translator.Core
         private static readonly Timer AutoSaveTimer = new();
 
         public int SelectedResultIndex = 0;
-        public ILineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : new T();
+        public T SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : new T();
 
         //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
         private int templateCounter = 0;

@@ -9,7 +9,7 @@ using System.Runtime.Versioning;
 namespace Translator.Managers
 {
     [SupportedOSPlatform("Windows")]
-    internal sealed class DiscordPresenceManager
+    public sealed class DiscordPresenceManager
     {
         public DiscordRPC? DiscordPresenceClient;
         private string Character = "";

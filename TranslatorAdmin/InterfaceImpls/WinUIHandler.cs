@@ -7,7 +7,7 @@ using TranslatorAdmin.Managers;
 namespace TranslatorAdmin.InterfaceImpls
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController, WinTab>
+    public sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController, WinTab>
     {
         public WinUIHandler() { }
 
@@ -23,9 +23,7 @@ namespace TranslatorAdmin.InterfaceImpls
 
         public string SearchBarText { get => App.MainForm?.SearchBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the SearchBArText"); App.MainForm.SearchBox.Text = value; } }
 
-        private WinTranslationManager WinTranslation => WinTranslation ?? new(this);
-
-        public CreateTemplateFromStoryDelegate CreateTemplateFromStory { get => WinTranslation.CreateTemplateFromStory; }
+        public CreateTemplateFromStoryDelegate CreateTemplateFromStory { get => WinTranslationManager.CreateTemplateFromStory; }
 
         public WinTabController TabControl { get; } = new();
 

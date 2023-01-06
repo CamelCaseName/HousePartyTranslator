@@ -46,7 +46,7 @@ namespace Translator.StoryExplorerForm
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         public GraphingEngine(ContextProvider context, StoryExplorer explorer, Label nodeInfoLabel)
         {
             Context = context;
@@ -65,7 +65,7 @@ namespace Translator.StoryExplorerForm
         public delegate void ClickedNodeChangedHandler(object sender, ClickedNodeChangeArgs e);
         public event ClickedNodeChangedHandler ClickedNodeChanged;
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         public Node HighlightedNode
         {
             get
@@ -109,7 +109,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
         {
             if (ReadyToDraw && e != null)
@@ -140,7 +140,7 @@ namespace Translator.StoryExplorerForm
             IsShiftPressed = e.KeyData == (Keys.ShiftKey | Keys.Shift);
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         public void HandleMouseEvents(object sender, MouseEventArgs e)
         {
             switch (e.Button)
@@ -174,7 +174,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         public void PaintAllNodes()
         {
             //go on displaying graph
@@ -205,7 +205,7 @@ namespace Translator.StoryExplorerForm
             graphY = screenY / Scaling + OffsetY;
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void DisplayNodeInfo(Node infoNode, bool colourNode)
         {
             //display info on new node
@@ -246,7 +246,7 @@ namespace Translator.StoryExplorerForm
             Explorer.Invalidate();
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
         {
             //display info on new node
@@ -256,7 +256,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void DrawColouredNode(Node node, Color color)
         {
             if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
@@ -270,7 +270,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         internal void DrawEdge(Node node1, Node node2, Color color)
         {
             if (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
@@ -284,7 +284,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         internal void DrawEdges(List<Node> nodes, Color color)
         {
             var points = new Point[nodes.Count];
@@ -297,7 +297,7 @@ namespace Translator.StoryExplorerForm
             MainGraphics.DrawLines(new Pen(color, 3f), points);
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void DrawHighlightNodeTree()
         {
             if (HighlightedNode != Node.NullNode)
@@ -327,7 +327,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void DrawNodeSet(List<Node> nodes, Node previousNode, int depth, int maxDepth, Color nodeColor, Color edgeColor, bool diluteColor)
         {
             if (depth++ < maxDepth)
@@ -361,16 +361,15 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void HighlightClickedNodeHandler(object sender, ClickedNodeChangeArgs e)
         {
             if (e.ClickType == ClickedNodeTypes.Highlight)
             {
-                WinTranslationManager t = (WinTranslationManager)TabManager.ActiveTranslationManager;
                 //tell translationmanager to update us or not when selected
-                t.UpdateStoryExplorerSelection = !IsShiftPressed;
+                WinTranslationManager.UpdateStoryExplorerSelection = !IsShiftPressed;
                 //select line in translation manager
-                t.SelectLine(e.ChangedNode.ID);
+                TabManager.ActiveTranslationManager.SelectLine(e.ChangedNode.ID);
                 //put info up
                 DisplayNodeInfo(e.ChangedNode, false);
                 //draw nodes
@@ -378,7 +377,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void RemoveHighlight()
         {
             if (HighlightedNode != null)
@@ -409,7 +408,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void RemoveLastInfoNode(Node infoNode)
         {
             //remove last node highlight
@@ -429,7 +428,7 @@ namespace Translator.StoryExplorerForm
             }
         }
 
-        [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows")]
         private void SetNewHighlightNode(Point mouseLocation)
         {
             Node ClickedNode = UpdateClickedNode(mouseLocation);

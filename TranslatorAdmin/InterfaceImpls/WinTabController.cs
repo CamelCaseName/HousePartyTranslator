@@ -4,7 +4,7 @@ using Translator.UICompatibilityLayer;
 namespace TranslatorAdmin.InterfaceImpls
 {
     [SupportedOSPlatform("Windows")]
-    internal class WinTabController : TabControl, ITabController<WinLineItem, WinTab>
+    public class WinTabController : TabControl, ITabController<WinLineItem, WinTab>
     {
         public new int SelectedIndex { get => base.SelectedIndex; set => base.SelectedIndex = value; }
         public new WinTab SelectedTab { get => (WinTab)base.SelectedTab; set => base.SelectedTab = (TabPage)value; }

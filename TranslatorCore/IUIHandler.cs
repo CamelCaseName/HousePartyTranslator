@@ -27,6 +27,7 @@ namespace Translator.UICompatibilityLayer
         string Title { get; set; }
         PopupResult ShowDialog();
     }
+
     public interface ISaveFileDialog
     {
         string FileName { get; set; }
@@ -38,6 +39,7 @@ namespace Translator.UICompatibilityLayer
 
         PopupResult ShowDialog();
     }
+
     public interface IFolderDialog
     {
         string SelectedFolderPath { get; set; }
@@ -417,6 +419,7 @@ namespace Translator.UICompatibilityLayer
         public void FreezeLayout() { }
         public void UnFreezeLayout() { }
     }
+
     public class MenuItems : List<IMenuItem>
     {
         public MenuItems() : base() { }
