@@ -1,7 +1,4 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
-
-namespace Translator.Helpers
+﻿namespace Translator.Helpers
 {
     /// <summary>
     /// A extended WinForms ProgressBar which has a different colour and removes the animation.

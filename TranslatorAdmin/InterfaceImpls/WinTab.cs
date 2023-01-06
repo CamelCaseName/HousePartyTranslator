@@ -334,7 +334,6 @@ namespace TranslatorAdmin.InterfaceImpls
             ResumeLayout();
         }
 
-        //todo
         public bool IsApproveButtonFocused => ApprovedBox.Focused;
 
         public List<string> SimilarStringsToEnglish => Lines.SimilarStringsToEnglish;

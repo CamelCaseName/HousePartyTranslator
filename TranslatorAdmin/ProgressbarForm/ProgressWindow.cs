@@ -10,6 +10,7 @@ namespace Translator.ProgressbarForm
             noAnimationBar1.Maximum = 5;
             noAnimationBar1.Value = 0;
             noAnimationBar1.Step = 1;
+            Invalidate();
             ProgressBar = noAnimationBar1;
             Status = label1;
 
@@ -30,6 +31,7 @@ namespace Translator.ProgressbarForm
         public void PerformStep()
         {
             noAnimationBar1.PerformStep();
+            Invalidate();
             Update();
         }
     }

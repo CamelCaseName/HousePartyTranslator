@@ -4,6 +4,7 @@ namespace TranslatorAdmin.InterfaceImpls
 {
     internal class WinSettings : ISettings
     {
+        public static readonly ISettings Default = new WinSettings();
         public bool AdvancedModeEnabled
         {
             get
