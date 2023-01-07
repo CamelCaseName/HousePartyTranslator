@@ -365,9 +365,7 @@ namespace Translator.Core
                     selectedNew = true;
 
                     //display the string in the editable window
-                    TabUI.
-                    //display the string in the editable window
-                    TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine);
+                    TabUI.TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine);
 
                     //translate if useful and possible
                     ConvenienceAutomaticTranslation();
@@ -378,15 +376,15 @@ namespace Translator.Core
                     TabUI.CommentBoxTextArr = SelectedLine.Comments;
 
                     //sync approvedbox and list
-                    TabUI.
-                    //sync approvedbox and list
-                    ApprovedButtonChecked = TabUI.Lines[currentIndex].IsApproved;
+                    TabUI.ApprovedButtonChecked = SelectedLine.IsApproved;
 
                     //update label
                     UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
 
+                    TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
+
                     //renew search result if possible
-                    int t = TabUI.Lines.SearchResults.IndexOf(TabUI.SelectedLineItem.Text);
+                    int t = TabUI.Lines.SearchResults.IndexOf(SelectedId);
                     if (t >= 0) { SelectedResultIndex = t; }
                 }
             }
