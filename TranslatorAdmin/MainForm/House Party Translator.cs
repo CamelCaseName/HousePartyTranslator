@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Versioning;
-using System.Transactions;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
@@ -9,11 +9,13 @@ using Translator.StoryExplorerForm;
 using Translator.UICompatibilityLayer;
 using TranslatorAdmin.InterfaceImpls;
 using TranslatorAdmin.Managers;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TextBox;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
+using InputHandler = Translator.Core.InputHandler<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using WinUtils = Translator.Core.Helpers.Utils<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using TranslationManager = Translator.Core.TranslationManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
+using WinUtils = Translator.Core.Helpers.Utils<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 
 namespace Translator
 {
@@ -157,17 +159,17 @@ namespace Translator
 
         public void ApprovedBox_CheckedChanged(object? sender, EventArgs? e)
         {
-            KeypressManager.ApprovedButtonChanged();
+            InputHandler.ApprovedButtonChanged();
         }
 
         public void CheckListBoxLeft_ItemCheck(object? sender, ItemCheckEventArgs? e)
         {
-            KeypressManager.CheckItemChanged();
+            InputHandler.CheckItemChanged();
         }
 
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
-            KeypressManager.SelectedItemChanged(CheckListBoxLeft);
+            InputHandler.SelectedItemChanged(CheckListBoxLeft);
             if (Explorer != null
                 && Explorer.StoryName == TabManager.ActiveTranslationManager.StoryName
                 && Explorer.FileName == TabManager.ActiveTranslationManager.FileName)
@@ -176,8 +178,9 @@ namespace Translator
 
         public void Comments_TextChanged(object? sender, EventArgs? e)
         {
+            if (ActiveControl == null) return;
             TabManager.ActiveTranslationManager.UpdateComments();
-            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
+            InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
         }
 
         public void CopyAllContextMenuButton_Click(object? sender, EventArgs? e)
@@ -234,11 +237,11 @@ namespace Translator
             var textBox = (TextBox)focused_control;
             if (toLeft)
             {
-                return ((ITextBox)(WinTextBox)textBox).DeleteCharactersInTextLeft();
+                return ((WinTextBox)textBox).DeleteCharactersInTextLeft();
             }
             else
             {
-                return ((ITextBox)(WinTextBox)textBox).DeleteCharactersInTextRight();
+                return ((WinTextBox)textBox).DeleteCharactersInTextRight();
             }
         }
 
@@ -275,24 +278,28 @@ namespace Translator
         {
             if (e == null || ListContextMenu == null)
                 return;
-            KeypressManager.OpenContextMenu(ListContextMenu, e);
+            WindowsKeypressManager.OpenContextMenu(ListContextMenu, e);
         }
 
         public void TextBoxRight_TextChanged(object? sender, EventArgs? e)
         {
-            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
-            KeypressManager.TranslationTextChanged();
+            if (ActiveControl == null) return;
+            if (ActiveControl.GetType().IsAssignableFrom(typeof(ITextBox)))
+            {
+                InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
+            }
+            InputHandler.TranslationTextChanged();
         }
 
         public void TextContextOpened(object? sender, EventArgs? e)
         {
             if (sender == null) return;
-            KeypressManager.PrepareTextChanged(sender);
+            InputHandler.PrepareTextChanged((ITextBox)sender);
         }
 
         public void TranslateThis_Click(object? sender, EventArgs? e)
         {
-            KeypressManager.AutoTranslate();
+            InputHandler.AutoTranslate();
         }
 
         /// <summary>
@@ -303,7 +310,7 @@ namespace Translator
         /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (KeypressManager.MainKeyPressHandler(ref msg, keyData, CancelTokens))
+            if (WindowsKeypressManager.MainKeyPressHandler(ref msg, keyData, CancelTokens))
             {
                 return true;
             }
@@ -820,12 +827,13 @@ namespace Translator
 
         private void LanguageToolStripComboBox_SelectedIndexChanged(object? sender, EventArgs? e)
         {
-            KeypressManager.SelectedLanguageChanged();
+            InputHandler.SelectedLanguageChanged();
         }
 
         private void MainTabControl_SelectedIndexChanged(object? sender, EventArgs? e)
         {
-            KeypressManager.SelectedTabChanged(PresenceManager);
+            InputHandler.OnSwitchTabs();
+            WindowsKeypressManager.SelectedTabChanged(PresenceManager);
         }
 
         private void OnFormClosing(object? sender, FormClosingEventArgs? e)
@@ -886,17 +894,17 @@ namespace Translator
 
         private void OpenAllToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            KeypressManager.OpenAll();
+            InputHandler.OpenAll();
         }
 
         private void OpenInNewTabToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            KeypressManager.OpenNewTab();
+            InputHandler.OpenNewTab();
         }
 
         private void OpenToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            KeypressManager.OpenNew();
+            InputHandler.OpenNew();
         }
 
         private void OverrideCloudSaveToolStripMenuItem_Click(object? sender, EventArgs? e)
@@ -906,7 +914,7 @@ namespace Translator
 
         private void ReplaceToolStripMenuItem_click(object? sender, EventArgs? e)
         {
-            KeypressManager.ToggleReplaceUI();
+            InputHandler.ToggleReplaceUI();
         }
 
         private void SaveAllToolStripMenuItem_Click(object? sender, EventArgs? e)
@@ -943,13 +951,17 @@ namespace Translator
 
         private void SearchToolStripTextBox_TextChanged(object? sender, EventArgs? e)
         {
-            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
+            if (ActiveControl == null) return;
+            if (ActiveControl.GetType().IsAssignableFrom(typeof(ITextBox)))
+            {
+                InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
+            }
             TabManager.Search();
         }
 
         private void SettingsToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            KeypressManager.ShowSettings();
+            WindowsKeypressManager.ShowSettings();
         }
 
         private async void StoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
@@ -967,7 +979,8 @@ namespace Translator
 
         private void ToolStripMenuReplaceBox_TextChanged(object? sender, EventArgs? e)
         {
-            KeypressManager.TextChangedCallback(this, CheckListBoxLeft.SelectedIndex);
+            if (ActiveControl == null) return;
+            InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
         }
 
         private void ToolStripReplaceAllButton_Click(object? sender, EventArgs? e)
