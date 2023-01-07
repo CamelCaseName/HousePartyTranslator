@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-
-namespace Translator.Helpers
+﻿namespace Translator.Helpers
 {
     public enum ClickedNodeTypes
     {

@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace Translator.Helpers
+﻿namespace Translator.Helpers
 {
     public static class Characters
     {
-        public static readonly Dictionary<string, CharacterEnum> CharacterDict = new Dictionary<string, CharacterEnum>(){
+        public static readonly Dictionary<string, CharacterEnum> CharacterDict = new(){
             {"Amy", CharacterEnum.amy},
             {"Arin",CharacterEnum.arin },
             {"Ashley", CharacterEnum.ashley},

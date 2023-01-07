@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Translator.Helpers
+﻿namespace Translator.Helpers
 {
     internal sealed class ClickedNodeChangeArgs : EventArgs
     {

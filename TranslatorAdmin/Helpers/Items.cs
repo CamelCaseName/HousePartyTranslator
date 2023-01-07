@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-#pragma warning disable 1591
+﻿#pragma warning disable 1591
 internal sealed class Criterion : ICriterion
 {
     public string? BoolValue { get; set; }
