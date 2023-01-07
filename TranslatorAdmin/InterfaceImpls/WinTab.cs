@@ -361,7 +361,7 @@ namespace TranslatorAdmin.InterfaceImpls
         public LineList Lines { get => CheckListBoxLeft; }
         ILineList<WinLineItem> ITab<WinLineItem>.Lines
         {
-            get => Lines; 
+            get => Lines;
             set
             {
                 Lines.Clear(); for (int i = 0; i < value.Count; i++)
@@ -372,6 +372,19 @@ namespace TranslatorAdmin.InterfaceImpls
         }
 
         public int LineCount { get => Lines.Count; }
+
+        string ITab<WinLineItem>.Text
+        {
+            get
+            {
+                return base.Text;
+            }
+            set
+            {
+                base.Text = value;
+                Update();
+            }
+        }
 
         public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
         public WinLineItem AtIndex(int index) => CheckListBoxLeft[index];
@@ -385,7 +398,7 @@ namespace TranslatorAdmin.InterfaceImpls
         public void SetCharacterCountLabelText(string text) => CharacterCountLabel.Text = text;
         public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
         public void SetFileInfoText(string info) => SelectedFile.Text = info;
-        public void SetSelectedCommentBoxText(int start, int end) { CommentTextBox.SelectionStart = start; CommentTextBox.SelectionEnd = end ; }
+        public void SetSelectedCommentBoxText(int start, int end) { CommentTextBox.SelectionStart = start; CommentTextBox.SelectionEnd = end; }
         public void SetSelectedTemplateBoxText(int start, int end) { TemplateTextBox.SelectionStart = start; TemplateTextBox.SelectionEnd = end; }
         public void SetSelectedTranslationBoxText(int start, int end) { TranslationTextBox.SelectionStart = start; TranslationTextBox.SelectionEnd = end; }
         public void UnapproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, false);

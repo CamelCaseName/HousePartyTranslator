@@ -873,11 +873,11 @@ namespace Translator.Core
         public void UpdateTranslationString()
         {
             //remove pipe to not break saving/export
-            TabUI.            //remove pipe to not break saving/export
-            TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
+            TabUI.TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
             SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
             UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
             ChangesPending = !selectedNew;
+            selectedNew = false;
         }
 
         public void UpdateComments()

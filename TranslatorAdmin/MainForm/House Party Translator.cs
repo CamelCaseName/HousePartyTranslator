@@ -294,7 +294,10 @@ namespace Translator
         public void TextContextOpened(object? sender, EventArgs? e)
         {
             if (sender == null) return;
-            InputHandler.PrepareTextChanged((ITextBox)sender);
+            if (sender.GetType().IsAssignableFrom(typeof(ITextBox)))
+            {
+                InputHandler.PrepareTextChanged((ITextBox)sender);
+            }
         }
 
         public void TranslateThis_Click(object? sender, EventArgs? e)

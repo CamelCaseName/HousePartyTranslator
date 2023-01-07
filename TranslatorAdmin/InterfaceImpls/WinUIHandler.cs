@@ -16,7 +16,6 @@ namespace TranslatorAdmin.InterfaceImpls
             TabControl = (WinTabController)control;
         }
 
-        #region interface
         public MenuItems FileMenuItems => App.MainForm?.FileToolStripMenuItem.DropDownItems.ToMenuItems() ?? new MenuItems();
 
         public string ReplaceBarText { get => App.MainForm?.ReplaceBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the ReplaceBarText"); App.MainForm.ReplaceBox.Text = value; } }
@@ -89,8 +88,16 @@ namespace TranslatorAdmin.InterfaceImpls
             App.MainForm.Text = title;
         }
         public void SignalAppExit() => Application.Exit();
-        public void SignalUserEndWait() => Application.UseWaitCursor = false;
-        public void SignalUserWait() => Application.UseWaitCursor = true;
+        public void SignalUserEndWait() { 
+            Application.UseWaitCursor = false; 
+            if(App.MainForm != null)
+                App.MainForm.UseWaitCursor=false;
+        }
+        public void SignalUserWait() { 
+            Application.UseWaitCursor = true;
+            if (App.MainForm != null)
+                App.MainForm.UseWaitCursor = true;
+        }
         public void Update() => App.MainForm?.Update();
         public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Update();
         public void UpdateResults() => SelectedTab.Lines.Invalidate();
@@ -108,9 +115,5 @@ namespace TranslatorAdmin.InterfaceImpls
             App.MainForm.FileToolStripMenuItem.DropDownItems.Clear();
             App.MainForm.FileToolStripMenuItem.DropDownItems.AddRangeFix(menuItems.ToToolStripItemCollection(App.MainForm.MainMenu ?? new MenuStrip()));
         }
-        #endregion
-
-
-
     }
 }
