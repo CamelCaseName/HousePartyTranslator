@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Reflection;
-using TranslatorAdmin.Properties;
+using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
 
 namespace Translator
 {
@@ -27,10 +27,10 @@ namespace Translator
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
-			if (Settings.Default.UpdateSettings)
+			if (((Settings)Settings.Default).UpdateSettings)
 			{
-				Settings.Default.Upgrade();
-				Settings.Default.UpdateSettings = false;
+				((Settings)Settings.Default).Upgrade();
+				((Settings)Settings.Default).UpdateSettings = false;
 				Settings.Default.Save();
 			}
 

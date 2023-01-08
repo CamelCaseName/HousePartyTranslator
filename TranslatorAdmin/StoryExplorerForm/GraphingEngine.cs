@@ -3,7 +3,7 @@ using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
 using TranslatorAdmin.Managers;
-using Settings = TranslatorAdmin.Properties.Settings;
+using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 
 namespace Translator.Explorer
@@ -219,7 +219,7 @@ namespace Translator.Explorer
 				//create info
 				//strip text of all VA performance hints, embedded in []. if user wants it
 				string info;
-				if (Settings.Default.displayVAHints) { info = infoNode.Text.ConstrainLength(); }
+				if (((Settings)Settings.Default).DisplayVAHints) { info = infoNode.Text.ConstrainLength(); }
 				else { info = infoNode.Text.RemoveVAHints().ConstrainLength(); }
 
 				//create seperator

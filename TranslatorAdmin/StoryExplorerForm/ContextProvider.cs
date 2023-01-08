@@ -4,7 +4,7 @@ using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Explorer.JSON;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using Settings = TranslatorAdmin.Properties.Settings;
+using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
 
 namespace Translator.Explorer
 {
@@ -23,6 +23,10 @@ namespace Translator.Explorer
 		private readonly string StoryName = "story";
 		private readonly string FileName = "character";
 
+		//todo: decouple node force layout and use seperate task for that, update frame each time it finishes
+		//todo: read in all files and combine/merge nodes through story files.
+		//todo: if going through a node connection into a different file and it is not open, try to open it or switch to it if open already
+
 		public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, ParallelOptions parallelOptions)
 		{
 			_StoryFilePath = string.Empty;
@@ -32,9 +36,9 @@ namespace Translator.Explorer
 			this.FileName = FileName;
 			this.StoryName = StoryName;
 
-			if (Settings.Default.story_path != string.Empty && AutoSelectFile && FileName != string.Empty && StoryName != string.Empty)
+			if (((Settings)Settings.Default).StoryPath != string.Empty && AutoSelectFile && FileName != string.Empty && StoryName != string.Empty)
 			{
-				string storyPathMinusStory = Directory.GetParent(Settings.Default.story_path)?.FullName ?? string.Empty;
+				string storyPathMinusStory = Directory.GetParent(((Settings)Settings.Default).StoryPath)?.FullName ?? string.Empty;
 
 				if (IsStory)
 				{
@@ -76,7 +80,7 @@ namespace Translator.Explorer
 						{
 							Title = $"Choose the story file ({StoryName}) for the templates",
 							Filter = "Story Files (*.story)|*.story",
-							InitialDirectory = Settings.Default.story_path.Length > 0 ? Settings.Default.story_path : @"C:\Users\%USER%\Documents",
+							InitialDirectory = ((Settings)Settings.Default).StoryPath.Length > 0 ? ((Settings)Settings.Default).StoryPath : @"C:\Users\%USER%\Documents",
 							RestoreDirectory = false,
 							FileName = this.FileName + ".story"
 						};
@@ -87,7 +91,7 @@ namespace Translator.Explorer
 						{
 							Title = $"Choose the character file ({FileName}) for the templates",
 							Filter = "Character Files (*.character)|*.character",
-							InitialDirectory = Settings.Default.story_path.Length > 0 ? Settings.Default.story_path : @"C:\Users\%USER%\Documents",
+							InitialDirectory = ((Settings)Settings.Default).StoryPath.Length > 0 ? ((Settings)Settings.Default).StoryPath : @"C:\Users\%USER%\Documents",
 							RestoreDirectory = false,
 							FileName = this.FileName + ".character"
 						};
@@ -95,7 +99,7 @@ namespace Translator.Explorer
 
 					if (selectFileDialog.ShowDialog() == DialogResult.OK)
 					{
-						Settings.Default.story_path = Path.GetDirectoryName(selectFileDialog.FileName);
+						((Settings)Settings.Default).StoryPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? string.Empty;
 						Settings.Default.Save();
 						_StoryFilePath = selectFileDialog.FileName;
 					}
@@ -119,7 +123,7 @@ namespace Translator.Explorer
 				string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
 
 				//save path
-				Settings.Default.story_path = Path.GetDirectoryName(FilePath);
+				((Settings)Settings.Default).StoryPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
 				//try to laod the saved nodes
 				if (File.Exists(savedNodesPath))
 				{
@@ -141,8 +145,7 @@ namespace Translator.Explorer
 					}
 
 					//save nodes
-					if (nodes != null) File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
-					else return false;
+					return SaveNodes(nodes);
 				}
 
 				return nodes.Count > 0;
@@ -151,6 +154,17 @@ namespace Translator.Explorer
 			{
 				return false;
 			}
+		}
+
+		public bool SaveNodes(List<Node> nodes)
+		{
+			if (nodes.Count > 0)
+			{
+				string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
+				File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
+				return true;
+			}
+			else return false;
 		}
 
 		public List<Node> GetTemplateNodes()

@@ -17,6 +17,7 @@ namespace TranslatorAdmin.InterfaceImpls
 			}
 			set { }
 		}
+		public bool EnableDiscordRP { get => Properties.Settings.Default.enableDiscordRP; set => Properties.Settings.Default.enableDiscordRP = value; }
 		public bool AllowCustomStories { get => Properties.Settings.Default.EnableCustomStories; set => Properties.Settings.Default.EnableCustomStories = value; }
 		public bool AlsoSaveToGame { get => Properties.Settings.Default.alsoSaveToGame; set => Properties.Settings.Default.alsoSaveToGame = value; }
 		public bool AskForSaveDialog { get => Properties.Settings.Default.askForSaveDialog; set => Properties.Settings.Default.askForSaveDialog = value; }
@@ -39,7 +40,11 @@ namespace TranslatorAdmin.InterfaceImpls
 		public string TemplatePath { get => Properties.Settings.Default.template_path; set => Properties.Settings.Default.template_path = value; }
 		public string TranslationPath { get => Properties.Settings.Default.translation_path; set => Properties.Settings.Default.translation_path = value; }
 		public TimeSpan AutoSaveInterval { get => Properties.Settings.Default.AutoSaveInterval; set => Properties.Settings.Default.AutoSaveInterval = value; }
+		public bool DisplayVAHints { get => Properties.Settings.Default.displayVAHints; set => Properties.Settings.Default.displayVAHints = value; }
+		public string StoryPath { get => Properties.Settings.Default.story_path; set => Properties.Settings.Default.story_path = value; }
+		public bool UpdateSettings { get => Properties.Settings.Default.UpdateSettings; set => Properties.Settings.Default.UpdateSettings = value; }
 
 		public void Save() => Properties.Settings.Default.Save();
+		internal void Upgrade() => Properties.Settings.Default.Upgrade();
 	}
 }

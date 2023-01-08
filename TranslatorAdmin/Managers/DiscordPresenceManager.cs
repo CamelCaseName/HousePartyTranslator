@@ -3,8 +3,9 @@ using NetDiscordRpc.RPC;
 using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Helpers;
+using TranslatorAdmin.InterfaceImpls;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using Settings = TranslatorAdmin.Properties.Settings;
+using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
 
 namespace Translator.Managers
 {
@@ -67,7 +68,7 @@ namespace Translator.Managers
 		{
 			if (DataBase.IsOnline)
 			{
-				if (Settings.Default.enableDiscordRP)
+				if (((Settings)Settings.Default).EnableDiscordRP)
 				{
 					if (!(DiscordPresenceClient?.IsInitialized ?? false) || (DiscordPresenceClient?.IsDisposed ?? false))
 					{
@@ -89,7 +90,7 @@ namespace Translator.Managers
 
 		public void Update()
 		{
-			if (Settings.Default.enableDiscordRP && DataBase.IsOnline)
+			if (((Settings)Settings.Default).EnableDiscordRP && DataBase.IsOnline)
 			{
 				_ = DiscordPresenceClient?.Invoke();
 			}
