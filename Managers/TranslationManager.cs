@@ -1168,7 +1168,8 @@ namespace HousePartyTranslator.Managers
                             (int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2)
                             && nodes[i].Type == NodeType.Event)
                         && nodes[i].Type.AsStringCategory() != StringCategory.Neither
-                        && nodes[i].ID != "")
+                        && nodes[i].ID != ""
+						&& nodes[i].ID != null)
                     {
                         templates[nodes[i].ID] = new LineData(nodes[i].ID, StoryName, FileName, nodes[i].Type.AsStringCategory(), nodes[i].Text, true);
                     }
