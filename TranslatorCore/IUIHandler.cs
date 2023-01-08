@@ -160,10 +160,10 @@ namespace Translator.UICompatibilityLayer
         public void Focus();
     }
 
-    public interface IUIHandler<T, X, W>
-        where T : class, ILineItem, new()
-        where X : class, ITabController<T, W>, new()
-        where W : class, ITab<T>, new()
+    public interface IUIHandler<TLineItem, TTabController, TTab>
+        where TLineItem : class, ILineItem, new()
+        where TTabController : class, ITabController<TLineItem, TTab>, new()
+        where TTab : class, ITab<TLineItem>, new()
     {
         #region cursor
         void SignalUserEndWait();
@@ -247,7 +247,7 @@ namespace Translator.UICompatibilityLayer
 
         void ClipboardSetText(string text);
 
-        W? CreateNewTab();
+        TTab? CreateNewTab();
 
         void SignalAppExit();
         void Update();
@@ -259,7 +259,7 @@ namespace Translator.UICompatibilityLayer
         #endregion
 
         #region tabs
-        X TabControl { get; }
+        TTabController TabControl { get; }
         string Language { get; set; }
         bool ReplaceBarIsVisible { get; }
         #endregion
@@ -269,68 +269,68 @@ namespace Translator.UICompatibilityLayer
         int TemplateBoxTextLength { get; }
         int TemplateBoxSelectedTextLength { get; }
         int TranslationBoxSelectedTextLength { get; }
-        W SelectedTab { get; }
+        TTab SelectedTab { get; }
         string TranslationBoxText { get; set; }
         string TemplateBoxText { get; set; }
         #endregion
     }
 
-    public interface ILineList<T>
-        where T : class, ILineItem, new()
+    public interface ILineList<TLineItem>
+        where TLineItem : class, ILineItem, new()
     {
-        T this[int index] { get; set; }
+        TLineItem this[int index] { get; set; }
         int ApprovedCount { get; }
         int Count { get; }
         List<string> SearchResults { get; }
         int SelectedIndex { get; set; }
-        T SelectedLineItem { get; set; }
+        TLineItem SelectedLineItem { get; set; }
         List<string> TranslationSimilarToTemplate { get; }
 
         void Add(string iD, bool lineIsApproved);
-        void AddLineItem(T item);
+        void AddLineItem(TLineItem item);
         void ApproveItem(int index);
         void Clear();
         void FreezeLayout();
         bool GetApprovalState(int index);
-        void RemoveLineItem(T item);
+        void RemoveLineItem(TLineItem item);
         void SelectIndex(int index);
         void SetApprovalState(int index, bool isApproved);
         void UnapproveItem(int index);
         void UnFreezeLayout();
     }
 
-    public class NullLineList<T> : ILineList<T>
-        where T : class, ILineItem, new()
+    public class NullLineList<TLineItem> : ILineList<TLineItem>
+        where TLineItem : class, ILineItem, new()
     {
-        public readonly List<T> Items = new();
+        public readonly List<TLineItem> Items = new();
 
         public int Count => Items.Count;
         public int ApprovedCount { get; internal set; }
-        public NullLineList() : this(new List<T>()) { }
+        public NullLineList() : this(new List<TLineItem>()) { }
 
-        public NullLineList(List<T> items, T selectedLineItem, int selectedIndex)
+        public NullLineList(List<TLineItem> items, TLineItem selectedLineItem, int selectedIndex)
         {
             Items = items;
             SelectedLineItem = selectedLineItem;
             SelectedIndex = selectedIndex;
         }
 
-        public NullLineList(List<T> items)
+        public NullLineList(List<TLineItem> items)
         {
             Items = items;
-            SelectedLineItem = items.Count > 0 ? items[0] : new T();
+            SelectedLineItem = items.Count > 0 ? items[0] : new TLineItem();
             SelectedIndex = items.Count > 0 ? 0 : -1;
         }
 
-        public T this[int index] { get { return Items[index]; } set { Items[index] = value; } }
+        public TLineItem this[int index] { get { return Items[index]; } set { Items[index] = value; } }
 
         public int SelectedIndex { get { return InternalSelectedIndex; } set { SelectIndex(value); } }
-        public T SelectedLineItem { get; set; }
+        public TLineItem SelectedLineItem { get; set; }
         private int InternalSelectedIndex { get; set; }
         public List<string> SearchResults { get; internal set; } = new();
         public List<string> TranslationSimilarToTemplate { get; internal set; } = new();
 
-        public void AddLineItem(T item)
+        public void AddLineItem(TLineItem item)
         {
             Items.Add(item);
         }
@@ -366,7 +366,7 @@ namespace Translator.UICompatibilityLayer
             }
         }
 
-        public void RemoveLineItem(T item)
+        public void RemoveLineItem(TLineItem item)
         {
             if (item.IsApproved) --ApprovedCount;
             Items.Remove(item);
@@ -413,7 +413,7 @@ namespace Translator.UICompatibilityLayer
 
         public void Add(string iD, bool lineIsApproved)
         {
-            Items.Add(new T() { Text = iD, IsApproved = lineIsApproved });
+            Items.Add(new TLineItem() { Text = iD, IsApproved = lineIsApproved });
         }
 
         public void FreezeLayout() { }
