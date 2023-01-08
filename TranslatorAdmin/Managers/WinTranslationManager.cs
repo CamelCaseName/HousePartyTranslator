@@ -1,5 +1,6 @@
 ﻿using Translator;
 using Translator.Core.Helpers;
+using Translator.Explorer;
 using Translator.Helpers;
 using Translator.Managers;
 using TranslatorAdmin.InterfaceImpls;

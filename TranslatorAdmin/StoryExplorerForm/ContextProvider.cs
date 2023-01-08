@@ -18,7 +18,6 @@ namespace Translator.Explorer
 		private string _StoryFilePath;
 		private Dictionary<Guid, Vector2> NodeForces = new();
 		private List<Node> CriteriaInFile = new();
-		private List<Node> nodes;
 		private readonly ParallelOptions options;
 		private readonly string StoryName = "story";
 		private readonly string FileName = "character";
@@ -31,7 +30,6 @@ namespace Translator.Explorer
 		{
 			_StoryFilePath = string.Empty;
 			options = parallelOptions;
-			nodes = new List<Node>();
 			this.IsStory = IsStory;
 			this.FileName = FileName;
 			this.StoryName = StoryName;
@@ -113,7 +111,7 @@ namespace Translator.Explorer
 			}
 		}
 
-		public List<Node> Nodes => nodes;
+		public List<Node> Nodes { get; private set; } = new();
 
 		public bool ParseFile()
 		{
@@ -130,30 +128,87 @@ namespace Translator.Explorer
 					//read in positions if they exist, but only if version is the same
 					List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
 					//expand the guids back into references
-					nodes = Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>());
+					Nodes = Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>());
 				}
 				else
 				{
 					//else create new
 					if (IsStory)
 					{
-						DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory(), true);
+						Nodes = DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory());
 					}
 					else
 					{
-						DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory(), true);
+						Nodes = DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory());
 					}
 
 					//save nodes
-					return SaveNodes(nodes);
+					return SaveNodes(Nodes);
 				}
 
-				return nodes.Count > 0;
+				return Nodes.Count > 0;
 			}
 			else
 			{
 				return false;
 			}
+		}
+
+		public bool ParseAllFiles()
+		{
+			string StoryFolderPath = string.Empty;
+			if (((Settings)Settings.Default).StoryPath != string.Empty && FileName != string.Empty && StoryName != string.Empty)
+			{
+				StoryFolderPath = Directory.GetParent(((Settings)Settings.Default).StoryPath)?.FullName ?? string.Empty;
+			}
+			else
+			{
+				var folderBrowser = new FolderBrowserDialog()
+				{
+					RootFolder = Environment.SpecialFolder.MyDocuments,
+					Description = "Please select the folder with the story files in it.",
+					ShowHiddenFiles = true,
+					UseDescriptionForTitle = true
+				};
+
+				if (folderBrowser.ShowDialog() == DialogResult.OK)
+					StoryFolderPath = folderBrowser.SelectedPath;
+			}
+
+			if (!Directory.Exists(StoryFolderPath)) return false;
+
+			string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{StoryName + DataBase.DBVersion}.json");
+
+			//try to load the saved nodes
+			if (File.Exists(savedNodesPath))
+			{
+				//read in positions if they exist, but only if version is the same
+				List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
+				//expand the guids back into references
+				Nodes = Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>());
+			}
+			else
+			{
+				//else create new
+				foreach (var item in Directory.GetFiles(StoryFolderPath))
+				{
+					if (Path.GetFileNameWithoutExtension(item) == StoryName)
+						Nodes.AddRange(
+							DissectStory(
+								JsonConvert.DeserializeObject<MainStory>(
+									File.ReadAllText(item)) ?? new()));
+					else
+						Nodes.AddRange(
+							DissectCharacter(
+								JsonConvert.DeserializeObject<CharacterStory>(
+									File.ReadAllText(item)) ?? new()));
+				}
+
+				//save nodes
+				return SaveNodes(Nodes);
+			}
+
+			return Nodes.Count > 0;
 		}
 
 		public bool SaveNodes(List<Node> nodes)
@@ -176,14 +231,14 @@ namespace Translator.Explorer
 				//else create new
 				if (IsStory)
 				{
-					DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory(), false);
+					Nodes = DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory());
 				}
 				else
 				{
-					DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory(), false);
+					Nodes = DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory());
 				}
 
-				return nodes;
+				return Nodes;
 			}
 			return new();
 		}
@@ -402,71 +457,57 @@ namespace Translator.Explorer
 			return listNodes;
 		}
 
-		private void DissectCharacter(CharacterStory story, bool doForceStuff)
+		private List<Node> DissectCharacter(CharacterStory story)
 		{
+			List<Node> _nodes = new();
 			if (story != null && !GotCancelled)
 			{
 				CriteriaInFile = new List<Node>();
 
 				//get all relevant items from the json
-				nodes.AddRange(GetDialogues(story));
-				nodes.AddRange(GetGlobalGoodByeResponses(story));
-				nodes.AddRange(GetGlobalResponses(story));
-				nodes.AddRange(GetBackGroundChatter(story));
-				nodes.AddRange(GetQuests(story));
-				nodes.AddRange(GetReactions(story));
+				_nodes.AddRange(GetDialogues(story));
+				_nodes.AddRange(GetGlobalGoodByeResponses(story));
+				_nodes.AddRange(GetGlobalResponses(story));
+				_nodes.AddRange(GetBackGroundChatter(story));
+				_nodes.AddRange(GetQuests(story));
+				_nodes.AddRange(GetReactions(story));
 
 				//remove duplicates/merge criteria
 				//maybe later we load the corresponding strings from the character files and vise versa?
-				nodes = CombineNodes(nodes);
+				_nodes = CombineNodes(_nodes);
 
 				//clear criteria to free memory, we dont need them anyways
 				//cant be called recusrively so we cant add it, it would break the combination
 				CriteriaInFile.Clear();
-
-				//calculate starting positions
-				if (doForceStuff)
-				{
-					nodes = CalculateStartingPositions(nodes);
-
-					//render and do the force driven calculation thingies
-					nodes = CalculateForceDirectedLayout(nodes);
-				}
 			}
+			return _nodes;
 		}
 
-		private void DissectStory(MainStory story, bool doForceStuff)
+		private List<Node> DissectStory(MainStory story)
 		{
+			List<Node> _nodes = new();
 			if (story != null && !GotCancelled)
 			{
 				CriteriaInFile = new List<Node>();
 
 				//add all items in the story
-				nodes.AddRange(GetItemOverrides(story));
+				_nodes.AddRange(GetItemOverrides(story));
 				//add all item groups with their actions
-				nodes.AddRange(GetItemGroups(story));
+				_nodes.AddRange(GetItemGroups(story));
 				//add all items in the story
-				nodes.AddRange(GetAchievements(story));
+				_nodes.AddRange(GetAchievements(story));
 				//add all reactions the player will say
-				nodes.AddRange(GetPlayerReactions(story));
+				_nodes.AddRange(GetPlayerReactions(story));
 
 				//remove duplicates/merge criteria
 				//maybe later we load the corresponding strings from the character files and vise versa?
-				nodes = CombineNodes(nodes);
+				_nodes = CombineNodes(_nodes);
 
 				//clear criteria to free memory, we dont need them anyways
 				//cant be called recusrively so we cant add it, it would break the combination
 				CriteriaInFile.Clear();
-
-				//calculate starting positions
-				if (doForceStuff)
-				{
-					nodes = CalculateStartingPositions(nodes);
-
-					//render and do the force driven calculation thingies
-					nodes = CalculateForceDirectedLayout(nodes);
-				}
 			}
+			return _nodes;
 		}
 
 		private static List<Node> GetAchievements(MainStory story)
