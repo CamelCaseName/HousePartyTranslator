@@ -312,8 +312,6 @@ namespace Translator.Core
                     RecentsManager.SetMostRecent(SourceFilePath);
                     UI.SetFileMenuItems(RecentsManager.GetUpdatedMenuItems<TLineItem, TUIHandler, TTabController, TTab>(UI.FileMenuItems));
                 }
-                //reset cursor
-                UI.SignalUserEndWait();
             }
         }
 

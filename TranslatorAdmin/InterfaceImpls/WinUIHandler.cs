@@ -9,6 +9,7 @@ namespace TranslatorAdmin.InterfaceImpls
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController, WinTab>
     {
+        private int waitCounter = 0;
         public WinUIHandler() { }
 
         internal WinUIHandler(ITabController<WinLineItem, WinTab> control)
@@ -90,15 +91,19 @@ namespace TranslatorAdmin.InterfaceImpls
         public void SignalAppExit() => Application.Exit();
         public void SignalUserEndWait()
         {
-            Application.UseWaitCursor = false;
-            if (App.MainForm != null)
-                App.MainForm.UseWaitCursor = false;
+            --waitCounter;
+            SetWaitCursor();
         }
         public void SignalUserWait()
         {
-            Application.UseWaitCursor = true;
+            ++waitCounter;
+            SetWaitCursor();
+        }
+        private void SetWaitCursor()
+        {
+            Application.UseWaitCursor = waitCounter > 0;
             if (App.MainForm != null)
-                App.MainForm.UseWaitCursor = true;
+                App.MainForm.UseWaitCursor = waitCounter > 0;
         }
         public void Update() => App.MainForm?.Update();
         public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Update();

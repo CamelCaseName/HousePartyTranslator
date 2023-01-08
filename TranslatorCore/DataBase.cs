@@ -256,6 +256,7 @@ namespace Translator.Core
                     return;
                 }
             }
+            UI.SignalUserEndWait();
         }
 
         /// <summary>
