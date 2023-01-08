@@ -28,51 +28,51 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.label1 = new System.Windows.Forms.Label();
-            this.noAnimationBar1 = new Translator.Helpers.NoAnimationBar();
-            this.SuspendLayout();
-            // 
-            // label1
-            // 
-            this.label1.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.label1.Font = new System.Drawing.Font("Consolas", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.label1.ForeColor = System.Drawing.SystemColors.HighlightText;
-            this.label1.Location = new System.Drawing.Point(0, 0);
-            this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(448, 52);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "progress";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // noAnimationBar1
-            // 
-            this.noAnimationBar1.BackColor = System.Drawing.SystemColors.WindowFrame;
-            this.noAnimationBar1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.noAnimationBar1.ForeColor = System.Drawing.SystemColors.ControlLight;
-            this.noAnimationBar1.Location = new System.Drawing.Point(0, 0);
-            this.noAnimationBar1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.noAnimationBar1.Name = "noAnimationBar1";
-            this.noAnimationBar1.Size = new System.Drawing.Size(448, 128);
-            this.noAnimationBar1.TabIndex = 0;
-            // 
-            // ProgressWindow
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ClientSize = new System.Drawing.Size(448, 128);
-            this.Controls.Add(this.label1);
-            this.Controls.Add(this.noAnimationBar1);
-            this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.MaximumSize = new System.Drawing.Size(464, 167);
-            this.MinimumSize = new System.Drawing.Size(464, 167);
-            this.Name = "ProgressWindow";
-            this.ShowIcon = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Autosave";
-            this.TopMost = true;
-            this.ResumeLayout(false);
+			this.label1 = new System.Windows.Forms.Label();
+			this.noAnimationBar1 = new Translator.Helpers.NoAnimationBar();
+			this.SuspendLayout();
+			// 
+			// label1
+			// 
+			this.label1.BackColor = System.Drawing.SystemColors.WindowFrame;
+			this.label1.Font = new System.Drawing.Font("Consolas", 21.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+			this.label1.ForeColor = System.Drawing.SystemColors.HighlightText;
+			this.label1.Location = new System.Drawing.Point(0, 0);
+			this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(448, 52);
+			this.label1.TabIndex = 1;
+			this.label1.Text = "progress";
+			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+			// 
+			// noAnimationBar1
+			// 
+			this.noAnimationBar1.BackColor = System.Drawing.SystemColors.WindowFrame;
+			this.noAnimationBar1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.noAnimationBar1.ForeColor = System.Drawing.SystemColors.ControlLight;
+			this.noAnimationBar1.Location = new System.Drawing.Point(0, 0);
+			this.noAnimationBar1.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.noAnimationBar1.Name = "noAnimationBar1";
+			this.noAnimationBar1.Size = new System.Drawing.Size(448, 128);
+			this.noAnimationBar1.TabIndex = 0;
+			// 
+			// ProgressWindow
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+			this.ClientSize = new System.Drawing.Size(448, 128);
+			this.Controls.Add(this.label1);
+			this.Controls.Add(this.noAnimationBar1);
+			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MaximumSize = new System.Drawing.Size(464, 167);
+			this.MinimumSize = new System.Drawing.Size(464, 167);
+			this.Name = "ProgressWindow";
+			this.ShowIcon = false;
+			this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+			this.Text = "Autosave";
+			this.TopMost = true;
+			this.ResumeLayout(false);
 
         }
 

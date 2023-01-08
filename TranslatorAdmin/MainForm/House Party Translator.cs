@@ -2,6 +2,7 @@
 using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Core.Helpers;
+using Translator.Explorer.Window;
 using Translator.Helpers;
 using Translator.Managers;
 using Translator.UICompatibilityLayer;
