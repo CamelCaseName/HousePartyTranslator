@@ -99,7 +99,7 @@ namespace Translator.Core
                 TabManager<T, V, X, W>.UI.SearchBarText = query;
                 TabManager<T, V, X, W>.UI.SetSelectedSearchBarText(0, query.Length);
             }
-            TabManager<T, V, X, W>.UI.SelectedTab.FocusSearchBox();
+            TabManager<T, V, X, W>.UI.FocusSearchBar();
         }
 
         public static bool AdvanceSearchResultSelection() => TabManager<T, V, X, W>.ActiveTranslationManager.SelectNextResultIfApplicable();

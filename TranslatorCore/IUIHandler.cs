@@ -136,7 +136,6 @@ namespace Translator.UICompatibilityLayer
         void SetApprovedLabelText(string text);
         void SetCharacterLabelColor(Color color);
         void SetCharacterCountLabelText(string text);
-        void FocusSearchBox();
         #endregion
     }
 
