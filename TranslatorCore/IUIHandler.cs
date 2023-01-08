@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Net.Http.Headers;
 using Translator.Core;
 
 namespace Translator.UICompatibilityLayer
@@ -63,8 +62,8 @@ namespace Translator.UICompatibilityLayer
         public string Text { get; set; }
     }
 
-    public interface ITab<T>
-        where T : class, ILineItem, new()
+    public interface ITab<TLineItem>
+        where TLineItem : class, ILineItem, new()
     {
         int LineCount => Lines.Count;
         string Text { get; set; }
@@ -80,11 +79,11 @@ namespace Translator.UICompatibilityLayer
         #region list of translations
         void ClearLines();
 
-        T AtIndex(int index);
+        TLineItem AtIndex(int index);
 
-        ILineList<T> Lines { get; set; }
+        ILineList<TLineItem> Lines { get; set; }
         int SelectedLineIndex { get; }
-        T SelectedLineItem { get; }
+        TLineItem SelectedLineItem { get; }
         string SelectedLine { get { return SelectedLineItem.Text; } }
 
         bool IsTranslationBoxFocused { get; }
@@ -93,7 +92,7 @@ namespace Translator.UICompatibilityLayer
 
         void SelectLineItem(int index);
 
-        void SelectLineItem(T item);
+        void SelectLineItem(TLineItem item);
         void UpdateLines();
 
         #endregion
@@ -139,16 +138,16 @@ namespace Translator.UICompatibilityLayer
         #endregion
     }
 
-    public interface ITabController<T, W>
-        where T : class, ILineItem, new()
-        where W : class, ITab<T>, new()
+    public interface ITabController<TLineItem, TTab>
+        where TLineItem : class, ILineItem, new()
+        where TTab : class, ITab<TLineItem>, new()
     {
         int SelectedIndex { get; set; }
-        W SelectedTab { get; set; }
+        TTab SelectedTab { get; set; }
         int TabCount { get; }
-        List<W> TabPages { get; }
-        void AddTab(W tab);
-        bool CloseTab(W tab);
+        List<TTab> TabPages { get; }
+        void AddTab(TTab tab);
+        bool CloseTab(TTab tab);
     }
 
     public interface ITextBox

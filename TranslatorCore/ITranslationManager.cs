@@ -4,7 +4,7 @@ using Translator.UICompatibilityLayer;
 
 namespace Translator.Core
 {
-    public interface ITranslationManager<out T> where T : class, ILineItem, new()
+    public interface ITranslationManager<out TLineItem> where TLineItem : class, ILineItem, new()
     {
         bool ChangesPending { get; set; }
         string CleanedSearchQuery { get; }
@@ -12,7 +12,7 @@ namespace Translator.Core
         string SearchQuery { get; }
         string SelectedId { get; }
         LineData SelectedLine { get; }
-        T SelectedSearchResultItem { get; }
+        TLineItem SelectedSearchResultItem { get; }
         string SourceFilePath { get; set; }
         string StoryName { get; set; }
 
