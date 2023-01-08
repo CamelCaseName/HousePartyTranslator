@@ -1,7 +1,4 @@
-﻿
-using System.Windows.Forms;
-
-namespace Translator.StoryExplorerForm
+﻿namespace Translator.Explorer.Window
 {
     partial class StoryExplorer
     {

@@ -1,4 +1,4 @@
-﻿namespace Translator.Helpers
+﻿namespace Translator.Explorer
 {
     internal sealed class ClickedNodeChangeArgs : EventArgs
     {

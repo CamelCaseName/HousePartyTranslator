@@ -1,4 +1,4 @@
-﻿namespace Translator.StoryExplorerForm
+﻿namespace Translator.Explorer.Window
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public partial class StoryExplorer : Form
