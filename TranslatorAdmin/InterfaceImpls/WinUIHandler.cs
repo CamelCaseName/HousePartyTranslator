@@ -88,12 +88,14 @@ namespace TranslatorAdmin.InterfaceImpls
             App.MainForm.Text = title;
         }
         public void SignalAppExit() => Application.Exit();
-        public void SignalUserEndWait() { 
-            Application.UseWaitCursor = false; 
-            if(App.MainForm != null)
-                App.MainForm.UseWaitCursor=false;
+        public void SignalUserEndWait()
+        {
+            Application.UseWaitCursor = false;
+            if (App.MainForm != null)
+                App.MainForm.UseWaitCursor = false;
         }
-        public void SignalUserWait() { 
+        public void SignalUserWait()
+        {
             Application.UseWaitCursor = true;
             if (App.MainForm != null)
                 App.MainForm.UseWaitCursor = true;
@@ -114,6 +116,14 @@ namespace TranslatorAdmin.InterfaceImpls
             if (App.MainForm == null) return;
             App.MainForm.FileToolStripMenuItem.DropDownItems.Clear();
             App.MainForm.FileToolStripMenuItem.DropDownItems.AddRangeFix(menuItems.ToToolStripItemCollection(App.MainForm.MainMenu ?? new MenuStrip()));
+        }
+
+        public void SetSelectedSearchBarText(int start, int end)
+        {
+            if (App.MainForm == null) return;
+            if (start > end) throw new ArgumentOutOfRangeException(nameof(end), "End has to be after start");
+            App.MainForm.SearchBox.SelectionStart = start;
+            App.MainForm.SearchBox.SelectionLength = end - start;
         }
     }
 }

@@ -257,6 +257,7 @@ namespace Translator.UICompatibilityLayer
         void SetReplaceMenuVisible();
         void SetReplaceMenuInVisible();
         void SetFileMenuItems(MenuItems menuItems);
+        void SetSelectedSearchBarText(int v, int length);
         #endregion
 
         #region tabs

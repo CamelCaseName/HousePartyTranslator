@@ -87,9 +87,17 @@ namespace Translator.Core
 
         public static void FocusSearch()
         {
+            //we have something selected we want to search for
             if (TabManager<T, V, X, W>.UI.TabControl.SelectedTab.SelectedTranslationBoxText.Length > 0)
             {
                 TabManager<T, V, X, W>.UI.SearchBarText = TabManager<T, V, X, W>.UI.TranslationBoxText;
+            }
+            //we dont have anything selected, enter empty query
+            else
+            {
+                const string query = "Search here";
+                TabManager<T, V, X, W>.UI.SearchBarText = query;
+                TabManager<T, V, X, W>.UI.SetSelectedSearchBarText(0, query.Length);
             }
             TabManager<T, V, X, W>.UI.SelectedTab.FocusSearchBox();
         }
