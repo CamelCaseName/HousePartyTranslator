@@ -157,6 +157,7 @@ namespace HousePartyTranslator
             if (FilePath.Length > 0)
             {
                 string fileString = File.ReadAllText(FilePath);
+                fileString = fileString.Substring(fileString.IndexOf('{'));
                 //else create new
                 if (IsStory)
                 {
