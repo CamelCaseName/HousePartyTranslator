@@ -204,15 +204,16 @@ namespace Translator.Core
                 {
                     while (MainReader.Read())
                     {
-                        LineDataList.Add(CleanId(MainReader.GetString("id"), story, fileName, true),
-                            new LineData(
-                                CleanId(MainReader.GetString("id"), story, fileName, true),
-                                story,
-                                fileName,
-                                (StringCategory)MainReader.GetInt32("category"),
-                                MainReader.GetString("english"),
-                                true));
-                    }
+						if (!MainReader.IsDBNull(0) && !MainReader.IsDBNull(2))
+							LineDataList.Add(CleanId(MainReader.GetString("id"), story, fileName, true),
+								new LineData(
+									CleanId(MainReader.GetString("id"), story, fileName, true),
+									story,
+									fileName,
+									!MainReader.IsDBNull(1) ? (StringCategory)MainReader.GetInt32("category") : StringCategory.General,
+									MainReader.GetString("english"),
+									true));
+					}
                 }
                 else
                 {

@@ -164,8 +164,9 @@ namespace Translator
             if (FilePath.Length > 0)
             {
                 string fileString = File.ReadAllText(FilePath);
-                //else create new
-                if (IsStory)
+				fileString = fileString.Substring(fileString.IndexOf('{'));
+				//else create new
+				if (IsStory)
                 {
                     DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString), false);
                 }

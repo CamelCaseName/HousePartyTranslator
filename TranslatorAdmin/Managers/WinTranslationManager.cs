@@ -43,7 +43,8 @@ namespace TranslatorAdmin.Managers
                     if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2)
                         && nodes[i].Type == NodeType.Event)
                         && nodes[i].Type.CategoryFromNode() != StringCategory.Neither
-                        && nodes[i].ID != "")
+                        && nodes[i].ID != ""
+						&& nodes[i].ID != null)
                     {
                         data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
                     }
