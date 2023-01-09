@@ -231,7 +231,6 @@ namespace Translator.Core
 		/// <param name="mainWindow">the window to spawn the password box as a child of</param>
 		private static void EstablishConnection()
 		{
-			UI.SignalUserWait();
 			while (!IsOnline)
 			{
 				sqlConnection.ConnectionString = GetConnString();
@@ -252,11 +251,9 @@ namespace Translator.Core
 						//means invalid creds
 						_ = UI.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
 					}
-					UI.SignalUserEndWait();
 					return;
 				}
 			}
-			UI.SignalUserEndWait();
 		}
 
 		/// <summary>
@@ -270,7 +267,6 @@ namespace Translator.Core
 
 			MainCommand = new MySqlCommand("", sqlConnection);
 			//Console.WriteLine("DB opened");
-			UI.SignalUserWait();
 
 			if (!IsOnline)
 			{
@@ -337,7 +333,6 @@ namespace Translator.Core
 				}
 				AppTitle = "Translator (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
 			}
-			UI.SignalUserEndWait();
 		}
 
 		public static bool RemoveOldTemplates(string fileName, string story)

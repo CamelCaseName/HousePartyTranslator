@@ -8,7 +8,9 @@ namespace Translator
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 	public static class App
 	{
-		public static Fenster? MainForm { get; private set; }
+#nullable disable
+		public static Fenster MainForm { get; private set; }
+#nullable enable
 		/// <summary>
 		/// The main entry point for the application.
 		/// </summary>

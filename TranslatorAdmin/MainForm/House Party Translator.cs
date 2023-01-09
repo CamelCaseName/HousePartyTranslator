@@ -109,11 +109,6 @@ namespace Translator
 
 			//init all form components
 			InitializeComponent();
-
-			//check for update and replace if we want one
-			ProgressbarWindow.Status.Text = "Checking for an update";
-			SoftwareVersionManager.ReplaceFileIfNew();
-			ProgressbarWindow.PerformStep();
 		}
 
 		public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
@@ -343,8 +338,7 @@ namespace Translator
 
 		public static async Task<StoryExplorer?> CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
 		{
-			if (ActiveForm == null) return null;
-			ActiveForm.UseWaitCursor = true;
+			App.MainForm.UI.SignalUserWait();
 
 			// Use ParallelOptions instance to store the CancellationToken
 			var parallelOptions = new ParallelOptions
@@ -376,7 +370,7 @@ namespace Translator
 				//inform user this is going to take some time
 				if (result == DialogResult.OK)
 				{
-					var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, ActiveForm, parallelOptions)
+					var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, parallelOptions)
 					{
 						UseWaitCursor = true
 					};
@@ -398,24 +392,24 @@ namespace Translator
 						}
 
 						manager.SetHighlightedNode();
-						ActiveForm.UseWaitCursor = false;
+						App.MainForm.UI.SignalUserEndWait();
 						return explorer;
 					}
 					else
 					{
-						ActiveForm.UseWaitCursor = false;
+						App.MainForm.UI.SignalUserEndWait();
 						return null;
 					}
 				}
 				else
 				{
-					ActiveForm.UseWaitCursor = false;
+					App.MainForm.UI.SignalUserEndWait();
 					return null;
 				}
 			}
 			catch (OperationCanceledException)
 			{
-				ActiveForm.UseWaitCursor = false;
+				App.MainForm.UI.SignalUserEndWait();
 				LogManager.Log("Explorer closed during creation");
 				return null;
 			}
@@ -858,6 +852,11 @@ namespace Translator
 
 		private void OnFormShown(object? sender, EventArgs? e)
 		{
+			//check for update and replace if we want one
+			ProgressbarWindow.Status.Text = "Checking for an update";
+			SoftwareVersionManager.ReplaceFileIfNew();
+			ProgressbarWindow.PerformStep();
+
 			ProgressbarWindow.Status.Text = "Finishing startup";
 			TabManager.FinalizeInitializer();
 
@@ -891,6 +890,7 @@ namespace Translator
 				overrideCloudSaveToolStripMenuItem.Enabled = false;
 
 			ProgressbarWindow.Hide();
+
 		}
 
 		private void OpenAllToolStripMenuItem_Click(object? sender, EventArgs? e)
