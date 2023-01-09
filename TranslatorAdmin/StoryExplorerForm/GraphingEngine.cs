@@ -29,10 +29,10 @@ namespace Translator.Explorer
 		private readonly Pen DefaultPen;
 		private readonly Pen ColorPen;
 
-		private float Xmax => App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
-		private float Ymax => App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
-		private readonly float Xmin = 2 * -Nodesize;
-		private readonly float Ymin = 2 * -Nodesize;
+		private static float Xmax => App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
+		private static float Ymax => App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
+		private const float Xmin = 2 * -Nodesize;
+		private const float Ymin = 2 * -Nodesize;
 
 		private readonly StoryExplorer Explorer;
 		private readonly Label NodeInfoLabel;
@@ -122,6 +122,8 @@ namespace Translator.Explorer
 		{
 			if (e != null)
 			{
+				//e.Graphics.ExcludeClip(NodeInfoLabel.Bounds);
+
 				e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
 				e.Graphics.ScaleTransform(Scaling, Scaling);
 
@@ -130,6 +132,8 @@ namespace Translator.Explorer
 				//overlay info and highlight
 				DrawHighlightNodeTree(e.Graphics);
 				DrawInfoNode(e.Graphics);
+				NodeInfoLabel.Invalidate();
+				NodeInfoLabel.Update();
 			}
 		}
 

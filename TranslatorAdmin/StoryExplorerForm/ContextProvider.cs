@@ -136,18 +136,10 @@ namespace Translator.Explorer
 					if (IsStory)
 					{
 						Nodes = DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory());
-						for (int i = 0; i < Nodes.Count; i++)
-						{
-							Nodes[i].FileName = StoryName;
-						}
 					}
 					else
 					{
 						Nodes = DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory());
-						for (int i = 0; i < Nodes.Count; i++)
-						{
-							Nodes[i].FileName = FileName;
-						}
 					}
 
 
@@ -264,7 +256,7 @@ namespace Translator.Explorer
 			return new();
 		}
 
-		private List<Node> CalculateForceDirectedLayout(List<Node> nodes)
+		public List<Node> CalculateForceDirectedLayout(List<Node> nodes)
 		{
 			//You just need to think about the 3 separate forces acting on each node,
 			//add them together each "frame" to get the movement of each node.
@@ -448,7 +440,7 @@ namespace Translator.Explorer
 
 					//if the criterion has already been seen before
 					Node criterionInFile = CriteriaInFile.Find(n => n.Guid == node.Guid) ?? Node.NullNode;
-					if (criterionInFile != null)//has been seen before
+					if (criterionInFile != Node.NullNode)//has been seen before
 					{
 						//add the childs and parents of this instance of the criterion to the first instance of this criterion
 						//aka fusion
@@ -466,6 +458,8 @@ namespace Translator.Explorer
 						if (!tempNodes.ContainsKey(node.Guid)) tempNodes.Add(node.Guid, node);
 					}
 				}
+
+				//todo more merging for other links, like triggers or events
 			}
 
 			//return final list of all nodes in the story
@@ -500,7 +494,7 @@ namespace Translator.Explorer
 				//cant be called recusrively so we cant add it, it would break the combination
 				CriteriaInFile.Clear();
 
-				for (int i = 0; i < Nodes.Count; i++)
+				for (int i = 0; i < _nodes.Count; i++)
 				{
 					_nodes[i].FileName = story.CharacterName ?? string.Empty;
 				}
@@ -532,7 +526,7 @@ namespace Translator.Explorer
 				//cant be called recusrively so we cant add it, it would break the combination
 				CriteriaInFile.Clear();
 
-				for (int i = 0; i < Nodes.Count; i++)
+				for (int i = 0; i < _nodes.Count; i++)
 				{
 					_nodes[i].FileName = StoryName;
 				}

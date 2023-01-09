@@ -33,24 +33,24 @@
 			// 
 			// NodeInfoLabel
 			// 
+			this.NodeInfoLabel.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left;
 			this.NodeInfoLabel.AutoSize = true;
-			this.NodeInfoLabel.BackColor = System.Drawing.Color.Transparent;
-			this.NodeInfoLabel.Dock = System.Windows.Forms.DockStyle.Right;
-			this.NodeInfoLabel.Anchor = (System.Windows.Forms.AnchorStyles.Right | System.Windows.Forms.AnchorStyles.Top);
+			this.NodeInfoLabel.BackColor = System.Drawing.SystemColors.Desktop;
 			this.NodeInfoLabel.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
 			this.NodeInfoLabel.ForeColor = System.Drawing.SystemColors.MenuBar;
-			this.NodeInfoLabel.Location = new System.Drawing.Point(1614, 0);
+			this.NodeInfoLabel.Location = new System.Drawing.Point(0, 0);
 			this.NodeInfoLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
 			this.NodeInfoLabel.Name = "NodeInfoLabel";
 			this.NodeInfoLabel.Size = new System.Drawing.Size(0, 18);
 			this.NodeInfoLabel.TabIndex = 0;
+			this.NodeInfoLabel.Visible = false;
 			// 
 			// StoryExplorer
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.BackColor = System.Drawing.SystemColors.Desktop;
-			this.ClientSize = new System.Drawing.Size(1614, 800);
+			this.ClientSize = new System.Drawing.Size(984, 561);
 			this.Controls.Add(this.NodeInfoLabel);
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
 			this.Name = "StoryExplorer";
@@ -69,5 +69,5 @@
         #endregion
 
         private Label NodeInfoLabel;
-    }
+	}
 }
