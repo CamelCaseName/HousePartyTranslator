@@ -1,10 +1,5 @@
 ﻿using System.Buffers;
-using System.Drawing;
-using System.Drawing.Configuration;
-using System.Drawing.Imaging;
-using System.Numerics;
 using System.Runtime.Versioning;
-using System.Xml.Linq;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
 using TranslatorAdmin.Managers;
@@ -135,8 +130,6 @@ namespace Translator.Explorer
 				//overlay info and highlight
 				DrawHighlightNodeTree(e.Graphics);
 				DrawInfoNode(e.Graphics);
-				//todo fix info text
-				//DisplayNodeInfo(infoNode != Node.NullNode ? infoNode : highlightedNode);
 			}
 		}
 
@@ -220,21 +213,21 @@ namespace Translator.Explorer
 			graphY = screenY / Scaling + OffsetY;
 		}
 
-		private void DisplayNodeInfo(Node infoNode)
+		private void DisplayNodeInfo(Node node)
 		{
 			//display info on new node
-			if (infoNode != Node.NullNode)
+			if (node != Node.NullNode)
 			{
 				NodeInfoLabel.Visible = true;
 				//create header
-				string header = $"{infoNode.Type} - {infoNode.ID}".ConstrainLength();
-				if (infoNode.Gender != Gender.None) header += $" - {infoNode.Gender} only".ConstrainLength();
+				string header = $"{node.FileName}: {node.Type} - {node.ID}".ConstrainLength();
+				if (node.Gender != Gender.None) header += $" - {node.Gender} only".ConstrainLength();
 
 				//create info
 				//strip text of all VA performance hints, embedded in []. if user wants it
 				string info;
-				if (((Settings)Settings.Default).DisplayVAHints) { info = infoNode.Text.ConstrainLength(); }
-				else { info = infoNode.Text.RemoveVAHints().ConstrainLength(); }
+				if (((Settings)Settings.Default).DisplayVAHints) { info = node.Text.ConstrainLength(); }
+				else { info = node.Text.RemoveVAHints().ConstrainLength(); }
 
 				//create seperator
 				string seperator = "\n";
@@ -245,6 +238,7 @@ namespace Translator.Explorer
 				seperator += "\n";
 
 				NodeInfoLabel.Text = header + seperator + info;
+				NodeInfoLabel.BringToFront();
 
 			}
 			else //remove highlight display
@@ -260,8 +254,8 @@ namespace Translator.Explorer
 			//display info on new node
 			if (e.ClickType == ClickedNodeTypes.Info)
 			{
-				DisplayNodeInfo(e.ChangedNode);
 				infoNode = e.ChangedNode;
+				DisplayNodeInfo(e.ChangedNode);
 			}
 		}
 
@@ -484,8 +478,8 @@ namespace Translator.Explorer
 				//select line in translation manager
 				TabManager.ActiveTranslationManager.SelectLine(e.ChangedNode.ID);
 				//put info up
-				DisplayNodeInfo(e.ChangedNode);
 				highlightedNode = e.ChangedNode;
+				DisplayNodeInfo(e.ChangedNode);
 			}
 		}
 

@@ -1,4 +1,5 @@
-﻿using Translator.Explorer.JSON;
+﻿using System.Xml.Linq;
+using Translator.Explorer.JSON;
 
 namespace Translator.Explorer
 {
@@ -50,6 +51,7 @@ namespace Translator.Explorer
 		public string Text;
 		public NodeType Type;
 		public bool Visited = false;
+		public string FileName = string.Empty;
 
 		public Node(string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
 		{
@@ -60,34 +62,6 @@ namespace Translator.Explorer
 			ChildNodes = childNodes;
 		}
 
-		public Node(Point position, string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
-		{
-			Position = position;
-			ID = iD;
-			Text = text;
-			Type = type;
-			ParentNodes = parentNodes;
-			ChildNodes = childNodes;
-		}
-
-		public Node(string iD, NodeType type, string text, List<Node> parentNodes)
-		{
-			ID = iD;
-			Text = text;
-			Type = type;
-			ParentNodes = parentNodes;
-			ChildNodes = new List<Node>();
-		}
-
-		public Node(string iD, NodeType type, string text, Node parentNodes, List<Node> childNodes)
-		{
-			ID = iD;
-			Text = text;
-			Type = type;
-			ParentNodes = new List<Node>() { parentNodes };
-			ChildNodes = childNodes;
-		}
-
 		public Node(string iD, NodeType type, string text, Node parentNode)
 		{
 			ID = iD;
@@ -95,15 +69,6 @@ namespace Translator.Explorer
 			Type = type;
 			ParentNodes = new List<Node>() { parentNode };
 			ChildNodes = new List<Node>();
-		}
-
-		public Node(string iD, NodeType type, string text, Node parentNode, Node childNode)
-		{
-			ID = iD;
-			Text = text;
-			Type = type;
-			ParentNodes = new List<Node>() { parentNode };
-			ChildNodes = new List<Node>() { childNode };
 		}
 
 		public Node(string iD, NodeType type, string text)
@@ -127,7 +92,7 @@ namespace Translator.Explorer
 		public static Node CreateCriteriaNode(ICriterion criterion, Node node)
 		{
 			//create all criteria nodes the same way so they can possibly be replaced by the actual text later
-			return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node });
+			return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node }) { FileName = node.FileName };
 		}
 
 		public static List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
@@ -149,6 +114,7 @@ namespace Translator.Explorer
 					Gender = serialNode.Gender,
 					Type = serialNode.Type,
 					Visited = serialNode.Visited,
+					FileName = serialNode.FileName,
 					ChildNodes = new List<Node>(),
 					ParentNodes = new List<Node>()
 				});
@@ -214,7 +180,7 @@ namespace Translator.Explorer
 
 			foreach (IEvent _event in _events)
 			{
-				var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none", this);
+				var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none", this) { FileName = FileName };
 
 				nodeEvent.AddCriteria(_event.Criteria ?? new List<Criterion>());
 

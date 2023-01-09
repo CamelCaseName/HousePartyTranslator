@@ -14,6 +14,7 @@
 		public Guid Guid = Guid.NewGuid();
 		public List<Guid>? ParentNodes;
 		public List<Guid>? ChildNodes;
+		public string FileName = string.Empty;
 
 		public static explicit operator SerializeableNode(Node v)
 		{
@@ -29,6 +30,7 @@
 				Text = v.Text,
 				Type = v.Type,
 				Visited = v.Visited,
+				FileName = v.FileName,
 				ChildNodes = new List<Guid>(),
 				ParentNodes = new List<Guid>()
 			};

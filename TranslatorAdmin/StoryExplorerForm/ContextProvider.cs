@@ -136,11 +136,20 @@ namespace Translator.Explorer
 					if (IsStory)
 					{
 						Nodes = DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory());
+						for (int i = 0; i < Nodes.Count; i++)
+						{
+							Nodes[i].FileName = StoryName;
+						}
 					}
 					else
 					{
 						Nodes = DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory());
+						for (int i = 0; i < Nodes.Count; i++)
+						{
+							Nodes[i].FileName = FileName;
+						}
 					}
+
 
 					//save nodes
 					return SaveNodes(savedNodesPath, Nodes);
@@ -199,6 +208,7 @@ namespace Translator.Explorer
 								DissectStory(
 									JsonConvert.DeserializeObject<MainStory>(
 										File.ReadAllText(item)) ?? new()));
+
 						else
 							Nodes.AddRange(
 								DissectCharacter(
@@ -212,6 +222,7 @@ namespace Translator.Explorer
 					ParseAllFiles();
 					return true;
 				}
+
 
 				Nodes = CalculateStartingPositions(Nodes);
 
@@ -488,6 +499,11 @@ namespace Translator.Explorer
 				//clear criteria to free memory, we dont need them anyways
 				//cant be called recusrively so we cant add it, it would break the combination
 				CriteriaInFile.Clear();
+
+				for (int i = 0; i < Nodes.Count; i++)
+				{
+					_nodes[i].FileName = story.CharacterName ?? string.Empty;
+				}
 			}
 			return _nodes;
 		}
@@ -515,6 +531,11 @@ namespace Translator.Explorer
 				//clear criteria to free memory, we dont need them anyways
 				//cant be called recusrively so we cant add it, it would break the combination
 				CriteriaInFile.Clear();
+
+				for (int i = 0; i < Nodes.Count; i++)
+				{
+					_nodes[i].FileName = StoryName;
+				}
 			}
 			return _nodes;
 		}
