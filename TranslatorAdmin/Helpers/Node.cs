@@ -46,7 +46,7 @@ namespace Translator.Explorer
 		public int Mass = 1;
 		public List<Node> ParentNodes;
 		public bool ParentsVisited = false;
-		public Point Position;
+		public PointF Position;
 		public string Text;
 		public NodeType Type;
 		public bool Visited = false;

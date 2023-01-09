@@ -378,7 +378,7 @@ namespace Translator
 					//task to offload initialization workload
 					var explorerTask = Task.Run(() =>
 					{
-						explorer.Initialize();
+						explorer.Initialize(false);
 						return true;
 					});
 

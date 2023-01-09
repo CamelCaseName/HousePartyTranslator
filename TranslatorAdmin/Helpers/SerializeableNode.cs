@@ -2,7 +2,7 @@
 {
 	internal sealed class SerializeableNode
 	{
-		public Point Position;
+		public PointF Position;
 		public string? ID;
 		public string? Text;
 		public NodeType Type;

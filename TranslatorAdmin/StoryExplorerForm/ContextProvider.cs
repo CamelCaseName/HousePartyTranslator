@@ -143,7 +143,7 @@ namespace Translator.Explorer
 					}
 
 					//save nodes
-					return SaveNodes(Nodes);
+					return SaveNodes(savedNodesPath, Nodes);
 				}
 
 				return Nodes.Count > 0;
@@ -159,7 +159,7 @@ namespace Translator.Explorer
 			string StoryFolderPath = string.Empty;
 			if (((Settings)Settings.Default).StoryPath != string.Empty && FileName != string.Empty && StoryName != string.Empty)
 			{
-				StoryFolderPath = Directory.GetParent(((Settings)Settings.Default).StoryPath)?.FullName ?? string.Empty;
+				StoryFolderPath = ((Settings)Settings.Default).StoryPath;
 			}
 			else
 			{
@@ -189,34 +189,44 @@ namespace Translator.Explorer
 			}
 			else
 			{
-				//else create new
-				foreach (var item in Directory.GetFiles(StoryFolderPath))
+				if (Directory.GetFiles(StoryFolderPath).Length > 0)
 				{
-					if (Path.GetFileNameWithoutExtension(item) == StoryName)
-						Nodes.AddRange(
-							DissectStory(
-								JsonConvert.DeserializeObject<MainStory>(
-									File.ReadAllText(item)) ?? new()));
-					else
-						Nodes.AddRange(
-							DissectCharacter(
-								JsonConvert.DeserializeObject<CharacterStory>(
-									File.ReadAllText(item)) ?? new()));
+					//else create new
+					foreach (var item in Directory.GetFiles(StoryFolderPath))
+					{
+						if (Path.GetFileNameWithoutExtension(item) == StoryName)
+							Nodes.AddRange(
+								DissectStory(
+									JsonConvert.DeserializeObject<MainStory>(
+										File.ReadAllText(item)) ?? new()));
+						else
+							Nodes.AddRange(
+								DissectCharacter(
+									JsonConvert.DeserializeObject<CharacterStory>(
+										File.ReadAllText(item)) ?? new()));
+					}
+				}
+				else
+				{
+					((Settings)Settings.Default).StoryPath = string.Empty;
+					ParseAllFiles();
+					return true;
 				}
 
+				Nodes = CalculateStartingPositions(Nodes);
+
 				//save nodes
-				return SaveNodes(Nodes);
+				return SaveNodes(savedNodesPath, Nodes);
 			}
 
 			return Nodes.Count > 0;
 		}
 
-		public bool SaveNodes(List<Node> nodes)
+		public static bool SaveNodes(string path, List<Node> nodes)
 		{
 			if (nodes.Count > 0)
 			{
-				string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
-				File.WriteAllText(savedNodesPath, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
+				File.WriteAllText(path, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
 				return true;
 			}
 			else return false;
@@ -256,12 +266,12 @@ namespace Translator.Explorer
 			//Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
 
 			const float maxForce = 0;
-			const int iterations = 300;
-			const float attraction = 750f;//attraction force multiplier, between 0 and much
-			float cooldown = 0.97f;
+			const int iterations = 1;
+			const float attraction = 1f;//attraction force multiplier, between 0 and much
+			float cooldown = 0.9999f;
 			float currentMaxForce = maxForce + 0.1f;
-			const float repulsion = 1000f;//repulsion force multiplier, between 0 and much
-			const int length = 180; //spring length in units aka thedistance an edge should be long
+			const float repulsion = 1.3f;//repulsion force multiplier, between 0 and much
+			const int length = 200; //spring length in units aka thedistance an edge should be long
 
 			//copy node ids in a dict so we can apply force and not disturb the rest
 			//save all forces here
@@ -361,7 +371,6 @@ namespace Translator.Explorer
 			int sideLength = (int)(Math.Sqrt(nodes.Count) + 0.5);
 			for (int i = 0; i < nodes.Count; i++)
 			{
-				Node node = nodes[i];
 				//modulo of running total with sidelength gives x coords, repeating after sidelength
 				//offset by halfe sidelength to center x
 				int x = (runningTotal % sideLength) - sideLength / 2 + Random.Next(-(step / 2) + 1, (step / 2) - 1);
@@ -370,7 +379,7 @@ namespace Translator.Explorer
 				//offset by halfe sidelength to center y
 				int y = (runningTotal / sideLength) - sideLength / 2 + Random.Next(-(step / 2) + 1, (step / 2) - 1);
 				//set position
-				node.SetPosition(new Point(x * step, y * step));
+				nodes[i].SetPosition(new Point(x * step, y * step));
 				//increase running total
 				runningTotal++;
 			}

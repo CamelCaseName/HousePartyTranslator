@@ -1,5 +1,10 @@
-﻿using System.Drawing.Imaging;
+﻿using System.Buffers;
+using System.Drawing;
+using System.Drawing.Configuration;
+using System.Drawing.Imaging;
+using System.Numerics;
 using System.Runtime.Versioning;
+using System.Xml.Linq;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
 using TranslatorAdmin.Managers;
@@ -11,52 +16,64 @@ namespace Translator.Explorer
 	[SupportedOSPlatform("Windows")]
 	internal sealed class GraphingEngine
 	{
-		public const int BitmapEdgeLength = 7000;
-		public const int HalfBitmapEdgeLength = BitmapEdgeLength / 2;
-		public const int NegativeHalfBitmapEdgeLength = -HalfBitmapEdgeLength;
 		public const int Nodesize = 16;
 
 		public readonly ContextProvider Context;
-		public bool ReadyToDraw = false;
 
 		private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
 		private readonly Color DefaultMaleColor = Color.Coral;
 		private readonly Color DefaultColor = Color.DarkBlue;
+		private readonly Color DefaultQuestColor = Color.Purple;
 		private readonly Color DefaultFemaleColor = Color.DarkTurquoise;
+
+		private readonly SolidBrush NodeBrush;
+		private readonly SolidBrush FemaleNodeBrush;
+		private readonly SolidBrush MaleNodeBrush;
+		private readonly SolidBrush QuestNodeBrush;
+		private readonly SolidBrush ColorBrush;
+		private readonly Pen DefaultPen;
+		private readonly Pen ColorPen;
+
+		private float Xmax => App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
+		private float Ymax => App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
+		private readonly float Xmin = 2 * -Nodesize;
+		private readonly float Ymin = 2 * -Nodesize;
+
 		private readonly StoryExplorer Explorer;
-		private readonly Bitmap GraphBitmap;
-		private readonly Graphics MainGraphics;
 		private readonly Label NodeInfoLabel;
+
+		private readonly ArrayPool<PointF> PointPool = ArrayPool<PointF>.Shared;
 
 		private float AfterZoomMouseX = 0f;
 		private float AfterZoomMouseY = 0f;
 		private float BeforeZoomMouseX = 0f;
 		private float BeforeZoomMouseY = 0f;
+		private float OffsetX = 0f;
+		private float OffsetY = 0f;
 
 		private bool CurrentlyInPan = false;
 		private Node highlightedNode = Node.NullNode;
 		private Node infoNode = Node.NullNode;
 		private bool IsShiftPressed = false;
-		private Node LastInfoNode = Node.NullNode;
-		private Color LastNodeColor = Color.DarkBlue;
 
-		private float OffsetX = -HalfBitmapEdgeLength;
-		private float OffsetY = -HalfBitmapEdgeLength;
 		private float Scaling = 0.3f;
 		private float StartPanOffsetX = 0f;
 		private float StartPanOffsetY = 0f;
 
-		[SupportedOSPlatform("windows")]
+
 		public GraphingEngine(ContextProvider context, StoryExplorer explorer, Label nodeInfoLabel)
 		{
 			Context = context;
 			Explorer = explorer;
 			NodeInfoLabel = nodeInfoLabel;
 
-			GraphBitmap = new Bitmap(BitmapEdgeLength, BitmapEdgeLength, PixelFormat.Format24bppRgb);
-
-			MainGraphics = Graphics.FromImage(GraphBitmap);
-			MainGraphics.DrawRectangle(Pens.Black, 0, 0, BitmapEdgeLength, BitmapEdgeLength);
+			NodeBrush = new SolidBrush(DefaultColor);
+			FemaleNodeBrush = new SolidBrush(DefaultFemaleColor);
+			MaleNodeBrush = new SolidBrush(DefaultMaleColor);
+			QuestNodeBrush = new SolidBrush(DefaultQuestColor);
+			ColorBrush = new SolidBrush(DefaultColor);
+			DefaultPen = new Pen(DefaultEdgeColor, 3f);
+			ColorPen = new Pen(DefaultEdgeColor, 3f);
 
 			ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
 			ClickedNodeChanged += new ClickedNodeChangedHandler(DisplayNodeInfoHandler);
@@ -65,7 +82,6 @@ namespace Translator.Explorer
 		public delegate void ClickedNodeChangedHandler(object sender, ClickedNodeChangeArgs e);
 		public event ClickedNodeChangedHandler ClickedNodeChanged;
 
-		[SupportedOSPlatform("windows")]
 		public Node HighlightedNode
 		{
 			get
@@ -74,8 +90,6 @@ namespace Translator.Explorer
 			}
 			set
 			{
-				//clear highlight
-				if (!IsShiftPressed) RemoveHighlight();
 				if (value != null)
 				{
 					//set new value
@@ -109,15 +123,20 @@ namespace Translator.Explorer
 			}
 		}
 
-		[SupportedOSPlatform("windows")]
 		public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
 		{
-			if (ReadyToDraw && e != null)
+			if (e != null)
 			{
-				//convert image
-				GraphToScreen(NegativeHalfBitmapEdgeLength, NegativeHalfBitmapEdgeLength, out float ImageScreenX, out float ImageScreenY);
-				//display image with scaling applied
-				e.Graphics.DrawImage(GraphBitmap, ImageScreenX, ImageScreenY, BitmapEdgeLength * Scaling, BitmapEdgeLength * Scaling);
+				e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
+				e.Graphics.ScaleTransform(Scaling, Scaling);
+
+				PaintAllNodes(e.Graphics);
+
+				//overlay info and highlight
+				DrawHighlightNodeTree(e.Graphics);
+				DrawInfoNode(e.Graphics);
+				//todo fix info text
+				//DisplayNodeInfo(infoNode != Node.NullNode ? infoNode : highlightedNode);
 			}
 		}
 
@@ -140,19 +159,18 @@ namespace Translator.Explorer
 			IsShiftPressed = e.KeyData == (Keys.ShiftKey | Keys.Shift);
 		}
 
-		[SupportedOSPlatform("windows")]
 		public void HandleMouseEvents(object sender, MouseEventArgs e)
 		{
 			switch (e.Button)
 			{
 				case MouseButtons.Left:
-					SetNewHighlightNode(e.Location);
+					HighlightedNode = UpdateClickedNode(e.Location);
 					break;
 				case MouseButtons.None:
 					EndPan();
 					break;
 				case MouseButtons.Right:
-					SetNewInfoNode(e.Location);
+					InfoNode = UpdateClickedNode(e.Location);
 					break;
 				case MouseButtons.Middle:
 					UpdatePan(e.Location);
@@ -174,22 +192,19 @@ namespace Translator.Explorer
 			}
 		}
 
-		[SupportedOSPlatform("windows")]
-		public void PaintAllNodes()
+		public void PaintAllNodes(Graphics g)
 		{
 			//go on displaying graph
 			for (int i = 0; i < Context.Nodes.Count; i++)
 			{
-				//draw node
-				DrawColouredNode(Context.Nodes[i], Context.Nodes[i].Gender == Gender.Female ? DefaultFemaleColor : Context.Nodes[i].Gender == Gender.Male ? DefaultMaleColor : DefaultColor);
 				//draw edges to children, default colour
 				for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
 				{
-					DrawEdge(Context.Nodes[i], Context.Nodes[i].ChildNodes[j], DefaultEdgeColor);
+					DrawEdge(g, Context.Nodes[i], Context.Nodes[i].ChildNodes[j]);
 				}
+
+				DrawColouredNode(g, Context.Nodes[i]);
 			}
-			//allow paint handler to draw
-			ReadyToDraw = true;
 		}
 
 		/// <summary>
@@ -205,8 +220,7 @@ namespace Translator.Explorer
 			graphY = screenY / Scaling + OffsetY;
 		}
 
-		[SupportedOSPlatform("windows")]
-		private void DisplayNodeInfo(Node infoNode, bool colourNode)
+		private void DisplayNodeInfo(Node infoNode)
 		{
 			//display info on new node
 			if (infoNode != Node.NullNode)
@@ -232,11 +246,6 @@ namespace Translator.Explorer
 
 				NodeInfoLabel.Text = header + seperator + info;
 
-				if (colourNode)
-				{
-					RemoveLastInfoNode(infoNode);
-					DrawColouredNode(infoNode, Color.ForestGreen);
-				}
 			}
 			else //remove highlight display
 			{
@@ -246,64 +255,132 @@ namespace Translator.Explorer
 			Explorer.Invalidate();
 		}
 
-		[SupportedOSPlatform("windows")]
 		private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
 		{
 			//display info on new node
 			if (e.ClickType == ClickedNodeTypes.Info)
 			{
-				DisplayNodeInfo(e.ChangedNode, true);
+				DisplayNodeInfo(e.ChangedNode);
+				infoNode = e.ChangedNode;
 			}
 		}
 
-		[SupportedOSPlatform("windows")]
-		private void DrawColouredNode(Node node, Color color)
+		private void DrawColouredNode(Graphics g, Node node)
 		{
-			if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+			//dont draw node if it is too far away
+			GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
+			if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
 			{
-				MainGraphics.FillEllipse(
-							   new SolidBrush(color),
-							   node.Position.X - Nodesize / 2 + HalfBitmapEdgeLength,
-							   node.Position.Y - Nodesize / 2 + HalfBitmapEdgeLength,
-							   Nodesize,
-							   Nodesize);
+				if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+				{
+					g.FillEllipse(
+						BrushFromNode(node),
+						node.Position.X - Nodesize / 2,
+						node.Position.Y - Nodesize / 2,
+						Nodesize,
+						Nodesize
+						);
+				}
 			}
 		}
 
-		[SupportedOSPlatform("windows")]
-		internal void DrawEdge(Node node1, Node node2, Color color)
+		private void DrawColouredNode(Graphics g, Node node, Color color)
+		{
+			//dont draw node if it is too far away
+			GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
+			if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
+			{
+				if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+				{
+					ColorBrush.Color = color;
+					g.FillEllipse(
+						ColorBrush,
+						node.Position.X - Nodesize / 2,
+						node.Position.Y - Nodesize / 2,
+						Nodesize,
+						Nodesize
+						);
+				}
+			}
+		}
+
+		internal void DrawEdge(Graphics g, Node node1, Node node2)
 		{
 			if (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
 			{
-				MainGraphics.DrawLine(
-				new Pen(color, 3f),
-				(node1.Position.X) + HalfBitmapEdgeLength,
-				(node1.Position.Y) + HalfBitmapEdgeLength,
-				(node2.Position.X) + HalfBitmapEdgeLength,
-				(node2.Position.Y) + HalfBitmapEdgeLength);
+				//dont draw node if it is too far away
+				GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
+				GraphToScreen(node2.Position.X, node2.Position.Y, out float x2, out float y2);
+
+				if ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) || (x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin))
+				{
+					//any is visible
+					g.DrawLine(
+						DefaultPen,
+						node1.Position.X,
+						node1.Position.Y,
+						node2.Position.X,
+						node2.Position.Y
+						);
+				}
+				//none are visible, why draw?
 			}
 		}
 
-		[SupportedOSPlatform("windows")]
-		internal void DrawEdges(List<Node> nodes, Color color)
+		internal void DrawEdge(Graphics g, Node node1, Node node2, Color color)
 		{
-			var points = new Point[nodes.Count];
+			if (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
+			{
+				//dont draw node if it is too far away
+				GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
+				GraphToScreen(node2.Position.X, node2.Position.Y, out float x2, out float y2);
+
+				if ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) || (x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin))
+				{
+					//any is visible
+					ColorPen.Color = color;
+					g.DrawLine(
+						ColorPen,
+						node1.Position.X,
+						node1.Position.Y,
+						node2.Position.X,
+						node2.Position.Y
+						);
+				}
+				//none are visible, why draw?
+			}
+		}
+
+		internal void DrawEdges(Graphics g, List<Node> nodes)
+		{
+			var points = PointPool.Rent(nodes.Count);
 			for (int i = 0; i < nodes.Count; i++)
 			{
 				points[i] = nodes[i].Position;
-				points[i].X += HalfBitmapEdgeLength;
-				points[i].Y += HalfBitmapEdgeLength;
 			}
-			MainGraphics.DrawLines(new Pen(color, 3f), points);
+			g.DrawLines(DefaultPen, points);
+			PointPool.Return(points);
 		}
 
-		[SupportedOSPlatform("windows")]
-		private void DrawHighlightNodeTree()
+		internal void DrawEdges(Graphics g, List<Node> nodes, Color color)
+		{
+			ColorPen.Color = color;
+			var points = PointPool.Rent(nodes.Count);
+			for (int i = 0; i < nodes.Count; i++)
+			{
+				points[i] = nodes[i].Position;
+			}
+			g.DrawLines(ColorPen, points);
+			PointPool.Return(points);
+		}
+
+		private void DrawHighlightNodeTree(Graphics g)
 		{
 			if (HighlightedNode != Node.NullNode)
 			{
 				//draw parents first (one layer only)
 				DrawNodeSet(
+					g,
 					HighlightedNode.ParentNodes,
 					HighlightedNode,
 					0,
@@ -313,6 +390,7 @@ namespace Translator.Explorer
 					false);
 				//then childs
 				DrawNodeSet(
+					g,
 					HighlightedNode.ChildNodes,
 					HighlightedNode,
 					0,
@@ -322,34 +400,70 @@ namespace Translator.Explorer
 					true);
 
 				//then redraw node itself
-				DrawColouredNode(HighlightedNode, Color.DarkRed);
+				DrawColouredNode(g, HighlightedNode, Color.DarkRed);
 				Explorer.Invalidate();
 			}
 		}
 
-		[SupportedOSPlatform("windows")]
-		private void DrawNodeSet(List<Node> nodes, Node previousNode, int depth, int maxDepth, Color nodeColor, Color edgeColor, bool diluteColor)
+		private void DrawInfoNode(Graphics g)
+		{
+			if (InfoNode != Node.NullNode)
+			{
+				ColorBrush.Color = Color.ForestGreen;
+				g.FillEllipse(
+					ColorBrush,
+					InfoNode.Position.X - Nodesize / 2,
+					InfoNode.Position.Y - Nodesize / 2,
+					Nodesize,
+					Nodesize
+					);
+			}
+		}
+
+		private void DrawNodeSet(Graphics g, List<Node> nodes, Node previousNode, int depth, int maxDepth, Color nodeColor, Color edgeColor, bool diluteColor)
 		{
 			if (depth++ < maxDepth)
 			{
 				//highlight childs
-				foreach (Node node in nodes)
+				for (int i = 0; i < nodes.Count; i++)
 				{
 					if (diluteColor)
 					{
-						DrawNodeSet(node.ChildNodes, node, depth, maxDepth, Color.FromArgb((int)(nodeColor.ToArgb() / 1.3d)), Color.FromArgb((int)(edgeColor.ToArgb() / 1.3d)), true);
+						DrawNodeSet(g, nodes[i].ChildNodes, nodes[i], depth, maxDepth, Color.FromArgb((int)(ColorFromNode(nodes[i]).ToArgb() / 1.3d)), Color.FromArgb((int)(edgeColor.ToArgb() / 1.3d)), true);
 					}
 					else
 					{
-						DrawNodeSet(node.ChildNodes, node, depth, maxDepth, nodeColor, edgeColor, false);
+						DrawNodeSet(g, nodes[i].ChildNodes, nodes[i], depth, maxDepth, nodeColor, edgeColor, false);
 					}
 
 					//draw line
-					DrawEdge(node, previousNode, edgeColor);
+					DrawEdge(g, nodes[i], previousNode, edgeColor);
 					//draw node over line
-					DrawColouredNode(node, nodeColor);
+					DrawColouredNode(g, nodes[i], nodeColor);
 				}
 			}
+		}
+
+		private Color ColorFromNode(Node node)
+		{
+			return node.Gender switch
+			{
+				Gender.None => node.Type == NodeType.Quest ? DefaultQuestColor : DefaultColor,
+				Gender.Female => DefaultFemaleColor,
+				Gender.Male => DefaultMaleColor,
+				_ => DefaultColor,
+			};
+		}
+
+		private SolidBrush BrushFromNode(Node node)
+		{
+			return node.Gender switch
+			{
+				Gender.None => node.Type == NodeType.Quest ? QuestNodeBrush : NodeBrush,
+				Gender.Female => FemaleNodeBrush,
+				Gender.Male => MaleNodeBrush,
+				_ => NodeBrush,
+			};
 		}
 
 		private void EndPan()
@@ -361,7 +475,6 @@ namespace Translator.Explorer
 			}
 		}
 
-		[SupportedOSPlatform("windows")]
 		private void HighlightClickedNodeHandler(object sender, ClickedNodeChangeArgs e)
 		{
 			if (e.ClickType == ClickedNodeTypes.Highlight)
@@ -371,79 +484,9 @@ namespace Translator.Explorer
 				//select line in translation manager
 				TabManager.ActiveTranslationManager.SelectLine(e.ChangedNode.ID);
 				//put info up
-				DisplayNodeInfo(e.ChangedNode, false);
-				//draw nodes
-				if (!IsShiftPressed) DrawHighlightNodeTree();
+				DisplayNodeInfo(e.ChangedNode);
+				highlightedNode = e.ChangedNode;
 			}
-		}
-
-		[SupportedOSPlatform("windows")]
-		private void RemoveHighlight()
-		{
-			if (HighlightedNode != null)
-			{
-				//draw over parents
-				DrawNodeSet(
-					HighlightedNode.ParentNodes,
-					HighlightedNode,
-					0,
-					1,
-					DefaultMaleColor,
-					DefaultEdgeColor,
-					false);
-				//draw over childs
-				DrawNodeSet(
-					HighlightedNode.ChildNodes,
-					HighlightedNode,
-					0,
-					6,
-					HighlightedNode.Gender == Gender.Female ? DefaultFemaleColor : HighlightedNode.Gender == Gender.Male ? DefaultMaleColor : DefaultColor,
-					DefaultEdgeColor,
-					false);
-
-				//redraw node itself
-				DrawColouredNode(HighlightedNode, HighlightedNode.Gender == Gender.Female ? DefaultFemaleColor : HighlightedNode.Gender == Gender.Male ? DefaultMaleColor : DefaultColor);
-				Explorer.Invalidate();
-
-			}
-		}
-
-		[SupportedOSPlatform("windows")]
-		private void RemoveLastInfoNode(Node infoNode)
-		{
-			//remove last node highlight
-			if (LastInfoNode != Node.NullNode)
-			{
-				//remove old colour from node
-				DrawColouredNode(LastInfoNode, LastNodeColor);
-			}
-
-			if (infoNode != Node.NullNode)
-			{
-				LastNodeColor = GraphBitmap.GetPixel(infoNode.Position.X + HalfBitmapEdgeLength, infoNode.Position.Y + HalfBitmapEdgeLength);
-				if (LastNodeColor == DefaultEdgeColor)
-				{//reset colour if it is gray, can happen due to drawing order
-					LastNodeColor = LastInfoNode.Gender == Gender.Female ? DefaultFemaleColor : LastInfoNode.Gender == Gender.Male ? DefaultMaleColor : DefaultColor;
-				}
-			}
-		}
-
-		[SupportedOSPlatform("windows")]
-		private void SetNewHighlightNode(Point mouseLocation)
-		{
-			Node ClickedNode = UpdateClickedNode(mouseLocation);
-			if (HighlightedNode != ClickedNode && ClickedNode != Node.NullNode)
-			{
-				HighlightedNode = ClickedNode;
-			}
-		}
-
-		private void SetNewInfoNode(Point mouseLocation)
-		{
-			//get new clicked node
-			if (InfoNode != Node.NullNode) LastInfoNode = InfoNode;
-
-			InfoNode = UpdateClickedNode(mouseLocation);
 		}
 
 		private void SetPanOffset(Point location)
