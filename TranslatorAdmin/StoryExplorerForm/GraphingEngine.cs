@@ -50,6 +50,7 @@ namespace Translator.Explorer
 		private Node highlightedNode = Node.NullNode;
 		private Node infoNode = Node.NullNode;
 		private bool IsShiftPressed = false;
+		public bool DrewNodes = false;
 
 		private float Scaling = 0.3f;
 		private float StartPanOffsetX = 0f;
@@ -191,17 +192,22 @@ namespace Translator.Explorer
 
 		public void PaintAllNodes(Graphics g)
 		{
-			//go on displaying graph
-			for (int i = 0; i < Context.Nodes.Count; i++)
+			DrewNodes = false;
+			lock (Context.Nodes)
 			{
-				//draw edges to children, default colour
-				for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
+				//go on displaying graph
+				for (int i = 0; i < Context.Nodes.Count; i++)
 				{
-					DrawEdge(g, Context.Nodes[i], Context.Nodes[i].ChildNodes[j]);
-				}
+					//draw edges to children, default colour
+					for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
+					{
+						DrawEdge(g, Context.Nodes[i], Context.Nodes[i].ChildNodes[j]);
+					}
 
-				DrawColouredNode(g, Context.Nodes[i]);
+					DrawColouredNode(g, Context.Nodes[i]);
+				}
 			}
+			DrewNodes = true;
 		}
 
 		/// <summary>

@@ -1,8 +1,10 @@
 ﻿using System.Numerics;
+using System.Runtime.Versioning;
 using Translator.Core;
 
 namespace Translator.Explorer
 {
+	[SupportedOSPlatform("windows")]
 	internal class NodeLayout
 	{
 		private readonly List<Node> nodesA = new();
@@ -61,6 +63,9 @@ namespace Translator.Explorer
 					{
 						CalculatePositions();
 					}
+
+				//we got to wait before we change nodes, so like a reverse lock?
+				while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
 				//switch to other list once done
 				CalculatedListA = !CalculatedListA;
 			}
