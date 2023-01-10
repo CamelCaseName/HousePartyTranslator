@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Translator.Core
@@ -71,6 +72,10 @@ namespace Translator.Core
 
 			//add the message as lines to our list of all lines
 			FileLines.AddRange(_message.Split('\n'));
+
+#if DEBUG || DEBUG_USER
+			Debug.WriteLine(_message[..^1]);
+#endif
 		}
 
 		/// <summary>
