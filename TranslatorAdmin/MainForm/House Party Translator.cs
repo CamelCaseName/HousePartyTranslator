@@ -348,6 +348,13 @@ namespace Translator
 			bool isStory = manager.StoryName.ToLowerInvariant() == manager.FileName.ToLowerInvariant();
 			try
 			{
+				DialogResult openAll = Msg.InfoYesNoCancel(
+						$"Do you want to explore all files for {manager.StoryName} or only {manager.FileName}.\n " +
+						"Note: more files means slower layout, but viewing performance is about the same.",
+						"All files?"
+						);
+				if (openAll == DialogResult.Cancel) return null;
+
 				var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token)
 				{
 					UseWaitCursor = true
@@ -356,13 +363,6 @@ namespace Translator
 				//task to offload initialization workload
 				var explorerTask = Task.Run(() =>
 				{
-					DialogResult openAll = Msg.InfoYesNoCancel(
-						$"Do you want to explore all files for {manager.StoryName} or only {manager.FileName}.\n " +
-						"Note: more files means slower layout, but viewing performance is about the same.",
-						"All files?"
-						);
-					if (openAll == DialogResult.Cancel) return false;
-
 					//def answer set to no because true for opening a single one is needed
 					explorer.Initialize(openAll == DialogResult.No);
 					return true;
