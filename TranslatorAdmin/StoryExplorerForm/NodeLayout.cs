@@ -9,7 +9,7 @@ namespace Translator.Explorer
 	{
 		private readonly List<Node> nodesA = new();
 		private readonly List<Node> nodesB = new();
-		private bool CalculatedListA = false;
+		private bool CalculatedListA = true;
 		private static Dictionary<Guid, Vector2> NodeForces = new();
 		private static float cooldown = 0.9999f;
 		private const float maxForce = 0;
@@ -55,6 +55,23 @@ namespace Translator.Explorer
 
 			while (!token.IsCancellationRequested)
 			{
+				//sync nodes, initally in b
+				if (nodesA.Count != nodesB.Count)
+				{
+					if (CalculatedListA)
+					{
+						//changed amount is in a
+						nodesB.Clear();
+						nodesB.AddRange(nodesA);
+					}
+					else
+					{
+						//changed amount is in b
+						nodesA.Clear();
+						nodesA.AddRange(nodesB);
+					}
+				}
+				//lock and calculate
 				if (CalculatedListA) lock (nodesB)
 					{
 						CalculatePositions();
