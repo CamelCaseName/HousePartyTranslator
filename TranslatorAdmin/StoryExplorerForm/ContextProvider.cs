@@ -144,6 +144,7 @@ namespace Translator.Explorer
 						Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
 					}
 
+					CalculateStartingPositions(Nodes);
 
 					//save nodes
 					return SaveNodes(NodeFilePath, Nodes);
