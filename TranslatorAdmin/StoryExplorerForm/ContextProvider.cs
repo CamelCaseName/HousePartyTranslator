@@ -13,10 +13,11 @@ namespace Translator.Explorer
 		private List<Node> CriteriaInFile = new();
 		private readonly bool IsStory;
 		private readonly Random Random = new();
-		private readonly string FileId;
+		private readonly string FileId = string.Empty;
 		private readonly string FileName = "character";
 		private readonly string StoryName = "story";
-		private string _StoryFilePath;
+		private string _StoryFilePath = string.Empty;
+		private string NodeFilePath = string.Empty;
 		public bool GotCancelled = false;
 		private readonly NodeLayout Layout;
 
@@ -116,15 +117,15 @@ namespace Translator.Explorer
 			if (File.Exists(FilePath))
 			{
 				string fileString = File.ReadAllText(FilePath);
-				string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
+				NodeFilePath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
 
 				//save path
 				((Settings)Settings.Default).StoryPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
 				//try to laod the saved nodes
-				if (File.Exists(savedNodesPath))
+				if (File.Exists(NodeFilePath))
 				{
 					//read in positions if they exist, but only if version is the same
-					List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
+					List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(NodeFilePath));
 					//expand the guids back into references
 					while (Nodes.Count != 0) Nodes.Clear();
 					Nodes.AddRange(Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>()));
@@ -145,7 +146,7 @@ namespace Translator.Explorer
 
 
 					//save nodes
-					return SaveNodes(savedNodesPath, Nodes);
+					return SaveNodes(NodeFilePath, Nodes);
 				}
 
 				return Nodes.Count > 0;
@@ -179,13 +180,13 @@ namespace Translator.Explorer
 
 			if (!Directory.Exists(StoryFolderPath)) return false;
 
-			string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{StoryName + DataBase.DBVersion}.json");
+			NodeFilePath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{StoryName + DataBase.DBVersion}.json");
 
 			//try to load the saved nodes
-			if (File.Exists(savedNodesPath))
+			if (File.Exists(NodeFilePath))
 			{
 				//read in positions if they exist, but only if version is the same
-				List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
+				List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(NodeFilePath));
 				//expand the guids back into references
 
 				while (Nodes.Count != 0) Nodes.Clear();
@@ -221,7 +222,7 @@ namespace Translator.Explorer
 				CalculateStartingPositions(Nodes);
 
 				//save nodes
-				return SaveNodes(savedNodesPath, Nodes);
+				return SaveNodes(NodeFilePath, Nodes);
 			}
 			return Nodes.Count > 0;
 		}
@@ -445,5 +446,7 @@ namespace Translator.Explorer
 			}
 			return _nodes;
 		}
+
+		internal void SaveNodes() => SaveNodes(NodeFilePath, Nodes);
 	}
 }

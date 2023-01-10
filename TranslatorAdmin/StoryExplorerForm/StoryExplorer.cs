@@ -32,6 +32,7 @@
 
 			//add custom paint event handler to draw all nodes and edges
 			Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
+			FormClosing += new FormClosingEventHandler(SaveNodes);
 
 		}
 
@@ -61,6 +62,11 @@
 				}
 			}
 			Context.StartLayoutCalculations();
+		}
+
+		private void SaveNodes(object? sender, FormClosingEventArgs? e)
+		{
+			Context.SaveNodes();
 		}
 
 		private void HandleKeyBoard(object sender, KeyEventArgs e)
