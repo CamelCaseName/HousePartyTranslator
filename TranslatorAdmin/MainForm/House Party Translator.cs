@@ -348,51 +348,38 @@ namespace Translator
 			bool isStory = manager.StoryName.ToLowerInvariant() == manager.FileName.ToLowerInvariant();
 			try
 			{
-				//create an id to differentiate between the different calculated layouts later
-				string FileId = manager.StoryName + manager.FileName + DataBase.DBVersion;
-				string savedNodesPath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
-				DialogResult result = DialogResult.OK;
-				if (!File.Exists(savedNodesPath))
+				var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token)
 				{
-					result = Msg.WarningOkCancel("If you never opened this character in the explorer before, " +
-					   "be aware that this can take some time (5+ minutes) and is really cpu intensive. " +
-					   "This only has to be done once for each character!\n" +
-					   "You may notice stutters and stuff hanging. ",
-					   "Warning!");
-				}
-				//inform user this is going to take some time
-				if (result == DialogResult.OK)
+					UseWaitCursor = true
+				};
+
+				//task to offload initialization workload
+				var explorerTask = Task.Run(() =>
 				{
-					var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token)
-					{
-						UseWaitCursor = true
-					};
+					DialogResult openAll = Msg.InfoYesNoCancel(
+						$"Do you want to explore all files for {manager.StoryName} or only {manager.FileName}.\n " +
+						"Note: more files means slower layout, but viewing performance is about the same.",
+						"All files?"
+						);
+					if (openAll == DialogResult.Cancel) return false;
 
-					//task to offload initialization workload
-					var explorerTask = Task.Run(() =>
-					{
-						explorer.Initialize(false);
-						return true;
-					});
+					//def answer set to no because true for opening a single one is needed
+					explorer.Initialize(openAll == DialogResult.No);
+					return true;
+				});
 
-					if (await explorerTask)
-					{
-						if (!explorer.IsDisposed)
-						{//reset cursor and display window
-							explorer.UseWaitCursor = false;
-							explorer.Invalidate();
-							explorer.Show();
-						}
-
-						manager.SetHighlightedNode();
-						App.MainForm.UI.SignalUserEndWait();
-						return explorer;
+				if (await explorerTask)
+				{
+					if (!explorer.IsDisposed)
+					{//reset cursor and display window
+						explorer.UseWaitCursor = false;
+						explorer.Invalidate();
+						explorer.Show();
 					}
-					else
-					{
-						App.MainForm.UI.SignalUserEndWait();
-						return null;
-					}
+
+					manager.SetHighlightedNode();
+					App.MainForm.UI.SignalUserEndWait();
+					return explorer;
 				}
 				else
 				{
