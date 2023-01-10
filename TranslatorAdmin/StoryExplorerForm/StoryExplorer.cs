@@ -9,9 +9,8 @@
 		private readonly string parentName;
 		public readonly string FileName;
 		public readonly string StoryName;
-		private readonly ParallelOptions parallelOptions;
 
-		public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, ParallelOptions parallelOptions)
+		public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
 		{
 			InitializeComponent();
 
@@ -20,14 +19,13 @@
 			parentForm = Parent;
 			this.StoryName = StoryName;
 			this.FileName = FileName;
-			this.parallelOptions = parallelOptions;
 
 			//change draw order for this windows from bottom to top to top to bottom to remove flickering
 			//use double buffering for that
 			DoubleBuffered = true;
 
 			//get contextprovider
-			Context = new ContextProvider(IsStory, AutoLoad, FileName, StoryName, parallelOptions);
+			Context = new ContextProvider(IsStory, AutoLoad, FileName, StoryName, cancellation);
 			engine = new GraphingEngine(Context, this, NodeInfoLabel);
 
 			Text = $"StoryExplorer - Laoding";
@@ -62,6 +60,7 @@
 					Close();
 				}
 			}
+			Context.StartLayoutCalculations();
 		}
 
 		private void HandleKeyBoard(object sender, KeyEventArgs e)

@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
 using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Explorer.JSON;
@@ -13,30 +11,26 @@ namespace Translator.Explorer
 	internal sealed class ContextProvider
 	{
 		private List<Node> CriteriaInFile = new();
-		private List<Node> __nodes1 = new();
-		private List<Node> __nodes2 = new();
 		private readonly bool IsStory;
 		private readonly Random Random = new();
 		private readonly string FileId;
 		private readonly string FileName = "character";
 		private readonly string StoryName = "story";
-		private readonly Task<bool> NodeLayoutOffload;
-		private static Dictionary<Guid, Vector2> NodeForces = new();
-		private static float cooldown = 0.9999f;
 		private string _StoryFilePath;
 		public bool GotCancelled = false;
+		private readonly NodeLayout Layout;
 
 		//todo: decouple node force layout and use seperate task for that, update frame each time it finishes
 		//todo: read in all files and combine/merge nodes through story files.
 		//todo: if going through a node connection into a different file and it is not open, try to open it or switch to it if open already
 
-		public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, ParallelOptions parallelOptions)
+		public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, CancellationToken cancellation)
 		{
 			_StoryFilePath = string.Empty;
 			this.IsStory = IsStory;
 			this.FileName = FileName;
 			this.StoryName = StoryName;
-			NodeLayoutOffload = new Task<bool>(NodeCalculationsImpl, parallelOptions.CancellationToken);
+			Layout = new NodeLayout(cancellation);
 
 			if (((Settings)Settings.Default).StoryPath != string.Empty && AutoSelectFile && FileName != string.Empty && StoryName != string.Empty)
 			{
@@ -115,10 +109,7 @@ namespace Translator.Explorer
 			}
 		}
 
-		public List<Node> Nodes
-		{
-			get; set;
-		}
+		public List<Node> Nodes => Layout.Nodes;
 
 		public bool ParseFile()
 		{
@@ -135,27 +126,28 @@ namespace Translator.Explorer
 					//read in positions if they exist, but only if version is the same
 					List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
 					//expand the guids back into references
-					Nodes = Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>());
+					while (Nodes.Count != 0) Nodes.Clear();
+					Nodes.AddRange(Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>()));
 				}
 				else
 				{
 					//else create new
 					if (IsStory)
 					{
-						Nodes = DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory());
+						while (Nodes.Count != 0) Nodes.Clear();
+						Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
 					}
 					else
 					{
-						Nodes = DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory());
+						while (Nodes.Count != 0) Nodes.Clear();
+						Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
 					}
 
 
 					//save nodes
-					NodeLayoutOffload.Start();
 					return SaveNodes(savedNodesPath, Nodes);
 				}
 
-				NodeLayoutOffload.Start();
 				return Nodes.Count > 0;
 			}
 			else
@@ -195,7 +187,9 @@ namespace Translator.Explorer
 				//read in positions if they exist, but only if version is the same
 				List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(savedNodesPath));
 				//expand the guids back into references
-				Nodes = Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>());
+
+				while (Nodes.Count != 0) Nodes.Clear();
+				Nodes.AddRange(Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>()));
 			}
 			else
 			{
@@ -224,19 +218,17 @@ namespace Translator.Explorer
 					return true;
 				}
 
-				Nodes = CalculateStartingPositions(Nodes);
+				CalculateStartingPositions(Nodes);
 
 				//save nodes
-				NodeLayoutOffload.Start();
 				return SaveNodes(savedNodesPath, Nodes);
 			}
-			NodeLayoutOffload.Start();
 			return Nodes.Count > 0;
 		}
 
-		private bool NodeCalculationsImpl()
+		public void StartLayoutCalculations()
 		{
-			return false;
+			Layout.Start();
 		}
 
 		public static bool SaveNodes(string path, List<Node> nodes)
@@ -258,102 +250,18 @@ namespace Translator.Explorer
 				//else create new
 				if (IsStory)
 				{
-					Nodes = DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory());
+					while (Nodes.Count != 0) Nodes.Clear();
+					Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
 				}
 				else
 				{
-					Nodes = DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory());
+					while (Nodes.Count != 0) Nodes.Clear();
+					Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
 				}
 
 				return Nodes;
 			}
 			return new();
-		}
-
-		public static bool CalculateForceDirectedLayout(ref List<Node> nodes)
-		{
-			//You just need to think about the 3 separate forces acting on each node,
-			//add them together each "frame" to get the movement of each node.
-
-			//Gravity, put a simple force acting towards the centre of the canvas so the nodes dont launch themselves out of frame
-
-			//Node-Node replusion, You can either use coulombs force(which describes particle-particle repulsion)
-			//or use the gravitational attraction equation and just reverse it
-
-			//Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
-
-			const float maxForce = 0;
-			const float attraction = 1f;//attraction force multiplier, between 0 and much
-			float currentMaxForce = maxForce + 0.1f;
-			const float repulsion = 1.3f;//repulsion force multiplier, between 0 and much
-			const int length = 200; //spring length in units aka thedistance an edge should be long
-
-			//copy node ids in a dict so we can apply force and not disturb the rest
-			//save all forces here
-			NodeForces = new Dictionary<Guid, Vector2>();
-			nodes.ForEach(n => NodeForces.Add(n.Guid, new Vector2()));
-
-
-			//calculate new, smaller cooldown so the nodes will move less and less
-			cooldown *= cooldown;
-
-			try
-			{
-				//go through all nodes and apply the forces
-				for (int i1 = 0; i1 < nodes.Count; i1++)
-				{
-					Node node = nodes[i1];
-					//create position vector for all later calculations
-					var nodePosition = new Vector2(node.Position.X, node.Position.Y);
-					//reset force
-					NodeForces[node.Guid] = new Vector2();
-
-					//calculate repulsion force
-					for (int i2 = 0; i2 < nodes.Count; i2++)
-					{
-						Node secondNode = nodes[i2];
-						if (node != secondNode && secondNode.Position != node.Position)
-						{
-							var secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
-							Vector2 difference = (secondNodePosition - nodePosition);
-							//absolute length of difference/distance
-							float distance = difference.Length();
-							//add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
-							Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance) / node.Mass;
-
-							//if the second node is a child of ours
-							if (secondNode.ParentNodes.Contains(node))
-							{
-								//so we can now do the attraction force
-								//formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
-								NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
-							}
-							else
-							{
-								//add force to node
-								NodeForces[node.Guid] += repulsionForce;
-							}
-
-							//add new maximum force or keep it as is if ours is smaller
-							currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
-						}
-					}
-				}
-			}
-			catch (OperationCanceledException)
-			{
-				LogManager.Log("Explorer closed during creation");
-				return true;
-			}
-
-			//apply force to nodes
-			for (int i1 = 0; i1 < nodes.Count; i1++)
-			{
-				Node node = nodes[i1];
-				node.Position.X += (int)(cooldown * NodeForces[node.Guid].X);
-				node.Position.Y += (int)(cooldown * NodeForces[node.Guid].Y);
-			}
-			return currentMaxForce > maxForce;
 		}
 
 		public static List<Tuple<int, int>> GetEdges(List<Node> _nodes)
@@ -371,7 +279,7 @@ namespace Translator.Explorer
 			return returnList;
 		}
 
-		private List<Node> CalculateStartingPositions(List<Node> nodes)
+		private void CalculateStartingPositions(List<Node> nodes)
 		{
 			int step = 40;
 			int runningTotal = 0;
@@ -391,7 +299,6 @@ namespace Translator.Explorer
 				//increase running total
 				runningTotal++;
 			}
-			return nodes;
 		}
 
 		private List<Node> CombineNodes(List<Node> nodes)

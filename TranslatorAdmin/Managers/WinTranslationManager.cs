@@ -26,7 +26,7 @@ namespace TranslatorAdmin.Managers
 
 			UI.SignalUserWait();
 			data = new FileData();
-			var explorer = new ContextProvider(story == Path.GetFileNameWithoutExtension(path), false, filename, story, new ParallelOptions());
+			var explorer = new ContextProvider(story == Path.GetFileNameWithoutExtension(path), false, filename, story, new CancellationToken());
 			List<Node> nodes = explorer.GetTemplateNodes();
 			if (nodes != null)
 			{

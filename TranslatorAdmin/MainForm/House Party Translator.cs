@@ -340,13 +340,6 @@ namespace Translator
 		{
 			App.MainForm.UI.SignalUserWait();
 
-			// Use ParallelOptions instance to store the CancellationToken
-			var parallelOptions = new ParallelOptions
-			{
-				CancellationToken = tokenSource.Token,
-				MaxDegreeOfParallelism = Environment.ProcessorCount - 1
-			};
-
 			if (TabManager.ActiveTranslationManager == null) return null;
 
 			//get currently active translation manager
@@ -370,7 +363,7 @@ namespace Translator
 				//inform user this is going to take some time
 				if (result == DialogResult.OK)
 				{
-					var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, parallelOptions)
+					var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token)
 					{
 						UseWaitCursor = true
 					};
