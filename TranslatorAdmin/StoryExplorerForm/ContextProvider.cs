@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Explorer.JSON;
@@ -11,16 +12,19 @@ namespace Translator.Explorer
 	[SupportedOSPlatform("Windows")]
 	internal sealed class ContextProvider
 	{
-		public bool GotCancelled = false;
-		private readonly string FileId;
+		private List<Node> CriteriaInFile = new();
+		private List<Node> __nodes1 = new();
+		private List<Node> __nodes2 = new();
 		private readonly bool IsStory;
 		private readonly Random Random = new();
-		private string _StoryFilePath;
-		private Dictionary<Guid, Vector2> NodeForces = new();
-		private List<Node> CriteriaInFile = new();
-		private readonly ParallelOptions options;
-		private readonly string StoryName = "story";
+		private readonly string FileId;
 		private readonly string FileName = "character";
+		private readonly string StoryName = "story";
+		private readonly Task<bool> NodeLayoutOffload;
+		private static Dictionary<Guid, Vector2> NodeForces = new();
+		private static float cooldown = 0.9999f;
+		private string _StoryFilePath;
+		public bool GotCancelled = false;
 
 		//todo: decouple node force layout and use seperate task for that, update frame each time it finishes
 		//todo: read in all files and combine/merge nodes through story files.
@@ -29,10 +33,10 @@ namespace Translator.Explorer
 		public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, ParallelOptions parallelOptions)
 		{
 			_StoryFilePath = string.Empty;
-			options = parallelOptions;
 			this.IsStory = IsStory;
 			this.FileName = FileName;
 			this.StoryName = StoryName;
+			NodeLayoutOffload = new Task<bool>(NodeCalculationsImpl, parallelOptions.CancellationToken);
 
 			if (((Settings)Settings.Default).StoryPath != string.Empty && AutoSelectFile && FileName != string.Empty && StoryName != string.Empty)
 			{
@@ -111,7 +115,10 @@ namespace Translator.Explorer
 			}
 		}
 
-		public List<Node> Nodes { get; private set; } = new();
+		public List<Node> Nodes
+		{
+			get; set;
+		}
 
 		public bool ParseFile()
 		{
@@ -144,9 +151,11 @@ namespace Translator.Explorer
 
 
 					//save nodes
+					NodeLayoutOffload.Start();
 					return SaveNodes(savedNodesPath, Nodes);
 				}
 
+				NodeLayoutOffload.Start();
 				return Nodes.Count > 0;
 			}
 			else
@@ -215,14 +224,19 @@ namespace Translator.Explorer
 					return true;
 				}
 
-
 				Nodes = CalculateStartingPositions(Nodes);
 
 				//save nodes
+				NodeLayoutOffload.Start();
 				return SaveNodes(savedNodesPath, Nodes);
 			}
-
+			NodeLayoutOffload.Start();
 			return Nodes.Count > 0;
+		}
+
+		private bool NodeCalculationsImpl()
+		{
+			return false;
 		}
 
 		public static bool SaveNodes(string path, List<Node> nodes)
@@ -256,7 +270,7 @@ namespace Translator.Explorer
 			return new();
 		}
 
-		public List<Node> CalculateForceDirectedLayout(List<Node> nodes)
+		public static bool CalculateForceDirectedLayout(ref List<Node> nodes)
 		{
 			//You just need to think about the 3 separate forces acting on each node,
 			//add them together each "frame" to get the movement of each node.
@@ -269,9 +283,7 @@ namespace Translator.Explorer
 			//Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
 
 			const float maxForce = 0;
-			const int iterations = 1;
 			const float attraction = 1f;//attraction force multiplier, between 0 and much
-			float cooldown = 0.9999f;
 			float currentMaxForce = maxForce + 0.1f;
 			const float repulsion = 1.3f;//repulsion force multiplier, between 0 and much
 			const int length = 200; //spring length in units aka thedistance an edge should be long
@@ -281,74 +293,67 @@ namespace Translator.Explorer
 			NodeForces = new Dictionary<Guid, Vector2>();
 			nodes.ForEach(n => NodeForces.Add(n.Guid, new Vector2()));
 
-			//times to perform calculation, result gets bettor over time
-			int i = 0;
-			while (i < iterations && currentMaxForce > maxForce)
+
+			//calculate new, smaller cooldown so the nodes will move less and less
+			cooldown *= cooldown;
+
+			try
 			{
-				//calculate new, smaller cooldown so the nodes will move less and less
-				cooldown *= cooldown;
-				//initialize maximum force/reset it
-				currentMaxForce = maxForce + 0.1f;
-				try
-				{
-					//go through all nodes and apply the forces
-					_ = Parallel.For(0, nodes.Count, options, i1 =>
-					{
-						Node node = nodes[i1];
-						//create position vector for all later calculations
-						var nodePosition = new Vector2(node.Position.X, node.Position.Y);
-						//reset force
-						NodeForces[node.Guid] = new Vector2();
-
-						//calculate repulsion force
-						for (int i2 = 0; i2 < nodes.Count; i2++)
-						{
-							Node secondNode = nodes[i2];
-							if (node != secondNode && secondNode.Position != node.Position)
-							{
-								var secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
-								Vector2 difference = (secondNodePosition - nodePosition);
-								//absolute length of difference/distance
-								float distance = difference.Length();
-								//add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
-								Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance) / node.Mass;
-
-								//if the second node is a child of ours
-								if (secondNode.ParentNodes.Contains(node))
-								{
-									//so we can now do the attraction force
-									//formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
-									NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
-								}
-								else
-								{
-									//add force to node
-									NodeForces[node.Guid] += repulsionForce;
-								}
-
-								//add new maximum force or keep it as is if ours is smaller
-								currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
-							}
-						}
-					});
-				}
-				catch (OperationCanceledException)
-				{
-					LogManager.Log("Explorer closed during creation");
-					return new();
-				}
-
-				//apply force to nodes
+				//go through all nodes and apply the forces
 				for (int i1 = 0; i1 < nodes.Count; i1++)
 				{
 					Node node = nodes[i1];
-					node.Position.X += (int)(cooldown * NodeForces[node.Guid].X);
-					node.Position.Y += (int)(cooldown * NodeForces[node.Guid].Y);
-				}
+					//create position vector for all later calculations
+					var nodePosition = new Vector2(node.Position.X, node.Position.Y);
+					//reset force
+					NodeForces[node.Guid] = new Vector2();
 
-				i++;
+					//calculate repulsion force
+					for (int i2 = 0; i2 < nodes.Count; i2++)
+					{
+						Node secondNode = nodes[i2];
+						if (node != secondNode && secondNode.Position != node.Position)
+						{
+							var secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
+							Vector2 difference = (secondNodePosition - nodePosition);
+							//absolute length of difference/distance
+							float distance = difference.Length();
+							//add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
+							Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance) / node.Mass;
+
+							//if the second node is a child of ours
+							if (secondNode.ParentNodes.Contains(node))
+							{
+								//so we can now do the attraction force
+								//formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
+								NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
+							}
+							else
+							{
+								//add force to node
+								NodeForces[node.Guid] += repulsionForce;
+							}
+
+							//add new maximum force or keep it as is if ours is smaller
+							currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
+						}
+					}
+				}
 			}
-			return nodes;
+			catch (OperationCanceledException)
+			{
+				LogManager.Log("Explorer closed during creation");
+				return true;
+			}
+
+			//apply force to nodes
+			for (int i1 = 0; i1 < nodes.Count; i1++)
+			{
+				Node node = nodes[i1];
+				node.Position.X += (int)(cooldown * NodeForces[node.Guid].X);
+				node.Position.Y += (int)(cooldown * NodeForces[node.Guid].Y);
+			}
+			return currentMaxForce > maxForce;
 		}
 
 		public static List<Tuple<int, int>> GetEdges(List<Node> _nodes)
@@ -479,12 +484,12 @@ namespace Translator.Explorer
 				CriteriaInFile = new List<Node>();
 
 				//get all relevant items from the json
-				_nodes.AddRange(GetDialogues(story));
-				_nodes.AddRange(GetGlobalGoodByeResponses(story));
-				_nodes.AddRange(GetGlobalResponses(story));
-				_nodes.AddRange(GetBackGroundChatter(story));
-				_nodes.AddRange(GetQuests(story));
-				_nodes.AddRange(GetReactions(story));
+				_nodes.AddRange(StoryNodeExtractor.GetDialogues(story));
+				_nodes.AddRange(StoryNodeExtractor.GetGlobalGoodByeResponses(story));
+				_nodes.AddRange(StoryNodeExtractor.GetGlobalResponses(story));
+				_nodes.AddRange(StoryNodeExtractor.GetBackGroundChatter(story));
+				_nodes.AddRange(StoryNodeExtractor.GetQuests(story));
+				_nodes.AddRange(StoryNodeExtractor.GetReactions(story));
 
 				//remove duplicates/merge criteria
 				//maybe later we load the corresponding strings from the character files and vise versa?
@@ -510,13 +515,13 @@ namespace Translator.Explorer
 				CriteriaInFile = new List<Node>();
 
 				//add all items in the story
-				_nodes.AddRange(GetItemOverrides(story));
+				_nodes.AddRange(StoryNodeExtractor.GetItemOverrides(story));
 				//add all item groups with their actions
-				_nodes.AddRange(GetItemGroups(story));
+				_nodes.AddRange(StoryNodeExtractor.GetItemGroups(story));
 				//add all items in the story
-				_nodes.AddRange(GetAchievements(story));
+				_nodes.AddRange(StoryNodeExtractor.GetAchievements(story));
 				//add all reactions the player will say
-				_nodes.AddRange(GetPlayerReactions(story));
+				_nodes.AddRange(StoryNodeExtractor.GetPlayerReactions(story));
 
 				//remove duplicates/merge criteria
 				//maybe later we load the corresponding strings from the character files and vise versa?
@@ -532,287 +537,6 @@ namespace Translator.Explorer
 				}
 			}
 			return _nodes;
-		}
-
-		private static List<Node> GetAchievements(MainStory story)
-		{
-			//list to collect all achievement nodes
-			var nodes = new List<Node>();
-			//go through all of them
-			foreach (Achievement achievement in story.Achievements ?? Enumerable.Empty<Achievement>())
-			{
-				//node to add the description as child to, needs reference to parent, hence can't be anonymous
-				var node = new Node(achievement.Id ?? string.Empty, NodeType.Achievement, achievement.Name ?? string.Empty);
-				node.AddChildNode(new Node(achievement.Id + "Description", NodeType.Achievement, achievement.Description ?? string.Empty, node));
-				//add achievement with description child to list
-				nodes.Add(node);
-			}
-
-			//return list of achievements
-			return nodes;
-		}
-
-		private static List<Node> GetBackGroundChatter(CharacterStory story)
-		{
-			var nodes = new List<Node>();
-			foreach (BackgroundChatter backgroundChatter in story.BackgroundChatter ?? Enumerable.Empty<BackgroundChatter>())
-			{
-				var bgcNode = new Node($"BGC{backgroundChatter.Id}", NodeType.BGC, backgroundChatter.Text ?? string.Empty);
-
-				//criteria
-				bgcNode.AddCriteria(backgroundChatter.Critera ?? new());
-
-				//startevents
-				bgcNode.AddEvents(backgroundChatter.StartEvents ?? new());
-
-				//responses
-				foreach (Response response in backgroundChatter.Responses ?? new())
-				{
-					var nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.Response, "see id", bgcNode);
-
-					bgcNode.AddChildNode(nodeResponse);
-				}
-			}
-
-			return nodes;
-		}
-
-		private static List<Node> GetDialogues(CharacterStory story)
-		{
-			var nodes = new List<Node>();
-			var responseDialogueLinks = new List<Tuple<Node, int>>();
-
-			foreach (Dialogue dialogue in story.Dialogues ?? Enumerable.Empty<Dialogue>())
-			{
-				var nodeDialogue = new Node(dialogue.ID.ToString(), NodeType.Dialogue, dialogue.Text ?? string.Empty);
-				int alternateTextCounter = 1;
-
-				//add all alternate texts to teh dialogue
-				foreach (AlternateText alternateText in dialogue.AlternateTexts ?? Enumerable.Empty<AlternateText>())
-				{
-					var nodeAlternateText = new Node($"{dialogue.ID}.{alternateTextCounter}", NodeType.Dialogue, alternateText.Text ?? string.Empty, nodeDialogue);
-
-					//increasse counter to ensure valid id
-					alternateTextCounter++;
-
-					nodeAlternateText.AddCriteria(alternateText.Critera ?? new());
-
-					//add alternate to the default text as a child, parent already set on the child
-					nodeDialogue.AddChildNode(nodeAlternateText);
-				}
-
-				//some events in here may have strings that are connected to the dialogue closing
-				nodeDialogue.AddEvents(dialogue.CloseEvents ?? new());
-
-				//add all responses as childs to this dialogue
-				foreach (Response response in dialogue.Responses ?? Enumerable.Empty<Response>())
-				{
-					var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty, nodeDialogue);
-
-					nodeResponse.AddCriteria(response.ResponseCriteria ?? new());
-
-					//check all responses to this dialogue
-					nodeResponse.AddEvents(response.ResponseEvents ?? new());
-
-					if (response.Next != 0)
-					{
-						responseDialogueLinks.Add(new Tuple<Node, int>(nodeResponse, response.Next));
-					}
-
-					nodeDialogue.AddChildNode(nodeResponse);
-				}
-
-				//add the starting events
-				nodeDialogue.AddEvents(dialogue.StartEvents ?? new());
-
-				//finally add node
-				nodes.Add(nodeDialogue);
-			}
-
-			//link up the dialogues and responses/next dialogues
-			foreach (Tuple<Node, int> next in responseDialogueLinks)
-			{
-				Node node = nodes.Find(n => n.ID == next.Item2.ToString()) ?? Node.NullNode;
-				if (node == Node.NullNode) continue;
-
-				node.AddParentNode(next.Item1);
-			}
-
-			responseDialogueLinks.Clear();
-
-			return nodes;
-		}
-
-		private static List<Node> GetGlobalGoodByeResponses(CharacterStory story)
-		{
-			var nodes = new List<Node>();
-
-			//add all responses as childs to this dialogue
-			foreach (GlobalGoodbyeResponse response in story.GlobalGoodbyeResponses ?? Enumerable.Empty<GlobalGoodbyeResponse>())
-			{
-				var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty);
-
-				nodeResponse.AddCriteria(response.ResponseCriteria ?? new());
-
-				//check all responses to this dialogue
-				nodeResponse.AddEvents(response.ResponseEvents ?? new());
-
-				nodes.Add(nodeResponse);
-			}
-
-			return nodes;
-		}
-
-		private static List<Node> GetGlobalResponses(CharacterStory story)
-		{
-			var nodes = new List<Node>();
-
-			foreach (GlobalResponse response in story.GlobalResponses ?? Enumerable.Empty<GlobalResponse>())
-			{
-				var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty);
-
-				nodeResponse.AddCriteria(response.ResponseCriteria ?? new());
-
-				//check all responses to this dialogue
-				nodeResponse.AddEvents(response.ResponseEvents ?? new());
-
-				nodes.Add(nodeResponse);
-			}
-
-			return nodes;
-		}
-
-		private static List<Node> GetItemGroups(MainStory story)
-		{
-			//list to collect all item group nodes in the end
-			var nodes = new List<Node>();
-			//go through all item groups to find events
-			foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors ?? Enumerable.Empty<ItemGroupBehavior>())
-			{
-				if (itemGroupBehaviour == null) continue;
-				//create item group node to add events/criteria to
-				var nodeGroup = new Node(itemGroupBehaviour.Id ?? string.Empty, NodeType.ItemGroup, itemGroupBehaviour.Name ?? string.Empty);
-				//get actions for item
-				foreach (ItemAction itemAction in itemGroupBehaviour.ItemActions ?? new())
-				{
-					//node to addevents to
-					var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.Action, itemAction.ActionName ?? string.Empty, nodeGroup);
-
-					//add text that is shown when item is taken
-					nodeAction.AddEvents(itemAction.OnTakeActionEvents ?? new());
-
-					//add criteria that influence this item
-					nodeAction.AddCriteria(itemAction.Criteria ?? new());
-
-					//add action to item
-					nodeGroup.AddChildNode(nodeAction);
-				}
-
-				//add item gruop with everything to collecting list
-				nodes.Add(nodeGroup);
-			}
-
-			//return list of all item groups
-			return nodes;
-		}
-
-		private static List<Node> GetItemOverrides(MainStory story)
-		{
-			//list to store all found root nodes
-			var nodes = new List<Node>();
-			//go through all nodes to search them for actions
-			foreach (ItemOverride itemOverride in story.ItemOverrides ?? Enumerable.Empty<ItemOverride>())
-			{
-				//add items to list
-				var nodeItem = new Node(itemOverride.Id ?? string.Empty, NodeType.Item, itemOverride.DisplayName ?? string.Empty);
-				//get actions for item
-				foreach (ItemAction itemAction in itemOverride.ItemActions ?? new())
-				{
-					//create action node to add criteria and events to
-					var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.Action, itemAction.ActionName ?? string.Empty, nodeItem);
-
-					//add text that is shown when item is taken
-					nodeAction.AddEvents(itemAction.OnTakeActionEvents ?? new());
-
-					//add criteria that influence this item
-					nodeAction.AddCriteria(itemAction.Criteria ?? new());
-
-					//add action to item
-					nodeItem.AddChildNode(nodeAction);
-				}
-
-				//add item with all child nodes to collector list
-				nodes.Add(nodeItem);
-			}
-
-			//duh
-			return nodes;
-		}
-
-		private static List<Node> GetPlayerReactions(MainStory story)
-		{
-			var nodes = new List<Node>();
-			foreach (PlayerReaction playerReaction in story.PlayerReactions ?? Enumerable.Empty<PlayerReaction>())
-			{
-				//add items to list
-				var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty);
-
-				//get actions for item
-				nodeReaction.AddEvents(playerReaction.Events ?? new());
-
-				nodeReaction.AddCriteria(playerReaction.Critera ?? new());
-
-				nodes.Add(nodeReaction);
-			}
-
-			return nodes;
-		}
-
-		private static List<Node> GetQuests(CharacterStory story)
-		{
-			var nodes = new List<Node>();
-
-			foreach (Quest quest in story.Quests ?? Enumerable.Empty<Quest>())
-			{
-				var nodeQuest = new Node(quest.ID ?? string.Empty, NodeType.Quest, quest.Name ?? string.Empty);
-
-				//Add details
-				if (quest.Details?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}Description", NodeType.Quest, quest.Details));
-				//Add completed details
-				if (quest.CompletedDetails?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}CompletedDetails", NodeType.Quest, quest.CompletedDetails));
-				//Add failed details
-				if (quest.FailedDetails?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}FailedDetails", NodeType.Quest, quest.FailedDetails));
-
-				//Add extended details
-
-				foreach (ExtendedDetail detail in quest.ExtendedDetails ?? Enumerable.Empty<ExtendedDetail>())
-				{
-					nodeQuest.AddChildNode(new Node($"{quest.ID}Description{detail.Value}", NodeType.Quest, detail.Details ?? string.Empty));
-				}
-
-				nodes.Add(nodeQuest);
-			}
-
-			return nodes;
-		}
-
-		private static List<Node> GetReactions(CharacterStory story)
-		{
-			var nodes = new List<Node>();
-
-			foreach (Reaction playerReaction in story.Reactions ?? Enumerable.Empty<Reaction>())
-			{
-				//add items to list
-				var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty);
-				//get actions for item
-				nodeReaction.AddEvents(playerReaction.Events ?? new());
-
-				nodeReaction.AddCriteria(playerReaction.Critera ?? new());
-
-				nodes.Add(nodeReaction);
-			}
-
-			return nodes;
 		}
 	}
 }

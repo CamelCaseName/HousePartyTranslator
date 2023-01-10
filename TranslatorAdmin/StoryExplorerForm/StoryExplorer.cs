@@ -9,6 +9,7 @@
 		private readonly string parentName;
 		public readonly string FileName;
 		public readonly string StoryName;
+		private readonly ParallelOptions parallelOptions;
 
 		public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, ParallelOptions parallelOptions)
 		{
@@ -19,6 +20,7 @@
 			parentForm = Parent;
 			this.StoryName = StoryName;
 			this.FileName = FileName;
+			this.parallelOptions = parallelOptions;
 
 			//change draw order for this windows from bottom to top to top to bottom to remove flickering
 			//use double buffering for that
@@ -60,7 +62,6 @@
 					Close();
 				}
 			}
-			//todo start layout thread here
 		}
 
 		private void HandleKeyBoard(object sender, KeyEventArgs e)
