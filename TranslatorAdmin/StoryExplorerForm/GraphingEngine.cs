@@ -193,19 +193,16 @@ namespace Translator.Explorer
 		public void PaintAllNodes(Graphics g)
 		{
 			DrewNodes = false;
-			lock (Context.Nodes)
+			//go on displaying graph
+			for (int i = 0; i < Context.Nodes.Count; i++)
 			{
-				//go on displaying graph
-				for (int i = 0; i < Context.Nodes.Count; i++)
+				//draw edges to children, default colour
+				for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
 				{
-					//draw edges to children, default colour
-					for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
-					{
-						DrawEdge(g, Context.Nodes[i], Context.Nodes[i].ChildNodes[j]);
-					}
-
-					DrawColouredNode(g, Context.Nodes[i]);
+					DrawEdge(g, Context.Nodes[i], Context.Nodes[i].ChildNodes[j]);
 				}
+
+				DrawColouredNode(g, Context.Nodes[i]);
 			}
 			DrewNodes = true;
 		}

@@ -448,6 +448,8 @@ namespace Translator.Explorer
 			return _nodes;
 		}
 
-		internal void SaveNodes() => SaveNodes(NodeFilePath, Nodes);
+		internal void SaveNodes() { 
+			SaveNodes(NodeFilePath, Nodes);
+		}
 	}
 }

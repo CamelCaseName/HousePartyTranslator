@@ -1,5 +1,8 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.Versioning;
+using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 using Translator.Core;
 
 namespace Translator.Explorer
@@ -10,18 +13,22 @@ namespace Translator.Explorer
 		private readonly List<Node> nodesA = new();
 		private readonly List<Node> nodesB = new();
 		private bool CalculatedListA = true;
-		private static Dictionary<Guid, Vector2> NodeForces = new();
-		private static float cooldown = 0.9999f;
+		private Dictionary<Guid, Vector2> NodeForces = new();
+		private float cooldown = 0.9999f;
 		private const float maxForce = 0;
-		private const float attraction = 1f;//attraction force multiplier, between 0 and much
+		private const float attraction = 0.7f;//attraction force multiplier, between 0 and much
 		private float currentMaxForce = maxForce + 0.1f;
-		private const float repulsion = 1.3f;//repulsion force multiplier, between 0 and much
-		private const int length = 200; //spring length in units aka thedistance an edge should be long
+		private const float repulsion = 0.0f;//repulsion force multiplier, between 0 and much
+		private const int length = 50; //spring length in units aka thedistance an edge should be long
 		private readonly CancellationToken cancellationToken;
 		public bool Started { get; private set; } = false;
 		public List<Node> Nodes
 		{
 			get { return CalculatedListA ? nodesA : nodesB; }
+		}
+		private List<Node> Internal
+		{
+			get { return !CalculatedListA ? nodesA : nodesB; }
 		}
 
 		public NodeLayout(CancellationToken cancellation)
@@ -38,22 +45,11 @@ namespace Translator.Explorer
 
 		public void CalculateForceDirectedLayout(CancellationToken token)
 		{
-			//You just need to think about the 3 separate forces acting on each node,
-			//add them together each "frame" to get the movement of each node.
-
-			//Gravity, put a simple force acting towards the centre of the canvas so the nodes dont launch themselves out of frame
-
-			//Node-Node replusion, You can either use coulombs force(which describes particle-particle repulsion)
-			//or use the gravitational attraction equation and just reverse it
-
-			//Connection Forces, this ones a little tricky, define a connection as 2 nodes and the distance between them.
-
-			//copy node ids in a dict so we can apply force and not disturb the rest
 			//save all forces here
 			NodeForces = new Dictionary<Guid, Vector2>();
 			Nodes.ForEach(n => NodeForces.Add(n.Guid, new Vector2()));
 
-			while (!token.IsCancellationRequested)
+			while (!token.IsCancellationRequested && currentMaxForce > maxForce)
 			{
 				//sync nodes, initally in b
 				if (nodesA.Count != nodesB.Count)
@@ -72,11 +68,13 @@ namespace Translator.Explorer
 					}
 				}
 				//lock and calculate
-				if (CalculatedListA) lock (nodesB)
+				if (CalculatedListA)
+					lock (nodesB)
 					{
 						CalculatePositions();
 					}
-				else lock (nodesA)
+				else
+					lock (nodesA)
 					{
 						CalculatePositions();
 					}
@@ -85,69 +83,55 @@ namespace Translator.Explorer
 				while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
 				//switch to other list once done
 				CalculatedListA = !CalculatedListA;
+
+				App.MainForm?.Explorer?.Invalidate();
 			}
 		}
 
 		private void CalculatePositions()
 		{
-			//calculate new, smaller cooldown so the nodes will move less and less
-			cooldown *= cooldown;
-
-			try
+			for (int first = 0; first < Internal.Count; first++)
 			{
-				//go through all nodes and apply the forces
-				for (int i1 = 0; i1 < Nodes.Count; i1++)
+				Vector2 force = Vector2.Zero;
+				//gravity to center
+				//float radius = MathF.Sqrt(Internal.Count) + length * 2;
+				//Vector2 pos = new(Internal[first].Position.X, Internal[first].Position.Y);
+				//force += (pos / pos.Length()) * (MathF.Pow(pos.Length(), 0.7f) - radius) * (pos.Length() < radius ? 1 : -1) * 0.5f;
+
+				for (int second = 0; second < Internal.Count; second++)
 				{
-					Node node = Nodes[i1];
-					//create position vector for all later calculations
-					var nodePosition = new Vector2(node.Position.X, node.Position.Y);
-					//reset force
-					NodeForces[node.Guid] = new Vector2();
-
-					//calculate repulsion force
-					for (int i2 = 0; i2 < Nodes.Count; i2++)
+					if (first != second && Internal[first].Position != Internal[second].Position)
 					{
-						Node secondNode = Nodes[i2];
-						if (node != secondNode && secondNode.Position != node.Position)
+						Vector2 edge = new(
+								Internal[first].Position.X - Internal[second].Position.X,
+								Internal[first].Position.Y - Internal[second].Position.Y);
+						if (Internal[first].ChildNodes.Contains(Internal[second]))
 						{
-							var secondNodePosition = new Vector2(secondNode.Position.X, secondNode.Position.Y);
-							Vector2 difference = (secondNodePosition - nodePosition);
-							//absolute length of difference/distance
-							float distance = difference.Length();
-							//add force like this: f_rep = c_rep / (distance^2) * vec(p_u->p_v)
-							Vector2 repulsionForce = repulsion / (distance * distance) * (difference / distance) / node.Mass;
+							//attraction
+							Vector2 attractionVec = (edge / edge.Length()) * attraction * (length - edge.Length());
 
-							//if the second node is a child of ours
-							if (secondNode.ParentNodes.Contains(node))
-							{
-								//so we can now do the attraction force
-								//formula: c_spring * log(distance / length) * vec(p_u->p_v) - f_rep
-								NodeForces[node.Guid] += (attraction * (float)Math.Log(distance / length) * (difference / distance)) - repulsionForce;
-							}
-							else
-							{
-								//add force to node
-								NodeForces[node.Guid] += repulsionForce;
-							}
-
-							//add new maximum force or keep it as is if ours is smaller
-							currentMaxForce = Math.Max(currentMaxForce, NodeForces[node.Guid].Length());
+							force += attractionVec / (Internal[first].Mass * 1);
+							NodeForces[Internal[second].Guid] += attractionVec / (Internal[second].Mass * 1);
+							if (attractionVec.Length() > 1000) Debug.WriteLine($"{attractionVec} force for node {Internal[first]} and {Internal[second]} at {first}:{second}");
 						}
+						else
+						{
+							//repulsion
+							force += (edge / edge.Length()) * repulsion * (length - edge.Length());
+						}
+
+						NodeForces[Internal[first].Guid] = new(force.X, force.Y);
 					}
 				}
 			}
-			catch (OperationCanceledException)
-			{
-				LogManager.Log("node layout ended");
-			}
 
 			//apply force to nodes
-			for (int i1 = 0; i1 < Nodes.Count; i1++)
+			for (int i = 0; i < Internal.Count; i++)
 			{
-				Node node = Nodes[i1];
-				node.Position.X += (int)(cooldown * NodeForces[node.Guid].X);
-				node.Position.Y += (int)(cooldown * NodeForces[node.Guid].Y);
+				Internal[i].Position.X += cooldown * NodeForces[Internal[i].Guid].X;
+				Internal[i].Position.Y += cooldown * NodeForces[Internal[i].Guid].Y;
 			}
+
 		}
 	}
 }
