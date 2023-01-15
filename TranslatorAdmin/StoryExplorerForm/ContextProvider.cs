@@ -291,13 +291,16 @@ namespace Translator.Explorer
 			{
 				//modulo of running total with sidelength gives x coords, repeating after sidelength
 				//offset by halfe sidelength to center x
-				int x = (runningTotal % sideLength) - sideLength / 2 + Random.Next(-(step / 2) + 1, (step / 2) - 1);
+				int x = (runningTotal % sideLength) - sideLength / 2;
 				//running total divided by sidelength gives y coords,
 				//increments after runningtotal increments sidelength times
 				//offset by halfe sidelength to center y
-				int y = (runningTotal / sideLength) - sideLength / 2 + Random.Next(-(step / 2) + 1, (step / 2) - 1);
+				int y = (runningTotal / sideLength) - sideLength / 2;
 				//set position
-				nodes[i].SetPosition(new Point(x * step, y * step));
+				nodes[i].SetPosition(new Point(
+					x * step + Random.Next(-(step / 2) + 1, (step / 2) - 1), 
+					y * step + Random.Next(-(step / 2) + 1, (step / 2) - 1)
+					));
 				//increase running total
 				runningTotal++;
 			}

@@ -52,6 +52,7 @@ namespace Translator.Explorer
 		private Node infoNode = Node.NullNode;
 		private bool IsShiftPressed = false;
 		public bool DrewNodes = false;
+		public bool InternalNodesVisible = true;
 
 		private float Scaling = 0.3f;
 		private float StartPanOffsetX = 0f;
@@ -273,7 +274,8 @@ namespace Translator.Explorer
 			GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
 			if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
 			{
-				if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+				//todo replace filter by a prefiltered list, maybe do two seperate compination methods
+				if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
 				{
 					g.FillEllipse(
 						BrushFromNode(node),
@@ -292,7 +294,7 @@ namespace Translator.Explorer
 			GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
 			if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
 			{
-				if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+				if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
 				{
 					ColorBrush.Color = color;
 					g.FillEllipse(
@@ -308,7 +310,7 @@ namespace Translator.Explorer
 
 		internal void DrawEdge(Graphics g, Node node1, Node node2)
 		{
-			if (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
+			if (InternalNodesVisible || node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
 			{
 				//dont draw node if it is too far away
 				GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
@@ -331,7 +333,7 @@ namespace Translator.Explorer
 
 		internal void DrawEdge(Graphics g, Node node1, Node node2, Color color)
 		{
-			if (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
+			if (InternalNodesVisible || node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
 			{
 				//dont draw node if it is too far away
 				GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
@@ -509,7 +511,7 @@ namespace Translator.Explorer
 				{
 					if (mouseRightX > node.Position.X && mouseLeftX < node.Position.X)
 					{
-						if (node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+						if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
 						{
 							return node;
 						}
