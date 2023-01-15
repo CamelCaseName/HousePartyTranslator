@@ -1,4 +1,6 @@
-﻿namespace Translator.Explorer
+﻿using static Translator.Explorer.JSON.StoryEnums;
+
+namespace Translator.Explorer
 {
 	internal sealed class SerializeableNode
 	{
