@@ -28,7 +28,7 @@
 			Context = new ContextProvider(IsStory, AutoLoad, FileName, StoryName, cancellation);
 			engine = new GraphingEngine(Context, this, NodeInfoLabel);
 
-			Text = $"StoryExplorer - Laoding";
+			Text = $"StoryExplorer - Loading";
 
 			//add custom paint event handler to draw all nodes and edges
 			Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);

@@ -1,12 +1,17 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.Versioning;
-using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
 using Translator.Core;
 
 namespace Translator.Explorer
 {
+	internal static class NodeLayoutConstants
+	{
+		public const float Attraction = 0.9f;//Attraction force multiplier, between 0 and 1
+		public const float Repulsion = 150.0f;//Repulsion force multiplier, between 0 and much
+		public const float Gravity = 0.005f;
+		public const float IdealLength = 80; //spring IdealLength in units aka thedistance an edge should be long
+	}
+
 	[SupportedOSPlatform("windows")]
 	internal class NodeLayout
 	{
@@ -14,13 +19,12 @@ namespace Translator.Explorer
 		private readonly List<Node> nodesB = new();
 		private bool CalculatedListA = true;
 		private Dictionary<Guid, Vector2> NodeForces = new();
-		private float cooldown = 0.9999f;
-		private const float maxForce = 0;
-		private const float attraction = 0.7f;//attraction force multiplier, between 0 and much
+		private float cooldown = 1f;
+		private const float maxForce = 0.1f;
 		private float currentMaxForce = maxForce + 0.1f;
-		private const float repulsion = 0.0f;//repulsion force multiplier, between 0 and much
-		private const int length = 50; //spring length in units aka thedistance an edge should be long
-		private readonly CancellationToken cancellationToken;
+
+		private readonly CancellationTokenSource cancellationToken = new();
+		public bool Finished => cooldown == 0;
 		public bool Started { get; private set; } = false;
 		public List<Node> Nodes
 		{
@@ -33,14 +37,19 @@ namespace Translator.Explorer
 
 		public NodeLayout(CancellationToken cancellation)
 		{
-			cancellationToken = cancellation;
+			cancellation.Register(() => cancellationToken.Cancel());
 		}
 
 		public void Start()
 		{
 			LogManager.Log("node layout started");
 			Started = true;
-			_ = Task.Run(() => CalculateForceDirectedLayout(cancellationToken), cancellationToken);
+			_ = Task.Run(() => CalculateForceDirectedLayout(cancellationToken.Token), cancellationToken.Token);
+		}
+
+		public void Stop()
+		{
+			cancellationToken.Cancel();
 		}
 
 		public void CalculateForceDirectedLayout(CancellationToken token)
@@ -93,10 +102,19 @@ namespace Translator.Explorer
 			for (int first = 0; first < Internal.Count; first++)
 			{
 				Vector2 force = Vector2.Zero;
-				//gravity to center
-				//float radius = MathF.Sqrt(Internal.Count) + length * 2;
-				//Vector2 pos = new(Internal[first].Position.X, Internal[first].Position.Y);
-				//force += (pos / pos.Length()) * (MathF.Pow(pos.Length(), 0.7f) - radius) * (pos.Length() < radius ? 1 : -1) * 0.5f;
+				//Gravity to center
+				float radius = MathF.Sqrt(Internal.Count) + NodeLayoutConstants.IdealLength * 2;
+				Vector2 pos = new(Internal[first].Position.X, Internal[first].Position.Y);
+
+				//fix any issues before we divide by pos IdealLength
+				if (pos.Length() == 0)
+				{
+					pos.X = pos.X == 0 ? float.MinValue : pos.X;
+					pos.Y = pos.Y == 0 ? float.MinValue : pos.Y;
+				}
+
+				//can IdealLength ever be absolutely 0?
+				force -= (pos / pos.Length()) * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * NodeLayoutConstants.Gravity;
 
 				for (int second = 0; second < Internal.Count; second++)
 				{
@@ -107,20 +125,22 @@ namespace Translator.Explorer
 								Internal[first].Position.Y - Internal[second].Position.Y);
 						if (Internal[first].ChildNodes.Contains(Internal[second]))
 						{
-							//attraction
-							Vector2 attractionVec = (edge / edge.Length()) * attraction * (length - edge.Length());
+							//Attraction/spring force on edge
+							Vector2 attractionVec = (edge / edge.Length()) * NodeLayoutConstants.Attraction * (edge.Length() - NodeLayoutConstants.IdealLength);
 
-							force += attractionVec / (Internal[first].Mass * 1);
-							NodeForces[Internal[second].Guid] += attractionVec / (Internal[second].Mass * 1);
-							if (attractionVec.Length() > 1000) Debug.WriteLine($"{attractionVec} force for node {Internal[first]} and {Internal[second]} at {first}:{second}");
+							force -= attractionVec / (Internal[first].Mass * 1);
+							//NodeForces[Internal[second].Guid] += attractionVec / (Internal[second].Mass * 1);
 						}
 						else
 						{
-							//repulsion
-							force += (edge / edge.Length()) * repulsion * (length - edge.Length());
+							//Repulsion
+							force += (edge / edge.LengthSquared()) * NodeLayoutConstants.Repulsion;
 						}
 
-						NodeForces[Internal[first].Guid] = new(force.X, force.Y);
+						NodeForces[Internal[first].Guid] = new(
+							float.IsNaN(force.X) ? 0 : force.X,
+							float.IsNaN(force.Y) ? 0 : force.Y
+							);
 					}
 				}
 			}
@@ -132,6 +152,14 @@ namespace Translator.Explorer
 				Internal[i].Position.Y += cooldown * NodeForces[Internal[i].Guid].Y;
 			}
 
+			//recalculate mass cause the nodes moved
+			for (int i = 0; i < Internal.Count; i++)
+			{
+				//Internal[i].CalculateScaledMass();
+			}
+
+			//cooldown -= 0.001f;
+			if (cooldown < 0) { cooldown = 0; }
 		}
 	}
 }
