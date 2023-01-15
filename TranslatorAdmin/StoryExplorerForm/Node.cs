@@ -1,5 +1,6 @@
 ﻿using System.Xml.Linq;
 using Translator.Explorer.JSON;
+using static Translator.Explorer.JSON.StoryEnums;
 
 namespace Translator.Explorer
 {
@@ -28,12 +29,6 @@ namespace Translator.Explorer
 		BGC
 	}
 
-	public enum Gender
-	{
-		None = 0,
-		Female = 1,
-		Male = 2
-	}
 
 	internal sealed class Node
 	{
@@ -43,7 +38,7 @@ namespace Translator.Explorer
 		public bool ChildsVisited = false;
 		public Guid Guid = Guid.NewGuid();
 		public string ID;
-		public Gender Gender = Gender.None;//1 is female, 2 is male only
+		public Gender Gender = Gender.None;//1 is female, 0 is male only
 		public int Mass = 1;
 		public List<Node> ParentNodes;
 		public bool ParentsVisited = false;
@@ -166,7 +161,7 @@ namespace Translator.Explorer
 			foreach (ICriterion criterion in _criteria)
 			{
 				Node tempNode = CreateCriteriaNode(criterion, this);
-				if (criterion.CompareType == "PlayerGender")
+				if (criterion.CompareType == CompareTypes.PlayerGender)
 				{
 					tempNode.Gender = criterion.Value == "Female" ? Gender.Female : criterion.Value == "Male" ? Gender.Male : Gender.None;
 				}

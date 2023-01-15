@@ -350,8 +350,6 @@ namespace Translator.Explorer
 				//actually adding the node
 				if (node.Type == NodeType.Criterion)//if it is a criterion, else is after this bit
 				{
-					//set gender of childs of the event this criterion is part of if we have a gender comparison
-
 					//if the criterion has already been seen before
 					Node criterionInFile = CriteriaInFile.Find(n => n.Guid == node.Guid) ?? Node.NullNode;
 					if (criterionInFile != Node.NullNode)//has been seen before
@@ -359,6 +357,7 @@ namespace Translator.Explorer
 						//add the childs and parents of this instance of the criterion to the first instance of this criterion
 						//aka fusion
 						criterionInFile.ChildNodes.AddRange(node.ChildNodes);
+						//set gender of childs of the event this criterion is part of if we have a gender comparison
 						criterionInFile.PropagateGender(criterionInFile.Gender);
 						criterionInFile.ParentNodes.AddRange(node.ParentNodes);
 						//recalculate mass for later use

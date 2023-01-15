@@ -15,6 +15,7 @@ namespace Translator.Explorer
 				//node to add the description as child to, needs reference to parent, hence can't be anonymous
 				var node = new Node(achievement.Id ?? string.Empty, NodeType.Achievement, achievement.Name ?? string.Empty);
 				node.AddChildNode(new Node(achievement.Id + "Description", NodeType.Achievement, achievement.Description ?? string.Empty, node));
+				node.AddChildNode(new Node(achievement.Id + "SteamName", NodeType.Achievement, achievement.SteamName ?? string.Empty, node));
 				//add achievement with description child to list
 				nodes.Add(node);
 			}

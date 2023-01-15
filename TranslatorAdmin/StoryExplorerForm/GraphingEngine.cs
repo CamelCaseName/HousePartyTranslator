@@ -3,6 +3,7 @@ using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
 using TranslatorAdmin.Managers;
+using static Translator.Explorer.JSON.StoryEnums;
 using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
 using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 
