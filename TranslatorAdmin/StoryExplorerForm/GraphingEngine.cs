@@ -53,6 +53,7 @@ namespace Translator.Explorer
 		private bool IsShiftPressed = false;
 		public bool DrewNodes = false;
 		public bool InternalNodesVisible = true;
+		private readonly List<Node> DrawnHighlightNodes = new();
 
 		private float Scaling = 0.3f;
 		private float StartPanOffsetX = 0f;
@@ -380,31 +381,20 @@ namespace Translator.Explorer
 
 		private void DrawHighlightNodeTree(Graphics g)
 		{
+			DrawnHighlightNodes.Clear();
 			if (HighlightedNode != Node.NullNode)
 			{
-				//draw parents first (one layer only)
-				DrawNodeSet(
-					g,
-					HighlightedNode.ParentNodes,
-					HighlightedNode,
-					0,
-					1,
-					Color.White,
-					Color.DarkOrchid,
-					false);
 				//then childs
 				DrawNodeSet(
 					g,
-					HighlightedNode.ChildNodes,
 					HighlightedNode,
 					0,
-					6,
+					8,
 					Color.Red,
-					Color.DeepPink,
-					true);
+					Color.DeepPink);
 
 				//then redraw node itself
-				DrawColouredNode(g, HighlightedNode, Color.DarkRed);
+				DrawColouredNode(g, HighlightedNode, Color.LightBlue);
 				Explorer.Invalidate();
 			}
 		}
@@ -424,39 +414,32 @@ namespace Translator.Explorer
 			}
 		}
 
-		private void DrawNodeSet(Graphics g, List<Node> nodes, Node previousNode, int depth, int maxDepth, Color nodeColor, Color edgeColor, bool diluteColor)
+		private void DrawNodeSet(Graphics g, Node node, int depth, int maxDepth, Color nodeColor, Color edgeColor)
 		{
+			DrawnHighlightNodes.Add(node);
+
 			if (depth++ < maxDepth)
 			{
-				//highlight childs
-				for (int i = 0; i < nodes.Count; i++)
+				//highlight other nodes
+				for (int i = 0; i < node.ParentNodes.Count; i++)
 				{
-					if (diluteColor)
+					if (!DrawnHighlightNodes.Contains(node.ParentNodes[i]))
 					{
-						DrawNodeSet(g, nodes[i].ChildNodes, nodes[i], depth, maxDepth, Color.FromArgb((int)(ColorFromNode(nodes[i]).ToArgb() / 1.3d)), Color.FromArgb((int)(edgeColor.ToArgb() / 1.3d)), true);
+						DrawNodeSet(g, node.ParentNodes[i],depth, maxDepth, Color.FromArgb((int)(nodeColor.ToArgb() / 0.7f)), Color.FromArgb((int)(edgeColor.ToArgb() / 0.7f)));
+						DrawEdge(g, node, node.ParentNodes[i], edgeColor);
 					}
-					else
+				}
+				for (int i = 0; i < node.ChildNodes.Count; i++)
+				{
+					if (!DrawnHighlightNodes.Contains(node.ChildNodes[i]))
 					{
-						DrawNodeSet(g, nodes[i].ChildNodes, nodes[i], depth, maxDepth, nodeColor, edgeColor, false);
+						DrawNodeSet(g, node.ChildNodes[i], depth, maxDepth, Color.FromArgb((int)(nodeColor.ToArgb()* 0.7f)), Color.FromArgb((int)(edgeColor.ToArgb() * 0.7f)));
+						DrawEdge(g, node, node.ChildNodes[i], edgeColor);
 					}
-
-					//draw line
-					DrawEdge(g, nodes[i], previousNode, edgeColor);
-					//draw node over line
-					DrawColouredNode(g, nodes[i], nodeColor);
 				}
 			}
-		}
-
-		private Color ColorFromNode(Node node)
-		{
-			return node.Gender switch
-			{
-				Gender.None => node.Type == NodeType.Quest ? DefaultQuestColor : DefaultColor,
-				Gender.Female => DefaultFemaleColor,
-				Gender.Male => DefaultMaleColor,
-				_ => DefaultColor,
-			};
+			//draw node over line
+			DrawColouredNode(g, node, nodeColor);
 		}
 
 		private SolidBrush BrushFromNode(Node node)
