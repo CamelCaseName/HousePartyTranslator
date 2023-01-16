@@ -450,7 +450,8 @@ namespace Translator.Explorer
 			return _nodes;
 		}
 
-		internal void SaveNodes() { 
+		internal void SaveNodes() {
+			Layout.Stop();
 			SaveNodes(NodeFilePath, Nodes);
 		}
 	}

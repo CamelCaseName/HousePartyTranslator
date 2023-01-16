@@ -6,10 +6,10 @@ namespace Translator.Explorer
 {
 	internal static class NodeLayoutConstants
 	{
-		public const float Attraction = 0.9f;//Attraction force multiplier, between 0 and 1
-		public const float Repulsion = 150.0f;//Repulsion force multiplier, between 0 and much
-		public const float Gravity = 0.005f;
-		public const float IdealLength = 80; //spring IdealLength in units aka thedistance an edge should be long
+		public const float Attraction = 0.9999f;//Attraction force multiplier, between 0 and 1
+		public const float Repulsion = 100.0f;//Repulsion force multiplier, between 0 and much
+		public const float Gravity = 0.0003f;
+		public const float IdealLength = 40; //spring IdealLength in units aka thedistance an edge should be long
 	}
 
 	[SupportedOSPlatform("windows")]
@@ -128,8 +128,7 @@ namespace Translator.Explorer
 							//Attraction/spring force on edge
 							Vector2 attractionVec = (edge / edge.Length()) * NodeLayoutConstants.Attraction * (edge.Length() - NodeLayoutConstants.IdealLength);
 
-							force -= attractionVec / (Internal[first].Mass * 1);
-							//NodeForces[Internal[second].Guid] += attractionVec / (Internal[second].Mass * 1);
+							force -= attractionVec / Internal[first].Mass;
 						}
 						else
 						{
