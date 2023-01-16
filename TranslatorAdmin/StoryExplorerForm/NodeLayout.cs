@@ -6,8 +6,8 @@ namespace Translator.Explorer
 {
 	internal static class NodeLayoutConstants
 	{
-		public const float Attraction = 0.9999f;//Attraction force multiplier, between 0 and 1
-		public const float Repulsion = 100.0f;//Repulsion force multiplier, between 0 and much
+		public const float Attraction = 0.09999f;//Attraction accelleration multiplier, between 0 and 1
+		public const float Repulsion = 100.0f;//Repulsion accelleration multiplier, between 0 and much
 		public const float Gravity = 0.0003f;
 		public const float IdealLength = 40; //spring IdealLength in units aka thedistance an edge should be long
 	}
@@ -101,7 +101,7 @@ namespace Translator.Explorer
 		{
 			for (int first = 0; first < Internal.Count; first++)
 			{
-				Vector2 force = Vector2.Zero;
+				Vector2 accelleration = Vector2.Zero;
 				//Gravity to center
 				float radius = MathF.Sqrt(Internal.Count) + NodeLayoutConstants.IdealLength * 2;
 				Vector2 pos = new(Internal[first].Position.X, Internal[first].Position.Y);
@@ -114,7 +114,7 @@ namespace Translator.Explorer
 				}
 
 				//can IdealLength ever be absolutely 0?
-				force -= (pos / pos.Length()) * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * NodeLayoutConstants.Gravity;
+				accelleration -= (pos / pos.Length()) * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * NodeLayoutConstants.Gravity;
 
 				for (int second = 0; second < Internal.Count; second++)
 				{
@@ -123,28 +123,28 @@ namespace Translator.Explorer
 						Vector2 edge = new(
 								Internal[first].Position.X - Internal[second].Position.X,
 								Internal[first].Position.Y - Internal[second].Position.Y);
-						if (Internal[first].ChildNodes.Contains(Internal[second]))
+						if (Internal[first].ChildNodes.Contains(Internal[second]) || Internal[first].ParentNodes.Contains(Internal[second]))
 						{
-							//Attraction/spring force on edge
+							//Attraction/spring accelleration on edge
 							Vector2 attractionVec = (edge / edge.Length()) * NodeLayoutConstants.Attraction * (edge.Length() - NodeLayoutConstants.IdealLength);
 
-							force -= attractionVec / Internal[first].Mass;
+							accelleration -= attractionVec / Internal[first].Mass;
 						}
 						else
 						{
 							//Repulsion
-							force += (edge / edge.LengthSquared()) * NodeLayoutConstants.Repulsion;
+							accelleration += (edge / edge.LengthSquared()) * NodeLayoutConstants.Repulsion / Internal[first].Mass;
 						}
 
 						NodeForces[Internal[first].Guid] = new(
-							float.IsNaN(force.X) ? 0 : force.X,
-							float.IsNaN(force.Y) ? 0 : force.Y
+							float.IsNaN(accelleration.X) ? 0 : accelleration.X,
+							float.IsNaN(accelleration.Y) ? 0 : accelleration.Y
 							);
 					}
 				}
 			}
 
-			//apply force to nodes
+			//apply accelleration to nodes
 			for (int i = 0; i < Internal.Count; i++)
 			{
 				Internal[i].Position.X += cooldown * NodeForces[Internal[i].Guid].X;
