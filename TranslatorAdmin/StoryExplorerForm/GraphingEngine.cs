@@ -442,15 +442,13 @@ namespace Translator.Explorer
 		{
 			DrawnHighlightNodes.Add(node);
 
-			//draw node over line
-			DrawColouredNode(g, node, nodeColor);
 			if (depth++ < maxDepth)
 			{
 				for (int i = 0; i < node.ParentNodes.Count; i++)
 				{
 					if (!DrawnHighlightNodes.Contains(node.ParentNodes[i]))
 					{
-						DrawNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)(maxDepth - depth) / maxDepth), Rainbow((float)(maxDepth - depth) / (maxDepth + 1)));
+						DrawNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)(maxDepth - depth)/ maxDepth), Rainbow((float) depth / (maxDepth + 1)));
 					}
 				}
 				for (int i = 0; i < node.ChildNodes.Count; i++)
@@ -472,6 +470,8 @@ namespace Translator.Explorer
 					
 				}
 			}
+			//draw node over line
+			DrawColouredNode(g, node, nodeColor);
 		}
 
 		private SolidBrush BrushFromNode(Node node)

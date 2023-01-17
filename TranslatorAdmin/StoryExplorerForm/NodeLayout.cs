@@ -97,6 +97,7 @@ namespace Translator.Explorer
 			}
 		}
 
+		//todo move to gpu with opencl
 		private void CalculatePositions()
 		{
 			for (int first = 0; first < Internal.Count; first++)
