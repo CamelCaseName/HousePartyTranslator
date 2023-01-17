@@ -6,7 +6,7 @@ namespace Translator.Explorer
 {
 	internal static class NodeLayoutConstants
 	{
-		public const float Attraction = 0.09999f;//Attraction accelleration multiplier, between 0 and 1
+		public const float Attraction = 0.1f;//Attraction accelleration multiplier, between 0 and 1
 		public const float Repulsion = 100.0f;//Repulsion accelleration multiplier, between 0 and much
 		public const float Gravity = 0.0003f;
 		public const float IdealLength = 40; //spring IdealLength in units aka thedistance an edge should be long

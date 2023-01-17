@@ -349,11 +349,14 @@ namespace Translator
 			try
 			{
 				DialogResult openAll = Msg.InfoYesNoCancel(
-						$"Do you want to explore all files for {manager.StoryName} or only {manager.FileName}.\n " +
-						"Note: more files means slower layout, but viewing performance is about the same.",
+						$"Do you want to explore all files for the selected story{(autoOpen ? " (" + manager.StoryName + ")" : string.Empty)} or only the selected file{(autoOpen ? " (" + manager.FileName + ")" : string.Empty)}?\nNote: more files means slower layout, but viewing performance is about the same.",
 						"All files?"
 						);
-				if (openAll == DialogResult.Cancel) return null;
+				if (openAll == DialogResult.Cancel)
+				{
+					App.MainForm.UI.SignalUserEndWait();
+					return null;
+				}
 
 				var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token)
 				{

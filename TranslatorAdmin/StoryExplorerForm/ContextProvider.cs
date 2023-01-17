@@ -51,6 +51,9 @@ namespace Translator.Explorer
 				FilePath = string.Empty;
 			}
 
+			FileName = Path.GetFileNameWithoutExtension(FilePath);
+			StoryName = Directory.GetParent(FilePath)?.Name ?? string.Empty;
+
 			//create an id to differentiate between the different calculated layouts later
 			FileId = StoryName + FileName + DataBase.DBVersion;
 		}
