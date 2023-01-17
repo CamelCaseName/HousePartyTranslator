@@ -13,6 +13,7 @@ namespace Translator.Explorer
 	internal sealed class GraphingEngine
 	{
 		public const int Nodesize = 16;
+		public const float ColorFactor = 0.7f;
 
 		public readonly ContextProvider Context;
 
@@ -389,13 +390,36 @@ namespace Translator.Explorer
 					g,
 					HighlightedNode,
 					0,
-					8,
-					Color.Red,
-					Color.DeepPink);
+					15,
+					Rainbow(0),
+					Rainbow(0.1f));
 
 				//then redraw node itself
 				DrawColouredNode(g, HighlightedNode, Color.LightBlue);
 				Explorer.Invalidate();
+			}
+		}
+
+		public static Color Rainbow(float progress)
+		{
+			float div = (Math.Abs(progress % 1) * 6);
+			int ascending = (int)((div % 1) * 255);
+			int descending = 255 - ascending;
+
+			switch ((int)div)
+			{
+				case 0:
+					return Color.FromArgb(255, 255, ascending, 0);
+				case 1:
+					return Color.FromArgb(255, descending, 255, 0);
+				case 2:
+					return Color.FromArgb(255, 0, 255, ascending);
+				case 3:
+					return Color.FromArgb(255, 0, descending, 255);
+				case 4:
+					return Color.FromArgb(255, ascending, 0, 255);
+				default: // case 5:
+					return Color.FromArgb(255, 255, 0, descending);
 			}
 		}
 
@@ -418,28 +442,36 @@ namespace Translator.Explorer
 		{
 			DrawnHighlightNodes.Add(node);
 
+			//draw node over line
+			DrawColouredNode(g, node, nodeColor);
 			if (depth++ < maxDepth)
 			{
-				//highlight other nodes
 				for (int i = 0; i < node.ParentNodes.Count; i++)
 				{
 					if (!DrawnHighlightNodes.Contains(node.ParentNodes[i]))
 					{
-						DrawNodeSet(g, node.ParentNodes[i],depth, maxDepth, Color.FromArgb((int)(nodeColor.ToArgb() / 0.7f)), Color.FromArgb((int)(edgeColor.ToArgb() / 0.7f)));
-						DrawEdge(g, node, node.ParentNodes[i], edgeColor);
+						DrawNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)(maxDepth - depth) / maxDepth), Rainbow((float)(maxDepth - depth) / (maxDepth + 1)));
 					}
 				}
 				for (int i = 0; i < node.ChildNodes.Count; i++)
 				{
 					if (!DrawnHighlightNodes.Contains(node.ChildNodes[i]))
 					{
-						DrawNodeSet(g, node.ChildNodes[i], depth, maxDepth, Color.FromArgb((int)(nodeColor.ToArgb()* 0.7f)), Color.FromArgb((int)(edgeColor.ToArgb() * 0.7f)));
-						DrawEdge(g, node, node.ChildNodes[i], edgeColor);
+						DrawNodeSet(g, node.ChildNodes[i], depth, maxDepth, Rainbow((float)depth / maxDepth), Rainbow((float)depth / (maxDepth + 1)));
 					}
 				}
+				//highlight other nodes
+				for (int i = 0; i < node.ParentNodes.Count; i++)
+				{
+						DrawEdge(g, node, node.ParentNodes[i], edgeColor);
+					
+				}
+				for (int i = 0; i < node.ChildNodes.Count; i++)
+				{
+						DrawEdge(g, node, node.ChildNodes[i], edgeColor);
+					
+				}
 			}
-			//draw node over line
-			DrawColouredNode(g, node, nodeColor);
 		}
 
 		private SolidBrush BrushFromNode(Node node)
