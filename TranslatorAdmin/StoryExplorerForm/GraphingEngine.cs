@@ -14,6 +14,7 @@ namespace Translator.Explorer
 	{
 		public const int Nodesize = 16;
 		public const float ColorFactor = 0.7f;
+		public const int MaxHighlightChainLength = 20;
 
 		public readonly ContextProvider Context;
 
@@ -309,6 +310,25 @@ namespace Translator.Explorer
 				}
 			}
 		}
+		private void DrawColouredNode(Graphics g, Node node, Color color, float scale)
+		{
+			//dont draw node if it is too far away
+			GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
+			if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
+			{
+				if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+				{
+					ColorBrush.Color = color;
+					g.FillEllipse(
+						ColorBrush,
+						node.Position.X - (Nodesize / 2) * scale,
+						node.Position.Y - (Nodesize / 2) * scale,
+						Nodesize * scale,
+						Nodesize * scale
+						);
+				}
+			}
+		}
 
 		internal void DrawEdge(Graphics g, Node node1, Node node2)
 		{
@@ -390,12 +410,12 @@ namespace Translator.Explorer
 					g,
 					HighlightedNode,
 					0,
-					15,
+					MaxHighlightChainLength,
 					Rainbow(0),
 					Rainbow(0.1f));
 
 				//then redraw node itself
-				DrawColouredNode(g, HighlightedNode, Color.LightBlue);
+				DrawColouredNode(g, HighlightedNode, Color.White, 2f);
 				Explorer.Invalidate();
 			}
 		}
@@ -448,7 +468,7 @@ namespace Translator.Explorer
 				{
 					if (!DrawnHighlightNodes.Contains(node.ParentNodes[i]))
 					{
-						DrawNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)(maxDepth - depth)/ maxDepth), Rainbow((float) depth / (maxDepth + 1)));
+						DrawNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)(maxDepth - depth) / maxDepth), Rainbow((float)depth / (maxDepth + 1)));
 					}
 				}
 				for (int i = 0; i < node.ChildNodes.Count; i++)
@@ -461,13 +481,13 @@ namespace Translator.Explorer
 				//highlight other nodes
 				for (int i = 0; i < node.ParentNodes.Count; i++)
 				{
-						DrawEdge(g, node, node.ParentNodes[i], edgeColor);
-					
+					DrawEdge(g, node, node.ParentNodes[i], edgeColor);
+
 				}
 				for (int i = 0; i < node.ChildNodes.Count; i++)
 				{
-						DrawEdge(g, node, node.ChildNodes[i], edgeColor);
-					
+					DrawEdge(g, node, node.ChildNodes[i], edgeColor);
+
 				}
 			}
 			//draw node over line

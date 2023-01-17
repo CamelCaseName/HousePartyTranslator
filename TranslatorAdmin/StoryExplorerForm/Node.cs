@@ -87,7 +87,13 @@ namespace Translator.Explorer
 		public static Node CreateCriteriaNode(ICriterion criterion, Node node)
 		{
 			//create all criteria nodes the same way so they can possibly be replaced by the actual text later
-			return new Node($"{criterion.Character}{criterion.Value}", NodeType.Criterion, $"{criterion.DialogueStatus}: {criterion.Character} - {criterion.Value}", new List<Node>(), new List<Node>() { node }) { FileName = node.FileName };
+			return new Node(
+				$"{criterion.Character}{criterion.CompareType}{criterion.Value}", 
+				NodeType.Criterion, 
+				$"{criterion.Character}|{criterion.Character2}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.EqualsValue}|{criterion.Key}|{criterion.Key2}|{criterion.Option}|{criterion.SocialStatus}|{criterion.Value}", 
+				new List<Node>(), 
+				new List<Node>() { node }) 
+			{ FileName = node.FileName };
 		}
 
 		public static List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)

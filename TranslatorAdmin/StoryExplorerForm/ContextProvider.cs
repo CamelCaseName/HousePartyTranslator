@@ -4,6 +4,7 @@ using Translator.Core;
 using Translator.Explorer.JSON;
 using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
 using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
+using static Translator.Explorer.JSON.StoryEnums;
 
 namespace Translator.Explorer
 {
@@ -164,9 +165,12 @@ namespace Translator.Explorer
 		public bool ParseAllFiles()
 		{
 			string StoryFolderPath = string.Empty;
-			if (((Settings)Settings.Default).StoryPath != string.Empty && FileName != string.Empty && StoryName != string.Empty)
+			if (FileName != string.Empty && StoryName != string.Empty)
 			{
-				StoryFolderPath = ((Settings)Settings.Default).StoryPath;
+				if (FilePath != string.Empty)
+					StoryFolderPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
+				else if (((Settings)Settings.Default).StoryPath != string.Empty)
+					StoryFolderPath = ((Settings)Settings.Default).StoryPath;
 			}
 			else
 			{
@@ -175,7 +179,7 @@ namespace Translator.Explorer
 					RootFolder = Environment.SpecialFolder.MyDocuments,
 					Description = "Please select the folder with the story files in it.",
 					ShowHiddenFiles = true,
-					UseDescriptionForTitle = true
+					UseDescriptionForTitle = true,
 				};
 
 				if (folderBrowser.ShowDialog() == DialogResult.OK)
@@ -198,7 +202,7 @@ namespace Translator.Explorer
 			}
 			else
 			{
-				if (Directory.GetFiles(StoryFolderPath).Length > 0)
+				if (Directory.GetFiles(StoryFolderPath).Length > 0 && StoryFolderPath.Split("\\")[^1] == StoryName)
 				{
 					//else create new
 					foreach (var item in Directory.GetFiles(StoryFolderPath))
@@ -215,6 +219,8 @@ namespace Translator.Explorer
 									JsonConvert.DeserializeObject<CharacterStory>(
 										File.ReadAllText(item)) ?? new()));
 					}
+					//read in all first, dumbass me
+					CombineNodes(Nodes);
 				}
 				else
 				{
@@ -301,7 +307,7 @@ namespace Translator.Explorer
 				int y = (runningTotal / sideLength) - sideLength / 2;
 				//set position
 				nodes[i].SetPosition(new Point(
-					x * step + Random.Next(-(step / 2) + 1, (step / 2) - 1), 
+					x * step + Random.Next(-(step / 2) + 1, (step / 2) - 1),
 					y * step + Random.Next(-(step / 2) + 1, (step / 2) - 1)
 					));
 				//increase running total
@@ -309,10 +315,10 @@ namespace Translator.Explorer
 			}
 		}
 
-		private List<Node> CombineNodes(List<Node> nodes)
+		private List<Node> ExpandNodes(List<Node> nodes)
 		{
 			//temporary list so we dont manipulate the list we read from in the for loops
-			var tempNodes = new Dictionary<Guid, Node>();
+			var listNodes = new List<Node>();
 
 			//go through all given root nodes (considered root as this stage)
 			for (int i = 0; i < nodes.Count; i++)
@@ -325,7 +331,7 @@ namespace Translator.Explorer
 					//calculate mass for later use
 					node.CalculateMass();
 					//add it to the final list
-					if (!tempNodes.ContainsKey(node.Guid)) tempNodes.Add(node.Guid, node);
+					if (!listNodes.Contains(node)) listNodes.Add(node);
 				}
 				//call method again on all parents if they have not yet been added to the list
 				if (node.ParentNodes.Count > 0 && !node.ParentsVisited)
@@ -333,9 +339,9 @@ namespace Translator.Explorer
 					//set visited to true so we dont end up in infitiy
 					node.ParentsVisited = true;
 					//get combined parent nodes recursively
-					foreach (Node tempNode in CombineNodes(node.ParentNodes))
+					foreach (Node tempNode in ExpandNodes(node.ParentNodes))
 					{
-						if (!tempNodes.ContainsKey(tempNode.Guid)) tempNodes.Add(tempNode.Guid, tempNode);
+						if (!listNodes.Contains(tempNode)) listNodes.Add(tempNode);
 					}
 				}
 				//as long as there are children we can go further,
@@ -347,9 +353,9 @@ namespace Translator.Explorer
 					//else we end up in an infinite loop easily
 					node.ChildsVisited = true;
 					//get combined children nodes recuirsively
-					foreach (Node tempNode in CombineNodes(node.ChildNodes))
+					foreach (Node tempNode in ExpandNodes(node.ChildNodes))
 					{
-						if (!tempNodes.ContainsKey(tempNode.Guid)) tempNodes.Add(tempNode.Guid, tempNode);
+						if (!listNodes.Contains(tempNode)) listNodes.Add(tempNode);
 					}
 				}
 
@@ -374,18 +380,9 @@ namespace Translator.Explorer
 						//add it to the list of criteria so we can fuse all other instances of this criterion
 						CriteriaInFile.Add(node);
 						//add it to the list of all nodes because it is not on there yet.
-						if (!tempNodes.ContainsKey(node.Guid)) tempNodes.Add(node.Guid, node);
+						if (!listNodes.Contains(node)) listNodes.Add(node);
 					}
 				}
-
-				//todo more merging for other links, like triggers or events
-			}
-
-			//return final list of all nodes in the story
-			var listNodes = new List<Node>();
-			foreach (KeyValuePair<Guid, Node> pair in tempNodes)
-			{
-				listNodes.Add(pair.Value);
 			}
 			return listNodes;
 		}
@@ -407,7 +404,7 @@ namespace Translator.Explorer
 
 				//remove duplicates/merge criteria
 				//maybe later we load the corresponding strings from the character files and vise versa?
-				_nodes = CombineNodes(_nodes);
+				_nodes = ExpandNodes(_nodes);
 
 				//clear criteria to free memory, we dont need them anyways
 				//cant be called recusrively so we cant add it, it would break the combination
@@ -419,6 +416,40 @@ namespace Translator.Explorer
 				}
 			}
 			return _nodes;
+		}
+
+		private void CombineNodes(List<Node> nodes)
+		{
+			//link up different stories and dialogues
+			for (int i = 0; i < nodes.Count; i++)
+			{
+				if (nodes[i].Type == NodeType.Criterion)
+				{
+					//todo more merging for other links, like triggers or events
+					//for that we need more info in the nodes, like what they are and the values
+					//so value1, value2, comparetype and event type
+					//$"{criterion.Character}|{criterion.Character2}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.EqualsValue}|{criterion.Key}|{criterion.Key2}|{criterion.Option}|{criterion.SocialStatus}|{criterion.Value}", 
+					//split up the criteria values according to the list above
+					var values = nodes[i].Text.Split('|');
+					if (values.Length < 10) continue;
+					//if we have a chance of finding the dialogue node
+					if (values[2] == CompareTypes.Dialogue.ToString())
+					{
+						for (int k = 0; k < nodes.Count; k++)
+						{
+							var result = nodes.Find((Node n) => n.Type == NodeType.Dialogue && n.FileName == values[0] && n.ID == values[9]);
+							if (result != null)
+							{
+								nodes[i].AddChildNode(result);
+							}
+						}
+					}
+				}
+				else if (nodes[i].Type == NodeType.Event)
+				{
+
+				}
+			}
 		}
 
 		private List<Node> DissectStory(MainStory story)
@@ -439,7 +470,7 @@ namespace Translator.Explorer
 
 				//remove duplicates/merge criteria
 				//maybe later we load the corresponding strings from the character files and vise versa?
-				_nodes = CombineNodes(_nodes);
+				_nodes = ExpandNodes(_nodes);
 
 				//clear criteria to free memory, we dont need them anyways
 				//cant be called recusrively so we cant add it, it would break the combination
@@ -453,7 +484,8 @@ namespace Translator.Explorer
 			return _nodes;
 		}
 
-		internal void SaveNodes() {
+		internal void SaveNodes()
+		{
 			Layout.Stop();
 			SaveNodes(NodeFilePath, Nodes);
 		}
