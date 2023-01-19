@@ -3,9 +3,9 @@ using Translator;
 using Translator.Core.Helpers;
 using Translator.Helpers;
 using Translator.UICompatibilityLayer;
-using TranslatorAdmin.Properties;
+using TranslatorApp.Properties;
 
-namespace TranslatorAdmin.InterfaceImpls
+namespace TranslatorApp.InterfaceImpls
 {
 	[SupportedOSPlatform("Windows")]
 	public class WinTab : TabPage, ITab<WinLineItem>

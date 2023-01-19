@@ -1,6 +1,5 @@
 ﻿using Translator.Core;
-
-namespace TranslatorAdmin.InterfaceImpls
+namespace TranslatorApp.InterfaceImpls
 {
 	internal class WinSettings : ISettings
 	{

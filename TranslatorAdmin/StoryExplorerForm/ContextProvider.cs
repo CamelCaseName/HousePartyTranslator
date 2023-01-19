@@ -2,8 +2,8 @@
 using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Explorer.JSON;
-using DataBase = Translator.Core.DataBase<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
+using DataBase = Translator.Core.DataBase<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
+using Settings = TranslatorApp.InterfaceImpls.WinSettings;
 using static Translator.Explorer.JSON.StoryEnums;
 
 namespace Translator.Explorer

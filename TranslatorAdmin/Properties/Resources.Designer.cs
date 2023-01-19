@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TranslatorAdmin.Properties {
+namespace TranslatorApp.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TranslatorAdmin.Properties {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TranslatorAdmin.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TranslatorDesktopApp.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -367,11 +367,11 @@ namespace TranslatorAdmin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to TranslationTextBox.
+        ///   Looks up a localized string similar to TranslatedTextBox.
         /// </summary>
         public static string TranslatedTextBox {
             get {
-                return ResourceManager.GetString("TranslationTextBox", resourceCulture);
+                return ResourceManager.GetString("TranslatedTextBox", resourceCulture);
             }
         }
         
@@ -385,11 +385,11 @@ namespace TranslatorAdmin.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to LinesTranslated.
+        ///   Looks up a localized string similar to WordsTranslated.
         /// </summary>
         public static string WordsTranslated {
             get {
-                return ResourceManager.GetString("LinesTranslated", resourceCulture);
+                return ResourceManager.GetString("WordsTranslated", resourceCulture);
             }
         }
     }

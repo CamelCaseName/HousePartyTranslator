@@ -2,10 +2,10 @@
 using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
-using TranslatorAdmin.Managers;
+using TranslatorApp.Managers;
 using static Translator.Explorer.JSON.StoryEnums;
-using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
-using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
+using Settings = TranslatorApp.InterfaceImpls.WinSettings;
+using TabManager = Translator.Core.TabManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
 
 namespace Translator.Explorer
 {

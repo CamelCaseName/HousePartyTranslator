@@ -10,6 +10,7 @@
     <StartupObject>Translator.App</StartupObject>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <Configurations>Debug;Release;Debug User;Release User</Configurations>
+    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -96,7 +97,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="if &quot;$(ConfigurationName)&quot; == Release $(SolutionDir)7za.exe u &quot;.\Release.7z&quot; .\HousePartyTranslator.exe .\HousePartyTranslator.exe.config .\7za.exe&#xD;&#xA;" />
+    <Exec Command="if &quot;$(ConfigurationName)&quot; == &quot;Release User&quot; $(SolutionDir)7za.exe u &quot;.\Release Admin.7z&quot; $(ProjectDir)$(OutputPath)TranslatorAdmin.exe $(ProjectDir)$(OutputPath)TranslatorAdmin.dll.config;&#xD;&#xA;" />
   </Target>
 
 </Project>

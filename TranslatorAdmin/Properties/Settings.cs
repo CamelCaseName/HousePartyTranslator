@@ -1,4 +1,4 @@
-﻿namespace TranslatorAdmin.Properties
+﻿namespace TranslatorApp.Properties
 {
 
 

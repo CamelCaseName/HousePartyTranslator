@@ -3,11 +3,11 @@ using Translator.Core.Helpers;
 using Translator.Explorer;
 using Translator.Helpers;
 using Translator.Managers;
-using TranslatorAdmin.InterfaceImpls;
-using TabManager = Translator.Core.TabManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
-using TranslationManager = Translator.Core.TranslationManager<TranslatorAdmin.InterfaceImpls.WinLineItem, TranslatorAdmin.InterfaceImpls.WinUIHandler, TranslatorAdmin.InterfaceImpls.WinTabController, TranslatorAdmin.InterfaceImpls.WinTab>;
+using TranslatorApp.InterfaceImpls;
+using TabManager = Translator.Core.TabManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
+using TranslationManager = Translator.Core.TranslationManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
 
-namespace TranslatorAdmin.Managers
+namespace TranslatorApp.Managers
 {
 	//also contains some extensions to ease programming
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]

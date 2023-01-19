@@ -1,6 +1,6 @@
 ﻿using System.Globalization;
 using System.Reflection;
-using Settings = TranslatorAdmin.InterfaceImpls.WinSettings;
+using Settings = TranslatorApp.InterfaceImpls.WinSettings;
 
 namespace Translator
 {

@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranslatorWebUser", "Transl
 		{B044756E-6A16-485A-897D-884AB1A313A1} = {B044756E-6A16-485A-897D-884AB1A313A1}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranslatorAdmin", "TranslatorAdmin\TranslatorAdmin.csproj", "{6D334B1E-B23D-404D-BDBE-0FDE3D86D33B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranslatorDesktopApp", "TranslatorAdmin\TranslatorDesktopApp.csproj", "{6D334B1E-B23D-404D-BDBE-0FDE3D86D33B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranslatorCore", "TranslatorCore\TranslatorCore.csproj", "{B044756E-6A16-485A-897D-884AB1A313A1}"
 EndProject
