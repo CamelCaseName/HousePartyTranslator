@@ -585,9 +585,9 @@ namespace Translator.Core
 										"If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
 						return true;
 					}
-					else if (errorCode == 1045)
+					else if (errorCode == 1045 || errorCode == 1042)
 					{
-						//means invalid creds
+						//means invalid creds or empty host/password
 						_ = UI.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
 						return false;
 					}

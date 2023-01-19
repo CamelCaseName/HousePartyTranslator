@@ -434,17 +434,6 @@ namespace Translator
 				Settings.Default.DbPassword = Passwordbox.GetPassword();
 				Settings.Default.Save();
 			}
-			else
-			{
-				if (Passwordbox.GetPassword().Length > 1)
-				{
-					_ = Msg.ErrorOk("Invalid password", "Wrong password");
-				}
-				else
-				{
-					Environment.Exit(-1);
-				}
-			}
 		}
 
 		private void InitializeComponent()
