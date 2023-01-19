@@ -20,6 +20,7 @@ namespace Translator.Explorer
 		private string _StoryFilePath = string.Empty;
 		private string NodeFilePath = string.Empty;
 		public bool GotCancelled = false;
+		private bool AutoFileSelection = false;
 		private readonly NodeLayout Layout;
 
 		//todo: decouple node force layout and use seperate task for that, update frame each time it finishes
@@ -30,12 +31,16 @@ namespace Translator.Explorer
 		{
 			_StoryFilePath = string.Empty;
 			this.IsStory = IsStory;
-			this.FileName = FileName;
-			this.StoryName = StoryName;
+			//set autoselect only if valid parameters are supplied
+			AutoFileSelection = AutoSelectFile && FileName != string.Empty && StoryName != string.Empty;
+			if (AutoFileSelection)
+			{
+				this.FileName = FileName;
+				this.StoryName = StoryName;
+			}
 			Layout = new NodeLayout(cancellation);
 
-			FilePath = string.Empty;
-			if (((Settings)Settings.Default).StoryPath != string.Empty && AutoSelectFile && FileName != string.Empty && StoryName != string.Empty)
+			if (((Settings)Settings.Default).StoryPath != string.Empty && AutoFileSelection)
 			{
 				string storyPathMinusStory = Directory.GetParent(((Settings)Settings.Default).StoryPath)?.FullName ?? string.Empty;
 
@@ -48,10 +53,16 @@ namespace Translator.Explorer
 					FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
 				}
 			}
+			else
+			{
+				FilePath = string.Empty;
+			}
 
-			FileName = Path.GetFileNameWithoutExtension(FilePath);
-			StoryName = Directory.GetParent(FilePath)?.Name ?? string.Empty;
-
+			if (FilePath.Length > 0)
+			{
+				FileName = Path.GetFileNameWithoutExtension(FilePath);
+				StoryName = Directory.GetParent(FilePath)?.Name ?? string.Empty;
+			}
 			//create an id to differentiate between the different calculated layouts later
 			FileId = StoryName + FileName + DataBase.DBVersion;
 		}
@@ -77,7 +88,7 @@ namespace Translator.Explorer
 						selectFileDialog = new OpenFileDialog
 						{
 							Title = $"Choose the story file ({StoryName}) for the templates",
-							Filter = "Story Files (*.story)|*.story",
+							Filter = AutoFileSelection ? "Story Files (*.story)|*.story" : string.Empty,
 							InitialDirectory = ((Settings)Settings.Default).StoryPath.Length > 0 ? ((Settings)Settings.Default).StoryPath : @"C:\Users\%USER%\Documents",
 							RestoreDirectory = false,
 							FileName = this.FileName + ".story"
@@ -88,7 +99,7 @@ namespace Translator.Explorer
 						selectFileDialog = new OpenFileDialog
 						{
 							Title = $"Choose the character file ({FileName}) for the templates",
-							Filter = "Character Files (*.character)|*.character",
+							Filter = AutoFileSelection ? "Character Files (*.character)|*.character" : string.Empty,
 							InitialDirectory = ((Settings)Settings.Default).StoryPath.Length > 0 ? ((Settings)Settings.Default).StoryPath : @"C:\Users\%USER%\Documents",
 							RestoreDirectory = false,
 							FileName = this.FileName + ".character"
@@ -134,7 +145,7 @@ namespace Translator.Explorer
 				else
 				{
 					//else create new
-					if (IsStory)
+					if (Path.GetExtension(FilePath) == ".story")
 					{
 						while (Nodes.Count != 0) Nodes.Clear();
 						Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
@@ -199,16 +210,19 @@ namespace Translator.Explorer
 			}
 			else
 			{
-				if (Directory.GetFiles(StoryFolderPath).Length > 0 && StoryFolderPath.Split("\\")[^1] == StoryName)
+				if (Directory.GetFiles(StoryFolderPath).Length > 0 && (StoryFolderPath.Split("\\")[^1] == StoryName) || !AutoFileSelection)
 				{
 					//else create new
 					foreach (var item in Directory.GetFiles(StoryFolderPath))
 					{
-						if (Path.GetFileNameWithoutExtension(item) == StoryName)
+						if (Path.GetExtension(item) == ".story")
+						{
 							Nodes.AddRange(
 								DissectStory(
 									JsonConvert.DeserializeObject<MainStory>(
-										File.ReadAllText(item)) ?? new()));
+										File.ReadAllText(item)) ?? new(),
+									Path.GetFileNameWithoutExtension(item)));
+						}
 
 						else
 							Nodes.AddRange(
@@ -221,7 +235,6 @@ namespace Translator.Explorer
 				}
 				else
 				{
-					((Settings)Settings.Default).StoryPath = string.Empty;
 					ParseAllFiles();
 					return true;
 				}
@@ -449,8 +462,9 @@ namespace Translator.Explorer
 			}
 		}
 
-		private List<Node> DissectStory(MainStory story)
+		private List<Node> DissectStory(MainStory story, string AlternateStoryName = "")
 		{
+			if (AlternateStoryName == string.Empty) AlternateStoryName = StoryName;
 			List<Node> _nodes = new();
 			if (story != null && !GotCancelled)
 			{
@@ -475,7 +489,7 @@ namespace Translator.Explorer
 
 				for (int i = 0; i < _nodes.Count; i++)
 				{
-					_nodes[i].FileName = StoryName;
+					_nodes[i].FileName = AlternateStoryName;
 				}
 			}
 			return _nodes;
