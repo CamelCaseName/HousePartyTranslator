@@ -26,10 +26,10 @@ namespace Translator.Core
 		public static bool IsOnline { get; private set; } = false;
 
 #if DEBUG
-        private static readonly string FROM = "FROM debug ";
-        private static readonly string INSERT = "INSERT INTO debug ";
-        private static readonly string UPDATE = "UPDATE debug ";
-        private static readonly string DELETE = "DELETE FROM debug ";
+		private static readonly string FROM = "FROM debug ";
+		private static readonly string INSERT = "INSERT INTO debug ";
+		private static readonly string UPDATE = "UPDATE debug ";
+		private static readonly string DELETE = "DELETE FROM debug ";
 #else
 		private static readonly string DELETE = "DELETE FROM translations ";
 		private static readonly string FROM = "FROM translations ";
@@ -228,25 +228,25 @@ namespace Translator.Core
 		/// <summary>
 		/// Establishes the connection and handles the password stuff
 		/// </summary>
-		/// <param name="mainWindow">the window to spawn the password box as a child of</param>
 		private static void EstablishConnection()
 		{
-			while (!IsOnline)
+			bool ValidPassword = true;
+			while (!IsOnline && ValidPassword)
 			{
 				sqlConnection.ConnectionString = GetConnString();
 				try
 				{
-					_ = CheckOrReopenConnection();
+					ValidPassword = CheckOrReopenConnection();
 				}
 				catch (MySqlException e)
 				{
-					if (e.Code == 0)
+					if (e.Number == 0)
 					{
 						//0 means offline
 						_ = UI.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
 							"If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
 					}
-					else if (e.Code == 1045)
+					else if (e.Number == 1045)
 					{
 						//means invalid creds
 						_ = UI.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
@@ -265,19 +265,19 @@ namespace Translator.Core
 			//establish connection and handle password
 			EstablishConnection();
 
-			MainCommand = new MySqlCommand("", sqlConnection);
-			//Console.WriteLine("DB opened");
-
 			if (!IsOnline)
 			{
 				AppTitle = "Translator (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
 			}
 			else
 			{
+				MainCommand = new MySqlCommand("", sqlConnection);
+				//Console.WriteLine("DB opened");
+
 				//checking template version
 				var getVersion = new MySqlCommand("SELECT story " +
-														   FROM +
-														   "WHERE ID = \"version\";", sqlConnection);
+													FROM +
+													"WHERE ID = \"version\";", sqlConnection);
 				MainReader = getVersion.ExecuteReader();
 				_ = MainReader.Read();
 				DBVersion = MainReader.GetString(0);
@@ -574,23 +574,27 @@ namespace Translator.Core
 				}
 				catch (MySqlException e)
 				{
-					if (e.Code == 0)
+					int errorCode;
+					if (e.InnerException != null && e.InnerException.GetType().IsAssignableTo(typeof(MySql.Data.MySqlClient.MySqlException))) errorCode = ((MySql.Data.MySqlClient.MySqlException)e.InnerException).Number;
+					else errorCode = e.Number;
+
+					if (errorCode == 0)
 					{
 						//0 means offline
 						_ = UI.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
 										"If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
-						return false;
+						return true;
 					}
-					else if (e.Code == 1045)
+					else if (errorCode == 1045)
 					{
 						//means invalid creds
 						_ = UI.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+						return false;
 					}
 				}
 			}
 			//if we are still offline
-			if (!IsOnline) return false;
-			else if (sqlConnection.State != System.Data.ConnectionState.Open)
+			if (sqlConnection.State != System.Data.ConnectionState.Open)
 			{
 				_ = UI.ErrorOk("Can't connect to the database, contact CamelCaseName (Lenny)");
 				UI.SignalAppExit();
