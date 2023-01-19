@@ -52,7 +52,7 @@ namespace Translator.Explorer
 		public void Stop()
 		{
 			DateTime end = DateTime.Now;
-			LogManager.Log($"\tnode layout ended, rendered for {(end - StartTime).TotalSeconds} seconds and rendered {FrameCount} frames -> {FrameCount / (end - StartTime).TotalSeconds} fps");
+			LogManager.Log($"\tnode layout ended, rendered for {(end - StartTime).TotalSeconds:F2} seconds and rendered {FrameCount} frames -> {FrameCount / (end - StartTime).TotalSeconds:F2} fps");
 			cancellationToken.Cancel();
 		}
 
