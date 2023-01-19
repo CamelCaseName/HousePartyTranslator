@@ -393,7 +393,7 @@ namespace Translator
 			catch (OperationCanceledException)
 			{
 				App.MainForm.UI.SignalUserEndWait();
-				LogManager.Log("Explorer closed during creation");
+				LogManager.Log("Explorer closed during creation", LogManager.Level.Warning);
 				return null;
 			}
 		}

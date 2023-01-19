@@ -22,7 +22,8 @@ namespace Translator.Explorer
 		private float cooldown = 1f;
 		private const float maxForce = 0.1f;
 		private float currentMaxForce = maxForce + 0.1f;
-
+		private DateTime StartTime = DateTime.MinValue;
+		private int FrameCount;
 		private readonly CancellationTokenSource cancellationToken = new();
 		public bool Finished => cooldown == 0;
 		public bool Started { get; private set; } = false;
@@ -42,13 +43,16 @@ namespace Translator.Explorer
 
 		public void Start()
 		{
-			LogManager.Log("node layout started");
+			StartTime = DateTime.Now;
+			LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
 			Started = true;
 			_ = Task.Run(() => CalculateForceDirectedLayout(cancellationToken.Token), cancellationToken.Token);
 		}
 
 		public void Stop()
 		{
+			DateTime end = DateTime.Now;
+			LogManager.Log($"\tnode layout ended, rendered for {(end - StartTime).TotalSeconds} seconds and rendered {FrameCount} frames -> {FrameCount / (end - StartTime).TotalSeconds} fps");
 			cancellationToken.Cancel();
 		}
 
@@ -92,6 +96,7 @@ namespace Translator.Explorer
 				while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
 				//switch to other list once done
 				CalculatedListA = !CalculatedListA;
+				++FrameCount;
 
 				App.MainForm?.Explorer?.Invalidate();
 			}
