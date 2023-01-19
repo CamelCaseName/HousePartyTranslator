@@ -34,6 +34,7 @@ namespace Translator.Explorer
 			this.StoryName = StoryName;
 			Layout = new NodeLayout(cancellation);
 
+			FilePath = string.Empty;
 			if (((Settings)Settings.Default).StoryPath != string.Empty && AutoSelectFile && FileName != string.Empty && StoryName != string.Empty)
 			{
 				string storyPathMinusStory = Directory.GetParent(((Settings)Settings.Default).StoryPath)?.FullName ?? string.Empty;
@@ -46,10 +47,6 @@ namespace Translator.Explorer
 				{
 					FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
 				}
-			}
-			else
-			{
-				FilePath = string.Empty;
 			}
 
 			FileName = Path.GetFileNameWithoutExtension(FilePath);
