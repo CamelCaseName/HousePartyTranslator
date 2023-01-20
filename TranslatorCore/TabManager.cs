@@ -423,10 +423,17 @@ namespace Translator.Core
 		/// </summary>
 		public static void ShowAutoSaveDialog()
 		{
-			if (Settings.Default.AskForSaveDialog)
+			if (Settings.Default.AskForSaveDialog && translationManagers.Count > 0)
 			{
-				if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
-					SaveAllTabs(); ;
+				foreach (var translationManager in translationManagers)
+				{
+					if (translationManager.Value.ChangesPending)
+					{
+						if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
+							SaveAllTabs();
+						return;
+					}
+				}
 			}
 		}
 	}

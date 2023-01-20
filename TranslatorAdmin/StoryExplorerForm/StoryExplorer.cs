@@ -17,8 +17,6 @@
 			//indicate ownership
 			parentName = Parent.Name;
 			parentForm = Parent;
-			this.StoryName = StoryName;
-			this.FileName = FileName;
 
 			//change draw order for this windows from bottom to top to top to bottom to remove flickering
 			//use double buffering for that
@@ -27,6 +25,9 @@
 			//get contextprovider
 			Context = new ContextProvider(IsStory, AutoLoad, FileName, StoryName, cancellation);
 			engine = new GraphingEngine(Context, this, NodeInfoLabel);
+
+			this.StoryName = Context.StoryName;
+			this.FileName = Context.FileName;
 
 			Text = $"StoryExplorer - Loading";
 
@@ -46,20 +47,22 @@
 		{
 			if (singleFile)
 			{
-				Text = $"StoryExplorer - {FileName}";
+				Text = $"StoryExplorer - waiting";
 				if (!Context.ParseFile() || Context.GotCancelled)
 				{
 					Close();
 				}
+				Text = $"StoryExplorer - {FileName}";
 			}
 			else
 			{
-				Text = $"StoryExplorer - {StoryName}";
+				Text = $"StoryExplorer - waiting";
 				//parse story, and not get cancelled xD
 				if (!Context.ParseAllFiles() || Context.GotCancelled)
 				{
 					Close();
 				}
+				Text = $"StoryExplorer - {StoryName}";
 			}
 			Context.StartLayoutCalculations();
 		}

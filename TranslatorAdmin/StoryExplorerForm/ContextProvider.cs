@@ -15,8 +15,8 @@ namespace Translator.Explorer
 		private readonly bool IsStory;
 		private readonly Random Random = new();
 		private readonly string FileId = string.Empty;
-		private readonly string FileName = "character";
-		private readonly string StoryName = "story";
+		public readonly string FileName = "character";
+		public readonly string StoryName = "story";
 		private string _StoryFilePath = string.Empty;
 		private string NodeFilePath = string.Empty;
 		public bool GotCancelled = false;
@@ -60,8 +60,8 @@ namespace Translator.Explorer
 
 			if (FilePath.Length > 0)
 			{
-				FileName = Path.GetFileNameWithoutExtension(FilePath);
-				StoryName = Directory.GetParent(FilePath)?.Name ?? string.Empty;
+				this.FileName = Path.GetFileNameWithoutExtension(FilePath);
+				this.StoryName = Directory.GetParent(FilePath)?.Name ?? string.Empty;
 			}
 			//create an id to differentiate between the different calculated layouts later
 			FileId = StoryName + FileName + DataBase.DBVersion;

@@ -14,9 +14,12 @@ namespace Translator.Managers
 		{
 			if (e.Button == MouseButtons.Right && TabManager.UI != null)
 			{
-				TabManager.UI.SelectedTab.Lines.SelectedIndex = TabManager.UI.SelectedTab.Lines.IndexFromPoint(e.Location);
-				if (TabManager.UI.SelectedTab.Lines.SelectedIndex <= 0) TabManager.UI.SelectedTab.Lines.SelectedIndex = 0;
-				context.Show();
+				if (TabManager.UI.SelectedTab.Lines.Count > 0)
+				{
+					TabManager.UI.SelectedTab.Lines.SelectedIndex = TabManager.UI.SelectedTab.Lines.IndexFromPoint(e.Location);
+					if (TabManager.UI.SelectedTab.Lines.SelectedIndex <= 0) TabManager.UI.SelectedTab.Lines.SelectedIndex = 0;
+					context.Show();
+				}
 			}
 		}
 
