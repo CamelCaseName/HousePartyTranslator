@@ -359,4 +359,5 @@ FodyWeavers.xsd
 
 #build tool
 7za.exe
-/TranslatorAdmin/Release.7z
+Release.7z
+/TranslatorAdmin/copy.bat

@@ -817,7 +817,7 @@ namespace Translator
 			CancelTokens.Dispose();
 
 			//show save unsaved changes dialog
-			TabManager.ActiveTranslationManager.ShowAutoSaveDialog();
+			TabManager.ShowAutoSaveDialog();
 
 			LogManager.SaveLogFile();
 		}

@@ -3,7 +3,6 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net7.0-windows</TargetFramework>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -12,10 +11,6 @@
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <Configurations>Debug;Release;Debug User;Release User</Configurations>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-    <PublishSingleFile>true</PublishSingleFile>
-    <SelfContained>true</SelfContained>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -38,6 +33,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="copy.bat" />
     <None Remove="Release.7z" />
     <None Remove="Ressources\wumpus_smoll.ico" />
   </ItemGroup>
@@ -101,9 +97,5 @@
       <Generator>SettingsSingleFileGenerator</Generator>
     </None>
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="IF &quot;$(ConfigurationName)&quot; == &quot;Release User&quot; .\7za.exe -u .\&quot;Release.7z&quot; $(PublishPath)TranslatorDesktopApp.Exe " />
-  </Target>
 
 </Project>
