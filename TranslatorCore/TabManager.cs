@@ -417,5 +417,17 @@ namespace Translator.Core
 			//update tab name
 			SelectedTab.Text = ActiveTranslationManager.FileName;
 		}
+
+		/// <summary>
+		/// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
+		/// </summary>
+		public static void ShowAutoSaveDialog()
+		{
+			if (Settings.Default.AskForSaveDialog)
+			{
+				if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
+					SaveAllTabs(); ;
+			}
+		}
 	}
 }

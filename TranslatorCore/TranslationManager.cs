@@ -287,7 +287,7 @@ namespace Translator.Core
 		{
 			if (path.Length > 0)
 			{
-				ShowAutoSaveDialog();
+				TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
 				//clear history if we have a new file, we dont need old one anymore
 				if (path != SourceFilePath)
 					History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
@@ -849,23 +849,6 @@ namespace Translator.Core
 		}
 
 		/// <summary>
-		/// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
-		/// </summary>
-		public void ShowAutoSaveDialog()
-		{
-			if (Settings.Default.AskForSaveDialog && ChangesPending)
-			{
-				if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
-				{
-					if (!TabManager<TLineItem, TUIHandler, TTabController, TTab>.SaveAllTabs())
-					{
-						SaveFile();
-					}
-				}
-			}
-		}
-
-		/// <summary>
 		/// Update the currently selected translation string in the TranslationData.
 		/// </summary>
 		public void UpdateTranslationString()
@@ -1337,7 +1320,7 @@ namespace Translator.Core
 		/// </summary>
 		public void ReloadFile()
 		{
-			ShowAutoSaveDialog();
+			TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
 			LoadTranslationFile();
 			if (UI == null) return;
 			//select recent index

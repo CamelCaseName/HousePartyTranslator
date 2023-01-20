@@ -194,7 +194,7 @@ namespace Translator.Core
 			where TTab : class, ITab<TLineItem>, new()
 		{
 			if (sender == null || TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager == null) return;
-			TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.ShowAutoSaveDialog();
+			TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
 			TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.LoadFileIntoProgram(((IMenuItem)sender).Text);
 			if (Settings.Default.AutoLoadRecentIndex) TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.SelectLine(recentIndex);
 		}

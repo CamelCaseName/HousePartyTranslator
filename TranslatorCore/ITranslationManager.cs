@@ -37,7 +37,6 @@ namespace Translator.Core
 		void SelectLine(string id);
 		bool SelectNextResultIfApplicable();
 		string SelectSaveLocation();
-		void ShowAutoSaveDialog();
 		void ToggleReplaceUI();
 		void UpdateCharacterCountLabel(int TranslationCount, int TemplateCount);
 		void UpdateComments();
