@@ -37,7 +37,7 @@ namespace TranslatorApp.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1.03")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.06")]
         public string version {
             get {
                 return ((string)(this["version"]));
@@ -289,7 +289,7 @@ namespace TranslatorApp.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("00:00:00")]
+        [global::System.Configuration.DefaultSettingValueAttribute("05:00:00")]
         public global::System.TimeSpan AutoSaveInterval {
             get {
                 return ((global::System.TimeSpan)(this["AutoSaveInterval"]));
@@ -320,6 +320,42 @@ namespace TranslatorApp.Properties {
             }
             set {
                 this["UpdateSettings"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("120")]
+        public float IdealLength {
+            get {
+                return ((float)(this["IdealLength"]));
+            }
+            set {
+                this["IdealLength"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("15")]
+        public int ColoringDepth {
+            get {
+                return ((int)(this["ColoringDepth"]));
+            }
+            set {
+                this["ColoringDepth"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IgnoreCustomStoryWarning {
+            get {
+                return ((bool)(this["IgnoreCustomStoryWarning"]));
+            }
+            set {
+                this["IgnoreCustomStoryWarning"] = value;
             }
         }
     }

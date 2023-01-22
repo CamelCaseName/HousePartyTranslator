@@ -211,11 +211,11 @@ namespace Translator.Explorer
 			Mass = 1;
 			for (int i = 0; i < ChildNodes.Count; i++)
 			{
-				Mass += (int)(NodeLayoutConstants.IdealLength / MathF.Sqrt((Position.X - ChildNodes[i].Position.X) * (Position.X - ChildNodes[i].Position.X) + (Position.Y - ChildNodes[i].Position.Y) * (Position.Y - ChildNodes[i].Position.Y)));
+				Mass += (int)(StoryExplorerConstants.IdealLength / MathF.Sqrt((Position.X - ChildNodes[i].Position.X) * (Position.X - ChildNodes[i].Position.X) + (Position.Y - ChildNodes[i].Position.Y) * (Position.Y - ChildNodes[i].Position.Y)));
 			}
 			for (int i = 0; i < ParentNodes.Count; i++)
 			{
-				Mass += (int)(NodeLayoutConstants.IdealLength / MathF.Sqrt((Position.X - ParentNodes[i].Position.X) * (Position.X - ParentNodes[i].Position.X) + (Position.Y - ParentNodes[i].Position.Y) * (Position.Y - ParentNodes[i].Position.Y)));
+				Mass += (int)(StoryExplorerConstants.IdealLength / MathF.Sqrt((Position.X - ParentNodes[i].Position.X) * (Position.X - ParentNodes[i].Position.X) + (Position.Y - ParentNodes[i].Position.Y) * (Position.Y - ParentNodes[i].Position.Y)));
 			}
 			if (Mass < 1) Mass = 1;
 		}

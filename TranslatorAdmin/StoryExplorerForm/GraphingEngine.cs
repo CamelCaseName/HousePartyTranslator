@@ -14,7 +14,6 @@ namespace Translator.Explorer
 	{
 		public const int Nodesize = 16;
 		public const float ColorFactor = 0.7f;
-		public const int MaxHighlightChainLength = 20;
 
 		public readonly ContextProvider Context;
 
@@ -410,7 +409,7 @@ namespace Translator.Explorer
 					g,
 					HighlightedNode,
 					0,
-					MaxHighlightChainLength,
+					StoryExplorerConstants.ColoringDepth,
 					Rainbow(0),
 					Rainbow(0.1f));
 
@@ -426,21 +425,16 @@ namespace Translator.Explorer
 			int ascending = (int)((div % 1) * 255);
 			int descending = 255 - ascending;
 
-			switch ((int)div)
+			return (int)div switch
 			{
-				case 0:
-					return Color.FromArgb(255, 255, ascending, 0);
-				case 1:
-					return Color.FromArgb(255, descending, 255, 0);
-				case 2:
-					return Color.FromArgb(255, 0, 255, ascending);
-				case 3:
-					return Color.FromArgb(255, 0, descending, 255);
-				case 4:
-					return Color.FromArgb(255, ascending, 0, 255);
-				default: // case 5:
-					return Color.FromArgb(255, 255, 0, descending);
-			}
+				0 => Color.FromArgb(255, 255, ascending, 0),
+				1 => Color.FromArgb(255, descending, 255, 0),
+				2 => Color.FromArgb(255, 0, 255, ascending),
+				3 => Color.FromArgb(255, 0, descending, 255),
+				4 => Color.FromArgb(255, ascending, 0, 255),
+				// case 5:
+				_ => Color.FromArgb(255, 255, 0, descending),
+			};
 		}
 
 		private void DrawInfoNode(Graphics g)

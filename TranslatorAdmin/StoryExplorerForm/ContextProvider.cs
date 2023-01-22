@@ -14,14 +14,13 @@ namespace Translator.Explorer
 		private List<Node> CriteriaInFile = new();
 		private readonly bool IsStory;
 		private readonly Random Random = new();
-		private readonly string FileId = string.Empty;
 		public readonly string FileName = "character";
 		public readonly string StoryName = "story";
 		private string _StoryFilePath = string.Empty;
 		private string NodeFilePath = string.Empty;
 		public bool GotCancelled = false;
 		private readonly bool AutoFileSelection = false;
-		private readonly NodeLayout Layout;
+		public readonly NodeLayout Layout;
 
 		public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, CancellationToken cancellation)
 		{
@@ -59,8 +58,6 @@ namespace Translator.Explorer
 				this.FileName = Path.GetFileNameWithoutExtension(FilePath);
 				this.StoryName = Directory.GetParent(FilePath)?.Name ?? string.Empty;
 			}
-			//create an id to differentiate between the different calculated layouts later
-			FileId = StoryName + FileName + DataBase.DBVersion;
 		}
 
 		public string FilePath
@@ -241,11 +238,6 @@ namespace Translator.Explorer
 				return SaveNodes(NodeFilePath, Nodes);
 			}
 			return Nodes.Count > 0;
-		}
-
-		public void StartLayoutCalculations()
-		{
-			Layout.Start();
 		}
 
 		public static bool SaveNodes(string path, List<Node> nodes)
