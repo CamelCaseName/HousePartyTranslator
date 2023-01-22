@@ -20,12 +20,8 @@ namespace Translator.Explorer
 		private string _StoryFilePath = string.Empty;
 		private string NodeFilePath = string.Empty;
 		public bool GotCancelled = false;
-		private bool AutoFileSelection = false;
+		private readonly bool AutoFileSelection = false;
 		private readonly NodeLayout Layout;
-
-		//todo: decouple node force layout and use seperate task for that, update frame each time it finishes
-		//todo: read in all files and combine/merge nodes through story files.
-		//todo: if going through a node connection into a different file and it is not open, try to open it or switch to it if open already
 
 		public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, CancellationToken cancellation)
 		{
@@ -128,8 +124,7 @@ namespace Translator.Explorer
 		{
 			if (File.Exists(FilePath))
 			{
-				string fileString = File.ReadAllText(FilePath);
-				NodeFilePath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{FileId}.json");
+				NodeFilePath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{StoryName + FileName + DataBase.DBVersion}.json");
 
 				//save path
 				((Settings)Settings.Default).StoryPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
@@ -144,6 +139,7 @@ namespace Translator.Explorer
 				}
 				else
 				{
+					string fileString = File.ReadAllText(FilePath);
 					//else create new
 					if (Path.GetExtension(FilePath) == ".story")
 					{
@@ -372,26 +368,8 @@ namespace Translator.Explorer
 				//actually adding the node
 				if (node.Type == NodeType.Criterion)//if it is a criterion, else is after this bit
 				{
-					//if the criterion has already been seen before
-					Node criterionInFile = CriteriaInFile.Find(n => n.Guid == node.Guid) ?? Node.NullNode;
-					if (criterionInFile != Node.NullNode)//has been seen before
-					{
-						//add the childs and parents of this instance of the criterion to the first instance of this criterion
-						//aka fusion
-						criterionInFile.ChildNodes.AddRange(node.ChildNodes);
-						//set gender of childs of the event this criterion is part of if we have a gender comparison
-						criterionInFile.PropagateGender(criterionInFile.Gender);
-						criterionInFile.ParentNodes.AddRange(node.ParentNodes);
-						//recalculate mass for later use
-						criterionInFile.CalculateMass();
-					}
-					else//node not yet visited, add to list of criteria
-					{
-						//add it to the list of criteria so we can fuse all other instances of this criterion
-						CriteriaInFile.Add(node);
-						//add it to the list of all nodes because it is not on there yet.
-						if (!listNodes.Contains(node)) listNodes.Add(node);
-					}
+					//add it to the list of all nodes because it is not on there yet.
+					if (!listNodes.Contains(node)) listNodes.Add(node);
 				}
 			}
 			return listNodes;
@@ -428,8 +406,10 @@ namespace Translator.Explorer
 			return _nodes;
 		}
 
-		private void CombineNodes(List<Node> nodes)
+		private static void CombineNodes(List<Node> nodes)
 		{
+			DateTime start = DateTime.Now;
+			LogManager.Log("\tstarting to link up nodes");
 			//link up different stories and dialogues
 			for (int i = 0; i < nodes.Count; i++)
 			{
@@ -451,6 +431,7 @@ namespace Translator.Explorer
 							if (result != null)
 							{
 								nodes[i].AddChildNode(result);
+								break;//dialogue can only exist once lol
 							}
 						}
 					}
@@ -460,6 +441,12 @@ namespace Translator.Explorer
 
 				}
 			}
+			for (int i = 0; i < nodes.Count; i++)
+			{
+				nodes[i].CalculateMass();
+			}
+
+			LogManager.Log($"\tnode interlinking done in {(DateTime.Now - start).TotalSeconds:F2}s");
 		}
 
 		private List<Node> DissectStory(MainStory story, string AlternateStoryName = "")

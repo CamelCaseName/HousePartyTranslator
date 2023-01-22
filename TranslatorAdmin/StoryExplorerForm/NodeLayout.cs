@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.Versioning;
 using Translator.Core;
 
@@ -6,10 +7,10 @@ namespace Translator.Explorer
 {
 	internal static class NodeLayoutConstants
 	{
-		public const float Attraction = 0.1f;//Attraction accelleration multiplier, between 0 and 1
+		public const float Attraction = 0.2f;//Attraction accelleration multiplier, between 0 and 1
 		public const float Repulsion = 100.0f;//Repulsion accelleration multiplier, between 0 and much
 		public const float Gravity = 0.0003f;
-		public const float IdealLength = 40; //spring IdealLength in units aka thedistance an edge should be long
+		public const float IdealLength = 120; //spring IdealLength in units aka thedistance an edge should be long
 	}
 
 	[SupportedOSPlatform("windows")]
@@ -18,10 +19,8 @@ namespace Translator.Explorer
 		private readonly List<Node> nodesA = new();
 		private readonly List<Node> nodesB = new();
 		private bool CalculatedListA = true;
-		private Dictionary<Guid, Vector2> NodeForces = new();
+		private List<Vector2> NodeForces = new();
 		private float cooldown = 1f;
-		private const float maxForce = 0.1f;
-		private float currentMaxForce = maxForce + 0.1f;
 		private DateTime StartTime = DateTime.MinValue;
 		private int FrameCount;
 		private readonly CancellationTokenSource cancellationToken = new();
@@ -59,10 +58,10 @@ namespace Translator.Explorer
 		public void CalculateForceDirectedLayout(CancellationToken token)
 		{
 			//save all forces here
-			NodeForces = new Dictionary<Guid, Vector2>();
-			Nodes.ForEach(n => NodeForces.Add(n.Guid, new Vector2()));
+			NodeForces = new(Nodes.Count);
+			Nodes.ForEach(n => NodeForces.Add(new Vector2()));
 
-			while (!token.IsCancellationRequested && currentMaxForce > maxForce)
+			while (!token.IsCancellationRequested)
 			{
 				//sync nodes, initally in b
 				if (nodesA.Count != nodesB.Count)
@@ -105,9 +104,14 @@ namespace Translator.Explorer
 		//todo move to gpu with opencl
 		private void CalculatePositions()
 		{
+			for (int i = 0; i < NodeForces.Count; i++)
+			{
+				NodeForces[i] = Vector2.Zero;
+			}
+
 			for (int first = 0; first < Internal.Count; first++)
 			{
-				Vector2 accelleration = Vector2.Zero;
+
 				//Gravity to center
 				float radius = MathF.Sqrt(Internal.Count) + NodeLayoutConstants.IdealLength * 2;
 				Vector2 pos = new(Internal[first].Position.X, Internal[first].Position.Y);
@@ -120,32 +124,37 @@ namespace Translator.Explorer
 				}
 
 				//can IdealLength ever be absolutely 0?
-				accelleration -= (pos / pos.Length()) * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * NodeLayoutConstants.Gravity;
+				//gravity calculation
+				NodeForces[first] -= (pos / pos.Length()) * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * NodeLayoutConstants.Gravity;
 
-				for (int second = 0; second < Internal.Count; second++)
+				for (int second = first + 1; second < Internal.Count; second++)
 				{
-					if (first != second && Internal[first].Position != Internal[second].Position)
+					if (Internal[first].Position != Internal[second].Position)
 					{
 						Vector2 edge = new(
 								Internal[first].Position.X - Internal[second].Position.X,
-								Internal[first].Position.Y - Internal[second].Position.Y);
+								Internal[first].Position.Y - Internal[second].Position.Y
+								);
 						if (Internal[first].ChildNodes.Contains(Internal[second]) || Internal[first].ParentNodes.Contains(Internal[second]))
 						{
 							//Attraction/spring accelleration on edge
 							Vector2 attractionVec = (edge / edge.Length()) * NodeLayoutConstants.Attraction * (edge.Length() - NodeLayoutConstants.IdealLength);
 
-							accelleration -= attractionVec / Internal[first].Mass;
+							if (attractionVec.Length() > 1000) Debugger.Break();
+
+							NodeForces[first] -= attractionVec / Internal[first].Mass;
+							NodeForces[second] += attractionVec / Internal[second].Mass;
 						}
 						else
 						{
 							//Repulsion
-							accelleration += (edge / edge.LengthSquared()) * NodeLayoutConstants.Repulsion / Internal[first].Mass;
+							NodeForces[first] += (edge / edge.LengthSquared()) * NodeLayoutConstants.Repulsion / Internal[first].Mass;
+							NodeForces[second] -= (edge / edge.LengthSquared()) * NodeLayoutConstants.Repulsion / Internal[second].Mass;
 						}
-
-						NodeForces[Internal[first].Guid] = new(
-							float.IsNaN(accelleration.X) ? 0 : accelleration.X,
-							float.IsNaN(accelleration.Y) ? 0 : accelleration.Y
-							);
+					}
+					else
+					{//move away
+						Internal[first].Position.X += 10f;
 					}
 				}
 			}
@@ -153,8 +162,26 @@ namespace Translator.Explorer
 			//apply accelleration to nodes
 			for (int i = 0; i < Internal.Count; i++)
 			{
-				Internal[i].Position.X += cooldown * NodeForces[Internal[i].Guid].X;
-				Internal[i].Position.Y += cooldown * NodeForces[Internal[i].Guid].Y;
+				Internal[i].Position.X += cooldown * NodeForces[i].X;
+				Internal[i].Position.Y += cooldown * NodeForces[i].Y;
+				if (Internal[i].Position.X > 1 / (NodeLayoutConstants.Gravity * NodeLayoutConstants.Gravity)
+					||
+					Internal[i].Position.Y > 1 / (NodeLayoutConstants.Gravity * NodeLayoutConstants.Gravity))
+				{
+					Vector2 avg = new();
+					for (int x = 0; x < Internal[i].ChildNodes.Count; x++)
+					{
+						avg.X += Internal[i].ChildNodes[x].Position.X;
+						avg.Y += Internal[i].ChildNodes[x].Position.Y;
+					}
+					for (int x = 0; x < Internal[i].ParentNodes.Count; x++)
+					{
+						avg.X += Internal[i].ParentNodes[x].Position.X;
+						avg.Y += Internal[i].ParentNodes[x].Position.Y;
+					}
+					Internal[i].Position.X = avg.X;
+					Internal[i].Position.Y = avg.Y;
+				}
 			}
 
 			//recalculate mass cause the nodes moved
@@ -164,7 +191,7 @@ namespace Translator.Explorer
 			}
 
 			//cooldown -= 0.001f;
-			if (cooldown < 0) { cooldown = 0; }
+			//if (cooldown < 0) { cooldown = 0; }
 		}
 	}
 }
