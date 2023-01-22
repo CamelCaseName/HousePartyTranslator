@@ -5,12 +5,13 @@ using Translator.Core;
 
 namespace Translator.Explorer
 {
-	internal static class NodeLayoutConstants
+	internal static class StoryExplorerConstants
 	{
 		public const float Attraction = 0.2f;//Attraction accelleration multiplier, between 0 and 1
 		public const float Repulsion = 100.0f;//Repulsion accelleration multiplier, between 0 and much
 		public const float Gravity = 0.0003f;
-		public const float IdealLength = 120; //spring IdealLength in units aka thedistance an edge should be long
+		public static float IdealLength = 120; //spring IdealLength in units aka thedistance an edge should be long
+		public static int ColoringDepth = 15;
 	}
 
 	[SupportedOSPlatform("windows")]
@@ -20,11 +21,14 @@ namespace Translator.Explorer
 		private readonly List<Node> nodesB = new();
 		private bool CalculatedListA = true;
 		private List<Vector2> NodeForces = new();
-		private float cooldown = 1f;
 		private DateTime StartTime = DateTime.MinValue;
-		private int FrameCount;
-		private readonly CancellationTokenSource cancellationToken = new();
-		public bool Finished => cooldown == 0;
+		private DateTime FrameStartTime = DateTime.MinValue;
+		private DateTime FrameEndTime = DateTime.MinValue;
+		public bool RunOverride = false;
+		private CancellationTokenSource cancellationToken = new();
+		private readonly CancellationToken outsideToken;
+		public int FrameCount { get; private set; }
+		public bool Finished => FrameCount > Nodes.Count * Nodes.Count && !RunOverride && Started;
 		public bool Started { get; private set; } = false;
 		public List<Node> Nodes
 		{
@@ -37,15 +41,20 @@ namespace Translator.Explorer
 
 		public NodeLayout(CancellationToken cancellation)
 		{
-			cancellation.Register(() => cancellationToken.Cancel());
+			outsideToken = cancellation;
 		}
 
 		public void Start()
 		{
-			StartTime = DateTime.Now;
-			LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
-			Started = true;
-			_ = Task.Run(() => CalculateForceDirectedLayout(cancellationToken.Token), cancellationToken.Token);
+			if (!Started)
+			{
+				cancellationToken = new();
+				outsideToken.Register(() => cancellationToken.Cancel());
+				StartTime = DateTime.Now;
+				LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
+				Started = true;
+				_ = Task.Run(() => CalculateForceDirectedLayout(cancellationToken.Token), cancellationToken.Token);
+			}
 		}
 
 		public void Stop()
@@ -53,6 +62,8 @@ namespace Translator.Explorer
 			DateTime end = DateTime.Now;
 			LogManager.Log($"\tnode layout ended, rendered for {(end - StartTime).TotalSeconds:F2} seconds and rendered {FrameCount} frames -> {FrameCount / (end - StartTime).TotalSeconds:F2} fps");
 			cancellationToken.Cancel();
+			Started = false;
+			FrameCount = 0;
 		}
 
 		public void CalculateForceDirectedLayout(CancellationToken token)
@@ -61,8 +72,9 @@ namespace Translator.Explorer
 			NodeForces = new(Nodes.Count);
 			Nodes.ForEach(n => NodeForces.Add(new Vector2()));
 
-			while (!token.IsCancellationRequested)
+			while (!token.IsCancellationRequested && !Finished)
 			{
+				FrameStartTime = FrameEndTime;
 				//sync nodes, initally in b
 				if (nodesA.Count != nodesB.Count)
 				{
@@ -79,17 +91,9 @@ namespace Translator.Explorer
 						nodesA.AddRange(nodesB);
 					}
 				}
-				//lock and calculate
-				if (CalculatedListA)
-					lock (nodesB)
-					{
-						CalculatePositions();
-					}
-				else
-					lock (nodesA)
-					{
-						CalculatePositions();
-					}
+				//calculate
+				CalculatePositions();
+				CalculatePositions();
 
 				//we got to wait before we change nodes, so like a reverse lock?
 				while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
@@ -97,8 +101,13 @@ namespace Translator.Explorer
 				CalculatedListA = !CalculatedListA;
 				++FrameCount;
 
+				//approx 40fps max as more is uneccesary and feels weird (25ms gives ~50fps, 30 gives about 45fps)
+				FrameEndTime = DateTime.Now;
+				if ((FrameEndTime - FrameStartTime).TotalMilliseconds < 30) Thread.Sleep((int)(30 - (FrameEndTime - FrameStartTime).TotalMilliseconds));
+
 				App.MainForm?.Explorer?.Invalidate();
 			}
+			Stop();
 		}
 
 		//todo move to gpu with opencl
@@ -113,7 +122,7 @@ namespace Translator.Explorer
 			{
 
 				//Gravity to center
-				float radius = MathF.Sqrt(Internal.Count) + NodeLayoutConstants.IdealLength * 2;
+				float radius = MathF.Sqrt(Internal.Count) + StoryExplorerConstants.IdealLength * 2;
 				Vector2 pos = new(Internal[first].Position.X, Internal[first].Position.Y);
 
 				//fix any issues before we divide by pos IdealLength
@@ -125,7 +134,7 @@ namespace Translator.Explorer
 
 				//can IdealLength ever be absolutely 0?
 				//gravity calculation
-				NodeForces[first] -= (pos / pos.Length()) * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * NodeLayoutConstants.Gravity;
+				NodeForces[first] -= (pos / pos.Length()) * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * StoryExplorerConstants.Gravity;
 
 				for (int second = first + 1; second < Internal.Count; second++)
 				{
@@ -138,7 +147,7 @@ namespace Translator.Explorer
 						if (Internal[first].ChildNodes.Contains(Internal[second]) || Internal[first].ParentNodes.Contains(Internal[second]))
 						{
 							//Attraction/spring accelleration on edge
-							Vector2 attractionVec = (edge / edge.Length()) * NodeLayoutConstants.Attraction * (edge.Length() - NodeLayoutConstants.IdealLength);
+							Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
 
 							if (attractionVec.Length() > 1000) Debugger.Break();
 
@@ -148,12 +157,13 @@ namespace Translator.Explorer
 						else
 						{
 							//Repulsion
-							NodeForces[first] += (edge / edge.LengthSquared()) * NodeLayoutConstants.Repulsion / Internal[first].Mass;
-							NodeForces[second] -= (edge / edge.LengthSquared()) * NodeLayoutConstants.Repulsion / Internal[second].Mass;
+							NodeForces[first] += (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion / Internal[first].Mass;
+							NodeForces[second] -= (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion / Internal[second].Mass;
 						}
 					}
 					else
-					{//move away
+					{
+						//move away
 						Internal[first].Position.X += 10f;
 					}
 				}
@@ -162,36 +172,9 @@ namespace Translator.Explorer
 			//apply accelleration to nodes
 			for (int i = 0; i < Internal.Count; i++)
 			{
-				Internal[i].Position.X += cooldown * NodeForces[i].X;
-				Internal[i].Position.Y += cooldown * NodeForces[i].Y;
-				if (Internal[i].Position.X > 1 / (NodeLayoutConstants.Gravity * NodeLayoutConstants.Gravity)
-					||
-					Internal[i].Position.Y > 1 / (NodeLayoutConstants.Gravity * NodeLayoutConstants.Gravity))
-				{
-					Vector2 avg = new();
-					for (int x = 0; x < Internal[i].ChildNodes.Count; x++)
-					{
-						avg.X += Internal[i].ChildNodes[x].Position.X;
-						avg.Y += Internal[i].ChildNodes[x].Position.Y;
-					}
-					for (int x = 0; x < Internal[i].ParentNodes.Count; x++)
-					{
-						avg.X += Internal[i].ParentNodes[x].Position.X;
-						avg.Y += Internal[i].ParentNodes[x].Position.Y;
-					}
-					Internal[i].Position.X = avg.X;
-					Internal[i].Position.Y = avg.Y;
-				}
+				Internal[i].Position.X += NodeForces[i].X;
+				Internal[i].Position.Y += NodeForces[i].Y;
 			}
-
-			//recalculate mass cause the nodes moved
-			for (int i = 0; i < Internal.Count; i++)
-			{
-				//Internal[i].CalculateScaledMass();
-			}
-
-			//cooldown -= 0.001f;
-			//if (cooldown < 0) { cooldown = 0; }
 		}
 	}
 }
