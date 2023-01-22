@@ -65,6 +65,7 @@
 				Text = $"StoryExplorer - {StoryName}";
 			}
 			inInitialization = false;
+			NodeCalculations.Text = "Calculation running";
 			Context.Layout.Start();
 		}
 
@@ -86,23 +87,34 @@
 
 		private void Start_Click(object sender, EventArgs e)
 		{
+			NodeCalculations.Text = "Calculation running";
 			Grapher.Context.Layout.Start();
 		}
 
 		private void Stop_Click(object sender, EventArgs e)
 		{
+			NodeCalculations.Text = "Calculation stopped";
 			Grapher.Context.Layout.Stop();
 		}
 
 		//todo more values and settings to change
 		private void IdealLength_ValueChanged(object sender, EventArgs e)
 		{
-			if (!inInitialization) StoryExplorerConstants.IdealLength = IdealLength.Value > 1 && IdealLength.Value < IdealLength.Maximum ? (float)IdealLength.Value : StoryExplorerConstants.IdealLength;
+			if (!inInitialization)
+			{
+				StoryExplorerConstants.IdealLength = IdealLength.Value > 1 && IdealLength.Value < IdealLength.Maximum ? (float)IdealLength.Value : StoryExplorerConstants.IdealLength;
+				TranslatorApp.Properties.Settings.Default.IdealLength = (float)IdealLength.Value;
+			}
+
 		}
 
 		private void ColoringDepth_ValueChanged(object sender, EventArgs e)
 		{
-			if (!inInitialization) StoryExplorerConstants.ColoringDepth = ColoringDepth.Value > 1 && ColoringDepth.Value < ColoringDepth.Maximum ? (int)ColoringDepth.Value : StoryExplorerConstants.ColoringDepth;
+			if (!inInitialization)
+			{
+				StoryExplorerConstants.ColoringDepth = ColoringDepth.Value > 1 && ColoringDepth.Value < ColoringDepth.Maximum ? (int)ColoringDepth.Value : StoryExplorerConstants.ColoringDepth;
+				TranslatorApp.Properties.Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
+			}
 		}
 
 		private void MenuShowButton_Click(object sender, EventArgs e)
