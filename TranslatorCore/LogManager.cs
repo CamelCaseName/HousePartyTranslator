@@ -68,7 +68,7 @@ namespace Translator.Core
 		/// <param name="level">The level of the logged message</param>
 		public static void Log(string message, Level level)
 		{
-			string _message = $"[{level}] | {DateTime.Now} | {message} \n";
+			string _message = $"[{level}] | {DateTime.Now} | {message}";
 
 			//add the message as lines to our list of all lines
 			FileLines.AddRange(_message.Split('\n'));
