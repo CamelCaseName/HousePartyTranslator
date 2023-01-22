@@ -42,6 +42,7 @@ namespace TranslatorApp.InterfaceImpls
 		public bool DisplayVAHints { get => Properties.Settings.Default.displayVAHints; set => Properties.Settings.Default.displayVAHints = value; }
 		public string StoryPath { get => Properties.Settings.Default.story_path; set => Properties.Settings.Default.story_path = value; }
 		public bool UpdateSettings { get => Properties.Settings.Default.UpdateSettings; set => Properties.Settings.Default.UpdateSettings = value; }
+		public bool IgnoreCustomStoryWarning { get => Properties.Settings.Default.IgnoreCustomStoryWarning; set => Properties.Settings.Default.IgnoreCustomStoryWarning = value; }
 
 		public void Save() => Properties.Settings.Default.Save();
 		internal void Upgrade() => Properties.Settings.Default.Upgrade();

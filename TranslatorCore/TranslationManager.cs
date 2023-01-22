@@ -197,7 +197,7 @@ namespace Translator.Core
 			{
 				result = UI.InfoYesNo($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story", "Custom story?");
 			}
-			if (result == PopupResult.YES)
+			if (result == PopupResult.YES || Settings.Default.IgnoreCustomStoryWarning)
 			{
 				UI.SignalUserWait();
 				//check if the template has been added and generated once before

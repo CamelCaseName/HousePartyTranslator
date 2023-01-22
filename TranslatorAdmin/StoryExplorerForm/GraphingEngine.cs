@@ -309,6 +309,7 @@ namespace Translator.Explorer
 				}
 			}
 		}
+
 		private void DrawColouredNode(Graphics g, Node node, Color color, float scale)
 		{
 			//dont draw node if it is too far away

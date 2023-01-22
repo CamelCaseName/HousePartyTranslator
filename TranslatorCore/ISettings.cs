@@ -42,6 +42,9 @@ namespace Translator.Core
 		public string TemplatePath { get => string.Empty; set { } }
 		public string TranslationPath { get => string.Empty; set { } }
 		public TimeSpan AutoSaveInterval { get => new(); set { } }
+
+		public bool IgnoreCustomStoryWarning { get => false; set { } }
+
 		public void Save() { }
 	}
 
@@ -71,6 +74,7 @@ namespace Translator.Core
 		public string TemplatePath { get; set; }
 		public string TranslationPath { get; set; }
 		public TimeSpan AutoSaveInterval { get; set; }
+		public bool IgnoreCustomStoryWarning { get; set; }
 
 		public void Save();
 	}
