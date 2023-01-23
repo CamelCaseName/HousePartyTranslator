@@ -114,6 +114,8 @@ namespace Translator.Managers
 				using var fileStream = new FileStream(newFile, FileMode.Create);
 				//copy data to file on disk
 				await stream.CopyToAsync(fileStream);
+				fileStream.Close();
+				stream.Dispose();
 			}
 			catch (UnauthorizedAccessException e)
 			{
