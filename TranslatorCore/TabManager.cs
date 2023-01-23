@@ -229,7 +229,7 @@ namespace Translator.Core
 			//update history on tab change
 			if (lastIndex != TabControl.SelectedIndex)
 			{
-				History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(lastIndex, TabControl.SelectedIndex));
+				History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(lastIndex, TabControl.SelectedIndex) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName});
 				lastIndex = TabControl.SelectedIndex;
 			}
 
@@ -255,6 +255,7 @@ namespace Translator.Core
 		{
 			if (TabControl.TabCount >= 1)
 			{
+				UI.SignalUserWait();
 				int oldSelection = TabControl.SelectedIndex;
 				//save all tabs
 				foreach (TTab tab in TabControl.TabPages)
@@ -264,6 +265,7 @@ namespace Translator.Core
 					translationManagers[tab].SaveFile();
 				}
 				TabControl.SelectedIndex = oldSelection;
+				UI.SignalUserEndWait();
 				return true;
 			}
 			return false;
@@ -393,8 +395,8 @@ namespace Translator.Core
 				for (int i = 0; i < TabControl.TabCount; i++)
 				{
 					//save history
-					if (i != 0) History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(i - 1, i));
-					else History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(0, i));
+					if (i != 0) History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(i - 1, i) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
+					else History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(0, i) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
 
 					translationManagers[TabControl.TabPages[i]].ReplaceAll(UI.ReplaceBarText ?? "");
 				}

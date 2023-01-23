@@ -70,6 +70,7 @@ namespace Translator.Managers
 		private static bool UpdateNeeded(string githubVersion)
 		{
 			//extract version number
+			//todo, split on . and then cast to number
 			LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.0.0";
 			if (githubVersion.Length > 3) LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.0";
 			if (githubVersion.Length > 4) LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.{githubVersion[4]}";

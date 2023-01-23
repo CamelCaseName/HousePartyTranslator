@@ -37,7 +37,7 @@ namespace Translator.Core
 					TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName ?? "");
 			}
 		}
-		private bool _changesPending;
+		private bool _changesPending = false;
 		public static bool IsUpToDate { get; internal set; } = false;
 		public List<StringCategory> CategoriesInFile = new();
 		public bool isTemplate = false;
@@ -287,9 +287,9 @@ namespace Translator.Core
 		{
 			if (path.Length > 0)
 			{
-				TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
+				if(TranslationData.Count > 0)TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
 				//clear history if we have a new file, we dont need old one anymore
-				if (path != SourceFilePath)
+				if (path != SourceFilePath && FileName != string.Empty && StoryName != string.Empty)
 					History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
 				ResetTranslationManager();
 
@@ -527,7 +527,11 @@ namespace Translator.Core
 
 			History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
 
-			if (SourceFilePath == "" || Language == "") return;
+			if (SourceFilePath == "" || Language == "")
+			{
+				UI.SignalUserEndWait();
+				return;
+			}
 			if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslations(TranslationData, Language) || !DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
 
 			List<CategorizedLines> CategorizedStrings = InitializeCategories();
@@ -546,8 +550,6 @@ namespace Translator.Core
 			{
 				CopyToGameModsFolder();
 			}
-
-			ChangesPending = false;
 
 			UI.SignalUserEndWait();
 		}
@@ -1222,11 +1224,14 @@ namespace Translator.Core
 					TryFixEmptyFile();
 				}
 				else if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
-					//inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
-					//and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
+				//inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
+				//and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
+				{
 					_ = UI.InfoOk(
 					"Some strings are missing from your translation, they will be added with the english version when you first save the file!",
 					"Some strings missing");
+					ChangesPending = true;
+				}
 			}
 		}
 
