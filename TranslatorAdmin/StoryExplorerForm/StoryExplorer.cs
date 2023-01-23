@@ -90,12 +90,16 @@
 		{
 			NodeCalculations.Text = "Calculation running";
 			Grapher.Context.Layout.Start();
+			NodeCalculations.Update();
+			NodeCalculations.Invalidate();
 		}
 
 		private void Stop_Click(object sender, EventArgs e)
 		{
 			NodeCalculations.Text = "Calculation stopped";
 			Grapher.Context.Layout.Stop();
+			NodeCalculations.Update();
+			NodeCalculations.Invalidate();
 		}
 
 		//todo more values and settings to change
@@ -130,7 +134,10 @@
 			SettingsVisible = !SettingsVisible;
 			SettingsBox.Visible = SettingsVisible;
 			MenuShowButton.Text = SettingsVisible ? "Hide Menu" : "Show Menu";
-			Invalidate();
+			SettingsBox.Update();
+			MenuShowButton.Update();
+			SettingsBox.Invalidate();
+			MenuShowButton.Invalidate();
 		}
 
 		private void NodeSizeField_ValueChanged(object sender, EventArgs e)
