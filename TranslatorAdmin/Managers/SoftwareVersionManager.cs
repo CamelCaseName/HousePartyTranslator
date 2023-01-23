@@ -8,7 +8,7 @@ namespace Translator.Managers
 	[SupportedOSPlatform("Windows")]
 	internal static class SoftwareVersionManager
 	{
-		public const string LocalVersion = "0.7.1.0";
+		public const string LocalVersion = "0.7.2.0";
 		public static string? LatestGithubVersion;
 		public static bool UpdatePending = false;
 		private static readonly HttpClient client = new();
@@ -34,11 +34,13 @@ namespace Translator.Managers
 				//get data from github about the packages 
 				GithubResponse? response = await JsonSerializer.DeserializeAsync<GithubResponse>(await client.GetStreamAsync(APIUrl));
 
+				string oldFile = DeleteOld();//deletes prev.exe if it exists
+
 				//check version and for need of update
 				if (!UpdateNeeded(response?.TagName ?? "0.0.0.0")) return;
 
 				//prepare files
-				(bool successfull, string newFile, string oldFile) = CreateFiles();
+				(bool successfull, string newFile) = CreateFiles();
 				if (!successfull) return;
 
 				//inform rest of program
@@ -81,23 +83,27 @@ namespace Translator.Managers
 				|| (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] == LocalVersion[4] && LatestGithubVersion[6] > LocalVersion[6]);/*minor release number*/
 		}
 
-		private static (bool, string, string) CreateFiles()
+		private static (bool, string) CreateFiles()
 		{
 			try
 			{
 				//path to file if we need it
 				string releaseFile = Path.Combine(Directory.GetCurrentDirectory(), "Release.7z");
-
-				//delete old one if it exists
-				string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath) ?? "", "prev.exe");
-				if (File.Exists(oldFile)) File.Delete(oldFile);
-				return (true, releaseFile, oldFile);
+				return (true, releaseFile);
 			}
 			catch (Exception e)
 			{
 				LogManager.Log(e.Message);
 			}
-			return (false, "", "");
+			return (false, "");
+		}
+
+		private static string DeleteOld()
+		{
+			//delete old one if it exists
+			string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath) ?? "", "prev.exe");
+			if (File.Exists(oldFile)) File.Delete(oldFile);
+			return oldFile;
 		}
 
 		private static async void Download(string downloadUrl, string newFile)
