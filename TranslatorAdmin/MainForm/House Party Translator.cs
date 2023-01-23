@@ -908,7 +908,7 @@ namespace Translator
 
 		private void SaveToolStripMenuItem_Click(object? sender, EventArgs? e)
 		{
-			TabManager.ActiveTranslationManager.SaveFile();
+			InputHandler.SaveFile();
 		}
 
 		private void SearchAllToolStripMenuItem_click(object? sender, EventArgs? e)

@@ -158,6 +158,7 @@ namespace Translator.Core
 
 			if (basePath.Length > 0)
 			{
+				UI.SignalUserWait();
 				foreach (string path in Directory.GetDirectories(basePath))
 				{
 					string[] folders = path.Split('\\');
@@ -182,6 +183,7 @@ namespace Translator.Core
 						OpenInNewTab(filePath);
 					}
 				}
+				UI.SignalUserEndWait();
 			}
 		}
 

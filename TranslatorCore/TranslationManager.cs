@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
@@ -30,11 +31,11 @@ namespace Translator.Core
 			get { return _changesPending; }
 			set
 			{
-				_changesPending = value;
 				if (value)
 					TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName + "*");
 				else
 					TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName ?? "");
+				_changesPending = value;
 			}
 		}
 		private bool _changesPending = false;
@@ -287,7 +288,7 @@ namespace Translator.Core
 		{
 			if (path.Length > 0)
 			{
-				if(TranslationData.Count > 0)TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
+				if (TranslationData.Count > 0) TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
 				//clear history if we have a new file, we dont need old one anymore
 				if (path != SourceFilePath && FileName != string.Empty && StoryName != string.Empty)
 					History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
@@ -532,7 +533,7 @@ namespace Translator.Core
 				UI.SignalUserEndWait();
 				return;
 			}
-			if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslations(TranslationData, Language) || !DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+			_ = Task.Run(RemoteUpdate);
 
 			List<CategorizedLines> CategorizedStrings = InitializeCategories();
 
@@ -550,8 +551,14 @@ namespace Translator.Core
 			{
 				CopyToGameModsFolder();
 			}
-
 			UI.SignalUserEndWait();
+
+			void RemoteUpdate()
+			{
+				UI.SignalUserWait();
+				if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslations(TranslationData, Language) || !DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+				UI.SignalUserEndWait();
+			}
 		}
 
 		private List<CategorizedLines> InitializeCategories()
@@ -859,7 +866,7 @@ namespace Translator.Core
 			TabUI.TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
 			SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
 			UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
-			ChangesPending = !selectedNew;
+			ChangesPending = !selectedNew || ChangesPending;
 			selectedNew = false;
 		}
 
