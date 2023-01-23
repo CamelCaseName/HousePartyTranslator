@@ -356,3 +356,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+#build tool
+7za.exe
+Release.7z
+/TranslatorAdmin/copy.bat
