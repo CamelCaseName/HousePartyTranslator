@@ -150,8 +150,6 @@ namespace Translator.Explorer
 							//Attraction/spring accelleration on edge
 							Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
 
-							if (attractionVec.Length() > 1000) Debugger.Break();
-
 							NodeForces[first] -= attractionVec / Internal[first].Mass;
 							NodeForces[second] += attractionVec / Internal[second].Mass;
 						}

@@ -129,6 +129,7 @@
 			// 
 			// NodeCalculations
 			// 
+			this.NodeCalculations.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.NodeCalculations.AutoSize = true;
 			this.NodeCalculations.ForeColor = System.Drawing.SystemColors.MenuBar;
 			this.NodeCalculations.Location = new System.Drawing.Point(816, 508);
@@ -138,7 +139,7 @@
 			// 
 			// MenuShowButton
 			// 
-			this.MenuShowButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+			this.MenuShowButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.MenuShowButton.Location = new System.Drawing.Point(887, 12);
 			this.MenuShowButton.Name = "MenuShowButton";
 			this.MenuShowButton.Size = new System.Drawing.Size(85, 23);
@@ -149,6 +150,7 @@
 			// 
 			// SettingsBox
 			// 
+			this.SettingsBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.SettingsBox.AutoSize = true;
 			this.SettingsBox.Controls.Add(this.NodeSizeField);
 			this.SettingsBox.Controls.Add(this.NodeSize);
@@ -198,6 +200,7 @@
 			this.Controls.Add(this.Start);
 			this.Controls.Add(this.NodeInfoLabel);
 			this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
+			this.MinimumSize = new System.Drawing.Size(600, 400);
 			this.Name = "StoryExplorer";
 			this.ShowIcon = false;
 			this.Text = "Story Explorer";
