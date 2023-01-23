@@ -9,37 +9,35 @@
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <StartupObject>Translator.App</StartupObject>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-    <Configurations>Debug;Release;Debug User;Release User</Configurations>
+    <Configurations>Debug;Release;Debug Admin;Release Admin</Configurations>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+    <ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>False</Optimize>
-    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug User|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Admin|AnyCPU'">
     <Optimize>False</Optimize>
-    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+    <ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release User|AnyCPU'">
-    <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Admin|AnyCPU'">
+    <ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
     <Optimize>True</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
     <None Remove="copy.bat" />
     <None Remove="Release.7z" />
-    <None Remove="Ressources\wumpus_smoll.ico" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Ressources\wumpus_smoll.ico" />
+    <Content Include="Resources\wumpus_smoll.ico" />
   </ItemGroup>
 
   <ItemGroup>

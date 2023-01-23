@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TranslatorApp.Properties {
+namespace TranslatorDesktopApp.Properties {
     using System;
     
     
@@ -390,6 +390,16 @@ namespace TranslatorApp.Properties {
         public static string WordsTranslated {
             get {
                 return ResourceManager.GetString("WordsTranslated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        public static System.Drawing.Icon wumpus_smoll {
+            get {
+                object obj = ResourceManager.GetObject("wumpus_smoll", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
     }

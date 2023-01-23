@@ -780,6 +780,7 @@ namespace Translator
 			MinimumSize = new Size(640, 470);
 			Name = nameof(Fenster);
 			ShowIcon = false;
+			Icon = TranslatorDesktopApp.Properties.Resources.wumpus_smoll;
 			Text = "Translator";
 			StartPosition = FormStartPosition.CenterScreen;
 			FormClosing += new FormClosingEventHandler(OnFormClosing);
