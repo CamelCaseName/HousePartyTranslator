@@ -1,4 +1,4 @@
-﻿using HousePartyTranslator.Managers;
+﻿using Translator.Managers;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
@@ -18,24 +18,9 @@ using System.Runtime.InteropServices;
 // to COM components.  If you need to access a type in this assembly from
 // COM, set the ComVisible attribute to true on that type.
 [assembly: ComVisible(false)]
-<<<<<<< HEAD:TranslatorAdmin/Properties/AssemblyInfo.cs
 [assembly: AssemblyVersion(Translator.Managers.SoftwareVersionManager.LocalVersion)]
 [assembly: AssemblyFileVersion(Translator.Managers.SoftwareVersionManager.LocalVersion)]
-=======
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("df7f311d-cf31-46fa-a275-1cceac31d716")]
 
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Build and Revision Numbers
-// by using the '*' as shown below:
-// [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion(SoftwareVersionManager.LocalVersion)]
-[assembly: AssemblyFileVersion(SoftwareVersionManager.LocalVersion)]
->>>>>>> 1d496c6196ccc4a5b192249f3d170961272953ac:Properties/AssemblyInfo.cs
