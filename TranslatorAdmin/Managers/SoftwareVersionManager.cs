@@ -8,10 +8,11 @@ namespace Translator.Managers
 	[SupportedOSPlatform("Windows")]
 	internal static class SoftwareVersionManager
 	{
-		public const string LocalVersion = "0.7.2.0";
+		public const string LocalVersion = "0.7.0.0";
 		public static string? LatestGithubVersion;
 		public static bool UpdatePending = false;
 		private static readonly HttpClient client = new();
+		private static bool DownloadDone = false;
 		const string APIUrl = "https://api.github.com/repos/CamelCaseName/HousePartyTranslator/releases/latest";
 
 		/// <summary>
@@ -55,10 +56,7 @@ namespace Translator.Managers
 					if (!UpdateFile(oldFile, newFile)) return;
 
 					//inform user
-					_ = Msg.InfoOk("Successfully updated the program! It will close itself now", "Update successful");
-
-					//exit
-					App.MainForm.UI.SignalAppExit();
+					_ = Msg.InfoOk("Successfully updated the program! Please restart the app now.", "Update successful");
 				}
 			}
 			catch (Exception e)
@@ -123,14 +121,17 @@ namespace Translator.Managers
 				_ = Msg.ErrorOk($"The update failed because the program could not access\n   {newFile}\n or the folder it is in.", "Update failed");
 				return;
 			}
+			finally
+			{
+				DownloadDone = true;
+			}
 		}
 
 		private static bool UpdateFile(string oldFile, string newFile)
 		{
-
 			//move currently running exe out of the way
 			File.Move(Application.ExecutablePath, oldFile);
-
+			while (!DownloadDone) ;
 			//extract file to our current location and replace
 			var extractor = new SevenZipExtractor.ArchiveFile(newFile);
 			try

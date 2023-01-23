@@ -827,7 +827,7 @@ namespace Translator
 		{
 			//check for update and replace if we want one
 			ProgressbarWindow.Status.Text = "Checking for an update";
-			SoftwareVersionManager.ReplaceFileIfNew();
+			_ = Task.Run(() => SoftwareVersionManager.ReplaceFileIfNew());
 			ProgressbarWindow.PerformStep();
 
 			ProgressbarWindow.Status.Text = "Finishing startup";
