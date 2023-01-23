@@ -1,31 +1,24 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.3.32929.385
+VisualStudioVersion = 17.4.33213.308
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranslatorWebUser", "TranslatorWebUser\TranslatorWebUser.csproj", "{DFB56DFD-866F-4097-BDF9-9D15985408A1}"
-	ProjectSection(ProjectDependencies) = postProject
-		{B044756E-6A16-485A-897D-884AB1A313A1} = {B044756E-6A16-485A-897D-884AB1A313A1}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranslatorDesktopApp", "TranslatorAdmin\TranslatorDesktopApp.csproj", "{6D334B1E-B23D-404D-BDBE-0FDE3D86D33B}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranslatorCore", "TranslatorCore\TranslatorCore.csproj", "{B044756E-6A16-485A-897D-884AB1A313A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HousePartyTranslator", "HousePartyTranslator.csproj", "{DF7F311D-CF31-46FA-A275-1CCEAC31D716}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug - Offline|Any CPU = Debug - Offline|Any CPU
-		Debug - Offline|x64 = Debug - Offline|x64
-		Debug - Offline|x86 = Debug - Offline|x86
+<<<<<<< HEAD
 		Debug Admin|Any CPU = Debug Admin|Any CPU
 		Debug Admin|x64 = Debug Admin|x64
 		Debug Admin|x86 = Debug Admin|x86
+=======
+		Debug - Offline|Any CPU = Debug - Offline|Any CPU
+		Debug - Offline|x64 = Debug - Offline|x64
+		Debug - Offline|x86 = Debug - Offline|x86
+>>>>>>> 1d496c6196ccc4a5b192249f3d170961272953ac
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
 		Debug|x86 = Debug|x86
-		Release Admin|Any CPU = Release Admin|Any CPU
-		Release Admin|x64 = Release Admin|x64
-		Release Admin|x86 = Release Admin|x86
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
