@@ -12,7 +12,7 @@ namespace Translator.Explorer
 	[SupportedOSPlatform("Windows")]
 	internal sealed class GraphingEngine
 	{
-		public const int Nodesize = 16;
+		private static float Nodesize => StoryExplorerConstants.Nodesize;
 		public const float ColorFactor = 0.7f;
 
 		public readonly ContextProvider Context;
@@ -33,8 +33,8 @@ namespace Translator.Explorer
 
 		private static float Xmax => App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
 		private static float Ymax => App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
-		private const float Xmin = 2 * -Nodesize;
-		private const float Ymin = 2 * -Nodesize;
+		private static float Xmin = 2 * -Nodesize;
+		private static float Ymin = 2 * -Nodesize;
 
 		private readonly StoryExplorer Explorer;
 		private readonly Label NodeInfoLabel;

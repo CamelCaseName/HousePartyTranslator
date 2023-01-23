@@ -3,7 +3,7 @@ using Translator;
 using Translator.Core.Helpers;
 using Translator.Helpers;
 using Translator.UICompatibilityLayer;
-using TranslatorApp.Properties;
+using TranslatorDesktopApp.Properties;
 
 namespace TranslatorApp.InterfaceImpls
 {

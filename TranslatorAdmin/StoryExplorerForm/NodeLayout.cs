@@ -12,6 +12,7 @@ namespace Translator.Explorer
 		public const float Gravity = 0.0003f;
 		public static float IdealLength = 120; //spring IdealLength in units aka thedistance an edge should be long
 		public static int ColoringDepth = 15;
+		public static int Nodesize = 16;
 	}
 
 	[SupportedOSPlatform("windows")]

@@ -172,6 +172,7 @@
 			this.NodeSizeField.Name = "NodeSizeField";
 			this.NodeSizeField.Size = new System.Drawing.Size(75, 23);
 			this.NodeSizeField.TabIndex = 7;
+			this.NodeSizeField.ValueChanged += new System.EventHandler(this.NodeSizeField_ValueChanged);
 			// 
 			// NodeSize
 			// 

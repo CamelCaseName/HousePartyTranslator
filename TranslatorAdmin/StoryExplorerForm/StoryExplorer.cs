@@ -37,6 +37,7 @@
 
 			ColoringDepth.Value = TranslatorApp.Properties.Settings.Default.ColoringDepth;
 			IdealLength.Value = (decimal)TranslatorApp.Properties.Settings.Default.IdealLength;
+			NodeSizeField.Value = StoryExplorerConstants.Nodesize;
 		}
 
 		internal GraphingEngine Grapher { get { return engine; } }
@@ -130,6 +131,14 @@
 			SettingsBox.Visible = SettingsVisible;
 			MenuShowButton.Text = SettingsVisible ? "Hide Menu" : "Show Menu";
 			Invalidate();
+		}
+
+		private void NodeSizeField_ValueChanged(object sender, EventArgs e)
+		{
+			if (!inInitialization)
+			{
+				StoryExplorerConstants.Nodesize = NodeSizeField.Value > 1 && NodeSizeField.Value < NodeSizeField.Maximum ? (int)NodeSizeField.Value : StoryExplorerConstants.Nodesize;
+			}
 		}
 	}
 }

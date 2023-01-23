@@ -8,9 +8,9 @@ namespace TranslatorApp.InterfaceImpls
 		{
 			get
 			{
-#if DEBUG || RELEASE
+#if DEBUG_ADMIN || RELEASE_ADMIN
 				return true;
-#elif DEBUG_USER || RELEASE_USER
+#elif DEBUG || RELEASE
                 return false;
 #endif
 			}
