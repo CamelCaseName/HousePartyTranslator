@@ -47,6 +47,7 @@ namespace Translator.Explorer
 		public NodeType Type;
 		public bool Visited = false;
 		public string FileName = string.Empty;
+		public bool IsPositionLocked = false;
 
 		public Node(string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
 		{
@@ -117,7 +118,8 @@ namespace Translator.Explorer
 					Visited = serialNode.Visited,
 					FileName = serialNode.FileName,
 					ChildNodes = new List<Node>(),
-					ParentNodes = new List<Node>()
+					ParentNodes = new List<Node>(),
+					IsPositionLocked = serialNode.IsPositionLocked
 				});
 			}
 
@@ -206,20 +208,6 @@ namespace Translator.Explorer
 			if (Mass < 1) Mass = 1;
 		}
 
-		public void CalculateScaledMass()
-		{
-			Mass = 1;
-			for (int i = 0; i < ChildNodes.Count; i++)
-			{
-				Mass += (int)(StoryExplorerConstants.IdealLength / MathF.Sqrt((Position.X - ChildNodes[i].Position.X) * (Position.X - ChildNodes[i].Position.X) + (Position.Y - ChildNodes[i].Position.Y) * (Position.Y - ChildNodes[i].Position.Y)));
-			}
-			for (int i = 0; i < ParentNodes.Count; i++)
-			{
-				Mass += (int)(StoryExplorerConstants.IdealLength / MathF.Sqrt((Position.X - ParentNodes[i].Position.X) * (Position.X - ParentNodes[i].Position.X) + (Position.Y - ParentNodes[i].Position.Y) * (Position.Y - ParentNodes[i].Position.Y)));
-			}
-			if (Mass < 1) Mass = 1;
-		}
-
 		public void PropagateGender(Gender gender)
 		{
 			if (ChildNodes.Count > 0)
@@ -246,11 +234,6 @@ namespace Translator.Explorer
 			{
 				_ = ParentNodes.Remove(parentNode);
 			}
-		}
-
-		public void SetPosition(Point position)
-		{
-			Position = position;
 		}
 
 		public override string ToString()

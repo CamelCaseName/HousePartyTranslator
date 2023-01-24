@@ -304,10 +304,10 @@ namespace Translator.Explorer
 				//offset by halfe sidelength to center y
 				int y = (runningTotal / sideLength) - sideLength / 2;
 				//set position
-				nodes[i].SetPosition(new Point(
+				nodes[i].Position = new Point(
 					x * step + Random.Next(-(step / 2) + 1, (step / 2) - 1),
 					y * step + Random.Next(-(step / 2) + 1, (step / 2) - 1)
-					));
+					);
 				//increase running total
 				runningTotal++;
 			}

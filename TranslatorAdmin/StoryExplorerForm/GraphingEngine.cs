@@ -22,6 +22,8 @@ namespace Translator.Explorer
 		private readonly Color DefaultColor = Color.DarkBlue;
 		private readonly Color DefaultQuestColor = Color.Purple;
 		private readonly Color DefaultFemaleColor = Color.DarkTurquoise;
+		private readonly Color DefaultMovingNodeColor = Color.CadetBlue;
+		private readonly Color DefaultInfoNodeColor = Color.ForestGreen;
 
 		private readonly SolidBrush NodeBrush;
 		private readonly SolidBrush FemaleNodeBrush;
@@ -33,8 +35,8 @@ namespace Translator.Explorer
 
 		private static float Xmax => App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
 		private static float Ymax => App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
-		private static float Xmin = 2 * -Nodesize;
-		private static float Ymin = 2 * -Nodesize;
+		private static float Xmin => 2 * -Nodesize;
+		private static float Ymin => 2 * -Nodesize;
 
 		private readonly StoryExplorer Explorer;
 		private readonly Label NodeInfoLabel;
@@ -51,15 +53,20 @@ namespace Translator.Explorer
 		private bool CurrentlyInPan = false;
 		private Node highlightedNode = Node.NullNode;
 		private Node infoNode = Node.NullNode;
+		private Node movingNode = Node.NullNode;
 		private bool IsShiftPressed = false;
+		private bool IsCtrlPressed = false;
+		private bool MovingANode = false;
 		public bool DrewNodes = false;
 		public bool InternalNodesVisible = true;
 		private readonly List<Node> DrawnHighlightNodes = new();
+		private Cursor priorCursor = Cursors.Default;
 
 		private float Scaling = 0.3f;
 		private float StartPanOffsetX = 0f;
 		private float StartPanOffsetY = 0f;
-
+		private float OldMouseMovingPosX;
+		private float OldMouseMovingPosY;
 
 		public GraphingEngine(ContextProvider context, StoryExplorer explorer, Label nodeInfoLabel)
 		{
@@ -137,8 +144,17 @@ namespace Translator.Explorer
 				//overlay info and highlight
 				DrawHighlightNodeTree(e.Graphics);
 				DrawInfoNode(e.Graphics);
+				DrawMovingNodeMarker(e.Graphics);
 				NodeInfoLabel.Invalidate();
 				NodeInfoLabel.Update();
+			}
+		}
+
+		private void DrawMovingNodeMarker(Graphics g)
+		{
+			if (movingNode != Node.NullNode)
+			{
+				DrawColouredNode(g, movingNode, DefaultMovingNodeColor, 1.2f);
 			}
 		}
 
@@ -159,20 +175,23 @@ namespace Translator.Explorer
 		{
 			//get the shift key state so we can determine later if we want to redraw the tree on node selection or not
 			IsShiftPressed = e.KeyData == (Keys.ShiftKey | Keys.Shift);
+			IsCtrlPressed = e.KeyData == (Keys.Control | Keys.ControlKey);
 		}
 
 		public void HandleMouseEvents(object sender, MouseEventArgs e)
 		{
+			//set old position for next frame/call
 			switch (e.Button)
 			{
 				case MouseButtons.Left:
-					HighlightedNode = UpdateClickedNode(e.Location);
+					MoveNode(e.Location);
+					if (!IsCtrlPressed) HighlightedNode = GetClickedNode(e.Location);
 					break;
 				case MouseButtons.None:
 					EndPan();
 					break;
 				case MouseButtons.Right:
-					InfoNode = UpdateClickedNode(e.Location);
+					InfoNode = GetClickedNode(e.Location);
 					break;
 				case MouseButtons.Middle:
 					UpdatePan(e.Location);
@@ -192,6 +211,46 @@ namespace Translator.Explorer
 				//redraw
 				Explorer.Invalidate();
 			}
+			//also end movement if we dont click but let go of ctrl
+			if (!IsCtrlPressed && MovingANode) EndNodeMovement();
+			//save mouse pos for next frame
+			ScreenToGraph(e.Location.X, e.Location.Y, out OldMouseMovingPosX, out OldMouseMovingPosY);
+		}
+
+		private void MoveNode(Point MouseLocation)
+		{
+			if (!MovingANode && IsCtrlPressed)
+			{
+				Node node = GetClickedNode(MouseLocation);
+				//set new node if it is new, reset lock if applicable
+				if (movingNode != node) movingNode.IsPositionLocked = false;
+				if (priorCursor != Cursors.SizeAll) priorCursor = Explorer.Cursor;
+				movingNode = node;
+				movingNode.IsPositionLocked = true;
+				MovingANode = true;
+			}
+			if (IsCtrlPressed && MovingANode && movingNode != Node.NullNode)
+			{
+				//convert mouse position and adjust node position by mouse location delta
+				ScreenToGraph(MouseLocation.X, MouseLocation.Y, out float MouseGraphX, out float MouseGraphY);
+				movingNode.Position.X -= OldMouseMovingPosX - MouseGraphX;
+				movingNode.Position.Y -= OldMouseMovingPosY - MouseGraphY;
+				Explorer.Cursor = Cursors.SizeAll;
+				//redraw
+				Explorer.Invalidate();
+			}
+			else
+			{
+				EndNodeMovement();
+			}
+		}
+
+		private void EndNodeMovement()
+		{
+			Explorer.Cursor = priorCursor;
+			movingNode.IsPositionLocked = false;
+			movingNode = Node.NullNode;
+			MovingANode = false;
 		}
 
 		public void PaintAllNodes(Graphics g)
@@ -442,14 +501,7 @@ namespace Translator.Explorer
 		{
 			if (InfoNode != Node.NullNode)
 			{
-				ColorBrush.Color = Color.ForestGreen;
-				g.FillEllipse(
-					ColorBrush,
-					InfoNode.Position.X - Nodesize / 2,
-					InfoNode.Position.Y - Nodesize / 2,
-					Nodesize,
-					Nodesize
-					);
+				DrawColouredNode(g, InfoNode, DefaultInfoNodeColor);
 			}
 		}
 
@@ -506,6 +558,7 @@ namespace Translator.Explorer
 			if (CurrentlyInPan)
 			{
 				CurrentlyInPan = false;
+				Explorer.Cursor = priorCursor;
 			}
 		}
 
@@ -529,7 +582,7 @@ namespace Translator.Explorer
 			StartPanOffsetY = location.Y;
 		}
 
-		private Node UpdateClickedNode(Point mouseLocation)
+		private Node GetClickedNode(Point mouseLocation)
 		{
 			//handle position input
 			ScreenToGraph(mouseLocation.X - Nodesize, mouseLocation.Y - Nodesize, out float mouseLeftX, out float mouseUpperY);
@@ -560,6 +613,8 @@ namespace Translator.Explorer
 				CurrentlyInPan = true;
 				//get current position in screen coordinates when we start to pan
 				SetPanOffset(mouseLocation);
+				priorCursor = Explorer.Cursor;
+				Explorer.Cursor = Cursors.Cross;
 			}
 			//in pan
 			else if (CurrentlyInPan)

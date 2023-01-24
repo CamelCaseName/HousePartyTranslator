@@ -150,14 +150,14 @@ namespace Translator.Explorer
 							//Attraction/spring accelleration on edge
 							Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
 
-							NodeForces[first] -= attractionVec / Internal[first].Mass;
-							NodeForces[second] += attractionVec / Internal[second].Mass;
+							NodeForces[first] -= attractionVec;
+							NodeForces[second] += attractionVec;
 						}
 						else
 						{
 							//Repulsion
-							NodeForces[first] += (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion / Internal[first].Mass;
-							NodeForces[second] -= (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion / Internal[second].Mass;
+							NodeForces[first] += (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
+							NodeForces[second] -= (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
 						}
 					}
 					else
@@ -171,8 +171,11 @@ namespace Translator.Explorer
 			//apply accelleration to nodes
 			for (int i = 0; i < Internal.Count; i++)
 			{
-				Internal[i].Position.X += NodeForces[i].X;
-				Internal[i].Position.Y += NodeForces[i].Y;
+				if (!Internal[i].IsPositionLocked)
+				{
+					Internal[i].Position.X += NodeForces[i].X / Internal[i].Mass;
+					Internal[i].Position.Y += NodeForces[i].Y / Internal[i].Mass;
+				}
 			}
 		}
 	}

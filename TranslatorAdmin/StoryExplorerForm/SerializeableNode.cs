@@ -17,6 +17,7 @@ namespace Translator.Explorer
 		public List<Guid>? ParentNodes;
 		public List<Guid>? ChildNodes;
 		public string FileName = string.Empty;
+		public bool IsPositionLocked;
 
 		public static explicit operator SerializeableNode(Node v)
 		{
@@ -34,7 +35,8 @@ namespace Translator.Explorer
 				Visited = v.Visited,
 				FileName = v.FileName,
 				ChildNodes = new List<Guid>(),
-				ParentNodes = new List<Guid>()
+				ParentNodes = new List<Guid>(),
+				IsPositionLocked= v.IsPositionLocked,
 			};
 
 			//add missing nodes as guid references

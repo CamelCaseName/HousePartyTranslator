@@ -35,8 +35,8 @@
 			Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
 			FormClosing += new FormClosingEventHandler(SaveNodes);
 
-			ColoringDepth.Value = TranslatorApp.Properties.Settings.Default.ColoringDepth;
-			IdealLength.Value = (decimal)TranslatorApp.Properties.Settings.Default.IdealLength;
+			ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = TranslatorApp.Properties.Settings.Default.ColoringDepth;
+			IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = TranslatorApp.Properties.Settings.Default.IdealLength);
 			NodeSizeField.Value = StoryExplorerConstants.Nodesize;
 		}
 
@@ -67,6 +67,7 @@
 			}
 			inInitialization = false;
 			NodeCalculations.Text = "Calculation running";
+
 			Context.Layout.Start();
 		}
 
