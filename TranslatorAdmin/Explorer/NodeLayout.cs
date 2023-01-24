@@ -57,6 +57,9 @@ namespace Translator.Explorer
 
 			//get platform
 			FindOpenCLPlatforms();
+			//just do the old way if we have no opencl
+			if (Platforms.Count == 0) return;
+
 
 			//todo let user choose device, also allow combination as it should work regardless, it is pretty good in parallelization
 			
