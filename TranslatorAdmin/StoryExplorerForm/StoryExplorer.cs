@@ -10,6 +10,7 @@
 		public readonly string StoryName;
 		private bool SettingsVisible = false;
 		private bool inInitialization = true;
+		public const string Version = "1.0.0.0";
 
 		public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
 		{
@@ -106,7 +107,7 @@
 		//todo more values and settings to change
 		//- base node colors?
 		//- single node colors
-		//- target speed?
+		//- target fps?
 		//todo add more info, maybe as list of values, treelist under info text
 		//todo add internal nodes visible button and setting
 		//todo add setting to allow only a set number/type of nodes
