@@ -5,12 +5,14 @@
 	{
 		private readonly ContextProvider Context;
 		private readonly GraphingEngine engine;
+		private readonly NodeProvider provider;
 		private readonly string parentName;
 		public readonly string FileName;
 		public readonly string StoryName;
 		private bool SettingsVisible = false;
 		private bool inInitialization = true;
 		public const string Version = "1.0.0.0";
+		public const string Title = "StoryExplorer v" + Version;
 
 		public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
 		{
@@ -24,13 +26,14 @@
 			DoubleBuffered = true;
 
 			//get contextprovider
-			Context = new ContextProvider(IsStory, AutoLoad, FileName, StoryName, cancellation);
-			engine = new GraphingEngine(Context, this, NodeInfoLabel);
+			provider = new();
+			Context = new(provider, IsStory, AutoLoad, FileName, StoryName, cancellation);
+			engine = new(provider, this, NodeInfoLabel);
 
 			this.StoryName = Context.StoryName;
 			this.FileName = Context.FileName;
 
-			Text = $"StoryExplorer - Loading";
+			Text = Title + " - Loading";
 
 			//add custom paint event handler to draw all nodes and edges
 			Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
@@ -42,6 +45,7 @@
 		}
 
 		internal GraphingEngine Grapher { get { return engine; } }
+		internal NodeProvider Provider{ get { return provider; } }
 
 		public string ParentName { get { return parentName; } }
 
@@ -49,22 +53,22 @@
 		{
 			if (singleFile)
 			{
-				Text = $"StoryExplorer - waiting";
+				Text = Title + " - waiting";
 				if (!Context.ParseFile() || Context.GotCancelled)
 				{
 					Close();
 				}
-				Text = $"StoryExplorer - {FileName}";
+				Text = Title + $" - {FileName}";
 			}
 			else
 			{
-				Text = $"StoryExplorer - waiting";
+				Text = Title + " - waiting";
 				//parse story, and not get cancelled xD
 				if (!Context.ParseAllFiles() || Context.GotCancelled)
 				{
 					Close();
 				}
-				Text = $"StoryExplorer - {StoryName}";
+				Text = Title + $" - {StoryName}";
 			}
 			inInitialization = false;
 			NodeCalculations.Text = "Calculation running";
@@ -91,7 +95,7 @@
 		private void Start_Click(object sender, EventArgs e)
 		{
 			NodeCalculations.Text = "Calculation running";
-			Grapher.Context.Layout.Start();
+			Context.Layout.Start();
 			NodeCalculations.Update();
 			NodeCalculations.Invalidate();
 		}
@@ -99,7 +103,7 @@
 		private void Stop_Click(object sender, EventArgs e)
 		{
 			NodeCalculations.Text = "Calculation stopped";
-			Grapher.Context.Layout.Stop();
+			Context.Layout.Stop();
 			NodeCalculations.Update();
 			NodeCalculations.Invalidate();
 		}

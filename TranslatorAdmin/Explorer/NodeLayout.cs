@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.Versioning;
 using Translator.Core;
 
@@ -16,11 +15,8 @@ namespace Translator.Explorer
 	}
 
 	[SupportedOSPlatform("windows")]
-	internal class NodeLayout
+	internal sealed class NodeLayout
 	{
-		private readonly List<Node> nodesA = new();
-		private readonly List<Node> nodesB = new();
-		private bool CalculatedListA = true;
 		private List<Vector2> NodeForces = new();
 		private DateTime StartTime = DateTime.MinValue;
 		private DateTime FrameStartTime = DateTime.MinValue;
@@ -28,21 +24,23 @@ namespace Translator.Explorer
 		public bool RunOverride = false;
 		private CancellationTokenSource cancellationToken = new();
 		private readonly CancellationToken outsideToken;
+		private readonly NodeProvider provider;
 		public int FrameCount { get; private set; }
 		public bool Finished => FrameCount > Nodes.Count * Nodes.Count && !RunOverride && Started;
 		public bool Started { get; private set; } = false;
 		public List<Node> Nodes
 		{
-			get { return CalculatedListA ? nodesA : nodesB; }
+			get { return provider.Nodes; }
 		}
 		private List<Node> Internal
 		{
-			get { return !CalculatedListA ? nodesA : nodesB; }
+			get { return provider.OtherNodes; }
 		}
 
-		public NodeLayout(CancellationToken cancellation)
+		public NodeLayout(NodeProvider provider, CancellationToken cancellation)
 		{
 			outsideToken = cancellation;
+			this.provider = provider;
 		}
 
 		public void Start()
@@ -77,21 +75,7 @@ namespace Translator.Explorer
 			{
 				FrameStartTime = FrameEndTime;
 				//sync nodes, initally in b
-				if (nodesA.Count != nodesB.Count)
-				{
-					if (CalculatedListA)
-					{
-						//changed amount is in a
-						nodesB.Clear();
-						nodesB.AddRange(nodesA);
-					}
-					else
-					{
-						//changed amount is in b
-						nodesA.Clear();
-						nodesA.AddRange(nodesB);
-					}
-				}
+				
 				//calculate
 				CalculatePositions();
 				CalculatePositions();
@@ -99,7 +83,7 @@ namespace Translator.Explorer
 				//we got to wait before we change nodes, so like a reverse lock?
 				while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
 				//switch to other list once done
-				CalculatedListA = !CalculatedListA;
+				provider.UsingListA = !provider.UsingListA;
 				++FrameCount;
 
 				//approx 40fps max as more is uneccesary and feels weird (25ms gives ~50fps, 30 gives about 45fps)

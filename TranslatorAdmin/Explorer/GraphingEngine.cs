@@ -15,7 +15,7 @@ namespace Translator.Explorer
 		private static float Nodesize => StoryExplorerConstants.Nodesize;
 		public const float ColorFactor = 0.7f;
 
-		public readonly ContextProvider Context;
+		public readonly NodeProvider Provider;
 
 		private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
 		private readonly Color DefaultMaleColor = Color.Coral;
@@ -68,9 +68,9 @@ namespace Translator.Explorer
 		private float OldMouseMovingPosX;
 		private float OldMouseMovingPosY;
 
-		public GraphingEngine(ContextProvider context, StoryExplorer explorer, Label nodeInfoLabel)
+		public GraphingEngine(NodeProvider provider, StoryExplorer explorer, Label nodeInfoLabel)
 		{
-			Context = context;
+			Provider = provider;
 			Explorer = explorer;
 			NodeInfoLabel = nodeInfoLabel;
 
@@ -257,15 +257,15 @@ namespace Translator.Explorer
 		{
 			DrewNodes = false;
 			//go on displaying graph
-			for (int i = 0; i < Context.Nodes.Count; i++)
+			for (int i = 0; i < Provider.Nodes.Count; i++)
 			{
 				//draw edges to children, default colour
-				for (int j = 0; j < Context.Nodes[i].ChildNodes.Count; j++)
+				for (int j = 0; j < Provider.Nodes[i].ChildNodes.Count; j++)
 				{
-					DrawEdge(g, Context.Nodes[i], Context.Nodes[i].ChildNodes[j]);
+					DrawEdge(g, Provider.Nodes[i], Provider.Nodes[i].ChildNodes[j]);
 				}
 
-				DrawColouredNode(g, Context.Nodes[i]);
+				DrawColouredNode(g, Provider.Nodes[i]);
 			}
 			DrewNodes = true;
 		}
@@ -588,7 +588,7 @@ namespace Translator.Explorer
 			ScreenToGraph(mouseLocation.X - Nodesize, mouseLocation.Y - Nodesize, out float mouseLeftX, out float mouseUpperY);
 			ScreenToGraph(mouseLocation.X + Nodesize, mouseLocation.Y + Nodesize, out float mouseRightX, out float mouseLowerY);
 
-			foreach (Node node in Context.Nodes)
+			foreach (Node node in Provider.Nodes)
 			{
 				if (mouseLowerY > node.Position.Y && mouseUpperY < node.Position.Y)
 				{

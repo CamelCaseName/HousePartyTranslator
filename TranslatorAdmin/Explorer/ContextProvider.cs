@@ -12,6 +12,7 @@ namespace Translator.Explorer
 	internal sealed class ContextProvider
 	{
 		private List<Node> CriteriaInFile = new();
+		private readonly NodeProvider provider;
 		private readonly bool IsStory;
 		private readonly Random Random = new();
 		public readonly string FileName = "character";
@@ -22,8 +23,9 @@ namespace Translator.Explorer
 		private readonly bool AutoFileSelection = false;
 		public readonly NodeLayout Layout;
 
-		public ContextProvider(bool IsStory, bool AutoSelectFile, string FileName, string StoryName, CancellationToken cancellation)
+		public ContextProvider(NodeProvider provider, bool IsStory, bool AutoSelectFile, string FileName, string StoryName, CancellationToken cancellation)
 		{
+			this.provider = provider;
 			_StoryFilePath = string.Empty;
 			this.IsStory = IsStory;
 			//set autoselect only if valid parameters are supplied
@@ -33,7 +35,7 @@ namespace Translator.Explorer
 				this.FileName = FileName;
 				this.StoryName = StoryName;
 			}
-			Layout = new NodeLayout(cancellation);
+			Layout = new NodeLayout(provider, cancellation);
 
 			if (((Settings)Settings.Default).StoryPath != string.Empty && AutoFileSelection)
 			{
@@ -115,7 +117,7 @@ namespace Translator.Explorer
 			}
 		}
 
-		public List<Node> Nodes => Layout.Nodes;
+		public List<Node> Nodes => provider.Nodes;
 
 		public bool ParseFile()
 		{
@@ -271,21 +273,6 @@ namespace Translator.Explorer
 				return Nodes;
 			}
 			return new();
-		}
-
-		public static List<Tuple<int, int>> GetEdges(List<Node> _nodes)
-		{
-			var returnList = new List<Tuple<int, int>>();
-
-			for (int i = 0; i < _nodes.Count; i++)
-			{
-				for (int j = 0; j < _nodes[i].ChildNodes.Count; j++)
-				{
-					returnList.Add(new Tuple<int, int>(i, _nodes.FindIndex(n => n == _nodes[i].ChildNodes[j])));
-				}
-			}
-
-			return returnList;
 		}
 
 		private void CalculateStartingPositions(List<Node> nodes)
