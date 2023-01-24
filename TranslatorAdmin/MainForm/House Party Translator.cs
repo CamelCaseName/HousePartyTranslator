@@ -833,7 +833,7 @@ namespace Translator
 			ProgressbarWindow.Status.Text = "Finishing startup";
 			TabManager.FinalizeInitializer();
 
-			Text = DataBase.AppTitle + " (StoryExplorer v)" + StoryExplorer.Version;
+			Text = DataBase.AppTitle;
 			ProgressbarWindow.PerformStep();
 
 			LogManager.Log("Application initializing...");

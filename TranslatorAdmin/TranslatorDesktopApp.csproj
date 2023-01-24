@@ -73,7 +73,7 @@
     <Compile Update="SettingsForm\SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="StoryExplorerForm\StoryExplorer.cs" />
+    <Compile Update="Explorer\StoryExplorer.cs" />
     <Compile Update="UIComponents\ColouredCheckedListBox.cs">
       <SubType>Component</SubType>
     </Compile>
