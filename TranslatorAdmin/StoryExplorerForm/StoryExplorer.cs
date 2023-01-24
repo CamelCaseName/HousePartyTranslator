@@ -110,7 +110,6 @@
 		//todo add more info, maybe as list of values, treelist under info text
 		//todo add internal nodes visible button and setting
 		//todo add setting to allow only a set number/type of nodes
-		//todo add dragging nodes around
 		private void IdealLength_ValueChanged(object sender, EventArgs e)
 		{
 			if (!inInitialization)
