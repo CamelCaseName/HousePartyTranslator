@@ -16,6 +16,7 @@ namespace Translator.Explorer
 		private readonly List<Node> nodesA = new();
 		private readonly List<Node> nodesB = new();
 		public bool UsingListA = true;
+		private bool frozen = false;
 
 		public List<Node> Nodes
 		{
@@ -48,6 +49,11 @@ namespace Translator.Explorer
 
 		public NodeProvider()
 		{
+		}
+
+		public void FreezeNodesAsInitial()
+		{
+			if (!frozen) InternalNodes = Nodes; frozen = true;
 		}
 	}
 }

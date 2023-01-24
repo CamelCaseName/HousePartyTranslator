@@ -73,6 +73,7 @@
 			inInitialization = false;
 			NodeCalculations.Text = "Calculation running";
 
+			provider.FreezeNodesAsInitial();
 			Context.Layout.Start();
 		}
 
