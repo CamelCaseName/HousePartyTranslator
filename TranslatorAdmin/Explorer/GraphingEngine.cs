@@ -363,7 +363,9 @@ namespace Translator.Explorer
 				GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
 				GraphToScreen(node2.Position.X, node2.Position.Y, out float x2, out float y2);
 
-				if ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) || (x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin))
+				if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > 10 &&
+					((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
+					(x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin)))
 				{
 					//any is visible
 					ColorPen.Color = color;
