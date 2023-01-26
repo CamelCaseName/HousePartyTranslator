@@ -25,12 +25,7 @@ namespace Translator.Explorer
 		private readonly Color DefaultMovingNodeColor = Color.CadetBlue;
 		private readonly Color DefaultInfoNodeColor = Color.ForestGreen;
 
-		private readonly SolidBrush NodeBrush;
-		private readonly SolidBrush FemaleNodeBrush;
-		private readonly SolidBrush MaleNodeBrush;
-		private readonly SolidBrush QuestNodeBrush;
 		private readonly SolidBrush ColorBrush;
-		private readonly Pen DefaultPen;
 		private readonly Pen ColorPen;
 
 		private static float Xmax => App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
@@ -74,13 +69,8 @@ namespace Translator.Explorer
 			Explorer = explorer;
 			NodeInfoLabel = nodeInfoLabel;
 
-			NodeBrush = new SolidBrush(DefaultColor);
-			FemaleNodeBrush = new SolidBrush(DefaultFemaleColor);
-			MaleNodeBrush = new SolidBrush(DefaultMaleColor);
-			QuestNodeBrush = new SolidBrush(DefaultQuestColor);
 			ColorBrush = new SolidBrush(DefaultColor);
-			DefaultPen = new Pen(DefaultEdgeColor, 3f);
-			ColorPen = new Pen(DefaultEdgeColor, 3f);
+			ColorPen = new Pen(DefaultEdgeColor, 2f) { EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor, StartCap = System.Drawing.Drawing2D.LineCap.Round };
 
 			ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
 			ClickedNodeChanged += new ClickedNodeChangedHandler(DisplayNodeInfoHandler);
@@ -331,42 +321,12 @@ namespace Translator.Explorer
 
 		private void DrawColouredNode(Graphics g, Node node)
 		{
-			//dont draw node if it is too far away
-			GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
-			if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
-			{
-				//todo replace filter by a prefiltered list, maybe do two seperate compination methods
-				if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
-				{
-					g.FillEllipse(
-						BrushFromNode(node),
-						node.Position.X - Nodesize / 2,
-						node.Position.Y - Nodesize / 2,
-						Nodesize,
-						Nodesize
-						);
-				}
-			}
+			DrawColouredNode(g, node, ColorFromNode(node));
 		}
 
 		private void DrawColouredNode(Graphics g, Node node, Color color)
 		{
-			//dont draw node if it is too far away
-			GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
-			if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
-			{
-				if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
-				{
-					ColorBrush.Color = color;
-					g.FillEllipse(
-						ColorBrush,
-						node.Position.X - Nodesize / 2,
-						node.Position.Y - Nodesize / 2,
-						Nodesize,
-						Nodesize
-						);
-				}
-			}
+			DrawColouredNode(g, node, color, 1f);
 		}
 
 		private void DrawColouredNode(Graphics g, Node node, Color color, float scale)
@@ -391,25 +351,7 @@ namespace Translator.Explorer
 
 		internal void DrawEdge(Graphics g, Node node1, Node node2)
 		{
-			if (InternalNodesVisible || node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
-			{
-				//dont draw node if it is too far away
-				GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
-				GraphToScreen(node2.Position.X, node2.Position.Y, out float x2, out float y2);
-
-				if ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) || (x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin))
-				{
-					//any is visible
-					g.DrawLine(
-						DefaultPen,
-						node1.Position.X,
-						node1.Position.Y,
-						node2.Position.X,
-						node2.Position.Y
-						);
-				}
-				//none are visible, why draw?
-			}
+			DrawEdge(g, node1, node2, DefaultEdgeColor);
 		}
 
 		internal void DrawEdge(Graphics g, Node node1, Node node2, Color color)
@@ -424,6 +366,7 @@ namespace Translator.Explorer
 				{
 					//any is visible
 					ColorPen.Color = color;
+					//todo adjust edge offsets to only touch the nodes in future?
 					g.DrawLine(
 						ColorPen,
 						node1.Position.X,
@@ -438,13 +381,7 @@ namespace Translator.Explorer
 
 		internal void DrawEdges(Graphics g, List<Node> nodes)
 		{
-			var points = PointPool.Rent(nodes.Count);
-			for (int i = 0; i < nodes.Count; i++)
-			{
-				points[i] = nodes[i].Position;
-			}
-			g.DrawLines(DefaultPen, points);
-			PointPool.Return(points);
+			DrawEdges(g, nodes, DefaultColor);
 		}
 
 		internal void DrawEdges(Graphics g, List<Node> nodes, Color color)
@@ -528,7 +465,7 @@ namespace Translator.Explorer
 				//highlight other nodes
 				for (int i = 0; i < node.ParentNodes.Count; i++)
 				{
-					DrawEdge(g, node, node.ParentNodes[i], edgeColor);
+					DrawEdge(g, node.ParentNodes[i], node, edgeColor);
 
 				}
 				for (int i = 0; i < node.ChildNodes.Count; i++)
@@ -541,14 +478,14 @@ namespace Translator.Explorer
 			DrawColouredNode(g, node, nodeColor);
 		}
 
-		private SolidBrush BrushFromNode(Node node)
+		private Color ColorFromNode(Node node)
 		{
 			return node.Gender switch
 			{
-				Gender.None => node.Type == NodeType.Quest ? QuestNodeBrush : NodeBrush,
-				Gender.Female => FemaleNodeBrush,
-				Gender.Male => MaleNodeBrush,
-				_ => NodeBrush,
+				Gender.None => node.Type == NodeType.Quest ? DefaultQuestColor : DefaultColor,
+				Gender.Female => DefaultFemaleColor,
+				Gender.Male => DefaultMaleColor,
+				_ => DefaultColor,
 			};
 		}
 
