@@ -1,9 +1,7 @@
-﻿using Silk.NET.Core.Contexts;
-using Silk.NET.OpenCL;
-using System.Diagnostics;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Runtime.Versioning;
 using Translator.Core;
+using Translator.Explorer.OpenCL;
 
 namespace Translator.Explorer
 {
@@ -18,7 +16,7 @@ namespace Translator.Explorer
 	}
 
 	[SupportedOSPlatform("windows")]
-	internal unsafe sealed class NodeLayout
+	internal sealed class NodeLayout
 	{
 		private List<Vector2> NodeForces = new();
 		private DateTime StartTime = DateTime.MinValue;
@@ -27,12 +25,9 @@ namespace Translator.Explorer
 		public bool RunOverride = false;
 		private CancellationTokenSource cancellationToken = new();
 		private readonly CancellationToken outsideToken;
+		private readonly OpenCLManager opencl;
 		private readonly NodeProvider provider;
-		private readonly CL _cl;
-		private readonly INativeContext _context;
-		private readonly Dictionary<nint, (nint deviceId, string platformName)> Platforms = new();
-		nint preselectedPlatform = 0;
-		private nint _selectedDevice;
+		private readonly Action LayoutCalculation;
 		public int FrameCount { get; private set; }
 		public bool Finished => FrameCount > Nodes.Count * Nodes.Count && !RunOverride && Started;
 		public bool Started { get; private set; } = false;
@@ -50,92 +45,14 @@ namespace Translator.Explorer
 			outsideToken = cancellation;
 			this.provider = provider;
 
-			//opencl stuff
-			//get api and context
-			_cl = CL.GetApi();
-			_context = _cl.Context;
-
-			//get platform
-			FindOpenCLPlatforms();
-			//just do the old way if we have no opencl
-			if (Platforms.Count == 0) return;
-
-
-			//todo let user choose device, also allow combination as it should work regardless, it is pretty good in parallelization
-			
-			//build program
-			string kernelText = File.ReadAllText(".\\opencl\\layout.cl");
-			var program = _cl.CreateProgramWithSource(_context.GetProcAddress("", 0), 1, new[] { kernelText }, null, out int err);
-			if (err != 0) Debug.WriteLine($"err is {err}");
-			err = _cl.BuildProgram(program, 1, new[] { _selectedDevice }, Array.Empty<byte>(), null, null);
-			//get build status as it is not in the error
-			BuildStatus status;
-			//todo see docs for datatypes returned
-			//status = _cl.GetProgramBuildInfo(program, _selectedDevice, ProgramBuildInfo.BuildStatus, out err);
-			//if (status != BuildStatus.Success)
-			//{
-			//	var log = _cl.GetProgramBuildInfo(program, _dev_selectedDeviceice, ProgramBuildInfo.BuildLog, out err);
-			//}
-		}
-
-		private void FindOpenCLPlatforms()
-		{
-			_ = _cl.GetPlatformIDs(0, null, out uint platformCount);
-			nint[] _platforms = new nint[platformCount];
-			Debug.WriteLine($"Found {platformCount} opencl platforms");
-			_ = _cl.GetPlatformIDs(platformCount, _platforms, Array.Empty<uint>());
-
-			//get devices
-			//platform id is key
-			nuint maxValue = 0;
-			for (int i = 0; i < platformCount; i++)
+			LayoutCalculation = () => CalculateForceDirectedLayout(cancellationToken.Token);
+			opencl = new();
+			if (opencl.OpenCLDevicePresent)
 			{
-				//get length/size of name
-				_ = _cl.GetPlatformInfo(_platforms[i], PlatformInfo.Name, 0, null, out nuint NameLength);
-				sbyte[] platformName = new sbyte[NameLength + 1];
-				//get platform name
-				string platformNameString = string.Empty;
-				fixed (sbyte* s = platformName)
-				{
-					_ = _cl.GetPlatformInfo(_platforms[i], PlatformInfo.Name, NameLength, s, out _);
-					platformNameString = new(s);
-					Debug.WriteLine($"    Platform: {platformNameString}");
-				}
-				//get device count
-				_ = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, 0, null, out uint deviceCount);
-				Debug.WriteLine($"        this platform has: {deviceCount} opencl devices");
-				var _devices = new nint[deviceCount];
-				//get devices
-				_ = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, deviceCount, _devices, Array.Empty<uint>());
-				//find device with most power, opencl compute units
-				for (int k = 0; k < deviceCount; k++)
-				{
-					nuint maxComputeUnits = 0;
-					_ = _cl.GetDeviceInfo(_devices[k], DeviceInfo.MaxWorkGroupSize, (nuint)sizeof(nuint), &maxComputeUnits, out _);
-
-					//get length/size of name
-					_ = _cl.GetDeviceInfo(_devices[k], DeviceInfo.Name, 0, null, out nuint DeviceNameLength);
-					sbyte[] deviceName = new sbyte[DeviceNameLength + 1];
-					//get device name
-					fixed (sbyte* s = deviceName)
-					{
-						_ = _cl.GetDeviceInfo(_devices[k], DeviceInfo.Name, NameLength, &s, out _);
-						string deviceNamestring = new(s);
-						Debug.WriteLine($"            {deviceNamestring} with {maxComputeUnits} workgroupsize");
-						if (maxComputeUnits > maxValue)
-						{
-							Debug.WriteLine("        >>>>chose the one above");
-							maxValue = maxComputeUnits;
-							preselectedPlatform = _platforms[i];
-							Platforms.Add(_platforms[i], (_devices[k], platformNameString));
-							_selectedDevice = _devices[k];
-						}
-					}
-				}
+				LayoutCalculation = () => { CalculateForceDirectedLayout(cancellationToken.Token); /*add opencl calculation method here*/ };
 			}
-			//now we should have the best device
-			Debug.WriteLine($"suggested device {Platforms[preselectedPlatform].platformName}");
 		}
+
 
 		public void Start()
 		{
@@ -146,7 +63,7 @@ namespace Translator.Explorer
 				StartTime = DateTime.Now;
 				LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
 				Started = true;
-				_ = Task.Run(() => CalculateForceDirectedLayout(cancellationToken.Token), cancellationToken.Token);
+				_ = Task.Run(LayoutCalculation, cancellationToken.Token);
 			}
 		}
 
@@ -189,7 +106,6 @@ namespace Translator.Explorer
 			Stop();
 		}
 
-		//todo move to gpu with opencl
 		private void CalculatePositions()
 		{
 			for (int i = 0; i < NodeForces.Count; i++)
