@@ -54,7 +54,7 @@ namespace Translator.Explorer
 		private bool MovingANode = false;
 		public bool DrewNodes = false;
 		public bool InternalNodesVisible = true;
-		private readonly List<Node> DrawnHighlightNodes = new();
+		private HashSet<Node> NodesHighlighted = new();
 		private Cursor priorCursor = Cursors.Default;
 
 		private float Scaling = 0.3f;
@@ -68,6 +68,7 @@ namespace Translator.Explorer
 			Provider = provider;
 			Explorer = explorer;
 			NodeInfoLabel = nodeInfoLabel;
+			NodesHighlighted = new(Provider.Nodes.Count);
 
 			ColorBrush = new SolidBrush(DefaultColor);
 			ColorPen = new Pen(DefaultEdgeColor, 2f) { EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor, StartCap = System.Drawing.Drawing2D.LineCap.Round };
@@ -398,25 +399,44 @@ namespace Translator.Explorer
 
 		private void DrawHighlightNodeTree(Graphics g)
 		{
-			DrawnHighlightNodes.Clear();
+
 			if (HighlightedNode != Node.NullNode)
 			{
+				if (Provider.Nodes.Count != NodesHighlighted.Count) NodesHighlighted = new(Provider.Nodes.Count);
+
+				//then redraw node itself
+				DrawColouredNode(g, HighlightedNode, Color.White, 1.7f);
 				//then childs
-				DrawNodeSet(
+				DrawHighlightNodeSet(
 					g,
 					HighlightedNode,
 					0,
 					StoryExplorerConstants.ColoringDepth,
 					Rainbow(0),
-					Rainbow(0.1f));
+					RainbowEdge(0));
 
-				//then redraw node itself
-				DrawColouredNode(g, HighlightedNode, Color.White, 2f);
 				Explorer.Invalidate();
 			}
 		}
 
 		public static Color Rainbow(float progress)
+		{
+			float div = (Math.Abs(progress % 1) * 6);
+			int ascending = (int)((div % 1) * 255);
+			int descending = 255 - ascending;
+
+			return (int)div switch
+			{
+				0 => Color.FromArgb(255, 255, ascending, 127),
+				1 => Color.FromArgb(255, descending, 255, 127),
+				2 => Color.FromArgb(255, 127, 255, ascending),
+				3 => Color.FromArgb(255, 127, descending, 255),
+				4 => Color.FromArgb(255, ascending, 127, 255),
+				// case 5:
+				_ => Color.FromArgb(255, 255, 127, descending),
+			};
+		}
+		public static Color RainbowEdge(float progress)
 		{
 			float div = (Math.Abs(progress % 1) * 6);
 			int ascending = (int)((div % 1) * 255);
@@ -442,40 +462,39 @@ namespace Translator.Explorer
 			}
 		}
 
-		private void DrawNodeSet(Graphics g, Node node, int depth, int maxDepth, Color nodeColor, Color edgeColor)
+		private void DrawHighlightNodeSet(Graphics g, Node node, int depth, int maxDepth, Color nodeColor, Color edgeColor)
 		{
-			DrawnHighlightNodes.Add(node);
+			NodesHighlighted.Add(node);
+
+			//draw node 
+			if (depth != 0) DrawColouredNode(g, node, nodeColor);
 
 			if (depth++ < maxDepth)
 			{
 				for (int i = 0; i < node.ParentNodes.Count; i++)
 				{
-					if (!DrawnHighlightNodes.Contains(node.ParentNodes[i]))
+					if (!NodesHighlighted.Contains(node.ParentNodes[i]))
 					{
-						DrawNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)(maxDepth - depth) / maxDepth), Rainbow((float)depth / (maxDepth + 1)));
+						DrawHighlightNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)depth / 10), RainbowEdge((float)depth / (14)));
 					}
 				}
 				for (int i = 0; i < node.ChildNodes.Count; i++)
 				{
-					if (!DrawnHighlightNodes.Contains(node.ChildNodes[i]))
+					if (!NodesHighlighted.Contains(node.ChildNodes[i]))
 					{
-						DrawNodeSet(g, node.ChildNodes[i], depth, maxDepth, Rainbow((float)depth / maxDepth), Rainbow((float)depth / (maxDepth + 1)));
+						DrawHighlightNodeSet(g, node.ChildNodes[i], depth, maxDepth, Rainbow((float)depth / 10), RainbowEdge((float)depth / (14)));
 					}
 				}
 				//highlight other nodes
 				for (int i = 0; i < node.ParentNodes.Count; i++)
 				{
 					DrawEdge(g, node.ParentNodes[i], node, edgeColor);
-
 				}
 				for (int i = 0; i < node.ChildNodes.Count; i++)
 				{
 					DrawEdge(g, node, node.ChildNodes[i], edgeColor);
-
 				}
 			}
-			//draw node over line
-			DrawColouredNode(g, node, nodeColor);
 		}
 
 		private Color ColorFromNode(Node node)
