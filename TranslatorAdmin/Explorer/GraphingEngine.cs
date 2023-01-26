@@ -543,14 +543,14 @@ namespace Translator.Explorer
 		private Node GetClickedNode(Point mouseLocation)
 		{
 			//handle position input
-			ScreenToGraph(mouseLocation.X - Nodesize, mouseLocation.Y - Nodesize, out float mouseLeftX, out float mouseUpperY);
-			ScreenToGraph(mouseLocation.X + Nodesize, mouseLocation.Y + Nodesize, out float mouseRightX, out float mouseLowerY);
+			ScreenToGraph(mouseLocation.X, mouseLocation.Y, out float mouseLeftX, out float mouseUpperY);
+			ScreenToGraph(mouseLocation.X, mouseLocation.Y, out float mouseRightX, out float mouseLowerY);
 
 			foreach (Node node in Provider.Nodes)
 			{
-				if (mouseLowerY > node.Position.Y && mouseUpperY < node.Position.Y)
+				if (mouseLowerY > node.Position.Y - (Nodesize / 2) && mouseUpperY < node.Position.Y + (Nodesize / 2))
 				{
-					if (mouseRightX > node.Position.X && mouseLeftX < node.Position.X)
+					if (mouseRightX < node.Position.X + (Nodesize / 2) && mouseLeftX > node.Position.X - (Nodesize / 2))
 					{
 						if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
 						{
