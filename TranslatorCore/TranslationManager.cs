@@ -387,8 +387,8 @@ namespace Translator.Core
 					if (t >= 0)
 					{
 						SelectedResultIndex = t;
-						int TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(SearchQuery);
-						if (TemplateTextQueryLocation > 0)
+						int TemplateTextQueryLocation = TabUI.TemplateBoxText.ToLowerInvariant().IndexOf(SearchQuery.ToLowerInvariant());
+						if (TemplateTextQueryLocation >= 0)
 						{
 							TabUI.Template.HighlightStart = TemplateTextQueryLocation;
 							TabUI.Template.HighlightEnd = TemplateTextQueryLocation + SearchQuery.Length;
@@ -396,8 +396,12 @@ namespace Translator.Core
 						}
 						else
 						{
-							TabUI.Template.ShowHighlight = true;
+							TabUI.Template.ShowHighlight = false;
 						}
+					}
+					else
+					{
+						TabUI.Template.ShowHighlight = false;
 					}
 				}
 			}
