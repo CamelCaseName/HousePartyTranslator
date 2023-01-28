@@ -1,5 +1,4 @@
-﻿using System.Xml.Linq;
-using Translator.Explorer.JSON;
+﻿using Translator.Explorer.JSON;
 using static Translator.Explorer.JSON.StoryEnums;
 
 namespace Translator.Explorer
@@ -38,7 +37,7 @@ namespace Translator.Explorer
 		public bool ChildsVisited = false;
 		public Guid Guid = Guid.NewGuid();
 		public string ID;
-		public Gender Gender = Gender.None;//1 is female, 0 is male only
+		public Gender Gender = Gender.None;
 		public int Mass = 1;
 		public List<Node> ParentNodes;
 		public bool ParentsVisited = false;
@@ -48,6 +47,8 @@ namespace Translator.Explorer
 		public bool Visited = false;
 		public string FileName = string.Empty;
 		public bool IsPositionLocked = false;
+		public object? Data = null;
+		public Type DataType = typeof(object);
 
 		public Node(string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
 		{

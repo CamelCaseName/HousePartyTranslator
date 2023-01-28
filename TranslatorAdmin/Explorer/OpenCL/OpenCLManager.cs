@@ -10,9 +10,11 @@ internal unsafe sealed class OpenCLManager
 	private readonly CL _cl;
 	private readonly Dictionary<nint, (nint deviceId, string platformName)> Platforms = new();//key is pointer to platform
 	private readonly string DeviceName = string.Empty;
-	private readonly nint _context;//pointer to context
-	private readonly nint _commandQueue;//pointer to commandqueue for our selected device
-	private readonly nint _device;
+	private string KernelName= string.Empty;
+	private nint _context;//pointer to context
+	private nint _commandQueue;//pointer to commandqueue for our selected device
+	private nint _device;
+	private nint _program;
 	private readonly nint _kernel;
 	public bool OpenCLDevicePresent = false;
 
@@ -31,7 +33,17 @@ internal unsafe sealed class OpenCLManager
 		_device = SelectDevice();
 		DeviceName = Platforms[SelectedPlatform].platformName;
 
-		//get context with selected devices
+		//create contet, program and build it on the selected device
+		CreateProgram();
+
+		//success, we can go on creating the kernel
+		_kernel = _cl.CreateKernel(_program, KernelName, out int err);
+		Debug.Assert(err == 0);
+
+	}
+
+	private void CreateProgram()
+	{//get context with selected devices
 		_context = _cl.CreateContext(null, 1, _device, null, null, out int err);
 		Debug.Assert(err == 0);
 
@@ -41,29 +53,24 @@ internal unsafe sealed class OpenCLManager
 
 		//build program
 		string KernelCode = Kernels.TestKernel;
-		string kernelName = nameof(Kernels.TestKernel);
+		KernelName = nameof(Kernels.TestKernel);
 		nuint KernelCodeLength = (nuint)(KernelCode.Length * 2);
-		nint program = _cl.CreateProgramWithSource(_context, 1, new string[] { KernelCode }, &KernelCodeLength , out err);
+		_program = _cl.CreateProgramWithSource(_context, 1, new string[] { KernelCode }, &KernelCodeLength, out err);
 		Debug.Assert(err == 0);
 
 		//get build status as it is not in the error
 		nint pdevice = _device;
-		int status = _cl.BuildProgram(program, 1, &pdevice, 0, null, null);
+		int status = _cl.BuildProgram(_program, 1, &pdevice, 0, null, null);
 		if (status != 0)
 		{
-			_cl.GetProgramBuildInfo(program, _device, ProgramBuildInfo.BuildLog, 0, null, out nuint logSize);
+			_cl.GetProgramBuildInfo(_program, _device, ProgramBuildInfo.BuildLog, 0, null, out nuint logSize);
 			sbyte[] log = new sbyte[logSize];
 			fixed (sbyte* plog = log)
 			{
-				_cl.GetProgramBuildInfo(program, _device, ProgramBuildInfo.BuildLog, logSize, plog, null);
+				_cl.GetProgramBuildInfo(_program, _device, ProgramBuildInfo.BuildLog, logSize, plog, null);
 				LogManager.Log($"kernel build failed on {DeviceName}: \n" + new string(plog), LogManager.Level.Error);
 			}
 		}
-
-		//success, we can go on creating the kernel
-		_kernel = _cl.CreateKernel(program, kernelName, out err);
-		Debug.Assert(err == 0);
-
 	}
 
 	private nint SelectDevice() { SelectedPlatform = preselectedPlatform; return Platforms[preselectedPlatform].deviceId; }

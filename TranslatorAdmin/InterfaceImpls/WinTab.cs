@@ -29,7 +29,7 @@ namespace TranslatorApp.InterfaceImpls
 		private readonly Panel panel2 = new();
 		private readonly TableLayoutPanel mainTableLayoutPanel = new();
 		private readonly WinTextBox CommentTextBox = new();
-		private readonly WinTextBox TemplateTextBox = new();
+		private readonly WinTextBox TemplateTextBox= new();
 		private readonly WinTextBox TranslationTextBox = new();
 		private readonly WinMenuItem CopyAllContextMenuButton = new();
 		private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
