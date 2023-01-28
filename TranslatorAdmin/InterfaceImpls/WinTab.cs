@@ -72,10 +72,10 @@ namespace TranslatorApp.InterfaceImpls
 			TranslationTextBox.Name = "TranslationTextBox";
 			TranslationTextBox.Size = new Size(678, 275);
 			TranslationTextBox.TabIndex = 0;
-			TranslationTextBox.Text = "edit here";
 			TranslationTextBox.TextChanged += new EventHandler(MainForm.TextBoxRight_TextChanged);
 			TranslationTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
 			TranslationTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
+			TranslationTextBox.PlaceholderText= "Translation goes here";
 			// 
 			// AutoTranslateThis
 			// 
@@ -102,7 +102,7 @@ namespace TranslatorApp.InterfaceImpls
 			TemplateTextBox.ReadOnly = true;
 			TemplateTextBox.Size = new Size(678, 255);
 			TemplateTextBox.TabIndex = 9;
-			TemplateTextBox.Text = "Lorem ipsum dolor sit amed";
+			TemplateTextBox.PlaceholderText = "Template will be here";
 			// 
 			// CommentTextBox
 			// 
@@ -118,6 +118,7 @@ namespace TranslatorApp.InterfaceImpls
 			CommentTextBox.TextChanged += new EventHandler(MainForm.Comments_TextChanged);
 			CommentTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
 			CommentTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
+			CommentTextBox.PlaceholderText = "No comments yet";
 			// 
 			// CharacterCountLabel
 			// 
@@ -385,6 +386,12 @@ namespace TranslatorApp.InterfaceImpls
 				Update();
 			}
 		}
+
+		public ITextBox Translation => TranslationTextBox;
+
+		public ITextBox Template => TemplateTextBox;
+
+		public ITextBox Comments => CommentTextBox;
 
 		public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
 		public WinLineItem AtIndex(int index) => CheckListBoxLeft[index];

@@ -384,7 +384,21 @@ namespace Translator.Core
 
 					//renew search result if possible
 					int t = TabUI.Lines.SearchResults.IndexOf(SelectedId);
-					if (t >= 0) { SelectedResultIndex = t; }
+					if (t >= 0)
+					{
+						SelectedResultIndex = t;
+						int TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(SearchQuery);
+						if (TemplateTextQueryLocation > 0)
+						{
+							TabUI.Template.HighlightStart = TemplateTextQueryLocation;
+							TabUI.Template.HighlightEnd = TemplateTextQueryLocation + SearchQuery.Length;
+							TabUI.Template.ShowHighlight = true;
+						}
+						else
+						{
+							TabUI.Template.ShowHighlight = true;
+						}
+					}
 				}
 			}
 			else
