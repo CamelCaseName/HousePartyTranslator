@@ -1,18 +1,22 @@
 ﻿namespace Translator.Explorer.Window
 {
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
-	public partial class StoryExplorer : Form
+	internal partial class StoryExplorer : Form
 	{
 		private readonly ContextProvider Context;
 		private readonly GraphingEngine engine;
-		private readonly NodeProvider provider;
 		private readonly string parentName;
 		public readonly string FileName;
 		public readonly string StoryName;
 		private bool SettingsVisible = false;
 		private bool inInitialization = true;
-		public const string Version = "1.0.0.0";
+		public const string Version = "1.0.1.0";
 		public const string Title = "StoryExplorer v" + Version;
+		private readonly CancellationToken token;
+		public NodeLayout? Layouter { get; private set; }
+		internal GraphingEngine Grapher { get { return engine; } }
+		internal NodeProvider Provider { get; }
+		public string ParentName { get { return parentName; } }
 
 		public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
 		{
@@ -26,9 +30,9 @@
 			DoubleBuffered = true;
 
 			//get contextprovider
-			provider = new();
-			Context = new(provider, IsStory, AutoLoad, FileName, StoryName, cancellation);
-			engine = new(provider, this, NodeInfoLabel);
+			Provider = new();
+			Context = new(Provider, IsStory, AutoLoad, FileName, StoryName);
+			engine = new(Provider, this, NodeInfoLabel);
 
 			this.StoryName = Context.StoryName;
 			this.FileName = Context.FileName;
@@ -39,18 +43,15 @@
 			Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
 			FormClosing += new FormClosingEventHandler(SaveNodes);
 
-			ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = TranslatorApp.Properties.Settings.Default.ColoringDepth;
-			IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = TranslatorApp.Properties.Settings.Default.IdealLength);
+			ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Translator.Properties.Settings.Default.ColoringDepth;
+			IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Translator.Properties.Settings.Default.IdealLength);
 			NodeSizeField.Value = StoryExplorerConstants.Nodesize;
+			token = cancellation;
 		}
-
-		internal GraphingEngine Grapher { get { return engine; } }
-		internal NodeProvider Provider{ get { return provider; } }
-
-		public string ParentName { get { return parentName; } }
 
 		public void Initialize(bool singleFile)
 		{
+			Layouter = new(Provider, this, token);
 			if (singleFile)
 			{
 				Text = Title + " - waiting";
@@ -73,14 +74,20 @@
 			inInitialization = false;
 			NodeCalculations.Text = "Calculation running";
 
-			provider.FreezeNodesAsInitial();
-			Context.Layout.Start();
+			Provider.FreezeNodesAsInitial();
+			Layouter.Start();
+		}
+
+		public void SaveNodes()
+		{
+			Layouter?.Stop();
+			_ = Context.SaveNodes(Provider.Nodes);
 		}
 
 		private void SaveNodes(object? sender, FormClosingEventArgs? e)
 		{
-			Context.SaveNodes();
-			TranslatorApp.Properties.Settings.Default.Save();
+			_ = Context.SaveNodes(Provider.Nodes);
+			Translator.Properties.Settings.Default.Save();
 		}
 
 		private void HandleKeyBoard(object sender, KeyEventArgs e)
@@ -96,7 +103,7 @@
 		private void Start_Click(object sender, EventArgs e)
 		{
 			NodeCalculations.Text = "Calculation running";
-			Context.Layout.Start();
+			Layouter?.Start();
 			NodeCalculations.Update();
 			NodeCalculations.Invalidate();
 		}
@@ -104,7 +111,7 @@
 		private void Stop_Click(object sender, EventArgs e)
 		{
 			NodeCalculations.Text = "Calculation stopped";
-			Context.Layout.Stop();
+			Layouter?.Stop();
 			NodeCalculations.Update();
 			NodeCalculations.Invalidate();
 		}
@@ -122,7 +129,7 @@
 			if (!inInitialization)
 			{
 				StoryExplorerConstants.IdealLength = IdealLength.Value > 1 && IdealLength.Value < IdealLength.Maximum ? (float)IdealLength.Value : StoryExplorerConstants.IdealLength;
-				TranslatorApp.Properties.Settings.Default.IdealLength = (float)IdealLength.Value;
+				Translator.Properties.Settings.Default.IdealLength = (float)IdealLength.Value;
 			}
 
 		}
@@ -132,7 +139,7 @@
 			if (!inInitialization)
 			{
 				StoryExplorerConstants.ColoringDepth = ColoringDepth.Value > 1 && ColoringDepth.Value < ColoringDepth.Maximum ? (int)ColoringDepth.Value : StoryExplorerConstants.ColoringDepth;
-				TranslatorApp.Properties.Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
+				Translator.Properties.Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
 			}
 		}
 

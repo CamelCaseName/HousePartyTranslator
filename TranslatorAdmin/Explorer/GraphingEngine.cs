@@ -2,10 +2,10 @@
 using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
-using TranslatorApp.Managers;
+using Translator.Managers;
 using static Translator.Explorer.JSON.StoryEnums;
-using Settings = TranslatorApp.InterfaceImpls.WinSettings;
-using TabManager = Translator.Core.TabManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
+using Settings = Translator.InterfaceImpls.WinSettings;
+using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
 
 namespace Translator.Explorer
 {
@@ -390,7 +390,7 @@ namespace Translator.Explorer
 		internal void DrawEdges(Graphics g, List<Node> nodes, Color color)
 		{
 			ColorPen.Color = color;
-			var points = PointPool.Rent(nodes.Count);
+			PointF[] points = PointPool.Rent(nodes.Count);
 			for (int i = 0; i < nodes.Count; i++)
 			{
 				points[i] = nodes[i].Position;
@@ -467,7 +467,7 @@ namespace Translator.Explorer
 
 		private void DrawHighlightNodeSet(Graphics g, Node node, int depth, int maxDepth, Color nodeColor, Color edgeColor)
 		{
-			NodesHighlighted.Add(node);
+			_ = NodesHighlighted.Add(node);
 
 			//draw node 
 			if (depth != 0) DrawColouredNode(g, node, nodeColor);

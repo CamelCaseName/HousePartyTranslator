@@ -1,11 +1,9 @@
 ﻿using Silk.NET.OpenCL;
 using System.Diagnostics;
 using Translator.Core;
-using Translator.Explorer.Window;
-using TranslatorDesktopApp.Explorer.OpenCL;
 
 namespace Translator.Explorer.OpenCL;
-internal unsafe sealed class OpenCLManager
+internal sealed unsafe class OpenCLManager
 {
 	private nint preselectedPlatform = 0;//pointer to preselected platform
 	private nint SelectedPlatform = 0;
@@ -19,9 +17,11 @@ internal unsafe sealed class OpenCLManager
 	private nint _program;
 	private readonly nint _kernel;
 	public bool OpenCLDevicePresent = false;
+	private readonly Form parent;
 
-	public OpenCLManager()
+	public OpenCLManager(Form parent)
 	{
+		this.parent = parent;
 		//get api and context
 		_cl = CL.GetApi();
 
@@ -31,7 +31,6 @@ internal unsafe sealed class OpenCLManager
 		if (Platforms.Count == 0) return;
 		OpenCLDevicePresent = true;
 
-		//todo let user choose device/platform
 		_device = SelectDevice();
 		if (_device == nint.Zero) return;
 
@@ -43,7 +42,6 @@ internal unsafe sealed class OpenCLManager
 		//success, we can go on creating the kernel
 		_kernel = _cl.CreateKernel(_program, KernelName, out int err);
 		Debug.Assert(err == 0);
-
 	}
 
 	private void CreateProgram()
@@ -67,11 +65,11 @@ internal unsafe sealed class OpenCLManager
 		int status = _cl.BuildProgram(_program, 1, &pdevice, 0, null, null);
 		if (status != 0)
 		{
-			_cl.GetProgramBuildInfo(_program, _device, ProgramBuildInfo.BuildLog, 0, null, out nuint logSize);
+			_ = _cl.GetProgramBuildInfo(_program, _device, ProgramBuildInfo.BuildLog, 0, null, out nuint logSize);
 			sbyte[] log = new sbyte[logSize];
 			fixed (sbyte* plog = log)
 			{
-				_cl.GetProgramBuildInfo(_program, _device, ProgramBuildInfo.BuildLog, logSize, plog, null);
+				_ = _cl.GetProgramBuildInfo(_program, _device, ProgramBuildInfo.BuildLog, logSize, plog, null);
 				LogManager.Log($"kernel build failed on {DeviceName}: \n" + new string(plog), LogManager.Level.Error);
 			}
 		}
@@ -88,8 +86,8 @@ internal unsafe sealed class OpenCLManager
 			platformIds[i] = Platforms.Keys.ElementAt(i);
 		}
 		//get selection from user
-		var selector = new DeviceSelection(deviceNames);
-		var result = selector.ShowDialog();
+		var selector = new DeviceSelection(deviceNames, Platforms[preselectedPlatform].platformName);
+		DialogResult result = selector.ShowDialog(parent);
 		if (result == DialogResult.Cancel) return nint.Zero;
 
 		//work with it
@@ -129,7 +127,7 @@ internal unsafe sealed class OpenCLManager
 			err = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, 0, null, out uint deviceCount);
 			Debug.Assert(err == 0);
 			Debug.WriteLine($"        this platform has: {deviceCount} opencl devices");
-			var _devices = new nint[deviceCount];
+			nint[] _devices = new nint[deviceCount];
 			//get devices
 			err = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, deviceCount, _devices, Array.Empty<uint>());
 			Debug.Assert(err == 0);

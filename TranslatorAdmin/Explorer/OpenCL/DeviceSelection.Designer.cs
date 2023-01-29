@@ -1,4 +1,4 @@
-﻿namespace TranslatorDesktopApp.Explorer.OpenCL
+﻿namespace Translator.Explorer.OpenCL
 {
 	partial class DeviceSelection
 	{
@@ -42,13 +42,15 @@
 			this.OurCancelButton.TabIndex = 0;
 			this.OurCancelButton.Text = "Cancel";
 			this.OurCancelButton.UseVisualStyleBackColor = true;
+			this.OurCancelButton.Click += new System.EventHandler(this.OurCancelButton_Click);
 			// 
 			// deviceList
 			// 
 			this.deviceList.FormattingEnabled = true;
+			this.deviceList.ItemHeight = 15;
 			this.deviceList.Location = new System.Drawing.Point(12, 12);
 			this.deviceList.Name = "deviceList";
-			this.deviceList.Size = new System.Drawing.Size(410, 112);
+			this.deviceList.Size = new System.Drawing.Size(410, 109);
 			this.deviceList.TabIndex = 1;
 			// 
 			// SubmitButton
@@ -60,6 +62,7 @@
 			this.SubmitButton.TabIndex = 2;
 			this.SubmitButton.Text = "Submit";
 			this.SubmitButton.UseVisualStyleBackColor = true;
+			this.SubmitButton.Click += new System.EventHandler(this.SubmitButton_Click);
 			// 
 			// DeviceSelection
 			// 
@@ -78,6 +81,8 @@
 			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
 			this.Text = "Please select the device you want to use";
+			this.UseWaitCursor = false;
+			this.FormBorderStyle = FormBorderStyle.FixedDialog;
 			this.ResumeLayout(false);
 
 		}

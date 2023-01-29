@@ -3,8 +3,8 @@ using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Explorer.JSON;
 using static Translator.Explorer.JSON.StoryEnums;
-using DataBase = Translator.Core.DataBase<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
-using Settings = TranslatorApp.InterfaceImpls.WinSettings;
+using DataBase = Translator.Core.DataBase<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using Settings = Translator.InterfaceImpls.WinSettings;
 
 namespace Translator.Explorer
 {
@@ -21,9 +21,8 @@ namespace Translator.Explorer
 		private string NodeFilePath = string.Empty;
 		public bool GotCancelled = false;
 		private readonly bool AutoFileSelection = false;
-		public readonly NodeLayout Layout;
 
-		public ContextProvider(NodeProvider provider, bool IsStory, bool AutoSelectFile, string FileName, string StoryName, CancellationToken cancellation)
+		public ContextProvider(NodeProvider provider, bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
 		{
 			this.provider = provider;
 			_StoryFilePath = string.Empty;
@@ -35,7 +34,6 @@ namespace Translator.Explorer
 				this.FileName = FileName;
 				this.StoryName = StoryName;
 			}
-			Layout = new NodeLayout(provider, cancellation);
 
 			if (((Settings)Settings.Default).StoryPath != string.Empty && AutoFileSelection)
 			{
@@ -154,7 +152,7 @@ namespace Translator.Explorer
 					CalculateStartingPositions(Nodes);
 
 					//save nodes
-					return SaveNodes(NodeFilePath, Nodes);
+					return SaveNodes(Nodes, NodeFilePath);
 				}
 
 				return Nodes.Count > 0;
@@ -208,7 +206,7 @@ namespace Translator.Explorer
 				if (Directory.GetFiles(StoryFolderPath).Length > 0 && (StoryFolderPath.Split("\\")[^1] == StoryName) || !AutoFileSelection)
 				{
 					//else create new
-					foreach (var item in Directory.GetFiles(StoryFolderPath))
+					foreach (string item in Directory.GetFiles(StoryFolderPath))
 					{
 						if (Path.GetExtension(item) == ".story")
 						{
@@ -230,20 +228,21 @@ namespace Translator.Explorer
 				}
 				else
 				{
-					ParseAllFiles();
+					_ = ParseAllFiles();
 					return true;
 				}
 
 				CalculateStartingPositions(Nodes);
 
 				//save nodes
-				return SaveNodes(NodeFilePath, Nodes);
+				return SaveNodes(Nodes, NodeFilePath);
 			}
 			return Nodes.Count > 0;
 		}
 
-		public static bool SaveNodes(string path, List<Node> nodes)
+		public bool SaveNodes(List<Node> nodes, string path = "")
 		{
+			if (path == string.Empty) path = NodeFilePath;
 			if (nodes.Count > 0)
 			{
 				File.WriteAllText(path, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
@@ -399,14 +398,14 @@ namespace Translator.Explorer
 					//so value1, value2, comparetype and event type
 					//$"{criterion.Character}|{criterion.Character2}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.EqualsValue}|{criterion.Key}|{criterion.Key2}|{criterion.Option}|{criterion.SocialStatus}|{criterion.Value}", 
 					//split up the criteria values according to the list above
-					var values = nodes[i].Text.Split('|');
+					string[] values = nodes[i].Text.Split('|');
 					if (values.Length < 10) continue;
 					//if we have a chance of finding the dialogue node
 					if (values[2] == CompareTypes.Dialogue.ToString())
 					{
 						for (int k = 0; k < nodes.Count; k++)
 						{
-							var result = nodes.Find((Node n) => n.Type == NodeType.Dialogue && n.FileName == values[0] && n.ID == values[9]);
+							Node? result = nodes.Find((Node n) => n.Type == NodeType.Dialogue && n.FileName == values[0] && n.ID == values[9]);
 							if (result != null)
 							{
 								nodes[i].AddChildNode(result);
@@ -461,10 +460,5 @@ namespace Translator.Explorer
 			return _nodes;
 		}
 
-		internal void SaveNodes()
-		{
-			Layout.Stop();
-			SaveNodes(NodeFilePath, Nodes);
-		}
 	}
 }
