@@ -10,13 +10,21 @@ namespace TranslatorApp.InterfaceImpls
 	[SupportedOSPlatform("windows")]
 	public class WinTextBox : TextBox, ITextBox
 	{
-
+		private const int WM_PAINT = 15;
+		private const int WM_MOUSEMOVE = 512;
+		private const int WM_LBUTTONDOWN = 513;
+		private const int WM_RBUTTONDOWN = 516;
+		private const int WM_MBUTTONDOWN = 519;
+		private bool customDrawNeeded = false;
 		public WinTextBox() : base()
 		{
-			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
-			SetStyle(ControlStyles.ResizeRedraw, true);
-			SetStyle(ControlStyles.UserPaint, true);
-			SetStyle(ControlStyles.FixedHeight, false);
+			MouseDown += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
+			MouseUp += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
+			MouseDoubleClick += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
+			GotFocus += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
+			Click += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
+			MouseCaptureChanged += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
+			MouseMove += (object? sender, MouseEventArgs e) => _ = e.Button == MouseButtons.Left ? customDrawNeeded = true : customDrawNeeded = false;
 		}
 		public int SelectionEnd
 		{
@@ -26,67 +34,35 @@ namespace TranslatorApp.InterfaceImpls
 		public new int SelectionStart { get => base.SelectionStart; set => base.SelectionStart = value; }
 		public int HighlightStart { get; set; }
 		public int HighlightEnd { get; set; }
-		public bool ShowHighlight { get; set; }
-		public new string Text { get => base.Text; set => base.Text = value; }
+		private bool showHighlight = false;
+		public bool ShowHighlight { get => showHighlight; set { Invalidate(); showHighlight = value; customDrawNeeded = true; } }
+		public new string Text { get => base.Text; set { Invalidate(); customDrawNeeded = true;  base.Text = value; } }
 
 		public new void Focus() => base.Focus();
 
 		protected override void OnPaint(PaintEventArgs e)
 		{
 			base.OnPaint(e);
-			string adjustedText = Text;
-			e.Graphics.FillRectangle(new SolidBrush(BackColor), ClientRectangle);
-			//do word wrap
-			int maxlineLength = 0;
-			if (WordWrap && Text.Length > 0)
-			{
-				while (++maxlineLength < Text.Length)
-				{
-					var size = e.Graphics.MeasureString(Text[..maxlineLength], base.Font);
-					if (size.Width > ClientRectangle.Width)
-					{
-						adjustedText = Text.ConstrainLength(maxlineLength + 1);
-						break;
-					}
-				}
-			}
-
-			TextRenderer.DrawText(e.Graphics, adjustedText, base.Font, ClientRectangle.Location, ForeColor, BackColor);
 			
-			//draw highlighted text
-			if (SelectedText != string.Empty)
-			{
-				var startSize = TextRenderer.MeasureText(adjustedText.AsSpan()[..(SelectionStart - 1)], base.Font, ClientRectangle.Size);
-				startSize.Height -= base.Font.Height;//go up one row
-				TextRenderer.DrawText(e.Graphics, SelectedText, base.Font, (Point)startSize, SystemColors.HighlightText, SystemColors.Highlight);
-				Debug.WriteLine("painted the selected text");
-			}
 			//if we have a WM_PAINT and should display a shighlight somewhere
-			if (ShowHighlight && HighlightEnd > HighlightStart && HighlightStart < Text.Length && HighlightEnd < Text.Length)
+			if (customDrawNeeded  && ShowHighlight && HighlightEnd > HighlightStart && HighlightStart < Text.Length && HighlightEnd < Text.Length)
 			{
 				//overlay the other text highlight
-				//calculate text positions
-				SizeF startSize = new();
-				if (HighlightStart > 0)
-				{
-					startSize = e.Graphics.MeasureString(adjustedText[..(HighlightStart - 1)], base.Font);
-					startSize.Height -= base.Font.Height + 1;//go up one row
-				}//todo fix or better idea
-
-				TextRenderer.DrawText(e.Graphics, adjustedText.AsSpan()[HighlightStart..HighlightEnd], base.Font, new Point((int)startSize.Width, (int)startSize.Height), Utils.darkText, Utils.highlight);
-				Debug.WriteLine("painted the yellow highlight text");
+				//get text positions
+				//todo split draw calls over multiple so sentences changing line are preserved
+				Point highlightLocation = GetPositionFromCharIndex(HighlightStart);
+				highlightLocation.X -= 2;
+				TextRenderer.DrawText(e.Graphics, Text.AsSpan()[HighlightStart..HighlightEnd], base.Font, highlightLocation, Utils.darkText, Utils.highlight);
+				customDrawNeeded = false;
 			}
 		}
 
 		protected override void WndProc(ref Message m)
 		{
-			if (m.Msg != 15)
-			{
-				base.WndProc(ref m);
-				return;
-			}
-			//we have a paint message, send to own handler. only if we have a gdi handle
-			if (Handle != 0) OnPaint(new PaintEventArgs(Graphics.FromHwnd(m.HWnd), ClientRectangle));
+			base.WndProc(ref m);
+			if ((m.Msg == WM_PAINT || m.Msg == WM_MOUSEMOVE) && IsHandleCreated && customDrawNeeded)
+				//we have a paint message, send to own handler. only if we have a gdi handle
+				OnPaint(new PaintEventArgs(Graphics.FromHwnd(m.HWnd), ClientRectangle));
 		}
 	}
 }

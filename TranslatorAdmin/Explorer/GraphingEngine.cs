@@ -438,6 +438,7 @@ namespace Translator.Explorer
 				_ => Color.FromArgb(255, 255, 127, descending),
 			};
 		}
+
 		public static Color RainbowEdge(float progress)
 		{
 			float div = (Math.Abs(progress % 1) * 6);

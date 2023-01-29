@@ -109,14 +109,14 @@ namespace Translator.Core.Helpers
 				{
 					if (inWord && currentWordLength < maxlineLength)
 					{
-						//line is too long but we in a word
+						//line is too long but we in a word, so we move the word to the next line if it fits, else we just split it
 						_ = builder.Insert(lastWordStart, '\n');
 						_ = builder.Append(c);
 					}
 					else
 					{
-						_ = builder.Append(c);
 						_ = builder.Append('\n');
+						_ = builder.Append(c);
 					}
 					currentLength = 0;
 				}
