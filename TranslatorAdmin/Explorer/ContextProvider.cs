@@ -2,9 +2,9 @@
 using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Explorer.JSON;
+using static Translator.Explorer.JSON.StoryEnums;
 using DataBase = Translator.Core.DataBase<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
 using Settings = TranslatorApp.InterfaceImpls.WinSettings;
-using static Translator.Explorer.JSON.StoryEnums;
 
 namespace Translator.Explorer
 {
@@ -226,7 +226,7 @@ namespace Translator.Explorer
 										File.ReadAllText(item)) ?? new()));
 					}
 					//read in all first, dumbass me
-					CombineNodes(Nodes);
+					InterlinkNodes(Nodes);
 				}
 				else
 				{
@@ -385,7 +385,7 @@ namespace Translator.Explorer
 			return _nodes;
 		}
 
-		private static void CombineNodes(List<Node> nodes)
+		private static void InterlinkNodes(List<Node> nodes)
 		{
 			DateTime start = DateTime.Now;
 			LogManager.Log("\tstarting to link up nodes");

@@ -1,6 +1,8 @@
 ﻿using Silk.NET.OpenCL;
 using System.Diagnostics;
 using Translator.Core;
+using Translator.Explorer.Window;
+using TranslatorDesktopApp.Explorer.OpenCL;
 
 namespace Translator.Explorer.OpenCL;
 internal unsafe sealed class OpenCLManager
@@ -10,10 +12,10 @@ internal unsafe sealed class OpenCLManager
 	private readonly CL _cl;
 	private readonly Dictionary<nint, (nint deviceId, string platformName)> Platforms = new();//key is pointer to platform
 	private readonly string DeviceName = string.Empty;
-	private string KernelName= string.Empty;
+	private string KernelName = string.Empty;
 	private nint _context;//pointer to context
 	private nint _commandQueue;//pointer to commandqueue for our selected device
-	private nint _device;
+	private readonly nint _device;
 	private nint _program;
 	private readonly nint _kernel;
 	public bool OpenCLDevicePresent = false;
@@ -31,6 +33,8 @@ internal unsafe sealed class OpenCLManager
 
 		//todo let user choose device/platform
 		_device = SelectDevice();
+		if (_device == nint.Zero) return;
+
 		DeviceName = Platforms[SelectedPlatform].platformName;
 
 		//create contet, program and build it on the selected device
@@ -73,7 +77,25 @@ internal unsafe sealed class OpenCLManager
 		}
 	}
 
-	private nint SelectDevice() { SelectedPlatform = preselectedPlatform; return Platforms[preselectedPlatform].deviceId; }
+	private nint SelectDevice()
+	{
+		//prepare values for selection
+		string[] deviceNames = new string[Platforms.Count];
+		nint[] platformIds = new nint[Platforms.Count];
+		for (int i = 0; i < Platforms.Count; i++)
+		{
+			deviceNames[i] = Platforms.Values.ElementAt(i).platformName;
+			platformIds[i] = Platforms.Keys.ElementAt(i);
+		}
+		//get selection from user
+		var selector = new DeviceSelection(deviceNames);
+		var result = selector.ShowDialog();
+		if (result == DialogResult.Cancel) return nint.Zero;
+
+		//work with it
+		SelectedPlatform = platformIds[selector.SelectedDeviceIndex];
+		return Platforms[SelectedPlatform].deviceId;
+	}
 
 	private void FindOpenCLPlatforms()
 	{
