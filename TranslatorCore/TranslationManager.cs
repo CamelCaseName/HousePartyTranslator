@@ -44,6 +44,7 @@ namespace Translator.Core
 		public bool isTemplate = false;
 		public string SearchQuery { get; private set; } = string.Empty;
 		public string CleanedSearchQuery { get; private set; } = string.Empty;
+		public bool CaseSensitiveSearch { get; private set;} = false;
 
 		private static readonly Timer AutoSaveTimer = new();
 
@@ -382,27 +383,7 @@ namespace Translator.Core
 
 					TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
 
-					//renew search result if possible
-					int t = TabUI.Lines.SearchResults.IndexOf(SelectedId);
-					if (t >= 0)
-					{
-						SelectedResultIndex = t;
-						int TemplateTextQueryLocation = TabUI.TemplateBoxText.ToLowerInvariant().IndexOf(SearchQuery.ToLowerInvariant());
-						if (TemplateTextQueryLocation >= 0)
-						{
-							TabUI.Template.HighlightStart = TemplateTextQueryLocation;
-							TabUI.Template.HighlightEnd = TemplateTextQueryLocation + SearchQuery.Length;
-							TabUI.Template.ShowHighlight = true;
-						}
-						else
-						{
-							TabUI.Template.ShowHighlight = false;
-						}
-					}
-					else
-					{
-						TabUI.Template.ShowHighlight = false;
-					}
+					UpdateSearchAndSearchHighlight();
 				}
 			}
 			else
@@ -411,6 +392,34 @@ namespace Translator.Core
 			}
 			UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.LineCount);
 			UI.SignalUserEndWait();
+		}
+
+		private void UpdateSearchAndSearchHighlight()
+		{
+			//renew search result if possible
+			int t = TabUI.Lines.SearchResults.IndexOf(SelectedId);
+			if (t >= 0)
+			{
+				SelectedResultIndex = t; int TemplateTextQueryLocation;
+				if (CaseSensitiveSearch)
+					TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(CleanedSearchQuery);
+				else
+					TemplateTextQueryLocation = TabUI.TemplateBoxText.ToLowerInvariant().IndexOf(CleanedSearchQuery.ToLowerInvariant());
+				if (TemplateTextQueryLocation >= 0)
+				{
+					TabUI.Template.HighlightStart = TemplateTextQueryLocation;
+					TabUI.Template.HighlightEnd = TemplateTextQueryLocation + CleanedSearchQuery.Length;
+					TabUI.Template.ShowHighlight = true;
+				}
+				else
+				{
+					TabUI.Template.ShowHighlight = false;
+				}
+			}
+			else
+			{
+				TabUI.Template.ShowHighlight = false;
+			}
 		}
 
 		/// <summary>
@@ -780,9 +789,11 @@ namespace Translator.Core
 				//clear results
 				TabUI.Lines.SearchResults.Clear();
 
+				CaseSensitiveSearch = false;
 				//decide on case sensitivity
 				if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
 				{
+					CaseSensitiveSearch= true;
 					query = query[1..];
 					//methodolgy: highlight items which fulfill search and show count
 					int x = 0;
@@ -821,6 +832,8 @@ namespace Translator.Core
 					}
 				}
 				CleanedSearchQuery = query;
+
+				UpdateSearchAndSearchHighlight();
 			}
 			else
 			{

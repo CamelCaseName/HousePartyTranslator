@@ -20,6 +20,8 @@ namespace TranslatorApp.InterfaceImpls
 			MouseDoubleClick += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
 			GotFocus += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
 			Click += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
+			Resize += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
+			LostFocus += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
 			MouseCaptureChanged += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
 			MouseMove += (object? sender, MouseEventArgs e) => _ = e.Button == MouseButtons.Left ? customDrawNeeded = true : customDrawNeeded = false;
 		}
@@ -42,22 +44,25 @@ namespace TranslatorApp.InterfaceImpls
 			base.OnPaint(e);
 
 			//if we have a WM_PAINT and should display a shighlight somewhere
-			if (customDrawNeeded && ShowHighlight && HighlightEnd > HighlightStart && HighlightStart < Text.Length && HighlightEnd < Text.Length)
+			if (customDrawNeeded && ShowHighlight && HighlightEnd > HighlightStart && HighlightStart < Text.Length && HighlightEnd <= Text.Length)
 			{
 				//overlay the other text highlight
 				//get text positions
 				int currentHighlightLength = 0, newStartPos = HighlightStart;
-				while (currentHighlightLength < HighlightEnd - newStartPos)
+				while (newStartPos + currentHighlightLength < HighlightEnd)
 				{
 					currentHighlightLength = Text.AsSpan()[newStartPos..HighlightEnd].IndexOfAny(" ,.-".AsSpan());
-					if (currentHighlightLength < 0) currentHighlightLength = HighlightEnd - newStartPos;
-					else ++currentHighlightLength;//so that we also contain the other character
+					if (currentHighlightLength < 0)
+						currentHighlightLength = HighlightEnd - newStartPos;
+					else
+						++currentHighlightLength;//so that we also contain the other character
 
 					Point highlightLocation = GetPositionFromCharIndex(newStartPos);
 					highlightLocation.X -= 2;
 					TextRenderer.DrawText(e.Graphics, Text.AsSpan()[newStartPos..(newStartPos + currentHighlightLength)], base.Font, highlightLocation, Utils.darkText, Utils.highlight);
 					//move over
-					newStartPos = newStartPos + currentHighlightLength;
+					newStartPos += currentHighlightLength;
+					currentHighlightLength = 0;
 				}
 				customDrawNeeded = false;
 			}
