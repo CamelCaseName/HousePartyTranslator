@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Drawing.Design;
-using System.Runtime.Versioning;
-using System.Text;
+﻿using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
 
@@ -13,6 +10,8 @@ namespace TranslatorApp.InterfaceImpls
 		private const int WM_PAINT = 15;
 		private const int WM_MOUSEMOVE = 512;
 		private bool customDrawNeeded = false;
+		private bool showHighlight = false;
+
 		public WinTextBox() : base()
 		{
 			MouseDown += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
@@ -25,16 +24,21 @@ namespace TranslatorApp.InterfaceImpls
 			MouseCaptureChanged += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
 			MouseMove += (object? sender, MouseEventArgs e) => _ = e.Button == MouseButtons.Left ? customDrawNeeded = true : customDrawNeeded = false;
 		}
+
 		public int SelectionEnd
 		{
 			get => base.SelectionStart + base.SelectionLength;
 			set { if (SelectionStart <= SelectionEnd) base.SelectionLength = value - SelectionStart; else throw new ArgumentOutOfRangeException(nameof(SelectionEnd), "End has to be after SelectionStart"); }
 		}
+
 		public new int SelectionStart { get => base.SelectionStart; set => base.SelectionStart = value; }
+
 		public int HighlightStart { get; set; }
+
 		public int HighlightEnd { get; set; }
-		private bool showHighlight = false;
+
 		public bool ShowHighlight { get => showHighlight; set { Invalidate(); showHighlight = value; customDrawNeeded = true; } }
+
 		public new string Text { get => base.Text; set { Invalidate(); customDrawNeeded = true; base.Text = value; } }
 
 		public new void Focus() => base.Focus();
