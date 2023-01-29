@@ -1,11 +1,9 @@
 ﻿using System.Runtime.Versioning;
-using Translator;
 using Translator.Core.Helpers;
 using Translator.Helpers;
 using Translator.UICompatibilityLayer;
-using TranslatorDesktopApp.Properties;
 
-namespace TranslatorApp.InterfaceImpls
+namespace Translator.InterfaceImpls
 {
 	[SupportedOSPlatform("Windows")]
 	public class WinTab : TabPage, ITab<WinLineItem>
@@ -29,7 +27,7 @@ namespace TranslatorApp.InterfaceImpls
 		private readonly Panel panel2 = new();
 		private readonly TableLayoutPanel mainTableLayoutPanel = new();
 		private readonly WinTextBox CommentTextBox = new();
-		private readonly WinTextBox TemplateTextBox= new();
+		private readonly WinTextBox TemplateTextBox = new();
 		private readonly WinTextBox TranslationTextBox = new();
 		private readonly WinMenuItem CopyAllContextMenuButton = new();
 		private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
@@ -75,7 +73,7 @@ namespace TranslatorApp.InterfaceImpls
 			TranslationTextBox.TextChanged += new EventHandler(MainForm.TextBoxRight_TextChanged);
 			TranslationTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
 			TranslationTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
-			TranslationTextBox.PlaceholderText= "Translation goes here";
+			TranslationTextBox.PlaceholderText = "Translation goes here";
 			// 
 			// AutoTranslateThis
 			// 
@@ -162,7 +160,7 @@ namespace TranslatorApp.InterfaceImpls
 			ApprovedBox.Name = "ApprovedBox";
 			ApprovedBox.Size = new Size(72, 17);
 			ApprovedBox.TabIndex = 13;
-			ApprovedBox.Text = Resources.Approved;
+			ApprovedBox.Text = "Approved";
 			ApprovedBox.UseVisualStyleBackColor = true;
 			ApprovedBox.CheckedChanged += new EventHandler(MainForm.ApprovedBox_CheckedChanged);
 			// 

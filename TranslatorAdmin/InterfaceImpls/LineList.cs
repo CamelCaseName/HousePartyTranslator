@@ -1,7 +1,7 @@
 ﻿using Translator.Helpers;
 using Translator.UICompatibilityLayer;
 
-namespace TranslatorApp.InterfaceImpls
+namespace Translator.InterfaceImpls
 {
 	public class LineList : ColouredCheckedListBox, ILineList<WinLineItem>
 	{

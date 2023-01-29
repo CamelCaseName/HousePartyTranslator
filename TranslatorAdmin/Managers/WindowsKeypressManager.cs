@@ -1,6 +1,7 @@
 ﻿using Translator.UICompatibilityLayer;
-using InputHandler = Translator.Core.InputHandler<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
-using TabManager = Translator.Core.TabManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
+using Translator;
+using InputHandler = Translator.Core.InputHandler<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
 
 namespace Translator.Managers
 {

@@ -88,7 +88,7 @@ namespace Translator.Core.Helpers
 			{
 				if (c != ' ' && c != '\n' && c != '\r')
 				{
-					if(!inWord)lastWordStart = totalCount;
+					if (!inWord) lastWordStart = totalCount;
 					inWord = true;
 					currentWordLength++;
 				}

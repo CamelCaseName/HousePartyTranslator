@@ -44,7 +44,7 @@ namespace Translator.Core
 		public bool isTemplate = false;
 		public string SearchQuery { get; private set; } = string.Empty;
 		public string CleanedSearchQuery { get; private set; } = string.Empty;
-		public bool CaseSensitiveSearch { get; private set;} = false;
+		public bool CaseSensitiveSearch { get; private set; } = false;
 
 		private static readonly Timer AutoSaveTimer = new();
 
@@ -793,7 +793,7 @@ namespace Translator.Core
 				//decide on case sensitivity
 				if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
 				{
-					CaseSensitiveSearch= true;
+					CaseSensitiveSearch = true;
 					query = query[1..];
 					//methodolgy: highlight items which fulfill search and show count
 					int x = 0;

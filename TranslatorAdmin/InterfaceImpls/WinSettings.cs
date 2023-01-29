@@ -1,5 +1,5 @@
 ﻿using Translator.Core;
-namespace TranslatorApp.InterfaceImpls
+namespace Translator.InterfaceImpls
 {
 	internal class WinSettings : ISettings
 	{
@@ -11,7 +11,7 @@ namespace TranslatorApp.InterfaceImpls
 #if DEBUG_ADMIN || RELEASE_ADMIN
 				return true;
 #elif DEBUG || RELEASE
-                return false;
+				return false;
 #endif
 			}
 			set { }

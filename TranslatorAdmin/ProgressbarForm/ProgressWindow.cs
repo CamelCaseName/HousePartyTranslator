@@ -6,7 +6,7 @@ namespace Translator.ProgressbarForm
 	{
 		public ProgressWindow()
 		{
-			Location = new Point((Screen.PrimaryScreen?.Bounds.Size / 2) - Size ?? new Size(0,0));
+			Location = new Point((Screen.PrimaryScreen?.Bounds.Size / 2) - Size ?? new Size(0, 0));
 			InitializeComponent();
 			noAnimationBar1.Maximum = 5;
 			noAnimationBar1.Value = 0;

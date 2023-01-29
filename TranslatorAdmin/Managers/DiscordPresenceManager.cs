@@ -3,9 +3,8 @@ using NetDiscordRpc.RPC;
 using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Helpers;
-using TranslatorApp.InterfaceImpls;
-using DataBase = Translator.Core.DataBase<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
-using Settings = TranslatorApp.InterfaceImpls.WinSettings;
+using DataBase = Translator.Core.DataBase<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using Settings = Translator.InterfaceImpls.WinSettings;
 
 namespace Translator.Managers
 {

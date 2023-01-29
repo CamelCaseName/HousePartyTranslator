@@ -2,7 +2,7 @@
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
 
-namespace TranslatorApp.InterfaceImpls
+namespace Translator.InterfaceImpls
 {
 	[SupportedOSPlatform("windows")]
 	public class WinTextBox : TextBox, ITextBox

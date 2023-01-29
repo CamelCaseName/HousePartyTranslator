@@ -4,16 +4,15 @@ using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
 using Translator.Helpers;
+using Translator.InterfaceImpls;
 using Translator.Managers;
 using Translator.UICompatibilityLayer;
-using TranslatorApp.InterfaceImpls;
-using TranslatorApp.Managers;
-using DataBase = Translator.Core.DataBase<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
-using InputHandler = Translator.Core.InputHandler<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
-using Settings = TranslatorApp.InterfaceImpls.WinSettings;
-using TabManager = Translator.Core.TabManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
-using TranslationManager = Translator.Core.TranslationManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
-using WinUtils = Translator.Core.Helpers.Utils<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
+using DataBase = Translator.Core.DataBase<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using InputHandler = Translator.Core.InputHandler<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using Settings = Translator.InterfaceImpls.WinSettings;
+using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using TranslationManager = Translator.Core.TranslationManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using WinUtils = Translator.Core.Helpers.Utils<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
 
 namespace Translator
 {
@@ -79,7 +78,7 @@ namespace Translator
 		/// </summary>
 		static Fenster()
 		{
-			ProgressbarWindow = new ProgressbarForm.ProgressWindow();
+			ProgressbarWindow = new Translator.ProgressbarForm.ProgressWindow();
 			ProgressbarWindow.Status.Text = "Creating UI";
 			ProgressbarWindow.Text = "Startup";
 			ProgressbarWindow.Show();
@@ -111,12 +110,12 @@ namespace Translator
 			InitializeComponent();
 		}
 
-		public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
+		public static Translator.ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
 
 		/// <summary>
 		/// Instance of the Story Explorer, but the owner is checked so only the Storyexplorer class itself can instantiate it.
 		/// </summary>
-		public StoryExplorer? Explorer
+		internal StoryExplorer? Explorer
 		{
 			get
 			{
@@ -336,10 +335,8 @@ namespace Translator
 			Explorer = await CreateStoryExplorer(false, CancelTokens);
 		}
 
-		public static async Task<StoryExplorer?> CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
+		internal static async Task<StoryExplorer?> CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
 		{
-			App.MainForm.UI.SignalUserWait();
-
 			if (TabManager.ActiveTranslationManager == null) return null;
 
 			//get currently active translation manager
@@ -354,14 +351,10 @@ namespace Translator
 						);
 				if (openAll == DialogResult.Cancel)
 				{
-					App.MainForm.UI.SignalUserEndWait();
 					return null;
 				}
 
-				var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token)
-				{
-					UseWaitCursor = true
-				};
+				var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token);
 
 				//task to offload initialization workload
 				var explorerTask = Task.Run(() =>
@@ -381,18 +374,15 @@ namespace Translator
 					}
 
 					manager.SetHighlightedNode();
-					App.MainForm.UI.SignalUserEndWait();
 					return explorer;
 				}
 				else
 				{
-					App.MainForm.UI.SignalUserEndWait();
 					return null;
 				}
 			}
 			catch (OperationCanceledException)
 			{
-				App.MainForm.UI.SignalUserEndWait();
 				LogManager.Log("Explorer closed during creation", LogManager.Level.Warning);
 				return null;
 			}

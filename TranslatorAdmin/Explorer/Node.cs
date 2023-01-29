@@ -28,7 +28,6 @@ namespace Translator.Explorer
 		BGC
 	}
 
-
 	internal sealed class Node
 	{
 		public static readonly Node NullNode = new("", NodeType.Null, "");
@@ -90,11 +89,11 @@ namespace Translator.Explorer
 		{
 			//create all criteria nodes the same way so they can possibly be replaced by the actual text later
 			return new Node(
-				$"{criterion.Character}{criterion.CompareType}{criterion.Value}", 
-				NodeType.Criterion, 
-				$"{criterion.Character}|{criterion.Character2}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.EqualsValue}|{criterion.Key}|{criterion.Key2}|{criterion.Option}|{criterion.SocialStatus}|{criterion.Value}", 
-				new List<Node>(), 
-				new List<Node>() { node }) 
+				$"{criterion.Character}{criterion.CompareType}{criterion.Value}",
+				NodeType.Criterion,
+				$"{criterion.Character}|{criterion.Character2}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.EqualsValue}|{criterion.Key}|{criterion.Key2}|{criterion.Option}|{criterion.SocialStatus}|{criterion.Value}",
+				new List<Node>(),
+				new List<Node>() { node })
 			{ FileName = node.FileName };
 		}
 

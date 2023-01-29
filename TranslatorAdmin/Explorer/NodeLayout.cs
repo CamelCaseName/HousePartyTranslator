@@ -40,26 +40,26 @@ namespace Translator.Explorer
 			get { return provider.OtherNodes; }
 		}
 
-		public NodeLayout(NodeProvider provider, CancellationToken cancellation)
+		public NodeLayout(NodeProvider provider, Form parent, CancellationToken cancellation)
 		{
 			outsideToken = cancellation;
 			this.provider = provider;
 
 			LayoutCalculation = () => CalculateForceDirectedLayout(cancellationToken.Token);
-			opencl = new();
+
+			opencl = new(parent);
 			if (opencl.OpenCLDevicePresent)
 			{
 				LayoutCalculation = () => { CalculateForceDirectedLayout(cancellationToken.Token); /*add opencl calculation method here*/ };
 			}
 		}
 
-
 		public void Start()
 		{
 			if (!Started)
 			{
 				cancellationToken = new();
-				outsideToken.Register(() => cancellationToken.Cancel());
+				_ = outsideToken.Register(() => cancellationToken.Cancel());
 				StartTime = DateTime.Now;
 				LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
 				Started = true;

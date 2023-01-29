@@ -1,4 +1,4 @@
-﻿using TranslatorApp.Properties;
+﻿using Translator.Properties;
 
 namespace Translator.SettingsForm
 {

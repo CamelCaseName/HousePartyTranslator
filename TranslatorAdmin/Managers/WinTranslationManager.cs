@@ -3,11 +3,11 @@ using Translator.Core.Helpers;
 using Translator.Explorer;
 using Translator.Helpers;
 using Translator.Managers;
-using TranslatorApp.InterfaceImpls;
-using TabManager = Translator.Core.TabManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
-using TranslationManager = Translator.Core.TranslationManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
+using Translator.InterfaceImpls;
+using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using TranslationManager = Translator.Core.TranslationManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
 
-namespace TranslatorApp.Managers
+namespace Translator.Managers
 {
 	//also contains some extensions to ease programming
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -26,7 +26,7 @@ namespace TranslatorApp.Managers
 
 			UI.SignalUserWait();
 			data = new FileData();
-			var explorer = new ContextProvider(new(),story == Path.GetFileNameWithoutExtension(path), false, filename, story, new CancellationToken());
+			var explorer = new ContextProvider(new(), story == Path.GetFileNameWithoutExtension(path), false, filename, story);
 			List<Node> nodes = explorer.GetTemplateNodes();
 			if (nodes != null)
 			{

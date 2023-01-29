@@ -47,8 +47,8 @@ namespace Translator.Core
 			_ = cmd.Parameters.AddWithValue("@language", language);
 
 			if (CheckOrReopenConnection(connection))
-			{ 
-				using var reader = cmd.ExecuteReader();
+			{
+				using MySqlDataReader reader = cmd.ExecuteReader();
 				if (reader.HasRows && !reader.IsDBNull(0))
 				{
 					translation = new LineData()
@@ -109,7 +109,7 @@ namespace Translator.Core
 
 			if (CheckOrReopenConnection(connection))
 			{
-				using var reader = cmd.ExecuteReader();
+				using MySqlDataReader reader = cmd.ExecuteReader();
 
 				if (reader.HasRows)
 				{
@@ -191,7 +191,7 @@ namespace Translator.Core
 
 			if (CheckOrReopenConnection(connection))
 			{
-				using var reader = cmd.ExecuteReader();
+				using MySqlDataReader reader = cmd.ExecuteReader();
 
 				if (reader.HasRows)
 				{
@@ -267,16 +267,16 @@ namespace Translator.Core
 			else
 			{
 				using MySqlConnection connection = new(GetConnString());
-				if(connection.State != System.Data.ConnectionState.Open )connection.Open();
-				using MySqlCommand cmd = new MySqlCommand("", connection);
-				CheckOrReopenConnection(connection);
+				if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+				using var cmd = new MySqlCommand("", connection);
+				_ = CheckOrReopenConnection(connection);
 				//Console.WriteLine("DB opened");
 
 				//checking template version
 				var getVersion = new MySqlCommand("SELECT story " +
 													FROM +
 													"WHERE ID = \"version\";", connection);
-				using var reader = getVersion.ExecuteReader();
+				using MySqlDataReader reader = getVersion.ExecuteReader();
 				_ = reader.Read();
 				DBVersion = reader.GetString(0);
 				reader.Close();

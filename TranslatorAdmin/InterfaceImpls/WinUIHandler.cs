@@ -2,9 +2,9 @@
 using Translator.Core;
 using Translator.Helpers;
 using Translator.UICompatibilityLayer;
-using TranslatorApp.Managers;
+using Translator.Managers;
 
-namespace TranslatorApp.InterfaceImpls
+namespace Translator.InterfaceImpls
 {
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 	public sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController, WinTab>

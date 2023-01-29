@@ -231,7 +231,7 @@ namespace Translator.Core
 			//update history on tab change
 			if (lastIndex != TabControl.SelectedIndex)
 			{
-				History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(lastIndex, TabControl.SelectedIndex) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName});
+				History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(lastIndex, TabControl.SelectedIndex) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
 				lastIndex = TabControl.SelectedIndex;
 			}
 
@@ -429,12 +429,12 @@ namespace Translator.Core
 		{
 			if (Settings.Default.AskForSaveDialog && translationManagers.Count > 0)
 			{
-				foreach (var translationManager in translationManagers)
+				foreach (KeyValuePair<TTab, TranslationManager<TLineItem, TUIHandler, TTabController, TTab>> translationManager in translationManagers)
 				{
 					if (translationManager.Value.ChangesPending)
 					{
 						if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
-							SaveAllTabs();
+							_ = SaveAllTabs();
 						return;
 					}
 				}

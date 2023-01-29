@@ -4,7 +4,7 @@ using Translator.Explorer;
 using Translator.UICompatibilityLayer;
 using static System.Windows.Forms.TabControl;
 
-namespace TranslatorApp.InterfaceImpls
+namespace Translator.InterfaceImpls
 {
 	[SupportedOSPlatform("Windows")]
 	internal static class WinExtensions

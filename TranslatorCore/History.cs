@@ -69,7 +69,7 @@ namespace Translator.Core
 #endif
 			var temp = new Stack<ICommand>(history.Count);
 			//check all history items
-			for (int i = history.Count; i > 0 ; --i)
+			for (int i = history.Count; i > 0; --i)
 			{
 				ICommand item = history.Pop();
 				if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>))

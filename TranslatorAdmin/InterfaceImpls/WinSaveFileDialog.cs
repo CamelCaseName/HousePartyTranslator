@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Versioning;
 using Translator.UICompatibilityLayer;
 
-namespace TranslatorApp.InterfaceImpls
+namespace Translator.InterfaceImpls
 {
 	[SupportedOSPlatform("Windows")]
 	public class WinSaveFileDialog : ISaveFileDialog

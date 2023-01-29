@@ -36,7 +36,7 @@ namespace Translator.Explorer
 				FileName = v.FileName,
 				ChildNodes = new List<Guid>(),
 				ParentNodes = new List<Guid>(),
-				IsPositionLocked= v.IsPositionLocked,
+				IsPositionLocked = v.IsPositionLocked,
 			};
 
 			//add missing nodes as guid references
