@@ -1,8 +1,10 @@
 ﻿using Silk.NET.OpenCL;
 using System.Diagnostics;
+using System.Runtime.Versioning;
 using Translator.Core;
 
 namespace Translator.Explorer.OpenCL;
+[SupportedOSPlatform("windows")]
 internal sealed unsafe class OpenCLManager
 {
 	private nint preselectedPlatform = 0;//pointer to preselected platform
@@ -87,7 +89,7 @@ internal sealed unsafe class OpenCLManager
 		}
 		//get selection from user
 		var selector = new DeviceSelection(deviceNames, Platforms[preselectedPlatform].platformName);
-		DialogResult result = selector.ShowDialog(parent);
+		DialogResult result = (DialogResult)(App.MainForm.Explorer?.Invoke(() => selector.ShowDialog(parent))!);
 		if (result == DialogResult.Cancel) return nint.Zero;
 
 		//work with it

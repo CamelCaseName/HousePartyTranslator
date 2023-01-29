@@ -15,6 +15,8 @@
 
 		public int SelectedDeviceIndex => deviceList.SelectedIndex;
 
+		public bool GotSelection { get; private set; }
+
 		private void SubmitButton_Click(object sender, EventArgs e)
 		{
 			//disable interaction

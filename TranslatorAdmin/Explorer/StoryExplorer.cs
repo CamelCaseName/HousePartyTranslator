@@ -1,4 +1,6 @@
-﻿namespace Translator.Explorer.Window
+﻿using System.Runtime.InteropServices;
+
+namespace Translator.Explorer.Window
 {
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 	internal partial class StoryExplorer : Form
@@ -21,6 +23,7 @@
 		public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
 		{
 			InitializeComponent();
+			token = cancellation;
 
 			//indicate ownership
 			parentName = Parent.Name;
@@ -43,39 +46,39 @@
 			Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
 			FormClosing += new FormClosingEventHandler(SaveNodes);
 
-			ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Translator.Properties.Settings.Default.ColoringDepth;
-			IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Translator.Properties.Settings.Default.IdealLength);
+			ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Properties.Settings.Default.ColoringDepth;
+			IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Properties.Settings.Default.IdealLength);
 			NodeSizeField.Value = StoryExplorerConstants.Nodesize;
-			token = cancellation;
 		}
 
 		public void Initialize(bool singleFile)
 		{
-			Layouter = new(Provider, this, token);
 			if (singleFile)
 			{
-				Text = Title + " - waiting";
+				App.MainForm.Invoke(() => Text = Title + " - waiting");
 				if (!Context.ParseFile() || Context.GotCancelled)
 				{
 					Close();
 				}
-				Text = Title + $" - {FileName}";
+				App.MainForm.Invoke(() => Text = Title + $" - {FileName}");
 			}
 			else
 			{
-				Text = Title + " - waiting";
+				App.MainForm.Invoke(() => Text = Title + " - waiting");
 				//parse story, and not get cancelled xD
 				if (!Context.ParseAllFiles() || Context.GotCancelled)
 				{
 					Close();
 				}
-				Text = Title + $" - {StoryName}";
+				App.MainForm.Invoke(() => Text = Title + $" - {StoryName}");
 			}
 			inInitialization = false;
-			NodeCalculations.Text = "Calculation running";
+			App.MainForm.Invoke(() => NodeCalculations.Text = "Calculation running");
 
 			Provider.FreezeNodesAsInitial();
+			Layouter = new(Provider, this, token);
 			Layouter.Start();
+			Invalidate();
 		}
 
 		public void SaveNodes()
@@ -87,7 +90,7 @@
 		private void SaveNodes(object? sender, FormClosingEventArgs? e)
 		{
 			_ = Context.SaveNodes(Provider.Nodes);
-			Translator.Properties.Settings.Default.Save();
+			Properties.Settings.Default.Save();
 		}
 
 		private void HandleKeyBoard(object sender, KeyEventArgs e)
@@ -129,7 +132,7 @@
 			if (!inInitialization)
 			{
 				StoryExplorerConstants.IdealLength = IdealLength.Value > 1 && IdealLength.Value < IdealLength.Maximum ? (float)IdealLength.Value : StoryExplorerConstants.IdealLength;
-				Translator.Properties.Settings.Default.IdealLength = (float)IdealLength.Value;
+				Properties.Settings.Default.IdealLength = (float)IdealLength.Value;
 			}
 
 		}
@@ -139,7 +142,7 @@
 			if (!inInitialization)
 			{
 				StoryExplorerConstants.ColoringDepth = ColoringDepth.Value > 1 && ColoringDepth.Value < ColoringDepth.Maximum ? (int)ColoringDepth.Value : StoryExplorerConstants.ColoringDepth;
-				Translator.Properties.Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
+				Properties.Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
 			}
 		}
 

@@ -169,6 +169,8 @@ namespace Translator.Explorer
 			foreach (ICriterion criterion in _criteria)
 			{
 				Node tempNode = CreateCriteriaNode(criterion, this);
+				tempNode.Data = criterion;
+				tempNode.DataType = typeof(T);
 				if (criterion.CompareType == CompareTypes.PlayerGender)
 				{
 					tempNode.Gender = criterion.Value == "Female" ? Gender.Female : criterion.Value == "Male" ? Gender.Male : Gender.None;
@@ -183,7 +185,7 @@ namespace Translator.Explorer
 
 			foreach (IEvent _event in _events)
 			{
-				var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none", this) { FileName = FileName };
+				var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none", this) { FileName = FileName, Data = _event, DataType = typeof(T) };
 
 				nodeEvent.AddCriteria(_event.Criteria ?? new List<Criterion>());
 

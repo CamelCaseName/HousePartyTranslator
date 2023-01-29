@@ -13,7 +13,7 @@ namespace Translator.Explorer
 			foreach (Achievement achievement in story.Achievements ?? Enumerable.Empty<Achievement>())
 			{
 				//node to add the description as child to, needs reference to parent, hence can't be anonymous
-				var node = new Node(achievement.Id ?? string.Empty, NodeType.Achievement, achievement.Name ?? string.Empty);
+				var node = new Node(achievement.Id ?? string.Empty, NodeType.Achievement, achievement.Name ?? string.Empty) { Data = achievement, DataType = typeof(Achievement) } ;
 				node.AddChildNode(new Node(achievement.Id + "Description", NodeType.Achievement, achievement.Description ?? string.Empty, node));
 				node.AddChildNode(new Node(achievement.Id + "SteamName", NodeType.Achievement, achievement.SteamName ?? string.Empty, node));
 				//add achievement with description child to list
@@ -29,7 +29,7 @@ namespace Translator.Explorer
 			var nodes = new List<Node>();
 			foreach (BackgroundChatter backgroundChatter in story.BackgroundChatter ?? Enumerable.Empty<BackgroundChatter>())
 			{
-				var bgcNode = new Node($"BGC{backgroundChatter.Id}", NodeType.BGC, backgroundChatter.Text ?? string.Empty);
+				var bgcNode = new Node($"BGC{backgroundChatter.Id}", NodeType.BGC, backgroundChatter.Text ?? string.Empty) { Data = backgroundChatter, DataType = typeof(BackgroundChatter) };
 
 				//criteria
 				bgcNode.AddCriteria(backgroundChatter.Critera ?? new());
@@ -40,7 +40,7 @@ namespace Translator.Explorer
 				//responses
 				foreach (Response response in backgroundChatter.Responses ?? new())
 				{
-					var nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.Response, "see id", bgcNode);
+					var nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.Response, "see id", bgcNode) { Data = response, DataType = typeof(Response) };
 
 					bgcNode.AddChildNode(nodeResponse);
 				}
@@ -56,13 +56,13 @@ namespace Translator.Explorer
 
 			foreach (Dialogue dialogue in story.Dialogues ?? Enumerable.Empty<Dialogue>())
 			{
-				var nodeDialogue = new Node(dialogue.ID.ToString(), NodeType.Dialogue, dialogue.Text ?? string.Empty);
+				var nodeDialogue = new Node(dialogue.ID.ToString(), NodeType.Dialogue, dialogue.Text ?? string.Empty) { Data = dialogue, DataType = typeof(Dialogue) };
 				int alternateTextCounter = 1;
 
 				//add all alternate texts to teh dialogue
 				foreach (AlternateText alternateText in dialogue.AlternateTexts ?? Enumerable.Empty<AlternateText>())
 				{
-					var nodeAlternateText = new Node($"{dialogue.ID}.{alternateTextCounter}", NodeType.Dialogue, alternateText.Text ?? string.Empty, nodeDialogue);
+					var nodeAlternateText = new Node($"{dialogue.ID}.{alternateTextCounter}", NodeType.Dialogue, alternateText.Text ?? string.Empty, nodeDialogue) { Data = alternateText, DataType = typeof(AlternateText) };
 
 					//increasse counter to ensure valid id
 					alternateTextCounter++;
@@ -79,7 +79,7 @@ namespace Translator.Explorer
 				//add all responses as childs to this dialogue
 				foreach (Response response in dialogue.Responses ?? Enumerable.Empty<Response>())
 				{
-					var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty, nodeDialogue);
+					var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty, nodeDialogue) { Data = response, DataType = typeof(Response) };
 
 					nodeResponse.AddCriteria(response.ResponseCriteria ?? new());
 
@@ -122,7 +122,7 @@ namespace Translator.Explorer
 			//add all responses as childs to this dialogue
 			foreach (GlobalGoodbyeResponse response in story.GlobalGoodbyeResponses ?? Enumerable.Empty<GlobalGoodbyeResponse>())
 			{
-				var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty);
+				var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(GlobalGoodbyeResponse) };
 
 				nodeResponse.AddCriteria(response.ResponseCriteria ?? new());
 
@@ -141,7 +141,7 @@ namespace Translator.Explorer
 
 			foreach (GlobalResponse response in story.GlobalResponses ?? Enumerable.Empty<GlobalResponse>())
 			{
-				var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty);
+				var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(GlobalResponse) };
 
 				nodeResponse.AddCriteria(response.ResponseCriteria ?? new());
 
@@ -163,12 +163,12 @@ namespace Translator.Explorer
 			{
 				if (itemGroupBehaviour == null) continue;
 				//create item group node to add events/criteria to
-				var nodeGroup = new Node(itemGroupBehaviour.Id ?? string.Empty, NodeType.ItemGroup, itemGroupBehaviour.Name ?? string.Empty);
+				var nodeGroup = new Node(itemGroupBehaviour.Id ?? string.Empty, NodeType.ItemGroup, itemGroupBehaviour.Name ?? string.Empty) { Data = itemGroupBehaviour, DataType = typeof(ItemGroupBehavior) };
 				//get actions for item
 				foreach (ItemAction itemAction in itemGroupBehaviour.ItemActions ?? new())
 				{
 					//node to addevents to
-					var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.Action, itemAction.ActionName ?? string.Empty, nodeGroup);
+					var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.Action, itemAction.ActionName ?? string.Empty, nodeGroup) { Data = itemAction, DataType = typeof(ItemAction) };
 
 					//add text that is shown when item is taken
 					nodeAction.AddEvents(itemAction.OnTakeActionEvents ?? new());
@@ -196,12 +196,12 @@ namespace Translator.Explorer
 			foreach (ItemOverride itemOverride in story.ItemOverrides ?? Enumerable.Empty<ItemOverride>())
 			{
 				//add items to list
-				var nodeItem = new Node(itemOverride.Id ?? string.Empty, NodeType.Item, itemOverride.DisplayName ?? string.Empty);
+				var nodeItem = new Node(itemOverride.Id ?? string.Empty, NodeType.Item, itemOverride.DisplayName ?? string.Empty) { Data = itemOverride, DataType = typeof(ItemOverride) };
 				//get actions for item
 				foreach (ItemAction itemAction in itemOverride.ItemActions ?? new())
 				{
 					//create action node to add criteria and events to
-					var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.Action, itemAction.ActionName ?? string.Empty, nodeItem);
+					var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.Action, itemAction.ActionName ?? string.Empty, nodeItem) { Data = itemAction, DataType = typeof(ItemAction) };
 
 					//add text that is shown when item is taken
 					nodeAction.AddEvents(itemAction.OnTakeActionEvents ?? new());
@@ -227,7 +227,7 @@ namespace Translator.Explorer
 			foreach (PlayerReaction playerReaction in story.PlayerReactions ?? Enumerable.Empty<PlayerReaction>())
 			{
 				//add items to list
-				var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty);
+				var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(PlayerReaction) };
 
 				//get actions for item
 				nodeReaction.AddEvents(playerReaction.Events ?? new());
@@ -246,7 +246,7 @@ namespace Translator.Explorer
 
 			foreach (Quest quest in story.Quests ?? Enumerable.Empty<Quest>())
 			{
-				var nodeQuest = new Node(quest.ID ?? string.Empty, NodeType.Quest, quest.Name ?? string.Empty);
+				var nodeQuest = new Node(quest.ID ?? string.Empty, NodeType.Quest, quest.Name ?? string.Empty) { Data = quest, DataType = typeof(Quest) };
 
 				//Add details
 				if (quest.Details?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}Description", NodeType.Quest, quest.Details));
@@ -259,7 +259,7 @@ namespace Translator.Explorer
 
 				foreach (ExtendedDetail detail in quest.ExtendedDetails ?? Enumerable.Empty<ExtendedDetail>())
 				{
-					nodeQuest.AddChildNode(new Node($"{quest.ID}Description{detail.Value}", NodeType.Quest, detail.Details ?? string.Empty));
+					nodeQuest.AddChildNode(new Node($"{quest.ID}Description{detail.Value}", NodeType.Quest, detail.Details ?? string.Empty) { Data = detail, DataType = typeof(ExtendedDetail) });
 				}
 
 				nodes.Add(nodeQuest);
@@ -275,7 +275,7 @@ namespace Translator.Explorer
 			foreach (Reaction playerReaction in story.Reactions ?? Enumerable.Empty<Reaction>())
 			{
 				//add items to list
-				var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty);
+				var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(Reaction) };
 				//get actions for item
 				nodeReaction.AddEvents(playerReaction.Events ?? new());
 

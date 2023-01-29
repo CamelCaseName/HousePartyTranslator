@@ -316,7 +316,7 @@ namespace Translator.Explorer
 			if (e.ClickType == ClickedNodeTypes.Info)
 			{
 				infoNode = e.ChangedNode;
-				DisplayNodeInfo(e.ChangedNode);
+				Explorer.Invoke(()=> DisplayNodeInfo(e.ChangedNode));
 			}
 		}
 
@@ -531,7 +531,7 @@ namespace Translator.Explorer
 				TabManager.ActiveTranslationManager.SelectLine(e.ChangedNode.ID);
 				//put info up
 				highlightedNode = e.ChangedNode;
-				DisplayNodeInfo(e.ChangedNode);
+				Explorer.Invoke(() => DisplayNodeInfo(e.ChangedNode));
 			}
 		}
 

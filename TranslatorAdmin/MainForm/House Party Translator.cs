@@ -78,7 +78,7 @@ namespace Translator
 		/// </summary>
 		static Fenster()
 		{
-			ProgressbarWindow = new Translator.ProgressbarForm.ProgressWindow();
+			ProgressbarWindow = new ProgressbarForm.ProgressWindow();
 			ProgressbarWindow.Status.Text = "Creating UI";
 			ProgressbarWindow.Text = "Startup";
 			ProgressbarWindow.Show();
@@ -102,7 +102,7 @@ namespace Translator
 			var tab = new WinTab(this);
 			CheckForPassword();
 
-			TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), SoftwareVersionManager.LocalVersion, tab, new WinSettings());
+			TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), SoftwareVersionManager.LocalVersion, tab, new Settings());
 			CheckListBoxLeft = tab.Lines;
 			ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
 
@@ -110,7 +110,7 @@ namespace Translator
 			InitializeComponent();
 		}
 
-		public static Translator.ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
+		public static ProgressbarForm.ProgressWindow ProgressbarWindow { get; private set; }
 
 		/// <summary>
 		/// Instance of the Story Explorer, but the owner is checked so only the Storyexplorer class itself can instantiate it.
@@ -131,7 +131,7 @@ namespace Translator
 					}
 					else
 					{
-						throw new UnauthorizedAccessException("You must only write to this object?from within the Explorer class");
+						throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
 					}
 				}
 			}
@@ -165,7 +165,7 @@ namespace Translator
 			if (Explorer != null
 				&& Explorer.StoryName == TabManager.ActiveTranslationManager.StoryName
 				&& Explorer.FileName == TabManager.ActiveTranslationManager.FileName)
-				TabManager.ActiveTranslationManager.SetHighlightedNode();
+				Explorer.Invoke(() => TabManager.ActiveTranslationManager.SetHighlightedNode());
 		}
 
 		public void Comments_TextChanged(object? sender, EventArgs? e)
@@ -330,12 +330,12 @@ namespace Translator
 			}
 		}
 
-		private async void CustomStoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
+		private void CustomStoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
 		{
-			Explorer = await CreateStoryExplorer(false, CancelTokens);
+			Explorer = CreateStoryExplorer(false, CancelTokens);
 		}
 
-		internal static async Task<StoryExplorer?> CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
+		internal static StoryExplorer? CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
 		{
 			if (TabManager.ActiveTranslationManager == null) return null;
 
@@ -349,37 +349,22 @@ namespace Translator
 						$"Do you want to explore all files for the selected story{(autoOpen ? " (" + manager.StoryName + ")" : string.Empty)} or only the selected file{(autoOpen ? " (" + manager.FileName + ")" : string.Empty)}?\nNote: more files means slower layout, but viewing performance is about the same.",
 						"All files?"
 						);
-				if (openAll == DialogResult.Cancel)
-				{
-					return null;
-				}
-
 				var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token);
 
-				//task to offload initialization workload
-				var explorerTask = Task.Run(() =>
+				Task.Run(() =>
 				{
+					if (openAll == DialogResult.Cancel)
+					{
+						App.MainForm.Invoke(() => explorer.Close());
+						return;
+					}
 					//def answer set to no because true for opening a single one is needed
 					explorer.Initialize(openAll == DialogResult.No);
-					return true;
-				});
-
-				if (await explorerTask)
-				{
-					if (!explorer.IsDisposed)
-					{//reset cursor and display window
-						explorer.UseWaitCursor = false;
-						explorer.Invalidate();
-						explorer.Show();
-					}
 
 					manager.SetHighlightedNode();
-					return explorer;
-				}
-				else
-				{
-					return null;
-				}
+				});
+				if (!explorer.IsDisposed) explorer.Show(App.MainForm);
+				return explorer;
 			}
 			catch (OperationCanceledException)
 			{
@@ -928,9 +913,9 @@ namespace Translator
 			WindowsKeypressManager.ShowSettings();
 		}
 
-		private async void StoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
+		private void StoryExplorerStripMenuItem_Click(object? sender, EventArgs? e)
 		{
-			Explorer = await CreateStoryExplorer(true, CancelTokens);
+			Explorer = CreateStoryExplorer(true, CancelTokens);
 		}
 
 		private void ThreadExceptionHandler(object? sender, ThreadExceptionEventArgs? e)
