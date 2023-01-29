@@ -363,7 +363,7 @@ namespace Translator
 
 					manager.SetHighlightedNode();
 				});
-				if (!explorer.IsDisposed) explorer.Show(App.MainForm);
+				if (!explorer.IsDisposed) explorer.Show();
 				return explorer;
 			}
 			catch (OperationCanceledException)
