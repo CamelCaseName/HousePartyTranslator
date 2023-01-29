@@ -85,10 +85,8 @@ namespace Translator.Explorer
 			while (!token.IsCancellationRequested && !Finished)
 			{
 				FrameStartTime = FrameEndTime;
-				//sync nodes, initally in b
 
 				//calculate
-				CalculatePositions();
 				CalculatePositions();
 
 				//we got to wait before we change nodes, so like a reverse lock?
@@ -103,6 +101,7 @@ namespace Translator.Explorer
 
 				App.MainForm?.Explorer?.Invalidate();
 			}
+			App.MainForm?.Explorer?.Invoke(() => App.MainForm?.Explorer?.Stop_Click(new(), EventArgs.Empty));
 			Stop();
 		}
 

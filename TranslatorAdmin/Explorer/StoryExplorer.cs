@@ -111,10 +111,10 @@ namespace Translator.Explorer.Window
 			NodeCalculations.Invalidate();
 		}
 
-		private void Stop_Click(object sender, EventArgs e)
+		public void Stop_Click(object sender, EventArgs e)
 		{
 			NodeCalculations.Text = "Calculation stopped";
-			Layouter?.Stop();
+			if(Layouter?.Started ?? false)Layouter?.Stop();
 			NodeCalculations.Update();
 			NodeCalculations.Invalidate();
 		}
