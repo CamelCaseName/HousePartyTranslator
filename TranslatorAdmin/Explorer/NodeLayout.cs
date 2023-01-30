@@ -138,6 +138,11 @@ namespace Translator.Explorer
 								Internal[first].Position.X - Internal[second].Position.X,
 								Internal[first].Position.Y - Internal[second].Position.Y
 								);
+
+						//Repulsion
+						NodeForces[first] += (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
+						NodeForces[second] -= (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
+
 						if (Internal[first].ChildNodes.Contains(Internal[second]) || Internal[first].ParentNodes.Contains(Internal[second]))
 						{
 							//Attraction/spring accelleration on edge
@@ -145,12 +150,6 @@ namespace Translator.Explorer
 
 							NodeForces[first] -= attractionVec / Internal[first].Mass;
 							NodeForces[second] += attractionVec / Internal[second].Mass;
-						}
-						else
-						{
-							//Repulsion
-							NodeForces[first] += (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
-							NodeForces[second] -= (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
 						}
 					}
 					else
