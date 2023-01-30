@@ -25,28 +25,39 @@ namespace Translator.Explorer
 		Quest,
 		Achievement,
 		Reaction,
-		BGC
+		BGC,
+		Value,
+		Door,
+		Inventory,
+		State,
+		Personality,
+		Cutscene,
+		Clothing,
+		CriteriaGroup,
+		Pose,
+		Property,
+		Social
 	}
 
 	internal sealed class Node
 	{
 		public static readonly Node NullNode = new("", NodeType.Null, "");
 
-		public List<Node> ChildNodes;
 		public bool ChildsVisited = false;
-		public Guid Guid = Guid.NewGuid();
-		public string ID;
-		public Gender Gender = Gender.None;
-		public int Mass = 1;
-		public List<Node> ParentNodes;
-		public bool ParentsVisited = false;
-		public PointF Position;
-		public string Text;
-		public NodeType Type;
-		public bool Visited = false;
-		public string FileName = string.Empty;
 		public bool IsPositionLocked = false;
+		public bool ParentsVisited = false;
+		public bool Visited = false;
+		public Gender Gender = Gender.None;
+		public Guid Guid = Guid.NewGuid();
+		public int Mass = 1;
+		public List<Node> ChildNodes;
+		public List<Node> ParentNodes;
+		public NodeType Type;
 		public object? Data = null;
+		public PointF Position;
+		public string FileName = string.Empty;
+		public string ID;
+		public string Text;
 		public Type DataType = typeof(object);
 
 		public Node(string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
@@ -88,6 +99,7 @@ namespace Translator.Explorer
 		public static Node CreateCriteriaNode(ICriterion criterion, Node node)
 		{
 			//create all criteria nodes the same way so they can possibly be replaced by the actual text later
+			//todo remove string thing because it is no longer needed
 			return new Node(
 				$"{criterion.Character}{criterion.CompareType}{criterion.Value}",
 				NodeType.Criterion,

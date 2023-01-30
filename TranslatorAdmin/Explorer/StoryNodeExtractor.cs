@@ -13,7 +13,7 @@ namespace Translator.Explorer
 			foreach (Achievement achievement in story.Achievements ?? Enumerable.Empty<Achievement>())
 			{
 				//node to add the description as child to, needs reference to parent, hence can't be anonymous
-				var node = new Node(achievement.Id ?? string.Empty, NodeType.Achievement, achievement.Name ?? string.Empty) { Data = achievement, DataType = typeof(Achievement) } ;
+				var node = new Node(achievement.Id ?? string.Empty, NodeType.Achievement, achievement.Name ?? string.Empty) { Data = achievement, DataType = typeof(Achievement) };
 				node.AddChildNode(new Node(achievement.Id + "Description", NodeType.Achievement, achievement.Description ?? string.Empty, node));
 				node.AddChildNode(new Node(achievement.Id + "SteamName", NodeType.Achievement, achievement.SteamName ?? string.Empty, node));
 				//add achievement with description child to list
@@ -282,6 +282,25 @@ namespace Translator.Explorer
 				nodeReaction.AddCriteria(playerReaction.Critera ?? new());
 
 				nodes.Add(nodeReaction);
+			}
+
+			return nodes;
+		}
+
+		public static List<Node> GetCriteriaGroups(MainStory story)
+		{
+			var nodes = new List<Node>();
+			foreach (CriteriaGroup group in story.CriteriaGroups ?? Enumerable.Empty<CriteriaGroup>())
+			{
+				//add items to list
+				var nodeCriteriaGroup = new Node(group.Id!, NodeType.CriteriaGroup, group.Name + " True if " + group.PassCondition) { Data = group, DataType = typeof(CriteriaGroup) };
+
+				foreach (var criteriaList in group.CriteriaList ?? Enumerable.Empty<CriteriaList1>())
+				{
+					nodeCriteriaGroup.AddCriteria(criteriaList.CriteriaList ?? new());
+				}
+
+				nodes.Add(nodeCriteriaGroup);
 			}
 
 			return nodes;

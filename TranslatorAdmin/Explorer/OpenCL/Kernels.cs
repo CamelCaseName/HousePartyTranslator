@@ -5,7 +5,8 @@ internal static class Kernels
 	/*
 	 * code to implement in opencl
 	 * 
-	 for (int i = 0; i < NodeForces.Count; i++)
+	
+	for (int i = 0; i < NodeForces.Count; i++)
 	{
 		NodeForces[i] = Vector2.Zero;
 	}

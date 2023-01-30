@@ -123,26 +123,26 @@ namespace Translator.Explorer.JSON
 		public string? SteamName { get; set; }
 	}
 
-	internal sealed class CriteriaList2
+	internal sealed class CriteriaList2 : ICriterion
 	{
-		public string? BoolValue { get; set; }
+		public BoolCritera? BoolValue { get; set; }
 		public string? Character { get; set; }
 		public string? Character2 { get; set; }
-		public string? CompareType { get; set; }
-		public string? DialogueStatus { get; set; }
+		public CompareTypes? CompareType { get; set; }
+		public DialogueStatuses? DialogueStatus { get; set; }
 		public bool DisplayInEditor { get; set; }
-		public string? DoorOptions { get; set; }
-		public string? EqualsValue { get; set; }
-		public string? EquationValue { get; set; }
-		public string? ValueFormula { get; set; }
-		public string? ItemComparison { get; set; }
-		public object? ItemFromItemGroupComparison { get; set; }
+		public DoorOptionValues? DoorOptions { get; set; }
+		public EqualsValues? EqualsValue { get; set; }
+		public ComparisonEquations? EquationValue { get; set; }
+		public ValueSpecificFormulas? ValueFormula { get; set; }
+		public ItemComparisonTypes? ItemComparison { get; set; }
+		public ItemFromItemGroupComparisonTypes? ItemFromItemGroupComparison { get; set; }
 		public string? Key { get; set; }
 		public string? Key2 { get; set; }
 		public int Order { get; set; }
-		public string? PlayerInventoryOption { get; set; }
-		public string? PoseOption { get; set; }
-		public string? SocialStatus { get; set; }
+		public PlayerInventoryOptions? PlayerInventoryOption { get; set; }
+		public PoseOptions? PoseOption { get; set; }
+		public SocialStatuses? SocialStatus { get; set; }
 		public string? Value { get; set; }
 		public int Option { get; set; }
 	}
