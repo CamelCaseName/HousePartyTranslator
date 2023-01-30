@@ -196,7 +196,7 @@ namespace Translator.Explorer
 			foreach (ItemOverride itemOverride in story.ItemOverrides ?? Enumerable.Empty<ItemOverride>())
 			{
 				//add items to list
-				var nodeItem = new Node(itemOverride.Id ?? string.Empty, NodeType.Item, itemOverride.DisplayName ?? string.Empty) { Data = itemOverride, DataType = typeof(ItemOverride) };
+				var nodeItem = new Node(itemOverride.DisplayName ?? string.Empty, NodeType.Item, itemOverride.Id ?? string.Empty) { Data = itemOverride, DataType = typeof(ItemOverride) };
 				//get actions for item
 				foreach (ItemAction itemAction in itemOverride.ItemActions ?? new())
 				{
@@ -301,6 +301,61 @@ namespace Translator.Explorer
 				}
 
 				nodes.Add(nodeCriteriaGroup);
+			}
+
+			return nodes;
+		}
+
+		internal static List<Node> GetPersonality(CharacterStory story)
+		{
+			var nodes = new List<Node>();
+			foreach (Valuee valuee in story.Personality?.Values ?? Enumerable.Empty<Valuee>())
+			{
+				//add items to list
+				var nodeValue = new Node(valuee.Type!, NodeType.Personality, story.CharacterName + " " + valuee.Type + " " + valuee.Value) { Data = valuee, DataType = typeof(Valuee) };
+				nodes.Add(nodeValue);
+			}
+
+			return nodes;
+		}
+
+		internal static List<Node> GetItems(CharacterStory story)
+		{
+			var nodes = new List<Node>();
+			foreach (StoryItem item in story.StoryItems ?? Enumerable.Empty<StoryItem>())
+			{
+				//add items to list
+				var nodeItem = new Node(item.ItemName!, NodeType.Item, item.ItemName!) { Data = item, DataType = typeof(StoryItem) };
+				nodeItem.AddCriteria(item.Critera ?? new());
+				nodeItem.AddEvents(item.OnRefuseEvents ?? new());
+				nodeItem.AddEvents(item.OnAcceptEvents ?? new());
+				nodes.Add(nodeItem);
+			}
+
+			return nodes;
+		}
+
+		internal static List<Node> GetValues(CharacterStory story)
+		{
+			var nodes = new List<Node>();
+			foreach (string value in story.StoryValues ?? Enumerable.Empty<string>())
+			{
+				//add items to list
+				var nodeValue = new Node(value!, NodeType.Value, story.CharacterName  + value + ", referenced values: ") { Data = value, DataType = typeof(string) };
+				nodes.Add(nodeValue);
+			}
+
+			return nodes;
+		}
+
+		internal static List<Node> GetValues(MainStory story)
+		{
+			var nodes = new List<Node>();
+			foreach (string value in story.PlayerValues ?? Enumerable.Empty<string>())
+			{
+				//add items to list
+				var nodeValue = new Node(value, NodeType.Value, "Player " + value + ", referenced values: ") { Data = value, DataType = typeof(string) };
+				nodes.Add(nodeValue);
 			}
 
 			return nodes;

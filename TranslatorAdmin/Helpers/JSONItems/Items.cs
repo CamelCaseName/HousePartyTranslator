@@ -544,13 +544,36 @@ namespace Translator.Explorer.JSON
 		public bool DisplayInEditor { get; set; }
 		public List<Criterion>? Criteria { get; set; }
 	}
+	internal sealed class OnRefuseEvent : IEvent
+	{
+		public int SortOrder2 { get; set; }
+		public string? Version { get; set; }
+		public string? Id { get; set; }
+		public bool Enabled { get; set; }
+		public int EventType { get; set; }
+		public string? Character { get; set; }
+		public string? Character2 { get; set; }
+		public string? Key { get; set; }
+		public int Option { get; set; }
+		public int Option2 { get; set; }
+		public int Option3 { get; set; }
+		public string? Value { get; set; }
+		public string? Value2 { get; set; }
+		public int SortOrder { get; set; }
+		public double Delay { get; set; }
+		public double OriginalDelay { get; set; }
+		public double StartDelayTime { get; set; }
+		public bool UseConditions { get; set; }
+		public bool DisplayInEditor { get; set; }
+		public List<Criterion>? Criteria { get; set; }
+	}
 
 	internal sealed class StoryItem
 	{
 		public List<Critera>? Critera { get; set; }
 		public string? ItemName { get; set; }
 		public List<OnAcceptEvent>? OnAcceptEvents { get; set; }
-		public List<object>? OnRefuseEvents { get; set; }
+		public List<OnRefuseEvent>? OnRefuseEvents { get; set; }
 		public bool DisplayInEditor { get; set; }
 	}
 

@@ -239,6 +239,7 @@ namespace Translator.Explorer
 			if (ChildNodes.Contains(childNode))
 			{
 				_ = ChildNodes.Remove(childNode);
+				childNode.RemoveParentNode(this);
 			}
 		}
 
@@ -247,6 +248,7 @@ namespace Translator.Explorer
 			if (ParentNodes.Contains(parentNode))
 			{
 				_ = ParentNodes.Remove(parentNode);
+				parentNode.RemoveChildNode(this);
 			}
 		}
 

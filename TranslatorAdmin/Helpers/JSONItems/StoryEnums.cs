@@ -298,5 +298,37 @@ namespace Translator.Explorer.JSON
 			GivingOral,
 			InCutScene = 200
 		}
+
+		public enum PersonalityTraits
+		{
+			Nice,
+			Happy,
+			Humerous,
+			Creative,
+			Jealous,
+			LikesMen,
+			LikesWomen,
+			Aggressive,
+			Sociable,
+			Optimistic,
+			Energetic,
+			Serious,
+			Intelligent,
+			Charismatic,
+			Shy,
+			Perverse,
+			Exhibitionism
+		}
+
+		public enum Clothes
+		{
+			Top,
+			Bottom,
+			Underwear,
+			Bra,
+			Shoes,
+			Accessory,
+			StrapOn
+		}
 	}
 }
