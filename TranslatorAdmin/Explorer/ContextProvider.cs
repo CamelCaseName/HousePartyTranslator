@@ -362,7 +362,6 @@ namespace Translator.Explorer
 			if (story != null && !GotCancelled)
 			{
 				CriteriaInFile = new List<Node>();
-				//todo add more getters for items and values
 				//get all relevant items from the json
 				_nodes.AddRange(StoryNodeExtractor.GetItems(story));
 				Values.AddRange(StoryNodeExtractor.GetValues(story));
@@ -689,7 +688,7 @@ namespace Translator.Explorer
 							break;
 					}
 				}
-				//link up events and the thing they perform as a child to the event
+				//todo link up events and the thing they perform as a child to the event
 				else if (nodes[i].Type == NodeType.Event)
 				{
 
@@ -783,6 +782,7 @@ namespace Translator.Explorer
 			{
 				CriteriaInFile = new List<Node>();
 
+				//todo add more getters for teh rest of the events
 				//add all items in the story
 				_nodes.AddRange(StoryNodeExtractor.GetItemOverrides(story));
 				//add all item groups with their actions

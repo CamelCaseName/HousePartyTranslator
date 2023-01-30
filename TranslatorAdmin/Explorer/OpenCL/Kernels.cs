@@ -42,8 +42,8 @@ internal static class Kernels
 					//Attraction/spring accelleration on edge
 					Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
 
-					NodeForces[first] -= attractionVec;
-					NodeForces[second] += attractionVec;
+					NodeForces[first] -= attractionVec / Internal[first].Mass;
+					NodeForces[second] += attractionVec / Internal[second].Mass;
 				}
 				else
 				{
@@ -65,8 +65,8 @@ internal static class Kernels
 	{
 		if (!Internal[i].IsPositionLocked)
 		{
-			Internal[i].Position.X += NodeForces[i].X / Internal[i].Mass;
-			Internal[i].Position.Y += NodeForces[i].Y / Internal[i].Mass;
+			Internal[i].Position.X += NodeForces[i].X;
+			Internal[i].Position.Y += NodeForces[i].Y;
 		}
 	}
 	 */
