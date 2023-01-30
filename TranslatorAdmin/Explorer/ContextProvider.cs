@@ -671,7 +671,8 @@ namespace Translator.Explorer
 							result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
 							if (result != null)
 							{
-								result.Text += GetSymbolsFromValueFormula((ValueSpecificFormulas)criterion.ValueFormula!) + criterion.Value + ", ";
+								if (!result.Text.Contains(GetSymbolsFromValueFormula((ValueSpecificFormulas)criterion.ValueFormula!) + criterion.Value))
+									result.Text += GetSymbolsFromValueFormula((ValueSpecificFormulas)criterion.ValueFormula!) + criterion.Value + ", ";
 								nodes[i].AddParentNode(result);
 								break;
 							}
@@ -757,7 +758,7 @@ namespace Translator.Explorer
 						childNode.AddParentNode(result);
 						childNode.RemoveParentNode(door);
 					}
-				Doors.Remove(door);
+					Doors.Remove(door);
 				}
 			}
 		}
