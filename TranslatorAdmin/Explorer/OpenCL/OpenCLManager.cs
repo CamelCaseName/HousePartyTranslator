@@ -1,6 +1,8 @@
 ﻿using Silk.NET.OpenCL;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Text;
 using Translator.Core;
 
 namespace Translator.Explorer.OpenCL;
@@ -11,22 +13,46 @@ internal sealed unsafe class OpenCLManager
 	private nint SelectedPlatform = 0;
 	private readonly CL _cl;
 	private readonly Dictionary<nint, (nint deviceId, string platformName)> Platforms = new();//key is pointer to platform
-	private readonly string DeviceName = string.Empty;
-	private string KernelName = string.Empty;
+	private string DeviceName = string.Empty;
+	private readonly string KernelName = "layout_kernel";
 	private nint _context;//pointer to context
 	private nint _commandQueue;//pointer to commandqueue for our selected device
-	private readonly nint _device;
+	private nint _device;
 	private nint _program;
-	private readonly nint _kernel;
+	private nint _kernel;
 	public bool OpenCLDevicePresent = false;
+	private bool Failed = false;
 	private readonly Form parent;
+	private readonly NodeProvider Provider;
 
-	public OpenCLManager(Form parent)
+	public OpenCLManager(Form parent, NodeProvider provider)
 	{
+		Provider = provider;
 		this.parent = parent;
 		//get api and context
 		_cl = CL.GetApi();
+	}
 
+	public void SetUpOpenCl()
+	{
+		SetUpOpenCLImpl();
+		if (Failed)
+		{
+			if (_commandQueue != nint.Zero)
+				_cl.ReleaseCommandQueue(_commandQueue);
+			if (_kernel != nint.Zero)
+				_cl.ReleaseKernel(_kernel);
+			if (_program != nint.Zero)
+				_cl.ReleaseProgram(_program);
+			if (_device != nint.Zero)
+				_cl.ReleaseDevice(_device);
+			if (_context != nint.Zero)
+				_cl.ReleaseContext(_context);
+		}
+	}
+
+	private void SetUpOpenCLImpl()
+	{
 		//get platform
 		FindOpenCLPlatforms();
 		//just do the old way if we have no opencl
@@ -40,27 +66,76 @@ internal sealed unsafe class OpenCLManager
 
 		//create contet, program and build it on the selected device
 		CreateProgram();
-
+		if (Failed) return;
 		//success, we can go on creating the kernel
 		_kernel = _cl.CreateKernel(_program, KernelName, out int err);
-		Debug.Assert(err == 0);
+		if (Failed |= err != 0) return;
+
+		//create and fill buffers on cpu side
+		var nodePositionBuffer = Provider.GetNodePositionBuffer();
+		var returnedNodePositionBuffer = Provider.GetNodeNewPositionBuffer();
+		(int[] nodeParents, int[] nodeParentsOffset, int[] nodeParentsCount) = Provider.GetNodeParentsBuffer();
+		(int[] nodeChilds, int[] nodeChildsOffset, int[] nodeChildsCount) = Provider.GetNodeChildsBuffer();
+
+		//create buffers on gpu
+		var node_pos = _cl.CreateBuffer(_context, MemFlags.ReadOnly, (nuint)(nodePositionBuffer.Length * sizeof(float) * 4), nodePositionBuffer.AsSpan(), &err);
+		if (Failed |= err != 0) return;
+		var new_node_pos = _cl.CreateBuffer(_context, MemFlags.WriteOnly, (nuint)(returnedNodePositionBuffer.Length * sizeof(float) * 4), returnedNodePositionBuffer.AsSpan(), &err);
+		if (Failed |= err != 0) return;
+		var node_parents = _cl.CreateBuffer(_context, MemFlags.ReadOnly, (nuint)(nodeParents.Length * sizeof(int)), nodeParents.AsSpan(), &err);
+		if (Failed |= err != 0) return;
+		var node_parent_offset = _cl.CreateBuffer(_context, MemFlags.ReadOnly, (nuint)(nodeParentsOffset.Length * sizeof(int)), nodeParentsOffset.AsSpan(), &err);
+		if (Failed |= err != 0) return;
+		var node_parent_count = _cl.CreateBuffer(_context, MemFlags.ReadOnly, (nuint)(nodeParentsCount.Length * sizeof(int)), nodeParentsCount.AsSpan(), &err);
+		if (Failed |= err != 0) return;
+		var node_childs = _cl.CreateBuffer(_context, MemFlags.ReadOnly, (nuint)(nodeChilds.Length * sizeof(int)), nodeChilds.AsSpan(), &err);
+		if (Failed |= err != 0) return;
+		var node_child_offset = _cl.CreateBuffer(_context, MemFlags.ReadOnly, (nuint)(nodeChildsOffset.Length * sizeof(int)), nodeChildsOffset.AsSpan(), &err);
+		if (Failed |= err != 0) return;
+		var node_child_count = _cl.CreateBuffer(_context, MemFlags.ReadOnly, (nuint)(nodeChildsCount.Length * sizeof(int)), nodeChildsCount.AsSpan(), &err);
+		if (Failed |= err != 0) return;
+
+		//copy data over, set arguments
+		//    float4 parameters /*first is edge length, second attraction, third repulsion
+		//						  fourth gravity */,
+		//	  __global float4 *node_pos /* first 2 is pos, 3rd locked and 4th is mass */,
+		//	  __global float4 *new_node_pos /* first 2 contain pos */,
+		//	  __global int* node_parents /*contains the indices of a nodes parents*/,
+		//	  __global int* node_parent_offset /*starting index for parents for a node */,
+		//	  __global int* node_parent_count /*count of the parents for each node */,
+		//	  __global int* node_childs /*contains the indices of a nodes childs */,
+		//	  __global int* node_child_offset /*starting index for childs for a node */,
+		//	  __global int* node_child_count /*count of the childs for each node */,
+		//	  __local float4* node_buffer /*the forces for each node*/)
+		//
+
+
+		//enqueue execution
+
+		//wait on data
+
+		//finished => take it out of the return channel and run computation again, positions are kept in gpu if nothing changed in node count
+
+		//copy values over to our nodes
 	}
 
 	private void CreateProgram()
 	{//get context with selected devices
 		_context = _cl.CreateContext(null, 1, _device, null, null, out int err);
-		Debug.Assert(err == 0);
+		if (Failed |= err != 0) return;
 
 		//get context with selected devices
 		_commandQueue = _cl.CreateCommandQueue(_context, _device, CommandQueueProperties.None, out err);
-		Debug.Assert(err == 0);
+		if (Failed |= err != 0) return;
 
 		//build program
-		string KernelCode = Kernels.TestKernel;
-		KernelName = nameof(Kernels.TestKernel);
-		nuint KernelCodeLength = (nuint)(KernelCode.Length * 2);
-		_program = _cl.CreateProgramWithSource(_context, 1, new string[] { KernelCode }, &KernelCodeLength, out err);
-		Debug.Assert(err == 0);
+		byte[] codeBytes = new byte[Encoding.Default.GetByteCount(Kernels.LayoutKernel) + 1];
+		Encoding.Default.GetBytes(Kernels.LayoutKernel, 0, Kernels.LayoutKernel.Length, codeBytes, 0);
+		fixed (byte* code = codeBytes)
+		{
+			_program = _cl.CreateProgramWithSource(_context, 1, in code, null, out err);
+			if (Failed |= err != 0) return;
+		}
 
 		//get build status as it is not in the error
 		nint pdevice = _device;
@@ -73,6 +148,7 @@ internal sealed unsafe class OpenCLManager
 			{
 				_ = _cl.GetProgramBuildInfo(_program, _device, ProgramBuildInfo.BuildLog, logSize, plog, null);
 				LogManager.Log($"kernel build failed on {DeviceName}: \n" + new string(plog), LogManager.Level.Error);
+				Failed = true;
 			}
 		}
 	}
@@ -100,13 +176,13 @@ internal sealed unsafe class OpenCLManager
 	private void FindOpenCLPlatforms()
 	{
 		int err = _cl.GetPlatformIDs(0, null, out uint platformCount);
-		Debug.Assert(err == 0);
+		if (Failed |= err != 0) return;
 
 		nint[] _platforms = new nint[platformCount];
 		Debug.WriteLine($"Found {platformCount} opencl platforms");
 
 		err = _cl.GetPlatformIDs(platformCount, _platforms, Array.Empty<uint>());
-		Debug.Assert(err == 0);
+		if (Failed |= err != 0) return;
 
 		//get devices
 		//platform id is key
@@ -115,7 +191,7 @@ internal sealed unsafe class OpenCLManager
 		{
 			//get length/size of name
 			err = _cl.GetPlatformInfo(_platforms[i], PlatformInfo.Name, 0, null, out nuint NameLength);
-			Debug.Assert(err == 0);
+			if (Failed |= err != 0) return;
 			sbyte[] platformName = new sbyte[NameLength + 1];
 			//get platform name
 			string platformNameString = string.Empty;
@@ -127,22 +203,22 @@ internal sealed unsafe class OpenCLManager
 			}
 			//get device count
 			err = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, 0, null, out uint deviceCount);
-			Debug.Assert(err == 0);
+			if (Failed |= err != 0) return;
 			Debug.WriteLine($"        this platform has: {deviceCount} opencl devices");
 			nint[] _devices = new nint[deviceCount];
 			//get devices
 			err = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, deviceCount, _devices, Array.Empty<uint>());
-			Debug.Assert(err == 0);
+			if (Failed |= err != 0) return;
 			//find device with most power, opencl compute units
 			for (int k = 0; k < deviceCount; k++)
 			{
 				nuint maxComputeUnits = 0;
 				err = _cl.GetDeviceInfo(_devices[k], DeviceInfo.MaxWorkGroupSize, (nuint)sizeof(nuint), &maxComputeUnits, out _);
-				Debug.Assert(err == 0);
+				if (Failed |= err != 0) return;
 
 				//get length/size of name
 				err = _cl.GetDeviceInfo(_devices[k], DeviceInfo.Name, 0, null, out nuint DeviceNameLength);
-				Debug.Assert(err == 0);
+				if (Failed |= err != 0) return;
 				string deviceNameString = string.Empty;
 				if (DeviceNameLength > 0)
 				{

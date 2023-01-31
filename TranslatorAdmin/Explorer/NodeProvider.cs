@@ -17,6 +17,14 @@ namespace Translator.Explorer
 		private readonly List<Node> nodesB = new();
 		public bool UsingListA = true;
 		private bool frozen = false;
+		private float[] positionBuffer = Array.Empty<float>();
+		private float[] returnedPositionBuffer = Array.Empty<float>();
+		private readonly List<int> parent_indices = new();
+		private readonly List<int> parent_offset = new();
+		private readonly List<int> parent_count = new();
+		private readonly List<int> child_indices = new();
+		private readonly List<int> child_offset = new();
+		private readonly List<int> child_count = new();
 
 		public List<Node> Nodes
 		{
@@ -54,6 +62,80 @@ namespace Translator.Explorer
 		public void FreezeNodesAsInitial()
 		{
 			if (!frozen) InternalNodes = Nodes; frozen = true;
+		}
+
+		public float[] GetNodePositionBuffer()
+		{
+			if (positionBuffer.Length != Nodes.Count * 4)
+				positionBuffer = new float[Nodes.Count * 4];
+			for (int i = 0; i < Nodes.Count; i++)
+			{
+				positionBuffer[i * 4] = Nodes[i].Position.X;
+				positionBuffer[(i * 4 + 1)] = Nodes[i].Position.Y;
+				positionBuffer[(i * 4 + 2)] = Nodes[i].IsPositionLocked ? 1.0f : 0.0f;
+				positionBuffer[(i * 4 + 3)] = Nodes[i].Mass;
+			}
+			return positionBuffer;
+		}
+
+		public float[] GetNodeNewPositionBuffer()
+		{
+			if (returnedPositionBuffer.Length != Nodes.Count * 4)
+				returnedPositionBuffer = new float[Nodes.Count * 4];
+			for (int i = 0; i < Nodes.Count; i++)
+			{
+				returnedPositionBuffer[i * 4] = Nodes[i].Position.X;
+				returnedPositionBuffer[(i * 4 + 1)] = Nodes[i].Position.Y;
+				returnedPositionBuffer[(i * 4 + 2)] = Nodes[i].IsPositionLocked ? 1.0f : 0.0f;
+				returnedPositionBuffer[(i * 4 + 3)] = Nodes[i].Mass;
+			}
+			return returnedPositionBuffer;
+		}
+
+		public (int[] indices, int[] offsets, int[] count) GetNodeParentsBuffer()
+		{
+			int offset = 0;
+			parent_count.Clear();
+			parent_indices.Clear();
+			parent_offset.Clear();
+			for (int i = 0; i < Nodes.Count; i++)
+			{
+				parent_count.Add(Nodes[i].ParentNodes.Count);
+				for (int j = 0; j < Nodes[i].ParentNodes.Count; j++)
+				{
+					int index = Nodes.IndexOf(Nodes[i].ParentNodes[j]);
+					if (index == -1) continue;
+
+					parent_indices.Add(index);
+					offset++;
+				}
+				parent_offset.Add(offset);
+			}
+
+			return (parent_indices.ToArray(), parent_offset.ToArray(), parent_count.ToArray());
+		}
+
+		internal (int[] node_childs, int[] node_childs_offset, int[] node_childs_count) GetNodeChildsBuffer()
+		{
+			int offset = 0;
+			child_count.Clear();
+			child_indices.Clear();
+			child_offset.Clear();
+			for (int i = 0; i < Nodes.Count; i++)
+			{
+				child_count.Add(Nodes[i].ChildNodes.Count);
+				for (int j = 0; j < Nodes[i].ChildNodes.Count; j++)
+				{
+					int index = Nodes.IndexOf(Nodes[i].ChildNodes[j]);
+					if (index == -1) continue;
+
+					child_indices.Add(index);
+					offset++;
+				}
+				child_offset.Add(offset);
+			}
+
+			return (child_indices.ToArray(), child_offset.ToArray(), child_count.ToArray());
 		}
 	}
 }
