@@ -139,5 +139,15 @@ namespace Translator.Explorer
 
 			return (child_indices.ToArray(), child_offset.ToArray(), child_count.ToArray());
 		}
+
+		internal void SetNewNodePositions(float[] returnedNodePositionBuffer)
+		{
+			for (int i = 0; i < returnedNodePositionBuffer.Length / 4; i++)
+			{
+				OtherNodes[i].Position.X = returnedNodePositionBuffer[i * 4];
+				OtherNodes[i].Position.Y = returnedNodePositionBuffer[(i * 4) + 1];
+				OtherNodes[i].Mass = (int)returnedNodePositionBuffer[(i * 4) + 3];
+			}
+		}
 	}
 }
