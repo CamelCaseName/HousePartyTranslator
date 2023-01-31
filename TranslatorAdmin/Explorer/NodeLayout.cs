@@ -47,7 +47,8 @@ namespace Translator.Explorer
 
 			LayoutCalculation = () => CalculateForceDirectedLayout(cancellationToken.Token);
 
-			opencl = new(parent);
+			opencl = new(parent, provider);
+			opencl.SetUpOpenCl();
 			if (opencl.OpenCLDevicePresent)
 			{
 				LayoutCalculation = () => { CalculateForceDirectedLayout(cancellationToken.Token); /*add opencl calculation method here*/ };

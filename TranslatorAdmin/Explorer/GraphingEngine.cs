@@ -244,6 +244,7 @@ namespace Translator.Explorer
 			MovingANode = false;
 		}
 
+		//todo add setting to limit the number of edges drawn on screen, only count visible ones of course
 		public void PaintAllNodes(Graphics g)
 		{
 			DrewNodes = false;
@@ -363,6 +364,7 @@ namespace Translator.Explorer
 				GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
 				GraphToScreen(node2.Position.X, node2.Position.Y, out float x2, out float y2);
 
+				//sort out lines that would be too small on screen and ones where none of the ends are visible
 				if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > 10 &&
 					((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
 					(x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin)))
