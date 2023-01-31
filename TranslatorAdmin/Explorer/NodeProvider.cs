@@ -100,7 +100,8 @@ namespace Translator.Explorer
 			parent_offset.Clear();
 			for (int i = 0; i < Nodes.Count; i++)
 			{
-				parent_count.Add(Nodes[i].ParentNodes.Count);
+				//from offset
+				parent_offset.Add(offset);
 				for (int j = 0; j < Nodes[i].ParentNodes.Count; j++)
 				{
 					int index = Nodes.IndexOf(Nodes[i].ParentNodes[j]);
@@ -109,7 +110,8 @@ namespace Translator.Explorer
 					parent_indices.Add(index);
 					offset++;
 				}
-				parent_offset.Add(offset);
+				//till count are our edges
+				parent_count.Add(Nodes[i].ParentNodes.Count);
 			}
 
 			return (parent_indices.ToArray(), parent_offset.ToArray(), parent_count.ToArray());
@@ -123,7 +125,7 @@ namespace Translator.Explorer
 			child_offset.Clear();
 			for (int i = 0; i < Nodes.Count; i++)
 			{
-				child_count.Add(Nodes[i].ChildNodes.Count);
+				child_offset.Add(offset);
 				for (int j = 0; j < Nodes[i].ChildNodes.Count; j++)
 				{
 					int index = Nodes.IndexOf(Nodes[i].ChildNodes[j]);
@@ -132,7 +134,7 @@ namespace Translator.Explorer
 					child_indices.Add(index);
 					offset++;
 				}
-				child_offset.Add(offset);
+				child_count.Add(Nodes[i].ChildNodes.Count);
 			}
 
 			return (child_indices.ToArray(), child_offset.ToArray(), child_count.ToArray());
