@@ -8,6 +8,7 @@ namespace Translator.Explorer.OpenCL;
 [SupportedOSPlatform("windows")]
 internal sealed unsafe class OpenCLManager
 {
+	public bool Failed { get; private set; } = false;
 	public bool OpenCLDevicePresent = false;
 	private readonly CL _cl;
 	private readonly string KernelName = "layout_kernel";
@@ -24,10 +25,14 @@ internal sealed unsafe class OpenCLManager
 	private nint _kernel;
 	private nint _program;
 
-	private string DeviceName = string.Empty;
-	private bool Failed = false;
+	private bool AreResourcesAcquired = false;
+	private float[] nodePosBuffer1 = Array.Empty<float>(), nodePosBuffer2 = Array.Empty<float>(), nodePosResultBuffer = Array.Empty<float>();
+	private int NodeCount = 0;
+	private nint node_pos_1, node_pos_2;
 	private nint preselectedPlatform = 0;//pointer to preselected platform
 	private nint SelectedPlatform = 0;
+	private nuint neededWorkItems, neededWorkSize;
+	private string DeviceName = string.Empty;
 	private uint MaxWorkGroupSize, MaxWorkItems;
 
 	public OpenCLManager(Form parent, NodeProvider provider)
@@ -282,41 +287,46 @@ internal sealed unsafe class OpenCLManager
 		if (Platforms.Count == 0) return -1;
 		OpenCLDevicePresent = true;
 
-		_device = SelectDevice();
+		if (_device == nint.Zero) _device = SelectDevice();
 		if (_device == nint.Zero) return -1;
 
 		DeviceName = Platforms[SelectedPlatform].platformName;
 
-		//create contet, program and build it on the selected device
-		err = CreateProgram();
-		if (err != 0) return err;
-		//success, we can go on creating the kernel
-		_kernel = _cl.CreateKernel(_program, KernelName, out err);
+		//get all resources we need, context kernel and so on
+		AcquireRessources();
+
+		err = SetUpBuffers();
 		if (err != 0) return err;
 
-		err = GetMaxWorkItemDimension();
-		if (err != 0) return err;
+		//do the calculation once
+		return CalculateAndCopy(nodePosResultBuffer);
+	}
 
+	private int SetUpBuffers()
+	{
+		int err;
 		//create and fill buffers on cpu side
-		var nodePositionBuffer = Provider.GetNodePositionBuffer();
-		var returnedNodePositionBuffer = Provider.GetNodeNewPositionBuffer();
+		nodePosBuffer1 = Provider.GetNodePositionBuffer();
+		nodePosBuffer2 = Provider.GetNodeNewPositionBuffer();
+		nodePosResultBuffer = Provider.GetNodeNewPositionBuffer();
 		(int[] nodeParents, int[] nodeParentsOffset, int[] nodeParentsCount) = Provider.GetNodeParentsBuffer();
 		(int[] nodeChilds, int[] nodeChildsOffset, int[] nodeChildsCount) = Provider.GetNodeChildsBuffer();
 		var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.Attraction, StoryExplorerConstants.Repulsion, StoryExplorerConstants.Gravity };
+		NodeCount = nodeParentsCount.Length;
 
 		//calculate work size for local stuff
-		nuint neededWorkSize = (nuint)((Math.Sqrt(Provider.Nodes.Count)) + 0.5d);
+		neededWorkSize = (nuint)((Math.Sqrt(Provider.Nodes.Count)) + 0.5d);
 		if (neededWorkSize > MaxWorkGroupSize) return -1;
-		nuint neededWorkitems = (nuint)(Provider.Nodes.Count) / neededWorkSize;
+		neededWorkItems = (nuint)(Provider.Nodes.Count) / neededWorkSize;
 		//divisible by 4 for nice boundaries
 		while ((neededWorkSize) % 4 > 0) ++neededWorkSize;
-		while ((neededWorkitems) % 4 > 0) ++neededWorkitems;
+		while ((neededWorkItems) % 4 > 0) ++neededWorkItems;
 
 		//create buffers on gpu
 		// we can quickly swap buffers and start the calculations again if we want
-		var node_pos_1 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePositionBuffer.Length * sizeof(float) * 4), nodePositionBuffer.AsSpan(), &err);
+		node_pos_1 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer1.Length * sizeof(float) * 4), nodePosBuffer1.AsSpan(), &err);
 		if (err != 0) return err;
-		var node_pos_2 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(returnedNodePositionBuffer.Length * sizeof(float) * 4), returnedNodePositionBuffer.AsSpan(), &err);
+		node_pos_2 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer2.Length * sizeof(float) * 4), nodePosBuffer2.AsSpan(), &err);
 		if (err != 0) return err;
 
 		//flat linked list edge representation
@@ -365,28 +375,31 @@ internal sealed unsafe class OpenCLManager
 		err = _cl.SetKernelArg(_kernel, 8, (nuint)sizeof(nint), node_child_count);
 		if (err != 0) return err;
 		err = _cl.SetKernelArg(_kernel, 9, (nuint)sizeof(nint), null);
-		if (err != 0) return err;
+		return err;
+	}
 
+	private int CalculateAndCopy(float[] resultBuffer)
+	{
+		int err;
 		//enqueue execution, same method as for the loop later
-		err = DoKernelCalculation(node_pos_1, node_pos_2, neededWorkitems, neededWorkSize);
+		err = DoKernelCalculation(neededWorkItems, neededWorkSize);
 		if (err != 0) return err;
 
 		_cl.Finish(_commandQueue);
 		//enqueue read out of results
-		fixed (float* buffer = returnedNodePositionBuffer)
+		fixed (float* buffer = resultBuffer)
 		{
 			//finished => take it out of the return channel and run computation again, positions are kept in gpu if nothing changed in node count
-			err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(returnedNodePositionBuffer.Length * sizeof(float) * 4), buffer, 0, null, null);
+			err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), buffer, 0, null, null);
 			if (err != 0) return err;
 
 			//copy values over to our nodes
-			Provider.SetNewNodePositions(returnedNodePositionBuffer);
+			Provider.SetNewNodePositions(resultBuffer);
 			return 0;
 		}
 	}
 
-	//does not read out the data
-	private int DoKernelCalculation(nint node_pos_1, nint node_pos_2, nuint neededWorkItems, nuint neededWorkSize)
+	private int DoKernelCalculation(nuint neededWorkItems, nuint neededWorkSize)
 	{
 		int err;
 		//we cant have too many
@@ -430,5 +443,51 @@ internal sealed unsafe class OpenCLManager
 		if (err != 0) return err;
 		MaxWorkItems = valuesToGet[0];
 		return 0;
+	}
+
+	private int AcquireRessources()
+	{
+		int err;
+		//create contet, program and build it on the selected device
+		err = CreateProgram();
+		if (err != 0) return err;
+		//success, we can go on creating the kernel
+		_kernel = _cl.CreateKernel(_program, KernelName, out err);
+		if (err != 0) return err;
+
+		AreResourcesAcquired = true;
+
+		err = GetMaxWorkItemDimension();
+		return err;
+	}
+
+	internal void CalculateLayout(CancellationToken token)
+	{
+		if (Provider.Nodes.Count == NodeCount && AreResourcesAcquired)
+		{
+			//nothing changed regarding node count, we can keep as is and dont have to redo the buffers and so on
+			CalculateAndCopy(nodePosResultBuffer);
+		}
+		else if(AreResourcesAcquired)
+		{
+			//count changed, we have to redo all the buffer and size control setup
+			int err = SetUpBuffers();
+			if (err != 0)
+				ReleaseOpenCLResources();
+			else
+				CalculateAndCopy(nodePosResultBuffer);
+		}
+		else
+		{
+			_device = Platforms[SelectedPlatform].deviceId;
+			int err = AcquireRessources();
+			if (err != 0)
+				ReleaseOpenCLResources();
+			err = SetUpBuffers();
+			if (err != 0)
+				ReleaseOpenCLResources();
+			CalculateAndCopy(nodePosResultBuffer);
+		}
+		if (token.IsCancellationRequested) ReleaseOpenCLResources();
 	}
 }

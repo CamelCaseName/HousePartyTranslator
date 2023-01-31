@@ -48,10 +48,12 @@ namespace Translator.Explorer
 			LayoutCalculation = () => CalculateForceDirectedLayout(cancellationToken.Token);
 
 			opencl = new(parent, provider);
-			opencl.SetUpOpenCL();
+			//its not worth it for less nodes
+			if (Nodes.Count >= 1024)
+				opencl.SetUpOpenCL();
 			if (opencl.OpenCLDevicePresent)
 			{
-				LayoutCalculation = () => { CalculateForceDirectedLayout(cancellationToken.Token); /*add opencl calculation method here*/ };
+				LayoutCalculation = () => { opencl.CalculateLayout(cancellationToken.Token); };
 			}
 		}
 
