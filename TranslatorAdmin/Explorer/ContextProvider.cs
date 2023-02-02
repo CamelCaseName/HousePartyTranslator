@@ -48,7 +48,7 @@ namespace Translator.Explorer
 				}
 				else
 				{
-					FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.social");
+					FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
 				}
 			}
 			else

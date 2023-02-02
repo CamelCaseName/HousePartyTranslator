@@ -3,12 +3,15 @@ using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Text;
 using Translator.Core;
+using WinUtils = Translator.Core.Helpers.Utils<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+
 
 namespace Translator.Explorer.OpenCL;
 [SupportedOSPlatform("windows")]
 internal sealed unsafe class OpenCLManager
 {
 	public bool Failed { get; private set; } = false;
+	public bool Retry { get; set; } = false;
 	public bool OpenCLDevicePresent = false;
 	private readonly CL _cl;
 	private readonly string KernelName = "layout_kernel";
@@ -31,9 +34,9 @@ internal sealed unsafe class OpenCLManager
 	private nint node_pos_1, node_pos_2;
 	private nint preselectedPlatform = 0;//pointer to preselected platform
 	private nint SelectedPlatform = 0;
-	private nuint neededWorkItems, neededWorkSize;
+	private nuint neededGlobalSize, neededLocalSize;
 	private string DeviceName = string.Empty;
-	private uint MaxWorkGroupSize, MaxWorkItems;
+	private uint MaxWorkGroupSize, MaxWorkItems, PreferredLocalWorkSize;
 
 	public OpenCLManager(Form parent, NodeProvider provider)
 	{
@@ -53,6 +56,9 @@ internal sealed unsafe class OpenCLManager
 		int err = SetUpOpenCLImpl();
 		if (Failed = err != 0)
 		{
+#if DEBUG
+			Debugger.Break();
+#endif
 			ReleaseOpenCLResources();
 			LogManager.Log($"Opencl failed with code {GetOpenCLErrorName(err)}, maybe see log above?", LogManager.Level.Error);
 		}
@@ -245,16 +251,25 @@ internal sealed unsafe class OpenCLManager
 
 	private void ReleaseOpenCLResources()
 	{
-		if (_commandQueue != nint.Zero)
-			_cl.ReleaseCommandQueue(_commandQueue);
-		if (_kernel != nint.Zero)
-			_cl.ReleaseKernel(_kernel);
-		if (_program != nint.Zero)
-			_cl.ReleaseProgram(_program);
-		if (_device != nint.Zero)
-			_cl.ReleaseDevice(_device);
-		if (_context != nint.Zero)
-			_cl.ReleaseContext(_context);
+		try
+		{
+			if (_commandQueue != nint.Zero)
+				_cl.ReleaseCommandQueue(_commandQueue);
+			if (_kernel != nint.Zero)
+				_cl.ReleaseKernel(_kernel);
+			if (_program != nint.Zero)
+				_cl.ReleaseProgram(_program);
+			if (_device != nint.Zero)
+				_cl.ReleaseDevice(_device);
+			if (_context != nint.Zero)
+				_cl.ReleaseContext(_context);
+		}
+		catch (Exception e)
+		{
+			LogManager.Log(e.ToString(), LogManager.Level.Error);
+
+			WinUtils.DisplayExceptionMessage(e.Message);
+		}
 	}
 
 	private nint SelectDevice()
@@ -315,12 +330,15 @@ internal sealed unsafe class OpenCLManager
 		NodeCount = nodeParentsCount.Length;
 
 		//calculate work size for local stuff
-		neededWorkSize = (nuint)((Math.Sqrt(Provider.Nodes.Count)) + 0.5d);
-		if (neededWorkSize > MaxWorkGroupSize) return -1;
-		neededWorkItems = (nuint)(Provider.Nodes.Count) / neededWorkSize;
+		neededLocalSize = (nuint)((Math.Sqrt(NodeCount)) + 0.5d);
+		if (neededLocalSize > MaxWorkGroupSize) return -1;
+		if (neededLocalSize > PreferredLocalWorkSize) neededLocalSize = PreferredLocalWorkSize;
+		else while ((neededLocalSize) % 4 > 0) ++neededLocalSize;
+
+		//calculate item count
+		neededGlobalSize = (nuint)NodeCount;
 		//divisible by 4 for nice boundaries
-		while ((neededWorkSize) % 4 > 0) ++neededWorkSize;
-		while ((neededWorkItems) % 4 > 0) ++neededWorkItems;
+		while ((neededGlobalSize) % neededLocalSize > 0) ++neededGlobalSize;
 
 		//create buffers on gpu
 		// we can quickly swap buffers and start the calculations again if we want
@@ -374,7 +392,9 @@ internal sealed unsafe class OpenCLManager
 		if (err != 0) return err;
 		err = _cl.SetKernelArg(_kernel, 8, (nuint)sizeof(nint), node_child_count);
 		if (err != 0) return err;
-		err = _cl.SetKernelArg(_kernel, 9, (nuint)sizeof(nint), null);
+		err = _cl.SetKernelArg(_kernel, 9, sizeof(int), NodeCount);
+		if (err != 0) return err;
+		err = _cl.SetKernelArg(_kernel, 10, sizeof(float) * 4 * neededLocalSize, null);
 		return err;
 	}
 
@@ -382,31 +402,35 @@ internal sealed unsafe class OpenCLManager
 	{
 		int err;
 		//enqueue execution, same method as for the loop later
-		err = DoKernelCalculation(neededWorkItems, neededWorkSize);
+		err = DoKernelCalculation(neededGlobalSize, neededLocalSize);
+		if (err != 0) return err;
+		err = _cl.Finish(_commandQueue);
 		if (err != 0) return err;
 
-		_cl.Finish(_commandQueue);
 		//enqueue read out of results
 		fixed (float* buffer = resultBuffer)
 		{
 			//finished => take it out of the return channel and run computation again, positions are kept in gpu if nothing changed in node count
-			err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), buffer, 0, null, null);
+			err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_2, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), buffer, 0, null, null);
 			if (err != 0) return err;
-
-			//copy values over to our nodes
-			Provider.SetNewNodePositions(resultBuffer);
-			return 0;
+			err = _cl.Finish(_commandQueue);
+			if (err != 0) return err;
 		}
+		//copy values over to our nodes
+		Provider.SetNewNodePositions(resultBuffer);
+		return 0;
 	}
 
-	private int DoKernelCalculation(nuint neededWorkItems, nuint neededWorkSize)
+	private int DoKernelCalculation(nuint globalSize, nuint localSize)
 	{
 		int err;
-		//we cant have too many
-		//if (neededWorkItems * neededWorkSize > MaxWorkGroupSize) return -1;
 
 		//enqueue kernel with old positions
-		err = _cl.EnqueueNdrangeKernel(_commandQueue, _kernel, 1, 0, neededWorkItems, neededWorkSize, 0, null, null);
+		err = _cl.EnqueueNdrangeKernel(_commandQueue, _kernel, 1, 0, globalSize, localSize, 0, null, null);
+		if (err != 0) return err;
+
+		//sth breaks in the gpu and we get invalid command queue here
+		err = _cl.Finish(_commandQueue);
 		if (err != 0) return err;
 
 		//set args for next call
@@ -416,7 +440,10 @@ internal sealed unsafe class OpenCLManager
 		if (err != 0) return err;
 
 		//enqueue a second time so our arguments stay equal
-		err = _cl.EnqueueNdrangeKernel(_commandQueue, _kernel, 1, 0, neededWorkItems, neededWorkSize, 0, null, null);
+		err = _cl.EnqueueNdrangeKernel(_commandQueue, _kernel, 1, 0, globalSize, localSize, 0, null, null);
+		if (err != 0) return err;
+
+		err = _cl.Finish(_commandQueue);
 		if (err != 0) return err;
 
 		//set args for next call
@@ -442,11 +469,18 @@ internal sealed unsafe class OpenCLManager
 		}
 		if (err != 0) return err;
 		MaxWorkItems = valuesToGet[0];
+		fixed (uint* value = valuesToGet)
+		{
+			err = _cl.GetDeviceInfo(Platforms[SelectedPlatform].deviceId, DeviceInfo.PreferredWorkGroupSizeMultiple, (nuint)(sizeof(nuint) * valuesToGet.Length), value, out _);
+		}
+		if (err != 0) return err;
+		PreferredLocalWorkSize = valuesToGet[0];
 		return 0;
 	}
 
 	private int AcquireRessources()
 	{
+		Failed = !Retry;
 		int err;
 		//create contet, program and build it on the selected device
 		err = CreateProgram();
@@ -463,12 +497,12 @@ internal sealed unsafe class OpenCLManager
 
 	internal void CalculateLayout(CancellationToken token)
 	{
-		if (Provider.Nodes.Count == NodeCount && AreResourcesAcquired)
+		if (Provider.Nodes.Count == NodeCount && AreResourcesAcquired && !Failed)
 		{
 			//nothing changed regarding node count, we can keep as is and dont have to redo the buffers and so on
 			CalculateAndCopy(nodePosResultBuffer);
 		}
-		else if(AreResourcesAcquired)
+		else if (AreResourcesAcquired && !Failed)
 		{
 			//count changed, we have to redo all the buffer and size control setup
 			int err = SetUpBuffers();
