@@ -26,17 +26,20 @@ __kernel void layout_kernel(
 	int local_i = get_local_id(0);
 	int local_node_count = get_local_size(0);
 	int work_block_count = global_node_count / local_node_count;
+
 	// kind of a setup, get the data for the node that is our "first"
 	// get the pos of out node without the mass
 	float4 this_node_pos = node_pos[global_i] * pos_mask;
 	float this_node_locked = node_pos[global_i].z;
 	float this_node_mass = node_pos[global_i].w;
 	float4 this_node_pos_delta = (float4)(0.0f, 0.0f, 0.0f, 0.0f);
+
 	// offset pointers to edges so it points to our links in the 1d array
 	__global int* this_node_parents =
 		node_parents + (node_parent_offset[global_i] * sizeof(int));
 	__global int* this_node_childs =
 		node_childs + (node_child_offset[global_i] * sizeof(int));
+
 	// edge counts so we only read our own edges
 	int this_node_parent_count = node_parent_count[global_i];
 	int this_node_child_count = node_child_count[global_i];
@@ -72,7 +75,7 @@ __kernel void layout_kernel(
 			// calculate repulsion
 			this_node_pos_delta += (edge / dot(edge.x, edge.y)) * parameters.z;
 		}
-
+		/*
 		// calculate attraction for all child edges we have
 		for (int edge_i = 0; edge_i < this_node_child_count; edge_i++) {
 			float4 child_node_pos = node_pos[this_node_childs[edge_i]] * pos_mask;
@@ -96,7 +99,7 @@ __kernel void layout_kernel(
 			// scale attraction by mass and add to forces
 			this_node_pos_delta -= attraction_vec / this_node_mass;
 		}
-
+		*/
 		// wait on other threads so we continue concurrently
 		barrier(CLK_LOCAL_MEM_FENCE);
 	}

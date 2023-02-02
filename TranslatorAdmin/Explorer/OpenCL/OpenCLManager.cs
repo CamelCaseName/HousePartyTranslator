@@ -105,7 +105,6 @@ internal sealed unsafe class OpenCLManager
 		if (err != 0) return err;
 
 		nint[] _platforms = new nint[platformCount];
-		Debug.WriteLine($"Found {platformCount} opencl platforms");
 
 		err = _cl.GetPlatformIDs(platformCount, _platforms, Array.Empty<uint>());
 		if (err != 0) return err;
@@ -125,12 +124,10 @@ internal sealed unsafe class OpenCLManager
 			{
 				_ = _cl.GetPlatformInfo(_platforms[i], PlatformInfo.Name, NameLength, s, out _);
 				platformNameString = new(s);
-				Debug.WriteLine($"    Platform: {platformNameString}");
 			}
 			//get device count
 			err = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, 0, null, out uint deviceCount);
 			if (err != 0) return err;
-			Debug.WriteLine($"        this platform has: {deviceCount} opencl devices");
 			nint[] _devices = new nint[deviceCount];
 			//get devices
 			err = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, deviceCount, _devices, Array.Empty<uint>());
@@ -157,11 +154,8 @@ internal sealed unsafe class OpenCLManager
 							deviceNameString = new(s);
 					}
 				}
-
-				Debug.WriteLine($"            {deviceNameString} with {maxComputeUnits} workgroupsize");
 				if (maxComputeUnits > maxValue)
 				{
-					Debug.WriteLine("        >>>>chose the one above");
 					maxValue = maxComputeUnits;
 					preselectedPlatform = _platforms[i];
 				}
@@ -169,7 +163,6 @@ internal sealed unsafe class OpenCLManager
 			}
 		}
 		//now we should have the best device
-		Debug.WriteLine($"suggested device {Platforms[preselectedPlatform].platformName}");
 		return 0;
 	}
 
@@ -404,7 +397,7 @@ internal sealed unsafe class OpenCLManager
 		//enqueue execution, same method as for the loop later
 		err = DoKernelCalculation(neededGlobalSize, neededLocalSize);
 		if (err != 0) return err;
-		err = _cl.Finish(_commandQueue);
+		err = _cl.Flush(_commandQueue);
 		if (err != 0) return err;
 
 		//enqueue read out of results
@@ -430,7 +423,7 @@ internal sealed unsafe class OpenCLManager
 		if (err != 0) return err;
 
 		//sth breaks in the gpu and we get invalid command queue here
-		err = _cl.Finish(_commandQueue);
+		err = _cl.Flush(_commandQueue);
 		if (err != 0) return err;
 
 		//set args for next call
@@ -443,7 +436,7 @@ internal sealed unsafe class OpenCLManager
 		err = _cl.EnqueueNdrangeKernel(_commandQueue, _kernel, 1, 0, globalSize, localSize, 0, null, null);
 		if (err != 0) return err;
 
-		err = _cl.Finish(_commandQueue);
+		err = _cl.Flush(_commandQueue);
 		if (err != 0) return err;
 
 		//set args for next call
