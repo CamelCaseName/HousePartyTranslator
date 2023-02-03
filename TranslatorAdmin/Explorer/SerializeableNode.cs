@@ -14,8 +14,8 @@ namespace Translator.Explorer
 		public bool ChildsVisited = false;
 		public bool ParentsVisited = false;
 		public Guid Guid = Guid.NewGuid();
-		public List<Guid>? ParentNodes;
-		public List<Guid>? ChildNodes;
+		public Guid[]? ParentNodes;
+		public Guid[]? ChildNodes;
 		public string FileName = string.Empty;
 		public bool IsPositionLocked;
 
@@ -34,28 +34,30 @@ namespace Translator.Explorer
 				Type = v.Type,
 				Visited = v.Visited,
 				FileName = v.FileName,
-				ChildNodes = new List<Guid>(),
-				ParentNodes = new List<Guid>(),
+				ChildNodes = new Guid[v.ChildNodes.Count],
+				ParentNodes = new Guid[v.ParentNodes.Count],
 				IsPositionLocked = v.IsPositionLocked,
 			};
 
 			//add missing nodes as guid references
 			if (v.ChildNodes.Count > 0)
 			{
+				int i = 0;
 				foreach (Node child in v.ChildNodes)
 				{
-					node.ChildNodes.Add(child.Guid);
+					node.ChildNodes[i++] = child.Guid;
 				}
 			}
 
 			//also add parent nodes as guid references for later recosntruction
 			if (v.ParentNodes.Count > 0)
-			{
-				foreach (Node parent in v.ParentNodes)
-				{
-					node.ParentNodes.Add(parent.Guid);
-				}
-			}
+            {
+                int i = 0;
+                foreach (Node parent in v.ParentNodes)
+                {
+                    node.ParentNodes[i++] = parent.Guid;
+                }
+            }
 
 			return node;
 		}

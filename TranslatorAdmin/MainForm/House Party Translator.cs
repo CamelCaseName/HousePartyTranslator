@@ -163,6 +163,7 @@ namespace Translator
 		{
 			InputHandler.SelectedItemChanged(CheckListBoxLeft);
 			if (Explorer != null
+				&& Explorer.IsHandleCreated
 				&& Explorer.StoryName == TabManager.ActiveTranslationManager.StoryName
 				&& Explorer.FileName == TabManager.ActiveTranslationManager.FileName)
 				Explorer.Invoke(() => TabManager.ActiveTranslationManager.SetHighlightedNode());

@@ -111,6 +111,7 @@ namespace Translator.Explorer
 
 		public static List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
 		{
+			//todo speed up by caching nodes that have been looked for and save index in node list
 			var nodes = new List<Node>();
 
 			//convert all nodes
@@ -144,7 +145,7 @@ namespace Translator.Explorer
 				Node nodeToWorkOn = nodes[index++];
 
 				//add children
-				if (serialNode.ChildNodes?.Count > 0)
+				if (serialNode.ChildNodes?.Length > 0)
 				{
 					foreach (Guid guid in serialNode.ChildNodes)
 					{
@@ -153,7 +154,7 @@ namespace Translator.Explorer
 				}
 
 				//add parents
-				if (serialNode.ParentNodes?.Count > 0)
+				if (serialNode.ParentNodes?.Length > 0)
 				{
 					foreach (Guid guid in serialNode.ParentNodes)
 					{

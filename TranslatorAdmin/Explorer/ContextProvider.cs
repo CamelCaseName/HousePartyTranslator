@@ -25,6 +25,8 @@ namespace Translator.Explorer
 		private readonly List<Node> Values = new();
 		private readonly List<Node> Doors = new();
 
+
+		//todo change node storage to only inlcude coords so we can parse faster, rest is actually faster to parse dynamically it seems. or we speed up the loading?
 		public ContextProvider(NodeProvider provider, bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
 		{
 			this.provider = provider;
