@@ -42,8 +42,8 @@ namespace Translator.Explorer
 		private float AfterZoomMouseY = 0f;
 		private float BeforeZoomMouseX = 0f;
 		private float BeforeZoomMouseY = 0f;
-		private float OffsetX = 0f;
-		private float OffsetY = 0f;
+		private float OffsetX;
+		private float OffsetY;
 
 		private bool CurrentlyInPan = false;
 		private Node highlightedNode = Node.NullNode;
@@ -70,7 +70,11 @@ namespace Translator.Explorer
 			NodeInfoLabel = nodeInfoLabel;
 			NodesHighlighted = new(Provider.Nodes.Count);
 
-			ColorBrush = new SolidBrush(DefaultColor);
+			OffsetX = (float)Explorer.ClientRectangle.X / 2;
+			OffsetY = (float)Explorer.ClientRectangle.Y / 2;
+
+
+            ColorBrush = new SolidBrush(DefaultColor);
 			ColorPen = new Pen(DefaultEdgeColor, 2f) { EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor, StartCap = System.Drawing.Drawing2D.LineCap.Round };
 
 			ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
@@ -219,6 +223,8 @@ namespace Translator.Explorer
 				movingNode = node;
 				movingNode.IsPositionLocked = true;
 				MovingANode = true;
+
+				Provider.SignalPositionChange();
 			}
 			if (IsCtrlPressed && MovingANode && movingNode != Node.NullNode)
 			{
@@ -229,11 +235,11 @@ namespace Translator.Explorer
 				Explorer.Cursor = Cursors.SizeAll;
 				//redraw
 				Explorer.Invalidate();
-			}
+            }
 			else
-			{
-				EndNodeMovement();
-			}
+            {
+                EndNodeMovement();
+            }
 		}
 
 		private void EndNodeMovement()
@@ -406,8 +412,6 @@ namespace Translator.Explorer
 
 			if (HighlightedNode != Node.NullNode)
 			{
-				if (Provider.Nodes.Count != NodesHighlighted.Count) NodesHighlighted = new(Provider.Nodes.Count);
-
 				//then redraw node itself
 				DrawColouredNode(g, HighlightedNode, Color.White, 1.7f);
 				//then childs
@@ -533,7 +537,8 @@ namespace Translator.Explorer
 				TabManager.ActiveTranslationManager.SelectLine(e.ChangedNode.ID);
 				//put info up
 				highlightedNode = e.ChangedNode;
-				Explorer.Invoke(() => DisplayNodeInfo(e.ChangedNode));
+                if (Provider.Nodes.Count != NodesHighlighted.Count) NodesHighlighted = new(Provider.Nodes.Count);
+                Explorer.Invoke(() => DisplayNodeInfo(e.ChangedNode));
 			}
 		}
 

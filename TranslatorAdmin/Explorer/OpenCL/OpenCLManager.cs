@@ -249,6 +249,7 @@ internal sealed unsafe class OpenCLManager
         try
         {
             if (_commandQueue != nint.Zero)
+                _cl.Finish(_commandQueue);
                 _cl.ReleaseCommandQueue(_commandQueue);
             if (_kernel != nint.Zero)
                 _cl.ReleaseKernel(_kernel);
@@ -315,21 +316,24 @@ internal sealed unsafe class OpenCLManager
     private int SetUpBuffers()
     {
         int err;
+
+        //todo add method to redo the buffers once node count changes and so on, once nodes and edges get added
+        //maybe do like a buffer bool, so create bigger initially and then limit length, idk
+
         //create and fill buffers on cpu side
         nodePosBuffer1 = Provider.GetNodePositionBuffer();
-        //this one is empty because it is filled first, then we swap once, we swap back and read out before running a third time
-        nodePosBuffer2 = Provider.GetNodeNewPositionBuffer();
+        nodePosBuffer2 = Provider.GetNodePositionBuffer();
         nodePosResultBuffer = Provider.GetNodeNewPositionBuffer();
         (int[] nodeParents, int[] nodeParentsOffset, int[] nodeParentsCount) = Provider.GetNodeParentsBuffer();
         (int[] nodeChilds, int[] nodeChildsOffset, int[] nodeChildsCount) = Provider.GetNodeChildsBuffer();
-        var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.Attraction / 2, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.Gravity };
+        var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.Attraction / 2, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.OpenClGravity};
         NodeCount = nodeParentsCount.Length;
 
         //calculate work size for local stuff
         neededLocalSize = (nuint)((Math.Sqrt(NodeCount)) + 0.5d);
-        if (neededLocalSize > MaxWorkGroupSize) return -1;
         if (neededLocalSize > PreferredLocalWorkSize) neededLocalSize = PreferredLocalWorkSize;
         else while ((neededLocalSize) % 4 > 0) ++neededLocalSize;
+        if (neededLocalSize > MaxWorkGroupSize) return -1;
 
         //calculate item count
         neededGlobalSize = (nuint)NodeCount;
@@ -372,10 +376,6 @@ internal sealed unsafe class OpenCLManager
         //
         err = _cl.SetKernelArg<float>(_kernel, 0, sizeof(float) * 4, parameters.AsSpan());
         if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 1, (nuint)sizeof(nint), node_pos_1);
-        if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 2, (nuint)sizeof(nint), node_pos_2);
-        if (err != 0) return err;
         err = _cl.SetKernelArg(_kernel, 3, (nuint)sizeof(nint), node_parents);
         if (err != 0) return err;
         err = _cl.SetKernelArg(_kernel, 4, (nuint)sizeof(nint), node_parent_offset);
@@ -400,18 +400,30 @@ internal sealed unsafe class OpenCLManager
         //enqueue execution, same method as for the loop later
         err = DoKernelCalculation(neededGlobalSize, neededLocalSize);
         if (err != 0) return err;
-        err = _cl.Flush(_commandQueue);
-        if (err != 0) return err;
 
-        //enqueue read out of results
-        fixed (float* buffer = resultBuffer)
+        float[] newPosBuffer = Provider.GetNodeNewPositionBuffer();
+
+        //enqueue read out of results, add new positions/position lockouts
+        fixed (float* inputBuffer = newPosBuffer)
+        fixed (float* outputBuffer = resultBuffer)
         {
             //finished => take it out of the return channel and run computation again, positions are kept in gpu if nothing changed in node count
-            err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_2, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), buffer, 0, null, null);
+            err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), outputBuffer, 0, null, null);
             if (err != 0) return err;
+
+            //set manual pos or node locked states have changed, so only if necessary, minimise pcie data transfers
+            if (Provider.NodePositionsChangedExtern)
+            {
+                err = _cl.EnqueueWriteBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(newPosBuffer.Length * sizeof(float) * 4), inputBuffer, 0, null, null);
+                if (err != 0) return err;
+                Provider.ConsumedPositionChange();
+            }
+
+            //wait on all commands to finish
             err = _cl.Finish(_commandQueue);
             if (err != 0) return err;
         }
+
         //copy values over to our nodes
         Provider.SetNewNodePositions(resultBuffer);
         return 0;
@@ -421,31 +433,45 @@ internal sealed unsafe class OpenCLManager
     {
         int err;
 
-        //enqueue kernel with old positions
-        err = _cl.EnqueueNdrangeKernel(_commandQueue, _kernel, 1, 0, globalSize, localSize, 0, null, null);
+        //copy new data to other buffer so the deltas add up correctly
+        err = _cl.EnqueueCopyBuffer(_commandQueue, node_pos_1, node_pos_2, 0, 0, (nuint)(nodePosBuffer1.Length * sizeof(float) * 4), 0, null, null);
         if (err != 0) return err;
 
-        //sth breaks in the gpu and we get invalid command queue here
         err = _cl.Flush(_commandQueue);
         if (err != 0) return err;
 
-        //set args for next call
         err = _cl.SetKernelArg(_kernel, 1, (nuint)sizeof(nint), node_pos_1);
         if (err != 0) return err;
         err = _cl.SetKernelArg(_kernel, 2, (nuint)sizeof(nint), node_pos_2);
         if (err != 0) return err;
 
-        //enqueue a second time so our arguments stay equal
+        //enqueue kernel with old positions
         err = _cl.EnqueueNdrangeKernel(_commandQueue, _kernel, 1, 0, globalSize, localSize, 0, null, null);
         if (err != 0) return err;
 
+        //second run
         err = _cl.Flush(_commandQueue);
         if (err != 0) return err;
 
-        //set args for next call
+        //copy new data to other buffer so the deltas add up correctly
+        err = _cl.EnqueueCopyBuffer(_commandQueue, node_pos_2, node_pos_1, 0, 0, (nuint)(nodePosBuffer2.Length * sizeof(float) * 4), 0, null, null);
+        if (err != 0) return err;
+
+        //second run
+        err = _cl.Flush(_commandQueue);
+        if (err != 0) return err;
+
         err = _cl.SetKernelArg(_kernel, 1, (nuint)sizeof(nint), node_pos_2);
         if (err != 0) return err;
         err = _cl.SetKernelArg(_kernel, 2, (nuint)sizeof(nint), node_pos_1);
+        if (err != 0) return err;
+
+        //enqueue kernel with old positions
+        err = _cl.EnqueueNdrangeKernel(_commandQueue, _kernel, 1, 0, globalSize, localSize, 0, null, null);
+        if (err != 0) return err;
+
+        //second run
+        err = _cl.Flush(_commandQueue);
         if (err != 0) return err;
 
         return 0;
@@ -491,7 +517,7 @@ internal sealed unsafe class OpenCLManager
         return err;
     }
 
-    internal void CalculateLayout(CancellationToken token, Action? FrameRenderedCallback)
+    internal void CalculateLayout(Action? FrameRenderedCallback, CancellationToken token)
     {
         while (!token.IsCancellationRequested)
         {
@@ -516,7 +542,7 @@ internal sealed unsafe class OpenCLManager
             }
             else if (AreResourcesAcquired && !Failed)
             {
-                //count changed, we have to redo all the buffer and size control setup
+                //count changed, we have to redo all the outputBuffer and size control setup
                 int err = SetUpBuffers();
                 if (err != 0)
                     ReleaseOpenCLResources();
