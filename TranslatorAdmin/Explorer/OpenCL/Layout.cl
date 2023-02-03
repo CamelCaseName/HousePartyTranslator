@@ -50,13 +50,15 @@ __kernel void layout_kernel(
 		node_buffer[local_i] = node_pos[j_block * local_node_count + local_i];
 
 		// calculate "gravity"
-		float diff = fast_length(this_node_pos) - radius;
+		float diff = length(this_node_pos) - radius;
+		//add gravity to our change we ant to make
 		this_node_pos_delta -= fast_normalize(this_node_pos) *
 			pow(abs((int)diff), 1.5f) * sign(diff) *
 			parameters.w;
 
 		// wait up on other threads
 		barrier(CLK_LOCAL_MEM_FENCE);
+		/*
 		// calculate repulsion for all particles in the cache
 		for (int j = 0; j < local_node_count; j++) {
 			// get position of other node, without getting mass
@@ -75,13 +77,12 @@ __kernel void layout_kernel(
 			// calculate repulsion
 			this_node_pos_delta += (edge / dot(edge.x, edge.y)) * parameters.z;
 		}
-		/*
 		// calculate attraction for all child edges we have
 		for (int edge_i = 0; edge_i < this_node_child_count; edge_i++) {
 			float4 child_node_pos = node_pos[this_node_childs[edge_i]] * pos_mask;
 			float4 child_edge = this_node_pos - child_node_pos;
 			// calculate attraction
-			float4 attraction_vec = normalize(child_edge) * parameters.y *
+			float4 attraction_vec = fast_normalize(child_edge) * parameters.y *
 				(length(child_edge) - parameters.x);
 
 			// scale attraction by mass and add to forces
@@ -93,7 +94,7 @@ __kernel void layout_kernel(
 			float4 parent_node_pos = node_pos[this_node_parents[edge_i]] * pos_mask;
 			float4 parent_edge = this_node_pos - parent_node_pos;
 			// calculate attraction
-			float4 attraction_vec = normalize(parent_edge) * parameters.y *
+			float4 attraction_vec = fast_normalize(parent_edge) * parameters.y *
 				(length(parent_edge) - parameters.x);
 
 			// scale attraction by mass and add to forces
@@ -106,6 +107,6 @@ __kernel void layout_kernel(
 	// apply forces to return channel
 	new_node_pos[global_i] = this_node_pos +
 		(this_node_pos_delta * (1.0f - this_node_locked)) +
-		(float4)(0.0f, 0.0f, 0.0f, this_node_mass) +
-		(float4)(0.0f, 0.0f, this_node_locked, 0.0f);
+		(float4)(0.0f, 0.0f, this_node_locked, 0.0f) +
+		(float4)(0.0f, 0.0f, 0.0f, this_node_mass);
 }

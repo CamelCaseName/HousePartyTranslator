@@ -66,29 +66,22 @@ namespace Translator.Explorer
 
 		public float[] GetNodePositionBuffer()
 		{
-			if (positionBuffer.Length != Nodes.Count * 4)
-				positionBuffer = new float[Nodes.Count * 4];
-			for (int i = 0; i < Nodes.Count; i++)
+			if (positionBuffer.Length != OtherNodes.Count * 4)
+				positionBuffer = new float[OtherNodes.Count * 4];
+			for (int i = 0; i < OtherNodes.Count; i++)
 			{
-				positionBuffer[i * 4] = Nodes[i].Position.X;
-				positionBuffer[(i * 4 + 1)] = Nodes[i].Position.Y;
-				positionBuffer[(i * 4 + 2)] = Nodes[i].IsPositionLocked ? 1.0f : 0.0f;
-				positionBuffer[(i * 4 + 3)] = Nodes[i].Mass;
+				positionBuffer[i * 4] = OtherNodes[i].Position.X;
+				positionBuffer[(i * 4 + 1)] = OtherNodes[i].Position.Y;
+				positionBuffer[(i * 4 + 2)] = OtherNodes[i].IsPositionLocked ? 1.0f : 0.0f;
+				positionBuffer[(i * 4 + 3)] = OtherNodes[i].Mass;
 			}
 			return positionBuffer;
 		}
 
 		public float[] GetNodeNewPositionBuffer()
 		{
-			if (returnedPositionBuffer.Length != Nodes.Count * 4)
-				returnedPositionBuffer = new float[Nodes.Count * 4];
-			for (int i = 0; i < Nodes.Count; i++)
-			{
-				returnedPositionBuffer[i * 4] = Nodes[i].Position.X;
-				returnedPositionBuffer[(i * 4 + 1)] = Nodes[i].Position.Y;
-				returnedPositionBuffer[(i * 4 + 2)] = Nodes[i].IsPositionLocked ? 1.0f : 0.0f;
-				returnedPositionBuffer[(i * 4 + 3)] = Nodes[i].Mass;
-			}
+			if (returnedPositionBuffer.Length != OtherNodes.Count * 4)
+				returnedPositionBuffer = new float[OtherNodes.Count * 4];
 			return returnedPositionBuffer;
 		}
 
@@ -98,20 +91,20 @@ namespace Translator.Explorer
 			parent_count.Clear();
 			parent_indices.Clear();
 			parent_offset.Clear();
-			for (int i = 0; i < Nodes.Count; i++)
+			for (int i = 0; i < OtherNodes.Count; i++)
 			{
 				//from offset
 				parent_offset.Add(offset);
-				for (int j = 0; j < Nodes[i].ParentNodes.Count; j++)
+				for (int j = 0; j < OtherNodes[i].ParentNodes.Count; j++)
 				{
-					int index = Nodes.IndexOf(Nodes[i].ParentNodes[j]);
+					int index = OtherNodes.IndexOf(OtherNodes[i].ParentNodes[j]);
 					if (index == -1) continue;
 
 					parent_indices.Add(index);
 					offset++;
 				}
 				//till count are our edges
-				parent_count.Add(Nodes[i].ParentNodes.Count);
+				parent_count.Add(OtherNodes[i].ParentNodes.Count);
 			}
 
 			return (parent_indices.ToArray(), parent_offset.ToArray(), parent_count.ToArray());
@@ -123,18 +116,18 @@ namespace Translator.Explorer
 			child_count.Clear();
 			child_indices.Clear();
 			child_offset.Clear();
-			for (int i = 0; i < Nodes.Count; i++)
+			for (int i = 0; i < OtherNodes.Count; i++)
 			{
 				child_offset.Add(offset);
-				for (int j = 0; j < Nodes[i].ChildNodes.Count; j++)
+				for (int j = 0; j < OtherNodes[i].ChildNodes.Count; j++)
 				{
-					int index = Nodes.IndexOf(Nodes[i].ChildNodes[j]);
+					int index = OtherNodes.IndexOf(OtherNodes[i].ChildNodes[j]);
 					if (index == -1) continue;
 
 					child_indices.Add(index);
 					offset++;
 				}
-				child_count.Add(Nodes[i].ChildNodes.Count);
+				child_count.Add(OtherNodes[i].ChildNodes.Count);
 			}
 
 			return (child_indices.ToArray(), child_offset.ToArray(), child_count.ToArray());
