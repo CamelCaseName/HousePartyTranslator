@@ -138,8 +138,8 @@ namespace Translator.Explorer
 
 				//overlay info and highlight
 				DrawHighlightNodeTree(e.Graphics);
-				DrawInfoNode(e.Graphics);
 				DrawMovingNodeMarker(e.Graphics);
+				DrawInfoNode(e.Graphics);
 				NodeInfoLabel.Invalidate();
 				NodeInfoLabel.Update();
 			}
@@ -422,9 +422,9 @@ namespace Translator.Explorer
 
 		private void DrawHighlightNodeTree(Graphics g)
 		{
-
 			if (HighlightedNode != Node.NullNode)
 			{
+				NodesHighlighted.Clear();
 				//then redraw node itself
 				DrawColouredNode(g, HighlightedNode, Color.White, 1.7f);
 				//then childs
@@ -435,8 +435,6 @@ namespace Translator.Explorer
 					StoryExplorerConstants.ColoringDepth,
 					Rainbow(0),
 					RainbowEdge(0));
-
-				Explorer.Invalidate();
 			}
 		}
 
