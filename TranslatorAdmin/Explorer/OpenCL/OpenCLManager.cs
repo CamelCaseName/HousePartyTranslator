@@ -127,6 +127,9 @@ internal sealed unsafe class OpenCLManager
                 _ = _cl.GetPlatformInfo(_platforms[i], PlatformInfo.Name, NameLength, s, out _);
                 platformNameString = new(s);
             }
+
+            if (platformNameString.Contains("CPU")) continue;
+
             //get device count
             err = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, 0, null, out uint deviceCount);
             if (err != 0) return err;

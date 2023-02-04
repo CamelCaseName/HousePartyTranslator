@@ -63,6 +63,9 @@ __kernel void layout_kernel(
 		// wait up on other threads
 		barrier(CLK_LOCAL_MEM_FENCE);
 
+		//todo somehow nan comes out after some time??
+		//heres what happens: mass grows slowly to inf somehow -> divide by mass -> NAN
+
 		// calculate repulsion for all particles in the cache
 		for (int j = 0; j < local_node_count; j++) {
 			// get position of other node, without getting mass
@@ -91,16 +94,21 @@ __kernel void layout_kernel(
 
 			//filter out weight and lock status
 			child_node_pos *= pos_mask;
+
 			//get edge
 			float4 child_edge = this_node_pos - child_node_pos;
+
 			// calculate attraction
 			float4 attraction_vec = normalize(child_edge) * parameters.y *
 				(length(child_edge) - parameters.x);
 
 			// scale attraction by mass and add to forces of us and child
 			this_node_pos_delta -= attraction_vec / this_node_mass;
-			new_node_pos[child_global_i] += (attraction_vec / child_mass) * thread_inhibitor;
+			new_node_pos[child_global_i] += (attraction_vec / child_mass) * thread_inhibitor; //todo something here breaks
 		}
+
+		// wait on other threads so we continue concurrently
+		barrier(CLK_LOCAL_MEM_FENCE);
 
 		// repeat for all parent edges we have
 		for (int edge_i = 0; edge_i < this_node_parent_count; edge_i++) {
@@ -128,7 +136,5 @@ __kernel void layout_kernel(
 
 	// apply forces to return channel
 	new_node_pos[global_i] += 
-		this_node_pos_delta * thread_inhibitor * (1.0f - this_node_locked) +
-		(float4)(0.0f, 0.0f, this_node_locked, 0.0f) +
-		(float4)(0.0f, 0.0f, 0.0f, this_node_mass);
+		this_node_pos_delta * thread_inhibitor * (1.0f - this_node_locked);
 }
