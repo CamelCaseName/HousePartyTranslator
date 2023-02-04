@@ -179,14 +179,14 @@ namespace Translator.Explorer
 			switch (e.Button)
 			{
 				case MouseButtons.Left:
-					MoveNode(e.Location);
-					if (!IsCtrlPressed) HighlightedNode = GetClickedNode(e.Location);
+					HandleNodeMovement(e.Location);
+					if (!IsCtrlPressed) HighlightedNode = GetClickedNode(e.Location, out _);
 					break;
 				case MouseButtons.None:
 					EndPan();
 					break;
 				case MouseButtons.Right:
-					InfoNode = GetClickedNode(e.Location);
+					InfoNode = GetClickedNode(e.Location, out _);
 					break;
 				case MouseButtons.Middle:
 					UpdatePan(e.Location);
@@ -212,42 +212,55 @@ namespace Translator.Explorer
 			ScreenToGraph(e.Location.X, e.Location.Y, out OldMouseMovingPosX, out OldMouseMovingPosY);
 		}
 
-		private void MoveNode(Point MouseLocation)
+		private void HandleNodeMovement(Point MouseLocation)
 		{
 			if (!MovingANode && IsCtrlPressed)
-			{
-				Node node = GetClickedNode(MouseLocation);
-				//set new node if it is new, reset lock if applicable
-				if (movingNode != node) movingNode.IsPositionLocked = false;
-				if (priorCursor != Cursors.SizeAll) priorCursor = Explorer.Cursor;
-				movingNode = node;
-				movingNode.IsPositionLocked = true;
-				MovingANode = true;
-
-				Provider.SignalPositionChange();
-			}
-			if (IsCtrlPressed && MovingANode && movingNode != Node.NullNode)
-			{
-				//convert mouse position and adjust node position by mouse location delta
-				ScreenToGraph(MouseLocation.X, MouseLocation.Y, out float MouseGraphX, out float MouseGraphY);
-				movingNode.Position.X -= OldMouseMovingPosX - MouseGraphX;
-				movingNode.Position.Y -= OldMouseMovingPosY - MouseGraphY;
-				Explorer.Cursor = Cursors.SizeAll;
-				//redraw
-				Explorer.Invalidate();
+            {
+                BeginMovingNodeMovement(MouseLocation);
             }
-			else
+            if (IsCtrlPressed && MovingANode && movingNode != Node.NullNode)
+            {
+                UpdateMovingNodeMovement(MouseLocation);
+            }
+            else
             {
                 EndNodeMovement();
             }
 		}
 
-		private void EndNodeMovement()
+        private void BeginMovingNodeMovement(Point MouseLocation)
+        {
+            Node node = GetClickedNode(MouseLocation, out int index);
+            //set new node if it is new, reset lock if applicable
+            if (movingNode != node) movingNode.IsPositionLocked = false;
+            if (priorCursor != Cursors.SizeAll) priorCursor = Explorer.Cursor;
+            movingNode = node;
+            movingNode.IsPositionLocked = true;
+            MovingANode = true;
+
+            Provider.SignalPositionChangeBegin(index);
+        }
+
+        private void UpdateMovingNodeMovement(Point MouseLocation)
+        {
+            //convert mouse position and adjust node position by mouse location delta
+            ScreenToGraph(MouseLocation.X, MouseLocation.Y, out float MouseGraphX, out float MouseGraphY);
+            movingNode.Position.X -= OldMouseMovingPosX - MouseGraphX;
+            movingNode.Position.Y -= OldMouseMovingPosY - MouseGraphY;
+            Explorer.Cursor = Cursors.SizeAll;
+            //redraw
+            Explorer.Invalidate();
+
+            Provider.UpdatePositionChange(movingNode.Position.X, movingNode.Position.Y);
+        }
+
+        private void EndNodeMovement()
 		{
 			Explorer.Cursor = priorCursor;
 			movingNode.IsPositionLocked = false;
 			movingNode = Node.NullNode;
 			MovingANode = false;
+			Provider.EndPositionChange();
 		}
 
 		//todo add setting to limit the number of edges drawn on screen, only count visible ones of course
@@ -548,26 +561,29 @@ namespace Translator.Explorer
 			StartPanOffsetY = location.Y;
 		}
 
-		private Node GetClickedNode(Point mouseLocation)
+		private Node GetClickedNode(Point mouseLocation, out int index)
 		{
 			//handle position input
 			ScreenToGraph(mouseLocation.X, mouseLocation.Y, out float mouseLeftX, out float mouseUpperY);
 			ScreenToGraph(mouseLocation.X, mouseLocation.Y, out float mouseRightX, out float mouseLowerY);
 
-			foreach (Node node in Provider.Nodes)
+			index = -1;
+			Node node;
+            for (int i = 0; i < Provider.Nodes.Count; i++)
 			{
-				if (mouseLowerY > node.Position.Y - (Nodesize / 2) && mouseUpperY < node.Position.Y + (Nodesize / 2))
+                node = Provider.Nodes[i];
+                if (mouseLowerY > node.Position.Y - (Nodesize / 2) && mouseUpperY < node.Position.Y + (Nodesize / 2))
 				{
 					if (mouseRightX < node.Position.X + (Nodesize / 2) && mouseLeftX > node.Position.X - (Nodesize / 2))
 					{
 						if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
 						{
+							index = i;
 							return node;
 						}
 					}
 				}
 			}
-
 			return Node.NullNode;
 		}
 

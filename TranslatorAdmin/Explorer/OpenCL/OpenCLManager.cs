@@ -385,27 +385,43 @@ internal sealed unsafe class OpenCLManager
     private int CalculateAndCopy(float[] resultBuffer)
     {
         int err;
+
+        //enqueue read out of results, add new positions/position lockouts
+        //set manual pos or node locked states have changed, so only if necessary, minimise pcie data transfers
+        if (Provider.MovingNodePositionOverridden)
+        {
+            //update/override moving node position in last result buffer, so we can use it as new base without reading out twice
+            (int index, float x, float y) = Provider.MovingNodeInfo;
+            if (index >= 0)
+            {
+                if (Provider.MovingNodePositionOverrideEnded)
+                {
+                    resultBuffer[(index * 4) + 2] = 0.0f;
+                    Provider.ConsumedNodePositionOverrideEnded();
+                }
+                else
+                {
+                    resultBuffer[index * 4] = x;
+                    resultBuffer[(index * 4) + 1] = y;
+                    resultBuffer[(index * 4) + 2] = 1.0f;
+                }
+                fixed (float* inputBuffer = resultBuffer)
+                {
+                    err = _cl.EnqueueWriteBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), inputBuffer, 0, null, null);
+                    if (err != 0) return err;
+                }
+            }
+        }
+
         //enqueue execution, same method as for the loop later
         err = DoKernelCalculation(neededGlobalSize, neededLocalSize);
         if (err != 0) return err;
 
-        float[] newPosBuffer = Provider.GetNodeNewPositionBuffer();
-
-        //enqueue read out of results, add new positions/position lockouts
-        fixed (float* inputBuffer = newPosBuffer)
         fixed (float* outputBuffer = resultBuffer)
         {
             //finished => take it out of the return channel and run computation again, positions are kept in gpu if nothing changed in node count
             err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), outputBuffer, 0, null, null);
             if (err != 0) return err;
-
-            //set manual pos or node locked states have changed, so only if necessary, minimise pcie data transfers
-            if (Provider.NodePositionsChangedExtern)
-            {
-                err = _cl.EnqueueWriteBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(newPosBuffer.Length * sizeof(float) * 4), inputBuffer, 0, null, null);
-                if (err != 0) return err;
-                Provider.ConsumedPositionChange();
-            }
 
             //wait on all commands to finish
             err = _cl.Finish(_commandQueue);

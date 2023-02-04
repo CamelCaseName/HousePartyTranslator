@@ -25,6 +25,9 @@ namespace Translator.Explorer
         private readonly List<int> child_indices = new();
         private readonly List<int> child_offset = new();
         private readonly List<int> child_count = new();
+        private (int lockedNodeIndex, float movedNodePos_X, float movedNodePos_Y) _movingNodeInfo = (-1, 0.0f, 0.0f);
+
+        public (int lockedNodeIndex, float movedNodePos_X, float movedNodePos_Y) MovingNodeInfo => _movingNodeInfo;
 
         public List<Node> Nodes
         {
@@ -37,16 +40,18 @@ namespace Translator.Explorer
             get { CheckNodeListSizes(); return !UsingListA ? nodesA : nodesB; }
         }
 
-        public bool NodePositionsChangedExtern { 
-            get; 
-            private set; 
+        public bool MovingNodePositionOverridden
+        {
+            get;
+            private set;
         }
+        public bool MovingNodePositionOverrideEnded { get; private set; }
 
         private void CheckNodeListSizes()
         {
             if (nodesA.Count != nodesB.Count)
             {
-                NodePositionsChangedExtern = true;
+                MovingNodePositionOverridden = true;
                 if (UsingListA)
                 {
                     //changed amount is in a
@@ -155,8 +160,34 @@ namespace Translator.Explorer
             }
         }
 
-        internal void ConsumedPositionChange() => NodePositionsChangedExtern = false;
+        internal void ConsumedNodePositionOverrideEnded()
+        {
+            MovingNodePositionOverridden = false;
+            MovingNodePositionOverrideEnded = false;
+            _movingNodeInfo = (-1, 0.0f, 0.0f);
+        }
 
-        internal void SignalPositionChange() => NodePositionsChangedExtern = true;
+        internal void SignalPositionChangeBegin(int index)
+        {
+            if (index >= 0)
+            {
+                _movingNodeInfo.lockedNodeIndex = index;
+                _movingNodeInfo.movedNodePos_X = Nodes[index].Position.X;
+                _movingNodeInfo.movedNodePos_Y = Nodes[index].Position.Y;
+                MovingNodePositionOverrideEnded = false;
+                MovingNodePositionOverridden = true;
+            }
+        }
+
+        internal void UpdatePositionChange(float x, float y)
+        {
+            _movingNodeInfo.movedNodePos_X = x;
+            _movingNodeInfo.movedNodePos_Y = y;
+        }
+
+        internal void EndPositionChange()
+        {
+            MovingNodePositionOverrideEnded = true;
+        }
     }
 }
