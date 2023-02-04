@@ -141,27 +141,12 @@ internal sealed unsafe class OpenCLManager
                 err = _cl.GetDeviceInfo(_devices[k], DeviceInfo.MaxWorkGroupSize, (nuint)sizeof(nuint), &maxComputeUnits, out _);
                 if (err != 0) return err;
 
-                //get length/size of name
-                err = _cl.GetDeviceInfo(_devices[k], DeviceInfo.Name, 0, null, out nuint DeviceNameLength);
-                if (err != 0) return err;
-                string deviceNameString = string.Empty;
-                if (DeviceNameLength > 0)
-                {
-                    sbyte[] deviceName = new sbyte[DeviceNameLength + 1];
-                    //get device name
-                    fixed (sbyte* s = deviceName)
-                    {
-                        err = _cl.GetDeviceInfo(_devices[k], DeviceInfo.Name, NameLength, &s, out _);
-                        if (err == 0)
-                            deviceNameString = new(s);
-                    }
-                }
                 if (maxComputeUnits > maxValue)
                 {
                     maxValue = maxComputeUnits;
                     preselectedPlatform = _platforms[i];
                 }
-                Platforms.Add(_platforms[i], (_devices[k], platformNameString + (deviceNameString.Length > 0 ? (" " + deviceNameString) : string.Empty)));
+                Platforms.Add(_platforms[i], (_devices[k], platformNameString));
             }
         }
         //now we should have the best device
@@ -250,7 +235,7 @@ internal sealed unsafe class OpenCLManager
         {
             if (_commandQueue != nint.Zero)
                 _cl.Finish(_commandQueue);
-                _cl.ReleaseCommandQueue(_commandQueue);
+            _cl.ReleaseCommandQueue(_commandQueue);
             if (_kernel != nint.Zero)
                 _cl.ReleaseKernel(_kernel);
             if (_program != nint.Zero)
@@ -326,7 +311,7 @@ internal sealed unsafe class OpenCLManager
         nodePosResultBuffer = Provider.GetNodeNewPositionBuffer();
         (int[] nodeParents, int[] nodeParentsOffset, int[] nodeParentsCount) = Provider.GetNodeParentsBuffer();
         (int[] nodeChilds, int[] nodeChildsOffset, int[] nodeChildsCount) = Provider.GetNodeChildsBuffer();
-        var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.Attraction / 2, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.OpenClGravity};
+        var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.Attraction / 2, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.OpenClGravity };
         NodeCount = nodeParentsCount.Length;
 
         //calculate work size for local stuff
@@ -561,7 +546,7 @@ internal sealed unsafe class OpenCLManager
                     ReleaseOpenCLResources();
                 CalculateAndCopy(nodePosResultBuffer);
             }
-            //todo, add warmup code or whatever to recover once stopped and then restarted
+            //todo add warmup code or whatever to recover once stopped and then restarted, maybe seperate shutdown and break code
         }
         //release once were done
         ReleaseOpenCLResources();
