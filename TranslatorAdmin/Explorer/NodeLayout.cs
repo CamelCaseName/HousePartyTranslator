@@ -8,6 +8,7 @@ namespace Translator.Explorer
     internal static class StoryExplorerConstants
     {
         public const float Attraction = 0.3f;//Attraction accelleration multiplier, between 0 and 1
+        public const float OpenCLAttraction = 0.0001f;//Attraction accelleration multiplier, between 0 and 1
         public const float Repulsion = 50.0f;//Repulsion accelleration multiplier, between 0 and much
         public const float Gravity = 0.0001f;
         public const float OpenClGravity = 0.0001f;

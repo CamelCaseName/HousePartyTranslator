@@ -314,7 +314,7 @@ internal sealed unsafe class OpenCLManager
         nodePosResultBuffer = Provider.GetNodeNewPositionBuffer();
         (int[] nodeParents, int[] nodeParentsOffset, int[] nodeParentsCount) = Provider.GetNodeParentsBuffer();
         (int[] nodeChilds, int[] nodeChildsOffset, int[] nodeChildsCount) = Provider.GetNodeChildsBuffer();
-        var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.Attraction / 2, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.OpenClGravity };
+        var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.OpenCLAttraction, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.OpenClGravity };
         NodeCount = nodeParentsCount.Length;
 
         //calculate work size for local stuff

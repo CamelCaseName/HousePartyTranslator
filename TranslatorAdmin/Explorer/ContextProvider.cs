@@ -250,7 +250,7 @@ namespace Translator.Explorer
 			if (path == string.Empty) path = NodeFilePath;
 			if (nodes.Count > 0)
 			{
-				File.WriteAllText(path, JsonConvert.SerializeObject(nodes.ConvertAll(n => (SerializeableNode)n)));
+				File.WriteAllText(path, JsonConvert.SerializeObject(nodes.Cast<SerializeableNode>()));
 				return true;
 			}
 			else return false;
