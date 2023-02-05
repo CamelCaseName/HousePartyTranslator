@@ -30,6 +30,12 @@ internal sealed unsafe class OpenCLManager
 
     private bool AreResourcesAcquired = false;
     private float[] nodePosBuffer1 = Array.Empty<float>(), nodePosBuffer2 = Array.Empty<float>(), nodePosResultBuffer = Array.Empty<float>();
+    private readonly List<int> parent_indices = new();
+    private readonly List<int> parent_offset = new();
+    private readonly List<int> parent_count = new();
+    private readonly List<int> child_indices = new();
+    private readonly List<int> child_offset = new();
+    private readonly List<int> child_count = new();
     private int NodeCount = 0;
     private nint node_pos_1, node_pos_2;
     private nint preselectedPlatform = 0;//pointer to preselected platform
@@ -309,11 +315,10 @@ internal sealed unsafe class OpenCLManager
         //maybe do like a buffer bool, so create bigger initially and then limit length, idk
 
         //create and fill buffers on cpu side
-        nodePosBuffer1 = Provider.GetNodePositionBuffer();
-        nodePosBuffer2 = Provider.GetNodePositionBuffer();
-        nodePosResultBuffer = Provider.GetNodeNewPositionBuffer();
-        (int[] nodeParents, int[] nodeParentsOffset, int[] nodeParentsCount) = Provider.GetNodeParentsBuffer();
-        (int[] nodeChilds, int[] nodeChildsOffset, int[] nodeChildsCount) = Provider.GetNodeChildsBuffer();
+        SetUpNodePositionBuffer();
+        ClearNodeNewPositionBuffer();
+        (int[] nodeParents, int[] nodeParentsOffset, int[] nodeParentsCount) = GetNodeParentsBuffer();
+        (int[] nodeChilds, int[] nodeChildsOffset, int[] nodeChildsCount) = GetNodeChildsBuffer();
         var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.OpenCLAttraction, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.OpenClGravity };
         NodeCount = nodeParentsCount.Length;
 
@@ -429,7 +434,7 @@ internal sealed unsafe class OpenCLManager
         }
 
         //copy values over to our nodes
-        Provider.SetNewNodePositions(resultBuffer);
+        SetNewNodePositions(resultBuffer);
         return 0;
     }
 
@@ -569,5 +574,101 @@ internal sealed unsafe class OpenCLManager
         }
         //release once were done
         ReleaseOpenCLResources();
+    }
+
+    public void SetUpNodePositionBuffer()
+    {
+        //cache the array so we do less allocations
+        if (nodePosBuffer1.Length != Provider.OtherNodes.Count * 4)
+            nodePosBuffer1 = new float[Provider.OtherNodes.Count * 4];
+
+        //set new data
+        for (int i = 0; i < Provider.OtherNodes.Count; i++)
+        {
+            nodePosBuffer1[i * 4] = Provider.OtherNodes[i].Position.X;
+            nodePosBuffer1[(i * 4) + 1] = Provider.OtherNodes[i].Position.Y;
+            nodePosBuffer1[(i * 4) + 2] = Provider.OtherNodes[i].IsPositionLocked ? 1.0f : 0.0f;
+            nodePosBuffer1[(i * 4) + 3] = Provider.OtherNodes[i].Mass;
+        }
+
+        //cache the array so we do less allocations
+        if (nodePosBuffer2.Length != nodePosBuffer1.Length)
+            nodePosBuffer2 = new float[nodePosBuffer1.Length];
+
+        nodePosBuffer1.CopyTo(nodePosBuffer2, 0);
+    }
+
+    public void ClearNodeNewPositionBuffer()
+    {
+        if (nodePosResultBuffer.Length != nodePosBuffer1.Length)
+            nodePosResultBuffer = new float[nodePosBuffer1.Length];
+
+        for (int i = 0; i < nodePosResultBuffer.Length / 4; i++)
+        {
+            nodePosResultBuffer[i * 4] = 0.0f;
+            nodePosResultBuffer[(i * 4) + 1] = 0.0f;
+            nodePosResultBuffer[(i * 4) + 2] = 0.0f;
+            nodePosResultBuffer[(i * 4) + 3] = 0.0f;
+        }
+    }
+
+    public (int[] indices, int[] offsets, int[] count) GetNodeParentsBuffer()
+    {
+        int offset = 0;
+        parent_count.Clear();
+        parent_indices.Clear();
+        parent_offset.Clear();
+        for (int i = 0; i < Provider.OtherNodes.Count; i++)
+        {
+            //from offset
+            parent_offset.Add(offset);
+            for (int j = 0; j < Provider.OtherNodes[i].ParentNodes.Count; j++)
+            {
+                int index = Provider.OtherNodes.IndexOf(Provider.OtherNodes[i].ParentNodes[j]);
+                if (index == -1) continue;
+
+                parent_indices.Add(index);
+                offset++;
+            }
+            //till count are our edges
+            parent_count.Add(Provider.OtherNodes[i].ParentNodes.Count);
+        }
+
+        return (parent_indices.ToArray(), parent_offset.ToArray(), parent_count.ToArray());
+    }
+
+    internal (int[] node_childs, int[] node_childs_offset, int[] node_childs_count) GetNodeChildsBuffer()
+    {
+        int offset = 0;
+        child_count.Clear();
+        child_indices.Clear();
+        child_offset.Clear();
+        for (int i = 0; i < Provider.OtherNodes.Count; i++)
+        {
+            child_offset.Add(offset);
+            for (int j = 0; j < Provider.OtherNodes[i].ChildNodes.Count; j++)
+            {
+                int index = Provider.OtherNodes.IndexOf(Provider.OtherNodes[i].ChildNodes[j]);
+                if (index == -1) continue;
+
+                child_indices.Add(index);
+                offset++;
+            }
+            child_count.Add(Provider.OtherNodes[i].ChildNodes.Count);
+        }
+
+        return (child_indices.ToArray(), child_offset.ToArray(), child_count.ToArray());
+    }
+
+    internal void SetNewNodePositions(float[] returnedNodePositionBuffer)
+    {
+        for (int i = 0; i < returnedNodePositionBuffer.Length / 4; i++)
+        {
+            if (returnedNodePositionBuffer[(i * 4) + 2] == 0.0f)
+            {
+                Provider.OtherNodes[i].Position.X = returnedNodePositionBuffer[i * 4];
+                Provider.OtherNodes[i].Position.Y = returnedNodePositionBuffer[(i * 4) + 1];
+            }
+        }
     }
 }

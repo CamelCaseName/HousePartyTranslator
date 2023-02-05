@@ -37,6 +37,7 @@ __kernel void layout_kernel(
 	float4 this_node_pos = node_pos[global_i];
 	float this_node_locked = this_node_pos.z;
 	float this_node_mass = this_node_pos.w;
+	//fix up pos to be only the position
 	this_node_pos *= pos_mask;
 
 	// offset pointers to edges so it points to our links in the 1d array
@@ -51,6 +52,13 @@ __kernel void layout_kernel(
 
 	// calculate "gravity"
 	float diff = length(this_node_pos) - radius;
+
+	//if our length is zero we must move a little or else the normalize breaks
+	if (diff == -radius) {
+		this_node_pos.x = fmax(this_node_pos.x, 0.0001f);
+		this_node_pos.y = fmax(this_node_pos.y, 0.0001f);
+	}
+
 	//add gravity to our change we ant to make
 	float4 this_node_pos_delta = -1.0f * normalize(this_node_pos) *
 		sign(diff) * half_powr(fabs(diff), 1.5f) * parameters.w;
@@ -62,9 +70,6 @@ __kernel void layout_kernel(
 
 		// wait up on other threads
 		work_group_barrier(CLK_LOCAL_MEM_FENCE);
-
-		//todo somehow nan comes out after some time??
-		//heres what happens: mass grows slowly to inf somehow -> divide by mass -> NAN
 
 		// calculate repulsion for all particles in the cache
 		for (int j = 0; j < local_node_count; j++) {
@@ -84,59 +89,66 @@ __kernel void layout_kernel(
 			// calculate repulsion
 			this_node_pos_delta += (edge / dot(edge, edge)) * parameters.z;
 		}
-		
-		// calculate attraction for all child edges we have
-		for (int edge_i = 0; edge_i < this_node_child_count; edge_i++) {
-			//get pos and weight of child
-			int child_global_i = this_node_childs[edge_i];
-			float4 child_node_pos = node_pos[child_global_i];
-			float child_mass = 0.0f;
-			child_mass += child_node_pos.w;
 
-			//filter out weight and lock status
-			child_node_pos *= pos_mask;
-
-			//get edge - 
-			float4 child_edge =  this_node_pos - child_node_pos;
-
-			// calculate attraction
-			float4 attraction_vec = normalize(child_edge) * parameters.y *
-				(length(child_edge) - parameters.x);
-
-			// scale attraction by mass and add to forces of us and child
-			this_node_pos_delta -=  attraction_vec / this_node_mass;
-			new_node_pos[child_global_i] += (attraction_vec / child_mass) * thread_inhibitor; //todo turns out nan? seems we have to synchronize memory access here, no idea how we should pull that off
-		}
-
-		// wait on other threads so we continue concurrently
-		work_group_barrier(CLK_LOCAL_MEM_FENCE);
-		
-		// repeat for all parent edges we have
-		for (int edge_i = 0; edge_i < this_node_parent_count; edge_i++) {
-			//get pos and weight of parent
-			int parent_global_i = this_node_childs[edge_i];
-			float4 parent_node_pos = node_pos[parent_global_i];
-			float parent_mass = 0.0f; 
-			parent_mass += parent_node_pos.w;
-
-			//filter out weight and lock status
-			parent_node_pos *= pos_mask;
-			//get edge
-			float4 parent_edge = this_node_pos - parent_node_pos;
-			// calculate attraction
-			float4 attraction_vec = normalize(parent_edge) * parameters.y *
-				(length(parent_edge) - parameters.x);
-
-			// scale attraction by mass and add to forces of us and parent
-			this_node_pos_delta -= attraction_vec / this_node_mass;
-			new_node_pos[parent_global_i] += (attraction_vec / parent_mass) * thread_inhibitor;//todo turns out nan?
-		}
-		
 		// wait on other threads so we continue concurrently
 		work_group_barrier(CLK_LOCAL_MEM_FENCE);
 	}
 
+	// calculate attraction for all child edges we have
+	for (int edge_i = 0; edge_i < this_node_child_count; edge_i++) {
+		//get pos and weight of child
+		int child_global_i = this_node_childs[edge_i];
+		float4 child_node_pos = node_pos[child_global_i];
+		float child_mass = child_node_pos.w;
+
+		//filter out weight and lock status
+		child_node_pos *= pos_mask;
+
+		//get edge
+		float4 child_edge = this_node_pos - child_node_pos;
+
+		// calculate attraction
+		float4 attraction_vec = normalize(child_edge) * parameters.y *
+			(length(child_edge) - parameters.x);
+
+		// scale attraction by mass and add to forces of us and child
+		this_node_mass = fmax(this_node_mass, 1);
+		child_mass = fmax(child_mass, 1);
+		this_node_pos_delta -= attraction_vec / this_node_mass;
+		new_node_pos[child_global_i] += (attraction_vec / child_mass) * thread_inhibitor;
+	}
+
+	// wait on other threads so we continue concurrently
+	work_group_barrier(CLK_LOCAL_MEM_FENCE);
+
+	// repeat for all parent edges we have
+	for (int edge_i = 0; edge_i < this_node_parent_count; edge_i++) {
+		//get pos and weight of parent
+		int parent_global_i = this_node_childs[edge_i];
+		float4 parent_node_pos = node_pos[parent_global_i];
+		float parent_mass = parent_node_pos.w;
+
+		//filter out weight and lock status
+		parent_node_pos *= pos_mask;
+
+		//get edge
+		float4 parent_edge = this_node_pos - parent_node_pos;
+		// calculate attraction
+
+		float4 attraction_vec = normalize(parent_edge) * parameters.y *
+			(length(parent_edge) - parameters.x);
+
+		// scale attraction by mass and add to forces of us and parent
+		this_node_mass = fmax(this_node_mass, 1);
+		parent_mass = fmax(parent_mass, 1);
+		this_node_pos_delta -= attraction_vec / this_node_mass;
+		new_node_pos[parent_global_i] += (attraction_vec / parent_mass) * thread_inhibitor;
+	}
+
+	// wait on other threads so we continue concurrently
+	work_group_barrier(CLK_LOCAL_MEM_FENCE);
+
 	// apply forces to return channel
-	new_node_pos[global_i] += 
+	new_node_pos[global_i] +=
 		this_node_pos_delta * thread_inhibitor * (1.0f - this_node_locked);
 }
