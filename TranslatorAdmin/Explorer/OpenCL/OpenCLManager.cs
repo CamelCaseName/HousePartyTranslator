@@ -410,6 +410,7 @@ internal sealed unsafe class OpenCLManager
                     resultBuffer[(index * 4) + 1] = y;
                     resultBuffer[(index * 4) + 2] = 1.0f;
                 }
+
                 fixed (float* inputBuffer = resultBuffer)
                 {
                     err = _cl.EnqueueWriteBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), inputBuffer, 0, null, null);

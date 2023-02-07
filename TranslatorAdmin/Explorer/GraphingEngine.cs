@@ -403,12 +403,12 @@ namespace Translator.Explorer
 			}
 		}
 
-		internal void DrawEdges(Graphics g, List<Node> nodes)
+		internal void DrawEdges(Graphics g, NodeList nodes)
 		{
 			DrawEdges(g, nodes, DefaultColor);
 		}
 
-		internal void DrawEdges(Graphics g, List<Node> nodes, Color color)
+		internal void DrawEdges(Graphics g, NodeList nodes, Color color)
 		{
 			ColorPen.Color = color;
 			PointF[] points = PointPool.Rent(nodes.Count);

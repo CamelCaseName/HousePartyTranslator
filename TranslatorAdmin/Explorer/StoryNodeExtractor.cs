@@ -5,10 +5,10 @@ namespace Translator.Explorer
 	internal static class StoryNodeExtractor
 	{
 
-		public static List<Node> GetAchievements(MainStory story)
+		public static NodeList GetAchievements(MainStory story)
 		{
 			//list to collect all achievement nodes
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			//go through all of them
 			foreach (Achievement achievement in story.Achievements ?? Enumerable.Empty<Achievement>())
 			{
@@ -24,9 +24,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetBackGroundChatter(CharacterStory story)
+		public static NodeList GetBackGroundChatter(CharacterStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			foreach (BackgroundChatter backgroundChatter in story.BackgroundChatter ?? Enumerable.Empty<BackgroundChatter>())
 			{
 				var bgcNode = new Node($"BGC{backgroundChatter.Id}", NodeType.BGC, backgroundChatter.Text ?? string.Empty) { Data = backgroundChatter, DataType = typeof(BackgroundChatter) };
@@ -49,9 +49,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetDialogues(CharacterStory story)
+		public static NodeList GetDialogues(CharacterStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			var responseDialogueLinks = new List<Tuple<Node, int>>();
 
 			foreach (Dialogue dialogue in story.Dialogues ?? Enumerable.Empty<Dialogue>())
@@ -115,9 +115,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetGlobalGoodByeResponses(CharacterStory story)
+		public static NodeList GetGlobalGoodByeResponses(CharacterStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 
 			//add all responses as childs to this dialogue
 			foreach (GlobalGoodbyeResponse response in story.GlobalGoodbyeResponses ?? Enumerable.Empty<GlobalGoodbyeResponse>())
@@ -135,9 +135,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetGlobalResponses(CharacterStory story)
+		public static NodeList GetGlobalResponses(CharacterStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 
 			foreach (GlobalResponse response in story.GlobalResponses ?? Enumerable.Empty<GlobalResponse>())
 			{
@@ -154,10 +154,10 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetItemGroups(MainStory story)
+		public static NodeList GetItemGroups(MainStory story)
 		{
 			//list to collect all item group nodes in the end
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			//go through all item groups to find events
 			foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors ?? Enumerable.Empty<ItemGroupBehavior>())
 			{
@@ -188,10 +188,10 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetItemOverrides(MainStory story)
+		public static NodeList GetItemOverrides(MainStory story)
 		{
 			//list to store all found root nodes
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			//go through all nodes to search them for actions
 			foreach (ItemOverride itemOverride in story.ItemOverrides ?? Enumerable.Empty<ItemOverride>())
 			{
@@ -221,9 +221,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetPlayerReactions(MainStory story)
+		public static NodeList GetPlayerReactions(MainStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			foreach (PlayerReaction playerReaction in story.PlayerReactions ?? Enumerable.Empty<PlayerReaction>())
 			{
 				//add items to list
@@ -240,9 +240,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetQuests(CharacterStory story)
+		public static NodeList GetQuests(CharacterStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 
 			foreach (Quest quest in story.Quests ?? Enumerable.Empty<Quest>())
 			{
@@ -268,9 +268,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetReactions(CharacterStory story)
+		public static NodeList GetReactions(CharacterStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 
 			foreach (Reaction playerReaction in story.Reactions ?? Enumerable.Empty<Reaction>())
 			{
@@ -287,9 +287,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		public static List<Node> GetCriteriaGroups(MainStory story)
+		public static NodeList GetCriteriaGroups(MainStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			foreach (CriteriaGroup group in story.CriteriaGroups ?? Enumerable.Empty<CriteriaGroup>())
 			{
 				//add items to list
@@ -306,9 +306,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		internal static List<Node> GetPersonality(CharacterStory story)
+		internal static NodeList GetPersonality(CharacterStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			foreach (Valuee valuee in story.Personality?.Values ?? Enumerable.Empty<Valuee>())
 			{
 				//add items to list
@@ -319,9 +319,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		internal static List<Node> GetItems(CharacterStory story)
+		internal static NodeList GetItems(CharacterStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			foreach (StoryItem item in story.StoryItems ?? Enumerable.Empty<StoryItem>())
 			{
 				//add items to list
@@ -335,9 +335,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		internal static List<Node> GetValues(CharacterStory story)
+		internal static NodeList GetValues(CharacterStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			foreach (string value in story.StoryValues ?? Enumerable.Empty<string>())
 			{
 				//add items to list
@@ -348,9 +348,9 @@ namespace Translator.Explorer
 			return nodes;
 		}
 
-		internal static List<Node> GetValues(MainStory story)
+		internal static NodeList GetValues(MainStory story)
 		{
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 			foreach (string value in story.PlayerValues ?? Enumerable.Empty<string>())
 			{
 				//add items to list

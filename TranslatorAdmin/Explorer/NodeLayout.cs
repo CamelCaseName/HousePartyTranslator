@@ -8,7 +8,7 @@ namespace Translator.Explorer
     internal static class StoryExplorerConstants
     {
         public const float Attraction = 0.3f;//Attraction accelleration multiplier, between 0 and 1
-        public const float OpenCLAttraction = 0.003f;//Attraction accelleration multiplier, between 0 and 1
+        public const float OpenCLAttraction = 0.03f;//Attraction accelleration multiplier, between 0 and 1
         public const float Repulsion = 50.0f;//Repulsion accelleration multiplier, between 0 and much
         public const float Gravity = 0.0001f;
         public const float OpenClGravity = 0.0001f;
@@ -34,11 +34,11 @@ namespace Translator.Explorer
         public int FrameCount => _framecount;
         public bool Finished => FrameCount > Nodes.Count * Nodes.Count && !RunOverride && Started;
         public bool Started { get; private set; } = false;
-        public List<Node> Nodes
+        public NodeList Nodes
         {
             get { return provider.Nodes; }
         }
-        private List<Node> Internal
+        private NodeList Internal
         {
             get { return provider.OtherNodes; }
         }

@@ -69,19 +69,18 @@ __kernel void layout_kernel(
 		node_buffer[local_i] = node_pos[j_block * local_node_count + local_i];
 
 		// wait up on other threads
-		work_group_barrier(CLK_LOCAL_MEM_FENCE);
+		barrier(CLK_LOCAL_MEM_FENCE);
 
 		// calculate repulsion for all particles in the cache
 		for (int j = 0; j < local_node_count; j++) {
 			// get position of other node, without getting mass
 			float4 other_node_pos = node_buffer[j] * pos_mask;
 
-			// skip calculations and move out of the way if we are on the same pos,
+			// move out of the way if we are on the same pos,
 			// would lead to infinite repulsion :)
 			if (other_node_pos.x == this_node_pos.x &&
 				other_node_pos.y == this_node_pos.y) {
-				this_node_pos_delta.x += 0.1f;
-				continue;
+				other_node_pos.x += 10.0f;
 			}
 
 			// get edge
@@ -89,11 +88,8 @@ __kernel void layout_kernel(
 			// calculate repulsion
 			this_node_pos_delta += (edge / dot(edge, edge)) * parameters.z;
 		}
-
-		// wait on other threads so we continue concurrently
-		work_group_barrier(CLK_LOCAL_MEM_FENCE);
 	}
-
+	//todo the edge stuff feels off, and doesnt really work lol
 	// calculate attraction for all child edges we have
 	for (int edge_i = 0; edge_i < this_node_child_count; edge_i++) {
 		//get pos and weight of child
@@ -119,7 +115,7 @@ __kernel void layout_kernel(
 	}
 
 	// wait on other threads so we continue concurrently
-	work_group_barrier(CLK_LOCAL_MEM_FENCE);
+	barrier(CLK_LOCAL_MEM_FENCE);
 
 	// repeat for all parent edges we have
 	for (int edge_i = 0; edge_i < this_node_parent_count; edge_i++) {
@@ -133,8 +129,8 @@ __kernel void layout_kernel(
 
 		//get edge
 		float4 parent_edge = this_node_pos - parent_node_pos;
-		// calculate attraction
 
+		// calculate attraction
 		float4 attraction_vec = normalize(parent_edge) * parameters.y *
 			(length(parent_edge) - parameters.x);
 
@@ -146,7 +142,7 @@ __kernel void layout_kernel(
 	}
 
 	// wait on other threads so we continue concurrently
-	work_group_barrier(CLK_LOCAL_MEM_FENCE);
+	barrier(CLK_LOCAL_MEM_FENCE);
 
 	// apply forces to return channel
 	new_node_pos[global_i] +=

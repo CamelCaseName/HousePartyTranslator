@@ -50,8 +50,8 @@ namespace Translator.Explorer
 		public Gender Gender = Gender.None;
 		public Guid Guid = Guid.NewGuid();
 		public int Mass = 1;
-		public List<Node> ChildNodes;
-		public List<Node> ParentNodes;
+		public NodeList ChildNodes;
+		public NodeList ParentNodes;
 		public NodeType Type;
 		public object? Data = null;
 		public PointF Position;
@@ -60,7 +60,7 @@ namespace Translator.Explorer
 		public string Text;
 		public Type DataType = typeof(object);
 
-		public Node(string iD, NodeType type, string text, List<Node> parentNodes, List<Node> childNodes)
+		public Node(string iD, NodeType type, string text, NodeList parentNodes, NodeList childNodes)
 		{
 			ID = iD;
 			Text = text;
@@ -74,8 +74,8 @@ namespace Translator.Explorer
 			ID = iD;
 			Text = text;
 			Type = type;
-			ParentNodes = new List<Node>() { parentNode };
-			ChildNodes = new List<Node>();
+			ParentNodes = new NodeList() { parentNode };
+			ChildNodes = new NodeList();
 		}
 
 		public Node(string iD, NodeType type, string text)
@@ -83,8 +83,8 @@ namespace Translator.Explorer
 			ID = iD;
 			Text = text;
 			Type = type;
-			ParentNodes = new List<Node>();
-			ChildNodes = new List<Node>();
+			ParentNodes = new NodeList();
+			ChildNodes = new NodeList();
 		}
 
 		public Node()
@@ -92,8 +92,8 @@ namespace Translator.Explorer
 			ID = "";
 			Text = "";
 			Type = NodeType.Null;
-			ParentNodes = new List<Node>();
-			ChildNodes = new List<Node>();
+			ParentNodes = new NodeList();
+			ChildNodes = new NodeList();
 		}
 
 		public static Node CreateCriteriaNode(ICriterion criterion, Node node)
@@ -104,15 +104,15 @@ namespace Translator.Explorer
 				$"{criterion.Character}{criterion.CompareType}{criterion.Value}",
 				NodeType.Criterion,
 				$"{criterion.Character}|{criterion.Character2}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.EqualsValue}|{criterion.Key}|{criterion.Key2}|{criterion.Option}|{criterion.SocialStatus}|{criterion.Value}",
-				new List<Node>(),
-				new List<Node>() { node })
+				new NodeList(),
+				new NodeList() { node })
 			{ FileName = node.FileName };
 		}
 
-		public static List<Node> ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
+		public static NodeList ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
 		{
 			//todo speed up by caching nodes that have been looked for and save index in node list
-			var nodes = new List<Node>();
+			var nodes = new NodeList();
 
 			//convert all nodes
 			foreach (SerializeableNode serialNode in listToConvert)
@@ -130,8 +130,8 @@ namespace Translator.Explorer
 					Type = serialNode.Type,
 					Visited = serialNode.Visited,
 					FileName = serialNode.FileName,
-					ChildNodes = new List<Node>(),
-					ParentNodes = new List<Node>(),
+					ChildNodes = new NodeList(),
+					ParentNodes = new NodeList(),
 					IsPositionLocked = serialNode.IsPositionLocked
 				});
 			}

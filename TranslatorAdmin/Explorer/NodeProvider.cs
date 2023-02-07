@@ -12,22 +12,22 @@ namespace Translator.Explorer
     [SupportedOSPlatform("windows")]
     internal sealed class NodeProvider
     {
-        private List<Node> InternalNodes = new();
-        private readonly List<Node> nodesA = new();
-        private readonly List<Node> nodesB = new();
+        private NodeList InternalNodes = new();
+        private readonly NodeList nodesA = new();
+        private readonly NodeList nodesB = new();
         public bool UsingListA = true;
         private bool frozen = false;
         private (int lockedNodeIndex, float movedNodePos_X, float movedNodePos_Y) _movingNodeInfo = (-1, 0.0f, 0.0f);
 
         public (int lockedNodeIndex, float movedNodePos_X, float movedNodePos_Y) MovingNodeInfo => _movingNodeInfo;
 
-        public List<Node> Nodes
+        public NodeList Nodes
         {
             get { CheckNodeListSizes(); return UsingListA ? nodesA : nodesB; }
         }
 
         //only to be used in calcualation, dont set or youll break things
-        public List<Node> OtherNodes
+        public NodeList OtherNodes
         {
             get { CheckNodeListSizes(); return !UsingListA ? nodesA : nodesB; }
         }
