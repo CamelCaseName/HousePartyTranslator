@@ -2,10 +2,13 @@
 using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
+using System.Reflection;
 using Translator.Managers;
 using static Translator.Explorer.JSON.StoryEnums;
 using Settings = Translator.InterfaceImpls.WinSettings;
 using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 
 namespace Translator.Explorer
 {
@@ -29,6 +32,7 @@ namespace Translator.Explorer
         private readonly Label NodeInfoLabel;
 
         private readonly ArrayPool<PointF> PointPool = ArrayPool<PointF>.Shared;
+        private readonly Dictionary<Type, GroupBox> ExtendedInfoComponents = new();
 
         private float AfterZoomMouseX = 0f;
         private float AfterZoomMouseY = 0f;
@@ -45,12 +49,13 @@ namespace Translator.Explorer
         private bool IsCtrlPressed = false;
         private bool MovingANode = false;
         public bool DrewNodes = false;
+        //todo replace by settings, on screen button and allow node selection
         public bool InternalNodesVisible = true;
+        public bool ShowExtendedInfo = true;
         private HashSet<Node> NodesHighlighted = new();
         private Cursor priorCursor = Cursors.Default;
 
         private float Scaling = 0.3f;
-        private float DefaultEdgeWidth = 1.5f;
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
         private float OldMouseMovingPosX;
@@ -312,13 +317,154 @@ namespace Translator.Explorer
                 NodeInfoLabel.Text = header + seperator + info;
                 NodeInfoLabel.BringToFront();
 
+                if (ShowExtendedInfo) DisplayExtendedNodeInfo(NodeInfoLabel.ClientRectangle, node);
             }
             else //remove highlight display
             {
+                foreach (var box in ExtendedInfoComponents.Values)
+                {
+                    box.Visible = false;
+                }
                 NodeInfoLabel.Visible = false;
             }
 
             Explorer.Invalidate();
+        }
+
+        private void DisplayExtendedNodeInfo(Rectangle infoLabelRect, Node node)
+        {
+            if (node.Data == null) return;
+
+            foreach (var oldBox in ExtendedInfoComponents.Values)
+            {
+                oldBox.Visible = false;
+            }
+            //use components if we have them already
+            if (!ExtendedInfoComponents.TryGetValue(node.DataType, out var box))
+            {
+                //create new and cache, then display
+                box = GetDisplayComponentsForType(node.Data, node.DataType, true);
+                Explorer.Controls.Add(box);
+                ExtendedInfoComponents.Add(node.DataType, box);
+            }
+            else
+            {
+                FillDisplayComponents(box, node.Data);
+            }
+            box.Location = new Point(infoLabelRect.Left, infoLabelRect.Bottom + 5);
+            box.Size = new Size(infoLabelRect.Width, 10);
+            box.BringToFront();
+            box.Visible = true;
+        }
+
+        private void FillDisplayComponents(GroupBox box, object data)
+        {
+            foreach (var property in data.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                Type valueType = property.PropertyType;
+                object? value = property.GetValue(data);
+
+                if (valueType == typeof(string))
+                {
+                    var text = box.Controls.Find(property.Name + "TextBox", true);
+                    if (text.Length == 1) text[0].Text = (string?)value ?? string.Empty;
+                }
+                else if (valueType == typeof(int) || valueType == typeof(float))
+                {
+                    var text = box.Controls.Find(property.Name + "Numeric", true);
+                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(NumericUpDown))) ((NumericUpDown)text[0]).Value = Convert.ToDecimal(value);
+                }
+                else if (valueType == typeof(bool))
+                {
+                    var text = box.Controls.Find(property.Name + "CheckBox", true);
+                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(CheckBox))) ((CheckBox)text[0]).Checked = Convert.ToBoolean(value);
+                }
+                else if (valueType.GenericTypeArguments.Length > 0)
+                {
+                    if (valueType.GenericTypeArguments[0].IsEnum)
+                    {
+                        var text = box.Controls.Find(property.Name + "ComboBox", true);
+                        if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(ComboBox))) ((ComboBox)text[0]).SelectedItem = value?.ToString();
+                    }
+                }
+            }
+        }
+
+        private GroupBox GetDisplayComponentsForType(object data, Type dataType, bool readOnly)
+        {
+            var box = new GroupBox()
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Bottom,
+                AutoSize = true,
+                ForeColor = Utils.brightText,
+                Name = dataType.Name + "DisplayBox",
+                TabIndex = 10,
+                TabStop = false,
+                MaximumSize = new Size(Explorer.Grapher.NodeInfoLabel.Width, Screen.PrimaryScreen?.WorkingArea.Height ?? Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height),
+                Text = dataType.Name,
+                Visible = false
+            };
+            box.SuspendLayout();
+            var grid = new TableLayoutPanel()
+            {
+                Name = dataType.Name + "ValueTable",
+                GrowStyle = TableLayoutPanelGrowStyle.AddRows,
+                AutoSize = true,
+                TabStop = false,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.Single,
+                ColumnCount = 2,
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+            };
+            box.Controls.Add(grid);
+
+            foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                Type valueType = property.PropertyType;
+                object? value = property.GetValue(data);
+
+                if (valueType == typeof(string))
+                {
+                    var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                    grid.Controls.Add(label);
+                    var text = new TextBox() { Text = (string?)value ?? string.Empty, Name = property.Name + "TextBox", Multiline = true, WordWrap = true, Dock = DockStyle.Fill, ReadOnly = readOnly };
+                    grid.Controls.Add(text);
+                }
+                else if (valueType == typeof(int) || valueType == typeof(float))
+                {
+                    var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                    grid.Controls.Add(label);
+                    var numeric = new NumericUpDown() { Minimum = int.MinValue, Maximum = int.MaxValue, Value = Convert.ToDecimal(value), Name = property.Name + "Numeric", ReadOnly = readOnly, InterceptArrowKeys = true };
+                    grid.Controls.Add(numeric);
+                }
+                else if (valueType == typeof(bool))
+                {
+                    var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                    grid.Controls.Add(label);
+                    var numeric = new CheckBox { Checked = Convert.ToBoolean(value), Name = property.Name + "Checkbox", Enabled = !readOnly };
+                    grid.Controls.Add(numeric);
+                }
+                else if (valueType.GenericTypeArguments.Length > 0)
+                {
+                    if (valueType.GenericTypeArguments[0].IsEnum)
+                    {
+                        var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                        grid.Controls.Add(label);
+                        var dropDown = new ComboBox() { Name = property.Name + "ComboBox", DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, Anchor = AnchorStyles.Left };
+                        foreach (var enumItem in Enum.GetNames(valueType.GenericTypeArguments[0]))
+                        {
+                            dropDown.Items.Add(enumItem);
+                        }
+                        dropDown.SelectedItem = value?.ToString();
+                        dropDown.Enabled = !readOnly;
+                        grid.Controls.Add(dropDown);
+                    }
+                }
+            }
+
+            box.ResumeLayout();
+            return box;
         }
 
         private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
