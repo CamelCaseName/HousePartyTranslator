@@ -7,18 +7,15 @@ namespace Translator.Explorer
     internal class NodeList : List<Node>
     {
         //primarily used for rendering the edges, for graph stuff we use the actual multigraph in the nodes
-        private readonly List<Edge> Edges = new();
+        public readonly List<Edge> Edges = new();
 
         //todo get this working reliably, sync up all child/parent additions
         public new void Add(Node node)
         {
-            for (int i = 0; i < node.ChildNodes.Count; i++)
+            for (int c = 0; c < node.ChildNodes.Count; c++)
             {
-                Edges.Add(new(node, node.ChildNodes[i]));
-            }
-            for (int i = 0; i < node.ParentNodes.Count; i++)
-            {
-                Edges.Add(new(node.ParentNodes[i], node));
+                var edge = new Edge(node, node.ChildNodes[c]);
+                if (!Edges.Contains(edge)) Edges.Add(edge);
             }
             base.Add(node);
         }
@@ -39,10 +36,6 @@ namespace Translator.Explorer
             {
                 Edges.Remove(new(node, node.ChildNodes[i]));
             }
-            for (int i = 0; i < node.ParentNodes.Count; i++)
-            {
-                Edges.Remove(new(node.ParentNodes[i], node));
-            }
             return base.Remove(node);
         }
 
@@ -52,13 +45,10 @@ namespace Translator.Explorer
             Edges.Clear();
             for (int x = 0; x < Count; x++)
             {
-                for (int i = 0; i < this[x].ChildNodes.Count; i++)
+                for (int c = 0; c < this[x].ChildNodes.Count; c++)
                 {
-                    Edges.Add(new(this[x], this[x].ChildNodes[i]));
-                }
-                for (int i = 0; i < this[x].ParentNodes.Count; i++)
-                {
-                    Edges.Add(new(this[x].ParentNodes[i], this[x]));
+                    var edge = new Edge(this[x], this[x].ChildNodes[c]);
+                    if (!Edges.Contains(edge)) Edges.Add(edge);
                 }
             }
         }
@@ -71,11 +61,8 @@ namespace Translator.Explorer
                 {
                     for (int c = 0; c < realList[i].ChildNodes.Count; c++)
                     {
-                        Edges.Add(new(realList[i], realList[i].ChildNodes[c]));
-                    }
-                    for (int p = 0; p < realList[i].ParentNodes.Count; p++)
-                    {
-                        Edges.Add(new(realList[i].ParentNodes[p], realList[i]));
+                        var edge = new Edge(realList[i], realList[i].ChildNodes[c]);
+                        if (!Edges.Contains(edge)) Edges.Add(edge);
                     }
                 }
             }
@@ -86,11 +73,8 @@ namespace Translator.Explorer
                 {
                     for (int i = 0; i < en.Current.ChildNodes.Count; i++)
                     {
-                        Edges.Add(new(en.Current, en.Current.ChildNodes[i]));
-                    }
-                    for (int i = 0; i < en.Current.ParentNodes.Count; i++)
-                    {
-                        Edges.Add(new(en.Current.ParentNodes[i], en.Current));
+                        var edge = new Edge(en.Current, en.Current.ChildNodes[i]);
+                        if (!Edges.Contains(edge)) Edges.Add(edge);
                     }
                 }
             }

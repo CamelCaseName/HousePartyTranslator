@@ -64,9 +64,6 @@ internal sealed unsafe class OpenCLManager
         int err = SetUpOpenCLImpl();
         if (Failed = err != 0)
         {
-#if DEBUG
-            Debugger.Break();
-#endif
             ReleaseOpenCLResources();
             LogManager.Log($"Opencl failed with code {GetOpenCLErrorName(err)}, maybe see log above?", LogManager.Level.Error);
         }

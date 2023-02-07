@@ -50,6 +50,7 @@ namespace Translator.Explorer
         private Cursor priorCursor = Cursors.Default;
 
         private float Scaling = 0.3f;
+        private float DefaultEdgeWidth = 1.5f;
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
         private float OldMouseMovingPosX;
@@ -262,13 +263,11 @@ namespace Translator.Explorer
             //go on displaying graph
             for (int i = 0; i < Provider.Nodes.Count; i++)
             {
-                //draw edges to children, default colour
-                for (int j = 0; j < Provider.Nodes[i].ChildNodes.Count; j++)
-                {
-                    DrawEdge(g, Provider.Nodes[i], Provider.Nodes[i].ChildNodes[j]);
-                }
-
                 DrawColouredNode(g, Provider.Nodes[i]);
+            }
+            for (int i = 0; i < Provider.Nodes.Edges.Count; i++)
+            {
+                DrawEdge(g, Provider.Nodes.Edges[i].This, Provider.Nodes.Edges[i].Child);
             }
             DrewNodes = true;
         }
@@ -367,7 +366,7 @@ namespace Translator.Explorer
             DrawEdge(g, node1, node2, Settings.WDefault.DefaultEdgeColor);
         }
 
-        internal void DrawEdge(Graphics g, Node node1, Node node2, Color color, float width = 2f)
+        internal void DrawEdge(Graphics g, Node node1, Node node2, Color color, float width = 1.5f)
         {
             if (InternalNodesVisible || node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
             {
@@ -480,38 +479,35 @@ namespace Translator.Explorer
             _ = NodesHighlighted.Add(node);
 
             //draw node 
-            if (depth != 0) DrawColouredNode(g, node, nodeColor);
+            if (depth != 0)
+                if (Settings.WDefault.UseRainbowNodeColors)
+                    DrawColouredNode(g, node, nodeColor);
+                else
+                    DrawColouredNode(g, node, ColorFromNode(node));
 
             if (depth++ < maxDepth)
             {
-                for (int i = 0; i < node.ParentNodes.Count; i++)
-                {
-                    if (!NodesHighlighted.Contains(node.ParentNodes[i]))
-                    {
-                        DrawHighlightNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)depth / 10), RainbowEdge((float)depth / 14));
-                    }
-                }
                 for (int i = 0; i < node.ChildNodes.Count; i++)
                 {
                     if (!NodesHighlighted.Contains(node.ChildNodes[i]))
                     {
                         DrawHighlightNodeSet(g, node.ChildNodes[i], depth, maxDepth, Rainbow((float)depth / 10), RainbowEdge((float)depth / 14));
                     }
+                    if (Settings.WDefault.UseRainbowEdgeColors)
+                        DrawEdge(g, node, node.ChildNodes[i], edgeColor);
+                    else
+                        DrawEdge(g, node, node.ChildNodes[i], Color.LightGray, 2f);
                 }
-                //highlight other nodes
                 for (int i = 0; i < node.ParentNodes.Count; i++)
                 {
+                    if (!NodesHighlighted.Contains(node.ParentNodes[i]))
+                    {
+                        DrawHighlightNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)depth / 10), RainbowEdge((float)depth / 14));
+                    }
                     if (Settings.WDefault.UseRainbowEdgeColors)
                         DrawEdge(g, node.ParentNodes[i], node, edgeColor);
-                    if (Settings.WDefault.UseRainbowEdgeColors)
-                        DrawEdge(g, node.ParentNodes[i], node, Settings.WDefault.DefaultEdgeColor, 5f);
-                }
-                for (int i = 0; i < node.ChildNodes.Count; i++)
-                {
-                    if (Settings.WDefault.UseRainbowEdgeColors)
-                        DrawEdge(g, node.ChildNodes[i], node, edgeColor);
-                    if (Settings.WDefault.UseRainbowEdgeColors)
-                        DrawEdge(g, node.ChildNodes[i], node, Settings.WDefault.DefaultEdgeColor, 5f);
+                    else
+                        DrawEdge(g, node.ParentNodes[i], node, Color.LightGray, 2f);
                 }
             }
         }

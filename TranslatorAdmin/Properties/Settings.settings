@@ -174,7 +174,7 @@
       <Value Profile="(Default)">Silver</Value>
     </Setting>
     <Setting Name="EdgeDefaultColor" Type="System.Drawing.Color" Scope="User">
-      <Value Profile="(Default)">Gray</Value>
+      <Value Profile="(Default)">64, 64, 64</Value>
     </Setting>
     <Setting Name="UseRainbowNodes" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

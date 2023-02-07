@@ -41,21 +41,46 @@ namespace Translator.Explorer
 
         private void CheckNodeListSizes()
         {
+
             if (nodesA.Count != nodesB.Count)
             {
-                MovingNodePositionOverridden = true;
-                if (UsingListA)
-                {
-                    //changed amount is in a
-                    nodesB.Clear();
-                    nodesB.AddRange(nodesA);
-                }
-                else
-                {
-                    //changed amount is in b
-                    nodesA.Clear();
-                    nodesA.AddRange(nodesB);
-                }
+                lock (nodesB)
+                    lock (nodesA)
+                    {
+                        MovingNodePositionOverridden = true;
+                        if (UsingListA)
+                        {
+                            //changed amount is in a
+                            nodesB.Clear();
+                            nodesB.AddRange(nodesA);
+                        }
+                        else
+                        {
+                            //changed amount is in b
+                            nodesA.Clear();
+                            nodesA.AddRange(nodesB);
+                        }
+                    }
+            }
+
+            if (nodesA.Edges.Count != nodesB.Edges.Count)
+            {
+                lock (nodesB)
+                    lock (nodesA)
+                    {
+                        nodesA.Sync();
+                        nodesB.Sync();
+                        if (nodesA.Edges.Count > nodesB.Edges.Count)
+                        {
+                            nodesB.Clear();
+                            nodesB.AddRange(nodesA);
+                        }
+                        else if (nodesA.Edges.Count < nodesB.Edges.Count)
+                        {
+                            nodesA.Clear();
+                            nodesA.AddRange(nodesB);
+                        }
+                    }
             }
         }
 
