@@ -665,15 +665,15 @@ namespace Translator.Explorer
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
                             if (result != null)
                             {
-                                if (!result.Text.Contains(GetSymbolsFromValueFormula((ValueSpecificFormulas)criterion.ValueFormula!) + criterion.Value))
-                                    result.Text += GetSymbolsFromValueFormula((ValueSpecificFormulas)criterion.ValueFormula!) + criterion.Value + ", ";
+                                if (!result.Text.Contains(GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value))
+                                    result.Text += GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value + ", ";
                                 nodes[i].AddParentNode(result);
                                 break;
                             }
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
-                                var value = new Node(criterion.Key!, NodeType.Value, criterion.Character + " value " + criterion.Key + ", referenced values: " + GetSymbolsFromValueFormula((ValueSpecificFormulas)criterion.ValueFormula!) + criterion.Value + ", ");
+                                var value = new Node(criterion.Key!, NodeType.Value, criterion.Character + " value " + criterion.Key + ", referenced values: " + GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value + ", ");
                                 Values.Add(value);
                                 nodes[i].AddParentNode(value);
                             }
