@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Translator.Properties {
+namespace TranslatorDesktopApp.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -716,6 +716,18 @@ namespace Translator.Properties {
             }
             set {
                 this["EdgeDefaultColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool UseRainbowNodes {
+            get {
+                return ((bool)(this["UseRainbowNodes"]));
+            }
+            set {
+                this["UseRainbowNodes"] = value;
             }
         }
     }
