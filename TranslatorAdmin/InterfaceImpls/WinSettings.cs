@@ -1,4 +1,4 @@
-﻿using Translator.Properties;
+﻿using TranslatorDesktopApp.Properties;
 namespace Translator.InterfaceImpls
 {
     internal class WinSettings : Core.ISettings

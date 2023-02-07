@@ -1,4 +1,4 @@
-﻿using Translator.Properties;
+﻿using TranslatorDesktopApp.Properties;
 
 namespace Translator.Explorer.Window
 {
@@ -12,7 +12,7 @@ namespace Translator.Explorer.Window
 		public readonly string StoryName;
 		private bool SettingsVisible = false;
 		private bool inInitialization = true;
-		public const string Version = "1.1.0.0";
+		public const string Version = "1.2.0.0";
 		public const string Title = "StoryExplorer v" + Version;
 		private readonly CancellationToken token;
 		public NodeLayout? Layouter { get; private set; }
