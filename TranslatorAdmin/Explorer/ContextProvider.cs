@@ -23,6 +23,7 @@ namespace Translator.Explorer
         private readonly bool AutoFileSelection = false;
         private readonly NodeList Values = new();
         private readonly NodeList Doors = new();
+        private readonly List<PointF> oldPositions = new();
 
 
         //todo change node storage to only inlcude coords so we can parse faster, rest is actually faster to parse dynamically it seems. or we speed up the loading?
@@ -132,34 +133,27 @@ namespace Translator.Explorer
                 //try to laod the saved nodes
                 if (File.Exists(NodeFilePath))
                 {
-                    //read in positions if they exist, but only if version is the same
-                    List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(NodeFilePath));
-                    //expand the guids back into references
+                    ReadInOldPositions(NodeFilePath);
+                }
+
+                //read in nodes and set positions later, is faster than the old system
+                string fileString = File.ReadAllText(FilePath);
+                //else create new
+                if (Path.GetExtension(FilePath) == ".story")
+                {
                     while (Nodes.Count != 0) Nodes.Clear();
-                    Nodes.AddRange(Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>()));
+                    Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
                 }
                 else
                 {
-                    string fileString = File.ReadAllText(FilePath);
-                    //else create new
-                    if (Path.GetExtension(FilePath) == ".story")
-                    {
-                        while (Nodes.Count != 0) Nodes.Clear();
-                        Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
-                    }
-                    else
-                    {
-                        while (Nodes.Count != 0) Nodes.Clear();
-                        Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
-                    }
-
-                    CalculateStartingPositions(Nodes);
-
-                    //save nodes
-                    return SaveNodes(Nodes, NodeFilePath);
+                    while (Nodes.Count != 0) Nodes.Clear();
+                    Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
                 }
 
-                return Nodes.Count > 0;
+                SetStartingPositions(Nodes);
+
+                //save nodes
+                return SaveNodes(Nodes, NodeFilePath);
             }
             else
             {
@@ -198,45 +192,33 @@ namespace Translator.Explorer
             //try to load the saved nodes
             if (File.Exists(NodeFilePath))
             {
-                //read in positions if they exist, but only if version is the same
-                List<SerializeableNode>? tempList = JsonConvert.DeserializeObject<List<SerializeableNode>>(File.ReadAllText(NodeFilePath));
-                //expand the guids back into references
-
-                while (Nodes.Count != 0) Nodes.Clear();
-                Nodes.AddRange(Node.ExpandDeserializedNodes(tempList ?? new List<SerializeableNode>()));
+                ReadInOldPositions(NodeFilePath);
             }
-            else
+
+            if (Directory.GetFiles(StoryFolderPath).Length > 0 && (StoryFolderPath.Split("\\")[^1] == StoryName) || !AutoFileSelection)
             {
-                if (Directory.GetFiles(StoryFolderPath).Length > 0 && (StoryFolderPath.Split("\\")[^1] == StoryName) || !AutoFileSelection)
+                //else create new
+                foreach (string item in Directory.GetFiles(StoryFolderPath))
                 {
-                    //else create new
-                    foreach (string item in Directory.GetFiles(StoryFolderPath))
+                    if (Path.GetExtension(item) == ".story")
                     {
-                        if (Path.GetExtension(item) == ".story")
-                        {
-                            Nodes.AddRange(
-                                DissectStory(
-                                    JsonConvert.DeserializeObject<MainStory>(
-                                        File.ReadAllText(item)) ?? new(),
-                                    Path.GetFileNameWithoutExtension(item)));
-                        }
-
-                        else
-                            Nodes.AddRange(
-                                DissectCharacter(
-                                    JsonConvert.DeserializeObject<CharacterStory>(
-                                        File.ReadAllText(item)) ?? new()));
+                        Nodes.AddRange(
+                            DissectStory(
+                                JsonConvert.DeserializeObject<MainStory>(
+                                    File.ReadAllText(item)) ?? new(),
+                                Path.GetFileNameWithoutExtension(item)));
                     }
-                    //read in all first, dumbass me
-                    InterlinkNodes(Nodes);
-                }
-                else
-                {
-                    _ = ParseAllFiles();
-                    return true;
-                }
 
-                CalculateStartingPositions(Nodes);
+                    else
+                        Nodes.AddRange(
+                            DissectCharacter(
+                                JsonConvert.DeserializeObject<CharacterStory>(
+                                    File.ReadAllText(item)) ?? new()));
+                }
+                //read in all first, dumbass me
+                InterlinkNodes(Nodes);
+
+                SetStartingPositions(Nodes);
 
                 //save nodes
                 return SaveNodes(Nodes, NodeFilePath);
@@ -244,12 +226,20 @@ namespace Translator.Explorer
             return Nodes.Count > 0;
         }
 
+        private void ReadInOldPositions(string nodeFilePath)
+        {
+            oldPositions.Clear();
+            var list = JsonConvert.DeserializeObject<List<PointF>>(File.ReadAllText(nodeFilePath));
+            if (list == null) return;
+            oldPositions.AddRange(list);
+        }
+
         public bool SaveNodes(NodeList nodes, string path = "")
         {
             if (path == string.Empty) path = NodeFilePath;
             if (nodes.Count > 0)
             {
-                File.WriteAllText(path, JsonConvert.SerializeObject(nodes.Cast<SerializeableNode>()));
+                File.WriteAllText(path, JsonConvert.SerializeObject(nodes.GetPositions()));
                 return true;
             }
             else return false;
@@ -278,28 +268,32 @@ namespace Translator.Explorer
             return new();
         }
 
-        private void CalculateStartingPositions(NodeList nodes)
+        private void SetStartingPositions(NodeList nodes)
         {
-            int step = 40;
-            int runningTotal = 0;
-            //~sidelength of the most square layout we can achieve witrh the number of nodes we have
-            int sideLength = (int)(Math.Sqrt(nodes.Count) + 0.5);
-            for (int i = 0; i < nodes.Count; i++)
+            if (oldPositions.Count == nodes.Count) nodes.SetPositions(oldPositions);
+            else
             {
-                //modulo of running total with sidelength gives x coords, repeating after sidelength
-                //offset by halfe sidelength to center x
-                int x = (runningTotal % sideLength) - sideLength / 2;
-                //running total divided by sidelength gives y coords,
-                //increments after runningtotal increments sidelength times
-                //offset by halfe sidelength to center y
-                int y = (runningTotal / sideLength) - sideLength / 2;
-                //set position
-                nodes[i].Position = new Point(
-                    x * step + Random.Next(-(step / 2) + 1, (step / 2) - 1),
-                    y * step + Random.Next(-(step / 2) + 1, (step / 2) - 1)
-                    );
-                //increase running total
-                runningTotal++;
+                int step = 40;
+                int runningTotal = 0;
+                //~sidelength of the most square layout we can achieve witrh the number of nodes we have
+                int sideLength = (int)(Math.Sqrt(nodes.Count) + 0.5);
+                for (int i = 0; i < nodes.Count; i++)
+                {
+                    //modulo of running total with sidelength gives x coords, repeating after sidelength
+                    //offset by halfe sidelength to center x
+                    int x = (runningTotal % sideLength) - sideLength / 2;
+                    //running total divided by sidelength gives y coords,
+                    //increments after runningtotal increments sidelength times
+                    //offset by halfe sidelength to center y
+                    int y = (runningTotal / sideLength) - sideLength / 2;
+                    //set position
+                    nodes[i].Position = new Point(
+                        x * step + Random.Next(-(step / 2) + 1, (step / 2) - 1),
+                        y * step + Random.Next(-(step / 2) + 1, (step / 2) - 1)
+                        );
+                    //increase running total
+                    runningTotal++;
+                }
             }
         }
 

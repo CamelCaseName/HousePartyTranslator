@@ -128,8 +128,8 @@ namespace Translator.Explorer
                 //fix any issues before we divide by pos IdealLength
                 if (pos.Length() == 0)
                 {
-                    pos.X = pos.X == 0 ? float.MinValue : pos.X;
-                    pos.Y = pos.Y == 0 ? float.MinValue : pos.Y;
+                    pos.X = 0.1f;
+                    pos.Y = 0.1f;
                 }
 
                 //can IdealLength ever be absolutely 0?

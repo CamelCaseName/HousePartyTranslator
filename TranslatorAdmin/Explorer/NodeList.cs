@@ -101,5 +101,25 @@ namespace Translator.Explorer
         {
             base.Clear();
         }
+
+        internal List<PointF> GetPositions()
+        {
+            List<PointF> positions = new(Count);
+            for (int i = 0; i < Count; i++)
+            {
+                positions.Add(this[i].Position);
+            }
+            return positions;
+        }
+
+        internal bool SetPositions(List<PointF> positions)
+        {
+            if (positions.Count != Count) return false;
+            for (int i = 0; i < Count; i++)
+            {
+                this[i].Position = positions[i];
+            }
+            return true;
+        }
     }
 }
