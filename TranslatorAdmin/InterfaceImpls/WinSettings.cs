@@ -76,6 +76,7 @@ namespace Translator.InterfaceImpls
         public Color DefaultNodeColor { get => Settings.Default.NodeDefaultColor; set => Settings.Default.NodeDefaultColor = value; }
         public Color DefaultEdgeColor { get => Settings.Default.EdgeDefaultColor; set => Settings.Default.EdgeDefaultColor = value; }
         public bool UseRainbowEdgeColors { get => Settings.Default.UseRainbowEdges; set => Settings.Default.UseRainbowEdges = value; }
+        public bool UseRainbowNodeColors { get => Settings.Default.UseRainbowNodes; set => Settings.Default.UseRainbowNodes = value; }
 
         public void Save() => Settings.Default.Save();
         internal void Upgrade() => Settings.Default.Upgrade();

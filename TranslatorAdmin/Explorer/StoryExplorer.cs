@@ -1,4 +1,6 @@
-﻿namespace Translator.Explorer.Window
+﻿using TranslatorDesktopApp.Properties;
+
+namespace Translator.Explorer.Window
 {
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 	internal partial class StoryExplorer : Form
@@ -44,8 +46,8 @@
 			Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
 			FormClosing += new FormClosingEventHandler(SaveNodes);
 
-			ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Properties.Settings.Default.ColoringDepth;
-			IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Properties.Settings.Default.IdealLength);
+			ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Settings.Default.ColoringDepth;
+			IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Settings.Default.IdealLength);
 			NodeSizeField.Value = StoryExplorerConstants.Nodesize;
 		}
 
@@ -88,7 +90,7 @@
 		private void SaveNodes(object? sender, FormClosingEventArgs? e)
 		{
 			_ = Context.SaveNodes(Provider.Nodes);
-			Properties.Settings.Default.Save();
+			Settings.Default.Save();
 		}
 
 		private void HandleKeyBoard(object sender, KeyEventArgs e)
@@ -130,7 +132,7 @@
 			if (!inInitialization)
 			{
 				StoryExplorerConstants.IdealLength = IdealLength.Value > 1 && IdealLength.Value < IdealLength.Maximum ? (float)IdealLength.Value : StoryExplorerConstants.IdealLength;
-				Properties.Settings.Default.IdealLength = (float)IdealLength.Value;
+				Settings.Default.IdealLength = (float)IdealLength.Value;
 			}
 
 		}
@@ -140,7 +142,7 @@
 			if (!inInitialization)
 			{
 				StoryExplorerConstants.ColoringDepth = ColoringDepth.Value > 1 && ColoringDepth.Value < ColoringDepth.Maximum ? (int)ColoringDepth.Value : StoryExplorerConstants.ColoringDepth;
-				Properties.Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
+				Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
 			}
 		}
 
