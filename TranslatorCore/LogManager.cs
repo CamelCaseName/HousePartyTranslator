@@ -74,7 +74,7 @@ namespace Translator.Core
 			FileLines.AddRange(_message.Split('\n'));
 
 #if DEBUG || DEBUG_USER
-			Debug.WriteLine(_message[..^1]);
+			Debug.WriteLine(_message[1] == '\n' ? _message[..^1] : _message);
 #endif
 		}
 

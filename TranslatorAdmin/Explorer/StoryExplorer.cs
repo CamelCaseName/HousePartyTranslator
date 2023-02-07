@@ -1,7 +1,9 @@
-﻿namespace Translator.Explorer.Window
+﻿using TranslatorDesktopApp.Properties;
+
+namespace Translator.Explorer.Window
 {
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
-	public partial class StoryExplorer : Form
+	internal partial class StoryExplorer : Form
 	{
 		private readonly ContextProvider Context;
 		private readonly GraphingEngine engine;
@@ -10,10 +12,18 @@
 		public readonly string StoryName;
 		private bool SettingsVisible = false;
 		private bool inInitialization = true;
+		public const string Version = "1.2.0.0";
+		public const string Title = "StoryExplorer v" + Version;
+		private readonly CancellationToken token;
+		public NodeLayout? Layouter { get; private set; }
+		internal GraphingEngine Grapher { get { return engine; } }
+		internal NodeProvider Provider { get; }
+		public string ParentName { get { return parentName; } }
 
 		public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
 		{
 			InitializeComponent();
+			token = cancellation;
 
 			//indicate ownership
 			parentName = Parent.Name;
@@ -23,57 +33,64 @@
 			DoubleBuffered = true;
 
 			//get contextprovider
-			Context = new ContextProvider(IsStory, AutoLoad, FileName, StoryName, cancellation);
-			engine = new GraphingEngine(Context, this, NodeInfoLabel);
+			Provider = new();
+			Context = new(Provider, IsStory, AutoLoad, FileName, StoryName);
+			engine = new(Provider, this, NodeInfoLabel);
 
 			this.StoryName = Context.StoryName;
 			this.FileName = Context.FileName;
 
-			Text = $"StoryExplorer - Loading";
+			Text = Title + " - Loading";
 
 			//add custom paint event handler to draw all nodes and edges
 			Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
 			FormClosing += new FormClosingEventHandler(SaveNodes);
 
-			ColoringDepth.Value = TranslatorApp.Properties.Settings.Default.ColoringDepth;
-			IdealLength.Value = (decimal)TranslatorApp.Properties.Settings.Default.IdealLength;
+			ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Settings.Default.ColoringDepth;
+			IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Settings.Default.IdealLength);
 			NodeSizeField.Value = StoryExplorerConstants.Nodesize;
 		}
-
-		internal GraphingEngine Grapher { get { return engine; } }
-
-		public string ParentName { get { return parentName; } }
 
 		public void Initialize(bool singleFile)
 		{
 			if (singleFile)
 			{
-				Text = $"StoryExplorer - waiting";
+				App.MainForm.Invoke(() => Text = Title + " - waiting");
 				if (!Context.ParseFile() || Context.GotCancelled)
 				{
 					Close();
 				}
-				Text = $"StoryExplorer - {FileName}";
+				App.MainForm.Invoke(() => Text = Title + $" - {FileName}");
 			}
 			else
 			{
-				Text = $"StoryExplorer - waiting";
+				App.MainForm.Invoke(() => Text = Title + " - waiting");
 				//parse story, and not get cancelled xD
 				if (!Context.ParseAllFiles() || Context.GotCancelled)
 				{
 					Close();
 				}
-				Text = $"StoryExplorer - {StoryName}";
+				App.MainForm.Invoke(() => Text = Title + $" - {StoryName}");
 			}
 			inInitialization = false;
-			NodeCalculations.Text = "Calculation running";
-			Context.Layout.Start();
+			App.MainForm.Invoke(() => NodeCalculations.Text = "Calculation running");
+
+			Provider.FreezeNodesAsInitial();
+			Layouter = new(Provider, this, token);
+			Layouter.Start();
+			Invalidate();
+		}
+
+		public void SaveNodes()
+		{
+			Layouter?.Stop();
+			_ = Context.SaveNodes(Provider.Nodes);
 		}
 
 		private void SaveNodes(object? sender, FormClosingEventArgs? e)
 		{
-			Context.SaveNodes();
-			TranslatorApp.Properties.Settings.Default.Save();
+			_ = Context.SaveNodes(Provider.Nodes);
+			Settings.Default.Save();
 		}
 
 		private void HandleKeyBoard(object sender, KeyEventArgs e)
@@ -89,15 +106,15 @@
 		private void Start_Click(object sender, EventArgs e)
 		{
 			NodeCalculations.Text = "Calculation running";
-			Grapher.Context.Layout.Start();
+			Layouter?.Start();
 			NodeCalculations.Update();
 			NodeCalculations.Invalidate();
 		}
 
-		private void Stop_Click(object sender, EventArgs e)
+		public void Stop_Click(object sender, EventArgs e)
 		{
 			NodeCalculations.Text = "Calculation stopped";
-			Grapher.Context.Layout.Stop();
+			if(Layouter?.Started ?? false)Layouter?.Stop();
 			NodeCalculations.Update();
 			NodeCalculations.Invalidate();
 		}
@@ -105,17 +122,17 @@
 		//todo more values and settings to change
 		//- base node colors?
 		//- single node colors
-		//- target speed?
+		//- all other node colors
+		//- target fps?
 		//todo add more info, maybe as list of values, treelist under info text
 		//todo add internal nodes visible button and setting
 		//todo add setting to allow only a set number/type of nodes
-		//todo add dragging nodes around
 		private void IdealLength_ValueChanged(object sender, EventArgs e)
 		{
 			if (!inInitialization)
 			{
 				StoryExplorerConstants.IdealLength = IdealLength.Value > 1 && IdealLength.Value < IdealLength.Maximum ? (float)IdealLength.Value : StoryExplorerConstants.IdealLength;
-				TranslatorApp.Properties.Settings.Default.IdealLength = (float)IdealLength.Value;
+				Settings.Default.IdealLength = (float)IdealLength.Value;
 			}
 
 		}
@@ -125,7 +142,7 @@
 			if (!inInitialization)
 			{
 				StoryExplorerConstants.ColoringDepth = ColoringDepth.Value > 1 && ColoringDepth.Value < ColoringDepth.Maximum ? (int)ColoringDepth.Value : StoryExplorerConstants.ColoringDepth;
-				TranslatorApp.Properties.Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
+				Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
 			}
 		}
 

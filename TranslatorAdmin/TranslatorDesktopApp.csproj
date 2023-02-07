@@ -12,6 +12,7 @@
     <Configurations>Debug;Release;Debug Admin;Release Admin</Configurations>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
     <ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -43,6 +44,7 @@
   <ItemGroup>
     <PackageReference Include="NetDiscordRpc" Version="1.0.2" />
     <PackageReference Include="SevenZipExtractor" Version="1.0.17" />
+    <PackageReference Include="Silk.NET.OpenCL" Version="2.16.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,7 +74,7 @@
     <Compile Update="SettingsForm\SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="StoryExplorerForm\StoryExplorer.cs" />
+    <Compile Update="Explorer\StoryExplorer.cs" />
     <Compile Update="UIComponents\ColouredCheckedListBox.cs">
       <SubType>Component</SubType>
     </Compile>

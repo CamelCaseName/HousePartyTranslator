@@ -1,6 +1,6 @@
 ﻿using Translator.UICompatibilityLayer;
 
-namespace TranslatorApp.InterfaceImpls
+namespace Translator.InterfaceImpls
 {
 	public class WinMenuItem : ToolStripMenuItem, IMenuItem
 	{

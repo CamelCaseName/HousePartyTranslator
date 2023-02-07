@@ -10,6 +10,7 @@
 		/// List containing all indices that are part of the search result
 		/// </summary>
 		public List<string> SearchResults = new();
+
 		/// <summary>
 		/// list containing all indices that are duplicates fo the english string
 		/// </summary>

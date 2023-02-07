@@ -3,11 +3,11 @@ using Translator.Core.Helpers;
 using Translator.Explorer;
 using Translator.Helpers;
 using Translator.Managers;
-using TranslatorApp.InterfaceImpls;
-using TabManager = Translator.Core.TabManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
-using TranslationManager = Translator.Core.TranslationManager<TranslatorApp.InterfaceImpls.WinLineItem, TranslatorApp.InterfaceImpls.WinUIHandler, TranslatorApp.InterfaceImpls.WinTabController, TranslatorApp.InterfaceImpls.WinTab>;
+using Translator.InterfaceImpls;
+using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using TranslationManager = Translator.Core.TranslationManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
 
-namespace TranslatorApp.Managers
+namespace Translator.Managers
 {
 	//also contains some extensions to ease programming
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
@@ -26,8 +26,8 @@ namespace TranslatorApp.Managers
 
 			UI.SignalUserWait();
 			data = new FileData();
-			var explorer = new ContextProvider(story == Path.GetFileNameWithoutExtension(path), false, filename, story, new CancellationToken());
-			List<Node> nodes = explorer.GetTemplateNodes();
+			var explorer = new ContextProvider(new(), story == Path.GetFileNameWithoutExtension(path), false, filename, story);
+			NodeList nodes = explorer.GetTemplateNodes();
 			if (nodes != null)
 			{
 				data = new FileData
@@ -68,12 +68,12 @@ namespace TranslatorApp.Managers
 			if (TabManager.UI == null) return;
 			if (manager.TranslationData.Count > 0)
 			{
-				int currentIndex = TabManager.UI.SelectedTab.SelectedLineIndex;
-				string id = currentIndex < manager.TranslationData.Count && currentIndex >= 0 ? manager.TranslationData[manager.SelectedId].ID : "Name";
+				int currentIndex = App.MainForm.Invoke(() => TabManager.UI.SelectedTab.SelectedLineIndex);
+				string id = App.MainForm.Invoke(() => currentIndex < manager.TranslationData.Count && currentIndex >= 0 ? manager.TranslationData[manager.SelectedId].ID : "Name");
 				//Highlights the node representign the selected string in the story explorer window
 				if (App.MainForm?.Explorer != null && !App.MainForm.Explorer.IsDisposed)
 				{
-					App.MainForm.Explorer.Grapher.HighlightedNode = App.MainForm.Explorer?.Grapher.Context.Nodes.Find(n => n.ID == id) ?? Node.NullNode;
+					App.MainForm.Invoke(() => App.MainForm.Explorer.Grapher.HighlightedNode = App.MainForm.Explorer?.Provider.Nodes.Find(n => n.ID == id) ?? Node.NullNode);
 				}
 			}
 		}

@@ -2,9 +2,9 @@
 using Translator.Core;
 using Translator.Helpers;
 using Translator.UICompatibilityLayer;
-using TranslatorApp.Managers;
+using Translator.Managers;
 
-namespace TranslatorApp.InterfaceImpls
+namespace Translator.InterfaceImpls
 {
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 	public sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController, WinTab>
@@ -101,9 +101,9 @@ namespace TranslatorApp.InterfaceImpls
 		}
 		private void SetWaitCursor()
 		{
-			Application.UseWaitCursor = waitCounter > 0;
-			if (App.MainForm != null)
-				App.MainForm.UseWaitCursor = waitCounter > 0;
+			if (waitCounter > 0 && !Application.UseWaitCursor) Application.UseWaitCursor = true;
+			else if (waitCounter == 0) Application.UseWaitCursor = false;
+			App.MainForm.Invalidate();
 		}
 		public void Update() => App.MainForm?.Update();
 		public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Update();

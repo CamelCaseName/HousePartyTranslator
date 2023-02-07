@@ -67,30 +67,31 @@ namespace Translator.Core
             {
 
 #endif
-			var temp = new Stack<ICommand>(history);
+			var temp = new Stack<ICommand>(history.Count);
 			//check all history items
-			for (int i = 0; i < history.Count; i++)
+			for (int i = history.Count; i > 0; --i)
 			{
 				ICommand item = history.Pop();
 				if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>))
 					temp.Push(item);
 			}
-			for (int i = 0; i < temp.Count; i++)
+			for (int i = temp.Count; i > 0; --i)
 			{
 				history.Push(temp.Pop());
 			}
 			temp.Clear();
 			//check all future items
-			for (int i = 0; i < future.Count; i++)
+			for (int i = future.Count; i > 0; --i)
 			{
 				ICommand item = future.Pop();
 				if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>))
 					temp.Push(item);
 			}
-			for (int i = 0; i < temp.Count; i++)
+			for (int i = temp.Count; i > 0; --i)
 			{
 				future.Push(temp.Pop());
 			}
+			temp.Clear();
 		}
 
 		public static void Undo()

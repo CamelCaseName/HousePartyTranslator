@@ -158,6 +158,7 @@ namespace Translator.Core
 
 			if (basePath.Length > 0)
 			{
+				UI.SignalUserWait();
 				foreach (string path in Directory.GetDirectories(basePath))
 				{
 					string[] folders = path.Split('\\');
@@ -182,6 +183,7 @@ namespace Translator.Core
 						OpenInNewTab(filePath);
 					}
 				}
+				UI.SignalUserEndWait();
 			}
 		}
 
@@ -229,7 +231,7 @@ namespace Translator.Core
 			//update history on tab change
 			if (lastIndex != TabControl.SelectedIndex)
 			{
-				History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(lastIndex, TabControl.SelectedIndex));
+				History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(lastIndex, TabControl.SelectedIndex) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
 				lastIndex = TabControl.SelectedIndex;
 			}
 
@@ -255,6 +257,7 @@ namespace Translator.Core
 		{
 			if (TabControl.TabCount >= 1)
 			{
+				UI.SignalUserWait();
 				int oldSelection = TabControl.SelectedIndex;
 				//save all tabs
 				foreach (TTab tab in TabControl.TabPages)
@@ -264,6 +267,7 @@ namespace Translator.Core
 					translationManagers[tab].SaveFile();
 				}
 				TabControl.SelectedIndex = oldSelection;
+				UI.SignalUserEndWait();
 				return true;
 			}
 			return false;
@@ -393,8 +397,8 @@ namespace Translator.Core
 				for (int i = 0; i < TabControl.TabCount; i++)
 				{
 					//save history
-					if (i != 0) History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(i - 1, i));
-					else History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(0, i));
+					if (i != 0) History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(i - 1, i) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
+					else History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(0, i) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
 
 					translationManagers[TabControl.TabPages[i]].ReplaceAll(UI.ReplaceBarText ?? "");
 				}
@@ -425,12 +429,12 @@ namespace Translator.Core
 		{
 			if (Settings.Default.AskForSaveDialog && translationManagers.Count > 0)
 			{
-				foreach (var translationManager in translationManagers)
+				foreach (KeyValuePair<TTab, TranslationManager<TLineItem, TUIHandler, TTabController, TTab>> translationManager in translationManagers)
 				{
 					if (translationManager.Value.ChangesPending)
 					{
 						if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
-							SaveAllTabs();
+							_ = SaveAllTabs();
 						return;
 					}
 				}

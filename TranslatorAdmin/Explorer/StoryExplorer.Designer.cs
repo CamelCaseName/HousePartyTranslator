@@ -1,33 +1,33 @@
 ﻿namespace Translator.Explorer.Window
 {
-    partial class StoryExplorer
-    {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        private System.ComponentModel.IContainer components = null;
+	partial class StoryExplorer
+	{
+		/// <summary>
+		/// Required designer variable.
+		/// </summary>
+		private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+		/// <summary>
+		/// Clean up any resources being used.
+		/// </summary>
+		/// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing && (components != null))
+			{
+				components.Dispose();
+			}
+			base.Dispose(disposing);
+		}
 
-        #region Windows Form Designer generated code
+		#region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
-        {
+		/// <summary>
+		/// Required method for Designer support - do not modify
+		/// the contents of this method with the code editor.
+		/// </summary>
+		private void InitializeComponent()
+		{
 			this.NodeInfoLabel = new System.Windows.Forms.Label();
 			this.ColoringDepth = new System.Windows.Forms.NumericUpDown();
 			this.IdealLength = new System.Windows.Forms.NumericUpDown();
@@ -74,10 +74,10 @@
 			this.IdealLength.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.IdealLength.Location = new System.Drawing.Point(91, 56);
 			this.IdealLength.Maximum = new decimal(new int[] {
-            1000,
-            0,
-            0,
-            0});
+			1000,
+			0,
+			0,
+			0});
 			this.IdealLength.Name = "IdealLength";
 			this.IdealLength.Size = new System.Drawing.Size(75, 23);
 			this.IdealLength.TabIndex = 2;
@@ -204,6 +204,7 @@
 			this.Name = "StoryExplorer";
 			this.ShowIcon = false;
 			this.Text = "Story Explorer";
+			this.KeyPreview = true;
 			this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.HandleKeyBoard);
 			this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.HandleKeyBoard);
 			this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HandleMouseEvents);
@@ -217,11 +218,11 @@
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
-        }
+		}
 
-        #endregion
+		#endregion
 
-        private Label NodeInfoLabel;
+		private Label NodeInfoLabel;
 		private NumericUpDown ColoringDepth;
 		private NumericUpDown IdealLength;
 		private Button Start;

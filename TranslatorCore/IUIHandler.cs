@@ -98,6 +98,7 @@ namespace Translator.UICompatibilityLayer
 		#endregion
 
 		#region translation textbox
+		ITextBox Translation { get; }
 		void FocusTranslationBox();
 
 		string TranslationBoxText { get; set; }
@@ -108,6 +109,7 @@ namespace Translator.UICompatibilityLayer
 		#endregion
 
 		#region template textbox
+		ITextBox Template { get; }
 		string TemplateBoxText { get; set; }
 
 		string SelectedTemplateBoxText { get; }
@@ -116,6 +118,7 @@ namespace Translator.UICompatibilityLayer
 		#endregion
 
 		#region comment textbox
+		ITextBox Comments { get; }
 		void FocusCommentBox();
 
 		string CommentBoxText { get; set; }
@@ -156,6 +159,9 @@ namespace Translator.UICompatibilityLayer
 		public event EventHandler TextChanged { add { } remove { } }
 		public int SelectionEnd { get; set; }
 		public int SelectionStart { get; set; }
+		public int HighlightStart { get; set; }
+		public int HighlightEnd { get; set; }
+		public bool ShowHighlight { get; set; }
 		public string Text { get; set; }
 		public void Focus();
 	}

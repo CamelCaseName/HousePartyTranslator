@@ -209,5 +209,126 @@ namespace Translator.Explorer.JSON
 			PlayerTookCameraPhoto = 250,
 			OnAfterCutSceneEnds
 		}
+
+		public enum InteractiveStates
+		{
+			Naked,
+			WantsToBeAlone,
+			Upset,
+			Happy,
+			ShooOthers,
+			DontMoveForOthers,
+			Embarrassed,
+			Angry,
+			IgnoreNavMeshRestrictions,
+			Alive = 10,
+			KnockedOut,
+			GenitalsExposed,
+			ChestExposed,
+			ForcePlaySexSound,
+			DontReleasePoseAfterSex,
+			RechargingOrgasm,
+			Standing,
+			IgnoredByOthers,
+			InCombat,
+			Dancing,
+			CanHearMusic,
+			CurrentlyDisplayingDialogue,
+			Crouching,
+			Topless,
+			Bottomless,
+			Sitting,
+			AbleToRoam,
+			AbleToSocialize,
+			AbleToDance,
+			AbleToBeDistracted,
+			Immobile,
+			RunWhenCloseToTarget,
+			Running,
+			IndefinitelyErect,
+			IsKneeling,
+			IsLayingDown,
+			IsLayingDownOnBack,
+			IsLayingDownOnStomache,
+			ForcedToDance,
+			OnThePhone,
+			Idling,
+			HoldingADrinkRightHand,
+			HoldingADrinkLeftHand,
+			UnableToFidget,
+			UnableToAnimateConverstion,
+			Falling,
+			UnableToEmote,
+			UnableToAnimateEmotes,
+			ActingInCinematic,
+			CurrentlyPeeing,
+			IsOnFire,
+			Enabled,
+			AbleToMoanDuringSexCutScene,
+			UnableToOpenLabiaOrAsshole,
+			UnableToLookAt,
+			OverridingOralMouthPose,
+			AbleToSexEmoteDuringCutScene,
+			RunWhenFarAwayFromTarget,
+			AbleToRechargeHealthInCombat,
+			Floating,
+			EyesAlwaysClosedWhenIdling,
+			DontMoveForObstacles
+		}
+
+		public enum InteractiveProperties
+		{
+			PlayerCombatMode = 1,
+			PlayerCantBlock,
+			IsBlocking,
+			HitsGirls = 50,
+			DoesNotFightBack,
+			AlwaysBlocks,
+			NoSprintingEnergyRegenPenalty,
+			DoesNotUseIKToOpenDoors = 60,
+			ForceBasicIdling = 80,
+			IgnoresFireDamage = 85,
+			RanStartEvents = 90,
+			PlayerBladderAutoRechargeDisabled = 100,
+			GivingStripTease = 110,
+			ReceivingStripTease,
+			IsFlashingShirt = 150,
+			GivingBlowJob = 170,
+			GivingCunnilingus,
+			GivingOral,
+			InCutScene = 200
+		}
+
+		public enum PersonalityTraits
+		{
+			Nice,
+			Happy,
+			Humerous,
+			Creative,
+			Jealous,
+			LikesMen,
+			LikesWomen,
+			Aggressive,
+			Sociable,
+			Optimistic,
+			Energetic,
+			Serious,
+			Intelligent,
+			Charismatic,
+			Shy,
+			Perverse,
+			Exhibitionism
+		}
+
+		public enum Clothes
+		{
+			Top,
+			Bottom,
+			Underwear,
+			Bra,
+			Shoes,
+			Accessory,
+			StrapOn
+		}
 	}
 }

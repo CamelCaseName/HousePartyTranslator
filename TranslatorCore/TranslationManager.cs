@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
@@ -30,19 +31,20 @@ namespace Translator.Core
 			get { return _changesPending; }
 			set
 			{
-				_changesPending = value;
 				if (value)
 					TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName + "*");
 				else
 					TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName ?? "");
+				_changesPending = value;
 			}
 		}
-		private bool _changesPending;
+		private bool _changesPending = false;
 		public static bool IsUpToDate { get; internal set; } = false;
 		public List<StringCategory> CategoriesInFile = new();
 		public bool isTemplate = false;
 		public string SearchQuery { get; private set; } = string.Empty;
 		public string CleanedSearchQuery { get; private set; } = string.Empty;
+		public bool CaseSensitiveSearch { get; private set; } = false;
 
 		private static readonly Timer AutoSaveTimer = new();
 
@@ -287,9 +289,9 @@ namespace Translator.Core
 		{
 			if (path.Length > 0)
 			{
-				TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
+				if (TranslationData.Count > 0) TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
 				//clear history if we have a new file, we dont need old one anymore
-				if (path != SourceFilePath)
+				if (path != SourceFilePath && FileName != string.Empty && StoryName != string.Empty)
 					History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
 				ResetTranslationManager();
 
@@ -381,9 +383,7 @@ namespace Translator.Core
 
 					TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
 
-					//renew search result if possible
-					int t = TabUI.Lines.SearchResults.IndexOf(SelectedId);
-					if (t >= 0) { SelectedResultIndex = t; }
+					UpdateSearchAndSearchHighlight();
 				}
 			}
 			else
@@ -392,6 +392,34 @@ namespace Translator.Core
 			}
 			UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.LineCount);
 			UI.SignalUserEndWait();
+		}
+
+		private void UpdateSearchAndSearchHighlight()
+		{
+			//renew search result if possible
+			int t = TabUI.Lines.SearchResults.IndexOf(SelectedId);
+			if (t >= 0)
+			{
+				SelectedResultIndex = t; int TemplateTextQueryLocation;
+				if (CaseSensitiveSearch)
+					TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(CleanedSearchQuery);
+				else
+					TemplateTextQueryLocation = TabUI.TemplateBoxText.ToLowerInvariant().IndexOf(CleanedSearchQuery.ToLowerInvariant());
+				if (TemplateTextQueryLocation >= 0)
+				{
+					TabUI.Template.HighlightStart = TemplateTextQueryLocation;
+					TabUI.Template.HighlightEnd = TemplateTextQueryLocation + CleanedSearchQuery.Length;
+					TabUI.Template.ShowHighlight = true;
+				}
+				else
+				{
+					TabUI.Template.ShowHighlight = false;
+				}
+			}
+			else
+			{
+				TabUI.Template.ShowHighlight = false;
+			}
 		}
 
 		/// <summary>
@@ -527,8 +555,12 @@ namespace Translator.Core
 
 			History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
 
-			if (SourceFilePath == "" || Language == "") return;
-			if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslations(TranslationData, Language) || !DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+			if (SourceFilePath == "" || Language == "")
+			{
+				UI.SignalUserEndWait();
+				return;
+			}
+			_ = Task.Run(RemoteUpdate);
 
 			List<CategorizedLines> CategorizedStrings = InitializeCategories();
 
@@ -546,10 +578,14 @@ namespace Translator.Core
 			{
 				CopyToGameModsFolder();
 			}
-
-			ChangesPending = false;
-
 			UI.SignalUserEndWait();
+
+			void RemoteUpdate()
+			{
+				UI.SignalUserWait();
+				if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslations(TranslationData, Language) || !DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+				UI.SignalUserEndWait();
+			}
 		}
 
 		private List<CategorizedLines> InitializeCategories()
@@ -753,9 +789,11 @@ namespace Translator.Core
 				//clear results
 				TabUI.Lines.SearchResults.Clear();
 
+				CaseSensitiveSearch = false;
 				//decide on case sensitivity
 				if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
 				{
+					CaseSensitiveSearch = true;
 					query = query[1..];
 					//methodolgy: highlight items which fulfill search and show count
 					int x = 0;
@@ -794,6 +832,8 @@ namespace Translator.Core
 					}
 				}
 				CleanedSearchQuery = query;
+
+				UpdateSearchAndSearchHighlight();
 			}
 			else
 			{
@@ -857,7 +897,7 @@ namespace Translator.Core
 			TabUI.TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
 			SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
 			UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
-			ChangesPending = !selectedNew;
+			ChangesPending = !selectedNew || ChangesPending;
 			selectedNew = false;
 		}
 
@@ -1222,11 +1262,14 @@ namespace Translator.Core
 					TryFixEmptyFile();
 				}
 				else if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
-					//inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
-					//and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
+				//inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
+				//and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
+				{
 					_ = UI.InfoOk(
 					"Some strings are missing from your translation, they will be added with the english version when you first save the file!",
 					"Some strings missing");
+					ChangesPending = true;
+				}
 			}
 		}
 

@@ -135,6 +135,8 @@ namespace Translator.Core.Helpers
 		public static readonly Color darkText = SystemColors.WindowText;
 		public static readonly Color menu = SystemColors.ScrollBar;
 		public static readonly Color frame = SystemColors.WindowFrame;
+		public static readonly Color highlight = SystemColors.Info;
+
 		/// <summary>
 		/// Gets the current assembly version as a string.
 		/// </summary>

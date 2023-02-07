@@ -76,16 +76,19 @@ namespace Translator.Core.Helpers
 		/// </summary>
 		/// <param name="input">The string to format</param>
 		/// <returns>The formatted, blockified string</returns>
-		public static string ConstrainLength(this string input)
+		/// 
+		public static string ConstrainLength(this string input) => input.ConstrainLength(Utils.MaxTextLength);
+		public static string ConstrainLength(this string input, int maxlineLength)
 		{
-			int currentWordLength = 0, currentLength = 0;
-			bool inWord;
+			int currentWordLength = 0, currentLength = 0, lastWordStart = 0, totalCount = 0;
+			bool inWord = false;
 			var builder = new StringBuilder(input.Length);
 
 			foreach (char c in input.AsSpan())
 			{
 				if (c != ' ' && c != '\n' && c != '\r')
 				{
+					if (!inWord) lastWordStart = totalCount;
 					inWord = true;
 					currentWordLength++;
 				}
@@ -98,23 +101,27 @@ namespace Translator.Core.Helpers
 				currentLength++;
 
 				//if line is short still
-				if (currentLength <= Utils.MaxTextLength)
+				if (currentLength <= maxlineLength)
 				{
 					_ = builder.Append(c);
 				}
 				else
 				{
-					if (inWord && currentWordLength < Utils.MaxWordLength)
+					if (inWord && currentWordLength < maxlineLength)
 					{
-						//line is too long but we in a word
+						//line is too long but we in a word, so we move the word to the next line if it fits, else we just split it
+						_ = builder.Insert(lastWordStart, '\n');
 						_ = builder.Append(c);
 					}
 					else
 					{
-						_ = builder.Append(c + "\n");
-						currentLength = 0;
+						_ = builder.Append('\n');
+						_ = builder.Append(c);
 					}
+					currentLength = 0;
 				}
+
+				++totalCount;
 			}
 
 			return builder.ToString();
