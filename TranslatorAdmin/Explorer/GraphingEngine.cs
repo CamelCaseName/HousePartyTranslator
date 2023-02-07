@@ -352,8 +352,8 @@ namespace Translator.Explorer
                 FillDisplayComponents(box, node.Data);
             }
             box.Location = new Point(infoLabelRect.Left, infoLabelRect.Bottom + 5);
-            box.MaximumSize = new Size(infoLabelRect.Width, Explorer.);
-            box.Size = new Size(infoLabelRect.Width, 10);
+            box.MaximumSize = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10);
+            box.Size = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), 10);
             box.BringToFront();
             box.Visible = true;
         }
@@ -401,7 +401,7 @@ namespace Translator.Explorer
                 Name = dataType.Name + "DisplayBox",
                 TabIndex = 10,
                 TabStop = false,
-                MaximumSize = new Size(Explorer.Grapher.NodeInfoLabel.Width, Screen.PrimaryScreen?.WorkingArea.Height ?? Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height),
+                MaximumSize = new Size(Math.Clamp(NodeInfoLabel.ClientRectangle.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10),
                 Text = dataType.Name,
                 Visible = false
             };

@@ -99,7 +99,6 @@ namespace Translator.Explorer
 		public static Node CreateCriteriaNode(ICriterion criterion, Node node)
 		{
 			//create all criteria nodes the same way so they can possibly be replaced by the actual text later
-			//todo remove string thing because it is no longer needed
 			return new Node(
 				$"{criterion.Character}{criterion.CompareType}{criterion.Value}",
 				NodeType.Criterion,
