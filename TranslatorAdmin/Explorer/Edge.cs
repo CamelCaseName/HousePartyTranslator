@@ -18,5 +18,10 @@
         {
             return This.ID.GetHashCode() ^ Child.ID.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return This.ID + "->" + Child.ID;
+        }
     }
 }
