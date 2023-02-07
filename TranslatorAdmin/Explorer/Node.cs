@@ -103,7 +103,7 @@ namespace Translator.Explorer
 			return new Node(
 				$"{criterion.Character}{criterion.CompareType}{criterion.Value}",
 				NodeType.Criterion,
-				$"{criterion.Character}|{criterion.Character2}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.EqualsValue}|{criterion.Key}|{criterion.Key2}|{criterion.Option}|{criterion.SocialStatus}|{criterion.Value}",
+				$"{criterion.Character}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.Key}|{criterion.Value}",
 				new NodeList(),
 				new NodeList() { node })
 			{ FileName = node.FileName };

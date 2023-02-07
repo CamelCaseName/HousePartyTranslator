@@ -333,12 +333,12 @@ namespace Translator.Explorer
 
         private void DisplayExtendedNodeInfo(Rectangle infoLabelRect, Node node)
         {
-            if (node.Data == null) return;
-
             foreach (var oldBox in ExtendedInfoComponents.Values)
             {
                 oldBox.Visible = false;
             }
+            if (node.Data == null) return;
+
             //use components if we have them already
             if (!ExtendedInfoComponents.TryGetValue(node.DataType, out var box))
             {
@@ -352,6 +352,7 @@ namespace Translator.Explorer
                 FillDisplayComponents(box, node.Data);
             }
             box.Location = new Point(infoLabelRect.Left, infoLabelRect.Bottom + 5);
+            box.MaximumSize = new Size(infoLabelRect.Width, Explorer.);
             box.Size = new Size(infoLabelRect.Width, 10);
             box.BringToFront();
             box.Visible = true;
