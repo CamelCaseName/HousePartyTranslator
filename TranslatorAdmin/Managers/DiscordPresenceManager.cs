@@ -67,7 +67,7 @@ namespace Translator.Managers
 		{
 			if (DataBase.IsOnline)
 			{
-				if (((Settings)Settings.Default).EnableDiscordRP)
+				if (Settings.WDefault.EnableDiscordRP)
 				{
 					if (!(DiscordPresenceClient?.IsInitialized ?? false) || (DiscordPresenceClient?.IsDisposed ?? false))
 					{
@@ -89,7 +89,7 @@ namespace Translator.Managers
 
 		public void Update()
 		{
-			if (((Settings)Settings.Default).EnableDiscordRP && DataBase.IsOnline)
+			if (Settings.WDefault.EnableDiscordRP && DataBase.IsOnline)
 			{
 				_ = DiscordPresenceClient?.Invoke();
 			}

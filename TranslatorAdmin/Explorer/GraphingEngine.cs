@@ -17,14 +17,6 @@ namespace Translator.Explorer
 
 		public readonly NodeProvider Provider;
 
-		private readonly Color DefaultEdgeColor = Color.FromArgb(30, 30, 30);
-		private readonly Color DefaultMaleColor = Color.Coral;
-		private readonly Color DefaultColor = Color.DarkBlue;
-		private readonly Color DefaultQuestColor = Color.Purple;
-		private readonly Color DefaultFemaleColor = Color.DarkTurquoise;
-		private readonly Color DefaultMovingNodeColor = Color.CadetBlue;
-		private readonly Color DefaultInfoNodeColor = Color.ForestGreen;
-
 		private readonly SolidBrush ColorBrush;
 		private readonly Pen ColorPen;
 
@@ -74,8 +66,8 @@ namespace Translator.Explorer
 			OffsetY = (float)Explorer.ClientRectangle.Y / 2;
 
 
-            ColorBrush = new SolidBrush(DefaultColor);
-			ColorPen = new Pen(DefaultEdgeColor, 2f) { EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor, StartCap = System.Drawing.Drawing2D.LineCap.Round };
+            ColorBrush = new SolidBrush(Settings.WDefault.DefaultNodeColor);
+			ColorPen = new Pen(Settings.WDefault.DefaultEdgeColor, 2f) { EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor, StartCap = System.Drawing.Drawing2D.LineCap.Round };
 
 			ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
 			ClickedNodeChanged += new ClickedNodeChangedHandler(DisplayNodeInfoHandler);
@@ -149,7 +141,7 @@ namespace Translator.Explorer
 		{
 			if (movingNode != Node.NullNode)
 			{
-				DrawColouredNode(g, movingNode, DefaultMovingNodeColor, 1.2f);
+				DrawColouredNode(g, movingNode, Settings.WDefault.MovingNodeColor, 1.2f);
 			}
 		}
 
@@ -307,7 +299,7 @@ namespace Translator.Explorer
 				//create info
 				//strip text of all VA performance hints, embedded in []. if user wants it
 				string info;
-				if (((Settings)Settings.Default).DisplayVAHints) { info = node.Text.ConstrainLength(); }
+				if (Settings.WDefault.DisplayVAHints) { info = node.Text.ConstrainLength(); }
 				else { info = node.Text.RemoveVAHints().ConstrainLength(); }
 
 				//create seperator
@@ -372,7 +364,7 @@ namespace Translator.Explorer
 
 		internal void DrawEdge(Graphics g, Node node1, Node node2)
 		{
-			DrawEdge(g, node1, node2, DefaultEdgeColor);
+			DrawEdge(g, node1, node2, Settings.WDefault.DefaultEdgeColor);
 		}
 
 		internal void DrawEdge(Graphics g, Node node1, Node node2, Color color)
@@ -405,7 +397,7 @@ namespace Translator.Explorer
 
 		internal void DrawEdges(Graphics g, NodeList nodes)
 		{
-			DrawEdges(g, nodes, DefaultColor);
+			DrawEdges(g, nodes, Settings.WDefault.DefaultEdgeColor);
 		}
 
 		internal void DrawEdges(Graphics g, NodeList nodes, Color color)
@@ -478,7 +470,7 @@ namespace Translator.Explorer
 		{
 			if (InfoNode != Node.NullNode)
 			{
-				DrawColouredNode(g, InfoNode, DefaultInfoNodeColor);
+				DrawColouredNode(g, InfoNode, Settings.WDefault.InfoNodeColor);
 			}
 		}
 
@@ -517,16 +509,41 @@ namespace Translator.Explorer
 			}
 		}
 
-		private Color ColorFromNode(Node node)
+		private static Color ColorFromNode(Node node)
 		{
-			return node.Gender switch
-			{
-				Gender.None => node.Type == NodeType.Quest ? DefaultQuestColor : DefaultColor,
-				Gender.Female => DefaultFemaleColor,
-				Gender.Male => DefaultMaleColor,
-				_ => DefaultColor,
-			};
-		}
+            return node.Type switch
+            {
+                NodeType.Null => Settings.WDefault.DefaultNodeColor,
+                NodeType.Item => Settings.WDefault.ItemNodeColor,
+                NodeType.ItemGroup => Settings.WDefault.ItemGroupNodeColor,
+                NodeType.Action => Settings.WDefault.ActionNodeColor,
+                NodeType.Event => Settings.WDefault.EventNodeColor,
+                NodeType.Criterion => Settings.WDefault.CriterionNodeColor,
+                NodeType.Response => Settings.WDefault.ResponseNodeColor,
+                NodeType.Dialogue => node.Gender switch
+                {
+                    Gender.Female => Settings.WDefault.DialogueFemaleOnlyNodeColor,
+                    Gender.Male => Settings.WDefault.DialogueMaleOnlyNodeColor,
+                    _ => Settings.WDefault.DialogueNodeColor
+                },
+                NodeType.Quest => Settings.WDefault.QuestNodeColor,
+                NodeType.Achievement => Settings.WDefault.AchievementNodeColor,
+                NodeType.Reaction => Settings.WDefault.ReactionNodeColor,
+                NodeType.BGC => Settings.WDefault.BGCNodeColor,
+                NodeType.Value => Settings.WDefault.ValueNodeColor,
+                NodeType.Door => Settings.WDefault.DoorNodeColor,
+                NodeType.Inventory => Settings.WDefault.InventoryNodeColor,
+                NodeType.State => Settings.WDefault.StateNodeColor,
+                NodeType.Personality => Settings.WDefault.PersonalityNodeColor,
+                NodeType.Cutscene => Settings.WDefault.CutsceneNodeColor,
+                NodeType.Clothing => Settings.WDefault.ClothingNodeColor,
+                NodeType.CriteriaGroup => Settings.WDefault.CriteriaGroupNodeColor,
+                NodeType.Pose => Settings.WDefault.PoseNodeColor,
+                NodeType.Property => Settings.WDefault.PropertyNodeColor,
+                NodeType.Social => Settings.WDefault.SocialNodeColor,
+                _ => Settings.WDefault.DefaultNodeColor,
+            };
+        }
 
 		private void EndPan()
 		{

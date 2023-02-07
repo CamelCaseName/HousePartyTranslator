@@ -40,9 +40,9 @@ namespace Translator.Explorer
                 this.StoryName = StoryName;
             }
 
-            if (((Settings)Settings.Default).StoryPath != string.Empty && AutoFileSelection)
+            if (Settings.WDefault.StoryPath != string.Empty && AutoFileSelection)
             {
-                string storyPathMinusStory = Directory.GetParent(((Settings)Settings.Default).StoryPath)?.FullName ?? string.Empty;
+                string storyPathMinusStory = Directory.GetParent(Settings.WDefault.StoryPath)?.FullName ?? string.Empty;
 
                 if (IsStory)
                 {
@@ -87,7 +87,7 @@ namespace Translator.Explorer
                         {
                             Title = $"Choose the story file ({StoryName}) for the templates",
                             Filter = AutoFileSelection ? "Story Files (*.story)|*.story" : string.Empty,
-                            InitialDirectory = ((Settings)Settings.Default).StoryPath.Length > 0 ? ((Settings)Settings.Default).StoryPath : @"C:\Users\%USER%\Documents",
+                            InitialDirectory = Settings.WDefault.StoryPath.Length > 0 ? Settings.WDefault.StoryPath : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false,
                             FileName = this.FileName + ".story"
                         };
@@ -98,7 +98,7 @@ namespace Translator.Explorer
                         {
                             Title = $"Choose the social file ({FileName}) for the templates",
                             Filter = AutoFileSelection ? "Social Files (*.social)|*.social" : string.Empty,
-                            InitialDirectory = ((Settings)Settings.Default).StoryPath.Length > 0 ? ((Settings)Settings.Default).StoryPath : @"C:\Users\%USER%\Documents",
+                            InitialDirectory = Settings.WDefault.StoryPath.Length > 0 ? Settings.WDefault.StoryPath : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false,
                             FileName = this.FileName + ".social"
                         };
@@ -106,7 +106,7 @@ namespace Translator.Explorer
 
                     if (selectFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        ((Settings)Settings.Default).StoryPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? string.Empty;
+                        Settings.WDefault.StoryPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? string.Empty;
                         Settings.Default.Save();
                         _StoryFilePath = selectFileDialog.FileName;
                     }
@@ -129,7 +129,7 @@ namespace Translator.Explorer
                 NodeFilePath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{StoryName + FileName + DataBase.DBVersion}.json");
 
                 //save path
-                ((Settings)Settings.Default).StoryPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
+                Settings.WDefault.StoryPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
                 //try to laod the saved nodes
                 if (File.Exists(NodeFilePath))
                 {
@@ -168,8 +168,8 @@ namespace Translator.Explorer
             {
                 if (FilePath != string.Empty)
                     StoryFolderPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
-                else if (((Settings)Settings.Default).StoryPath != string.Empty)
-                    StoryFolderPath = ((Settings)Settings.Default).StoryPath;
+                else if (Settings.WDefault.StoryPath != string.Empty)
+                    StoryFolderPath = Settings.WDefault.StoryPath;
             }
             else
             {

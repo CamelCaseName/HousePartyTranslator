@@ -31,10 +31,10 @@ namespace Translator
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 
-			if (((Settings)Settings.Default).UpdateSettings)
+			if (Settings.WDefault.UpdateSettings)
 			{
-				((Settings)Settings.Default).Upgrade();
-				((Settings)Settings.Default).UpdateSettings = false;
+				Settings.WDefault.Upgrade();
+				Settings.WDefault.UpdateSettings = false;
 				Settings.Default.Save();
 			}
 

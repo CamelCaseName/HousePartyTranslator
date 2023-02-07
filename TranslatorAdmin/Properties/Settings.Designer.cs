@@ -658,5 +658,65 @@ namespace Translator.Properties {
                 this["UseRainbowEdges"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("224, 224, 224")]
+        public global::System.Drawing.Color NodeMovingColor {
+            get {
+                return ((global::System.Drawing.Color)(this["NodeMovingColor"]));
+            }
+            set {
+                this["NodeMovingColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Red")]
+        public global::System.Drawing.Color NodeInfoColor {
+            get {
+                return ((global::System.Drawing.Color)(this["NodeInfoColor"]));
+            }
+            set {
+                this["NodeInfoColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("White")]
+        public global::System.Drawing.Color NodeSelectedColor {
+            get {
+                return ((global::System.Drawing.Color)(this["NodeSelectedColor"]));
+            }
+            set {
+                this["NodeSelectedColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Silver")]
+        public global::System.Drawing.Color NodeDefaultColor {
+            get {
+                return ((global::System.Drawing.Color)(this["NodeDefaultColor"]));
+            }
+            set {
+                this["NodeDefaultColor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Gray")]
+        public global::System.Drawing.Color EdgeDefaultColor {
+            get {
+                return ((global::System.Drawing.Color)(this["EdgeDefaultColor"]));
+            }
+            set {
+                this["EdgeDefaultColor"] = value;
+            }
+        }
     }
 }
