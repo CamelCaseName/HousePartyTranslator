@@ -109,63 +109,6 @@ namespace Translator.Explorer
 			{ FileName = node.FileName };
 		}
 
-		public static NodeList ExpandDeserializedNodes(List<SerializeableNode> listToConvert)
-		{
-			//todo speed up by caching nodes that have been looked for and save index in node list
-			var nodes = new NodeList();
-
-			//convert all nodes
-			foreach (SerializeableNode serialNode in listToConvert)
-			{
-				nodes.Add(new Node()
-				{
-					ChildsVisited = serialNode.ChildsVisited,
-					Guid = serialNode.Guid,
-					ID = serialNode.ID ?? "",
-					Mass = serialNode.Mass,
-					ParentsVisited = serialNode.ParentsVisited,
-					Position = serialNode.Position,
-					Text = serialNode.Text ?? "",
-					Gender = serialNode.Gender,
-					Type = serialNode.Type,
-					Visited = serialNode.Visited,
-					FileName = serialNode.FileName,
-					ChildNodes = new NodeList(),
-					ParentNodes = new NodeList(),
-					IsPositionLocked = serialNode.IsPositionLocked
-				});
-			}
-
-			int index = 0;
-
-			//resolve guids to pointer/references to other nodes in the list
-			foreach (SerializeableNode serialNode in listToConvert)
-			{
-				//get node representing the serial node we are in
-				Node nodeToWorkOn = nodes[index++];
-
-				//add children
-				if (serialNode.ChildNodes?.Length > 0)
-				{
-					foreach (Guid guid in serialNode.ChildNodes)
-					{
-						nodeToWorkOn.AddChildNode(nodes.Find(n => n.Guid == guid) ?? Node.NullNode);
-					}
-				}
-
-				//add parents
-				if (serialNode.ParentNodes?.Length > 0)
-				{
-					foreach (Guid guid in serialNode.ParentNodes)
-					{
-						nodeToWorkOn.AddParentNode(nodes.Find(n => n.Guid == guid) ?? Node.NullNode);
-					}
-				}
-			}
-
-			return nodes;
-		}
-
 		public void AddChildNode(Node childNode)
 		{
 			if (!ChildNodes.Contains(childNode))
