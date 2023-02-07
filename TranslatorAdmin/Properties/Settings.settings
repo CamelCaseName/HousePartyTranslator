@@ -86,8 +86,80 @@
     <Setting Name="IgnoreCustomStoryWarning" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="UpdateSettings" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">True</Value>
+    <Setting Name="NodeItemColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">128, 255, 255</Value>
+    </Setting>
+    <Setting Name="NodeItemGroupColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">0, 192, 192</Value>
+    </Setting>
+    <Setting Name="NodeActionColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">255, 128, 0</Value>
+    </Setting>
+    <Setting Name="NodeEventColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">255, 255, 128</Value>
+    </Setting>
+    <Setting Name="NodeCriterionColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Fuchsia</Value>
+    </Setting>
+    <Setting Name="NodeResponseColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">128, 128, 255</Value>
+    </Setting>
+    <Setting Name="NodeDialogueColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Blue</Value>
+    </Setting>
+    <Setting Name="NodeDialogueFemaleOnlyColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">255, 192, 255</Value>
+    </Setting>
+    <Setting Name="NodeDialogueMaleOnlyColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 192, 255</Value>
+    </Setting>
+    <Setting Name="NodeQuestColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 0, 192</Value>
+    </Setting>
+    <Setting Name="NodeReactionColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">255, 224, 192</Value>
+    </Setting>
+    <Setting Name="NodeAchievementColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Cyan</Value>
+    </Setting>
+    <Setting Name="NodeBGCColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">0, 0, 192</Value>
+    </Setting>
+    <Setting Name="NodeValueColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Purple</Value>
+    </Setting>
+    <Setting Name="NodeDoorColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Maroon</Value>
+    </Setting>
+    <Setting Name="NodeInventoryColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 192, 0</Value>
+    </Setting>
+    <Setting Name="NodeStateColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Green</Value>
+    </Setting>
+    <Setting Name="NodePersonalityColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 0, 192</Value>
+    </Setting>
+    <Setting Name="NodeCutsceneColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">255, 192, 192</Value>
+    </Setting>
+    <Setting Name="NodeClothingColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 255, 192</Value>
+    </Setting>
+    <Setting Name="NodeCriteriaGroupColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">192, 255, 255</Value>
+    </Setting>
+    <Setting Name="NodePoseColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">255, 128, 128</Value>
+    </Setting>
+    <Setting Name="NodePropertyColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Yellow</Value>
+    </Setting>
+    <Setting Name="NodeSocialColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">Lime</Value>
+    </Setting>
+    <Setting Name="UseRainbowEdges" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>
