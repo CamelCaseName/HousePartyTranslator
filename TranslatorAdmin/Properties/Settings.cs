@@ -1,4 +1,4 @@
-﻿namespace TranslatorDesktopApp.Properties
+﻿namespace Translator.Properties
 {
 
 
