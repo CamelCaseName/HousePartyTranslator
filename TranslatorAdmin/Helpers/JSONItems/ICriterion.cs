@@ -10,6 +10,8 @@ namespace Translator.Explorer.JSON
 		public string? Character { get; set; }
 		public string? Character2 { get; set; }
 		public CompareTypes? CompareType { get; set; }
+		//used by criteriagroups now
+		public int GroupSubCompareType { get; set; }
 		public DialogueStatuses? DialogueStatus { get; set; }
 		public bool DisplayInEditor { get; set; }
 		public DoorOptionValues? DoorOptions { get; set; }
