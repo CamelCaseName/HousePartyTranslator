@@ -97,10 +97,10 @@ namespace Translator.Explorer
                         selectFileDialog = new OpenFileDialog
                         {
                             Title = $"Choose the social file ({FileName}) for the templates",
-                            Filter = AutoFileSelection ? "Social Files (*.social)|*.social" : string.Empty,
+                            Filter = AutoFileSelection ? "Social Files (*.character)|*.character" : string.Empty,
                             InitialDirectory = Settings.WDefault.StoryPath.Length > 0 ? Settings.WDefault.StoryPath : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false,
-                            FileName = this.FileName + ".social"
+                            FileName = this.FileName + ".character"
                         };
                     }
 
