@@ -9,7 +9,6 @@ namespace Translator.Explorer
         //primarily used for rendering the edges, for graph stuff we use the actual multigraph in the nodes
         public readonly List<Edge> Edges = new();
 
-        //todo get this working reliably, sync up all child/parent additions
         public new void Add(Node node)
         {
             for (int c = 0; c < node.ChildNodes.Count; c++)

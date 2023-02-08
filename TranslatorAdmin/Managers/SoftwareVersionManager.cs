@@ -70,16 +70,13 @@ namespace Translator.Managers
 		private static bool UpdateNeeded(string githubVersion)
 		{
 			//extract version number
-			//todo, split on . and then cast to number
+			//todo, replace by version string with dots so we can just compare directly !ship with 1.0 so it doesnt break anything!
 			LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.0.0";
 			if (githubVersion.Length > 3) LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.0";
 			if (githubVersion.Length > 4) LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.{githubVersion[4]}";
 
 			//if the version on github has a higher version number
-			return LatestGithubVersion[0] > LocalVersion[0]/*major version*/
-				|| (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] > LocalVersion[2])/*minor version*/
-				|| (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] > LocalVersion[4])/*major release number*/
-				|| (LatestGithubVersion[0] == LocalVersion[0] && LatestGithubVersion[2] == LocalVersion[2] && LatestGithubVersion[4] == LocalVersion[4] && LatestGithubVersion[6] > LocalVersion[6]);/*minor release number*/
+			return Version.Parse(LocalVersion) > Version.Parse(LatestGithubVersion);
 		}
 
 		private static (bool, string) CreateFiles()

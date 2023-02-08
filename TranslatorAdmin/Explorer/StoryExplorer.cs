@@ -81,15 +81,10 @@ namespace Translator.Explorer.Window
 			Invalidate();
 		}
 
-		public void SaveNodes()
-		{
-			Layouter?.Stop();
-			_ = Context.SaveNodes(Provider.Nodes);
-		}
-
 		private void SaveNodes(object? sender, FormClosingEventArgs? e)
 		{
 			_ = Context.SaveNodes(Provider.Nodes);
+			//save story objecs here
 			Settings.Default.Save();
 		}
 
@@ -119,12 +114,6 @@ namespace Translator.Explorer.Window
 			NodeCalculations.Invalidate();
 		}
 
-		//todo more values and settings to change
-		//- base node colors?
-		//- single node colors
-		//- all other node colors
-		//- target fps?
-		//todo add more info, maybe as list of values, treelist under info text
 		//todo add internal nodes visible button and setting
 		//todo add setting to allow only a set number/type of nodes
 		private void IdealLength_ValueChanged(object sender, EventArgs e)
