@@ -90,8 +90,7 @@ namespace Translator.Core.Helpers
 		/// <returns>The folder path selected.</returns>
 		public static string SelectTemplateFolderFromSystem()
 		{
-			//todo update message with instructions
-			return SelectFolderFromSystem("Please select the 'TEMPLATE' folder like in the repo");
+			return SelectFolderFromSystem("Please select the 'TEMPLATE' folder, for Help see the discord");
 		}
 
 		/// <summary>
