@@ -76,7 +76,7 @@ namespace Translator.Managers
 			if (githubVersion.Length > 4) LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.{githubVersion[4]}";
 
 			//if the version on github has a higher version number
-			return Version.Parse(LocalVersion) > Version.Parse(LatestGithubVersion);
+			return Version.Parse(LocalVersion) < Version.Parse(LatestGithubVersion);
 		}
 
 		private static (bool, string) CreateFiles()
