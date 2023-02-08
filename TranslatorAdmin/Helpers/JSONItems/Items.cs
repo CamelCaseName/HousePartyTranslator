@@ -274,8 +274,6 @@ namespace Translator.Explorer.JSON
         public List<PlayerReaction>? PlayerReactions { get; set; }
     }
 
-    // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-
     internal sealed class AlternateText
     {
         public List<Critera>? Critera { get; set; }

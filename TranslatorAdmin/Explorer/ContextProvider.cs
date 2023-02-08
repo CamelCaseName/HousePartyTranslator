@@ -786,8 +786,12 @@ namespace Translator.Explorer
                 _nodes.AddRange(StoryNodeExtractor.GetPlayerReactions(story));
                 //add all criteriagroups
                 _nodes.AddRange(StoryNodeExtractor.GetCriteriaGroups(story));
-
+                //gets the playervalues
                 _nodes.AddRange(StoryNodeExtractor.GetValues(story));
+                //the events which fire at game start
+                _nodes.AddRange(StoryNodeExtractor.GetGameStartEvents(story));
+                //add all item groups actions
+                _nodes.AddRange(StoryNodeExtractor.GetItemGroupBehaviours(story));
 
                 //remove duplicates/merge criteria
                 //maybe later we load the corresponding strings from the social files and vise versa?

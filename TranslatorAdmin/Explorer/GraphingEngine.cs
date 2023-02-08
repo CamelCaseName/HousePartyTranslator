@@ -601,6 +601,7 @@ namespace Translator.Explorer
                     ColorPen.Color = color;
                     ColorPen.Width = width;
                     //todo adjust edge offsets to only touch the nodes in future?
+                    //do only if zommed in far enough
                     g.DrawLine(
                         ColorPen,
                         node1.Position.X,
