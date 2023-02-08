@@ -276,10 +276,10 @@ namespace Translator
 
 		public void TextBoxRight_TextChanged(object? sender, EventArgs? e)
 		{
-			if (ActiveControl == null) return;
-			if (ActiveControl.GetType().IsAssignableFrom(typeof(ITextBox)))
+			if (sender == null) return;
+			if (sender.GetType().IsAssignableFrom(typeof(ITextBox)))
 			{
-				InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
+				InputHandler.TextChangedCallback((ITextBox)sender, CheckListBoxLeft.SelectedIndex);
 			}
 			InputHandler.TranslationTextChanged();
 		}

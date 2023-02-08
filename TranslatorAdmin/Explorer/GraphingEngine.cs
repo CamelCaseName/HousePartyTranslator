@@ -1,14 +1,12 @@
 ﻿using System.Buffers;
+using System.Reflection;
 using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
-using System.Reflection;
 using Translator.Managers;
 using static Translator.Explorer.JSON.StoryEnums;
 using Settings = Translator.InterfaceImpls.WinSettings;
 using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices;
 
 namespace Translator.Explorer
 {
@@ -54,6 +52,8 @@ namespace Translator.Explorer
         public bool ShowExtendedInfo = true;
         private HashSet<Node> NodesHighlighted = new();
         private Cursor priorCursor = Cursors.Default;
+
+        private bool ReadOnly => !Settings.WDefault.EnableStoryExplorerEdit;
 
         private float Scaling = 0.3f;
         private float StartPanOffsetX = 0f;
@@ -343,7 +343,7 @@ namespace Translator.Explorer
             if (!ExtendedInfoComponents.TryGetValue(node.DataType, out var box))
             {
                 //create new and cache, then display
-                box = GetDisplayComponentsForType(node.Data, node.DataType, true);
+                box = GetDisplayComponentsForType(node.Data, node.DataType);
                 Explorer.Controls.Add(box);
                 ExtendedInfoComponents.Add(node.DataType, box);
             }
@@ -354,8 +354,19 @@ namespace Translator.Explorer
             box.Location = new Point(infoLabelRect.Left, infoLabelRect.Bottom + 5);
             box.MaximumSize = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10);
             box.Size = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), 10);
+            SetEditableStates(box);
             box.BringToFront();
             box.Visible = true;
+        }
+
+        private void SetEditableStates(GroupBox box)
+        {
+            foreach (var control in box.Controls[0].Controls)
+            {
+                if (control.GetType() == typeof(ComboBox) || control.GetType() == typeof(CheckBox)) ((Control)control).Enabled = !ReadOnly;
+                else if (control.GetType() == typeof(TextBox)) ((TextBox)control).ReadOnly = ReadOnly;
+                else if (control.GetType() == typeof(NumericUpDown)) ((NumericUpDown)control).ReadOnly = ReadOnly;
+            }
         }
 
         private void FillDisplayComponents(GroupBox box, object data)
@@ -391,7 +402,7 @@ namespace Translator.Explorer
             }
         }
 
-        private GroupBox GetDisplayComponentsForType(object data, Type dataType, bool readOnly)
+        private GroupBox GetDisplayComponentsForType(object data, Type dataType)
         {
             var box = new GroupBox()
             {
@@ -425,27 +436,35 @@ namespace Translator.Explorer
                 Type valueType = property.PropertyType;
                 object? value = property.GetValue(data);
 
+                //string
                 if (valueType == typeof(string))
                 {
                     var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
                     grid.Controls.Add(label);
-                    var text = new TextBox() { Text = (string?)value ?? string.Empty, Name = property.Name + "TextBox", Multiline = true, WordWrap = true, Dock = DockStyle.Fill, ReadOnly = readOnly };
+                    var text = new TextBox() { Text = (string?)value ?? string.Empty, Name = property.Name + "TextBox", Multiline = true, WordWrap = true, Dock = DockStyle.Fill, ReadOnly = ReadOnly, };
+                    text.TextChanged += (object? sender, EventArgs e) => TextBoxSetValue(sender, property, data);
                     grid.Controls.Add(text);
                 }
+                //numbers
                 else if (valueType == typeof(int) || valueType == typeof(float))
                 {
                     var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
                     grid.Controls.Add(label);
-                    var numeric = new NumericUpDown() { Minimum = int.MinValue, Maximum = int.MaxValue, Value = Convert.ToDecimal(value), Name = property.Name + "Numeric", ReadOnly = readOnly, InterceptArrowKeys = true };
+                    var numeric = new NumericUpDown() { Minimum = int.MinValue, Maximum = int.MaxValue, Value = Convert.ToDecimal(value), Name = property.Name + "Numeric", ReadOnly = ReadOnly, InterceptArrowKeys = true };
+                    if (valueType == typeof(int)) numeric.ValueChanged += (object? sender, EventArgs e) => NumericIntSetValue(sender, property, data);
+                    else numeric.ValueChanged += (object? sender, EventArgs e) => NumericFloatSetValue(sender, property, data);
                     grid.Controls.Add(numeric);
                 }
+                //bool
                 else if (valueType == typeof(bool))
                 {
                     var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
                     grid.Controls.Add(label);
-                    var numeric = new CheckBox { Checked = Convert.ToBoolean(value), Name = property.Name + "Checkbox", Enabled = !readOnly };
-                    grid.Controls.Add(numeric);
+                    var checkBox = new CheckBox { Checked = Convert.ToBoolean(value), Name = property.Name + "Checkbox", Enabled = !ReadOnly };
+                    checkBox.CheckedChanged += (object? sender, EventArgs e) => CheckBoxSetValue(sender, property, data);
+                    grid.Controls.Add(checkBox);
                 }
+                //nullable enum
                 else if (valueType.GenericTypeArguments.Length > 0)
                 {
                     if (valueType.GenericTypeArguments[0].IsEnum)
@@ -458,14 +477,66 @@ namespace Translator.Explorer
                             dropDown.Items.Add(enumItem);
                         }
                         dropDown.SelectedItem = value?.ToString();
-                        dropDown.Enabled = !readOnly;
+                        dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownNullableSetValue(sender, property, data);
+                        dropDown.Enabled = !ReadOnly;
                         grid.Controls.Add(dropDown);
                     }
+                }
+                //enum
+                else if (valueType.IsEnum)
+                {
+                    var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                    grid.Controls.Add(label);
+                    var dropDown = new ComboBox() { Name = property.Name + "ComboBox", DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, Anchor = AnchorStyles.Left };
+                    foreach (var enumItem in Enum.GetNames(valueType))
+                    {
+                        dropDown.Items.Add(enumItem);
+                    }
+                    dropDown.SelectedItem = value?.ToString();
+                    dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownSetValue(sender, property, data);
+                    dropDown.Enabled = !ReadOnly;
+                    grid.Controls.Add(dropDown);
                 }
             }
 
             box.ResumeLayout();
             return box;
+        }
+
+        private void DropDownSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, Enum.Parse(property.PropertyType, ((ComboBox)sender).SelectedItem.ToString()!));
+        }
+
+        private void DropDownNullableSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, Enum.Parse(property.PropertyType.GenericTypeArguments[0], ((ComboBox)sender).SelectedItem.ToString()!));
+        }
+
+        private void NumericIntSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, Convert.ToInt32(((NumericUpDown)sender).Value));
+        }
+
+        private void NumericFloatSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, (float)Convert.ToDouble(((NumericUpDown)sender).Value));
+        }
+
+        private void TextBoxSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, ((TextBoxBase)sender).Text);
+        }
+
+        private void CheckBoxSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, Convert.ToBoolean(((CheckBox)sender).Checked));
         }
 
         private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
