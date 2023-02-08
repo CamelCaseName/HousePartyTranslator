@@ -34,7 +34,7 @@ namespace Translator.Explorer.JSON
         public string? Version { get; set; }
         public string? Id { get; set; }
         public bool Enabled { get; set; }
-        public int EventType { get; set; }
+        public EventTypes EventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }
@@ -66,7 +66,7 @@ namespace Translator.Explorer.JSON
         public string? Version { get; set; }
         public string? Id { get; set; }
         public bool Enabled { get; set; }
-        public int EventType { get; set; }
+        public EventTypes EventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }
@@ -171,13 +171,13 @@ namespace Translator.Explorer.JSON
         public List<string>? ItemsInGroup { get; set; }
     }
 
-    internal sealed class GameStartEvent : IEvent
+    internal sealed class GameStartEvent
     {
         public int SortOrder2 { get; set; }
         public string? Version { get; set; }
         public string? Id { get; set; }
         public bool Enabled { get; set; }
-        public int EventType { get; set; }
+        public GameEvents EventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }
@@ -226,7 +226,7 @@ namespace Translator.Explorer.JSON
         public string? Version { get; set; }
         public string? Id { get; set; }
         public bool Enabled { get; set; }
-        public int EventType { get; set; }
+        public EventTypes EventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }
@@ -288,7 +288,7 @@ namespace Translator.Explorer.JSON
         public string? Version { get; set; }
         public string? Id { get; set; }
         public bool Enabled { get; set; }
-        public int EventType { get; set; }
+        public EventTypes EventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }
@@ -337,7 +337,7 @@ namespace Translator.Explorer.JSON
         public string? Version { get; set; }
         public string? Id { get; set; }
         public bool Enabled { get; set; }
-        public int EventType { get; set; }
+        public EventTypes EventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }
@@ -380,7 +380,7 @@ namespace Translator.Explorer.JSON
         public string? Version { get; set; }
         public string? Id { get; set; }
         public bool Enabled { get; set; }
-        public int EventType { get; set; }
+        public EventTypes EventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }
@@ -529,7 +529,7 @@ namespace Translator.Explorer.JSON
         public string? Version { get; set; }
         public string? Id { get; set; }
         public bool Enabled { get; set; }
-        public int EventType { get; set; }
+        public EventTypes EventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }
@@ -552,7 +552,7 @@ namespace Translator.Explorer.JSON
         public string? Version { get; set; }
         public string? Id { get; set; }
         public bool Enabled { get; set; }
-        public int EventType { get; set; }
+        public EventTypes EventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }

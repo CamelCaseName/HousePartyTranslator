@@ -1,4 +1,6 @@
-﻿namespace Translator.Explorer.JSON
+﻿using static Translator.Explorer.JSON.StoryEnums;
+
+namespace Translator.Explorer.JSON
 {
 #pragma warning disable 1591
 	internal interface IEvent
@@ -9,7 +11,7 @@
 		double Delay { get; set; }
 		bool DisplayInEditor { get; set; }
 		bool Enabled { get; set; }
-		int EventType { get; set; }
+		EventTypes EventType { get; set; }
 		string? Id { get; set; }
 		string? Key { get; set; }
 		int Option { get; set; }

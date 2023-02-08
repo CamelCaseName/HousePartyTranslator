@@ -433,6 +433,7 @@ namespace Translator.Explorer
 
             foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
+                
                 Type valueType = property.PropertyType;
                 object? value = property.GetValue(data);
 
