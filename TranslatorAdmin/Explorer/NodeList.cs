@@ -11,12 +11,12 @@ namespace Translator.Explorer
 
         public new void Add(Node node)
         {
+            base.Add(node);
             for (int c = 0; c < node.ChildNodes.Count; c++)
             {
-                var edge = new Edge(node, node.ChildNodes[c]);
+                var edge = new Edge(node, Count - 1, node.ChildNodes[c], IndexOf(node.ChildNodes[c]));
                 if (!Edges.Contains(edge)) Edges.Add(edge);
             }
-            base.Add(node);
         }
 
         public void AddChild(Node This, Node Child)
@@ -33,7 +33,7 @@ namespace Translator.Explorer
         {
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
-                Edges.Remove(new(node, node.ChildNodes[i]));
+                Edges.Remove(new(node, 0, node.ChildNodes[i], 0));
             }
             return base.Remove(node);
         }
@@ -46,7 +46,7 @@ namespace Translator.Explorer
             {
                 for (int c = 0; c < this[x].ChildNodes.Count; c++)
                 {
-                    var edge = new Edge(this[x], this[x].ChildNodes[c]);
+                    var edge = new Edge(this[x], x, this[x].ChildNodes[c], IndexOf(this[x].ChildNodes[c]));
                     if (!Edges.Contains(edge)) Edges.Add(edge);
                 }
             }
@@ -54,13 +54,14 @@ namespace Translator.Explorer
 
         public new void AddRange(IEnumerable<Node> list)
         {
+            base.AddRange(list);
             if (list is IList<Node> realList)
             {
                 for (int i = 0; i < realList.Count; i++)
                 {
                     for (int c = 0; c < realList[i].ChildNodes.Count; c++)
                     {
-                        var edge = new Edge(realList[i], realList[i].ChildNodes[c]);
+                        var edge = new Edge(realList[i], Count - realList.Count + i, realList[i].ChildNodes[c], IndexOf(realList[i].ChildNodes[c]));
                         if (!Edges.Contains(edge)) Edges.Add(edge);
                     }
                 }
@@ -72,12 +73,11 @@ namespace Translator.Explorer
                 {
                     for (int i = 0; i < en.Current.ChildNodes.Count; i++)
                     {
-                        var edge = new Edge(en.Current, en.Current.ChildNodes[i]);
+                        var edge = new Edge(en.Current, IndexOf(en.Current), en.Current.ChildNodes[i], IndexOf(en.Current.ChildNodes[i]));
                         if (!Edges.Contains(edge)) Edges.Add(edge);
                     }
                 }
             }
-            base.AddRange(list);
         }
 
         public new void Clear()

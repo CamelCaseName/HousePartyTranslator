@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.Versioning;
+using System.Windows.Forms.VisualStyles;
 using Translator.Core;
 using Translator.Explorer.OpenCL;
 
@@ -148,15 +149,6 @@ namespace Translator.Explorer
                         //Repulsion
                         NodeForces[first] += (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
                         NodeForces[second] -= (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
-
-                        if (Internal[first].ChildNodes.Contains(Internal[second]) || Internal[first].ParentNodes.Contains(Internal[second]))
-                        {
-                            //Attraction/spring accelleration on edge
-                            Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
-
-                            NodeForces[first] -= attractionVec / Internal[first].Mass;
-                            NodeForces[second] += attractionVec / Internal[second].Mass;
-                        }
                     }
                     else
                     {
@@ -164,6 +156,19 @@ namespace Translator.Explorer
                         Internal[first].Position.X += 10f;
                     }
                 }
+            }
+
+            for (int i = 0; i < Internal.Edges.Count; i++)
+            {
+                //Attraction/spring accelleration on edge
+                Vector2 edge = new(
+                        Internal.Edges[i].This.Position.X - Internal.Edges[i].Child.Position.X,
+                        Internal.Edges[i].This.Position.Y - Internal.Edges[i].Child.Position.Y
+                        );
+                Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
+
+                    NodeForces[first] -= attractionVec / Internal[first].Mass;
+                    NodeForces[second] += attractionVec / Internal[second].Mass;
             }
 
             //apply accelleration to nodes

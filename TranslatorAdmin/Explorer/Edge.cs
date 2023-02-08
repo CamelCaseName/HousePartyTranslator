@@ -7,7 +7,7 @@
         private float _weight = 1.0f;
         public float Weight { get => _weight; set => _ = value > 1.0f ? _weight = value : _weight = 1.0f; }
 
-        public Edge(Node This, Node Child)
+        public Edge(Node This, int IndexOfThis, Node Child, int IndexOfChild)
         {
             this.This = This;
             this.Child = Child;
