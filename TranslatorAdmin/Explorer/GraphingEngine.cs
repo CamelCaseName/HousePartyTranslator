@@ -48,6 +48,7 @@ namespace Translator.Explorer
         private bool MovingANode = false;
         public bool DrewNodes = false;
         //todo replace by settings, on screen button and allow node selection
+        //todo add internal nodes visible button and setting
         public bool InternalNodesVisible = true;
         public bool ShowExtendedInfo = true;
         private HashSet<Node> NodesHighlighted = new();
@@ -261,7 +262,6 @@ namespace Translator.Explorer
             Provider.EndPositionChange();
         }
 
-        //todo add setting to limit the number of edges drawn on screen, only count visible ones of course
         public void PaintAllNodes(Graphics g)
         {
             DrewNodes = false;
@@ -270,7 +270,7 @@ namespace Translator.Explorer
             {
                 DrawColouredNode(g, Provider.Nodes[i]);
             }
-            for (int i = 0; i < Provider.Nodes.Edges.Count; i++)
+            for (int i = 0; i < Math.Min(Provider.Nodes.Edges.Count, Settings.WDefault.MaxEdgeCount); i++)
             {
                 DrawEdge(g, Provider.Nodes.Edges[i].This, Provider.Nodes.Edges[i].Child);
             }

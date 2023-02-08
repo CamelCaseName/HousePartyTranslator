@@ -114,8 +114,6 @@ namespace Translator.Explorer.Window
 			NodeCalculations.Invalidate();
 		}
 
-		//todo add internal nodes visible button and setting
-		//todo add setting to allow only a set number/type of nodes
 		private void IdealLength_ValueChanged(object sender, EventArgs e)
 		{
 			if (!inInitialization)
