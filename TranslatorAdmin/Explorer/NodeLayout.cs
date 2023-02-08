@@ -167,8 +167,8 @@ namespace Translator.Explorer
                         );
                 Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
 
-                    NodeForces[first] -= attractionVec / Internal[first].Mass;
-                    NodeForces[second] += attractionVec / Internal[second].Mass;
+                    NodeForces[Internal.Edges[i].ThisIndex] -= attractionVec / Internal.Edges[i].This.Mass;
+                    NodeForces[Internal.Edges[i].ChildIndex] += attractionVec / Internal.Edges[i].Child.Mass;
             }
 
             //apply accelleration to nodes
