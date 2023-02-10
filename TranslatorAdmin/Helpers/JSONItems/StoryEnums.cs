@@ -3,6 +3,8 @@ using System.Text.Json.Serialization;
 
 namespace Translator.Explorer.JSON
 {
+    // // Token: 0x(\w|d|\s|:)*\n
+    //search term to remove all token comments
     public static class StoryEnums
     {
         [JsonConverter(typeof(StringEnumConverter))]
@@ -478,6 +480,14 @@ namespace Translator.Explorer.JSON
             EventTriggers,
             BackgroundChatter,
             Values
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum PassCondition
+        {
+            AllSetsAreTrue,
+            AnySetIsTrue,
+            AllSetsAreFalse,
+            AnySetIsFalse
         }
     }
 }

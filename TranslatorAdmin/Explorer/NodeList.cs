@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml;
-using System.Xml.Linq;
-using Translator.InterfaceImpls;
-
-namespace Translator.Explorer
+﻿namespace Translator.Explorer
 {
     //a kind of an adjacencylist, but with edges and a direct node access in parallel
     internal class NodeList : List<Node>

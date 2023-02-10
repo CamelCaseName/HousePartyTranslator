@@ -739,7 +739,7 @@ namespace Translator.Explorer
                 NodeType.Null => Settings.WDefault.DefaultNodeColor,
                 NodeType.Item => Settings.WDefault.ItemNodeColor,
                 NodeType.ItemGroup => Settings.WDefault.ItemGroupNodeColor,
-                NodeType.Action => Settings.WDefault.ActionNodeColor,
+                NodeType.ItemAction => Settings.WDefault.ActionNodeColor,
                 NodeType.Event => Settings.WDefault.EventNodeColor,
                 NodeType.Criterion => Settings.WDefault.CriterionNodeColor,
                 NodeType.Response => Settings.WDefault.ResponseNodeColor,

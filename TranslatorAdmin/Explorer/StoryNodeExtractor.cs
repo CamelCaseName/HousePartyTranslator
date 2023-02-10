@@ -1,5 +1,4 @@
 ﻿using Translator.Explorer.JSON;
-using static Translator.Explorer.JSON.StoryEnums;
 
 namespace Translator.Explorer
 {
@@ -169,7 +168,7 @@ namespace Translator.Explorer
                 foreach (ItemAction itemAction in itemGroupBehaviour.ItemActions ?? new())
                 {
                     //node to addevents to
-                    var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.Action, itemAction.ActionName ?? string.Empty, nodeGroup) { Data = itemAction, DataType = typeof(ItemAction) };
+                    var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.ItemAction, itemAction.ActionName ?? string.Empty, nodeGroup) { Data = itemAction, DataType = typeof(ItemAction) };
 
                     //add text that is shown when item is taken
                     nodeAction.AddEvents(itemAction.OnTakeActionEvents ?? new());
@@ -230,7 +229,7 @@ namespace Translator.Explorer
                 foreach (ItemAction itemAction in itemOverride.ItemActions ?? new())
                 {
                     //create action node to add criteria and events to
-                    var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.Action, itemAction.ActionName ?? string.Empty, nodeItem) { Data = itemAction, DataType = typeof(ItemAction) };
+                    var nodeAction = new Node(itemAction.ActionName ?? string.Empty, NodeType.ItemAction, itemAction.ActionName ?? string.Empty, nodeItem) { Data = itemAction, DataType = typeof(ItemAction) };
 
                     //add text that is shown when item is taken
                     nodeAction.AddEvents(itemAction.OnTakeActionEvents ?? new());

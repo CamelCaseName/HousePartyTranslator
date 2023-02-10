@@ -55,7 +55,7 @@ namespace Translator.InterfaceImpls
 				NodeType.Null => StringCategory.Neither,
 				NodeType.Item => StringCategory.ItemName,
 				NodeType.ItemGroup => StringCategory.ItemGroupAction,
-				NodeType.Action => StringCategory.ItemAction,
+				NodeType.ItemAction => StringCategory.ItemAction,
 				NodeType.Event => StringCategory.Event,
 				NodeType.Criterion => StringCategory.Neither,
 				NodeType.Response => StringCategory.Response,

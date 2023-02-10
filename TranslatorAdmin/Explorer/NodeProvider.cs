@@ -72,13 +72,13 @@ namespace Translator.Explorer
                         nodesB.Sync();
                         if (nodesA.Edges.Count > nodesB.Edges.Count)
                         {
-                            nodesB.Clear();
-                            nodesB.AddRange(nodesA);
+                            nodesB.Edges.Clear();
+                            nodesB.Edges.AddRange(nodesA.Edges);
                         }
                         else if (nodesA.Edges.Count < nodesB.Edges.Count)
                         {
-                            nodesA.Clear();
-                            nodesA.AddRange(nodesB);
+                            nodesA.Edges.Clear();
+                            nodesA.Edges.AddRange(nodesB.Edges);
                         }
                     }
             }

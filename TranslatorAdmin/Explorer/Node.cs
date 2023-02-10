@@ -15,34 +15,38 @@ namespace Translator.Explorer
 	public enum NodeType
 	{
 		Null,
+        CharacterGroup,
+        Criterion,
+        ItemAction,
+        ItemGroupBehaviour,
+        ItemGroupInteraction,
+        Pose,
+		Achievement,
+		BGC,
+        BGCResponse,
+        Clothing,
+		CriteriaGroup,
+		Cutscene,
+		Dialogue,
+        AlternateText,
+        Door,
+		Event,
+		EventTrigger,
+		Inventory,
 		Item,
 		ItemGroup,
-        ItemGroupBehaviour,
-        Action,
-		Event,
-        Criterion,
-		Response,
-		Dialogue,
-		Quest,
-		Achievement,
-		EventTrigger,
-		BGC,
-		Value,
-		Door,
-		Inventory,
-		State,
 		Personality,
-		Cutscene,
-		Clothing,
-		CriteriaGroup,
-		Pose,
 		Property,
-		Social
+		Quest,
+		Response,
+		Social,
+		State,
+		Value
 	}
 
 	internal sealed class Node
 	{
-		public static readonly Node NullNode = new("", NodeType.Null, "");
+		public static readonly Node NullNode = new();
 
 		public bool ChildsVisited = false;
 		public bool IsPositionLocked = false;

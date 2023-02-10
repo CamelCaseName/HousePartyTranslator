@@ -15,7 +15,7 @@ namespace Translator.Explorer
         private readonly NodeProvider provider;
         private readonly bool IsStory;
         private readonly Random Random = new();
-        public readonly string FileName = "social";
+        public readonly string FileName = "character";
         public readonly string StoryName = "story";
         private string _StoryFilePath = string.Empty;
         private string NodeFilePath = string.Empty;
@@ -94,8 +94,8 @@ namespace Translator.Explorer
                     {
                         selectFileDialog = new OpenFileDialog
                         {
-                            Title = $"Choose the social file ({FileName}) for the templates",
-                            Filter = AutoFileSelection ? "Social Files (*.character)|*.character" : string.Empty,
+                            Title = $"Choose the character file ({FileName}) for the templates",
+                            Filter = AutoFileSelection ? "Character Files (*.character)|*.character" : string.Empty,
                             InitialDirectory = Settings.WDefault.StoryPath.Length > 0 ? Settings.WDefault.StoryPath : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false,
                             FileName = this.FileName + ".character"
@@ -366,8 +366,6 @@ namespace Translator.Explorer
                 _nodes.AddRange(StoryNodeExtractor.GetQuests(story));
                 _nodes.AddRange(StoryNodeExtractor.GetReactions(story));
 
-                //remove duplicates/merge criteria
-                //maybe later we load the corresponding strings from the social files and vise versa?
                 _nodes = ExpandNodes(_nodes);
 
                 //clear criteria to free memory, we dont need them anyways
@@ -896,8 +894,6 @@ namespace Translator.Explorer
                 //add all item groups actions
                 _nodes.AddRange(StoryNodeExtractor.GetItemGroupBehaviours(story));
 
-                //remove duplicates/merge criteria
-                //maybe later we load the corresponding strings from the social files and vise versa?
                 _nodes = ExpandNodes(_nodes);
 
                 //clear criteria to free memory, we dont need them anyways

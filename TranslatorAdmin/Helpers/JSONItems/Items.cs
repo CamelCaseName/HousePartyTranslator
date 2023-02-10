@@ -85,8 +85,9 @@ namespace Translator.Explorer.JSON
     {
         public string? Id { get; set; }
         public string? Name { get; set; }
+        public string? LinkedGroupName { get; set; }
         public bool DisplayInEditor { get; set; }
-        public string? PassCondition { get; set; }
+        public PassCondition PassCondition { get; set; }
         public List<CriteriaList1>? CriteriaList { get; set; }
     }
 
