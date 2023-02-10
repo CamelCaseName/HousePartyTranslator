@@ -42,6 +42,7 @@ namespace Translator.Explorer
         {
             if (nodesA.Count != nodesB.Count)
             {
+
                 lock (nodesB)
                     lock (nodesA)
                     {
@@ -59,7 +60,6 @@ namespace Translator.Explorer
                             nodesA.AddRange(nodesB);
                         }
                     }
-
 
                 //only recalculate when necessary 
                 if (nodesA.Edges.Count != nodesB.Edges.Count && frozen)
@@ -83,6 +83,7 @@ namespace Translator.Explorer
                             }
                         }
                 }
+
             }
 
             if (nodesA.Edges.Count != nodesB.Edges.Count && frozen)
@@ -93,12 +94,14 @@ namespace Translator.Explorer
                         if (UsingListA)
                         {
                             //changed edges is in a
+                            if(Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
                             nodesB.Edges.Clear();
                             nodesB.Edges.AddRange(nodesA.Edges);
                         }
                         else
                         {
                             //changed edges is in b
+                            if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
                             nodesA.Edges.Clear();
                             nodesA.Edges.AddRange(nodesB.Edges);
                         }
