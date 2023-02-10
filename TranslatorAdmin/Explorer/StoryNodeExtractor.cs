@@ -4,7 +4,6 @@ namespace Translator.Explorer
 {
     internal static class StoryNodeExtractor
     {
-
         public static NodeList GetAchievements(MainStory story)
         {
             //list to collect all achievement nodes
@@ -369,7 +368,7 @@ namespace Translator.Explorer
             foreach (string value in story.StoryValues ?? Enumerable.Empty<string>())
             {
                 //add items to list
-                var nodeValue = new Node(value!, NodeType.Value, story.CharacterName + value + ", referenced values: ") { Data = value, DataType = typeof(string) };
+                var nodeValue = new Node(value!, NodeType.Value, story.CharacterName + value + ", referenced values: ") { Data = new Value() { value = value }, DataType = typeof(Value) };
                 nodes.Add(nodeValue);
             }
 
@@ -382,7 +381,7 @@ namespace Translator.Explorer
             foreach (string value in story.PlayerValues ?? Enumerable.Empty<string>())
             {
                 //add items to list
-                var nodeValue = new Node(value, NodeType.Value, "Player " + value + ", referenced values: ") { Data = value, DataType = typeof(string) };
+                var nodeValue = new Node(value, NodeType.Value, "Player " + value + ", referenced values: ") { Data = new Value() { value = value }, DataType = typeof(Value) };
                 nodes.Add(nodeValue);
             }
 

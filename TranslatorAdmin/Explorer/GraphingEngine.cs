@@ -1,6 +1,8 @@
-﻿using System.Buffers;
+﻿using Microsoft.VisualBasic.Logging;
+using System.Buffers;
 using System.Reflection;
 using System.Runtime.Versioning;
+using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
 using Translator.Managers;
@@ -439,70 +441,74 @@ namespace Translator.Explorer
 
             foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
             {
-                
-                Type valueType = property.PropertyType;
-                object? value = property.GetValue(data);
-
-                //string
-                if (valueType == typeof(string))
+                try
                 {
-                    var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
-                    grid.Controls.Add(label);
-                    var text = new TextBox() { Text = (string?)value ?? string.Empty, Name = property.Name + "TextBox", Multiline = true, WordWrap = true, Dock = DockStyle.Fill, ReadOnly = ReadOnly, };
-                    text.TextChanged += (object? sender, EventArgs e) => TextBoxSetValue(sender, property, data);
-                    grid.Controls.Add(text);
-                }
-                //numbers
-                else if (valueType == typeof(int) || valueType == typeof(float))
-                {
-                    var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
-                    grid.Controls.Add(label);
-                    var numeric = new NumericUpDown() { Minimum = int.MinValue, Maximum = int.MaxValue, Value = Convert.ToDecimal(value), Name = property.Name + "Numeric", ReadOnly = ReadOnly, InterceptArrowKeys = true };
-                    if (valueType == typeof(int)) numeric.ValueChanged += (object? sender, EventArgs e) => NumericIntSetValue(sender, property, data);
-                    else numeric.ValueChanged += (object? sender, EventArgs e) => NumericFloatSetValue(sender, property, data);
-                    grid.Controls.Add(numeric);
-                }
-                //bool
-                else if (valueType == typeof(bool))
-                {
-                    var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
-                    grid.Controls.Add(label);
-                    var checkBox = new CheckBox { Checked = Convert.ToBoolean(value), Name = property.Name + "Checkbox", Enabled = !ReadOnly };
-                    checkBox.CheckedChanged += (object? sender, EventArgs e) => CheckBoxSetValue(sender, property, data);
-                    grid.Controls.Add(checkBox);
-                }
-                //nullable enum
-                else if (valueType.GenericTypeArguments.Length > 0)
-                {
-                    if (valueType.GenericTypeArguments[0].IsEnum)
+                    Type valueType = property.PropertyType;
+                    object? value = property.GetValue(data);
+                    //string
+                    if (valueType == typeof(string))
+                    {
+                        var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                        grid.Controls.Add(label);
+                        var text = new TextBox() { Text = (string?)value ?? string.Empty, Name = property.Name + "TextBox", Multiline = true, WordWrap = true, Dock = DockStyle.Fill, ReadOnly = ReadOnly, };
+                        text.TextChanged += (object? sender, EventArgs e) => TextBoxSetValue(sender, property, data);
+                        grid.Controls.Add(text);
+                    }
+                    //numbers
+                    else if (valueType == typeof(int) || valueType == typeof(float))
+                    {
+                        var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                        grid.Controls.Add(label);
+                        var numeric = new NumericUpDown() { Minimum = int.MinValue, Maximum = int.MaxValue, Value = Convert.ToDecimal(value), Name = property.Name + "Numeric", ReadOnly = ReadOnly, InterceptArrowKeys = true };
+                        if (valueType == typeof(int)) numeric.ValueChanged += (object? sender, EventArgs e) => NumericIntSetValue(sender, property, data);
+                        else numeric.ValueChanged += (object? sender, EventArgs e) => NumericFloatSetValue(sender, property, data);
+                        grid.Controls.Add(numeric);
+                    }
+                    //bool
+                    else if (valueType == typeof(bool))
+                    {
+                        var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                        grid.Controls.Add(label);
+                        var checkBox = new CheckBox { Checked = Convert.ToBoolean(value), Name = property.Name + "Checkbox", Enabled = !ReadOnly };
+                        checkBox.CheckedChanged += (object? sender, EventArgs e) => CheckBoxSetValue(sender, property, data);
+                        grid.Controls.Add(checkBox);
+                    }
+                    //nullable enum
+                    else if (valueType.GenericTypeArguments.Length > 0)
+                    {
+                        if (valueType.GenericTypeArguments[0].IsEnum)
+                        {
+                            var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                            grid.Controls.Add(label);
+                            var dropDown = new ComboBox() { Name = property.Name + "ComboBox", DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, Anchor = AnchorStyles.Left };
+                            foreach (var enumItem in Enum.GetNames(valueType.GenericTypeArguments[0]))
+                            {
+                                dropDown.Items.Add(enumItem);
+                            }
+                            dropDown.SelectedItem = value?.ToString();
+                            dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownNullableSetValue(sender, property, data);
+                            dropDown.Enabled = !ReadOnly;
+                            grid.Controls.Add(dropDown);
+                        }
+                    }
+                    //enum
+                    else if (valueType.IsEnum)
                     {
                         var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
                         grid.Controls.Add(label);
                         var dropDown = new ComboBox() { Name = property.Name + "ComboBox", DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, Anchor = AnchorStyles.Left };
-                        foreach (var enumItem in Enum.GetNames(valueType.GenericTypeArguments[0]))
+                        foreach (var enumItem in Enum.GetNames(valueType))
                         {
                             dropDown.Items.Add(enumItem);
                         }
                         dropDown.SelectedItem = value?.ToString();
-                        dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownNullableSetValue(sender, property, data);
+                        dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownSetValue(sender, property, data);
                         dropDown.Enabled = !ReadOnly;
                         grid.Controls.Add(dropDown);
                     }
                 }
-                //enum
-                else if (valueType.IsEnum)
-                {
-                    var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
-                    grid.Controls.Add(label);
-                    var dropDown = new ComboBox() { Name = property.Name + "ComboBox", DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, Anchor = AnchorStyles.Left };
-                    foreach (var enumItem in Enum.GetNames(valueType))
-                    {
-                        dropDown.Items.Add(enumItem);
-                    }
-                    dropDown.SelectedItem = value?.ToString();
-                    dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownSetValue(sender, property, data);
-                    dropDown.Enabled = !ReadOnly;
-                    grid.Controls.Add(dropDown);
+                catch (Exception e) {
+                    LogManager.Log(e.Message);
                 }
             }
 

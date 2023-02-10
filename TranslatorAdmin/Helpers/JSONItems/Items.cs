@@ -258,7 +258,7 @@ namespace Translator.Explorer.JSON
     internal sealed class BackgroundChatterResponse
     {
         public string? CharacterName { get; set; }
-        public string? Label{ get; set; }
+        public string? Label { get; set; }
         public int ChatterId { get; set; }
         public bool ShowInInspector { get; set; }
     }
@@ -349,6 +349,11 @@ namespace Translator.Explorer.JSON
         public List<ConversationalTopics>? DislikedTopics { get; set; }
         public StoryAspects CurrentAspect { get; set; }
         public string? HousePartyVersion { get; set; }
+    }
+
+    internal sealed class Value
+    {
+        public string? value { get; set; }
     }
 
 #pragma warning restore

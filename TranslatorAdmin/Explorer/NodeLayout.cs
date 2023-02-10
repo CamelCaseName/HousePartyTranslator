@@ -10,7 +10,7 @@ namespace Translator.Explorer
     {
         public const float Attraction = 0.3f;//Attraction accelleration multiplier, between 0 and 1
         public const float OpenCLAttraction = 0.03f;//Attraction accelleration multiplier, between 0 and 1
-        public const float Repulsion = 50.0f;//Repulsion accelleration multiplier, between 0 and much
+        public const float Repulsion = 70.0f;//Repulsion accelleration multiplier, between 0 and much
         public const float Gravity = 0.0001f;
         public const float OpenClGravity = 0.0001f;
         public static float IdealLength = 100; //spring IdealLength in units aka thedistance an edge should be long
@@ -33,7 +33,7 @@ namespace Translator.Explorer
         private readonly Action LayoutCalculation;
         private int _framecount = 0;
         public int FrameCount => _framecount;
-        public bool Finished => FrameCount > Nodes.Count * Nodes.Count && !RunOverride && Started;
+        public bool Finished => FrameCount > (long)Nodes.Count * (long)Nodes.Count && !RunOverride && Started;
         public bool Started { get; private set; } = false;
         public NodeList Nodes
         {
