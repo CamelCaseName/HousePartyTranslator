@@ -3,7 +3,7 @@
 namespace Translator.Explorer.JSON
 {
 #pragma warning disable 1591
-    internal sealed class Criterion : ICriterion
+    internal sealed class Criterion
     {
         public BoolCritera? BoolValue { get; set; }
         public string? Character { get; set; }
@@ -28,60 +28,12 @@ namespace Translator.Explorer.JSON
         public int GroupSubCompareType { get; set; }
     }
 
-    internal sealed class OnTakeActionEvent : IEvent
-    {
-        public int SortOrder2 { get; set; }
-        public string? Version { get; set; }
-        public string? Id { get; set; }
-        public bool Enabled { get; set; }
-        public EventTypes EventType { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public string? Key { get; set; }
-        public int Option { get; set; }
-        public int Option2 { get; set; }
-        public int Option3 { get; set; }
-        public string? Value { get; set; }
-        public string? Value2 { get; set; }
-        public int SortOrder { get; set; }
-        public double Delay { get; set; }
-        public double OriginalDelay { get; set; }
-        public double StartDelayTime { get; set; }
-        public bool UseConditions { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public List<Criterion>? Criteria { get; set; }
-    }
-
     internal sealed class ItemAction
     {
         public string? ActionName { get; set; }
         public List<Criterion>? Criteria { get; set; }
         public bool DisplayInEditor { get; set; }
-        public List<OnTakeActionEvent>? OnTakeActionEvents { get; set; }
-    }
-
-    internal sealed class OnSuccessEvent : IEvent
-    {
-        public int SortOrder2 { get; set; }
-        public string? Version { get; set; }
-        public string? Id { get; set; }
-        public bool Enabled { get; set; }
-        public EventTypes EventType { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public string? Key { get; set; }
-        public int Option { get; set; }
-        public int Option2 { get; set; }
-        public int Option3 { get; set; }
-        public string? Value { get; set; }
-        public string? Value2 { get; set; }
-        public int SortOrder { get; set; }
-        public double Delay { get; set; }
-        public double OriginalDelay { get; set; }
-        public double StartDelayTime { get; set; }
-        public bool UseConditions { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public List<Criterion>? Criteria { get; set; }
+        public List<GameEvent>? OnTakeActionEvents { get; set; }
     }
 
     internal sealed class UseWith
@@ -90,7 +42,7 @@ namespace Translator.Explorer.JSON
         public string? CustomCantDoThatMessage { get; set; }
         public bool DisplayInEditor { get; set; }
         public string? ItemName { get; set; }
-        public List<OnSuccessEvent>? OnSuccessEvents { get; set; }
+        public List<GameEvent>? OnSuccessEvents { get; set; }
     }
 
     internal sealed class ItemOverride
@@ -124,34 +76,9 @@ namespace Translator.Explorer.JSON
         public string? SteamName { get; set; }
     }
 
-    internal sealed class CriteriaList2 : ICriterion
-    {
-        public BoolCritera? BoolValue { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public CompareTypes? CompareType { get; set; }
-        public DialogueStatuses? DialogueStatus { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public DoorOptionValues? DoorOptions { get; set; }
-        public EqualsValues? EqualsValue { get; set; }
-        public ComparisonEquations? EquationValue { get; set; }
-        public ValueSpecificFormulas? ValueFormula { get; set; }
-        public ItemComparisonTypes? ItemComparison { get; set; }
-        public ItemFromItemGroupComparisonTypes? ItemFromItemGroupComparison { get; set; }
-        public string? Key { get; set; }
-        public string? Key2 { get; set; }
-        public int Order { get; set; }
-        public PlayerInventoryOptions? PlayerInventoryOption { get; set; }
-        public PoseOptions? PoseOption { get; set; }
-        public SocialStatuses? SocialStatus { get; set; }
-        public string? Value { get; set; }
-        public int Option { get; set; }
-        public int GroupSubCompareType { get; set; }
-    }
-
     internal sealed class CriteriaList1
     {
-        public List<CriteriaList2>? CriteriaList { get; set; }
+        public List<Criterion>? CriteriaList { get; set; }
     }
 
     internal sealed class CriteriaGroup
@@ -171,7 +98,7 @@ namespace Translator.Explorer.JSON
         public List<string>? ItemsInGroup { get; set; }
     }
 
-    internal sealed class GameStartEvent
+    internal sealed class GameEvent
     {
         public int SortOrder2 { get; set; }
         public string? Version { get; set; }
@@ -195,67 +122,18 @@ namespace Translator.Explorer.JSON
         public List<Criterion>? Criteria { get; set; }
     }
 
-    internal sealed class Critera : ICriterion
-    {
-        public BoolCritera? BoolValue { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public CompareTypes? CompareType { get; set; }
-        public DialogueStatuses? DialogueStatus { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public DoorOptionValues? DoorOptions { get; set; }
-        public EqualsValues? EqualsValue { get; set; }
-        public ComparisonEquations? EquationValue { get; set; }
-        public ValueSpecificFormulas? ValueFormula { get; set; }
-        public ItemComparisonTypes? ItemComparison { get; set; }
-        public ItemFromItemGroupComparisonTypes? ItemFromItemGroupComparison { get; set; }
-        public string? Key { get; set; }
-        public string? Key2 { get; set; }
-        public int Order { get; set; }
-        public PlayerInventoryOptions? PlayerInventoryOption { get; set; }
-        public PoseOptions? PoseOption { get; set; }
-        public SocialStatuses? SocialStatus { get; set; }
-        public string? Value { get; set; }
-        public int Option { get; set; }
-        public int GroupSubCompareType { get; set; }
-    }
-
-    internal sealed class Event : IEvent
-    {
-        public int SortOrder2 { get; set; }
-        public string? Version { get; set; }
-        public string? Id { get; set; }
-        public bool Enabled { get; set; }
-        public EventTypes EventType { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public string? Key { get; set; }
-        public int Option { get; set; }
-        public int Option2 { get; set; }
-        public int Option3 { get; set; }
-        public string? Value { get; set; }
-        public string? Value2 { get; set; }
-        public int SortOrder { get; set; }
-        public double Delay { get; set; }
-        public double OriginalDelay { get; set; }
-        public double StartDelayTime { get; set; }
-        public bool UseConditions { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public List<Criterion>? Criteria { get; set; }
-    }
-
     internal sealed class PlayerReaction
     {
         public string? Id { get; set; }
         public string? CharacterToReactTo { get; set; }
-        public List<Critera>? Critera { get; set; }
+        public List<Criterion>? Critera { get; set; }
         public double CurrentIteration { get; set; }
         public bool Enabled { get; set; }
-        public List<Event>? Events { get; set; }
+        public List<GameEvent>? Events { get; set; }
         public string? Key { get; set; }
         public string? Name { get; set; }
         public bool ShowInInspector { get; set; }
-        public string? Type { get; set; }
+        public GameEvents? Type { get; set; }
         public double UpdateIteration { get; set; }
         public string? Value { get; set; }
         public string? LocationTargetOption { get; set; }
@@ -270,89 +148,16 @@ namespace Translator.Explorer.JSON
         public List<string>? PlayerValues { get; set; }
         public List<CriteriaGroup>? CriteriaGroups { get; set; }
         public List<ItemGroup>? ItemGroups { get; set; }
-        public List<GameStartEvent>? GameStartEvents { get; set; }
+        public List<GameEvent>? GameStartEvents { get; set; }
         public List<PlayerReaction>? PlayerReactions { get; set; }
     }
 
     internal sealed class AlternateText
     {
-        public List<Critera>? Critera { get; set; }
+        public List<Criterion>? Critera { get; set; }
         public int Order { get; set; }
         public bool Show { get; set; }
         public string? Text { get; set; }
-    }
-
-    internal sealed class CloseEvent : IEvent
-    {
-        public int SortOrder2 { get; set; }
-        public string? Version { get; set; }
-        public string? Id { get; set; }
-        public bool Enabled { get; set; }
-        public EventTypes EventType { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public string? Key { get; set; }
-        public int Option { get; set; }
-        public int Option2 { get; set; }
-        public int Option3 { get; set; }
-        public string? Value { get; set; }
-        public string? Value2 { get; set; }
-        public int SortOrder { get; set; }
-        public double Delay { get; set; }
-        public double OriginalDelay { get; set; }
-        public double StartDelayTime { get; set; }
-        public bool UseConditions { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public List<Criterion>? Criteria { get; set; }
-    }
-
-    internal sealed class ResponseCriteria : ICriterion
-    {
-        public BoolCritera? BoolValue { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public CompareTypes? CompareType { get; set; }
-        public DialogueStatuses? DialogueStatus { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public DoorOptionValues? DoorOptions { get; set; }
-        public EqualsValues? EqualsValue { get; set; }
-        public ComparisonEquations? EquationValue { get; set; }
-        public ValueSpecificFormulas? ValueFormula { get; set; }
-        public ItemComparisonTypes? ItemComparison { get; set; }
-        public ItemFromItemGroupComparisonTypes? ItemFromItemGroupComparison { get; set; }
-        public string? Key { get; set; }
-        public string? Key2 { get; set; }
-        public int Order { get; set; }
-        public PlayerInventoryOptions? PlayerInventoryOption { get; set; }
-        public PoseOptions? PoseOption { get; set; }
-        public SocialStatuses? SocialStatus { get; set; }
-        public string? Value { get; set; }
-        public int Option { get; set; }
-        public int GroupSubCompareType { get; set; }
-    }
-
-    internal sealed class ResponseEvent : IEvent
-    {
-        public int SortOrder2 { get; set; }
-        public string? Version { get; set; }
-        public string? Id { get; set; }
-        public bool Enabled { get; set; }
-        public EventTypes EventType { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public string? Key { get; set; }
-        public int Option { get; set; }
-        public int Option2 { get; set; }
-        public int Option3 { get; set; }
-        public string? Value { get; set; }
-        public string? Value2 { get; set; }
-        public int SortOrder { get; set; }
-        public double Delay { get; set; }
-        public double OriginalDelay { get; set; }
-        public double StartDelayTime { get; set; }
-        public bool UseConditions { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public List<Criterion>? Criteria { get; set; }
     }
 
     internal sealed class Response
@@ -362,8 +167,8 @@ namespace Translator.Explorer.JSON
         public bool AlwaysDisplay { get; set; }
         public int Next { get; set; }
         public int Order { get; set; }
-        public List<ResponseCriteria>? ResponseCriteria { get; set; }
-        public List<ResponseEvent>? ResponseEvents { get; set; }
+        public List<Criterion>? ResponseCriteria { get; set; }
+        public List<GameEvent>? ResponseEvents { get; set; }
         public bool Show { get; set; }
         public bool ShowResponseCriteria { get; set; }
         public bool ShowResponseEvents { get; set; }
@@ -374,35 +179,11 @@ namespace Translator.Explorer.JSON
         public bool ShowInInspector { get; set; }
     }
 
-    internal sealed class StartEvent : IEvent
-    {
-        public int SortOrder2 { get; set; }
-        public string? Version { get; set; }
-        public string? Id { get; set; }
-        public bool Enabled { get; set; }
-        public EventTypes EventType { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public string? Key { get; set; }
-        public int Option { get; set; }
-        public int Option2 { get; set; }
-        public int Option3 { get; set; }
-        public string? Value { get; set; }
-        public string? Value2 { get; set; }
-        public int SortOrder { get; set; }
-        public double Delay { get; set; }
-        public double OriginalDelay { get; set; }
-        public double StartDelayTime { get; set; }
-        public bool UseConditions { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public List<Criterion>? Criteria { get; set; }
-    }
-
     internal sealed class Dialogue
     {
         public bool Shown { get; set; }
         public List<AlternateText>? AlternateTexts { get; set; }
-        public List<CloseEvent>? CloseEvents { get; set; }
+        public List<GameEvent>? CloseEvents { get; set; }
         public int ID { get; set; }
         public bool Important { get; set; }
         public List<Response>? Responses { get; set; }
@@ -418,7 +199,7 @@ namespace Translator.Explorer.JSON
         public bool ShowResponses { get; set; }
         public bool ShowStartValueAdjustments { get; set; }
         public string? SpeakingToCharacterName { get; set; }
-        public List<StartEvent>? StartEvents { get; set; }
+        public List<GameEvent>? StartEvents { get; set; }
         public string? Text { get; set; }
     }
 
@@ -429,8 +210,8 @@ namespace Translator.Explorer.JSON
         public bool AlwaysDisplay { get; set; }
         public int Next { get; set; }
         public int Order { get; set; }
-        public List<ResponseCriteria>? ResponseCriteria { get; set; }
-        public List<ResponseEvent>? ResponseEvents { get; set; }
+        public List<Criterion>? ResponseCriteria { get; set; }
+        public List<GameEvent>? ResponseEvents { get; set; }
         public bool Show { get; set; }
         public bool ShowResponseCriteria { get; set; }
         public bool ShowResponseEvents { get; set; }
@@ -445,8 +226,8 @@ namespace Translator.Explorer.JSON
         public bool AlwaysDisplay { get; set; }
         public int Next { get; set; }
         public int Order { get; set; }
-        public List<ResponseCriteria>? ResponseCriteria { get; set; }
-        public List<ResponseEvent>? ResponseEvents { get; set; }
+        public List<Criterion>? ResponseCriteria { get; set; }
+        public List<GameEvent>? ResponseEvents { get; set; }
         public bool Show { get; set; }
         public bool ShowResponseCriteria { get; set; }
         public bool ShowResponseEvents { get; set; }
@@ -458,12 +239,12 @@ namespace Translator.Explorer.JSON
     {
         public int Id { get; set; }
         public string? Text { get; set; }
-        public List<Critera>? Critera { get; set; }
+        public List<Criterion>? Critera { get; set; }
         public bool IsConversationStarter { get; set; }
         public bool ShowInInspector { get; set; }
         public string? SpeakingTo { get; set; }
         public bool OverrideCombatRestriction { get; set; }
-        public List<StartEvent>? StartEvents { get; set; }
+        public List<GameEvent>? StartEvents { get; set; }
         public List<Response>? Responses { get; set; }
         public string? PairedEmote { get; set; }
         public string? DefaultImportance { get; set; }
@@ -506,76 +287,29 @@ namespace Translator.Explorer.JSON
         public bool ShowInInspector { get; set; }
     }
 
-    internal sealed class Reaction
+    internal sealed class EventTrigger
     {
         public string? Id { get; set; }
         public string? CharacterToReactTo { get; set; }
-        public List<Critera>? Critera { get; set; }
+        public List<Criterion>? Critera { get; set; }
         public double CurrentIteration { get; set; }
         public bool Enabled { get; set; }
-        public List<Event>? Events { get; set; }
+        public List<GameEvent>? Events { get; set; }
         public string? Key { get; set; }
         public string? Name { get; set; }
         public bool ShowInInspector { get; set; }
-        public string? Type { get; set; }
+        public EventTypes? Type { get; set; }
         public double UpdateIteration { get; set; }
         public string? Value { get; set; }
         public string? LocationTargetOption { get; set; }
     }
 
-    internal sealed class OnAcceptEvent : IEvent
-    {
-        public int SortOrder2 { get; set; }
-        public string? Version { get; set; }
-        public string? Id { get; set; }
-        public bool Enabled { get; set; }
-        public EventTypes EventType { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public string? Key { get; set; }
-        public int Option { get; set; }
-        public int Option2 { get; set; }
-        public int Option3 { get; set; }
-        public string? Value { get; set; }
-        public string? Value2 { get; set; }
-        public int SortOrder { get; set; }
-        public double Delay { get; set; }
-        public double OriginalDelay { get; set; }
-        public double StartDelayTime { get; set; }
-        public bool UseConditions { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public List<Criterion>? Criteria { get; set; }
-    }
-    internal sealed class OnRefuseEvent : IEvent
-    {
-        public int SortOrder2 { get; set; }
-        public string? Version { get; set; }
-        public string? Id { get; set; }
-        public bool Enabled { get; set; }
-        public EventTypes EventType { get; set; }
-        public string? Character { get; set; }
-        public string? Character2 { get; set; }
-        public string? Key { get; set; }
-        public int Option { get; set; }
-        public int Option2 { get; set; }
-        public int Option3 { get; set; }
-        public string? Value { get; set; }
-        public string? Value2 { get; set; }
-        public int SortOrder { get; set; }
-        public double Delay { get; set; }
-        public double OriginalDelay { get; set; }
-        public double StartDelayTime { get; set; }
-        public bool UseConditions { get; set; }
-        public bool DisplayInEditor { get; set; }
-        public List<Criterion>? Criteria { get; set; }
-    }
-
     internal sealed class StoryItem
     {
-        public List<Critera>? Critera { get; set; }
+        public List<Criterion>? Critera { get; set; }
         public string? ItemName { get; set; }
-        public List<OnAcceptEvent>? OnAcceptEvents { get; set; }
-        public List<OnRefuseEvent>? OnRefuseEvents { get; set; }
+        public List<GameEvent>? OnAcceptEvents { get; set; }
+        public List<GameEvent>? OnRefuseEvents { get; set; }
         public bool DisplayInEditor { get; set; }
     }
 
@@ -592,7 +326,7 @@ namespace Translator.Explorer.JSON
         public bool LockCharacterSelection { get; set; }
         public Personality? Personality { get; set; }
         public List<Quest>? Quests { get; set; }
-        public List<Reaction>? Reactions { get; set; }
+        public List<EventTrigger>? Reactions { get; set; }
         public List<StoryItem>? StoryItems { get; set; }
         public List<object>? CharacterItemGroupInteractions { get; set; }
         public List<string>? StoryValues { get; set; }
