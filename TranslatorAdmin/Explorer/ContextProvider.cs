@@ -396,6 +396,8 @@ namespace Translator.Explorer
             NodeList CompareValuesToCheckAgain = new();
 
             Node? result;
+            Criterion criterion;
+            GameEvent gameEvent;
             //link up different stories and dialogues
             for (int i = 0; i < nodes.Count; i++)
             {
@@ -403,7 +405,7 @@ namespace Translator.Explorer
                 if (nodes[i].Type == NodeType.Criterion && nodes[i].Data != null)
                 {
                     //node is dialogue so data should contain the criteria itself!
-                    Criterion criterion = (Criterion)nodes[i].Data!;
+                    criterion = (Criterion)nodes[i].Data!;
                     switch (criterion.CompareType)
                     {
                         case CompareTypes.Clothing:
@@ -452,6 +454,19 @@ namespace Translator.Explorer
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
+                            }
+                            break;
+                        }
+                        case CompareTypes.CutScene:
+                        {
+                            result = Values.Find((Node n) => n.Type == NodeType.Cutscene && n.ID == criterion.Key);
+                            if (result != null)
+                            {
+                                nodes[i].AddParentNode(result);
+                            }
+                            else
+                            {
+                                CompareValuesToCheckAgain.Add(nodes[i]);
                             }
                             break;
                         }
@@ -681,10 +696,99 @@ namespace Translator.Explorer
                             break;
                     }
                 }
-                //todo link up events and the thing they perform as a child to the event
-                else if (nodes[i].Type == NodeType.Event)
+                //todo link up events and the thing they perform as a child to the gameEvent
+                else if (nodes[i].Type == NodeType.Event && nodes[i].Data != null)
                 {
-
+                    gameEvent = (GameEvent)nodes[i].Data!;
+                    switch (gameEvent.EventType)
+                    {
+                        case GameEvents.CharacterFunction:
+                            break;
+                        case GameEvents.Clothing:
+                            break;
+                        case GameEvents.Combat:
+                            break;
+                        case GameEvents.CombineValue:
+                            break;
+                        case GameEvents.CutScene:
+                            break;
+                        case GameEvents.Dialogue:
+                            break;
+                        case GameEvents.DisableNPC:
+                            break;
+                        case GameEvents.DisplayGameMessage:
+                            break;
+                        case GameEvents.Door:
+                            break;
+                        case GameEvents.Emote:
+                            break;
+                        case GameEvents.EnableNPC:
+                            break;
+                        case GameEvents.EnableNPCAsync:
+                            break;
+                        case GameEvents.EventTriggers:
+                            break;
+                        case GameEvents.FadeIn:
+                            break;
+                        case GameEvents.FadeOut:
+                            break;
+                        case GameEvents.IKReach:
+                            break;
+                        case GameEvents.Intimacy:
+                            break;
+                        case GameEvents.Item:
+                            break;
+                        case GameEvents.ItemFromItemGroup:
+                            break;
+                        case GameEvents.LookAt:
+                            break;
+                        case GameEvents.Personality:
+                            break;
+                        case GameEvents.Property:
+                            break;
+                        case GameEvents.MatchValue:
+                            break;
+                        case GameEvents.ModifyValue:
+                            break;
+                        case GameEvents.Player:
+                            break;
+                        case GameEvents.Pose:
+                            break;
+                        case GameEvents.Quest:
+                            break;
+                        case GameEvents.RandomizeIntValue:
+                            break;
+                        case GameEvents.ResetReactionCooldown:
+                            break;
+                        case GameEvents.Roaming:
+                            break;
+                        case GameEvents.SendEvent:
+                            break;
+                        case GameEvents.SetPlayerPref:
+                            break;
+                        case GameEvents.Social:
+                            break;
+                        case GameEvents.State:
+                            break;
+                        case GameEvents.TriggerBGC:
+                            break;
+                        case GameEvents.Turn:
+                            break;
+                        case GameEvents.TurnInstantly:
+                            break;
+                        case GameEvents.UnlockAchievement:
+                            break;
+                        case GameEvents.WalkTo:
+                            break;
+                        case GameEvents.WarpOverTime:
+                            break;
+                        case GameEvents.WarpTo:
+                            break;
+                        case GameEvents.None:
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
 

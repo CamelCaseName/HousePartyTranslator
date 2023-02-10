@@ -139,17 +139,29 @@ namespace Translator.Explorer.JSON
         public string? LocationTargetOption { get; set; }
     }
 
+    internal sealed class CharacterGroup
+    {
+        public string? Id { get; set; }
+        public string? Name { get; set; }
+        public bool DisplayInEditor { get; set; }
+        public List<string>? CharactersInGroup { get; set; }
+    }
+
     internal sealed class MainStory
     {
-        public string? HousePartyVersion { get; set; }
-        public List<ItemOverride>? ItemOverrides { get; set; }
-        public List<ItemGroupBehavior>? ItemGroupBehaviors { get; set; }
+        public bool AllowPlayerFemale { get; set; }
+        public bool AllowPlayerMale { get; set; }
+        public bool UseEekDefaultItemEnableBehaviour { get; set; }
         public List<Achievement>? Achievements { get; set; }
-        public List<string>? PlayerValues { get; set; }
+        public List<CharacterGroup>? CharacterGroups { get; set; }
         public List<CriteriaGroup>? CriteriaGroups { get; set; }
-        public List<ItemGroup>? ItemGroups { get; set; }
-        public List<GameEvent>? GameStartEvents { get; set; }
         public List<EventTrigger>? PlayerReactions { get; set; }
+        public List<GameEvent>? GameStartEvents { get; set; }
+        public List<ItemGroup>? ItemGroups { get; set; }
+        public List<ItemGroupBehavior>? ItemGroupBehaviors { get; set; }
+        public List<ItemOverride>? ItemOverrides { get; set; }
+        public List<string>? PlayerValues { get; set; }
+        public string? HousePartyVersion { get; set; }
     }
 
     internal sealed class AlternateText
@@ -169,14 +181,22 @@ namespace Translator.Explorer.JSON
         public int Order { get; set; }
         public List<Criterion>? ResponseCriteria { get; set; }
         public List<GameEvent>? ResponseEvents { get; set; }
+        public bool TestingCriteraOverride { get; set; }
+        public string? Text { get; set; }
+        public ResponseReactionTypes? CurrentNPCReaction { get; set; }
         public bool Show { get; set; }
         public bool ShowResponseCriteria { get; set; }
         public bool ShowResponseEvents { get; set; }
-        public bool TestingCriteraOverride { get; set; }
-        public string? Text { get; set; }
-        public string? CharacterName { get; set; }
-        public int ChatterId { get; set; }
-        public bool ShowInInspector { get; set; }
+        public bool IsDynamic { get; set; }
+        public bool ShowDynamicNegativeCriteria { get; set; }
+        public bool ShowDynamicPositiveCriteria { get; set; }
+        public bool ShowTopics { get; set; }
+        public bool ShowTones { get; set; }
+        public bool ShowTypes { get; set; }
+        public List<ConversationalTopics>? Topics { get; set; }
+        public List<ResponseTones>? Tones { get; set; }
+        public List<Criterion>? DynamicPositiveCriteria { get; set; }
+        public List<Criterion>? DynamicNegativeCriteria { get; set; }
     }
 
     internal sealed class Dialogue
@@ -189,49 +209,30 @@ namespace Translator.Explorer.JSON
         public List<Response>? Responses { get; set; }
         public bool ShowAcceptedItems { get; set; }
         public bool ShowAlternateTexts { get; set; }
+        public bool ShowDynamicCriteria { get; set; }
         public bool ShowCloseValueAdjustments { get; set; }
         public bool ShowCritera { get; set; }
         public bool ShowGlobalGoodByeResponses { get; set; }
+        public bool IsDynamic { get; set; }
+        public List<ConversationalTopics>? TopicMatches { get; set; }
+        public List<ResponseTones>? MandatoryTones { get; set; }
+        public List<ResponseTones>? ToneMatches { get; set; }
+        public ResponseTypes TypeMatch { get; set; }
+        public bool ShowDynamicDialogueResponses { get; set; }
+        public bool OnlyOnPositiveInteraction { get; set; }
+        public bool OnlyOnNegativeInteraction { get; set; }
+        public int MatchScore { get; set; }
         public bool PlayVoice { get; set; }
         public int VoiceID { get; set; }
         public bool ShowGlobalResponses { get; set; }
         public bool DoesNotCountAsMet { get; set; }
         public bool ShowResponses { get; set; }
         public bool ShowStartValueAdjustments { get; set; }
+        public bool ShowTopics { get; set; }
+        public bool ShowTones { get; set; }
         public string? SpeakingToCharacterName { get; set; }
         public List<GameEvent>? StartEvents { get; set; }
-        public string? Text { get; set; }
-    }
-
-    internal sealed class GlobalGoodbyeResponse
-    {
-        public bool Selected { get; set; }
-        public string? Id { get; set; }
-        public bool AlwaysDisplay { get; set; }
-        public int Next { get; set; }
-        public int Order { get; set; }
-        public List<Criterion>? ResponseCriteria { get; set; }
-        public List<GameEvent>? ResponseEvents { get; set; }
-        public bool Show { get; set; }
-        public bool ShowResponseCriteria { get; set; }
-        public bool ShowResponseEvents { get; set; }
-        public bool TestingCriteraOverride { get; set; }
-        public string? Text { get; set; }
-    }
-
-    internal sealed class GlobalResponse
-    {
-        public bool Selected { get; set; }
-        public string? Id { get; set; }
-        public bool AlwaysDisplay { get; set; }
-        public int Next { get; set; }
-        public int Order { get; set; }
-        public List<Criterion>? ResponseCriteria { get; set; }
-        public List<GameEvent>? ResponseEvents { get; set; }
-        public bool Show { get; set; }
-        public bool ShowResponseCriteria { get; set; }
-        public bool ShowResponseEvents { get; set; }
-        public bool TestingCriteraOverride { get; set; }
+        public List<Criterion>? DynamicDialogueCriteria { get; set; }
         public string? Text { get; set; }
     }
 
@@ -242,23 +243,34 @@ namespace Translator.Explorer.JSON
         public List<Criterion>? Critera { get; set; }
         public bool IsConversationStarter { get; set; }
         public bool ShowInInspector { get; set; }
+        public bool PlaySilently { get; set; }
+        public string? Label { get; set; }
         public string? SpeakingTo { get; set; }
         public bool OverrideCombatRestriction { get; set; }
         public List<GameEvent>? StartEvents { get; set; }
-        public List<Response>? Responses { get; set; }
+        public List<BackgroundChatterResponse>? Responses { get; set; }
         public string? PairedEmote { get; set; }
-        public string? DefaultImportance { get; set; }
+        public Importance DefaultImportance { get; set; }
+        public Importance CurrentImportance { get; set; }
     }
 
-    internal sealed class Valuee
+    internal sealed class BackgroundChatterResponse
     {
-        public string? Type { get; set; }
+        public string? CharacterName { get; set; }
+        public string? Label{ get; set; }
+        public int ChatterId { get; set; }
+        public bool ShowInInspector { get; set; }
+    }
+
+    internal sealed class Trait
+    {
+        public PersonalityTraits? Type { get; set; }
         public int Value { get; set; }
     }
 
     internal sealed class Personality
     {
-        public List<Valuee>? Values { get; set; }
+        public List<Trait>? Values { get; set; }
     }
 
     internal sealed class ExtendedDetail
@@ -281,7 +293,7 @@ namespace Translator.Explorer.JSON
         public bool ObtainOnStart { get; set; }
         public bool SeenByPlayer { get; set; }
         public bool ShowProgress { get; set; }
-        public string? Status { get; set; }
+        public QuestStatus Status { get; set; }
         public int ObtainedDateTime { get; set; }
         public int LastUpdatedDateTime { get; set; }
         public bool ShowInInspector { get; set; }
@@ -296,23 +308,46 @@ namespace Translator.Explorer.JSON
         public bool DisplayInEditor { get; set; }
     }
 
+    internal sealed class ItemGroupInteraction
+    {
+        public List<Criterion>? Critera { get; set; }
+        public string? Name { get; set; }
+        public string? GroupName { get; set; }
+        public string? Id { get; set; }
+        public List<GameEvent>? OnAcceptEvents { get; set; }
+        public List<GameEvent>? OnRefuseEvents { get; set; }
+        public bool DisplayInEditor { get; set; }
+    }
+
     internal sealed class CharacterStory
     {
-        public string? CharacterName { get; set; }
-        public string? CurrentAspect { get; set; }
-        public int DialogueID { get; set; }
-        public List<Dialogue>? Dialogues { get; set; }
-        public List<GlobalGoodbyeResponse>? GlobalGoodbyeResponses { get; set; }
-        public List<GlobalResponse>? GlobalResponses { get; set; }
-        public string? HousePartyVersion { get; set; }
-        public List<BackgroundChatter>? BackgroundChatter { get; set; }
         public bool LockCharacterSelection { get; set; }
-        public Personality? Personality { get; set; }
-        public List<Quest>? Quests { get; set; }
+        public bool ShowDislikedTopics { get; set; }
+        public bool ShowDislikedTones { get; set; }
+        public bool ShowLikedTopics { get; set; }
+        public bool ShowLikedTones { get; set; }
+        public int DialogueID { get; set; }
+        public int DynamicDialogueID { get; set; }
+        public List<BackgroundChatter>? BackgroundChatter { get; set; }
+        public List<Dialogue>? Dialogues { get; set; }
+        public List<Dialogue>? DynamicDialogues { get; set; }
         public List<EventTrigger>? Reactions { get; set; }
+        public List<ItemGroupInteraction>? CharacterItemGroupInteractions { get; set; }
+        public List<Quest>? Quests { get; set; }
+        public List<Response>? GlobalGoodbyeResponses { get; set; }
+        public List<Response>? GlobalResponses { get; set; }
         public List<StoryItem>? StoryItems { get; set; }
-        public List<object>? CharacterItemGroupInteractions { get; set; }
         public List<string>? StoryValues { get; set; }
+        public Personality? Personality { get; set; }
+        public string? CharacterName { get; set; }
+        public Dialogue? CurrentDialogue { get; set; }
+        public Dialogue? CurrentDynamicDialogue { get; set; }
+        public List<ResponseTones>? LikedTones { get; set; }
+        public List<ConversationalTopics>? LikedTopics { get; set; }
+        public List<ResponseTones>? DislikedTones { get; set; }
+        public List<ConversationalTopics>? DislikedTopics { get; set; }
+        public StoryAspects CurrentAspect { get; set; }
+        public string? HousePartyVersion { get; set; }
     }
 
 #pragma warning restore

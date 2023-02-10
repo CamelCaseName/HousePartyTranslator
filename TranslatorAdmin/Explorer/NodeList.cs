@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Xml;
 using System.Xml.Linq;
+using Translator.InterfaceImpls;
 
 namespace Translator.Explorer
 {
@@ -55,16 +57,9 @@ namespace Translator.Explorer
         public new void AddRange(IEnumerable<Node> list)
         {
             base.AddRange(list);
-            if (list is IList<Node> realList)
+            if (list is NodeList realList)
             {
-                for (int i = 0; i < realList.Count; i++)
-                {
-                    for (int c = 0; c < realList[i].ChildNodes.Count; c++)
-                    {
-                        var edge = new Edge(realList[i], Count - realList.Count + i, realList[i].ChildNodes[c], IndexOf(realList[i].ChildNodes[c]));
-                        if (!Edges.Contains(edge)) Edges.Add(edge);
-                    }
-                }
+                Edges.AddRange(realList.Edges);
             }
             else
             {

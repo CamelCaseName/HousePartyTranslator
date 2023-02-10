@@ -39,7 +39,7 @@ namespace Translator.Explorer
                 bgcNode.AddEvents(backgroundChatter.StartEvents ?? new());
 
                 //responses
-                foreach (Response response in backgroundChatter.Responses ?? new())
+                foreach (var response in backgroundChatter.Responses ?? new())
                 {
                     var nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.Response, "see id", bgcNode) { Data = response, DataType = typeof(Response) };
 
@@ -121,9 +121,9 @@ namespace Translator.Explorer
             var nodes = new NodeList();
 
             //add all responses as childs to this dialogue
-            foreach (GlobalGoodbyeResponse response in story.GlobalGoodbyeResponses ?? Enumerable.Empty<GlobalGoodbyeResponse>())
+            foreach (var response in story.GlobalGoodbyeResponses ?? Enumerable.Empty<Response>())
             {
-                var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(GlobalGoodbyeResponse) };
+                var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(Response) };
 
                 nodeResponse.AddCriteria(response.ResponseCriteria ?? new());
 
@@ -140,9 +140,9 @@ namespace Translator.Explorer
         {
             var nodes = new NodeList();
 
-            foreach (GlobalResponse response in story.GlobalResponses ?? Enumerable.Empty<GlobalResponse>())
+            foreach (var response in story.GlobalResponses ?? Enumerable.Empty<Response>())
             {
-                var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(GlobalResponse) };
+                var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(Response) };
 
                 nodeResponse.AddCriteria(response.ResponseCriteria ?? new());
 
@@ -338,10 +338,10 @@ namespace Translator.Explorer
         internal static NodeList GetPersonality(CharacterStory story)
         {
             var nodes = new NodeList();
-            foreach (Valuee valuee in story.Personality?.Values ?? Enumerable.Empty<Valuee>())
+            foreach (Trait valuee in story.Personality?.Values ?? Enumerable.Empty<Trait>())
             {
                 //add items to list
-                var nodeValue = new Node(valuee.Type!, NodeType.Personality, story.CharacterName + " " + valuee.Type + " " + valuee.Value) { Data = valuee, DataType = typeof(Valuee) };
+                var nodeValue = new Node(valuee.Type.ToString()!, NodeType.Personality, story.CharacterName + " " + valuee.Type + " " + valuee.Value) { Data = valuee, DataType = typeof(Trait) };
                 nodes.Add(nodeValue);
             }
 

@@ -9,6 +9,7 @@ namespace Translator.Explorer.JSON
         public enum CompareTypes
         {
             Never = 1000,
+            CharacterFromCharacterGroup = 17,
             Clothing = 110,
             CoinFlip = 160,
             CompareValues = 1,
@@ -335,6 +336,7 @@ namespace Translator.Explorer.JSON
         {
             AddForce = 250,
             ChangeBodyScale = 450,
+            CharacterFromCharacterGroup = 192,
             CharacterFunction = 998,
             Clothing = 60,
             Combat = 140,
@@ -377,6 +379,105 @@ namespace Translator.Explorer.JSON
             WarpOverTime = 211,
             WarpTo = 210,
             None = 1000
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ResponseReactionTypes
+        {
+            VeryBad,
+            Bad,
+            Neutral,
+            Good,
+            VeryGood
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ResponseTypes
+        {
+            Generic,
+            Declarative = 10,
+            Question = 20,
+            Compliment = 30,
+            Insult = 40,
+            Informitive = 50,
+            Advice = 60,
+            Intimidating = 70,
+            Apology = 80
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ResponseTones
+        {
+            Friendly = 10,
+            Mean = 20,
+            Flirty = 30,
+            Sarcastic = 40,
+            Funny = 50,
+            Intelligent = 60,
+            Crass = 70,
+            Insecure = 80,
+            Confident = 90,
+            Annoying = 100,
+            Sweet = 110,
+            Clever = 130,
+            Gross = 150,
+            Sincere = 160,
+            Excited = 170,
+            Bragging = 180,
+            Forward = 190,
+            Silly = 200,
+            SmallTalk = 210,
+            PersonalQuestion = 220
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ConversationalTopics
+        {
+            Art = 30,
+            Weather = 50,
+            Shopping = 90,
+            Fun = 100,
+            Hobbies,
+            Drinking,
+            Drugs,
+            Dancing,
+            Business = 110,
+            Work,
+            Entertainment = 120,
+            Music,
+            Movies,
+            Television,
+            Relationships = 130,
+            Sex = 140,
+            Food = 160,
+            Politics = 170,
+            Religeon = 180,
+            Sports = 190,
+            Clothes = 200
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum Importance
+        {
+            None,
+            Important,
+            VeryImportant
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum QuestStatus
+        {
+            NotObtained,
+            InProgress,
+            Complete,
+            Failed,
+            Missed
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum StoryAspects
+        {
+            CharacterPersonality,
+            ScriptedDialogue,
+            DynamicDialogue,
+            ItemInteractions,
+            CharacterQuests,
+            EventTriggers,
+            BackgroundChatter,
+            Values
         }
     }
 }
