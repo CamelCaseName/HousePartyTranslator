@@ -403,7 +403,7 @@ namespace Translator.Explorer
                 if (nodes[i].Type == NodeType.Criterion && nodes[i].Data != null)
                 {
                     //node is dialogue so data should contain the criteria itself!
-                    ICriterion criterion = (ICriterion)nodes[i].Data!;
+                    Criterion criterion = (Criterion)nodes[i].Data!;
                     switch (criterion.CompareType)
                     {
                         case CompareTypes.Clothing:
@@ -718,7 +718,7 @@ namespace Translator.Explorer
             Node? result;
             foreach (var node in CompareValuesToCheckAgain)
             {
-                ICriterion criterion = (ICriterion)node.Data!;
+                Criterion criterion = (Criterion)node.Data!;
                 result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
                 if (result != null)
                 {
@@ -775,7 +775,6 @@ namespace Translator.Explorer
             {
                 CriteriaInFile = new NodeList();
 
-                //todo add more getters for teh rest of the events
                 //add all items in the story
                 _nodes.AddRange(StoryNodeExtractor.GetItemOverrides(story));
                 //add all item groups with their actions

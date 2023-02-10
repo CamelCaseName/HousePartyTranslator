@@ -1,4 +1,5 @@
 ﻿using Translator.Explorer.JSON;
+using static Translator.Explorer.JSON.StoryEnums;
 
 namespace Translator.Explorer
 {
@@ -300,10 +301,10 @@ namespace Translator.Explorer
         {
             var nodes = new NodeList();
 
-            foreach (Reaction playerReaction in story.Reactions ?? Enumerable.Empty<Reaction>())
+            foreach (EventTrigger playerReaction in story.Reactions ?? Enumerable.Empty<EventTrigger>())
             {
                 //add items to list
-                var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(Reaction) };
+                var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(EventTrigger) };
                 //get actions for item
                 nodeReaction.AddEvents(playerReaction.Events ?? new());
 
@@ -393,9 +394,9 @@ namespace Translator.Explorer
         {
             var nodes = new NodeList();
             var nodeEvents = new Node("GameStartEvents"!, NodeType.Event, "GameStartEvents");
-            foreach (GameStartEvent _event in story.GameStartEvents ?? new())
+            foreach (GameEvent _event in story.GameStartEvents ?? new())
             {
-                var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none") { Data = _event, DataType = typeof(GameStartEvent) };
+                var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none") { Data = _event, DataType = typeof(GameEvent) };
 
                 nodeEvent.AddCriteria(_event.Criteria ?? new List<Criterion>());
 
