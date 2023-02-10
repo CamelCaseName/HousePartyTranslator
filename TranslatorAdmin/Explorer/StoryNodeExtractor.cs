@@ -253,10 +253,10 @@ namespace Translator.Explorer
         public static NodeList GetPlayerReactions(MainStory story)
         {
             var nodes = new NodeList();
-            foreach (PlayerReaction playerReaction in story.PlayerReactions ?? Enumerable.Empty<PlayerReaction>())
+            foreach (EventTrigger playerReaction in story.PlayerReactions ?? Enumerable.Empty<EventTrigger>())
             {
                 //add items to list
-                var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(PlayerReaction) };
+                var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(EventTrigger) };
 
                 //get actions for item
                 nodeReaction.AddEvents(playerReaction.Events ?? new());

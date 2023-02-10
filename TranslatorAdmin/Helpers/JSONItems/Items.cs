@@ -122,7 +122,7 @@ namespace Translator.Explorer.JSON
         public List<Criterion>? Criteria { get; set; }
     }
 
-    internal sealed class PlayerReaction
+    internal sealed class EventTrigger
     {
         public string? Id { get; set; }
         public string? CharacterToReactTo { get; set; }
@@ -133,7 +133,7 @@ namespace Translator.Explorer.JSON
         public string? Key { get; set; }
         public string? Name { get; set; }
         public bool ShowInInspector { get; set; }
-        public GameEvents? Type { get; set; }
+        public EventTypes? Type { get; set; }
         public double UpdateIteration { get; set; }
         public string? Value { get; set; }
         public string? LocationTargetOption { get; set; }
@@ -149,7 +149,7 @@ namespace Translator.Explorer.JSON
         public List<CriteriaGroup>? CriteriaGroups { get; set; }
         public List<ItemGroup>? ItemGroups { get; set; }
         public List<GameEvent>? GameStartEvents { get; set; }
-        public List<PlayerReaction>? PlayerReactions { get; set; }
+        public List<EventTrigger>? PlayerReactions { get; set; }
     }
 
     internal sealed class AlternateText
@@ -285,23 +285,6 @@ namespace Translator.Explorer.JSON
         public int ObtainedDateTime { get; set; }
         public int LastUpdatedDateTime { get; set; }
         public bool ShowInInspector { get; set; }
-    }
-
-    internal sealed class EventTrigger
-    {
-        public string? Id { get; set; }
-        public string? CharacterToReactTo { get; set; }
-        public List<Criterion>? Critera { get; set; }
-        public double CurrentIteration { get; set; }
-        public bool Enabled { get; set; }
-        public List<GameEvent>? Events { get; set; }
-        public string? Key { get; set; }
-        public string? Name { get; set; }
-        public bool ShowInInspector { get; set; }
-        public EventTypes? Type { get; set; }
-        public double UpdateIteration { get; set; }
-        public string? Value { get; set; }
-        public string? LocationTargetOption { get; set; }
     }
 
     internal sealed class StoryItem
