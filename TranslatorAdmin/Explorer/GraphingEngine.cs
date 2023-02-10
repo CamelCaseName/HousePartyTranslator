@@ -379,26 +379,31 @@ namespace Translator.Explorer
 
                 if (valueType == typeof(string))
                 {
-                    var text = box.Controls.Find(property.Name + "TextBox", true);
+                    var text = box.Controls[0].Controls.Find(property.Name + "TextBox", true);
                     if (text.Length == 1) text[0].Text = (string?)value ?? string.Empty;
                 }
                 else if (valueType == typeof(int) || valueType == typeof(float))
                 {
-                    var text = box.Controls.Find(property.Name + "Numeric", true);
+                    var text = box.Controls[0].Controls.Find(property.Name + "Numeric", true);
                     if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(NumericUpDown))) ((NumericUpDown)text[0]).Value = Convert.ToDecimal(value);
                 }
                 else if (valueType == typeof(bool))
                 {
-                    var text = box.Controls.Find(property.Name + "CheckBox", true);
+                    var text = box.Controls[0].Controls.Find(property.Name + "CheckBox", true);
                     if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(CheckBox))) ((CheckBox)text[0]).Checked = Convert.ToBoolean(value);
                 }
                 else if (valueType.GenericTypeArguments.Length > 0)
                 {
                     if (valueType.GenericTypeArguments[0].IsEnum)
                     {
-                        var text = box.Controls.Find(property.Name + "ComboBox", true);
+                        var text = box.Controls[0].Controls.Find(property.Name + "ComboBox", true);
                         if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(ComboBox))) ((ComboBox)text[0]).SelectedItem = value?.ToString();
                     }
+                }
+                else if (valueType.IsEnum)
+                {
+                    var text = box.Controls[0].Controls.Find(property.Name + "ComboBox", true);
+                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(ComboBox))) ((ComboBox)text[0]).SelectedItem = value?.ToString();
                 }
             }
         }
@@ -508,13 +513,13 @@ namespace Translator.Explorer
         private void DropDownSetValue(object? sender, PropertyInfo property, object data)
         {
             if (!ReadOnly && sender != null)
-                property.SetValue(data, Enum.Parse(property.PropertyType, ((ComboBox)sender).SelectedItem.ToString()!));
+                property.SetValue(data, Enum.Parse(property.PropertyType, ((ComboBox)sender).SelectedItem?.ToString()!));
         }
 
         private void DropDownNullableSetValue(object? sender, PropertyInfo property, object data)
         {
             if (!ReadOnly && sender != null)
-                property.SetValue(data, Enum.Parse(property.PropertyType.GenericTypeArguments[0], ((ComboBox)sender).SelectedItem.ToString()!));
+                property.SetValue(data, Enum.Parse(property.PropertyType.GenericTypeArguments[0], ((ComboBox)sender).SelectedItem?.ToString() ?? string.Empty));
         }
 
         private void NumericIntSetValue(object? sender, PropertyInfo property, object data)
