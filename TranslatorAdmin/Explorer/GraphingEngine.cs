@@ -264,6 +264,7 @@ namespace Translator.Explorer
 
         public void PaintAllNodes(Graphics g)
         {
+            if (!Provider.Frozen) return;
             DrewNodes = false;
             //go on displaying graph
             for (int i = 0; i < Provider.Nodes.Count; i++)

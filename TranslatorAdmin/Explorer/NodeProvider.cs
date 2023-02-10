@@ -32,16 +32,14 @@ namespace Translator.Explorer
             get { CheckNodeListSizes(); return !UsingListA ? nodesA : nodesB; }
         }
 
-        public bool MovingNodePositionOverridden
-        {
-            get;
-            private set;
-        }
+        public bool MovingNodePositionOverridden { get; private set; }
+
         public bool MovingNodePositionOverrideEnded { get; private set; }
+
+        public bool Frozen { get => frozen; }
 
         private void CheckNodeListSizes()
         {
-
             if (nodesA.Count != nodesB.Count)
             {
                 lock (nodesB)
@@ -61,22 +59,46 @@ namespace Translator.Explorer
                             nodesA.AddRange(nodesB);
                         }
                     }
+
+
+                //only recalculate when necessary 
+                if (nodesA.Edges.Count != nodesB.Edges.Count && frozen)
+                {
+                    lock (nodesB.Edges)
+                        lock (nodesA.Edges)
+                        {
+                            if (UsingListA)
+                            {
+                                //changed edges is in a
+                                nodesA.Sync();
+                                nodesB.Edges.Clear();
+                                nodesB.Edges.AddRange(nodesA.Edges);
+                            }
+                            else
+                            {
+                                //changed edges is in b
+                                nodesB.Sync();
+                                nodesA.Edges.Clear();
+                                nodesA.Edges.AddRange(nodesB.Edges);
+                            }
+                        }
+                }
             }
 
-            if (nodesA.Edges.Count != nodesB.Edges.Count)
+            if (nodesA.Edges.Count != nodesB.Edges.Count && frozen)
             {
-                lock (nodesB)
-                    lock (nodesA)
+                lock (nodesB.Edges)
+                    lock (nodesA.Edges)
                     {
-                        nodesA.Sync();
-                        nodesB.Sync();
-                        if (nodesA.Edges.Count > nodesB.Edges.Count)
+                        if (UsingListA)
                         {
+                            //changed edges is in a
                             nodesB.Edges.Clear();
                             nodesB.Edges.AddRange(nodesA.Edges);
                         }
-                        else if (nodesA.Edges.Count < nodesB.Edges.Count)
+                        else
                         {
+                            //changed edges is in b
                             nodesA.Edges.Clear();
                             nodesA.Edges.AddRange(nodesB.Edges);
                         }
