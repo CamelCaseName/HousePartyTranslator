@@ -751,7 +751,7 @@ namespace Translator.Explorer
                 },
                 NodeType.Quest => Settings.WDefault.QuestNodeColor,
                 NodeType.Achievement => Settings.WDefault.AchievementNodeColor,
-                NodeType.Reaction => Settings.WDefault.ReactionNodeColor,
+                NodeType.EventTrigger => Settings.WDefault.ReactionNodeColor,
                 NodeType.BGC => Settings.WDefault.BGCNodeColor,
                 NodeType.Value => Settings.WDefault.ValueNodeColor,
                 NodeType.Door => Settings.WDefault.DoorNodeColor,

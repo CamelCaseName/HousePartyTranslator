@@ -256,7 +256,7 @@ namespace Translator.Explorer
             foreach (EventTrigger playerReaction in story.PlayerReactions ?? Enumerable.Empty<EventTrigger>())
             {
                 //add items to list
-                var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(EventTrigger) };
+                var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.EventTrigger, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(EventTrigger) };
 
                 //get actions for item
                 nodeReaction.AddEvents(playerReaction.Events ?? new());
@@ -304,7 +304,7 @@ namespace Translator.Explorer
             foreach (EventTrigger playerReaction in story.Reactions ?? Enumerable.Empty<EventTrigger>())
             {
                 //add items to list
-                var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.Reaction, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(EventTrigger) };
+                var nodeReaction = new Node(playerReaction.Id ?? string.Empty, NodeType.EventTrigger, playerReaction.Name ?? string.Empty) { Data = playerReaction, DataType = typeof(EventTrigger) };
                 //get actions for item
                 nodeReaction.AddEvents(playerReaction.Events ?? new());
 

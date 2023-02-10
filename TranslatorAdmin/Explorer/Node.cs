@@ -25,7 +25,7 @@ namespace Translator.Explorer
 		Dialogue,
 		Quest,
 		Achievement,
-		Reaction,
+		EventTrigger,
 		BGC,
 		Value,
 		Door,

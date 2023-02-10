@@ -62,7 +62,7 @@ namespace Translator.InterfaceImpls
 				NodeType.Dialogue => StringCategory.Dialogue,
 				NodeType.Quest => StringCategory.Quest,
 				NodeType.Achievement => StringCategory.Achievement,
-				NodeType.Reaction => StringCategory.Response,
+				NodeType.EventTrigger => StringCategory.Response,
 				NodeType.BGC => StringCategory.BGC,
 				_ => StringCategory.Neither,
 			};
