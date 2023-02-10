@@ -37,6 +37,9 @@ namespace Translator.Explorer.Window
 			Context = new(Provider, IsStory, AutoLoad, FileName, StoryName);
 			engine = new(Provider, this, NodeInfoLabel);
 
+			//if user cancels during file selection
+			if (Context.FileName == "character" || Context.StoryName == "story") Close();
+
 			this.StoryName = Context.StoryName;
 			this.FileName = Context.FileName;
 
