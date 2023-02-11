@@ -50,7 +50,7 @@ namespace Translator.Explorer
             this.provider = provider;
 
             LayoutCalculation = () => CalculateForceDirectedLayout(cancellationToken.Token);
-            /*
+            
             opencl = new(parent, provider);
             //its not worth it for less nodes
             if (Nodes.Count >= 1024)
@@ -58,7 +58,7 @@ namespace Translator.Explorer
             if (opencl.OpenCLDevicePresent && !opencl.Failed)
             {
                 LayoutCalculation = () => opencl.CalculateLayout(() => ++_framecount, cancellationToken.Token);
-            }*/
+            }
         }
 
         public void Start()

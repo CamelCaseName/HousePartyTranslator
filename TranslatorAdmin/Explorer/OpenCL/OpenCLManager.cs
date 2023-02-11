@@ -1,5 +1,4 @@
 ﻿using Silk.NET.OpenCL;
-using System.Diagnostics;
 using System.Runtime.Versioning;
 using System.Text;
 using Translator.Core;
@@ -14,7 +13,8 @@ internal sealed unsafe class OpenCLManager
     public bool Retry { get; set; } = false;
     public bool OpenCLDevicePresent = false;
     private readonly CL _cl;
-    private readonly string KernelName = "layout_kernel";
+    private readonly string NBodyKernelName = "nbody_kernel";
+    private readonly string EdgeKernelName = "edge_kernel";
     private readonly Form parent;
     //key is pointer to platform
     private readonly Dictionary<nint, (nint deviceId, string platformName)> Platforms = new();
@@ -28,7 +28,7 @@ internal sealed unsafe class OpenCLManager
     private nint _kernel;
     private nint _program;
 
-    private bool AreResourcesAcquired = false;
+    private bool ResourcesAreAcquired = false;
     private float[] nodePosBuffer1 = Array.Empty<float>(), nodePosBuffer2 = Array.Empty<float>(), nodePosResultBuffer = Array.Empty<float>();
     private readonly List<int> parent_indices = new();
     private readonly List<int> parent_offset = new();
@@ -79,8 +79,8 @@ internal sealed unsafe class OpenCLManager
         if (err != 0) return err;
 
         //build program
-        byte[] codeBytes = new byte[Encoding.Default.GetByteCount(Kernels.LayoutKernel) + 1];
-        Encoding.Default.GetBytes(Kernels.LayoutKernel, 0, Kernels.LayoutKernel.Length, codeBytes, 0);
+        byte[] codeBytes = new byte[Encoding.Default.GetByteCount(Kernels.NBodyKernel) + 1];
+        Encoding.Default.GetBytes(Kernels.NBodyKernel, 0, Kernels.NBodyKernel.Length, codeBytes, 0);
         fixed (byte* code = codeBytes)
         {
             _program = _cl.CreateProgramWithSource(_context, 1, in code, null, out err);
@@ -295,7 +295,8 @@ internal sealed unsafe class OpenCLManager
         DeviceName = Platforms[SelectedPlatform].platformName;
 
         //get all resources we need, context kernel and so on
-        AcquireRessources();
+        err = AcquireRessources();
+        if (err != 0) return err;
 
         err = SetUpBuffers();
         if (err != 0) return err;
@@ -314,10 +315,8 @@ internal sealed unsafe class OpenCLManager
         //create and fill buffers on cpu side
         SetUpNodePositionBuffer();
         ClearNodeNewPositionBuffer();
-        (int[] nodeParents, int[] nodeParentsOffset, int[] nodeParentsCount) = GetNodeParentsBuffer();
-        (int[] nodeChilds, int[] nodeChildsOffset, int[] nodeChildsCount) = GetNodeChildsBuffer();
         var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.OpenCLAttraction, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.OpenClGravity };
-        NodeCount = nodeParentsCount.Length;
+        NodeCount = nodePosBuffer1.Length / 4;
 
         //calculate work size for local stuff
         neededLocalSize = (nuint)((Math.Sqrt(NodeCount)) + 0.5d);
@@ -337,50 +336,19 @@ internal sealed unsafe class OpenCLManager
         node_pos_2 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer2.Length * sizeof(float) * 4), nodePosBuffer2.AsSpan(), &err);
         if (err != 0) return err;
 
-        //flat linked list edge representation
-        var node_parents = _cl.CreateBuffer(_context, MemFlags.ReadOnly | MemFlags.CopyHostPtr, (nuint)(nodeParents.Length * sizeof(int)), nodeParents.AsSpan(), &err);
-        if (err != 0) return err;
-        var node_parent_offset = _cl.CreateBuffer(_context, MemFlags.ReadOnly | MemFlags.CopyHostPtr, (nuint)(nodeParentsOffset.Length * sizeof(int)), nodeParentsOffset.AsSpan(), &err);
-        if (err != 0) return err;
-        var node_parent_count = _cl.CreateBuffer(_context, MemFlags.ReadOnly | MemFlags.CopyHostPtr, (nuint)(nodeParentsCount.Length * sizeof(int)), nodeParentsCount.AsSpan(), &err);
-        if (err != 0) return err;
-        var node_childs = _cl.CreateBuffer(_context, MemFlags.ReadOnly | MemFlags.CopyHostPtr, (nuint)(nodeChilds.Length * sizeof(int)), nodeChilds.AsSpan(), &err);
-        if (err != 0) return err;
-        var node_child_offset = _cl.CreateBuffer(_context, MemFlags.ReadOnly | MemFlags.CopyHostPtr, (nuint)(nodeChildsOffset.Length * sizeof(int)), nodeChildsOffset.AsSpan(), &err);
-        if (err != 0) return err;
-        var node_child_count = _cl.CreateBuffer(_context, MemFlags.ReadOnly | MemFlags.CopyHostPtr, (nuint)(nodeChildsCount.Length * sizeof(int)), nodeChildsCount.AsSpan(), &err);
-        if (err != 0) return err;
-
         //copy data over, set arguments
         //    float4 parameters /*first is edge length, second attraction, third repulsion
         //						  fourth gravity */,
         //	  __global float4 *node_pos /* first 2 is pos, 3rd locked and 4th is mass */,
         //	  __global float4 *new_node_pos /* first 2 contain pos */,
-        //	  __global int* node_parents /*contains the indices of a nodes parents*/,
-        //	  __global int* node_parent_offset /*starting index for parents for a node */,
-        //	  __global int* node_parent_count /*count of the parents for each node */,
-        //	  __global int* node_childs /*contains the indices of a nodes childs */,
-        //	  __global int* node_child_offset /*starting index for childs for a node */,
-        //	  __global int* node_child_count /*count of the childs for each node */,
+        //    __global int actual_node_count /*actual count of nodes*/
         //	  __local float4* node_buffer /*the forces for each node*/)
         //
         err = _cl.SetKernelArg<float>(_kernel, 0, sizeof(float) * 4, parameters.AsSpan());
         if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 3, (nuint)sizeof(nint), node_parents);
+        err = _cl.SetKernelArg(_kernel, 3, sizeof(int), NodeCount);
         if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 4, (nuint)sizeof(nint), node_parent_offset);
-        if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 5, (nuint)sizeof(nint), node_parent_count);
-        if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 6, (nuint)sizeof(nint), node_childs);
-        if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 7, (nuint)sizeof(nint), node_child_offset);
-        if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 8, (nuint)sizeof(nint), node_child_count);
-        if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 9, sizeof(int), NodeCount);
-        if (err != 0) return err;
-        err = _cl.SetKernelArg(_kernel, 10, sizeof(float) * 4 * neededLocalSize, null);
+        err = _cl.SetKernelArg(_kernel, 4, sizeof(float) * 4 * neededLocalSize, null);
         return err;
     }
 
@@ -423,7 +391,7 @@ internal sealed unsafe class OpenCLManager
         fixed (float* outputBuffer = resultBuffer)
         {
             //finished => take it out of the return channel and run computation again, positions are kept in gpu if nothing changed in node count
-            err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), outputBuffer, 0, null, null);
+            err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_1, false, 0, (nuint)(resultBuffer.Length * sizeof(float)), outputBuffer, 0, null, null);
             if (err != 0) return err;
 
             //wait on all commands to finish
@@ -515,10 +483,10 @@ internal sealed unsafe class OpenCLManager
         err = CreateProgram();
         if (err != 0) return err;
         //success, we can go on creating the kernel
-        _kernel = _cl.CreateKernel(_program, KernelName, out err);
+        _kernel = _cl.CreateKernel(_program, NBodyKernelName, out err);
         if (err != 0) return err;
 
-        AreResourcesAcquired = true;
+        ResourcesAreAcquired = true;
 
         err = GetMaxWorkItemDimension();
         return err;
@@ -530,7 +498,7 @@ internal sealed unsafe class OpenCLManager
         {
             FrameStartTime = FrameEndTime;
 
-            if (Provider.OtherNodes.Count == NodeCount && AreResourcesAcquired && !Failed)
+            if (Provider.OtherNodes.Count == NodeCount && ResourcesAreAcquired && !Failed)
             {
                 //nothing changed regarding node count, we can keep as is and dont have to redo the buffers and so on
                 CalculateAndCopy(nodePosResultBuffer);
@@ -547,7 +515,7 @@ internal sealed unsafe class OpenCLManager
 
                 App.MainForm?.Explorer?.Invalidate();
             }
-            else if (AreResourcesAcquired && !Failed)
+            else if (ResourcesAreAcquired && !Failed)
             {
                 //count changed, we have to redo all the outputBuffer and size control setup
                 int err = SetUpBuffers();

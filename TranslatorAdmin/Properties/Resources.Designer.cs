@@ -63,9 +63,19 @@ namespace TranslatorDesktopApp.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        public static byte[] Layout {
+        public static byte[] Edges {
             get {
-                object obj = ResourceManager.GetObject("Layout", resourceCulture);
+                object obj = ResourceManager.GetObject("Edges", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] NBody {
+            get {
+                object obj = ResourceManager.GetObject("NBody", resourceCulture);
                 return ((byte[])(obj));
             }
         }
