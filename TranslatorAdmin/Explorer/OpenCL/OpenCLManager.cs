@@ -427,7 +427,7 @@ internal sealed unsafe class OpenCLManager
     private int DoKernelCalculation(nuint nodeGlobalSize, nuint edgeGlobalSize, nuint localSize)
     {
         int err;
-
+        //todo fix jittering (only seems to affect nodes with childs)
         err = _cl.SetKernelArg(_nbody_kernel, 1, (nuint)sizeof(nint), node_pos_2);
         if (err != 0) return err;
         err = _cl.SetKernelArg(_nbody_kernel, 2, (nuint)sizeof(nint), node_pos_1);

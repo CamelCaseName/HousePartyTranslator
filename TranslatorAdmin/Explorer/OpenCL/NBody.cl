@@ -77,5 +77,6 @@ __kernel void nbody_kernel(
 	}
 
 	// apply forces to return channel
-	new_node_pos[global_i] = this_node_pos + this_node_pos_delta * thread_inhibitor * (1.0f - this_node_locked);
+	new_node_pos[global_i] = this_node_pos + this_node_pos_delta * thread_inhibitor * (1.0f - this_node_locked)
+		+ (float4)(0.0f,0.0f,this_node_locked,0.0f) + (float4)(0.0f, 0.0f, 0.0f, this_node_mass);
 }
