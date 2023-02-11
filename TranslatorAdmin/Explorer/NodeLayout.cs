@@ -9,10 +9,8 @@ namespace Translator.Explorer
     internal static class StoryExplorerConstants
     {
         public const float Attraction = 0.3f;//Attraction accelleration multiplier, between 0 and 1
-        public const float OpenCLAttraction = 0.03f;//Attraction accelleration multiplier, between 0 and 1
         public const float Repulsion = 70.0f;//Repulsion accelleration multiplier, between 0 and much
         public const float Gravity = 0.0001f;
-        public const float OpenClGravity = 0.0001f;
         public static float IdealLength = 100; //spring IdealLength in units aka thedistance an edge should be long
         public static int ColoringDepth = 15;
         public static int Nodesize = 16;
