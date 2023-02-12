@@ -6,6 +6,7 @@ using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
 using Translator.Managers;
+using TranslatorDesktopApp.Explorer;
 using static Translator.Explorer.JSON.StoryEnums;
 using Settings = Translator.InterfaceImpls.WinSettings;
 using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
@@ -23,10 +24,10 @@ namespace Translator.Explorer
         private readonly SolidBrush ColorBrush;
         private readonly Pen ColorPen;
 
-        private static float Xmax => App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
-        private static float Ymax => App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
-        private static float Xmin => 2 * -Nodesize;
-        private static float Ymin => 2 * -Nodesize;
+        private static float Xmax = 0;
+        private static float Ymax = 0;
+        private static float Xmin = 0;
+        private static float Ymin = 0;
 
         private readonly StoryExplorer Explorer;
         private readonly Label NodeInfoLabel;
@@ -130,8 +131,13 @@ namespace Translator.Explorer
         {
             if (e != null)
             {
-                //e.Graphics.ExcludeClip(NodeInfoLabel.Bounds);
+                //set up values for this paint cycle
+                Xmin = 2 * -Nodesize;
+                Ymin = 2 * -Nodesize;
+                Xmax = App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
+                Ymax = App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
 
+                e.Graphics.ToLowQuality();
                 e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
 
@@ -273,7 +279,8 @@ namespace Translator.Explorer
             {
                 DrawColouredNode(g, Provider.Nodes[i]);
             }
-            for (int i = 0; i < Math.Min(Provider.Nodes.Edges.Count, Settings.WDefault.MaxEdgeCount); i++)
+            int maxEdges = Math.Min(Provider.Nodes.Edges.Count, Settings.WDefault.MaxEdgeCount);
+            for (int i = 0; i < maxEdges; i++)
             {
                 DrawEdge(g, Provider.Nodes.Edges[i].This, Provider.Nodes.Edges[i].Child);
             }
@@ -507,7 +514,8 @@ namespace Translator.Explorer
                         grid.Controls.Add(dropDown);
                     }
                 }
-                catch (Exception e) {
+                catch (Exception e)
+                {
                     LogManager.Log(e.Message);
                 }
             }
@@ -574,6 +582,7 @@ namespace Translator.Explorer
 
         private void DrawColouredNode(Graphics g, Node node, Color color, float scale)
         {
+            //todo replace this call by one in the beginning of the paint event, then use the cached vaslues in graph space for comparison. should save up to 200k method calls
             //dont draw node if it is too far away
             GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
             if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
@@ -635,7 +644,7 @@ namespace Translator.Explorer
         internal void DrawEdges(Graphics g, NodeList nodes, Color color)
         {
             ColorPen.Color = color;
-            PointF[] points = PointPool.Rent(nodes.Count);
+            PointF[] points = PointPool.Rent(nodes.Edges.Count);
             for (int i = 0; i < nodes.Count; i++)
             {
                 points[i] = nodes[i].Position;
