@@ -137,6 +137,7 @@ namespace Translator.Explorer
                 Xmax = App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
                 Ymax = App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
 
+                //disables and reduces unused features
                 e.Graphics.ToLowQuality();
                 e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
@@ -575,12 +576,7 @@ namespace Translator.Explorer
             DrawColouredNode(g, node, ColorFromNode(node));
         }
 
-        private void DrawColouredNode(Graphics g, Node node, Color color)
-        {
-            DrawColouredNode(g, node, color, 1f);
-        }
-
-        private void DrawColouredNode(Graphics g, Node node, Color color, float scale)
+        private void DrawColouredNode(Graphics g, Node node, Color color, float scale = 1.0f)
         {
             //todo replace this call by one in the beginning of the paint event, then use the cached vaslues in graph space for comparison. should save up to 200k method calls
             //dont draw node if it is too far away
@@ -608,13 +604,16 @@ namespace Translator.Explorer
 
         internal void DrawEdge(Graphics g, Node node1, Node node2, Color color, float width = 1.5f)
         {
-            if (InternalNodesVisible || node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
+            if (InternalNodesVisible || (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion))
             {
+                //todo same as with the points, get the bounds of the screens and then remove these calls here
+                //so we can do the bounds checking with cached values and dont need these method calls
                 //dont draw node if it is too far away
                 GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
                 GraphToScreen(node2.Position.X, node2.Position.Y, out float x2, out float y2);
 
                 //sort out lines that would be too small on screen and ones where none of the ends are visible
+                //todo swap around such that we just compare length difference to max edge length, no more sqrt
                 if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > 10 &&
                     ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
                     (x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin)))
@@ -622,8 +621,7 @@ namespace Translator.Explorer
                     //any is visible
                     ColorPen.Color = color;
                     ColorPen.Width = width;
-                    //todo adjust edge offsets to only touch the nodes in future?
-                    //do only if zommed in far enough
+                    //todo adjust edge offsets to only touch the nodes in future (if only for small graphs so we dont compromise performance)?
                     g.DrawLine(
                         ColorPen,
                         node1.Position.X,
