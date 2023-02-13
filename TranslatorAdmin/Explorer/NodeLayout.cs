@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.Versioning;
+using System.Windows.Forms.VisualStyles;
 using Translator.Core;
 using Translator.Explorer.OpenCL;
 
@@ -8,10 +9,8 @@ namespace Translator.Explorer
     internal static class StoryExplorerConstants
     {
         public const float Attraction = 0.3f;//Attraction accelleration multiplier, between 0 and 1
-        public const float OpenCLAttraction = 0.03f;//Attraction accelleration multiplier, between 0 and 1
-        public const float Repulsion = 50.0f;//Repulsion accelleration multiplier, between 0 and much
+        public const float Repulsion = 70.0f;//Repulsion accelleration multiplier, between 0 and much
         public const float Gravity = 0.0001f;
-        public const float OpenClGravity = 0.0001f;
         public static float IdealLength = 100; //spring IdealLength in units aka thedistance an edge should be long
         public static int ColoringDepth = 15;
         public static int Nodesize = 16;
@@ -32,7 +31,7 @@ namespace Translator.Explorer
         private readonly Action LayoutCalculation;
         private int _framecount = 0;
         public int FrameCount => _framecount;
-        public bool Finished => FrameCount > Nodes.Count * Nodes.Count && !RunOverride && Started;
+        public bool Finished => FrameCount > (long)Nodes.Count * (long)Nodes.Count && !RunOverride && Started;
         public bool Started { get; private set; } = false;
         public NodeList Nodes
         {
@@ -49,7 +48,7 @@ namespace Translator.Explorer
             this.provider = provider;
 
             LayoutCalculation = () => CalculateForceDirectedLayout(cancellationToken.Token);
-
+            
             opencl = new(parent, provider);
             //its not worth it for less nodes
             if (Nodes.Count >= 1024)
@@ -148,15 +147,6 @@ namespace Translator.Explorer
                         //Repulsion
                         NodeForces[first] += (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
                         NodeForces[second] -= (edge / edge.LengthSquared()) * StoryExplorerConstants.Repulsion;
-
-                        if (Internal[first].ChildNodes.Contains(Internal[second]) || Internal[first].ParentNodes.Contains(Internal[second]))
-                        {
-                            //Attraction/spring accelleration on edge
-                            Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
-
-                            NodeForces[first] -= attractionVec / Internal[first].Mass;
-                            NodeForces[second] += attractionVec / Internal[second].Mass;
-                        }
                     }
                     else
                     {
@@ -164,6 +154,19 @@ namespace Translator.Explorer
                         Internal[first].Position.X += 10f;
                     }
                 }
+            }
+
+            for (int i = 0; i < Internal.Edges.Count; i++)
+            {
+                //Attraction/spring accelleration on edge
+                Vector2 edge = new(
+                        Internal.Edges[i].This.Position.X - Internal.Edges[i].Child.Position.X,
+                        Internal.Edges[i].This.Position.Y - Internal.Edges[i].Child.Position.Y
+                        );
+                Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
+
+                    NodeForces[Internal.Edges[i].ThisIndex] -= attractionVec / Internal.Edges[i].This.Mass;
+                    NodeForces[Internal.Edges[i].ChildIndex] += attractionVec / Internal.Edges[i].Child.Mass;
             }
 
             //apply accelleration to nodes

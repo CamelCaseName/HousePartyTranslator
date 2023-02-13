@@ -15,33 +15,38 @@ namespace Translator.Explorer
 	public enum NodeType
 	{
 		Null,
+        CharacterGroup,
+        Criterion,
+        ItemAction,
+        ItemGroupBehaviour,
+        ItemGroupInteraction,
+        Pose,
+		Achievement,
+		BGC,
+        BGCResponse,
+        Clothing,
+		CriteriaGroup,
+		Cutscene,
+		Dialogue,
+        AlternateText,
+        Door,
+		Event,
+		EventTrigger,
+		Inventory,
 		Item,
 		ItemGroup,
-		Action,
-		Event,
-		Criterion,
-		Response,
-		Dialogue,
-		Quest,
-		Achievement,
-		Reaction,
-		BGC,
-		Value,
-		Door,
-		Inventory,
-		State,
 		Personality,
-		Cutscene,
-		Clothing,
-		CriteriaGroup,
-		Pose,
 		Property,
-		Social
+		Quest,
+		Response,
+		Social,
+		State,
+		Value
 	}
 
 	internal sealed class Node
 	{
-		public static readonly Node NullNode = new("", NodeType.Null, "");
+		public static readonly Node NullNode = new();
 
 		public bool ChildsVisited = false;
 		public bool IsPositionLocked = false;
@@ -96,14 +101,13 @@ namespace Translator.Explorer
 			ChildNodes = new NodeList();
 		}
 
-		public static Node CreateCriteriaNode(ICriterion criterion, Node node)
+		public static Node CreateCriteriaNode(Criterion criterion, Node node)
 		{
 			//create all criteria nodes the same way so they can possibly be replaced by the actual text later
-			//todo remove string thing because it is no longer needed
 			return new Node(
 				$"{criterion.Character}{criterion.CompareType}{criterion.Value}",
 				NodeType.Criterion,
-				$"{criterion.Character}|{criterion.Character2}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.EqualsValue}|{criterion.Key}|{criterion.Key2}|{criterion.Option}|{criterion.SocialStatus}|{criterion.Value}",
+				$"{criterion.Character}|{criterion.CompareType}|{criterion.DialogueStatus}|{criterion.Key}|{criterion.Value}",
 				new NodeList(),
 				new NodeList() { node })
 			{ FileName = node.FileName };
@@ -118,15 +122,13 @@ namespace Translator.Explorer
 			}
 		}
 
-		public void AddCriteria<T>(List<T> criteria) where T : ICriterion
+		public void AddCriteria(List<Criterion> criteria)  
 		{
-			List<ICriterion> _criteria = criteria.ConvertAll(x => (ICriterion)x);
-
-			foreach (ICriterion criterion in _criteria)
+			foreach (var criterion in criteria)
 			{
 				Node tempNode = CreateCriteriaNode(criterion, this);
 				tempNode.Data = criterion;
-				tempNode.DataType = typeof(T);
+				tempNode.DataType = typeof(Criterion);
 				if (criterion.CompareType == CompareTypes.PlayerGender)
 				{
 					tempNode.Gender = criterion.Value == "Female" ? Gender.Female : criterion.Value == "Male" ? Gender.Male : Gender.None;
@@ -135,13 +137,11 @@ namespace Translator.Explorer
 			}
 		}
 
-		public void AddEvents<T>(List<T> events) where T : IEvent
+		public void AddEvents(List<GameEvent> events)
 		{
-			List<IEvent> _events = events.ConvertAll(x => (IEvent)x);
-
-			foreach (IEvent _event in _events)
+			foreach (var _event in events)
 			{
-				var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none", this) { FileName = FileName, Data = _event, DataType = typeof(T) };
+				var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none", this) { FileName = FileName, Data = _event, DataType = typeof(GameEvent) };
 
 				nodeEvent.AddCriteria(_event.Criteria ?? new List<Criterion>());
 

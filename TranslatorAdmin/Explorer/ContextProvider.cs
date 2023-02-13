@@ -15,7 +15,7 @@ namespace Translator.Explorer
         private readonly NodeProvider provider;
         private readonly bool IsStory;
         private readonly Random Random = new();
-        public readonly string FileName = "social";
+        public readonly string FileName = "character";
         public readonly string StoryName = "story";
         private string _StoryFilePath = string.Empty;
         private string NodeFilePath = string.Empty;
@@ -25,8 +25,6 @@ namespace Translator.Explorer
         private readonly NodeList Doors = new();
         private readonly List<PointF> oldPositions = new();
 
-
-        //todo change node storage to only inlcude coords so we can parse faster, rest is actually faster to parse dynamically it seems. or we speed up the loading?
         public ContextProvider(NodeProvider provider, bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
         {
             this.provider = provider;
@@ -96,8 +94,8 @@ namespace Translator.Explorer
                     {
                         selectFileDialog = new OpenFileDialog
                         {
-                            Title = $"Choose the social file ({FileName}) for the templates",
-                            Filter = AutoFileSelection ? "Social Files (*.character)|*.character" : string.Empty,
+                            Title = $"Choose the character file ({FileName}) for the templates",
+                            Filter = AutoFileSelection ? "Character Files (*.character)|*.character" : string.Empty,
                             InitialDirectory = Settings.WDefault.StoryPath.Length > 0 ? Settings.WDefault.StoryPath : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false,
                             FileName = this.FileName + ".character"
@@ -368,8 +366,6 @@ namespace Translator.Explorer
                 _nodes.AddRange(StoryNodeExtractor.GetQuests(story));
                 _nodes.AddRange(StoryNodeExtractor.GetReactions(story));
 
-                //remove duplicates/merge criteria
-                //maybe later we load the corresponding strings from the social files and vise versa?
                 _nodes = ExpandNodes(_nodes);
 
                 //clear criteria to free memory, we dont need them anyways
@@ -398,6 +394,8 @@ namespace Translator.Explorer
             NodeList CompareValuesToCheckAgain = new();
 
             Node? result;
+            Criterion criterion;
+            GameEvent gameEvent;
             //link up different stories and dialogues
             for (int i = 0; i < nodes.Count; i++)
             {
@@ -405,7 +403,7 @@ namespace Translator.Explorer
                 if (nodes[i].Type == NodeType.Criterion && nodes[i].Data != null)
                 {
                     //node is dialogue so data should contain the criteria itself!
-                    ICriterion criterion = (ICriterion)nodes[i].Data!;
+                    criterion = (Criterion)nodes[i].Data!;
                     switch (criterion.CompareType)
                     {
                         case CompareTypes.Clothing:
@@ -454,6 +452,19 @@ namespace Translator.Explorer
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
+                            }
+                            break;
+                        }
+                        case CompareTypes.CutScene:
+                        {
+                            result = Values.Find((Node n) => n.Type == NodeType.Cutscene && n.ID == criterion.Key);
+                            if (result != null)
+                            {
+                                nodes[i].AddParentNode(result);
+                            }
+                            else
+                            {
+                                CompareValuesToCheckAgain.Add(nodes[i]);
                             }
                             break;
                         }
@@ -665,15 +676,15 @@ namespace Translator.Explorer
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
                             if (result != null)
                             {
-                                if (!result.Text.Contains(GetSymbolsFromValueFormula((ValueSpecificFormulas)criterion.ValueFormula!) + criterion.Value))
-                                    result.Text += GetSymbolsFromValueFormula((ValueSpecificFormulas)criterion.ValueFormula!) + criterion.Value + ", ";
+                                if (!result.Text.Contains(GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value))
+                                    result.Text += GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value + ", ";
                                 nodes[i].AddParentNode(result);
                                 break;
                             }
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
-                                var value = new Node(criterion.Key!, NodeType.Value, criterion.Character + " value " + criterion.Key + ", referenced values: " + GetSymbolsFromValueFormula((ValueSpecificFormulas)criterion.ValueFormula!) + criterion.Value + ", ");
+                                var value = new Node(criterion.Key!, NodeType.Value, criterion.Character + " value " + criterion.Key + ", referenced values: " + GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value + ", ");
                                 Values.Add(value);
                                 nodes[i].AddParentNode(value);
                             }
@@ -683,10 +694,99 @@ namespace Translator.Explorer
                             break;
                     }
                 }
-                //todo link up events and the thing they perform as a child to the event
-                else if (nodes[i].Type == NodeType.Event)
+                //todo link up events and the thing they perform as a child to the gameEvent
+                else if (nodes[i].Type == NodeType.Event && nodes[i].Data != null)
                 {
-
+                    gameEvent = (GameEvent)nodes[i].Data!;
+                    switch (gameEvent.EventType)
+                    {
+                        case GameEvents.CharacterFunction:
+                            break;
+                        case GameEvents.Clothing:
+                            break;
+                        case GameEvents.Combat:
+                            break;
+                        case GameEvents.CombineValue:
+                            break;
+                        case GameEvents.CutScene:
+                            break;
+                        case GameEvents.Dialogue:
+                            break;
+                        case GameEvents.DisableNPC:
+                            break;
+                        case GameEvents.DisplayGameMessage:
+                            break;
+                        case GameEvents.Door:
+                            break;
+                        case GameEvents.Emote:
+                            break;
+                        case GameEvents.EnableNPC:
+                            break;
+                        case GameEvents.EnableNPCAsync:
+                            break;
+                        case GameEvents.EventTriggers:
+                            break;
+                        case GameEvents.FadeIn:
+                            break;
+                        case GameEvents.FadeOut:
+                            break;
+                        case GameEvents.IKReach:
+                            break;
+                        case GameEvents.Intimacy:
+                            break;
+                        case GameEvents.Item:
+                            break;
+                        case GameEvents.ItemFromItemGroup:
+                            break;
+                        case GameEvents.LookAt:
+                            break;
+                        case GameEvents.Personality:
+                            break;
+                        case GameEvents.Property:
+                            break;
+                        case GameEvents.MatchValue:
+                            break;
+                        case GameEvents.ModifyValue:
+                            break;
+                        case GameEvents.Player:
+                            break;
+                        case GameEvents.Pose:
+                            break;
+                        case GameEvents.Quest:
+                            break;
+                        case GameEvents.RandomizeIntValue:
+                            break;
+                        case GameEvents.ResetReactionCooldown:
+                            break;
+                        case GameEvents.Roaming:
+                            break;
+                        case GameEvents.SendEvent:
+                            break;
+                        case GameEvents.SetPlayerPref:
+                            break;
+                        case GameEvents.Social:
+                            break;
+                        case GameEvents.State:
+                            break;
+                        case GameEvents.TriggerBGC:
+                            break;
+                        case GameEvents.Turn:
+                            break;
+                        case GameEvents.TurnInstantly:
+                            break;
+                        case GameEvents.UnlockAchievement:
+                            break;
+                        case GameEvents.WalkTo:
+                            break;
+                        case GameEvents.WarpOverTime:
+                            break;
+                        case GameEvents.WarpTo:
+                            break;
+                        case GameEvents.None:
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
 
@@ -720,7 +820,7 @@ namespace Translator.Explorer
             Node? result;
             foreach (var node in CompareValuesToCheckAgain)
             {
-                ICriterion criterion = (ICriterion)node.Data!;
+                Criterion criterion = (Criterion)node.Data!;
                 result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
                 if (result != null)
                 {
@@ -777,7 +877,6 @@ namespace Translator.Explorer
             {
                 CriteriaInFile = new NodeList();
 
-                //todo add more getters for teh rest of the events
                 //add all items in the story
                 _nodes.AddRange(StoryNodeExtractor.GetItemOverrides(story));
                 //add all item groups with their actions
@@ -788,11 +887,13 @@ namespace Translator.Explorer
                 _nodes.AddRange(StoryNodeExtractor.GetPlayerReactions(story));
                 //add all criteriagroups
                 _nodes.AddRange(StoryNodeExtractor.GetCriteriaGroups(story));
-
+                //gets the playervalues
                 _nodes.AddRange(StoryNodeExtractor.GetValues(story));
+                //the events which fire at game start
+                _nodes.AddRange(StoryNodeExtractor.GetGameStartEvents(story));
+                //add all item groups actions
+                _nodes.AddRange(StoryNodeExtractor.GetItemGroupBehaviours(story));
 
-                //remove duplicates/merge criteria
-                //maybe later we load the corresponding strings from the social files and vise versa?
                 _nodes = ExpandNodes(_nodes);
 
                 //clear criteria to free memory, we dont need them anyways

@@ -1,8 +1,12 @@
-﻿using System.Buffers;
+﻿using Microsoft.VisualBasic.Logging;
+using System.Buffers;
+using System.Reflection;
 using System.Runtime.Versioning;
+using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
 using Translator.Managers;
+using TranslatorDesktopApp.Explorer;
 using static Translator.Explorer.JSON.StoryEnums;
 using Settings = Translator.InterfaceImpls.WinSettings;
 using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
@@ -20,15 +24,16 @@ namespace Translator.Explorer
         private readonly SolidBrush ColorBrush;
         private readonly Pen ColorPen;
 
-        private static float Xmax => App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
-        private static float Ymax => App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
-        private static float Xmin => 2 * -Nodesize;
-        private static float Ymin => 2 * -Nodesize;
+        private static float Xmax = 0;
+        private static float Ymax = 0;
+        private static float Xmin = 0;
+        private static float Ymin = 0;
 
         private readonly StoryExplorer Explorer;
         private readonly Label NodeInfoLabel;
 
         private readonly ArrayPool<PointF> PointPool = ArrayPool<PointF>.Shared;
+        private readonly Dictionary<Type, GroupBox> ExtendedInfoComponents = new();
 
         private float AfterZoomMouseX = 0f;
         private float AfterZoomMouseY = 0f;
@@ -45,12 +50,16 @@ namespace Translator.Explorer
         private bool IsCtrlPressed = false;
         private bool MovingANode = false;
         public bool DrewNodes = false;
+        //todo replace by settings, on screen button and allow node selection
+        //todo add internal nodes visible button and setting
         public bool InternalNodesVisible = true;
+        public bool ShowExtendedInfo = true;
         private HashSet<Node> NodesHighlighted = new();
         private Cursor priorCursor = Cursors.Default;
 
+        private bool ReadOnly => !Settings.WDefault.EnableStoryExplorerEdit;
+
         private float Scaling = 0.3f;
-        private float DefaultEdgeWidth = 1.5f;
         private float StartPanOffsetX = 0f;
         private float StartPanOffsetY = 0f;
         private float OldMouseMovingPosX;
@@ -122,8 +131,14 @@ namespace Translator.Explorer
         {
             if (e != null)
             {
-                //e.Graphics.ExcludeClip(NodeInfoLabel.Bounds);
+                //set up values for this paint cycle
+                Xmin = 2 * -Nodesize;
+                Ymin = 2 * -Nodesize;
+                Xmax = App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
+                Ymax = App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
 
+                //disables and reduces unused features
+                e.Graphics.ToLowQuality();
                 e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
 
@@ -256,16 +271,17 @@ namespace Translator.Explorer
             Provider.EndPositionChange();
         }
 
-        //todo add setting to limit the number of edges drawn on screen, only count visible ones of course
         public void PaintAllNodes(Graphics g)
         {
+            if (!Provider.Frozen) return;
             DrewNodes = false;
             //go on displaying graph
             for (int i = 0; i < Provider.Nodes.Count; i++)
             {
                 DrawColouredNode(g, Provider.Nodes[i]);
             }
-            for (int i = 0; i < Provider.Nodes.Edges.Count; i++)
+            int maxEdges = Math.Min(Provider.Nodes.Edges.Count, Settings.WDefault.MaxEdgeCount);
+            for (int i = 0; i < maxEdges; i++)
             {
                 DrawEdge(g, Provider.Nodes.Edges[i].This, Provider.Nodes.Edges[i].Child);
             }
@@ -312,13 +328,237 @@ namespace Translator.Explorer
                 NodeInfoLabel.Text = header + seperator + info;
                 NodeInfoLabel.BringToFront();
 
+                if (ShowExtendedInfo) DisplayExtendedNodeInfo(NodeInfoLabel.ClientRectangle, node);
             }
             else //remove highlight display
             {
+                foreach (var box in ExtendedInfoComponents.Values)
+                {
+                    box.Visible = false;
+                }
                 NodeInfoLabel.Visible = false;
             }
 
             Explorer.Invalidate();
+        }
+
+        private void DisplayExtendedNodeInfo(Rectangle infoLabelRect, Node node)
+        {
+            foreach (var oldBox in ExtendedInfoComponents.Values)
+            {
+                oldBox.Visible = false;
+            }
+            if (node.Data == null) return;
+
+            //use components if we have them already
+            if (!ExtendedInfoComponents.TryGetValue(node.DataType, out var box))
+            {
+                //create new and cache, then display
+                box = GetDisplayComponentsForType(node.Data, node.DataType);
+                Explorer.Controls.Add(box);
+                ExtendedInfoComponents.Add(node.DataType, box);
+            }
+            else
+            {
+                FillDisplayComponents(box, node.Data);
+            }
+            box.Location = new Point(infoLabelRect.Left, infoLabelRect.Bottom + 5);
+            box.MaximumSize = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10);
+            box.Size = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), 10);
+            SetEditableStates(box);
+            box.BringToFront();
+            box.Visible = true;
+        }
+
+        private void SetEditableStates(GroupBox box)
+        {
+            foreach (var control in box.Controls[0].Controls)
+            {
+                if (control.GetType() == typeof(ComboBox) || control.GetType() == typeof(CheckBox)) ((Control)control).Enabled = !ReadOnly;
+                else if (control.GetType() == typeof(TextBox)) ((TextBox)control).ReadOnly = ReadOnly;
+                else if (control.GetType() == typeof(NumericUpDown)) ((NumericUpDown)control).ReadOnly = ReadOnly;
+            }
+        }
+
+        private void FillDisplayComponents(GroupBox box, object data)
+        {
+            foreach (var property in data.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                Type valueType = property.PropertyType;
+                object? value = property.GetValue(data);
+
+                if (valueType == typeof(string))
+                {
+                    var text = box.Controls[0].Controls.Find(property.Name + "TextBox", true);
+                    if (text.Length == 1) text[0].Text = (string?)value ?? string.Empty;
+                }
+                else if (valueType == typeof(int) || valueType == typeof(float))
+                {
+                    var text = box.Controls[0].Controls.Find(property.Name + "Numeric", true);
+                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(NumericUpDown))) ((NumericUpDown)text[0]).Value = Convert.ToDecimal(value);
+                }
+                else if (valueType == typeof(bool))
+                {
+                    var text = box.Controls[0].Controls.Find(property.Name + "CheckBox", true);
+                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(CheckBox))) ((CheckBox)text[0]).Checked = Convert.ToBoolean(value);
+                }
+                else if (valueType.GenericTypeArguments.Length > 0)
+                {
+                    if (valueType.GenericTypeArguments[0].IsEnum)
+                    {
+                        var text = box.Controls[0].Controls.Find(property.Name + "ComboBox", true);
+                        if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(ComboBox))) ((ComboBox)text[0]).SelectedItem = value?.ToString();
+                    }
+                }
+                else if (valueType.IsEnum)
+                {
+                    var text = box.Controls[0].Controls.Find(property.Name + "ComboBox", true);
+                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(ComboBox))) ((ComboBox)text[0]).SelectedItem = value?.ToString();
+                }
+            }
+        }
+
+        private GroupBox GetDisplayComponentsForType(object data, Type dataType)
+        {
+            var box = new GroupBox()
+            {
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Bottom,
+                AutoSize = true,
+                ForeColor = Utils.brightText,
+                Name = dataType.Name + "DisplayBox",
+                TabIndex = 10,
+                TabStop = false,
+                MaximumSize = new Size(Math.Clamp(NodeInfoLabel.ClientRectangle.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10),
+                Text = dataType.Name,
+                Visible = false
+            };
+            box.SuspendLayout();
+            var grid = new TableLayoutPanel()
+            {
+                Name = dataType.Name + "ValueTable",
+                GrowStyle = TableLayoutPanelGrowStyle.AddRows,
+                AutoSize = true,
+                TabStop = false,
+                CellBorderStyle = TableLayoutPanelCellBorderStyle.Single,
+                ColumnCount = 2,
+                Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                Dock = DockStyle.Fill,
+                AutoScroll = true,
+            };
+            box.Controls.Add(grid);
+
+            foreach (var property in dataType.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+            {
+                try
+                {
+                    Type valueType = property.PropertyType;
+                    object? value = property.GetValue(data);
+                    //string
+                    if (valueType == typeof(string))
+                    {
+                        var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                        grid.Controls.Add(label);
+                        var text = new TextBox() { Text = (string?)value ?? string.Empty, Name = property.Name + "TextBox", Multiline = true, WordWrap = true, Dock = DockStyle.Fill, ReadOnly = ReadOnly, };
+                        text.TextChanged += (object? sender, EventArgs e) => TextBoxSetValue(sender, property, data);
+                        grid.Controls.Add(text);
+                    }
+                    //numbers
+                    else if (valueType == typeof(int) || valueType == typeof(float))
+                    {
+                        var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                        grid.Controls.Add(label);
+                        var numeric = new NumericUpDown() { Minimum = int.MinValue, Maximum = int.MaxValue, Value = Convert.ToDecimal(value), Name = property.Name + "Numeric", ReadOnly = ReadOnly, InterceptArrowKeys = true };
+                        if (valueType == typeof(int)) numeric.ValueChanged += (object? sender, EventArgs e) => NumericIntSetValue(sender, property, data);
+                        else numeric.ValueChanged += (object? sender, EventArgs e) => NumericFloatSetValue(sender, property, data);
+                        grid.Controls.Add(numeric);
+                    }
+                    //bool
+                    else if (valueType == typeof(bool))
+                    {
+                        var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                        grid.Controls.Add(label);
+                        var checkBox = new CheckBox { Checked = Convert.ToBoolean(value), Name = property.Name + "Checkbox", Enabled = !ReadOnly };
+                        checkBox.CheckedChanged += (object? sender, EventArgs e) => CheckBoxSetValue(sender, property, data);
+                        grid.Controls.Add(checkBox);
+                    }
+                    //nullable enum
+                    else if (valueType.GenericTypeArguments.Length > 0)
+                    {
+                        if (valueType.GenericTypeArguments[0].IsEnum)
+                        {
+                            var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                            grid.Controls.Add(label);
+                            var dropDown = new ComboBox() { Name = property.Name + "ComboBox", DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, Anchor = AnchorStyles.Left };
+                            foreach (var enumItem in Enum.GetNames(valueType.GenericTypeArguments[0]))
+                            {
+                                dropDown.Items.Add(enumItem);
+                            }
+                            dropDown.SelectedItem = value?.ToString();
+                            dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownNullableSetValue(sender, property, data);
+                            dropDown.Enabled = !ReadOnly;
+                            grid.Controls.Add(dropDown);
+                        }
+                    }
+                    //enum
+                    else if (valueType.IsEnum)
+                    {
+                        var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
+                        grid.Controls.Add(label);
+                        var dropDown = new ComboBox() { Name = property.Name + "ComboBox", DropDownStyle = ComboBoxStyle.DropDownList, Dock = DockStyle.Fill, Anchor = AnchorStyles.Left };
+                        foreach (var enumItem in Enum.GetNames(valueType))
+                        {
+                            dropDown.Items.Add(enumItem);
+                        }
+                        dropDown.SelectedItem = value?.ToString();
+                        dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownSetValue(sender, property, data);
+                        dropDown.Enabled = !ReadOnly;
+                        grid.Controls.Add(dropDown);
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogManager.Log(e.Message);
+                }
+            }
+
+            box.ResumeLayout();
+            return box;
+        }
+
+        private void DropDownSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, Enum.Parse(property.PropertyType, ((ComboBox)sender).SelectedItem?.ToString()!));
+        }
+
+        private void DropDownNullableSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, Enum.Parse(property.PropertyType.GenericTypeArguments[0], ((ComboBox)sender).SelectedItem?.ToString() ?? string.Empty));
+        }
+
+        private void NumericIntSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, Convert.ToInt32(((NumericUpDown)sender).Value));
+        }
+
+        private void NumericFloatSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, (float)Convert.ToDouble(((NumericUpDown)sender).Value));
+        }
+
+        private void TextBoxSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, ((TextBoxBase)sender).Text);
+        }
+
+        private void CheckBoxSetValue(object? sender, PropertyInfo property, object data)
+        {
+            if (!ReadOnly && sender != null)
+                property.SetValue(data, Convert.ToBoolean(((CheckBox)sender).Checked));
         }
 
         private void DisplayNodeInfoHandler(object sender, ClickedNodeChangeArgs e)
@@ -336,13 +576,9 @@ namespace Translator.Explorer
             DrawColouredNode(g, node, ColorFromNode(node));
         }
 
-        private void DrawColouredNode(Graphics g, Node node, Color color)
+        private void DrawColouredNode(Graphics g, Node node, Color color, float scale = 1.0f)
         {
-            DrawColouredNode(g, node, color, 1f);
-        }
-
-        private void DrawColouredNode(Graphics g, Node node, Color color, float scale)
-        {
+            //todo replace this call by one in the beginning of the paint event, then use the cached vaslues in graph space for comparison. should save up to 200k method calls
             //dont draw node if it is too far away
             GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
             if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
@@ -368,13 +604,16 @@ namespace Translator.Explorer
 
         internal void DrawEdge(Graphics g, Node node1, Node node2, Color color, float width = 1.5f)
         {
-            if (InternalNodesVisible || node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion)
+            if (InternalNodesVisible || (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion))
             {
+                //todo same as with the points, get the bounds of the screens and then remove these calls here
+                //so we can do the bounds checking with cached values and dont need these method calls
                 //dont draw node if it is too far away
                 GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
                 GraphToScreen(node2.Position.X, node2.Position.Y, out float x2, out float y2);
 
                 //sort out lines that would be too small on screen and ones where none of the ends are visible
+                //todo swap around such that we just compare length difference to max edge length, no more sqrt
                 if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > 10 &&
                     ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
                     (x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin)))
@@ -382,7 +621,7 @@ namespace Translator.Explorer
                     //any is visible
                     ColorPen.Color = color;
                     ColorPen.Width = width;
-                    //todo adjust edge offsets to only touch the nodes in future?
+                    //todo adjust edge offsets to only touch the nodes in future (if only for small graphs so we dont compromise performance)?
                     g.DrawLine(
                         ColorPen,
                         node1.Position.X,
@@ -403,7 +642,7 @@ namespace Translator.Explorer
         internal void DrawEdges(Graphics g, NodeList nodes, Color color)
         {
             ColorPen.Color = color;
-            PointF[] points = PointPool.Rent(nodes.Count);
+            PointF[] points = PointPool.Rent(nodes.Edges.Count);
             for (int i = 0; i < nodes.Count; i++)
             {
                 points[i] = nodes[i].Position;
@@ -519,7 +758,7 @@ namespace Translator.Explorer
                 NodeType.Null => Settings.WDefault.DefaultNodeColor,
                 NodeType.Item => Settings.WDefault.ItemNodeColor,
                 NodeType.ItemGroup => Settings.WDefault.ItemGroupNodeColor,
-                NodeType.Action => Settings.WDefault.ActionNodeColor,
+                NodeType.ItemAction => Settings.WDefault.ActionNodeColor,
                 NodeType.Event => Settings.WDefault.EventNodeColor,
                 NodeType.Criterion => Settings.WDefault.CriterionNodeColor,
                 NodeType.Response => Settings.WDefault.ResponseNodeColor,
@@ -531,7 +770,7 @@ namespace Translator.Explorer
                 },
                 NodeType.Quest => Settings.WDefault.QuestNodeColor,
                 NodeType.Achievement => Settings.WDefault.AchievementNodeColor,
-                NodeType.Reaction => Settings.WDefault.ReactionNodeColor,
+                NodeType.EventTrigger => Settings.WDefault.ReactionNodeColor,
                 NodeType.BGC => Settings.WDefault.BGCNodeColor,
                 NodeType.Value => Settings.WDefault.ValueNodeColor,
                 NodeType.Door => Settings.WDefault.DoorNodeColor,

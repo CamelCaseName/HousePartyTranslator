@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Xml.Linq;
-
-namespace Translator.Explorer
+﻿namespace Translator.Explorer
 {
     //a kind of an adjacencylist, but with edges and a direct node access in parallel
     internal class NodeList : List<Node>
@@ -9,15 +6,14 @@ namespace Translator.Explorer
         //primarily used for rendering the edges, for graph stuff we use the actual multigraph in the nodes
         public readonly List<Edge> Edges = new();
 
-        //todo get this working reliably, sync up all child/parent additions
         public new void Add(Node node)
         {
+            base.Add(node);
             for (int c = 0; c < node.ChildNodes.Count; c++)
             {
-                var edge = new Edge(node, node.ChildNodes[c]);
+                var edge = new Edge(node, Count - 1, node.ChildNodes[c], IndexOf(node.ChildNodes[c]));
                 if (!Edges.Contains(edge)) Edges.Add(edge);
             }
-            base.Add(node);
         }
 
         public void AddChild(Node This, Node Child)
@@ -34,7 +30,7 @@ namespace Translator.Explorer
         {
             for (int i = 0; i < node.ChildNodes.Count; i++)
             {
-                Edges.Remove(new(node, node.ChildNodes[i]));
+                Edges.Remove(new(node, 0, node.ChildNodes[i], 0));
             }
             return base.Remove(node);
         }
@@ -47,7 +43,7 @@ namespace Translator.Explorer
             {
                 for (int c = 0; c < this[x].ChildNodes.Count; c++)
                 {
-                    var edge = new Edge(this[x], this[x].ChildNodes[c]);
+                    var edge = new Edge(this[x], x, this[x].ChildNodes[c], IndexOf(this[x].ChildNodes[c]));
                     if (!Edges.Contains(edge)) Edges.Add(edge);
                 }
             }
@@ -55,16 +51,10 @@ namespace Translator.Explorer
 
         public new void AddRange(IEnumerable<Node> list)
         {
-            if (list is IList<Node> realList)
+            base.AddRange(list);
+            if (list is NodeList realList)
             {
-                for (int i = 0; i < realList.Count; i++)
-                {
-                    for (int c = 0; c < realList[i].ChildNodes.Count; c++)
-                    {
-                        var edge = new Edge(realList[i], realList[i].ChildNodes[c]);
-                        if (!Edges.Contains(edge)) Edges.Add(edge);
-                    }
-                }
+                Edges.AddRange(realList.Edges);
             }
             else
             {
@@ -73,12 +63,11 @@ namespace Translator.Explorer
                 {
                     for (int i = 0; i < en.Current.ChildNodes.Count; i++)
                     {
-                        var edge = new Edge(en.Current, en.Current.ChildNodes[i]);
+                        var edge = new Edge(en.Current, IndexOf(en.Current), en.Current.ChildNodes[i], IndexOf(en.Current.ChildNodes[i]));
                         if (!Edges.Contains(edge)) Edges.Add(edge);
                     }
                 }
             }
-            base.AddRange(list);
         }
 
         public new void Clear()

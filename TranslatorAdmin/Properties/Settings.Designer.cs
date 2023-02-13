@@ -730,5 +730,29 @@ namespace TranslatorDesktopApp.Properties {
                 this["UseRainbowNodes"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool EnableStoryExplorerEdit {
+            get {
+                return ((bool)(this["EnableStoryExplorerEdit"]));
+            }
+            set {
+                this["EnableStoryExplorerEdit"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100000")]
+        public int ExplorerMaxEdgeCount {
+            get {
+                return ((int)(this["ExplorerMaxEdgeCount"]));
+            }
+            set {
+                this["ExplorerMaxEdgeCount"] = value;
+            }
+        }
     }
 }

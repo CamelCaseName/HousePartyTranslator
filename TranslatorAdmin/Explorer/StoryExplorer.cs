@@ -12,7 +12,7 @@ namespace Translator.Explorer.Window
 		public readonly string StoryName;
 		private bool SettingsVisible = false;
 		private bool inInitialization = true;
-		public const string Version = "1.2.0.0";
+		public const string Version = "1.2.2.0";
 		public const string Title = "StoryExplorer v" + Version;
 		private readonly CancellationToken token;
 		public NodeLayout? Layouter { get; private set; }
@@ -36,6 +36,9 @@ namespace Translator.Explorer.Window
 			Provider = new();
 			Context = new(Provider, IsStory, AutoLoad, FileName, StoryName);
 			engine = new(Provider, this, NodeInfoLabel);
+
+			//if user cancels during file selection
+			if (Context.FileName == "character" || Context.StoryName == "story") Close();
 
 			this.StoryName = Context.StoryName;
 			this.FileName = Context.FileName;
@@ -81,15 +84,10 @@ namespace Translator.Explorer.Window
 			Invalidate();
 		}
 
-		public void SaveNodes()
-		{
-			Layouter?.Stop();
-			_ = Context.SaveNodes(Provider.Nodes);
-		}
-
 		private void SaveNodes(object? sender, FormClosingEventArgs? e)
 		{
 			_ = Context.SaveNodes(Provider.Nodes);
+			//save story objecs here
 			Settings.Default.Save();
 		}
 
@@ -119,14 +117,6 @@ namespace Translator.Explorer.Window
 			NodeCalculations.Invalidate();
 		}
 
-		//todo more values and settings to change
-		//- base node colors?
-		//- single node colors
-		//- all other node colors
-		//- target fps?
-		//todo add more info, maybe as list of values, treelist under info text
-		//todo add internal nodes visible button and setting
-		//todo add setting to allow only a set number/type of nodes
 		private void IdealLength_ValueChanged(object sender, EventArgs e)
 		{
 			if (!inInitialization)

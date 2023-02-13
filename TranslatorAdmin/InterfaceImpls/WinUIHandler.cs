@@ -106,7 +106,7 @@ namespace Translator.InterfaceImpls
 			App.MainForm.Invalidate();
 		}
 		public void Update() => App.MainForm?.Update();
-		public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Update();
+		public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Invalidate();
 		public void UpdateResults() => SelectedTab.Lines.Invalidate();
 
 		public PopupResult WarningOk(string message, string title = "Warning") => Msg.WarningOk(message, title).ToPopupResult();
