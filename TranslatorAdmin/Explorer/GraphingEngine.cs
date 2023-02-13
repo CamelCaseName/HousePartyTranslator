@@ -1,5 +1,4 @@
-﻿using Microsoft.VisualBasic.Logging;
-using System.Buffers;
+﻿using System.Buffers;
 using System.Reflection;
 using System.Runtime.Versioning;
 using Translator.Core;
@@ -28,6 +27,7 @@ namespace Translator.Explorer
         private static float Ymax = 0;
         private static float Xmin = 0;
         private static float Ymin = 0;
+        private static float MaxEdgeLength = 0;
 
         private readonly StoryExplorer Explorer;
         private readonly Label NodeInfoLabel;
@@ -131,16 +131,17 @@ namespace Translator.Explorer
         {
             if (e != null)
             {
-                //set up values for this paint cycle
-                Xmin = 2 * -Nodesize;
-                Ymin = 2 * -Nodesize;
-                Xmax = App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
-                Ymax = App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
 
                 //disables and reduces unused features
                 e.Graphics.ToLowQuality();
                 e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
+
+                //todo fix offset/scaling calculation, somethings off
+                //set up values for this paint cycle
+                ScreenToGraph(2 * -Nodesize, 2 * -Nodesize, out Xmin, out Ymin);
+                ScreenToGraph(App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize, App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize, out Xmax, out Ymax);
+                MaxEdgeLength = 50 / Scaling;
 
                 PaintAllNodes(e.Graphics);
 
@@ -170,8 +171,8 @@ namespace Translator.Explorer
         /// <param name="screenY">y in the screens coords</param>
         public void GraphToScreen(float graphX, float graphY, out float screenX, out float screenY)
         {
-            screenX = (graphX - OffsetX) * Scaling;
-            screenY = (graphY - OffsetY) * Scaling;
+            screenX = (graphX - OffsetX) / Scaling;
+            screenY = (graphY - OffsetY) / Scaling;
         }
 
         public void HandleKeyBoard(object sender, KeyEventArgs e)
@@ -578,12 +579,10 @@ namespace Translator.Explorer
 
         private void DrawColouredNode(Graphics g, Node node, Color color, float scale = 1.0f)
         {
-            //todo replace this call by one in the beginning of the paint event, then use the cached vaslues in graph space for comparison. should save up to 200k method calls
             //dont draw node if it is too far away
-            GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
-            if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
+            if (node.Position.X <= Xmax && node.Position.Y <= Ymax && node.Position.X >= Xmin && node.Position.Y >= Ymin)
             {
-                if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+                if (InternalNodesVisible || (node.Type != NodeType.Event && node.Type != NodeType.Criterion))
                 {
                     ColorBrush.Color = color;
                     g.FillEllipse(
@@ -606,17 +605,16 @@ namespace Translator.Explorer
         {
             if (InternalNodesVisible || (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion))
             {
-                //todo same as with the points, get the bounds of the screens and then remove these calls here
-                //so we can do the bounds checking with cached values and dont need these method calls
+                float x1 = node1.Position.X;
+                float x2 = node1.Position.Y;
+                float y1 = node2.Position.X;
+                float y2 = node2.Position.Y;
                 //dont draw node if it is too far away
-                GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
-                GraphToScreen(node2.Position.X, node2.Position.Y, out float x2, out float y2);
-
                 //sort out lines that would be too small on screen and ones where none of the ends are visible
                 //todo swap around such that we just compare length difference to max edge length, no more sqrt
-                if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > 10 &&
+                if (MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2) > MathF.Pow(MaxEdgeLength, 2) &&
                     ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
-                    (x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin)))
+                    (x2 <= Xmax && y2 <= Ymax && x1 >= Xmin && y2 >= Ymin)))
                 {
                     //any is visible
                     ColorPen.Color = color;

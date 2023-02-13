@@ -233,13 +233,15 @@ internal sealed unsafe class OpenCLManager
         };
     }
 
-    private void ReleaseOpenCLResources()
+    public void ReleaseOpenCLResources()
     {
         try
         {
             if (_commandQueue != nint.Zero)
+            {
                 _cl.Finish(_commandQueue);
-            _cl.ReleaseCommandQueue(_commandQueue);
+                _cl.ReleaseCommandQueue(_commandQueue);
+            }
             if (_nbody_kernel != nint.Zero)
                 _cl.ReleaseKernel(_nbody_kernel);
             if (_nbody_program != nint.Zero)

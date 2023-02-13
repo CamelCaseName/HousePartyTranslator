@@ -15,7 +15,8 @@ namespace Translator.Explorer
         private NodeList InternalNodes = new();
         private readonly NodeList nodesA = new();
         private readonly NodeList nodesB = new();
-        public bool UsingListA = true;
+        private bool _usingListA = true;
+        public bool UsingListA { get { if (frozen) return _usingListA; else return true; } set { if (frozen) _usingListA = value; } }
         private bool frozen = false;
         private (int lockedNodeIndex, float movedNodePos_X, float movedNodePos_Y) _movingNodeInfo = (-1, 0.0f, 0.0f);
 
@@ -40,29 +41,51 @@ namespace Translator.Explorer
 
         private void CheckNodeListSizes()
         {
-            if (nodesA.Count != nodesB.Count)
+            if (frozen)
             {
-
-                lock (nodesB)
-                    lock (nodesA)
+                if (nodesA.Count != nodesB.Count)
+                {
+                    //only recalculate when necessary 
+                    if (nodesA.Edges.Count != nodesB.Edges.Count)
                     {
-                        MovingNodePositionOverridden = true;
-                        if (UsingListA)
-                        {
-                            //changed amount is in a
-                            nodesB.Clear();
-                            nodesB.AddRange(nodesA);
-                        }
-                        else
-                        {
-                            //changed amount is in b
-                            nodesA.Clear();
-                            nodesA.AddRange(nodesB);
-                        }
+                        lock (nodesB.Edges)
+                            lock (nodesA.Edges)
+                            {
+                                if (UsingListA)
+                                {
+                                    //changed edges is in a
+                                    nodesA.Sync();
+                                }
+                                else
+                                {
+                                    //changed edges is in b, will be copied later
+                                    nodesB.Sync();
+                                }
+                            }
                     }
 
-                //only recalculate when necessary 
-                if (nodesA.Edges.Count != nodesB.Edges.Count && frozen)
+                    lock (nodesB)
+                        lock (nodesA)
+                        {
+                            MovingNodePositionOverridden = true;
+                            if (UsingListA)
+                            {
+                                //changed amount is in a
+                                nodesB.Clear();
+                                nodesB.AddRange(nodesA);
+                            }
+                            else
+                            {
+                                //changed amount is in b
+                                nodesA.Clear();
+                                nodesA.AddRange(nodesB);
+                            }
+                        }
+
+
+                }
+
+                if (nodesA.Edges.Count != nodesB.Edges.Count)
                 {
                     lock (nodesB.Edges)
                         lock (nodesA.Edges)
@@ -70,42 +93,19 @@ namespace Translator.Explorer
                             if (UsingListA)
                             {
                                 //changed edges is in a
-                                nodesA.Sync();
+                                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
                                 nodesB.Edges.Clear();
                                 nodesB.Edges.AddRange(nodesA.Edges);
                             }
                             else
                             {
                                 //changed edges is in b
-                                nodesB.Sync();
+                                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
                                 nodesA.Edges.Clear();
                                 nodesA.Edges.AddRange(nodesB.Edges);
                             }
                         }
                 }
-
-            }
-
-            if (nodesA.Edges.Count != nodesB.Edges.Count && frozen)
-            {
-                lock (nodesB.Edges)
-                    lock (nodesA.Edges)
-                    {
-                        if (UsingListA)
-                        {
-                            //changed edges is in a
-                            if(Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
-                            nodesB.Edges.Clear();
-                            nodesB.Edges.AddRange(nodesA.Edges);
-                        }
-                        else
-                        {
-                            //changed edges is in b
-                            if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
-                            nodesA.Edges.Clear();
-                            nodesA.Edges.AddRange(nodesB.Edges);
-                        }
-                    }
             }
         }
 
@@ -115,7 +115,12 @@ namespace Translator.Explorer
 
         public void FreezeNodesAsInitial()
         {
-            if (!frozen) InternalNodes = Nodes; frozen = true;
+            if (!frozen)
+            {
+                frozen = true;
+                Nodes.Sync();//sync once before we save them finally
+                InternalNodes = Nodes;
+            }
         }
 
         internal void ConsumedNodePositionOverrideEnded()

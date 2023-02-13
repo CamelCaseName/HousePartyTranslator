@@ -52,10 +52,24 @@ namespace Translator.Explorer
             opencl = new(parent, provider);
             //its not worth it for less nodes
             if (Nodes.Count >= 1024)
-                opencl.SetUpOpenCL();
-            if (opencl.OpenCLDevicePresent && !opencl.Failed)
             {
-                LayoutCalculation = () => opencl.CalculateLayout(() => ++_framecount, cancellationToken.Token);
+                opencl.SetUpOpenCL();
+                if (opencl.OpenCLDevicePresent && !opencl.Failed)
+                {
+                    LayoutCalculation = () => opencl.CalculateLayout(() => ++_framecount, cancellationToken.Token);
+                }
+                else
+                {
+                    //clear memory
+                    opencl.ReleaseOpenCLResources();
+                    opencl = null!;
+                }
+            }
+            else
+            {
+                //clear memory
+                opencl.ReleaseOpenCLResources();
+                opencl = null!;
             }
         }
 
