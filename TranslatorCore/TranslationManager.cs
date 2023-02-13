@@ -244,7 +244,7 @@ namespace Translator.Core
 			{
 				int Index = TabUI.SelectedLineIndex;
 				//inverse checked state at the selected index
-				if (Index >= 0) TabUI.Lines.SetApprovalState(Index, TabUI.Lines.GetApprovalState(Index));
+				if (Index >= 0) TabUI.Lines.SetApprovalState(Index, TabUI.ApprovedButtonChecked);
 			}
 		}
 
