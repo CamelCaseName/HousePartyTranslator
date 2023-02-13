@@ -130,8 +130,13 @@ namespace Translator.Managers
 					InputHandler.SaveAndApproveAndSelectNewLine();
 					return true;
 
-				//ripple delete all chars to the right of the cursor to the next nonalphanumerical char
-				case (Keys.Control | Keys.Delete):
+                //save translation and approve
+                case (Keys.Shift | Keys.Enter):
+                    InputHandler.SaveAndApproveLine();
+                    return true;
+
+                //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
+                case (Keys.Control | Keys.Delete):
 					return App.MainForm.DeleteCharactersInText(false);
 
 				//ripple delete all alphanumerical chars to the left of the cursor

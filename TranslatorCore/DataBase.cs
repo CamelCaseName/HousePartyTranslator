@@ -571,10 +571,11 @@ namespace Translator.Core
 
             //try to reopen the connection if it is not open
             int tries = 0;
-            while (connection.State != System.Data.ConnectionState.Open && tries < 25)
+            while (connection.State != System.Data.ConnectionState.Open && tries < 10)
             {
                 ++tries;
                 if (connection.State == System.Data.ConnectionState.Open) return IsOnline = true;
+                connection.Open();
                 System.Threading.Thread.Sleep(100 * tries);
             }
             //if we are still offline
