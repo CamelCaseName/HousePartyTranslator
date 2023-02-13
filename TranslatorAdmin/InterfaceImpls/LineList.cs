@@ -69,7 +69,7 @@ namespace Translator.InterfaceImpls
 		{
 			try
 			{
-				return ((WinLineItem)Items[index]).IsApproved && GetItemChecked(index);
+				return ((WinLineItem)Items[index]).IsApproved;
 			}
 			catch
 			{
@@ -132,6 +132,7 @@ namespace Translator.InterfaceImpls
 		}
 
 		public void FreezeLayout() => SuspendLayout();
+
 		public void UnFreezeLayout() => ResumeLayout();
 	}
 }
