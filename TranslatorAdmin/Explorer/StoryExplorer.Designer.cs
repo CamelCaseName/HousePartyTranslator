@@ -38,12 +38,13 @@
             this.NodeCalculations = new System.Windows.Forms.Label();
             this.MenuShowButton = new System.Windows.Forms.Button();
             this.SettingsBox = new System.Windows.Forms.GroupBox();
+            this.MoveDownButton = new System.Windows.Forms.Button();
+            this.MoveUpButton = new System.Windows.Forms.Button();
+            this.ShowExtendedInfo = new System.Windows.Forms.CheckBox();
+            this.TextNodesOnly = new System.Windows.Forms.CheckBox();
             this.NodeSizeField = new System.Windows.Forms.NumericUpDown();
             this.NodeSize = new System.Windows.Forms.Label();
-            this.TextNodesOnly = new System.Windows.Forms.CheckBox();
-            this.ShowExtendedInfo = new System.Windows.Forms.CheckBox();
-            this.MoveUpButton = new System.Windows.Forms.Button();
-            this.MoveDownButton = new System.Windows.Forms.Button();
+            this.SaveStory = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ColoringDepth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.IdealLength)).BeginInit();
             this.SettingsBox.SuspendLayout();
@@ -144,11 +145,11 @@
             // MenuShowButton
             // 
             this.MenuShowButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.MenuShowButton.Location = new System.Drawing.Point(887, 12);
+            this.MenuShowButton.Location = new System.Drawing.Point(883, 12);
             this.MenuShowButton.Name = "MenuShowButton";
-            this.MenuShowButton.Size = new System.Drawing.Size(85, 23);
+            this.MenuShowButton.Size = new System.Drawing.Size(89, 23);
             this.MenuShowButton.TabIndex = 8;
-            this.MenuShowButton.Text = "Show Menu";
+            this.MenuShowButton.Text = "Show Settings";
             this.MenuShowButton.UseVisualStyleBackColor = true;
             this.MenuShowButton.Click += new System.EventHandler(this.MenuShowButton_Click);
             // 
@@ -169,11 +170,56 @@
             this.SettingsBox.ForeColor = System.Drawing.SystemColors.MenuBar;
             this.SettingsBox.Location = new System.Drawing.Point(802, 41);
             this.SettingsBox.Name = "SettingsBox";
-            this.SettingsBox.Size = new System.Drawing.Size(170, 223);
+            this.SettingsBox.Size = new System.Drawing.Size(170, 198);
             this.SettingsBox.TabIndex = 10;
             this.SettingsBox.TabStop = false;
             this.SettingsBox.Text = "Settings";
             this.SettingsBox.Visible = false;
+            // 
+            // MoveDownButton
+            // 
+            this.MoveDownButton.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.MoveDownButton.Location = new System.Drawing.Point(89, 153);
+            this.MoveDownButton.Name = "MoveDownButton";
+            this.MoveDownButton.Size = new System.Drawing.Size(75, 23);
+            this.MoveDownButton.TabIndex = 12;
+            this.MoveDownButton.Text = "Child node";
+            this.MoveDownButton.UseVisualStyleBackColor = true;
+            this.MoveDownButton.Click += new System.EventHandler(this.MoveDownButton_Click);
+            // 
+            // MoveUpButton
+            // 
+            this.MoveUpButton.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.MoveUpButton.ForeColor = System.Drawing.SystemColors.MenuText;
+            this.MoveUpButton.Location = new System.Drawing.Point(4, 153);
+            this.MoveUpButton.Name = "MoveUpButton";
+            this.MoveUpButton.Size = new System.Drawing.Size(79, 23);
+            this.MoveUpButton.TabIndex = 11;
+            this.MoveUpButton.Text = "Parent node";
+            this.MoveUpButton.UseVisualStyleBackColor = false;
+            this.MoveUpButton.Click += new System.EventHandler(this.MoveUpButton_Click);
+            // 
+            // ShowExtendedInfo
+            // 
+            this.ShowExtendedInfo.AutoSize = true;
+            this.ShowExtendedInfo.Location = new System.Drawing.Point(10, 128);
+            this.ShowExtendedInfo.Name = "ShowExtendedInfo";
+            this.ShowExtendedInfo.Size = new System.Drawing.Size(131, 19);
+            this.ShowExtendedInfo.TabIndex = 10;
+            this.ShowExtendedInfo.Text = "Show extended info";
+            this.ShowExtendedInfo.UseVisualStyleBackColor = true;
+            this.ShowExtendedInfo.CheckedChanged += new System.EventHandler(this.ShowExtendedInfo_CheckedChanged);
+            // 
+            // TextNodesOnly
+            // 
+            this.TextNodesOnly.AutoSize = true;
+            this.TextNodesOnly.Location = new System.Drawing.Point(10, 103);
+            this.TextNodesOnly.Name = "TextNodesOnly";
+            this.TextNodesOnly.Size = new System.Drawing.Size(108, 19);
+            this.TextNodesOnly.TabIndex = 9;
+            this.TextNodesOnly.Text = "Text nodes only";
+            this.TextNodesOnly.UseVisualStyleBackColor = true;
+            this.TextNodesOnly.CheckedChanged += new System.EventHandler(this.TextNodesOnly_CheckedChanged);
             // 
             // NodeSizeField
             // 
@@ -195,50 +241,14 @@
             this.NodeSize.TabIndex = 8;
             this.NodeSize.Text = "Node Size";
             // 
-            // TextNodesOnly
+            // SaveStory
             // 
-            this.TextNodesOnly.AutoSize = true;
-            this.TextNodesOnly.Location = new System.Drawing.Point(10, 103);
-            this.TextNodesOnly.Name = "TextNodesOnly";
-            this.TextNodesOnly.Size = new System.Drawing.Size(108, 19);
-            this.TextNodesOnly.TabIndex = 9;
-            this.TextNodesOnly.Text = "Text nodes only";
-            this.TextNodesOnly.UseVisualStyleBackColor = true;
-            this.TextNodesOnly.CheckedChanged += new System.EventHandler(this.TextNodesOnly_CheckedChanged);
-            // 
-            // ShowExtendedInfo
-            // 
-            this.ShowExtendedInfo.AutoSize = true;
-            this.ShowExtendedInfo.Location = new System.Drawing.Point(10, 128);
-            this.ShowExtendedInfo.Name = "ShowExtendedInfo";
-            this.ShowExtendedInfo.Size = new System.Drawing.Size(131, 19);
-            this.ShowExtendedInfo.TabIndex = 10;
-            this.ShowExtendedInfo.Text = "Show extended info";
-            this.ShowExtendedInfo.UseVisualStyleBackColor = true;
-            this.ShowExtendedInfo.CheckedChanged += new System.EventHandler(this.ShowExtendedInfo_CheckedChanged);
-            // 
-            // MoveUpButton
-            // 
-            this.MoveUpButton.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.MoveUpButton.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.MoveUpButton.Location = new System.Drawing.Point(4, 153);
-            this.MoveUpButton.Name = "MoveUpButton";
-            this.MoveUpButton.Size = new System.Drawing.Size(79, 23);
-            this.MoveUpButton.TabIndex = 11;
-            this.MoveUpButton.Text = "Parent node";
-            this.MoveUpButton.UseVisualStyleBackColor = false;
-            this.MoveUpButton.Click += new System.EventHandler(this.MoveUpButton_Click);
-            // 
-            // MoveDownButton
-            // 
-            this.MoveDownButton.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.MoveDownButton.Location = new System.Drawing.Point(89, 153);
-            this.MoveDownButton.Name = "MoveDownButton";
-            this.MoveDownButton.Size = new System.Drawing.Size(75, 23);
-            this.MoveDownButton.TabIndex = 12;
-            this.MoveDownButton.Text = "Child node";
-            this.MoveDownButton.UseVisualStyleBackColor = true;
-            this.MoveDownButton.Click += new System.EventHandler(this.MoveDownButton_Click);
+            this.SaveStory.Location = new System.Drawing.Point(802, 12);
+            this.SaveStory.Name = "SaveStory";
+            this.SaveStory.Size = new System.Drawing.Size(75, 23);
+            this.SaveStory.TabIndex = 11;
+            this.SaveStory.Text = "Save Story";
+            this.SaveStory.UseVisualStyleBackColor = true;
             // 
             // StoryExplorer
             // 
@@ -246,6 +256,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Desktop;
             this.ClientSize = new System.Drawing.Size(984, 561);
+            this.Controls.Add(this.SaveStory);
             this.Controls.Add(this.SettingsBox);
             this.Controls.Add(this.MenuShowButton);
             this.Controls.Add(this.NodeCalculations);
@@ -291,5 +302,6 @@
         private CheckBox TextNodesOnly;
         private Button MoveDownButton;
         private Button MoveUpButton;
+        private Button SaveStory;
     }
 }

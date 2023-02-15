@@ -5,6 +5,7 @@ namespace Translator.Explorer.Window
 	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
 	internal partial class StoryExplorer : Form
 	{
+		//todo add ui to select what node types to show, combolist with multiple selections allowed?
 		private readonly ContextProvider Context;
 		private readonly GraphingEngine engine;
 		private readonly string parentName;
@@ -140,7 +141,7 @@ namespace Translator.Explorer.Window
 		{
 			SettingsVisible = !SettingsVisible;
 			SettingsBox.Visible = SettingsVisible;
-			MenuShowButton.Text = SettingsVisible ? "Hide Menu" : "Show Menu";
+			MenuShowButton.Text = SettingsVisible ? "Hide Settings" : "Show Settings";
 			SettingsBox.Update();
 			MenuShowButton.Update();
 			SettingsBox.Invalidate();
