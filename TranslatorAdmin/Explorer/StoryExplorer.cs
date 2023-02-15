@@ -154,5 +154,25 @@ namespace Translator.Explorer.Window
 				StoryExplorerConstants.Nodesize = NodeSizeField.Value > 1 && NodeSizeField.Value < NodeSizeField.Maximum ? (int)NodeSizeField.Value : StoryExplorerConstants.Nodesize;
 			}
 		}
-	}
+
+        private void TextNodesOnly_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ShowExtendedInfo_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MoveUpButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void MoveDownButton_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
 }

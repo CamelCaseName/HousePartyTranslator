@@ -50,8 +50,6 @@ namespace Translator.Explorer
         private bool IsCtrlPressed = false;
         private bool MovingANode = false;
         public bool DrewNodes = false;
-        //todo replace by settings, on screen button and allow node selection
-        //todo add internal nodes visible button and setting
         public bool InternalNodesVisible = true;
         public bool ShowExtendedInfo = true;
         private HashSet<Node> NodesHighlighted = new();
@@ -131,7 +129,6 @@ namespace Translator.Explorer
         {
             if (e != null)
             {
-
                 //disables and reduces unused features
                 e.Graphics.ToLowQuality();
                 e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
@@ -611,7 +608,6 @@ namespace Translator.Explorer
                 float y2 = node2.Position.Y;
                 //dont draw node if it is too far away
                 //sort out lines that would be too small on screen and ones where none of the ends are visible
-                //todo swap around such that we just compare length difference to max edge length, no more sqrt
                 if (MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2) > MathF.Pow(MaxEdgeLength, 2) &&
                     ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
                     (x2 <= Xmax && y2 <= Ymax && x1 >= Xmin && y2 >= Ymin)))
