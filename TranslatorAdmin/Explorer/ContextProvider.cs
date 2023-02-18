@@ -219,7 +219,7 @@ namespace Translator.Explorer
                 SetStartingPositions(Nodes);
 
                 //save nodes
-                return SaveNodes(Nodes, NodeFilePath);
+                return SaveNodes(provider.GetPositions(), NodeFilePath);
             }
             return Nodes.Count > 0;
         }
@@ -700,8 +700,6 @@ namespace Translator.Explorer
                     gameEvent = (GameEvent)nodes[i].Data!;
                     switch (gameEvent.EventType)
                     {
-                        case GameEvents.CharacterFunction:
-                            break;
                         case GameEvents.Clothing:
                             break;
                         case GameEvents.Combat:
@@ -712,23 +710,9 @@ namespace Translator.Explorer
                             break;
                         case GameEvents.Dialogue:
                             break;
-                        case GameEvents.DisableNPC:
-                            break;
-                        case GameEvents.DisplayGameMessage:
-                            break;
                         case GameEvents.Door:
                             break;
-                        case GameEvents.Emote:
-                            break;
-                        case GameEvents.EnableNPC:
-                            break;
-                        case GameEvents.EnableNPCAsync:
-                            break;
                         case GameEvents.EventTriggers:
-                            break;
-                        case GameEvents.FadeIn:
-                            break;
-                        case GameEvents.FadeOut:
                             break;
                         case GameEvents.IKReach:
                             break;
@@ -737,8 +721,6 @@ namespace Translator.Explorer
                         case GameEvents.Item:
                             break;
                         case GameEvents.ItemFromItemGroup:
-                            break;
-                        case GameEvents.LookAt:
                             break;
                         case GameEvents.Personality:
                             break;
@@ -758,11 +740,7 @@ namespace Translator.Explorer
                             break;
                         case GameEvents.ResetReactionCooldown:
                             break;
-                        case GameEvents.Roaming:
-                            break;
                         case GameEvents.SendEvent:
-                            break;
-                        case GameEvents.SetPlayerPref:
                             break;
                         case GameEvents.Social:
                             break;

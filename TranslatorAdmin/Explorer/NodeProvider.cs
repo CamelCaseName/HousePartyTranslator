@@ -157,5 +157,10 @@ namespace Translator.Explorer
         {
             return InternalNodes.GetPositions();
         }
+
+        internal void SetFilter(NodeType[] allowedTypes)
+        {
+
+        }
     }
 }
