@@ -896,5 +896,15 @@ namespace Translator.Explorer
             OffsetX += BeforeZoomMouseX - AfterZoomMouseX;
             OffsetY += BeforeZoomMouseY - AfterZoomMouseY;
         }
+
+        public void TrySelectNextUp()
+        {
+            if (HighlightedNode.ParentNodes.Count > 0) HighlightedNode = HighlightedNode.ParentNodes[0];
+        }
+
+        public void TrySelectNextDown()
+        {
+            if (HighlightedNode.ChildNodes.Count > 0) HighlightedNode = HighlightedNode.ChildNodes[0];
+        }
     }
 }

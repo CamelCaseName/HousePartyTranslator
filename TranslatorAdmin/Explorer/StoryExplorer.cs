@@ -169,12 +169,12 @@ namespace Translator.Explorer.Window
 
         private void MoveUpButton_Click(object sender, EventArgs e)
         {
-
+            Grapher.TrySelectNextUp();
         }
 
         private void MoveDownButton_Click(object sender, EventArgs e)
         {
-
+            Grapher.TrySelectNextDown();
         }
     }
 }
