@@ -88,7 +88,7 @@ namespace Translator.Explorer.Window
 
         private void SaveNodes(object? sender, FormClosingEventArgs? e)
         {
-            _ = Context.SaveNodes(Provider.Nodes);
+            _ = Context.SaveNodes(Provider.GetPositions());
             //save story objecs here
             Settings.Default.Save();
         }

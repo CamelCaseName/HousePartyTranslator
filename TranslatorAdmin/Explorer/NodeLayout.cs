@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Runtime.Versioning;
-using System.Windows.Forms.VisualStyles;
 using Translator.Core;
 using Translator.Explorer.OpenCL;
 

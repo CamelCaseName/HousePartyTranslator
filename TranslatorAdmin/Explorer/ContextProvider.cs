@@ -151,7 +151,7 @@ namespace Translator.Explorer
                 SetStartingPositions(Nodes);
 
                 //save nodes
-                return SaveNodes(Nodes, NodeFilePath);
+                return SaveNodes(provider.GetPositions(), NodeFilePath);
             }
             else
             {
@@ -232,12 +232,12 @@ namespace Translator.Explorer
             oldPositions.AddRange(list);
         }
 
-        public bool SaveNodes(NodeList nodes, string path = "")
+        public bool SaveNodes(List<PointF> nodePositions, string path = "")
         {
             if (path == string.Empty) path = NodeFilePath;
-            if (nodes.Count > 0)
+            if (nodePositions.Count > 0)
             {
-                File.WriteAllText(path, JsonConvert.SerializeObject(nodes.GetPositions()));
+                File.WriteAllText(path, JsonConvert.SerializeObject(nodePositions));
                 return true;
             }
             else return false;

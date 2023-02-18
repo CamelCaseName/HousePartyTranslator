@@ -152,5 +152,10 @@ namespace Translator.Explorer
         {
             MovingNodePositionOverrideEnded = true;
         }
+
+        internal List<PointF> GetPositions()
+        {
+            return InternalNodes.GetPositions();
+        }
     }
 }
