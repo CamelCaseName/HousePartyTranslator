@@ -51,7 +51,7 @@ namespace Translator.Explorer
         private bool MovingANode = false;
         public bool DrewNodes = false;
         public bool InternalNodesVisible = true;
-        public bool ShowExtendedInfo = true;
+        public bool ShowExtendedInfo { get => Settings.WDefault.ShowExtendedExplorerInfo; set => Settings.WDefault.ShowExtendedExplorerInfo = value; }
         private HashSet<Node> NodesHighlighted = new();
         private Cursor priorCursor = Cursors.Default;
 

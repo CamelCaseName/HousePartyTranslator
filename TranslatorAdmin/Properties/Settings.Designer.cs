@@ -754,5 +754,17 @@ namespace TranslatorDesktopApp.Properties {
                 this["ExplorerMaxEdgeCount"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowExtendedExplorerInfo {
+            get {
+                return ((bool)(this["ShowExtendedExplorerInfo"]));
+            }
+            set {
+                this["ShowExtendedExplorerInfo"] = value;
+            }
+        }
     }
 }
