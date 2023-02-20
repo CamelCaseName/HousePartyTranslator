@@ -414,18 +414,26 @@ namespace Translator.Core
 			ActiveTranslationManager.ReplaceSingle(UI.ReplaceBarText ?? "");
 		}
 
-		public static void OpenNewFile()
+		public static void OpenFile()
 		{
 			//load new file
 			ActiveTranslationManager.LoadFileIntoProgram();
 			//update tab name
 			SelectedTab.Text = ActiveTranslationManager.FileName;
-		}
+        }
 
-		/// <summary>
-		/// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
-		/// </summary>
-		public static void ShowAutoSaveDialog()
+        public static void OpenNewFiles()
+        {
+			foreach (var path in Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFilesFromSystem())
+            {
+				OpenInNewTab(path);
+            }
+        }
+
+        /// <summary>
+        /// Shows a save all changes dialogue (intended to be used before quit) if settings allow.
+        /// </summary>
+        public static void ShowAutoSaveDialog()
 		{
 			if (Settings.Default.AskForSaveDialog && translationManagers.Count > 0)
 			{

@@ -66,10 +66,11 @@ namespace Translator.Core.Helpers
 					Settings.Default.TemplatePath.Length > 0 && !isTranslation ?
 						Settings.Default.TemplatePath :
 						@"C:\Users\%USER%\Documents",
-                /*filename*/preselectedFile ?? ""
+                /*filename*/preselectedFile ?? "",
 			});
 			if (selectFileDialog == null) { return string.Empty; }
 
+			selectFileDialog.MultiSelect = false;
 			if (selectFileDialog.ShowDialog() == PopupResult.OK)
 			{
 				if (isTranslation)
@@ -83,12 +84,46 @@ namespace Translator.Core.Helpers
 			}
 			return string.Empty;
 		}
+        /// <summary>
+        /// Opens a select file dialogue and returns the selected file as a path.
+        /// </summary>
+        /// <returns>The path to the selected file.</returns>
+        public static string[] SelectFilesFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "")
+        {
+            if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
 
-		/// <summary>
-		/// Opens a select folder dialogue to find the template folder and returns the selected folder as a path.
-		/// </summary>
-		/// <returns>The folder path selected.</returns>
-		public static string SelectTemplateFolderFromSystem()
+            var selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(IFileDialog), new object?[]
+            {
+                /*title*/Title?.Length > 0 ? Title : "Choose files for translation",
+                /*filter*/"Text files (*.txt)|*.txt",
+                /*initialDirectory*/Settings.Default.TranslationPath.Length > 0 && isTranslation ?
+                    Settings.Default.TranslationPath :
+                    Settings.Default.TemplatePath.Length > 0 && !isTranslation ?
+                        Settings.Default.TemplatePath :
+                        @"C:\Users\%USER%\Documents",
+                /*filename*/preselectedFile ?? ""
+            });
+            if (selectFileDialog == null) { return Array.Empty<string>(); }
+
+            if (selectFileDialog.ShowDialog() == PopupResult.OK)
+            {
+                if (isTranslation)
+                    Settings.Default.TranslationPath = Path.GetDirectoryName(selectFileDialog.SelectedPath) ?? Settings.Default.TranslationPath;
+                else
+                    Settings.Default.TemplatePath = Path.GetDirectoryName(selectFileDialog.SelectedPath) ?? Settings.Default.TemplatePath;
+
+                Settings.Default.Save();
+
+                return selectFileDialog.SelectedPaths;
+            }
+            return Array.Empty<string>();
+        }
+
+        /// <summary>
+        /// Opens a select folder dialogue to find the template folder and returns the selected folder as a path.
+        /// </summary>
+        /// <returns>The folder path selected.</returns>
+        public static string SelectTemplateFolderFromSystem()
 		{
 			return SelectFolderFromSystem("Please select the 'TEMPLATE' folder, for Help see the discord");
 		}

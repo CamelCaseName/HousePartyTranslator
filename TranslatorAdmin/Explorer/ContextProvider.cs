@@ -738,8 +738,6 @@ namespace Translator.Explorer
                             break;
                         case GameEvents.RandomizeIntValue:
                             break;
-                        case GameEvents.ResetReactionCooldown:
-                            break;
                         case GameEvents.SendEvent:
                             break;
                         case GameEvents.Social:
@@ -748,10 +746,6 @@ namespace Translator.Explorer
                             break;
                         case GameEvents.TriggerBGC:
                             break;
-                        case GameEvents.Turn:
-                            break;
-                        case GameEvents.TurnInstantly:
-                            break;
                         case GameEvents.UnlockAchievement:
                             break;
                         case GameEvents.WalkTo:
@@ -759,8 +753,6 @@ namespace Translator.Explorer
                         case GameEvents.WarpOverTime:
                             break;
                         case GameEvents.WarpTo:
-                            break;
-                        case GameEvents.None:
                             break;
                         default:
                             break;
