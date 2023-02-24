@@ -158,6 +158,11 @@ namespace Translator.Explorer
             return InternalNodes.GetPositions();
         }
 
+        internal List<PointF> GetVolatilePositions()
+        {
+            return Nodes.GetPositions();
+        }
+
         internal void SetFilter(NodeType[] allowedTypes)
         {
 

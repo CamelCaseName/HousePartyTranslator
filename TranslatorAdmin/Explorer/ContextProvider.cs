@@ -151,7 +151,7 @@ namespace Translator.Explorer
                 SetStartingPositions(Nodes);
 
                 //save nodes
-                return SaveNodes(provider.GetPositions(), NodeFilePath);
+                return SaveNodes(provider.GetVolatilePositions(), NodeFilePath);
             }
             else
             {
@@ -219,7 +219,7 @@ namespace Translator.Explorer
                 SetStartingPositions(Nodes);
 
                 //save nodes
-                return SaveNodes(provider.GetPositions(), NodeFilePath);
+                return SaveNodes(provider.GetVolatilePositions(), NodeFilePath);
             }
             return Nodes.Count > 0;
         }
