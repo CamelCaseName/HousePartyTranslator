@@ -90,9 +90,10 @@ namespace Translator.UICompatibilityLayer
 
 		bool IsTranslationBoxFocused { get; }
 		bool IsCommentBoxFocused { get; }
-		int ProgressValue { get; set; }
+		int SingleProgressValue { get; set; }
+        int AllProgressValue { get; set; }
 
-		void SelectLineItem(int index);
+        void SelectLineItem(int index);
 
 		void SelectLineItem(TLineItem item);
 		void UpdateLines();

@@ -345,8 +345,9 @@ namespace Translator.InterfaceImpls
 
 		public bool IsCommentBoxFocused => CommentTextBox.Focused;
 
-		public int ProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
-		public string TranslationBoxText { get => TranslationTextBox.Text; set => TranslationTextBox.Text = value; }
+		public int SingleProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
+        public int AllProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
+        public string TranslationBoxText { get => TranslationTextBox.Text; set => TranslationTextBox.Text = value; }
 
 		public string SelectedTranslationBoxText => TranslationTextBox.SelectedText;
 

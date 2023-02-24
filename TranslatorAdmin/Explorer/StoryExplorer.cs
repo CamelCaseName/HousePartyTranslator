@@ -5,7 +5,6 @@ namespace Translator.Explorer.Window
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     internal partial class StoryExplorer : Form
     {
-        //todo add ui to select what node types to show, combolist with multiple selections allowed?
         private readonly ContextProvider Context;
         private readonly GraphingEngine engine;
         private readonly string parentName;
@@ -175,6 +174,11 @@ namespace Translator.Explorer.Window
         private void MoveDownButton_Click(object sender, EventArgs e)
         {
             Grapher.TrySelectNextDown();
+        }
+
+        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }
