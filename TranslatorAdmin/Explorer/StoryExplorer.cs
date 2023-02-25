@@ -68,7 +68,9 @@ namespace Translator.Explorer.Window
                 var typeButton = new ToggleButton()
                 {
                     Text = Enum.GetName(type),
-                    AutoSize = true
+                    AutoSize = true,
+                    ForeColor = Utils.darkText,
+                    BackColor = Color.FromKnownColor(KnownColor.ButtonFace)
                 };
                 typeButton.Click += (object? sender, EventArgs e) =>
                 {
