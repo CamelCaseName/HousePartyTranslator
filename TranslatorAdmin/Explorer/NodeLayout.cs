@@ -30,7 +30,7 @@ namespace Translator.Explorer
         private readonly Action LayoutCalculation;
         private int _framecount = 0;
         public int FrameCount => _framecount;
-        public bool Finished => FrameCount > (long)Nodes.Count * (long)Nodes.Count && !RunOverride && Started;
+        public bool Finished => FrameCount > Nodes.Count * (long)Nodes.Count && !RunOverride && Started;
         public bool Started { get; private set; } = false;
         public NodeList Nodes
         {
