@@ -163,7 +163,17 @@ namespace Translator.Explorer
             return Nodes.GetPositions();
         }
 
-        internal void SetFilter(NodeType[] allowedTypes)
+        internal void SetFilter(NodeType[] disabledTypes)
+        {
+
+        }
+
+        internal void AddFilter(NodeType disabledType)
+        {
+
+        }
+
+        internal void RemoveFilter(NodeType allowedType)
         {
 
         }

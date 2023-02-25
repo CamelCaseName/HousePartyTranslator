@@ -134,7 +134,7 @@ namespace Translator.Explorer
                 e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
 
-                //todo fix offset/scaling calculation, somethings off
+                //todo fix offset/scaling calculation for culling, broken rn
                 //set up values for this paint cycle
                 ScreenToGraph(2 * -Nodesize, 2 * -Nodesize, out Xmin, out Ymin);
                 ScreenToGraph(App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize, App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize, out Xmax, out Ymax);

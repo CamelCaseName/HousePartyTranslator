@@ -1,4 +1,6 @@
-﻿using TranslatorDesktopApp.Properties;
+﻿using Translator.Core.Helpers;
+using Translator.Helpers;
+using TranslatorDesktopApp.Properties;
 
 namespace Translator.Explorer.Window
 {
@@ -12,7 +14,7 @@ namespace Translator.Explorer.Window
         public readonly string StoryName;
         private bool SettingsVisible = false;
         private bool inInitialization = true;
-        public const string Version = "1.2.2.0";
+        public const string Version = "1.2.3.0";
         public const string Title = "StoryExplorer v" + Version;
         private readonly CancellationToken token;
         public NodeLayout? Layouter { get; private set; }
@@ -22,7 +24,9 @@ namespace Translator.Explorer.Window
 
         public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
         {
+            //todo add initializer where it adds a button for each node type to the layout panel
             InitializeComponent();
+            InitializeTypeFilterButtons();
             token = cancellation;
 
             //indicate ownership
@@ -53,6 +57,26 @@ namespace Translator.Explorer.Window
             ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Settings.Default.ColoringDepth;
             IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Settings.Default.IdealLength);
             NodeSizeField.Value = StoryExplorerConstants.Nodesize;
+        }
+
+        private void InitializeTypeFilterButtons()
+        {
+            var values = Enum.GetValues<NodeType>();
+            for (int i = 0; i < values.Length; i++)
+            {
+                var type = values[i];
+                var typeButton = new ToggleButton()
+                {
+                    Text = Enum.GetName(type),
+                    AutoSize = true
+                };
+                typeButton.Click += (object? sender, EventArgs e) =>
+                {
+                    if (typeButton.IsChecked) Provider.AddFilter(type);
+                    else Provider.RemoveFilter(type);
+                };
+                NodeTypeButtonsLayout.Controls.Add(typeButton);
+            }
         }
 
         public void Initialize(bool singleFile)
