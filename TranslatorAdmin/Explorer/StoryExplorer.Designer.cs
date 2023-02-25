@@ -38,6 +38,9 @@
             this.NodeCalculations = new System.Windows.Forms.Label();
             this.MenuShowButton = new System.Windows.Forms.Button();
             this.SettingsBox = new System.Windows.Forms.GroupBox();
+            this.NodeFilterLabel = new System.Windows.Forms.Label();
+            this.NodeTypeFilterScrollPanel = new System.Windows.Forms.TableLayoutPanel();
+            this.NodeTypeButtonsLayout = new System.Windows.Forms.FlowLayoutPanel();
             this.MoveDownButton = new System.Windows.Forms.Button();
             this.MoveUpButton = new System.Windows.Forms.Button();
             this.ShowExtendedInfo = new System.Windows.Forms.CheckBox();
@@ -45,10 +48,10 @@
             this.NodeSizeField = new System.Windows.Forms.NumericUpDown();
             this.NodeSize = new System.Windows.Forms.Label();
             this.SaveStory = new System.Windows.Forms.Button();
-            this.NodeTypeButtonsLayout = new System.Windows.Forms.FlowLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.ColoringDepth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.IdealLength)).BeginInit();
             this.SettingsBox.SuspendLayout();
+            this.NodeTypeFilterScrollPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NodeSizeField)).BeginInit();
             this.SuspendLayout();
             // 
@@ -69,7 +72,7 @@
             // 
             this.ColoringDepth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.ColoringDepth.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.ColoringDepth.Location = new System.Drawing.Point(95, 13);
+            this.ColoringDepth.Location = new System.Drawing.Point(105, 12);
             this.ColoringDepth.Name = "ColoringDepth";
             this.ColoringDepth.Size = new System.Drawing.Size(75, 23);
             this.ColoringDepth.TabIndex = 1;
@@ -78,7 +81,7 @@
             // IdealLength
             // 
             this.IdealLength.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.IdealLength.Location = new System.Drawing.Point(95, 42);
+            this.IdealLength.Location = new System.Drawing.Point(105, 41);
             this.IdealLength.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -92,7 +95,7 @@
             // Start
             // 
             this.Start.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.Start.Location = new System.Drawing.Point(816, 526);
+            this.Start.Location = new System.Drawing.Point(794, 529);
             this.Start.Name = "Start";
             this.Start.Size = new System.Drawing.Size(75, 23);
             this.Start.TabIndex = 3;
@@ -103,7 +106,7 @@
             // Stop
             // 
             this.Stop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.Stop.Location = new System.Drawing.Point(897, 526);
+            this.Stop.Location = new System.Drawing.Point(883, 529);
             this.Stop.Name = "Stop";
             this.Stop.Size = new System.Drawing.Size(75, 23);
             this.Stop.TabIndex = 4;
@@ -116,7 +119,7 @@
             this.ColorDepth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.ColorDepth.AutoSize = true;
             this.ColorDepth.ForeColor = System.Drawing.SystemColors.MenuBar;
-            this.ColorDepth.Location = new System.Drawing.Point(12, 16);
+            this.ColorDepth.Location = new System.Drawing.Point(12, 14);
             this.ColorDepth.Name = "ColorDepth";
             this.ColorDepth.Size = new System.Drawing.Size(71, 15);
             this.ColorDepth.TabIndex = 5;
@@ -127,7 +130,7 @@
             this.EdgeLength.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.EdgeLength.AutoSize = true;
             this.EdgeLength.ForeColor = System.Drawing.SystemColors.MenuBar;
-            this.EdgeLength.Location = new System.Drawing.Point(12, 44);
+            this.EdgeLength.Location = new System.Drawing.Point(12, 43);
             this.EdgeLength.Name = "EdgeLength";
             this.EdgeLength.Size = new System.Drawing.Size(73, 15);
             this.EdgeLength.TabIndex = 6;
@@ -156,9 +159,10 @@
             // 
             // SettingsBox
             // 
-            this.SettingsBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.SettingsBox.AutoSize = true;
-            this.SettingsBox.Controls.Add(this.NodeTypeButtonsLayout);
+            this.SettingsBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.SettingsBox.Controls.Add(this.NodeFilterLabel);
+            this.SettingsBox.Controls.Add(this.NodeTypeFilterScrollPanel);
             this.SettingsBox.Controls.Add(this.MoveDownButton);
             this.SettingsBox.Controls.Add(this.MoveUpButton);
             this.SettingsBox.Controls.Add(this.ShowExtendedInfo);
@@ -170,18 +174,54 @@
             this.SettingsBox.Controls.Add(this.ColorDepth);
             this.SettingsBox.Controls.Add(this.EdgeLength);
             this.SettingsBox.ForeColor = System.Drawing.SystemColors.MenuBar;
-            this.SettingsBox.Location = new System.Drawing.Point(796, 41);
+            this.SettingsBox.Location = new System.Drawing.Point(778, 41);
             this.SettingsBox.Name = "SettingsBox";
-            this.SettingsBox.Size = new System.Drawing.Size(176, 305);
+            this.SettingsBox.Size = new System.Drawing.Size(194, 482);
             this.SettingsBox.TabIndex = 10;
             this.SettingsBox.TabStop = false;
             this.SettingsBox.Text = "Settings";
             this.SettingsBox.Visible = false;
             // 
+            // NodeFilterLabel
+            // 
+            this.NodeFilterLabel.AutoSize = true;
+            this.NodeFilterLabel.Location = new System.Drawing.Point(6, 185);
+            this.NodeFilterLabel.Name = "NodeFilterLabel";
+            this.NodeFilterLabel.Size = new System.Drawing.Size(95, 15);
+            this.NodeFilterLabel.TabIndex = 14;
+            this.NodeFilterLabel.Text = "Node Type Filter:";
+            // 
+            // NodeTypeFilterScrollPanel
+            // 
+            this.NodeTypeFilterScrollPanel.AutoScroll = true;
+            this.NodeTypeFilterScrollPanel.AutoSize = true;
+            this.NodeTypeFilterScrollPanel.BackColor = System.Drawing.Color.Transparent;
+            this.NodeTypeFilterScrollPanel.ColumnCount = 1;
+            this.NodeTypeFilterScrollPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.NodeTypeFilterScrollPanel.Controls.Add(this.NodeTypeButtonsLayout, 0, 0);
+            this.NodeTypeFilterScrollPanel.Location = new System.Drawing.Point(3, 200);
+            this.NodeTypeFilterScrollPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.NodeTypeFilterScrollPanel.Name = "NodeTypeFilterScrollPanel";
+            this.NodeTypeFilterScrollPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this.NodeTypeFilterScrollPanel.Size = new System.Drawing.Size(188, 276);
+            this.NodeTypeFilterScrollPanel.TabIndex = 13;
+            // 
+            // NodeTypeButtonsLayout
+            // 
+            this.NodeTypeButtonsLayout.AutoSize = true;
+            this.NodeTypeButtonsLayout.BackColor = System.Drawing.Color.Transparent;
+            this.NodeTypeButtonsLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.NodeTypeButtonsLayout.Location = new System.Drawing.Point(0, 0);
+            this.NodeTypeButtonsLayout.Margin = new System.Windows.Forms.Padding(0);
+            this.NodeTypeButtonsLayout.MaximumSize = new System.Drawing.Size(188, 0);
+            this.NodeTypeButtonsLayout.Name = "NodeTypeButtonsLayout";
+            this.NodeTypeButtonsLayout.Size = new System.Drawing.Size(188, 276);
+            this.NodeTypeButtonsLayout.TabIndex = 12;
+            // 
             // MoveDownButton
             // 
             this.MoveDownButton.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.MoveDownButton.Location = new System.Drawing.Point(91, 153);
+            this.MoveDownButton.Location = new System.Drawing.Point(105, 153);
             this.MoveDownButton.Name = "MoveDownButton";
             this.MoveDownButton.Size = new System.Drawing.Size(75, 23);
             this.MoveDownButton.TabIndex = 12;
@@ -193,7 +233,7 @@
             // 
             this.MoveUpButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.MoveUpButton.ForeColor = System.Drawing.SystemColors.MenuText;
-            this.MoveUpButton.Location = new System.Drawing.Point(6, 153);
+            this.MoveUpButton.Location = new System.Drawing.Point(12, 153);
             this.MoveUpButton.Name = "MoveUpButton";
             this.MoveUpButton.Size = new System.Drawing.Size(79, 23);
             this.MoveUpButton.TabIndex = 11;
@@ -226,7 +266,7 @@
             // NodeSizeField
             // 
             this.NodeSizeField.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.NodeSizeField.Location = new System.Drawing.Point(95, 71);
+            this.NodeSizeField.Location = new System.Drawing.Point(105, 70);
             this.NodeSizeField.Name = "NodeSizeField";
             this.NodeSizeField.Size = new System.Drawing.Size(75, 23);
             this.NodeSizeField.TabIndex = 7;
@@ -237,7 +277,7 @@
             this.NodeSize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.NodeSize.AutoSize = true;
             this.NodeSize.ForeColor = System.Drawing.SystemColors.MenuBar;
-            this.NodeSize.Location = new System.Drawing.Point(12, 73);
+            this.NodeSize.Location = new System.Drawing.Point(12, 72);
             this.NodeSize.Name = "NodeSize";
             this.NodeSize.Size = new System.Drawing.Size(59, 15);
             this.NodeSize.TabIndex = 8;
@@ -245,21 +285,13 @@
             // 
             // SaveStory
             // 
+            this.SaveStory.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.SaveStory.Location = new System.Drawing.Point(802, 12);
             this.SaveStory.Name = "SaveStory";
             this.SaveStory.Size = new System.Drawing.Size(75, 23);
             this.SaveStory.TabIndex = 11;
             this.SaveStory.Text = "Save Story";
             this.SaveStory.UseVisualStyleBackColor = true;
-            // 
-            // NodeTypeButtonsLayout
-            // 
-            this.NodeTypeButtonsLayout.AutoSize = true;
-            this.NodeTypeButtonsLayout.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.NodeTypeButtonsLayout.Location = new System.Drawing.Point(3, 183);
-            this.NodeTypeButtonsLayout.Name = "NodeTypeButtonsLayout";
-            this.NodeTypeButtonsLayout.Size = new System.Drawing.Size(167, 100);
-            this.NodeTypeButtonsLayout.TabIndex = 12;
             // 
             // StoryExplorer
             // 
@@ -289,6 +321,8 @@
             ((System.ComponentModel.ISupportInitialize)(this.IdealLength)).EndInit();
             this.SettingsBox.ResumeLayout(false);
             this.SettingsBox.PerformLayout();
+            this.NodeTypeFilterScrollPanel.ResumeLayout(false);
+            this.NodeTypeFilterScrollPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.NodeSizeField)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -315,5 +349,7 @@
         private Button MoveUpButton;
         private Button SaveStory;
         private FlowLayoutPanel NodeTypeButtonsLayout;
+        private TableLayoutPanel NodeTypeFilterScrollPanel;
+        private Label NodeFilterLabel;
     }
 }
