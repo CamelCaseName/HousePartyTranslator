@@ -151,6 +151,22 @@ namespace Translator.Explorer
             }
         }
 
+        public void Center()
+        {
+            if (highlightedNode != Node.NullNode)
+                CenterOnNode(highlightedNode);
+            else if (infoNode != Node.NullNode)
+                CenterOnNode(infoNode);
+        }
+
+        public void CenterOnNode(Node node)
+        {
+            //todo fix all the sclaing/offset calculations, detexct root issue with more logging/debuggin
+            //also wrongly calculated
+            OffsetX = -(Xmax / 2 + node.Position.X);
+            OffsetY = -(Ymax / 2 + node.Position.Y);
+        }
+
         private void DrawMovingNodeMarker(Graphics g)
         {
             if (movingNode != Node.NullNode)

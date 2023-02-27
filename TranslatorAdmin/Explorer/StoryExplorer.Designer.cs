@@ -48,6 +48,7 @@
             this.NodeSizeField = new System.Windows.Forms.NumericUpDown();
             this.NodeSize = new System.Windows.Forms.Label();
             this.SaveStory = new System.Windows.Forms.Button();
+            this.CenterButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.ColoringDepth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.IdealLength)).BeginInit();
             this.SettingsBox.SuspendLayout();
@@ -293,12 +294,24 @@
             this.SaveStory.Text = "Save Story";
             this.SaveStory.UseVisualStyleBackColor = true;
             // 
+            // CenterButton
+            // 
+            this.CenterButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.CenterButton.Location = new System.Drawing.Point(721, 12);
+            this.CenterButton.Name = "CenterButton";
+            this.CenterButton.Size = new System.Drawing.Size(75, 23);
+            this.CenterButton.TabIndex = 12;
+            this.CenterButton.Text = "Center";
+            this.CenterButton.UseVisualStyleBackColor = true;
+            this.CenterButton.Click += new System.EventHandler(this.CenterButton_Click);
+            // 
             // StoryExplorer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Desktop;
             this.ClientSize = new System.Drawing.Size(984, 561);
+            this.Controls.Add(this.CenterButton);
             this.Controls.Add(this.SaveStory);
             this.Controls.Add(this.SettingsBox);
             this.Controls.Add(this.MenuShowButton);
@@ -351,5 +364,6 @@
         private FlowLayoutPanel NodeTypeButtonsLayout;
         private TableLayoutPanel NodeTypeFilterScrollPanel;
         private Label NodeFilterLabel;
+        private Button CenterButton;
     }
 }

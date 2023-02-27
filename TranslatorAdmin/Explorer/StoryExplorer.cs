@@ -108,6 +108,7 @@ namespace Translator.Explorer.Window
             Provider.FreezeNodesAsInitial();
             Layouter = new(Provider, this, token);
             Layouter.Start();
+            Grapher.Center();
             Invalidate();
         }
 
@@ -205,6 +206,11 @@ namespace Translator.Explorer.Window
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void CenterButton_Click(object sender, EventArgs e)
+        {
+            Grapher.Center();
         }
     }
 }
