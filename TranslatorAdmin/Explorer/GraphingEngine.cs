@@ -131,14 +131,13 @@ namespace Translator.Explorer
             {
                 //disables and reduces unused features
                 e.Graphics.ToLowQuality();
-                e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
+                e.Graphics.TranslateTransform(-OffsetX, -OffsetY);
 
-                //todo fix offset/scaling calculation for culling, broken rn
                 //set up values for this paint cycle
                 ScreenToGraph(2 * -Nodesize, 2 * -Nodesize, out Xmin, out Ymin);
                 ScreenToGraph(App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize, App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize, out Xmax, out Ymax);
-                MaxEdgeLength = 50 / Scaling;
+                MaxEdgeLength = 15 / Scaling; // that one works
 
                 PaintAllNodes(e.Graphics);
 
@@ -161,7 +160,7 @@ namespace Translator.Explorer
 
         public void CenterOnNode(Node node)
         {
-            //todo fix all the sclaing/offset calculations, detexct root issue with more logging/debuggin
+            //todo fix scaling issue in conversion, something is wonky there
             //also wrongly calculated
             OffsetX = -(Xmax / 2 + node.Position.X);
             OffsetY = -(Ymax / 2 + node.Position.Y);
@@ -311,6 +310,7 @@ namespace Translator.Explorer
         /// <param name="graphY">The returned y coord in graph coordinate space</param>
         public void ScreenToGraph(float screenX, float screenY, out float graphX, out float graphY)
         {
+            //todo fix the calculation here, issue is in here somewhere for the culling bounds calculations
             graphX = screenX / Scaling + OffsetX;
             graphY = screenY / Scaling + OffsetY;
         }
@@ -624,7 +624,7 @@ namespace Translator.Explorer
                 float y2 = node2.Position.Y;
                 //dont draw node if it is too far away
                 //sort out lines that would be too small on screen and ones where none of the ends are visible
-                if (MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2) > MathF.Pow(MaxEdgeLength, 2) &&
+                if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > MaxEdgeLength &&
                     ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
                     (x2 <= Xmax && y2 <= Ymax && x1 >= Xmin && y2 >= Ymin)))
                 {
