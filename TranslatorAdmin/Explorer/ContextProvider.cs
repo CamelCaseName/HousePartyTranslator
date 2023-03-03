@@ -673,7 +673,7 @@ namespace Translator.Explorer
                         }
                         case CompareTypes.Value:
                         {
-                            result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
+                            result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key && FileName == criterion.Character);
                             if (result != null)
                             {
                                 if (!result.Text.Contains(GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value))
@@ -684,7 +684,7 @@ namespace Translator.Explorer
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
-                                var value = new Node(criterion.Key!, NodeType.Value, criterion.Character + " value " + criterion.Key + ", referenced values: " + GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value + ", ");
+                                var value = new Node(criterion.Key!, NodeType.Value, criterion.Character + " value " + criterion.Key + ", referenced values: " + GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value + ", ") { FileName = criterion.Character ?? string.Empty };
                                 Values.Add(value);
                                 nodes[i].AddParentNode(value);
                             }
@@ -701,59 +701,148 @@ namespace Translator.Explorer
                     switch (gameEvent.EventType)
                     {
                         case GameEvents.Clothing:
+                        {
+                            result = Clothing.Find((Node n) => n.Type == NodeType.Clothing && n.FileName == gameEvent.Character && n.ID == gameEvent.Option + gameEvent.Value);
+                            if (result != null)
+                            {
+                                nodes[i].AddChildNode(result);
+                                break;
+                            }
+                            else
+                            {
+                                //create and add value node, hasnt been referenced yet
+                                var clothing = new Node(gameEvent.Option + gameEvent.Value, NodeType.Clothing, gameEvent.Character + "'s  " + ((Clothes)int.Parse(gameEvent.Value!)).ToString() + " in set " + (gameEvent.Option == 0 ? "any" : (gameEvent.Option - 1).ToString())) { FileName = gameEvent.Character! };
+                                Clothing.Add(clothing);
+                                nodes[i].AddChildNode(clothing);
+                            }
                             break;
-                        case GameEvents.Combat:
-                            break;
+                        }
                         case GameEvents.CombineValue:
+                        {
+                            result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
+                            if (result != null)
+                            {
+                                nodes[i].AddChildNode(result);
+                                break;
+                            }
+                            else
+                            {
+                                //create and add value node, hasnt been referenced yet
+                                var value = new Node(gameEvent.Key!, NodeType.Value, gameEvent.Character + " value " + gameEvent.Key) { FileName = gameEvent.Character ?? string.Empty };
+                                Values.Add(value);
+                                nodes[i].AddChildNode(value);
+                            }
+                            result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Value && FileName == gameEvent.Character2);
+                            if (result != null)
+                            {
+                                nodes[i].AddParentNode(result);
+                                break;
+                            }
+                            else
+                            {
+                                //create and add value node, hasnt been referenced yet
+                                var value = new Node(gameEvent.Value!, NodeType.Value, gameEvent.Character2 + " value " + gameEvent.Value) { FileName = gameEvent.Character2 ?? string.Empty };
+                                Values.Add(value);
+                                nodes[i].AddParentNode(value);
+                            }
                             break;
+                        }
                         case GameEvents.CutScene:
+                        {
                             break;
+                        }
                         case GameEvents.Dialogue:
+                        {
                             break;
+                        }
                         case GameEvents.Door:
+                        {
                             break;
+                        }
                         case GameEvents.EventTriggers:
+                        {
                             break;
+                        }
                         case GameEvents.IKReach:
+                        {
                             break;
+                        }
                         case GameEvents.Intimacy:
+                        {
                             break;
+                        }
                         case GameEvents.Item:
+                        {
                             break;
+                        }
                         case GameEvents.ItemFromItemGroup:
+                        {
                             break;
+                        }
                         case GameEvents.Personality:
+                        {
                             break;
+                        }
                         case GameEvents.Property:
+                        {
                             break;
+                        }
                         case GameEvents.MatchValue:
+                        {
                             break;
+                        }
                         case GameEvents.ModifyValue:
+                        {
                             break;
+                        }
                         case GameEvents.Player:
+                        {
                             break;
+                        }
                         case GameEvents.Pose:
+                        {
                             break;
+                        }
                         case GameEvents.Quest:
+                        {
                             break;
+                        }
                         case GameEvents.RandomizeIntValue:
+                        {
                             break;
+                        }
                         case GameEvents.SendEvent:
+                        {
                             break;
+                        }
                         case GameEvents.Social:
+                        {
                             break;
+                        }
                         case GameEvents.State:
+                        {
                             break;
+                        }
                         case GameEvents.TriggerBGC:
+                        {
                             break;
+                        }
                         case GameEvents.UnlockAchievement:
+                        {
                             break;
+                        }
                         case GameEvents.WalkTo:
+                        {
                             break;
+                        }
                         case GameEvents.WarpOverTime:
+                        {
                             break;
+                        }
                         case GameEvents.WarpTo:
+                        {
                             break;
+                        }
                         default:
                             break;
                     }
