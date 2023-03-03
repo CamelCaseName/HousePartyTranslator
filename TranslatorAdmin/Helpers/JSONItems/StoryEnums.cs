@@ -489,5 +489,31 @@ namespace Translator.Explorer.JSON
             AllSetsAreFalse,
             AnySetIsFalse
         }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum DoorAction { 
+            Open,
+            Close,
+            Lock,
+            Unlock,
+            OpenSlowly,
+            CloseSlowly
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum DialogueAction
+        {
+            Trigger,
+            Overhear,
+            SetStartDialogue,
+            TriggerStartDialogue
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum CutsceneAction
+        {
+            PlayScene,
+            PlayRandomSceneFromLocation,
+            PlayRandomSceneFromCurrentLocation,
+            EndScene,
+            EndAnySceneWithPlayer
+        }
     }
 }

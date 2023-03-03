@@ -715,24 +715,12 @@ namespace Translator.Explorer
                                 Clothing.Add(clothing);
                                 nodes[i].AddChildNode(clothing);
                             }
+                            nodes[i].Text = gameEvent.Character + " " + ((Clothes)int.Parse(gameEvent.Value!)).ToString()+" in set " + (gameEvent.Option == 0 ? "any" : (gameEvent.Option - 1).ToString())+ " "+ (gameEvent.Option2 == 0 ? "Change" : "Assign default set") + " " + (gameEvent.Option3 == 0 ? "Off" : "On");
                             break;
                         }
                         case GameEvents.CombineValue:
                         {
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
-                            if (result != null)
-                            {
-                                nodes[i].AddChildNode(result);
-                                break;
-                            }
-                            else
-                            {
-                                //create and add value node, hasnt been referenced yet
-                                var value = new Node(gameEvent.Key!, NodeType.Value, gameEvent.Character + " value " + gameEvent.Key) { FileName = gameEvent.Character ?? string.Empty };
-                                Values.Add(value);
-                                nodes[i].AddChildNode(value);
-                            }
-                            result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Value && FileName == gameEvent.Character2);
                             if (result != null)
                             {
                                 nodes[i].AddParentNode(result);
@@ -741,22 +729,68 @@ namespace Translator.Explorer
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
-                                var value = new Node(gameEvent.Value!, NodeType.Value, gameEvent.Character2 + " value " + gameEvent.Value) { FileName = gameEvent.Character2 ?? string.Empty };
+                                var value = new Node(gameEvent.Key!, NodeType.Value, gameEvent.Character + " value " + gameEvent.Key) { FileName = gameEvent.Character ?? string.Empty };
                                 Values.Add(value);
                                 nodes[i].AddParentNode(value);
                             }
+                            result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Value && FileName == gameEvent.Character2);
+                            if (result != null)
+                            {
+                                nodes[i].AddChildNode(result);
+                                break;
+                            }
+                            else
+                            {
+                                //create and add value node, hasnt been referenced yet
+                                var value = new Node(gameEvent.Value!, NodeType.Value, gameEvent.Character2 + " value " + gameEvent.Value) { FileName = gameEvent.Character2 ?? string.Empty };
+                                Values.Add(value);
+                                nodes[i].AddChildNode(value);
+                            }
+                            nodes[i].Text = "Add " + gameEvent.Character + ":" + gameEvent.Key + " to " + gameEvent.Character2 + ":" + gameEvent.Value;
                             break;
                         }
                         case GameEvents.CutScene:
                         {
+                            result = Values.Find((Node n) => n.Type == NodeType.Cutscene && n.ID == gameEvent.Key);
+                            if (result != null)
+                            {
+                                nodes[i].AddChildNode(result);
+                            }
+                            else
+                            {
+                                CompareValuesToCheckAgain.Add(nodes[i]);
+                            }
+                            nodes[i].Text = ((CutsceneAction)gameEvent.Option).ToString() + " " + gameEvent.Key + " with " + gameEvent.Character + ", " + gameEvent.Value + ", " + gameEvent.Value2 + ", " + gameEvent.Character2 + " (location: " + gameEvent.Option2 + ")";
                             break;
                         }
                         case GameEvents.Dialogue:
                         {
+                            result = nodes.Find((Node n) => n.Type == NodeType.Dialogue && n.FileName == gameEvent.Character && n.ID == gameEvent.Value);
+                            if (result != null)
+                            {
+                                //dialogue influences this criteria
+                                nodes[i].AddChildNode(result);
+                                break;
+                            }
+                            nodes[i].Text = ((DialogueAction)gameEvent.Option).ToString() + " " + gameEvent.Character + "'s Dialogue " + gameEvent.Value;
                             break;
                         }
                         case GameEvents.Door:
                         {
+                            result = Doors.Find((Node n) => n.Type == NodeType.Door && n.ID == gameEvent.Key);
+                            if (result != null)
+                            {
+                                nodes[i].AddChildNode(result);
+                                break;
+                            }
+                            else
+                            {
+                                //create and add item node, hasnt been referenced yet
+                                var door = new Node(gameEvent.Key!, NodeType.Door, gameEvent.Key!);
+                                Doors.Add(door);
+                                nodes[i].AddChildNode(door);
+                            }
+                            nodes[i].Text = ((DoorAction)gameEvent.Option).ToString() + " " + gameEvent.Key!.ToString();
                             break;
                         }
                         case GameEvents.EventTriggers:
