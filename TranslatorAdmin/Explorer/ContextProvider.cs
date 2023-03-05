@@ -404,7 +404,6 @@ namespace Translator.Explorer
                 //doesnt matter that we add some in here, we only care about the ones added so far
                 for (int i = 0; i < count; i++)
                 {
-                    if (i == 6842) Debugger.Break();
                     //link all useful criteria and add influencing values as parents
                     if (nodes[i].Type == NodeType.Criterion && nodes[i].Data != null)
                     {
@@ -467,10 +466,6 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddParentNode(result);
-                                }
-                                else
-                                {
-                                    CompareValuesToCheckAgain.Add(nodes[i]);
                                 }
                                 break;
                             }
@@ -762,10 +757,6 @@ namespace Translator.Explorer
                                 {
                                     nodes[i].AddChildNode(result);
                                 }
-                                else
-                                {
-                                    CompareValuesToCheckAgain.Add(nodes[i]);
-                                }
                                 nodes[i].Text = ((CutsceneAction)gameEvent.Option).ToString() + " " + gameEvent.Key + " with " + gameEvent.Character + ", " + gameEvent.Value + ", " + gameEvent.Value2 + ", " + gameEvent.Character2 + " (location: " + gameEvent.Option2 + ")";
                                 break;
                             }
@@ -925,16 +916,19 @@ namespace Translator.Explorer
             Node? result;
             foreach (var node in CompareValuesToCheckAgain)
             {
-                Criterion criterion = (Criterion)node.Data!;
-                result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
-                if (result != null)
+                if (node.DataType == typeof(Criterion))
                 {
-                    node.AddParentNode(result);
-                }
-                result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key2);
-                if (result != null)
-                {
-                    node.AddParentNode(result);
+                    Criterion criterion = (Criterion)node.Data!;
+                    result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
+                    if (result != null)
+                    {
+                        node.AddParentNode(result);
+                    }
+                    result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key2);
+                    if (result != null)
+                    {
+                        node.AddParentNode(result);
+                    }
                 }
             }
         }

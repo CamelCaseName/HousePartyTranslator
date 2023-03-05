@@ -168,14 +168,13 @@ namespace Translator.Explorer
 
         public void PropagateGender(Gender gender)
         {
-            //Todo, access violation in here wtf
+            Gender = gender;
             if (ChildNodes.Count > 0)
             {
                 for (int i = 0; i < ChildNodes.Count; i++)
                 {
                     if (ChildNodes[i].Gender != gender) ChildNodes[i].PropagateGender(gender);
                 }
-                Gender = gender;
             }
         }
 
