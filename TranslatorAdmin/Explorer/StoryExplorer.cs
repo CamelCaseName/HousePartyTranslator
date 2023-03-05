@@ -203,11 +203,6 @@ namespace Translator.Explorer.Window
             Grapher.TrySelectNextDown();
         }
 
-        private void listView1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void CenterButton_Click(object sender, EventArgs e)
         {
             Grapher.Center();
