@@ -707,7 +707,6 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddChildNode(result);
-                                    break;
                                 }
                                 else
                                 {
@@ -725,7 +724,6 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddParentNode(result);
-                                    break;
                                 }
                                 else
                                 {
@@ -738,7 +736,6 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddChildNode(result);
-                                    break;
                                 }
                                 else
                                 {
@@ -767,7 +764,6 @@ namespace Translator.Explorer
                                 {
                                     //dialogue influences this criteria
                                     nodes[i].AddChildNode(result);
-                                    break;
                                 }
                                 nodes[i].Text = ((DialogueAction)gameEvent.Option).ToString() + " " + gameEvent.Character + "'s Dialogue " + gameEvent.Value;
                                 break;
@@ -778,7 +774,6 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddChildNode(result);
-                                    break;
                                 }
                                 else
                                 {
@@ -794,28 +789,66 @@ namespace Translator.Explorer
                             {
                                 break;
                             }
-                            case GameEvents.IKReach:
-                            {
-                                break;
-                            }
-                            case GameEvents.Intimacy:
-                            {
-                                break;
-                            }
                             case GameEvents.Item:
                             {
+                                result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == gameEvent.Key);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add item node, hasnt been referenced yet
+                                    var item = new Node(gameEvent.Key!, NodeType.Item, gameEvent.Key!);
+                                    nodes.Add(item);
+                                    nodes[i].AddChildNode(item);
+                                }
+                                nodes[i].Text = gameEvent.Key!.ToString() + " " + ((ItemEventAction)gameEvent.Option).ToString() + " (" + gameEvent.Value + ") " + " (" + (gameEvent.Option2 == 1 ? "True" : "False") + ") ";
                                 break;
                             }
                             case GameEvents.ItemFromItemGroup:
                             {
+                                result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == gameEvent.Key);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                    break;
+                                }
+                                else
+                                {
+                                    //create and add item node, hasnt been referenced yet
+                                    var item = new Node(gameEvent.Key!, NodeType.Item, gameEvent.Key!);
+                                    nodes.Add(item);
+                                    nodes[i].AddChildNode(item);
+                                }
+                                nodes[i].Text = gameEvent.Key!.ToString() + " " + ((ItemGroupAction)gameEvent.Option).ToString() + " (" + gameEvent.Value + ") " + " (" + (gameEvent.Option2 == 1 ? "True" : "False") + ") ";
                                 break;
                             }
                             case GameEvents.Personality:
                             {
+                                result = nodes.Find((Node n) => n.Type == NodeType.Personality && n.FileName == gameEvent.Character && n.ID == ((PersonalityTraits)gameEvent.Option).ToString());
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                nodes[i].Text = gameEvent.Character + " " + ((PersonalityTraits)gameEvent.Option).ToString() + " " + ((PersonalityAction)gameEvent.Option2).ToString() + " " + gameEvent.Value;
                                 break;
                             }
                             case GameEvents.Property:
                             {
+                                result = Properties.Find((Node n) => n.Type == NodeType.Property && n.ID == gameEvent.Character + "Property" + gameEvent.Value);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add property node, hasnt been referenced yet
+                                    var property = new Node(gameEvent.Character + "Property" + gameEvent.Value, NodeType.Property, gameEvent.Character + Enum.Parse<InteractiveProperties>(gameEvent.Value!).ToString()) { FileName = gameEvent.Character! };
+                                    Properties.Add(property);
+                                    nodes[i].AddChildNode(property);
+                                }
+                                nodes[i].Text = gameEvent.Character + " " + Enum.Parse<InteractiveProperties>(gameEvent.Value!).ToString() + " " + (gameEvent.Option2 == 1 ? "True" : "False");
                                 break;
                             }
                             case GameEvents.MatchValue:
@@ -881,7 +914,7 @@ namespace Translator.Explorer
                 }
             }
 
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 LogManager.Log(ex.Message);
             }

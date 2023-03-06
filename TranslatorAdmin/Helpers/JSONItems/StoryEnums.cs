@@ -515,5 +515,38 @@ namespace Translator.Explorer.JSON
             EndScene,
             EndAnySceneWithPlayer
         }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ItemEventAction
+        {
+            SetEnabled,
+            Mount,
+            Rename,
+            ItemFunction,
+            TriggerUseWithMenu,
+            WarpItemTo,
+            ApplyForceTowards,
+            ApplyHotSpots,
+            SetInventoryIcon
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ItemGroupAction
+        {
+            SetEnabled,
+            RemoveFromPlayerInventory,
+            Mount,
+            Rename,
+            ItemFunction,
+            TriggerUseWithMenu,
+            WarpItemTo,
+            ApplyForceTowards,
+            AddToPlayerInventory,
+            GrabFromPlayerInventory
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum PersonalityAction
+        {
+            Equals,
+            Add
+        }
     }
 }
