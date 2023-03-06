@@ -149,6 +149,9 @@ namespace Translator.Explorer
                     Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
                 }
 
+                //even link for single file, should be able to link most suff so it stays readable
+                InterlinkNodes(Nodes);
+
                 SetStartingPositions(Nodes);
 
                 //save nodes
@@ -467,6 +470,13 @@ namespace Translator.Explorer
                                 {
                                     nodes[i].AddParentNode(result);
                                 }
+                                else
+                                {
+                                    //add cutscene
+                                    var item = new Node(criterion.Key!, NodeType.Cutscene, criterion.Key!);
+                                    nodes.Add(item);
+                                    nodes[i].AddParentNode(item);
+                                }
                                 break;
                             }
                             case CompareTypes.Dialogue:
@@ -477,6 +487,13 @@ namespace Translator.Explorer
                                     //dialogue influences this criteria
                                     nodes[i].AddParentNode(result);
                                     break;
+                                }
+                                else
+                                {
+                                    //create and add new personality, should be from someone else
+                                    var item = new Node(criterion.Value!, NodeType.Dialogue, criterion.Character + " dialoge " + criterion.Value) { FileName = criterion.Character! };
+                                    nodes.Add(item);
+                                    nodes[i].AddParentNode(item);
                                 }
                                 break;
                             }
@@ -572,6 +589,13 @@ namespace Translator.Explorer
                                 {
                                     nodes[i].AddParentNode(result);
                                     break;
+                                }
+                                else
+                                {
+                                    //create and add new personality, should be from someone else
+                                    var item = new Node(((PersonalityTraits)int.Parse(criterion.Key!)).ToString(), NodeType.Personality, criterion.Character + "'s Personality " + ((PersonalityTraits)int.Parse(criterion.Key!)).ToString()) { FileName = criterion.Character! };
+                                    nodes.Add(item);
+                                    nodes[i].AddParentNode(item);
                                 }
                                 break;
                             }
@@ -754,6 +778,13 @@ namespace Translator.Explorer
                                 {
                                     nodes[i].AddChildNode(result);
                                 }
+                                else
+                                {
+                                    //add cutscene
+                                    var item = new Node(gameEvent.Key!, NodeType.Cutscene, gameEvent.Key!);
+                                    nodes.Add(item);
+                                    nodes[i].AddParentNode(item);
+                                }
                                 nodes[i].Text = ((CutsceneAction)gameEvent.Option).ToString() + " " + gameEvent.Key + " with " + gameEvent.Character + ", " + gameEvent.Value + ", " + gameEvent.Value2 + ", " + gameEvent.Character2 + " (location: " + gameEvent.Option2 + ")";
                                 break;
                             }
@@ -764,6 +795,13 @@ namespace Translator.Explorer
                                 {
                                     //dialogue influences this criteria
                                     nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add new personality, should be from someone else
+                                    var item = new Node(gameEvent.Value!, NodeType.Dialogue, gameEvent.Character + " dialoge " + gameEvent.Value) { FileName = gameEvent.Character! };
+                                    nodes.Add(item);
+                                    nodes[i].AddParentNode(item);
                                 }
                                 nodes[i].Text = ((DialogueAction)gameEvent.Option).ToString() + " " + gameEvent.Character + "'s Dialogue " + gameEvent.Value;
                                 break;
@@ -830,6 +868,13 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add new personality, should be from someone else
+                                    var item = new Node(((PersonalityTraits)gameEvent.Option).ToString(), NodeType.Personality, gameEvent.Character + "'s Personality " + ((PersonalityTraits)gameEvent.Option).ToString()) { FileName = gameEvent.Character! };
+                                    nodes.Add(item);
+                                    nodes[i].AddParentNode(item);
                                 }
                                 nodes[i].Text = gameEvent.Character + " " + ((PersonalityTraits)gameEvent.Option).ToString() + " " + ((PersonalityAction)gameEvent.Option2).ToString() + " " + gameEvent.Value;
                                 break;
