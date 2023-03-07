@@ -747,26 +747,26 @@ namespace Translator.Explorer
                                 result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
                                 if (result != null)
                                 {
-                                    nodes[i].AddParentNode(result);
+                                    nodes[i].AddChildNode(result);
                                 }
                                 else
                                 {
                                     //create and add value node, hasnt been referenced yet
                                     var value = new Node(gameEvent.Key!, NodeType.Value, gameEvent.Character + " value " + gameEvent.Key) { FileName = gameEvent.Character ?? string.Empty };
                                     Values.Add(value);
-                                    nodes[i].AddParentNode(value);
+                                    nodes[i].AddChildNode(value);
                                 }
                                 result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Value && FileName == gameEvent.Character2);
                                 if (result != null)
                                 {
-                                    nodes[i].AddChildNode(result);
+                                    nodes[i].AddParentNode(result);
                                 }
                                 else
                                 {
                                     //create and add value node, hasnt been referenced yet
                                     var value = new Node(gameEvent.Value!, NodeType.Value, gameEvent.Character2 + " value " + gameEvent.Value) { FileName = gameEvent.Character2 ?? string.Empty };
                                     Values.Add(value);
-                                    nodes[i].AddChildNode(value);
+                                    nodes[i].AddParentNode(value);
                                 }
                                 nodes[i].Text = "Add " + gameEvent.Character + ":" + gameEvent.Key + " to " + gameEvent.Character2 + ":" + gameEvent.Value;
                                 break;
@@ -874,7 +874,7 @@ namespace Translator.Explorer
                                     //create and add new personality, should be from someone else
                                     var item = new Node(((PersonalityTraits)gameEvent.Option).ToString(), NodeType.Personality, gameEvent.Character + "'s Personality " + ((PersonalityTraits)gameEvent.Option).ToString()) { FileName = gameEvent.Character! };
                                     nodes.Add(item);
-                                    nodes[i].AddParentNode(item);
+                                    nodes[i].AddChildNode(item);
                                 }
                                 nodes[i].Text = gameEvent.Character + " " + ((PersonalityTraits)gameEvent.Option).ToString() + " " + ((PersonalityAction)gameEvent.Option2).ToString() + " " + gameEvent.Value;
                                 break;
@@ -898,10 +898,48 @@ namespace Translator.Explorer
                             }
                             case GameEvents.MatchValue:
                             {
+                                result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add value node, hasnt been referenced yet
+                                    var value = new Node(gameEvent.Key!, NodeType.Value, gameEvent.Character + " value " + gameEvent.Key) { FileName = gameEvent.Character ?? string.Empty };
+                                    Values.Add(value);
+                                    nodes[i].AddChildNode(value);
+                                }
+                                result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Value && FileName == gameEvent.Character2);
+                                if (result != null)
+                                {
+                                    nodes[i].AddParentNode(result);
+                                }
+                                else
+                                {
+                                    //create and add value node, hasnt been referenced yet
+                                    var value = new Node(gameEvent.Value!, NodeType.Value, gameEvent.Character2 + " value " + gameEvent.Value) { FileName = gameEvent.Character2 ?? string.Empty };
+                                    Values.Add(value);
+                                    nodes[i].AddParentNode(value);
+                                }
+                                nodes[i].Text = "set " + gameEvent.Character + ":" + gameEvent.Key + " to " + gameEvent.Character2 + ":" + gameEvent.Value;
                                 break;
                             }
                             case GameEvents.ModifyValue:
                             {
+                                result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add value node, hasnt been referenced yet
+                                    var value = new Node(gameEvent.Key!, NodeType.Value, gameEvent.Character + " value " + gameEvent.Key) { FileName = gameEvent.Character ?? string.Empty };
+                                    Values.Add(value);
+                                    nodes[i].AddChildNode(value);
+                                }
+                                nodes[i].Text = (gameEvent.Option == 0 ? "Equals" : "Add") + gameEvent.Character + ":" + gameEvent.Key + " to " + gameEvent.Value;
                                 break;
                             }
                             case GameEvents.Player:
@@ -918,6 +956,19 @@ namespace Translator.Explorer
                             }
                             case GameEvents.RandomizeIntValue:
                             {
+                                result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add value node, hasnt been referenced yet
+                                    var value = new Node(gameEvent.Key!, NodeType.Value, gameEvent.Character + " value " + gameEvent.Key) { FileName = gameEvent.Character ?? string.Empty };
+                                    Values.Add(value);
+                                    nodes[i].AddChildNode(value);
+                                }
+                                nodes[i].Text = "set " + gameEvent.Character + ":" + gameEvent.Key + " to a random value between " + gameEvent.Value + " and " + gameEvent.Value2;
                                 break;
                             }
                             case GameEvents.SendEvent:
