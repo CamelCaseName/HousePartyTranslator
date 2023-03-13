@@ -689,7 +689,7 @@ namespace Translator.Explorer
                                 }
                                 else
                                 {
-                                    //create and add property node, hasnt been referenced yet
+                                    //create and add state node, hasnt been referenced yet
                                     var state = new Node(criterion.Character + "State" + criterion.Value, NodeType.State, criterion.Value + "|" + ((InteractiveStates)int.Parse(criterion.Value!)).ToString()) { FileName = criterion.Character! };
                                     States.Add(state);
                                     nodes[i].AddParentNode(state);
@@ -981,25 +981,23 @@ namespace Translator.Explorer
                             }
                             case GameEvents.State:
                             {
+                                result = States.Find((Node n) => n.Type == NodeType.State && n.FileName == gameEvent.Character && n.Text.AsSpan()[..2].Contains(gameEvent.Value!.AsSpan(), StringComparison.InvariantCulture));
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                    break;
+                                }
+                                else
+                                {
+                                    //create and add state node, hasnt been referenced yet
+                                    var state = new Node(gameEvent.Character + "State" + gameEvent.Value, NodeType.State, gameEvent.Value + "|" + ((InteractiveStates)int.Parse(gameEvent.Value!)).ToString()) { FileName = gameEvent.Character! };
+                                    States.Add(state);
+                                    nodes[i].AddChildNode(state);
+                                }
+                                nodes[i].Text = (gameEvent.Option == 0 ? "Add " : "Remove ") + gameEvent.Character + " State " + ((InteractiveStates)int.Parse(gameEvent.Value!)).ToString();
                                 break;
                             }
                             case GameEvents.TriggerBGC:
-                            {
-                                break;
-                            }
-                            case GameEvents.UnlockAchievement:
-                            {
-                                break;
-                            }
-                            case GameEvents.WalkTo:
-                            {
-                                break;
-                            }
-                            case GameEvents.WarpOverTime:
-                            {
-                                break;
-                            }
-                            case GameEvents.WarpTo:
                             {
                                 break;
                             }
