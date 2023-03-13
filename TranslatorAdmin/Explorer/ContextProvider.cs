@@ -783,7 +783,7 @@ namespace Translator.Explorer
                                     //add cutscene
                                     var item = new Node(gameEvent.Key!, NodeType.Cutscene, gameEvent.Key!);
                                     nodes.Add(item);
-                                    nodes[i].AddParentNode(item);
+                                    nodes[i].AddChildNode(item);
                                 }
                                 nodes[i].Text = ((CutsceneAction)gameEvent.Option).ToString() + " " + gameEvent.Key + " with " + gameEvent.Character + ", " + gameEvent.Value + ", " + gameEvent.Value2 + ", " + gameEvent.Character2 + " (location: " + gameEvent.Option2 + ")";
                                 break;
@@ -801,7 +801,7 @@ namespace Translator.Explorer
                                     //create and add new personality, should be from someone else
                                     var item = new Node(gameEvent.Value!, NodeType.Dialogue, gameEvent.Character + " dialoge " + gameEvent.Value) { FileName = gameEvent.Character! };
                                     nodes.Add(item);
-                                    nodes[i].AddParentNode(item);
+                                    nodes[i].AddChildNode(item);
                                 }
                                 nodes[i].Text = ((DialogueAction)gameEvent.Option).ToString() + " " + gameEvent.Character + "'s Dialogue " + gameEvent.Value;
                                 break;
@@ -825,6 +825,19 @@ namespace Translator.Explorer
                             }
                             case GameEvents.EventTriggers:
                             {
+                                result = nodes.Find((Node n) => n.Type == NodeType.Event && n.Text == gameEvent.Value);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add event, hasnt been referenced yet, we can not know its id if it doesnt already exist
+                                    var _event = new Node("NA-" + gameEvent.Value, NodeType.Event, gameEvent.Value!);
+                                    nodes.Add(_event);
+                                    nodes[i].AddChildNode(_event);
+                                }
+                                nodes[i].Text = gameEvent.Character + (gameEvent.Option == 0 ? " Perform Event " : " Set Enabled ") + (gameEvent.Option2 == 0 ? "(False) " : "(True) ") + gameEvent.Value;
                                 break;
                             }
                             case GameEvents.Item:
@@ -948,6 +961,20 @@ namespace Translator.Explorer
                             }
                             case GameEvents.Pose:
                             {
+                                result = Poses.Find((Node n) => n.Type == NodeType.Pose && n.ID == gameEvent.Value);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                    break;
+                                }
+                                else
+                                {
+                                    //create and add pose node, hasnt been referenced yet
+                                    var pose = new Node(gameEvent.Value!, NodeType.Pose, "Pose number " + gameEvent.Value);
+                                    Poses.Add(pose);
+                                    nodes[i].AddChildNode(pose);
+                                }
+                                nodes[i].Text = "Set " + gameEvent.Character + " Pose no. " + gameEvent.Value + " " + (gameEvent.Option == 0 ? " False" : " True");
                                 break;
                             }
                             case GameEvents.Quest:
