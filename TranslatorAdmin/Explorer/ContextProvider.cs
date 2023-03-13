@@ -977,6 +977,20 @@ namespace Translator.Explorer
                             }
                             case GameEvents.Social:
                             {
+                                result = Socials.Find((Node n) => n.Type == NodeType.Social && n.ID == gameEvent.Character + ((SocialStatuses)gameEvent.Option).ToString() + gameEvent.Character2);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                    break;
+                                }
+                                else
+                                {
+                                    //create and add property node, hasnt been referenced yet
+                                    var social = new Node(gameEvent.Character + ((SocialStatuses)gameEvent.Option).ToString() + gameEvent.Character2, NodeType.Social, gameEvent.Character + " " + ((SocialStatuses)gameEvent.Option).ToString() + " " + gameEvent.Character2) { FileName = gameEvent.Character! };
+                                    Socials.Add(social);
+                                    nodes[i].AddChildNode(social);
+                                }
+                                nodes[i].Text = gameEvent.Character + " " + ((SocialStatuses)gameEvent.Option).ToString() + " " + gameEvent.Character2 + (gameEvent.Option2 == 0 ? " Equals " : " Add ") + gameEvent.Value;
                                 break;
                             }
                             case GameEvents.State:
