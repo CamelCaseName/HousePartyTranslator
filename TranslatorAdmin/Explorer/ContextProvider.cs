@@ -968,7 +968,7 @@ namespace Translator.Explorer
                                     nodes.Add(item);
                                     nodes[i].AddChildNode(item);
                                 }
-                                nodes[i].Text = ((PlayerActions)gameEvent.Option).ToString() + (gameEvent.Option == 0 ? (gameEvent.Option2 == 0 ? " (Add) " : " (Remove) ") : " ") + gameEvent.Value + "/" + gameEvent.Character;
+                                nodes[i].Text = ((PlayerActions)gameEvent.Option).ToString() + (gameEvent.Option == 0 ? (gameEvent.Option2 == 0 ? " Add " : " Remove ") : " ") + gameEvent.Value + "/" + gameEvent.Character;
                                 break;
                             }
                             case GameEvents.Pose:
