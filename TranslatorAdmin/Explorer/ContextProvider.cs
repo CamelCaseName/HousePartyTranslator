@@ -91,7 +91,7 @@ namespace Translator.Explorer
                             FileName = this.FileName + ".story"
                         };
                     }
-                    else//social file
+                    else//bgc file
                     {
                         selectFileDialog = new OpenFileDialog
                         {
@@ -863,7 +863,6 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddChildNode(result);
-                                    break;
                                 }
                                 else
                                 {
@@ -957,6 +956,19 @@ namespace Translator.Explorer
                             }
                             case GameEvents.Player:
                             {
+                                result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == gameEvent.Value);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add value node, hasnt been referenced yet
+                                    var item = new Node(gameEvent.Value!, NodeType.Item, gameEvent.Value!) { FileName = gameEvent.Character ?? string.Empty };
+                                    nodes.Add(item);
+                                    nodes[i].AddChildNode(item);
+                                }
+                                nodes[i].Text = ((PlayerActions)gameEvent.Option).ToString() + (gameEvent.Option == 0 ? (gameEvent.Option2 == 0 ? " (Add) " : " (Remove) ") : " ") + gameEvent.Value + "/" + gameEvent.Character;
                                 break;
                             }
                             case GameEvents.Pose:
@@ -965,7 +977,6 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddChildNode(result);
-                                    break;
                                 }
                                 else
                                 {
@@ -979,6 +990,19 @@ namespace Translator.Explorer
                             }
                             case GameEvents.Quest:
                             {
+                                result = nodes.Find((Node n) => n.Type == NodeType.Quest && n.ID == gameEvent.Key);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add property node, hasnt been referenced yet
+                                    var quest = new Node(gameEvent.Value!, NodeType.Social, gameEvent.Character + "'s quest " + gameEvent.Value + ", not found in loaded story files") { FileName = gameEvent.Character! };
+                                    nodes.Add(quest);
+                                    nodes[i].AddChildNode(quest);
+                                }
+                                nodes[i].Text = ((QuestActions)gameEvent.Option).ToString() + " the quest " + gameEvent.Value + " from " + gameEvent.Character;
                                 break;
                             }
                             case GameEvents.RandomizeIntValue:
@@ -1000,6 +1024,7 @@ namespace Translator.Explorer
                             }
                             case GameEvents.SendEvent:
                             {
+                                nodes[i].Text = gameEvent.Character + " " + ((SendEvents)gameEvent.Option).ToString();
                                 break;
                             }
                             case GameEvents.Social:
@@ -1008,7 +1033,6 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddChildNode(result);
-                                    break;
                                 }
                                 else
                                 {
@@ -1026,7 +1050,6 @@ namespace Translator.Explorer
                                 if (result != null)
                                 {
                                     nodes[i].AddChildNode(result);
-                                    break;
                                 }
                                 else
                                 {
@@ -1040,6 +1063,19 @@ namespace Translator.Explorer
                             }
                             case GameEvents.TriggerBGC:
                             {
+                                result = nodes.Find((Node n) => n.Type == NodeType.BGC && n.ID == "BGC" + gameEvent.Value);
+                                if (result != null)
+                                {
+                                    nodes[i].AddChildNode(result);
+                                }
+                                else
+                                {
+                                    //create and add property node, hasnt been referenced yet
+                                    var bgc = new Node("BGC" + gameEvent.Value, NodeType.BGC, gameEvent.Character + "'s BGC " + gameEvent.Value + ", not found in loaded story files") { FileName = gameEvent.Character! };
+                                    nodes.Add(bgc);
+                                    nodes[i].AddChildNode(bgc);
+                                }
+                                nodes[i].Text = "trigger " + gameEvent.Character + "'s BGC " + gameEvent.Value + " as " + ((BGCOption)gameEvent.Option).ToString();
                                 break;
                             }
                             default:

@@ -548,5 +548,67 @@ namespace Translator.Explorer.JSON
             Equals,
             Add
         }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum BGCOption { 
+            Unspecified,
+            None,
+            Important,
+            VeryImportant
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum SendEvents {
+            TurnAround,
+            TurnLeft,
+            TurnRight,
+            StepForward,
+            StepBackward,
+            StepLeft,
+            StepRight,
+            PickupLeftHand,
+            PickupRightHand,
+            Throw,
+            ThrowPunch,
+            JumpUp,
+            JumpDown,
+            JumpAndFall,
+            Point,
+            SipDrinkLeft,
+            SipDrinkRight,
+            SipDrinkSittingLeft,
+            SipDrinkSittingRight,
+            SipDrinkHotTubLeft,
+            SipDrinkHotTubRight,
+            StopUsingActionItem,
+            Cheer,
+            StartPeeing,
+            StopPeeing,
+            ToggleGenitals,
+            StartStripTease,
+            StopStripTease,
+            Orgasm,
+            GameOver
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum QuestActions
+        {
+            Start,
+            Increment,
+            Complete,
+            Fail
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum PlayerActions
+        {
+            Inventory,
+            TriggerGiveTo,
+            Sit,
+            LayDown,
+            TogglePenis,
+            ToggleMasturbate,
+            ToggleRadialFor,
+            GrabFromInventory,
+            DropCurrentlyHeldItem,
+            FlashBreasts
+        }
     }
 }
