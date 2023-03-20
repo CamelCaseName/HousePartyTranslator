@@ -601,6 +601,7 @@ namespace Translator.Explorer
                             }
                             case CompareTypes.PlayerInventory:
                             {
+                                //find/add inventory item
                                 result = InventoryItems.Find((Node n) => n.Type == NodeType.Inventory && n.ID == criterion.Key);
                                 if (result != null)
                                 {
@@ -613,6 +614,12 @@ namespace Translator.Explorer
                                     var item = new Node(criterion.Key!, NodeType.Inventory, "Items: " + criterion.Key);
                                     InventoryItems.Add(item);
                                     nodes[i].AddParentNode(item);
+                                }
+                                //find normal item if it exists
+                                result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == criterion.Key);
+                                if (result != null)
+                                {
+                                    nodes[i].AddParentNode(result);
                                 }
                                 break;
                             }
@@ -719,7 +726,6 @@ namespace Translator.Explorer
                                 break;
                         }
                     }
-                    //todo link up events and the thing they perform as a child to the gameEvent
                     else if (nodes[i].Type == NodeType.Event && nodes[i].Data != null)
                     {
                         gameEvent = (GameEvent)nodes[i].Data!;
@@ -955,18 +961,24 @@ namespace Translator.Explorer
                                 break;
                             }
                             case GameEvents.Player:
-                            {
+                            {                                //find/add inventory item
+                                result = InventoryItems.Find((Node n) => n.Type == NodeType.Inventory && n.ID == gameEvent.Value);
+                                if (result != null)
+                                {
+                                    nodes[i].AddParentNode(result);
+                                    break;
+                                }
+                                else
+                                {
+                                    //create and add item node, hasnt been referenced yet
+                                    var item = new Node(gameEvent.Value!, NodeType.Inventory, "Items: " + gameEvent.Value);
+                                    InventoryItems.Add(item);
+                                    nodes[i].AddParentNode(item);
+                                }
                                 result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == gameEvent.Value);
                                 if (result != null)
                                 {
                                     nodes[i].AddChildNode(result);
-                                }
-                                else
-                                {
-                                    //create and add value node, hasnt been referenced yet
-                                    var item = new Node(gameEvent.Value!, NodeType.Item, gameEvent.Value!) { FileName = gameEvent.Character ?? string.Empty };
-                                    nodes.Add(item);
-                                    nodes[i].AddChildNode(item);
                                 }
                                 nodes[i].Text = ((PlayerActions)gameEvent.Option).ToString() + (gameEvent.Option == 0 ? (gameEvent.Option2 == 0 ? " Add " : " Remove ") : " ") + gameEvent.Value + "/" + gameEvent.Character;
                                 break;
