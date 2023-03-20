@@ -59,7 +59,7 @@ namespace Translator.Explorer
         public NodeList ParentNodes;
         public NodeType Type;
         public object? Data = null;
-        public PointF Position;
+        public PointF Position = PointF.Empty;
         public string FileName = string.Empty;
         public string ID;
         public string Text;

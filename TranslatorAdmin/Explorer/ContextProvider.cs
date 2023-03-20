@@ -233,6 +233,11 @@ namespace Translator.Explorer
             oldPositions.Clear();
             var list = JsonConvert.DeserializeObject<List<PointF>>(File.ReadAllText(nodeFilePath));
             if (list == null) return;
+            for (int i = 0; i < list.Count; i++)
+            {
+                //ugly but that way they cant end up on the same position, layout sovles this offset anyways
+                if (float.IsNaN(list[i].X) || float.IsNaN(list[i].Y)) list[i] = new PointF(i, i); 
+            }
             oldPositions.AddRange(list);
         }
 
