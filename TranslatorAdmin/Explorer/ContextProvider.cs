@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Explorer.JSON;
@@ -236,7 +237,7 @@ namespace Translator.Explorer
             for (int i = 0; i < list.Count; i++)
             {
                 //ugly but that way they cant end up on the same position, layout sovles this offset anyways
-                if (float.IsNaN(list[i].X) || float.IsNaN(list[i].Y)) list[i] = new PointF(i, i); 
+                if (float.IsNaN(list[i].X) || float.IsNaN(list[i].Y)) list[i] = new PointF(i, i);
             }
             oldPositions.AddRange(list);
         }
@@ -839,7 +840,9 @@ namespace Translator.Explorer
                                 result = nodes.Find((Node n) => n.Type == NodeType.Event && n.Text == gameEvent.Value);
                                 if (result != null)
                                 {
-                                    nodes[i].AddChildNode(result);
+                                    //stop 0 step cyclic self reference as it is not allowed
+                                    if (nodes[i] != result)
+                                        nodes[i].AddChildNode(result);
                                 }
                                 else
                                 {
@@ -1098,6 +1101,23 @@ namespace Translator.Explorer
                             default:
                                 break;
                         }
+                    }
+                    else if (nodes[i].Type == NodeType.EventTrigger && nodes[i].Data != null)
+                    {
+                        gameEvent = (GameEvent)nodes[i].Data!;
+                        result = nodes.Find((Node n) => n.Type == NodeType.Event && n.Text == gameEvent.Value);
+                        if (result != null)
+                        {
+                            nodes[i].AddChildNode(result);
+                        }
+                        else
+                        {
+                            //create and add event, hasnt been referenced yet, we can not know its id if it doesnt already exist
+                            var _event = new Node("NA-" + gameEvent.Value, NodeType.Event, gameEvent.Value!);
+                            nodes.Add(_event);
+                            nodes[i].AddChildNode(_event);
+                        }
+                        nodes[i].Text = gameEvent.Character + (gameEvent.Option == 0 ? " Perform Event " : " Set Enabled ") + (gameEvent.Option2 == 0 ? "(False) " : "(True) ") + gameEvent.Value;
                     }
                 }
             }
