@@ -179,19 +179,6 @@ namespace Translator.Explorer
             }
         }
 
-        /// <summary>
-        /// converts graph coordinates into the corresponding screen coordinates, taking into account all transformations/zoom
-        /// </summary>
-        /// <param name="graphX">x in the graphics coords</param>
-        /// <param name="graphY">y in the graphics coords</param>
-        /// <param name="screenX">x in the screens coords</param>
-        /// <param name="screenY">y in the screens coords</param>
-        public void GraphToScreen(float graphX, float graphY, out float screenX, out float screenY)
-        {
-            screenX = (graphX - OffsetX) / Scaling;
-            screenY = (graphY - OffsetY) / Scaling;
-        }
-
         public void HandleKeyBoard(object sender, KeyEventArgs e)
         {
             //get the shift key state so we can determine later if we want to redraw the tree on node selection or not
