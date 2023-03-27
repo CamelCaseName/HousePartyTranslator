@@ -24,7 +24,6 @@ namespace Translator.Explorer.Window
 
         public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
         {
-            //todo add initializer where it adds a button for each node type to the layout panel
             InitializeComponent();
             InitializeTypeFilterButtons();
             token = cancellation;
@@ -61,6 +60,7 @@ namespace Translator.Explorer.Window
 
         private void InitializeTypeFilterButtons()
         {
+            //todo finish initializer where it adds a button for each node type to the layout panel
             var values = Enum.GetValues<NodeType>();
             for (int i = 0; i < values.Length; i++)
             {

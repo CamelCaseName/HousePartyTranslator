@@ -1,6 +1,8 @@
 ﻿using System.Buffers;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
@@ -125,6 +127,7 @@ namespace Translator.Explorer
             }
         }
 
+        //increase drawing speed by switching to direct2d? either custom binding as needed or sharpdx?
         public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
         {
             if (e != null)
@@ -135,8 +138,10 @@ namespace Translator.Explorer
                 e.Graphics.TranslateTransform(-OffsetX, -OffsetY);
 
                 //set up values for this paint cycle
-                ScreenToGraph(2 * -Nodesize, 2 * -Nodesize, out Xmin, out Ymin);
-                ScreenToGraph(App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize, App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize, out Xmax, out Ymax);
+                Xmin = e.Graphics.VisibleClipBounds.Left - Nodesize;
+                Ymin = e.Graphics.VisibleClipBounds.Top - Nodesize;
+                Xmax = e.Graphics.VisibleClipBounds.Right + Nodesize;
+                Ymax = e.Graphics.VisibleClipBounds.Bottom + Nodesize;
                 MaxEdgeLength = 15 / Scaling; // that one works
 
                 PaintAllNodes(e.Graphics);
