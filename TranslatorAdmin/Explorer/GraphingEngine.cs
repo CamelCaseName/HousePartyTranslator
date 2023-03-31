@@ -132,17 +132,22 @@ namespace Translator.Explorer
         {
             if (e != null)
             {
+                //set up values for this paint cycle
+                MaxEdgeLength = 15 / Scaling; // that one works
+
                 //disables and reduces unused features
                 e.Graphics.ToLowQuality();
-                e.Graphics.ScaleTransform(Scaling, Scaling);
-                e.Graphics.TranslateTransform(-OffsetX, -OffsetY);
 
-                //set up values for this paint cycle
+                //update canvas transforms
+                //todo fix zoom origin
+                e.Graphics.ScaleTransform(Scaling, Scaling);
+                e.Graphics.TranslateTransform(-OffsetX , -OffsetY);
                 Xmin = e.Graphics.VisibleClipBounds.Left - Nodesize;
                 Ymin = e.Graphics.VisibleClipBounds.Top - Nodesize;
                 Xmax = e.Graphics.VisibleClipBounds.Right + Nodesize;
                 Ymax = e.Graphics.VisibleClipBounds.Bottom + Nodesize;
-                MaxEdgeLength = 15 / Scaling; // that one works
+                //e.Graphics.TranslateTransform(-OffsetX + ((Xmax - Nodesize) / 2 / Scaling), -OffsetY + ((Ymax - Nodesize) / 2 / Scaling));
+
 
                 PaintAllNodes(e.Graphics);
 
@@ -165,10 +170,9 @@ namespace Translator.Explorer
 
         public void CenterOnNode(Node node)
         {
-            //todo fix scaling issue in conversion, something is wonky there
-            //also wrongly calculated
-            OffsetX = -(Xmax / 2 + node.Position.X);
-            OffsetY = -(Ymax / 2 + node.Position.Y);
+            //todo verify
+            OffsetX = Xmax / 2 + node.Position.X;
+            OffsetY = Ymax / 2 + node.Position.X;
         }
 
         private void DrawMovingNodeMarker(Graphics g)
@@ -302,9 +306,8 @@ namespace Translator.Explorer
         /// <param name="graphY">The returned y coord in graph coordinate space</param>
         public void ScreenToGraph(float screenX, float screenY, out float graphX, out float graphY)
         {
-            //todo fix the calculation here, issue is in here somewhere for the culling bounds calculations
-            graphX = screenX / Scaling + OffsetX;
-            graphY = screenY / Scaling + OffsetY;
+            graphX = Xmin + (Explorer.Right / screenX) * (Xmax - Nodesize);
+            graphY = Ymin + (Explorer.Bottom / screenY) * (Ymax - Nodesize);
         }
 
         private void DisplayNodeInfo(Node node)
@@ -615,6 +618,7 @@ namespace Translator.Explorer
                 float y1 = node2.Position.X;
                 float y2 = node2.Position.Y;
                 //dont draw node if it is too far away
+                //todo issue in culling check
                 //sort out lines that would be too small on screen and ones where none of the ends are visible
                 if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > MaxEdgeLength &&
                     ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
@@ -882,10 +886,6 @@ namespace Translator.Explorer
 
         private void UpdateScaling(MouseEventArgs e)
         {
-            //get last mouse position in world space before the zoom so we can
-            //offset back by the distance in world space we got shifted by zooming
-            ScreenToGraph(e.X, e.Y, out BeforeZoomMouseX, out BeforeZoomMouseY);
-            //reset last
             //WHEEL_DELTA = 120, as per windows documentation
             //https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.mouseeventargs.delta?view=windowsdesktop-6.0
             if (e.Delta > 0)
@@ -896,13 +896,6 @@ namespace Translator.Explorer
             {
                 Scaling *= 0.8f;
             }
-
-            //capture mouse coordinates in world space again so we can calculate the offset cause by zooming and compensate
-            ScreenToGraph(e.X, e.Y, out AfterZoomMouseX, out AfterZoomMouseY);
-
-            //update pan offset by the distance caused by zooming
-            OffsetX += BeforeZoomMouseX - AfterZoomMouseX;
-            OffsetY += BeforeZoomMouseY - AfterZoomMouseY;
         }
 
         public void TrySelectNextUp()

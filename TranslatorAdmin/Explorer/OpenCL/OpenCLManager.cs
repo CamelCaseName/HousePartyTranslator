@@ -2,6 +2,7 @@
 using System.Runtime.Versioning;
 using System.Text;
 using Translator.Core;
+using Translator.Helpers;
 using WinUtils = Translator.Core.Helpers.Utils<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
 
 
@@ -250,6 +251,7 @@ internal sealed unsafe class OpenCLManager
                 _cl.ReleaseDevice(_device);
             if (_context != nint.Zero)
                 _cl.ReleaseContext(_context);
+            ResourcesAreAcquired = false;
         }
         catch (Exception e)
         {
@@ -310,6 +312,7 @@ internal sealed unsafe class OpenCLManager
         int err;
 
         //todo add method to redo the buffers once node count changes and so on, once nodes and edges get added
+        //todo set up buffers so stopping and restarting works on gpu
         //maybe do like a buffer bool, so create bigger initially and then limit length, idk
 
         //create and fill buffers on cpu side
@@ -507,6 +510,22 @@ internal sealed unsafe class OpenCLManager
 
     internal void CalculateLayout(Action? FrameRenderedCallback, CancellationToken token)
     {
+        if (!ResourcesAreAcquired)
+        {
+            int err = AcquireRessources();
+            if (err != 0)
+            {
+                LogManager.Log("encountered " + GetOpenCLErrorName(err) + " while acquiring ressources again");
+                return;
+            }
+
+            err = SetUpBuffers();
+            if (err != 0)
+            {
+                LogManager.Log("encountered " + GetOpenCLErrorName(err) + " while setting up buffers again");
+                return;
+            }
+        }
         while (!token.IsCancellationRequested)
         {
             FrameStartTime = FrameEndTime;

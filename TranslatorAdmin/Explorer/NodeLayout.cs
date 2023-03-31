@@ -82,6 +82,7 @@ namespace Translator.Explorer
                 StartTime = DateTime.Now;
                 LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
                 Started = true;
+                opencl.Retry = true;
                 _ = Task.Run(LayoutCalculation, cancellationToken.Token);
             }
         }
