@@ -14,7 +14,7 @@ namespace Translator.Explorer.Window
         public readonly string StoryName;
         private bool SettingsVisible = false;
         private bool inInitialization = true;
-        public const string Version = "1.2.3.0";
+        public const string Version = "1.2.3.1";
         public const string Title = "StoryExplorer v" + Version;
         private readonly CancellationToken token;
         public NodeLayout? Layouter { get; private set; }
@@ -22,6 +22,7 @@ namespace Translator.Explorer.Window
         internal NodeProvider Provider { get; }
         public string ParentName { get { return parentName; } }
 
+        //todo implement node saving
         public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
         {
             InitializeComponent();

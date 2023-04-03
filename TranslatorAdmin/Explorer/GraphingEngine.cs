@@ -37,10 +37,6 @@ namespace Translator.Explorer
         private readonly ArrayPool<PointF> PointPool = ArrayPool<PointF>.Shared;
         private readonly Dictionary<Type, GroupBox> ExtendedInfoComponents = new();
 
-        private float AfterZoomMouseX = 0f;
-        private float AfterZoomMouseY = 0f;
-        private float BeforeZoomMouseX = 0f;
-        private float BeforeZoomMouseY = 0f;
         private float OffsetX;
         private float OffsetY;
 
@@ -139,9 +135,8 @@ namespace Translator.Explorer
                 e.Graphics.ToLowQuality();
 
                 //update canvas transforms
-                //todo fix zoom origin
+                e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
-                e.Graphics.TranslateTransform(-OffsetX , -OffsetY);
                 Xmin = e.Graphics.VisibleClipBounds.Left - Nodesize;
                 Ymin = e.Graphics.VisibleClipBounds.Top - Nodesize;
                 Xmax = e.Graphics.VisibleClipBounds.Right + Nodesize;
@@ -306,8 +301,8 @@ namespace Translator.Explorer
         /// <param name="graphY">The returned y coord in graph coordinate space</param>
         public void ScreenToGraph(float screenX, float screenY, out float graphX, out float graphY)
         {
-            graphX = Xmin + (Explorer.Right / screenX) * (Xmax - Nodesize);
-            graphY = Ymin + (Explorer.Bottom / screenY) * (Ymax - Nodesize);
+            graphX = (OffsetX - screenX) / Scaling;
+            graphY = (OffsetY - screenY) / Scaling;
         }
 
         private void DisplayNodeInfo(Node node)

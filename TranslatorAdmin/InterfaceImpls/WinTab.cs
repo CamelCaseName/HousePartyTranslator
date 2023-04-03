@@ -8,6 +8,7 @@ namespace Translator.InterfaceImpls
 	[SupportedOSPlatform("Windows")]
 	public class WinTab : TabPage, ITab<WinLineItem>
 	{
+		//todo add progress bar to tab title
 		public WinTab() { MainForm = (Fenster)new Form(); }
 
 		internal Fenster MainForm { get; init; }
@@ -16,19 +17,15 @@ namespace Translator.InterfaceImpls
 
 		private readonly Button TranslateThis = new();
 		private readonly CheckBox ApprovedBox = new();
-		private readonly LineList CheckListBoxLeft = new();
 		private readonly ContextMenuStrip ListContextMenu = new();
 		private readonly GroupBox CommentGroup = new();
 		private readonly Label CharacterCountLabel = new();
-		private readonly Label SelectedFile = new();
 		private readonly Label LinesTranslated = new();
-		public readonly NoAnimationBar ProgressbarTranslated = new();
+		private readonly Label SelectedFile = new();
+		private readonly LineList CheckListBoxLeft = new();
 		private readonly Panel panel1 = new();
 		private readonly Panel panel2 = new();
 		private readonly TableLayoutPanel mainTableLayoutPanel = new();
-		private readonly WinTextBox CommentTextBox = new();
-		private readonly WinTextBox TemplateTextBox = new();
-		private readonly WinTextBox TranslationTextBox = new();
 		private readonly WinMenuItem CopyAllContextMenuButton = new();
 		private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
 		private readonly WinMenuItem CopyFileNameContextMenuButton = new();
@@ -36,6 +33,10 @@ namespace Translator.InterfaceImpls
 		private readonly WinMenuItem CopyStoryNameContextMenuButton = new();
 		private readonly WinMenuItem CopyTemplateContextMenuButton = new();
 		private readonly WinMenuItem CopyTranslationContextMenuButton = new();
+		private readonly WinTextBox CommentTextBox = new();
+		private readonly WinTextBox TemplateTextBox = new();
+		private readonly WinTextBox TranslationTextBox = new();
+		public readonly NoAnimationBar ProgressbarTranslated = new();
 
 		public WinTab(Fenster fenster)
 		{

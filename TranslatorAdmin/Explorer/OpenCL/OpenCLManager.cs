@@ -515,14 +515,14 @@ internal sealed unsafe class OpenCLManager
             int err = AcquireRessources();
             if (err != 0)
             {
-                LogManager.Log("encountered " + GetOpenCLErrorName(err) + " while acquiring ressources again");
+                LogManager.Log("encountered " + GetOpenCLErrorName(err) + " while acquiring ressources again", LogManager.Level.Error);
                 return;
             }
 
             err = SetUpBuffers();
             if (err != 0)
             {
-                LogManager.Log("encountered " + GetOpenCLErrorName(err) + " while setting up buffers again");
+                LogManager.Log("encountered " + GetOpenCLErrorName(err) + " while setting up buffers again", LogManager.Level.Error);
                 return;
             }
         }
@@ -569,7 +569,6 @@ internal sealed unsafe class OpenCLManager
                     ReleaseOpenCLResources();
                 CalculateAndCopy(nodePosResultBuffer);
             }
-            //todo add warmup code or whatever to recover once stopped and then restarted, maybe seperate shutdown and break code
         }
         //release once were done
         ReleaseOpenCLResources();
