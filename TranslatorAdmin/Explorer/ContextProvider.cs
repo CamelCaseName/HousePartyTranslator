@@ -30,15 +30,11 @@ namespace Translator.Explorer
         public ContextProvider(NodeProvider provider, bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
         {
             this.provider = provider;
-            _StoryFilePath = string.Empty;
             this.IsStory = IsStory;
+            this.FileName = FileName;
+            this.StoryName = StoryName;
             //set autoselect only if valid parameters are supplied
             AutoFileSelection = AutoSelectFile && FileName != string.Empty && StoryName != string.Empty;
-            if (AutoFileSelection)
-            {
-                this.FileName = FileName;
-                this.StoryName = StoryName;
-            }
 
             if (Settings.WDefault.StoryPath != string.Empty && AutoFileSelection)
             {
