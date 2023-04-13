@@ -139,7 +139,6 @@ namespace Translator.Explorer
                 e.Graphics.ToLowQuality();
 
                 //update canvas transforms
-                //zoom isd still wonky? offset back to 0/0 somehow
                 e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
                 Xmin = OffsetX - Nodesize;
