@@ -37,6 +37,7 @@ namespace Translator.Explorer.JSON
             IsInHouse = 912,
             IsNewGame = 900,
             IsZoneEmpty = 913,
+            IsAloneWithPlayer,
             ItemFromItemGroup = 16,
             MetByPlayer = 30,
             Personality = 5,
