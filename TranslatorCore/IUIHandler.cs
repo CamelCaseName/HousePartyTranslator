@@ -19,11 +19,13 @@ namespace Translator.UICompatibilityLayer
 
 	public interface IFileDialog
 	{
+		bool MultiSelect { get; set; }
 		string FileName { get; set; }
-		string Filter { get; set; }
+        string Filter { get; set; }
 		string InitialDirectory { get; set; }
 		string SelectedPath { get; }
-		string Title { get; set; }
+        string[] SelectedPaths { get; }
+        string Title { get; set; }
 		PopupResult ShowDialog();
 	}
 
@@ -88,9 +90,10 @@ namespace Translator.UICompatibilityLayer
 
 		bool IsTranslationBoxFocused { get; }
 		bool IsCommentBoxFocused { get; }
-		int ProgressValue { get; set; }
+		int SingleProgressValue { get; set; }
+        int AllProgressValue { get; set; }
 
-		void SelectLineItem(int index);
+        void SelectLineItem(int index);
 
 		void SelectLineItem(TLineItem item);
 		void UpdateLines();

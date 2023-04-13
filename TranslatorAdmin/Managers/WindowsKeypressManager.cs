@@ -152,7 +152,7 @@ namespace Translator.Managers
 					return App.MainForm.MoveCursorInText(false);
 
 				case Keys.Control | Keys.O:
-					InputHandler.OpenNew();
+					InputHandler.OpenNewFiles();
 					return true;
 
 				case Keys.Control | Keys.Z:

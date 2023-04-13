@@ -1,158 +1,212 @@
-﻿using TranslatorDesktopApp.Properties;
+﻿using Translator.Core.Helpers;
+using Translator.Helpers;
+using TranslatorDesktopApp.Properties;
 
 namespace Translator.Explorer.Window
 {
-	[System.Runtime.Versioning.SupportedOSPlatform("windows")]
-	internal partial class StoryExplorer : Form
-	{
-		private readonly ContextProvider Context;
-		private readonly GraphingEngine engine;
-		private readonly string parentName;
-		public readonly string FileName;
-		public readonly string StoryName;
-		private bool SettingsVisible = false;
-		private bool inInitialization = true;
-		public const string Version = "1.2.2.0";
-		public const string Title = "StoryExplorer v" + Version;
-		private readonly CancellationToken token;
-		public NodeLayout? Layouter { get; private set; }
-		internal GraphingEngine Grapher { get { return engine; } }
-		internal NodeProvider Provider { get; }
-		public string ParentName { get { return parentName; } }
+    [System.Runtime.Versioning.SupportedOSPlatform("windows")]
+    internal partial class StoryExplorer : Form
+    {
+        private readonly ContextProvider Context;
+        private readonly GraphingEngine engine;
+        private readonly string parentName;
+        public readonly string FileName;
+        public readonly string StoryName;
+        private bool SettingsVisible = false;
+        private bool inInitialization = true;
+        public const string Version = "1.2.3.1";
+        public const string Title = "StoryExplorer v" + Version;
+        private readonly CancellationToken token;
+        public NodeLayout? Layouter { get; private set; }
+        internal GraphingEngine Grapher { get { return engine; } }
+        internal NodeProvider Provider { get; }
+        public string ParentName { get { return parentName; } }
 
-		public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
-		{
-			InitializeComponent();
-			token = cancellation;
+        //todo implement node saving
+        public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
+        {
+            InitializeComponent();
+            InitializeTypeFilterButtons();
+            token = cancellation;
 
-			//indicate ownership
-			parentName = Parent.Name;
+            //indicate ownership
+            parentName = Parent.Name;
 
-			//change draw order for this windows from bottom to top to top to bottom to remove flickering
-			//use double buffering for that
-			DoubleBuffered = true;
+            //change draw order for this windows from bottom to top to top to bottom to remove flickering
+            //use double buffering for that
+            DoubleBuffered = true;
 
-			//get contextprovider
-			Provider = new();
-			Context = new(Provider, IsStory, AutoLoad, FileName, StoryName);
-			engine = new(Provider, this, NodeInfoLabel);
+            //get contextprovider
+            Provider = new();
+            Context = new(Provider, IsStory, AutoLoad, FileName, StoryName);
+            engine = new(Provider, this, NodeInfoLabel);
+            ShowExtendedInfo.Checked = engine.ShowExtendedInfo;
 
-			//if user cancels during file selection
-			if (Context.FileName == "character" || Context.StoryName == "story") Close();
+            //if user cancels during file selection
+            if (Context.FileName == "character" || Context.StoryName == "story") Close();
 
-			this.StoryName = Context.StoryName;
-			this.FileName = Context.FileName;
+            this.StoryName = Context.StoryName;
+            this.FileName = Context.FileName;
 
-			Text = Title + " - Loading";
+            Text = Title + " - Loading";
 
-			//add custom paint event handler to draw all nodes and edges
-			Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
-			FormClosing += new FormClosingEventHandler(SaveNodes);
+            //add custom paint event handler to draw all nodes and edges
+            Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
+            FormClosing += new FormClosingEventHandler(SaveNodes);
 
-			ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Settings.Default.ColoringDepth;
-			IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Settings.Default.IdealLength);
-			NodeSizeField.Value = StoryExplorerConstants.Nodesize;
-		}
+            ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Settings.Default.ColoringDepth;
+            IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Settings.Default.IdealLength);
+            NodeSizeField.Value = StoryExplorerConstants.Nodesize;
+        }
 
-		public void Initialize(bool singleFile)
-		{
-			if (singleFile)
-			{
-				App.MainForm.Invoke(() => Text = Title + " - waiting");
-				if (!Context.ParseFile() || Context.GotCancelled)
-				{
-					Close();
-				}
-				App.MainForm.Invoke(() => Text = Title + $" - {FileName}");
-			}
-			else
-			{
-				App.MainForm.Invoke(() => Text = Title + " - waiting");
-				//parse story, and not get cancelled xD
-				if (!Context.ParseAllFiles() || Context.GotCancelled)
-				{
-					Close();
-				}
-				App.MainForm.Invoke(() => Text = Title + $" - {StoryName}");
-			}
-			inInitialization = false;
-			App.MainForm.Invoke(() => NodeCalculations.Text = "Calculation running");
+        private void InitializeTypeFilterButtons()
+        {
+            //todo finish initializer where it adds a button for each node type to the layout panel
+            var values = Enum.GetValues<NodeType>();
+            for (int i = 0; i < values.Length; i++)
+            {
+                var type = values[i];
+                var typeButton = new ToggleButton()
+                {
+                    Text = Enum.GetName(type),
+                    AutoSize = true,
+                    ForeColor = Utils.darkText,
+                    BackColor = Color.FromKnownColor(KnownColor.ButtonFace)
+                };
+                typeButton.Click += (object? sender, EventArgs e) =>
+                {
+                    if (typeButton.IsChecked) Provider.AddFilter(type);
+                    else Provider.RemoveFilter(type);
+                };
+                NodeTypeButtonsLayout.Controls.Add(typeButton);
+            }
+        }
 
-			Provider.FreezeNodesAsInitial();
-			Layouter = new(Provider, this, token);
-			Layouter.Start();
-			Invalidate();
-		}
+        public void Initialize(bool singleFile)
+        {
+            if (singleFile)
+            {
+                App.MainForm.Invoke(() => Text = Title + " - waiting");
+                if (!Context.ParseFile() || Context.GotCancelled)
+                {
+                    Close();
+                }
+                App.MainForm.Invoke(() => Text = Title + $" - {FileName}");
+            }
+            else
+            {
+                App.MainForm.Invoke(() => Text = Title + " - waiting");
+                //parse story, and not get cancelled xD
+                if (!Context.ParseAllFiles() || Context.GotCancelled)
+                {
+                    Close();
+                }
+                App.MainForm.Invoke(() => Text = Title + $" - {StoryName}");
+            }
+            inInitialization = false;
+            App.MainForm.Invoke(() => NodeCalculations.Text = "Calculation running");
 
-		private void SaveNodes(object? sender, FormClosingEventArgs? e)
-		{
-			_ = Context.SaveNodes(Provider.Nodes);
-			//save story objecs here
-			Settings.Default.Save();
-		}
+            Provider.FreezeNodesAsInitial();
+            Layouter = new(Provider, this, token);
+            Layouter.Start();
+            Grapher.Center();
+            Invalidate();
+        }
 
-		private void HandleKeyBoard(object sender, KeyEventArgs e)
-		{
-			Grapher.HandleKeyBoard(sender, e);
-		}
+        private void SaveNodes(object? sender, FormClosingEventArgs? e)
+        {
+            _ = Context.SaveNodes(Provider.GetPositions());
+            //save story objecs here
+            Settings.Default.Save();
+        }
 
-		private void HandleMouseEvents(object sender, MouseEventArgs e)
-		{
-			Grapher.HandleMouseEvents(sender, e);
-		}
+        private void HandleKeyBoard(object sender, KeyEventArgs e)
+        {
+            Grapher.HandleKeyBoard(sender, e);
+        }
 
-		private void Start_Click(object sender, EventArgs e)
-		{
-			NodeCalculations.Text = "Calculation running";
-			Layouter?.Start();
-			NodeCalculations.Update();
-			NodeCalculations.Invalidate();
-		}
+        private void HandleMouseEvents(object sender, MouseEventArgs e)
+        {
+            Grapher.HandleMouseEvents(sender, e);
+        }
 
-		public void Stop_Click(object sender, EventArgs e)
-		{
-			NodeCalculations.Text = "Calculation stopped";
-			if(Layouter?.Started ?? false)Layouter?.Stop();
-			NodeCalculations.Update();
-			NodeCalculations.Invalidate();
-		}
+        private void Start_Click(object sender, EventArgs e)
+        {
+            NodeCalculations.Text = "Calculation running";
+            Layouter?.Start();
+            NodeCalculations.Update();
+            NodeCalculations.Invalidate();
+        }
 
-		private void IdealLength_ValueChanged(object sender, EventArgs e)
-		{
-			if (!inInitialization)
-			{
-				StoryExplorerConstants.IdealLength = IdealLength.Value > 1 && IdealLength.Value < IdealLength.Maximum ? (float)IdealLength.Value : StoryExplorerConstants.IdealLength;
-				Settings.Default.IdealLength = (float)IdealLength.Value;
-			}
+        public void Stop_Click(object sender, EventArgs e)
+        {
+            NodeCalculations.Text = "Calculation stopped";
+            if (Layouter?.Started ?? false) Layouter?.Stop();
+            NodeCalculations.Update();
+            NodeCalculations.Invalidate();
+        }
 
-		}
+        private void IdealLength_ValueChanged(object sender, EventArgs e)
+        {
+            if (!inInitialization)
+            {
+                StoryExplorerConstants.IdealLength = IdealLength.Value > 1 && IdealLength.Value < IdealLength.Maximum ? (float)IdealLength.Value : StoryExplorerConstants.IdealLength;
+                Settings.Default.IdealLength = (float)IdealLength.Value;
+            }
 
-		private void ColoringDepth_ValueChanged(object sender, EventArgs e)
-		{
-			if (!inInitialization)
-			{
-				StoryExplorerConstants.ColoringDepth = ColoringDepth.Value > 1 && ColoringDepth.Value < ColoringDepth.Maximum ? (int)ColoringDepth.Value : StoryExplorerConstants.ColoringDepth;
-				Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
-			}
-		}
+        }
 
-		private void MenuShowButton_Click(object sender, EventArgs e)
-		{
-			SettingsVisible = !SettingsVisible;
-			SettingsBox.Visible = SettingsVisible;
-			MenuShowButton.Text = SettingsVisible ? "Hide Menu" : "Show Menu";
-			SettingsBox.Update();
-			MenuShowButton.Update();
-			SettingsBox.Invalidate();
-			MenuShowButton.Invalidate();
-		}
+        private void ColoringDepth_ValueChanged(object sender, EventArgs e)
+        {
+            if (!inInitialization)
+            {
+                StoryExplorerConstants.ColoringDepth = ColoringDepth.Value > 1 && ColoringDepth.Value < ColoringDepth.Maximum ? (int)ColoringDepth.Value : StoryExplorerConstants.ColoringDepth;
+                Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
+            }
+        }
 
-		private void NodeSizeField_ValueChanged(object sender, EventArgs e)
-		{
-			if (!inInitialization)
-			{
-				StoryExplorerConstants.Nodesize = NodeSizeField.Value > 1 && NodeSizeField.Value < NodeSizeField.Maximum ? (int)NodeSizeField.Value : StoryExplorerConstants.Nodesize;
-			}
-		}
-	}
+        private void MenuShowButton_Click(object sender, EventArgs e)
+        {
+            SettingsVisible = !SettingsVisible;
+            SettingsBox.Visible = SettingsVisible;
+            MenuShowButton.Text = SettingsVisible ? "Hide Settings" : "Show Settings";
+            SettingsBox.Update();
+            MenuShowButton.Update();
+            SettingsBox.Invalidate();
+            MenuShowButton.Invalidate();
+        }
+
+        private void NodeSizeField_ValueChanged(object sender, EventArgs e)
+        {
+            if (!inInitialization)
+            {
+                StoryExplorerConstants.Nodesize = NodeSizeField.Value > 1 && NodeSizeField.Value < NodeSizeField.Maximum ? (int)NodeSizeField.Value : StoryExplorerConstants.Nodesize;
+            }
+        }
+
+        private void TextNodesOnly_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ShowExtendedInfo_CheckedChanged(object sender, EventArgs e)
+        {
+            Grapher.ShowExtendedInfo = ShowExtendedInfo.Checked;
+        }
+
+        private void MoveUpButton_Click(object sender, EventArgs e)
+        {
+            Grapher.TrySelectNextUp();
+        }
+
+        private void MoveDownButton_Click(object sender, EventArgs e)
+        {
+            Grapher.TrySelectNextDown();
+        }
+
+        private void CenterButton_Click(object sender, EventArgs e)
+        {
+            Grapher.Center();
+        }
+    }
 }

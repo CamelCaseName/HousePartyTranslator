@@ -37,6 +37,7 @@ namespace Translator.Explorer.JSON
             IsInHouse = 912,
             IsNewGame = 900,
             IsZoneEmpty = 913,
+            IsAloneWithPlayer,
             ItemFromItemGroup = 16,
             MetByPlayer = 30,
             Personality = 5,
@@ -488,6 +489,127 @@ namespace Translator.Explorer.JSON
             AnySetIsTrue,
             AllSetsAreFalse,
             AnySetIsFalse
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum DoorAction { 
+            Open,
+            Close,
+            Lock,
+            Unlock,
+            OpenSlowly,
+            CloseSlowly
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum DialogueAction
+        {
+            Trigger,
+            Overhear,
+            SetStartDialogue,
+            TriggerStartDialogue
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum CutsceneAction
+        {
+            PlayScene,
+            PlayRandomSceneFromLocation,
+            PlayRandomSceneFromCurrentLocation,
+            EndScene,
+            EndAnySceneWithPlayer
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ItemEventAction
+        {
+            SetEnabled,
+            Mount,
+            Rename,
+            ItemFunction,
+            TriggerUseWithMenu,
+            WarpItemTo,
+            ApplyForceTowards,
+            ApplyHotSpots,
+            SetInventoryIcon
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum ItemGroupAction
+        {
+            SetEnabled,
+            RemoveFromPlayerInventory,
+            Mount,
+            Rename,
+            ItemFunction,
+            TriggerUseWithMenu,
+            WarpItemTo,
+            ApplyForceTowards,
+            AddToPlayerInventory,
+            GrabFromPlayerInventory
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum PersonalityAction
+        {
+            Equals,
+            Add
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum BGCOption { 
+            Unspecified,
+            None,
+            Important,
+            VeryImportant
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum SendEvents {
+            TurnAround,
+            TurnLeft,
+            TurnRight,
+            StepForward,
+            StepBackward,
+            StepLeft,
+            StepRight,
+            PickupLeftHand,
+            PickupRightHand,
+            Throw,
+            ThrowPunch,
+            JumpUp,
+            JumpDown,
+            JumpAndFall,
+            Point,
+            SipDrinkLeft,
+            SipDrinkRight,
+            SipDrinkSittingLeft,
+            SipDrinkSittingRight,
+            SipDrinkHotTubLeft,
+            SipDrinkHotTubRight,
+            StopUsingActionItem,
+            Cheer,
+            StartPeeing,
+            StopPeeing,
+            ToggleGenitals,
+            StartStripTease,
+            StopStripTease,
+            Orgasm,
+            GameOver
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum QuestActions
+        {
+            Start,
+            Increment,
+            Complete,
+            Fail
+        }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum PlayerActions
+        {
+            Inventory,
+            TriggerGiveTo,
+            Sit,
+            LayDown,
+            TogglePenis,
+            ToggleMasturbate,
+            ToggleRadialFor,
+            GrabFromInventory,
+            DropCurrentlyHeldItem,
+            FlashBreasts
         }
     }
 }

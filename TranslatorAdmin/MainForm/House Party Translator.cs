@@ -854,7 +854,7 @@ namespace Translator
 
         private void OpenToolStripMenuItem_Click(object? sender, EventArgs? e)
         {
-            InputHandler.OpenNew();
+            InputHandler.OpenNewFiles();
         }
 
         private void OverrideCloudSaveToolStripMenuItem_Click(object? sender, EventArgs? e)

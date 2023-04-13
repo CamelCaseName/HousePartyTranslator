@@ -139,11 +139,11 @@ namespace Translator.Core
             //opne the story in tabs
             TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenAllTabs();
         }
-
-        public static void OpenNew()
+        
+        public static void OpenNewFiles()
         {
             //get currently active translationmanager
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenNewFile();
+            TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenNewFiles();
         }
 
         public static void OpenNewTab()

@@ -224,6 +224,7 @@ namespace Translator.Core
                 }
                 else
                 {
+                    UI.SignalUserEndWait();
                     return true;
                 }
             }
@@ -356,7 +357,6 @@ namespace Translator.Core
         /// </summary>
         public void PopulateTextBoxes()
         {
-            UI.SignalUserWait();
             int currentIndex = TabUI.SelectedLineIndex;
 
             if (currentIndex >= 0)
@@ -394,7 +394,6 @@ namespace Translator.Core
                 if (TabUI.LineCount > 0) TabUI.SelectLineItem(0);
             }
             UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.LineCount);
-            UI.SignalUserEndWait();
         }
 
         private void UpdateSearchAndSearchHighlight()
@@ -582,6 +581,7 @@ namespace Translator.Core
                 CopyToGameModsFolder();
             }
             UI.SignalUserEndWait();
+            ChangesPending = false;
 
             void RemoteUpdate()
             {
@@ -1476,15 +1476,15 @@ namespace Translator.Core
             float percentage = Approved / (float)Total;
             TabUI.SetApprovedLabelText($"Approved: {Approved} / {Total} {(int)(percentage * 100)}%");
             int ProgressValue = (int)(Approved / (float)Total * 100);
-            if (ProgressValue != TabUI.ProgressValue)
+            if (ProgressValue != TabUI.SingleProgressValue)
             {
                 if (ProgressValue > 0 && ProgressValue <= 100)
                 {
-                    TabUI.ProgressValue = ProgressValue;
+                    TabUI.SingleProgressValue = ProgressValue;
                 }
                 else
                 {
-                    TabUI.ProgressValue = 0;
+                    TabUI.SingleProgressValue = 0;
                 }
                 UI.UpdateTranslationProgressIndicator();
             }

@@ -1,8 +1,6 @@
-﻿using Translator;
-using Translator.Core.Helpers;
+﻿using Translator.Core.Helpers;
 using Translator.Explorer;
 using Translator.Helpers;
-using Translator.Managers;
 using Translator.InterfaceImpls;
 using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
 using TranslationManager = Translator.Core.TranslationManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
@@ -21,8 +19,11 @@ namespace Translator.Managers
 
 		internal static bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
 		{
-			data = new FileData();
-			if (UI == null) return false;
+			if (UI == null)
+			{
+				data = new();
+				return false;
+			}
 
 			UI.SignalUserWait();
 			data = new FileData();

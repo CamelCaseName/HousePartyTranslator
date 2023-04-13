@@ -1,6 +1,6 @@
-﻿using System.Numerics;
+﻿using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.Versioning;
-using System.Windows.Forms.VisualStyles;
 using Translator.Core;
 using Translator.Explorer.OpenCL;
 
@@ -31,7 +31,7 @@ namespace Translator.Explorer
         private readonly Action LayoutCalculation;
         private int _framecount = 0;
         public int FrameCount => _framecount;
-        public bool Finished => FrameCount > (long)Nodes.Count * (long)Nodes.Count && !RunOverride && Started;
+        public bool Finished => FrameCount > Nodes.Count * (long)Nodes.Count && !RunOverride && Started;
         public bool Started { get; private set; } = false;
         public NodeList Nodes
         {
@@ -48,14 +48,28 @@ namespace Translator.Explorer
             this.provider = provider;
 
             LayoutCalculation = () => CalculateForceDirectedLayout(cancellationToken.Token);
-            
+
             opencl = new(parent, provider);
             //its not worth it for less nodes
             if (Nodes.Count >= 1024)
-                opencl.SetUpOpenCL();
-            if (opencl.OpenCLDevicePresent && !opencl.Failed)
             {
-                LayoutCalculation = () => opencl.CalculateLayout(() => ++_framecount, cancellationToken.Token);
+                opencl.SetUpOpenCL();
+                if (opencl.OpenCLDevicePresent && !opencl.Failed)
+                {
+                    LayoutCalculation = () => opencl.CalculateLayout(() => ++_framecount, cancellationToken.Token);
+                }
+                else
+                {
+                    //clear memory
+                    opencl.ReleaseOpenCLResources();
+                    opencl = null!;
+                }
+            }
+            else
+            {
+                //clear memory
+                opencl.ReleaseOpenCLResources();
+                opencl = null!;
             }
         }
 
@@ -68,6 +82,7 @@ namespace Translator.Explorer
                 StartTime = DateTime.Now;
                 LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
                 Started = true;
+                if (opencl != null) opencl.Retry = true;
                 _ = Task.Run(LayoutCalculation, cancellationToken.Token);
             }
         }
@@ -112,16 +127,14 @@ namespace Translator.Explorer
 
         private void CalculatePositions()
         {
-            for (int i = 0; i < NodeForces.Count; i++)
-            {
-                NodeForces[i] = Vector2.Zero;
-            }
+            ResetNodeForces();
+
+            float radius = MathF.Sqrt(Internal.Count) + StoryExplorerConstants.IdealLength * 2;
 
             for (int first = 0; first < Internal.Count; first++)
             {
-
+                if (float.IsNaN(Internal[first].Position.X) || float.IsNaN(Internal[first].Position.X)) Debugger.Break();
                 //Gravity to center
-                float radius = MathF.Sqrt(Internal.Count) + StoryExplorerConstants.IdealLength * 2;
                 Vector2 pos = new(Internal[first].Position.X, Internal[first].Position.Y);
 
                 //fix any issues before we divide by pos IdealLength
@@ -163,10 +176,13 @@ namespace Translator.Explorer
                         Internal.Edges[i].This.Position.X - Internal.Edges[i].Child.Position.X,
                         Internal.Edges[i].This.Position.Y - Internal.Edges[i].Child.Position.Y
                         );
+                //if we have the exact same pos but it hasnt been moved by the general +10f in the nbody sim, we have a selfreference and can ignore it
+                if (edge.X == 0 && edge.Y == 0) continue;
+
                 Vector2 attractionVec = (edge / edge.Length()) * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
 
-                    NodeForces[Internal.Edges[i].ThisIndex] -= attractionVec / Internal.Edges[i].This.Mass;
-                    NodeForces[Internal.Edges[i].ChildIndex] += attractionVec / Internal.Edges[i].Child.Mass;
+                NodeForces[Internal.Edges[i].ThisIndex] -= attractionVec / Internal.Edges[i].This.Mass;
+                NodeForces[Internal.Edges[i].ChildIndex] += attractionVec / Internal.Edges[i].Child.Mass;
             }
 
             //apply accelleration to nodes
@@ -176,6 +192,25 @@ namespace Translator.Explorer
                 {
                     Internal[i].Position.X += NodeForces[i].X;
                     Internal[i].Position.Y += NodeForces[i].Y;
+                }
+            }
+        }
+
+        private void ResetNodeForces()
+        {
+            if (Internal.Count != NodeForces.Count)
+            {
+                NodeForces.Clear();
+                for (int i = 0; i < Internal.Count; i++)
+                {
+                    NodeForces.Add(Vector2.Zero);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < Internal.Count; i++)
+                {
+                    NodeForces[i] = Vector2.Zero;
                 }
             }
         }

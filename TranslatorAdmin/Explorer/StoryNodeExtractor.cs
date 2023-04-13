@@ -391,7 +391,7 @@ namespace Translator.Explorer
         internal static NodeList GetGameStartEvents(MainStory story)
         {
             var nodes = new NodeList();
-            var nodeEvents = new Node("GameStartEvents"!, NodeType.Event, "GameStartEvents");
+            var nodeEvents = new Node("GameStartEvents"!, NodeType.EventTrigger, "GameStartEvents");
             foreach (GameEvent _event in story.GameStartEvents ?? new())
             {
                 var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none") { Data = _event, DataType = typeof(GameEvent) };

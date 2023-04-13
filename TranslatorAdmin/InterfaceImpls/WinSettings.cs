@@ -79,6 +79,7 @@ namespace Translator.InterfaceImpls
         public bool UseRainbowNodeColors { get => Settings.Default.UseRainbowNodes; set => Settings.Default.UseRainbowNodes = value; }
         public bool EnableStoryExplorerEdit { get => Settings.Default.EnableStoryExplorerEdit; set => Settings.Default.EnableStoryExplorerEdit = value; }
         public int MaxEdgeCount { get => Settings.Default.ExplorerMaxEdgeCount; set => Settings.Default.ExplorerMaxEdgeCount = value; }
+        public bool ShowExtendedExplorerInfo { get => Settings.Default.ShowExtendedExplorerInfo; set => Settings.Default.ShowExtendedExplorerInfo = value; }
 
         public void Save() => Settings.Default.Save();
         internal void Upgrade() => Settings.Default.Upgrade();

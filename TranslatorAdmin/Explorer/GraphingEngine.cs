@@ -1,7 +1,8 @@
-﻿using Microsoft.VisualBasic.Logging;
-using System.Buffers;
+﻿using System.Buffers;
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Versioning;
+using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;
@@ -28,6 +29,7 @@ namespace Translator.Explorer
         private static float Ymax = 0;
         private static float Xmin = 0;
         private static float Ymin = 0;
+        private static float MaxEdgeLength = 0;
 
         private readonly StoryExplorer Explorer;
         private readonly Label NodeInfoLabel;
@@ -35,10 +37,6 @@ namespace Translator.Explorer
         private readonly ArrayPool<PointF> PointPool = ArrayPool<PointF>.Shared;
         private readonly Dictionary<Type, GroupBox> ExtendedInfoComponents = new();
 
-        private float AfterZoomMouseX = 0f;
-        private float AfterZoomMouseY = 0f;
-        private float BeforeZoomMouseX = 0f;
-        private float BeforeZoomMouseY = 0f;
         private float OffsetX;
         private float OffsetY;
 
@@ -50,10 +48,8 @@ namespace Translator.Explorer
         private bool IsCtrlPressed = false;
         private bool MovingANode = false;
         public bool DrewNodes = false;
-        //todo replace by settings, on screen button and allow node selection
-        //todo add internal nodes visible button and setting
         public bool InternalNodesVisible = true;
-        public bool ShowExtendedInfo = true;
+        public bool ShowExtendedInfo { get => Settings.WDefault.ShowExtendedExplorerInfo; set => Settings.WDefault.ShowExtendedExplorerInfo = value; }
         private HashSet<Node> NodesHighlighted = new();
         private Cursor priorCursor = Cursors.Default;
 
@@ -64,6 +60,10 @@ namespace Translator.Explorer
         private float StartPanOffsetY = 0f;
         private float OldMouseMovingPosX;
         private float OldMouseMovingPosY;
+        private float AfterZoomMouseX;
+        private float AfterZoomMouseY;
+        private float BeforeZoomMouseX;
+        private float BeforeZoomMouseY;
 
         public GraphingEngine(NodeProvider provider, StoryExplorer explorer, Label nodeInfoLabel)
         {
@@ -127,20 +127,24 @@ namespace Translator.Explorer
             }
         }
 
+        //increase drawing speed by switching to direct2d? either custom binding as needed or sharpdx?
         public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
         {
             if (e != null)
             {
                 //set up values for this paint cycle
-                Xmin = 2 * -Nodesize;
-                Ymin = 2 * -Nodesize;
-                Xmax = App.MainForm.Explorer?.Size.Width ?? 0 + Nodesize;
-                Ymax = App.MainForm.Explorer?.Size.Height ?? 0 + Nodesize;
+                MaxEdgeLength = 15 / Scaling; // that one works
 
                 //disables and reduces unused features
                 e.Graphics.ToLowQuality();
+
+                //update canvas transforms
                 e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
+                Xmin = OffsetX - Nodesize;
+                Ymin = OffsetY - Nodesize;
+                Xmax = e.Graphics.VisibleClipBounds.Right + Nodesize;
+                Ymax = e.Graphics.VisibleClipBounds.Bottom + Nodesize;
 
                 PaintAllNodes(e.Graphics);
 
@@ -153,25 +157,27 @@ namespace Translator.Explorer
             }
         }
 
+        public void Center()
+        {
+            if (highlightedNode != Node.NullNode)
+                CenterOnNode(highlightedNode);
+            else if (infoNode != Node.NullNode)
+                CenterOnNode(infoNode);
+        }
+
+        public void CenterOnNode(Node node)
+        {
+            //todo implement corectly
+            OffsetX = node.Position.X + OffsetX;
+            OffsetY = node.Position.Y + OffsetY;
+        }
+
         private void DrawMovingNodeMarker(Graphics g)
         {
             if (movingNode != Node.NullNode)
             {
                 DrawColouredNode(g, movingNode, Settings.WDefault.MovingNodeColor, 1.2f);
             }
-        }
-
-        /// <summary>
-        /// converts graph coordinates into the corresponding screen coordinates, taking into account all transformations/zoom
-        /// </summary>
-        /// <param name="graphX">x in the graphics coords</param>
-        /// <param name="graphY">y in the graphics coords</param>
-        /// <param name="screenX">x in the screens coords</param>
-        /// <param name="screenY">y in the screens coords</param>
-        public void GraphToScreen(float graphX, float graphY, out float screenX, out float screenY)
-        {
-            screenX = (graphX - OffsetX) * Scaling;
-            screenY = (graphY - OffsetY) * Scaling;
         }
 
         public void HandleKeyBoard(object sender, KeyEventArgs e)
@@ -578,12 +584,10 @@ namespace Translator.Explorer
 
         private void DrawColouredNode(Graphics g, Node node, Color color, float scale = 1.0f)
         {
-            //todo replace this call by one in the beginning of the paint event, then use the cached vaslues in graph space for comparison. should save up to 200k method calls
             //dont draw node if it is too far away
-            GraphToScreen(node.Position.X, node.Position.Y, out float x, out float y);
-            if (x <= Xmax && y <= Ymax && x >= Xmin && y >= Ymin)
+            if (node.Position.X <= Xmax && node.Position.Y <= Ymax && node.Position.X >= Xmin && node.Position.Y >= Ymin)
             {
-                if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+                if (InternalNodesVisible || (node.Type != NodeType.Event && node.Type != NodeType.Criterion))
                 {
                     ColorBrush.Color = color;
                     g.FillEllipse(
@@ -606,17 +610,16 @@ namespace Translator.Explorer
         {
             if (InternalNodesVisible || (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion))
             {
-                //todo same as with the points, get the bounds of the screens and then remove these calls here
-                //so we can do the bounds checking with cached values and dont need these method calls
+                float x1 = node1.Position.X;
+                float x2 = node1.Position.Y;
+                float y1 = node2.Position.X;
+                float y2 = node2.Position.Y;
                 //dont draw node if it is too far away
-                GraphToScreen(node1.Position.X, node1.Position.Y, out float x1, out float y1);
-                GraphToScreen(node2.Position.X, node2.Position.Y, out float x2, out float y2);
-
+                //todo issue in culling check
                 //sort out lines that would be too small on screen and ones where none of the ends are visible
-                //todo swap around such that we just compare length difference to max edge length, no more sqrt
-                if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > 10 &&
+                if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > MaxEdgeLength &&
                     ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
-                    (x2 <= Xmax && y2 <= Ymax && x2 >= Xmin && y2 >= Ymin)))
+                    (x2 <= Xmax && y2 <= Ymax && x1 >= Xmin && y2 >= Ymin)))
                 {
                     //any is visible
                     ColorPen.Color = color;
@@ -883,7 +886,7 @@ namespace Translator.Explorer
             //get last mouse position in world space before the zoom so we can
             //offset back by the distance in world space we got shifted by zooming
             ScreenToGraph(e.X, e.Y, out BeforeZoomMouseX, out BeforeZoomMouseY);
-            //reset last
+
             //WHEEL_DELTA = 120, as per windows documentation
             //https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.mouseeventargs.delta?view=windowsdesktop-6.0
             if (e.Delta > 0)
@@ -901,6 +904,16 @@ namespace Translator.Explorer
             //update pan offset by the distance caused by zooming
             OffsetX += BeforeZoomMouseX - AfterZoomMouseX;
             OffsetY += BeforeZoomMouseY - AfterZoomMouseY;
+        }
+
+        public void TrySelectNextUp()
+        {
+            if (HighlightedNode.ParentNodes.Count > 0) HighlightedNode = HighlightedNode.ParentNodes[0];
+        }
+
+        public void TrySelectNextDown()
+        {
+            if (HighlightedNode.ChildNodes.Count > 0) HighlightedNode = HighlightedNode.ChildNodes[0];
         }
     }
 }

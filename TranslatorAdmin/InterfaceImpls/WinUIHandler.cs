@@ -15,6 +15,7 @@ namespace Translator.InterfaceImpls
 		internal WinUIHandler(ITabController<WinLineItem, WinTab> control)
 		{
 			TabControl = (WinTabController)control;
+			WinTranslationManager.UI = this;
 		}
 
 		public MenuItems FileMenuItems => App.MainForm?.FileToolStripMenuItem.DropDownItems.ToMenuItems() ?? new MenuItems();
