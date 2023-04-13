@@ -356,7 +356,6 @@ namespace Translator.Core
         /// </summary>
         public void PopulateTextBoxes()
         {
-            UI.SignalUserWait();
             int currentIndex = TabUI.SelectedLineIndex;
 
             if (currentIndex >= 0)
@@ -394,7 +393,6 @@ namespace Translator.Core
                 if (TabUI.LineCount > 0) TabUI.SelectLineItem(0);
             }
             UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.LineCount);
-            UI.SignalUserEndWait();
         }
 
         private void UpdateSearchAndSearchHighlight()
