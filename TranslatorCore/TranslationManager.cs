@@ -224,6 +224,7 @@ namespace Translator.Core
                 }
                 else
                 {
+                    UI.SignalUserEndWait();
                     return true;
                 }
             }
@@ -580,6 +581,7 @@ namespace Translator.Core
                 CopyToGameModsFolder();
             }
             UI.SignalUserEndWait();
+            ChangesPending = false;
 
             void RemoteUpdate()
             {
