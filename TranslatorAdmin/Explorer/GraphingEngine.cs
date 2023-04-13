@@ -139,6 +139,7 @@ namespace Translator.Explorer
                 e.Graphics.ToLowQuality();
 
                 //update canvas transforms
+                //zoom isd still wonky? offset back to 0/0 somehow
                 e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
                 e.Graphics.ScaleTransform(Scaling, Scaling);
                 Xmin = OffsetX - Nodesize;
@@ -167,9 +168,9 @@ namespace Translator.Explorer
 
         public void CenterOnNode(Node node)
         {
-            //todo verify
-            OffsetX -= (Xmax / 2) + node.Position.X;
-            OffsetY -= (Ymax / 2) + node.Position.X;
+            //todo implement corectly
+            OffsetX = node.Position.X + OffsetX;
+            OffsetY = node.Position.Y + OffsetY;
         }
 
         private void DrawMovingNodeMarker(Graphics g)
