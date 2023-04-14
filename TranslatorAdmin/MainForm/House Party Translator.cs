@@ -212,33 +212,6 @@ namespace Translator
         }
 
         /// <summary>
-        /// Tries to delete the word in let or right ofthe cursor in the currently selected TextBox.
-        /// </summary>
-        /// <param name="form"></param>
-        /// <param name="toLeft">true if deleting to the left</param>
-        /// <returns>true if successfull</returns>
-        public bool DeleteCharactersInText(bool toLeft)
-        {
-            Control? focused_control = ActiveControl;
-            try
-            {
-                _ = (WinTextBox?)(TextBox?)focused_control;
-            }
-            //ignore exception, really intended
-            catch { return false; }
-            if (focused_control == null) return false;
-            var textBox = (TextBox)focused_control;
-            if (toLeft)
-            {
-                return ((WinTextBox)textBox).DeleteCharactersInTextLeft();
-            }
-            else
-            {
-                return ((WinTextBox)textBox).DeleteCharactersInTextRight();
-            }
-        }
-
-        /// <summary>
         /// Moves the cursor to the beginning/end of the next word in the specified direction
         /// </summary>
         /// <param name="form"></param>
