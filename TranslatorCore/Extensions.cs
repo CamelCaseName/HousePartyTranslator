@@ -127,36 +127,6 @@ namespace Translator.Core.Helpers
 			return builder.ToString();
 		}
 
-		/// <summary>
-		/// Deletes the characters to the left of the char until the first seperator or the start of the text.
-		/// </summary>
-		/// <param name="textBox">The textbox to work on</param>
-		/// <returns>true if successful</returns>
-		public static bool DeleteCharactersInTextLeft(this ITextBox textBox)
-		{
-			int oldPos = textBox.SelectionStart;
-			MoveCursorWordLeft(textBox);
-			int newPos = textBox.SelectionStart;
-			if (oldPos - newPos > 0) textBox.Text = textBox.Text.Remove(newPos, oldPos - newPos);
-			textBox.SelectionStart = newPos;
-			//to stop winforms adding the weird backspace character to the text
-			return true;
-		}
-
-		/// <summary>
-		/// Deletes the characters to the right of the char until the first seperator or the end of the text.
-		/// </summary>
-		/// <param name="textBox">The textbox to work on</param>
-		/// <returns>true if successful</returns>
-		public static bool DeleteCharactersInTextRight(this ITextBox textBox)
-		{
-			int oldPos = textBox.SelectionStart;
-			MoveCursorWordRight(textBox);
-			int newPos = textBox.SelectionStart;
-			if (newPos - oldPos > 0) textBox.Text = textBox.Text.Remove(oldPos, newPos - oldPos);
-			textBox.SelectionStart = oldPos;
-			return true;
-		}
 
 		/// <summary>
 		/// Moves the cursor in the given textbox to the next beginning/end of a word to the left

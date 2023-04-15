@@ -135,14 +135,6 @@ namespace Translator.Managers
                     InputHandler.SaveAndApproveLine();
                     return true;
 
-                //ripple delete all chars to the right of the cursor to the next nonalphanumerical char
-                case (Keys.Control | Keys.Delete):
-					return App.MainForm.DeleteCharactersInText(false);
-
-				//ripple delete all alphanumerical chars to the left of the cursor
-				case (Keys.Control | Keys.Back):
-					return App.MainForm.DeleteCharactersInText(true);
-
 				//move cursor to the left, clinging to words
 				case (Keys.Control | Keys.Left):
 					return App.MainForm.MoveCursorInText(true);
