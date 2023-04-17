@@ -45,6 +45,7 @@ namespace Translator.InterfaceImpls
         public string StoryPath { get => Settings.Default.story_path; set => Settings.Default.story_path = value; }
         public bool UpdateSettings { get => Settings.Default.UpdateSettings; set => Settings.Default.UpdateSettings = value; }
         public bool IgnoreCustomStoryWarning { get => Settings.Default.IgnoreCustomStoryWarning; set => Settings.Default.IgnoreCustomStoryWarning = value; }
+        public bool IgnoreMissingLinesWarning { get => Settings.Default.IgnoreMissingLinesWarning; set => Settings.Default.IgnoreMissingLinesWarning = value; }
 
         public Color ItemNodeColor { get => Settings.Default.NodeItemColor; set => Settings.Default.NodeItemColor = value; }
         public Color ItemGroupNodeColor { get => Settings.Default.NodeItemGroupColor; set => Settings.Default.NodeItemGroupColor = value; }

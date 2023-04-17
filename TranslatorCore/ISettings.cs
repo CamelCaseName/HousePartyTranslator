@@ -45,7 +45,9 @@ namespace Translator.Core
 
 		public bool IgnoreCustomStoryWarning { get => false; set { } }
 
-		public void Save() { }
+        public bool IgnoreMissingLinesWarning { get => false; set { } }
+
+        public void Save() { }
 	}
 
 	public interface ISettings
@@ -75,7 +77,8 @@ namespace Translator.Core
 		public string TranslationPath { get; set; }
 		public TimeSpan AutoSaveInterval { get; set; }
 		public bool IgnoreCustomStoryWarning { get; set; }
+        public bool IgnoreMissingLinesWarning { get; set; }
 
-		public void Save();
+        public void Save();
 	}
 }

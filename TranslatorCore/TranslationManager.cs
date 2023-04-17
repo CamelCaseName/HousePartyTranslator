@@ -819,7 +819,7 @@ namespace Translator.Core
                     {
                         query = query[1..];
                     }
-                    //methodolgy: highlight items which fulfill search and show count
+                    //methodolgy: highlight items which fulfill search
                     int x = 0;
                     foreach (LineData item in TranslationData.Values)
                     {
@@ -1263,7 +1263,7 @@ namespace Translator.Core
                 {
                     TryFixEmptyFile();
                 }
-                else if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
+                else if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline && !Settings.Default.IgnoreMissingLinesWarning)
                 //inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
                 //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
                 {
