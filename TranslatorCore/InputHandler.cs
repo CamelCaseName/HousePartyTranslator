@@ -1,4 +1,6 @@
-﻿using Translator.UICompatibilityLayer;
+﻿using System.IO;
+using Translator.Core.Helpers;
+using Translator.UICompatibilityLayer;
 
 namespace Translator.Core
 {
@@ -185,6 +187,16 @@ namespace Translator.Core
 
             if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex >= 0)
                 TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.ApproveItem(TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex);
+        }
+
+        public static void CreateTemplateForSingleFile()
+        {
+            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.CreateTemplateForSingleFile();
+        }
+
+        public static void CreateTemplateForAllFiles()
+        {
+            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.CreateTemplateForAllFiles();
         }
     }
 }

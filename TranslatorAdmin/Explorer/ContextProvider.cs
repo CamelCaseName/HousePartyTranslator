@@ -27,7 +27,7 @@ namespace Translator.Explorer
         private readonly NodeList Doors = new();
         private readonly List<PointF> oldPositions = new();
 
-        public ContextProvider(NodeProvider provider, bool IsStory, bool AutoSelectFile, string FileName, string StoryName)
+        public ContextProvider(NodeProvider provider, bool IsStory, bool AutoSelectFile, string FileName, string StoryName, string path = "")
         {
             this.provider = provider;
             this.IsStory = IsStory;
@@ -36,22 +36,29 @@ namespace Translator.Explorer
             //set autoselect only if valid parameters are supplied
             AutoFileSelection = AutoSelectFile && FileName != string.Empty && StoryName != string.Empty;
 
-            if (Settings.WDefault.StoryPath != string.Empty && AutoFileSelection)
+            if (path != string.Empty && !AutoSelectFile)
             {
-                string storyPathMinusStory = Directory.GetParent(Settings.WDefault.StoryPath)?.FullName ?? string.Empty;
-
-                if (IsStory)
-                {
-                    FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.story");
-                }
-                else
-                {
-                    FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
-                }
+                FilePath = path;
             }
             else
             {
-                FilePath = string.Empty;
+                if (Settings.WDefault.StoryPath != string.Empty && AutoFileSelection)
+                {
+                    string storyPathMinusStory = Directory.GetParent(Settings.WDefault.StoryPath)?.FullName ?? string.Empty;
+
+                    if (IsStory)
+                    {
+                        FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.story");
+                    }
+                    else
+                    {
+                        FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
+                    }
+                }
+                else
+                {
+                    FilePath = string.Empty;
+                }
             }
 
             if (FilePath.Length > 0)

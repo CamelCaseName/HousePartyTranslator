@@ -19,7 +19,9 @@ namespace Translator.Core
 		void ApprovedButtonHandler();
 		void ApproveIfPossible(bool SelectNewAfter);
 		bool CustomStoryTemplateHandle(string story);
-		void LoadFileIntoProgram();
+		void CreateTemplateForSingleFile();
+		void CreateTemplateForAllFiles();
+        void LoadFileIntoProgram();
 		void LoadFileIntoProgram(string path);
 		void OverrideCloudSave();
 		void PopulateTextBoxes();
@@ -36,7 +38,7 @@ namespace Translator.Core
 		void Search(string query);
 		void SelectLine(string id);
 		bool SelectNextResultIfApplicable();
-		string SelectSaveLocation();
+		string SelectSaveLocation(string file= "", string path = "");
 		void ToggleReplaceUI();
 		void UpdateCharacterCountLabel(int TranslationCount, int TemplateCount);
 		void UpdateComments();

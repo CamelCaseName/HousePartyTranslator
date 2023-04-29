@@ -53,14 +53,14 @@ namespace Translator.Core.Helpers
 		/// Opens a select file dialogue and returns the selected file as a path.
 		/// </summary>
 		/// <returns>The path to the selected file.</returns>
-		public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "")
+		public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "", string filter = "Text files (*.txt)|*.txt")
 		{
 			if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
 
 			var selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(IFileDialog), new object?[]
 			{
                 /*title*/Title?.Length > 0 ? Title : "Choose a file for translation",
-                /*filter*/"Text files (*.txt)|*.txt",
+                /*filter*/filter,
                 /*initialDirectory*/Settings.Default.TranslationPath.Length > 0 && isTranslation ?
 					Settings.Default.TranslationPath :
 					Settings.Default.TemplatePath.Length > 0 && !isTranslation ?

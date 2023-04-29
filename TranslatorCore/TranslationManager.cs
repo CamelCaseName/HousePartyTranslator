@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Google.Protobuf.WellKnownTypes;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
@@ -181,7 +182,7 @@ namespace Translator.Core
                     //custom story?
                     if (!CustomStoryTemplateHandle(value))
                     {
-                        _ = UI.InfoOk($"Not flagged as custom story, can't find \"{value}\", assuming Original Story.");
+                        _ = UI.InfoOk($"Not an official story, custom stories disabled. You can enable them in the settings and try again. Will use \"Original Story\" for now");
                         storyName = "Original Story";
                     }
                 }
@@ -191,15 +192,19 @@ namespace Translator.Core
         public bool CustomStoryTemplateHandle(string story)
         {
             PopupResult result;
-            if (Settings.Default.AllowCustomStories)
+            if (!Settings.Default.AllowCustomStories)
+            {
+                result = PopupResult.NO;
+            }
+            else if (Settings.Default.IgnoreCustomStoryWarning)
             {
                 result = PopupResult.YES;
             }
             else
             {
-                result = UI.InfoYesNo($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story", "Custom story?");
+                result = UI.InfoYesNo($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story. (You can disable this warning in the settings)", "Custom story?");
             }
-            if (result == PopupResult.YES || Settings.Default.IgnoreCustomStoryWarning)
+            if (result == PopupResult.YES)
             {
                 UI.SignalUserWait();
                 //check if the template has been added and generated once before
@@ -749,18 +754,20 @@ namespace Translator.Core
         /// Opens a save file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the file to save to.</returns>
-        public string SelectSaveLocation()
+        public string SelectSaveLocation(string file = "", string path = "")
         {
+            if (file == string.Empty) file = StoryName;
+            if (path == string.Empty) path = SourceFilePath;
             if (!UI.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog))) throw new ArgumentException($"{nameof(UI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
 
             var saveFileDialog = (ISaveFileDialog?)Activator.CreateInstance(UI.SaveFileDialogType, new object?[]
             {
                 /*Title*/"Choose a file to save the translations to",
                 /*Extension*/ "txt",
-                /*CreatePrompt*/ true,
+                /*CreatePrompt*/ false,
                 /*OverwritePrompt*/ true,
-                /*FileName*/ FileName,
-                /*InitialDirectory*/ SourceFilePath
+                /*FileName*/ file,
+                /*InitialDirectory*/ path
             });
             if (saveFileDialog == null) return string.Empty;
 
@@ -1031,11 +1038,9 @@ namespace Translator.Core
             TabUI.Lines.Clear();
             if (SourceFilePath != "")
             {
-                string[] paths = SourceFilePath.Split('\\');
-
                 //get parent folder name and check if it is the story, else search around a bit
                 //get language text representation
-                SetUpStoryName(paths);
+                StoryName = ExtractStoryName(SourceFilePath);
                 //actually load all strings into the program
                 ReadInStringsFromFile();
 
@@ -1054,9 +1059,11 @@ namespace Translator.Core
             }
         }
 
-        private void SetUpStoryName(string[] paths)
+        private string ExtractStoryName(string path)
         {
-            if (paths.Length < 3) throw new ArgumentException("file needs to be at least 2 folders deep from your drive?");
+            var paths = path.Split('\\');
+
+            if (paths.Length < 3) throw new ArgumentException("the file needs to be at least 2 folders deep from your drive?");
 
             string tempStoryName = paths[^2];
             bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string? languageAsText);
@@ -1072,8 +1079,7 @@ namespace Translator.Core
                 tempStoryName = "UI";
             }
 
-            StoryName = tempStoryName;
-
+            return tempStoryName;
         }
 
         /// <summary>
@@ -1529,6 +1535,59 @@ namespace Translator.Core
                     ReloadFile();
                 }
             }
+        }
+
+        public void CreateTemplateForSingleFile()
+        {
+            PopupResult typeResult;
+            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file for the translation you want to create the template for.", "Create a template")) != PopupResult.CANCEL)
+            {
+                //set up 
+                string path = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFileFromSystem(false, "Select the file to create the template for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
+                if (path.Length == 0) return;
+
+                UI.SignalUserWait();
+                string file = Path.GetFileNameWithoutExtension(path);
+                string story = ExtractStoryName(path);
+
+                LogManager.Log("creating templates for " + story + "/" + file);
+                //create and upload templates
+                if (UI.CreateTemplateFromStory(story, file, path, out FileData templates))
+                {
+                    if (templates.Count > 0)
+                    {
+                        _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.RemoveOldTemplates(file, story);
+                        _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.UploadTemplates(templates);
+                    }
+                    else
+                    {
+                        _ = UI.ErrorOk("No templates resulted from the generation, please try again.");
+                        UI.SignalUserEndWait();
+                        return;
+                    }
+                }
+                else
+                {
+                    _ = UI.ErrorOk("Templates were not created, please try again.");
+                    UI.SignalUserEndWait();
+                    return;
+                }
+
+                LogManager.Log("successfully created templates");
+
+                //create translation and open it
+                string newFile = SelectSaveLocation(file, path);
+                if (!File.Exists(newFile))
+                {
+                    File.OpenWrite(newFile).Close();
+                }
+                UI.SignalUserEndWait();
+                LoadFileIntoProgram(newFile);
+            }
+        }
+
+        public void CreateTemplateForAllFiles()
+        {
         }
     }
 }
