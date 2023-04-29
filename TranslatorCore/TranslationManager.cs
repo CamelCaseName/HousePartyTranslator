@@ -1,4 +1,5 @@
 ﻿using Google.Protobuf.WellKnownTypes;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -560,6 +561,7 @@ namespace Translator.Core
         {
             UI.SignalUserWait();
 
+            LogManager.Log("saving file " + StoryName + "/" + FileName);
             History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
 
             if (SourceFilePath == "" || Language == "")
@@ -587,13 +589,16 @@ namespace Translator.Core
             }
             UI.SignalUserEndWait();
             ChangesPending = false;
+            LogManager.Log("Successfully saved the file locally");
 
             void RemoteUpdate()
             {
                 UI.SignalUserWait();
                 if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslations(TranslationData, Language) || !DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
                 UI.SignalUserEndWait();
+                LogManager.Log("Successfully saved the file remotely");
             }
+
         }
 
         private List<CategorizedLines> InitializeCategories()
@@ -1540,7 +1545,7 @@ namespace Translator.Core
         public void CreateTemplateForSingleFile()
         {
             PopupResult typeResult;
-            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file for the translation you want to create the template for.", "Create a template")) != PopupResult.CANCEL)
+            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file you want to create the template for.", "Create a template")) != PopupResult.CANCEL)
             {
                 //set up 
                 string path = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFileFromSystem(false, "Select the file to create the template for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
@@ -1550,7 +1555,7 @@ namespace Translator.Core
                 string file = Path.GetFileNameWithoutExtension(path);
                 string story = ExtractStoryName(path);
 
-                LogManager.Log("creating templates for " + story + "/" + file);
+                LogManager.Log("creating template for " + story + "/" + file);
                 //create and upload templates
                 if (UI.CreateTemplateFromStory(story, file, path, out FileData templates))
                 {
@@ -1561,19 +1566,19 @@ namespace Translator.Core
                     }
                     else
                     {
-                        _ = UI.ErrorOk("No templates resulted from the generation, please try again.");
+                        _ = UI.ErrorOk("No template resulted from the generation, please try again.");
                         UI.SignalUserEndWait();
                         return;
                     }
                 }
                 else
                 {
-                    _ = UI.ErrorOk("Templates were not created, please try again.");
+                    _ = UI.ErrorOk("Template was not created, please try again.");
                     UI.SignalUserEndWait();
                     return;
                 }
 
-                LogManager.Log("successfully created templates");
+                LogManager.Log("successfully created template");
 
                 //create translation and open it
                 string newFile = SelectSaveLocation(file, path);
@@ -1588,6 +1593,65 @@ namespace Translator.Core
 
         public void CreateTemplateForAllFiles()
         {
+            PopupResult typeResult;
+            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select any file in the story folder you want to create the templates for. After that you must select the folder in which the translations will be placed.", "Create templates for a complete story")) != PopupResult.CANCEL)
+            {
+                //set up 
+                string path = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFileFromSystem(false, "Select a file in the folder you want to create templates for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
+                if (path.Length == 0) return;
+
+                UI.SignalUserWait();
+                string story = ExtractStoryName(path);
+
+                LogManager.Log("creating templates for " + story);
+
+                //create translation and open it
+                string newFiles_dir = Directory.GetParent(SelectSaveLocation("translation", path))?.FullName ?? SpecialDirectories.MyDocuments;
+                foreach (var file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
+                {
+                    string file = Path.GetFileNameWithoutExtension(file_path);
+                    if (Path.GetExtension(file_path) != ".character" & Path.GetExtension(file_path) != ".story") continue;
+
+                    //create and upload templates
+                    if (UI.CreateTemplateFromStory(story, file, file_path, out FileData templates))
+                    {
+                        if (templates.Count > 0)
+                        {
+                            _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.RemoveOldTemplates(file, story);
+                            _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.UploadTemplates(templates);
+                        }
+                        else
+                        {
+                            _ = UI.ErrorOk("No templates resulted from the generation, please try again.");
+                            UI.SignalUserEndWait();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        _ = UI.ErrorOk("Templates were not created, please try again.");
+                        UI.SignalUserEndWait();
+                        return;
+                    }
+
+                    if (!File.Exists(Path.Combine(newFiles_dir, file + ".txt")))
+                    {
+                        File.OpenWrite(Path.Combine(newFiles_dir, file + ".txt")).Close();
+                    }
+                }
+
+                LogManager.Log("successfully created templates");
+                UI.SignalUserEndWait();
+
+                //open all the files
+                foreach (string filePath in Directory.GetFiles(newFiles_dir))
+                {
+                    if (Path.GetExtension(filePath) == ".txt")
+                    {
+                        TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenInNewTab(filePath);
+                    }
+                }
+            }
         }
     }
 }

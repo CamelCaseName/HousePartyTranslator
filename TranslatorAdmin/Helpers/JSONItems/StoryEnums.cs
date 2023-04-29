@@ -211,7 +211,9 @@ namespace Translator.Explorer.JSON
             PlayerInteractsWithItem,
             FinishedPopulatingMainDialogueText = 200,
             PlayerTookCameraPhoto = 250,
-            OnAfterCutSceneEnds
+            OnAfterCutSceneEnds,
+            Ejaculates,
+            None = 1000
         }
         [JsonConverter(typeof(StringEnumConverter))]
         public enum InteractiveStates
