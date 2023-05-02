@@ -1122,6 +1122,24 @@ namespace Translator.Explorer
                         }
                         nodes[i].Text = gameEvent.Character + (gameEvent.Option == 0 ? " Perform Event " : " Set Enabled ") + (gameEvent.Option2 == 0 ? "(False) " : "(True) ") + gameEvent.Value;
                     }
+                    else if (nodes[i].Type == NodeType.Response && nodes[i].Data != null)
+                    {
+                        Response response = (Response)nodes[i].Data!;
+                        if (response.Next == 0) continue;
+                        result = nodes.Find((Node n) => n.Type == NodeType.Dialogue && n.ID == response.Next.ToString());
+
+                        if (result != null)
+                        {
+                            nodes[i].AddChildNode(result);
+                        }
+                        else
+                        {
+                            //create and add event, hasnt been referenced yet, we can not know its id if it doesnt already exist
+                            var dialogue = new Node(response.Next.ToString(), NodeType.Dialogue, $"dialogue number {response.Next} for {nodes[i].FileName}");
+                            nodes.Add(dialogue);
+                            nodes[i].AddChildNode(dialogue);
+                        }
+                    }
                 }
             }
 
