@@ -1582,7 +1582,7 @@ namespace Translator.Core
 
                 //create translation and open it
                 string newFile = SelectSaveLocation(file, path);
-                if (!File.Exists(newFile))
+                if (!File.Exists(newFile) && newFile != string.Empty)
                 {
                     File.OpenWrite(newFile).Close();
                 }

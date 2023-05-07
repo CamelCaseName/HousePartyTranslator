@@ -1,5 +1,6 @@
 ﻿using Translator.Core.Helpers;
 using Translator.Explorer;
+using Translator.Explorer.JSON;
 using Translator.Helpers;
 using Translator.InterfaceImpls;
 using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
@@ -41,6 +42,7 @@ namespace Translator.Managers
 				for (int i = 0; i < nodes.Count; i++)
 				{
 					//filter out irrelevant nodes
+					//todo add filter for text output events so it doesnt get the standard event stuff
 					if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2)
 						&& nodes[i].Type == NodeType.Event)
 						&& nodes[i].Type.CategoryFromNode() != StringCategory.Neither

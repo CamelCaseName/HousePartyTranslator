@@ -260,18 +260,26 @@ namespace Translator.Explorer
         {
             if (FilePath.Length > 0)
             {
-                string fileString = File.ReadAllText(FilePath);
-                fileString = fileString[fileString.IndexOf('{')..];
-                //else create new
-                if (IsStory)
+                try
                 {
-                    while (Nodes.Count != 0) Nodes.Clear();
-                    Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
+                    string fileString = File.ReadAllText(FilePath);
+                    fileString = fileString[fileString.IndexOf('{')..];
+                    //else create new
+                    if (IsStory)
+                    {
+                        while (Nodes.Count != 0) Nodes.Clear();
+                        Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
+                    }
+                    else
+                    {
+                        while (Nodes.Count != 0) Nodes.Clear();
+                        Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
+                    }
                 }
-                else
+                catch(Exception e)
                 {
-                    while (Nodes.Count != 0) Nodes.Clear();
-                    Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
+                    LogManager.Log("Story file corrupt or outdated, see log below:");
+                    LogManager.Log(e.Message);
                 }
 
                 return Nodes;
