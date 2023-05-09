@@ -14,6 +14,7 @@ namespace Translator.Core.Helpers
 			public LanguageException(string message) : base(message) { }
 		}
 
+		//todo add more languages
 		/// <summary>
 		/// A list of all currently supported languages in short form
 		/// </summary>
@@ -37,7 +38,8 @@ namespace Translator.Core.Helpers
 			"cn",
 			"nl",
 			"ro",
-			"sw"
+			"sw",
+			"cr"
 		};
 
 		/// <summary>
@@ -62,7 +64,8 @@ namespace Translator.Core.Helpers
 			{ShortLanguages[15], "Chinese" },
 			{ShortLanguages[16], "Dutch" },
 			{ShortLanguages[17], "Romanian" },
-			{ShortLanguages[18], "Swedish" }
-		};
+			{ShortLanguages[18], "Swedish" },
+			{ShortLanguages[19], "Croatian" }
+        };
 	}
 }
