@@ -1239,8 +1239,15 @@ namespace Translator.Core
         private void ReadStringsTranslationsFromFile()
         {
             StringCategory currentCategory = StringCategory.General;
-
-            _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
+            FileData IdsToExport = new();
+            if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
+            {
+                _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineDataTemplate(FileName, StoryName, out IdsToExport);
+            }
+            else
+            {
+                IdsToExport = GetTemplatesFromUser();
+            }
             List<string> LinesFromFile;
             try
             {

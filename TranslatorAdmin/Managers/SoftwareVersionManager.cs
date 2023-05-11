@@ -5,10 +5,10 @@ using Translator.Helpers;
 
 namespace Translator.Managers
 {
-	[SupportedOSPlatform("Windows")]
+    [SupportedOSPlatform("Windows")]
 	internal static class SoftwareVersionManager
 	{
-		public const string LocalVersion = "0.7.2.5";
+		public const string LocalVersion = "0.7.3.0";
 		public static string? LatestGithubVersion;
 		public static bool UpdatePending = false;
 		private static readonly HttpClient client = new();
@@ -51,19 +51,17 @@ namespace Translator.Managers
 				{
 					if (response == null || response?.Assets?.Count < 1) throw new NullReferenceException();
 
-					Download(response?.Assets?[0]?.BrowserDownloadUrl ?? "", newFile);
+					LogManager.Log("Self update started");
 
-					if (!UpdateFile(oldFile, newFile)) return;
-
-					//inform user
-					_ = Msg.InfoOk("Successfully updated the program! Please restart the app now.", "Update successful");
+					Download(response?.Assets?[0]?.BrowserDownloadUrl ?? "", oldFile, newFile);
 				}
 			}
 			catch (Exception e)
 			{
 				LogManager.Log(e.Message, LogManager.Level.Error);
 				LogManager.Log("Self update failed.", LogManager.Level.Warning);
-			}
+                _ = Msg.ErrorOk($"The update failed because {e.Message}", "Update failed");
+            }
 		}
 
 		//returns true if current version is up to date
@@ -102,12 +100,13 @@ namespace Translator.Managers
 			return oldFile;
 		}
 
-		private static async void Download(string downloadUrl, string newFile)
+		private static async void Download(string downloadUrl, string oldFile, string newFile)
 		{
 			try
-			{
-				//get stream to the file in web location
-				using Stream stream = await client.GetStreamAsync(downloadUrl);
+            {
+                LogManager.Log("Download of new Version started");
+                //get stream to the file in web location
+                using Stream stream = await client.GetStreamAsync(downloadUrl);
 				//stream to the file on dis
 				using var fileStream = new FileStream(newFile, FileMode.Create);
 				//copy data to file on disk
@@ -122,23 +121,33 @@ namespace Translator.Managers
 				return;
 			}
 			finally
-			{
-				DownloadDone = true;
+            {
+                LogManager.Log("Download of new Version complete");
+                DownloadDone = true;
+				UpdateFile(oldFile, newFile);
 			}
 		}
 
 		private static bool UpdateFile(string oldFile, string newFile)
 		{
+			//wait for the download to complete
+            while (!DownloadDone) ;
 			//move currently running exe out of the way
 			File.Move(Application.ExecutablePath, oldFile);
-			while (!DownloadDone) ;
-			//extract file to our current location and replace
-			var extractor = new SevenZipExtractor.ArchiveFile(newFile);
+            LogManager.Log("Moved old file away");
+            LogManager.Log("Extracting new version");
+            //extract file to our current location and replace
+            var extractor = new SevenZipExtractor.ArchiveFile(newFile);
 			try
 			{
 				extractor.Extract(Directory.GetCurrentDirectory(), true);
+
+                LogManager.Log("New version extracted");
+
+                //inform user
+                _ = Msg.InfoOk("Successfully updated the program! Please restart the app now.", "Update successful");
 				return true;
-			}
+            }
 			catch (System.ComponentModel.Win32Exception e)
 			{
 				LogManager.Log(e.ToString(), LogManager.Level.Error);

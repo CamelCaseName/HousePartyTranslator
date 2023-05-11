@@ -810,6 +810,7 @@ namespace Translator
         private void OnFormClosing(object? sender, FormClosingEventArgs? e)
         {
             Settings.Default.Save();
+            LogManager.SaveLogFile();
 
             //prevent discord from getting angry
             PresenceManager?.DeInitialize();
@@ -823,7 +824,6 @@ namespace Translator
             //show save unsaved changes dialog
             TabManager.ShowAutoSaveDialog();
 
-            LogManager.SaveLogFile();
         }
 
         private void OnFormShown(object? sender, EventArgs? e)
