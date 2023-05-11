@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Translator.Core
 {
@@ -56,9 +57,9 @@ namespace Translator.Core
 		/// A Method for adding a string with timestamp at the end of the log
 		/// </summary>
 		/// <param name="message">The string to be added.</param>
-		public static void Log(string message)
+		public static void Log(string message, [CallerLineNumber] int line = 0, [CallerFilePathAttribute] string path = "")
 		{
-			Log(message, Level.Info);
+			Log(message, Level.Info, line, path);
 		}
 
 		/// <summary>
@@ -66,9 +67,9 @@ namespace Translator.Core
 		/// </summary>
 		/// <param name="message">The string to be added.</param>
 		/// <param name="level">The level of the logged message</param>
-		public static void Log(string message, Level level)
+		public static void Log(string message, Level level, [CallerLineNumber] int line = 0, [CallerFilePathAttribute] string path = "")
 		{
-			string _message = $"[{level}] | {DateTime.Now} | {message}";
+			string _message = $"[{level}] {path}:{line} | {DateTime.Now} | {message}";
 
 			//add the message as lines to our list of all lines
 			FileLines.AddRange(_message.Split('\n'));
