@@ -104,7 +104,7 @@ namespace Translator.InterfaceImpls
 		{
 			if (waitCounter > 0 && !Application.UseWaitCursor) Application.UseWaitCursor = true;
 			else if (waitCounter == 0) Application.UseWaitCursor = false;
-			App.MainForm.Invalidate();
+			App.MainForm?.Invalidate();
 		}
 		public void Update() => App.MainForm?.Update();
 		public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Invalidate();
