@@ -1,6 +1,4 @@
-﻿using System.IO;
-using Translator.Core.Helpers;
-using Translator.UICompatibilityLayer;
+﻿using Translator.UICompatibilityLayer;
 
 namespace Translator.Core
 {
@@ -141,7 +139,7 @@ namespace Translator.Core
             //opne the story in tabs
             TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenAllTabs();
         }
-        
+
         public static void OpenNewFiles()
         {
             //get currently active translationmanager

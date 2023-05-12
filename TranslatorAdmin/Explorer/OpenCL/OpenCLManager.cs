@@ -2,7 +2,6 @@
 using System.Runtime.Versioning;
 using System.Text;
 using Translator.Core;
-using Translator.Helpers;
 using WinUtils = Translator.Core.Helpers.Utils<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
 
 

@@ -96,8 +96,8 @@ namespace Translator
         {
             //custom exception handlers to handle mysql exceptions
 #if RELEASE || USER_RELEASE
-			AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
-			Application.ThreadException += ThreadExceptionHandler;
+            AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
+            Application.ThreadException += ThreadExceptionHandler;
 #endif
             UI = new(TabControl);
 

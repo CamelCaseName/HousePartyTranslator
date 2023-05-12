@@ -493,7 +493,8 @@ namespace Translator.Explorer.JSON
             AnySetIsFalse
         }
         [JsonConverter(typeof(StringEnumConverter))]
-        public enum DoorAction { 
+        public enum DoorAction
+        {
             Open,
             Close,
             Lock,
@@ -552,14 +553,16 @@ namespace Translator.Explorer.JSON
             Add
         }
         [JsonConverter(typeof(StringEnumConverter))]
-        public enum BGCOption { 
+        public enum BGCOption
+        {
             Unspecified,
             None,
             Important,
             VeryImportant
         }
         [JsonConverter(typeof(StringEnumConverter))]
-        public enum SendEvents {
+        public enum SendEvents
+        {
             TurnAround,
             TurnLeft,
             TurnRight,

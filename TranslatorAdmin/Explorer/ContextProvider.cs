@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Versioning;
 using Translator.Core;
 using Translator.Explorer.JSON;
@@ -276,7 +274,7 @@ namespace Translator.Explorer
                         Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     LogManager.Log("Story file corrupt or outdated, see log below:");
                     LogManager.Log(e.Message);

@@ -1,6 +1,4 @@
-﻿using Translator.Core.Helpers;
-
-namespace Translator.Helpers
+﻿namespace Translator.Helpers
 {
     public class ToggleButton : Button
     {
