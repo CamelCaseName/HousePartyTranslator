@@ -1,5 +1,6 @@
 ﻿using Translator.Core.Helpers;
 using Translator.Explorer;
+using Translator.Explorer.JSON;
 using Translator.Helpers;
 using Translator.InterfaceImpls;
 using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
@@ -41,12 +42,39 @@ namespace Translator.Managers
                 for (int i = 0; i < nodes.Count; i++)
                 {
                     //filter out irrelevant nodes
-                    //todo add filter for text output events so it doesnt get the standard event stuff
-                    if (!((int.TryParse(nodes[i].Text, out _) || nodes[i].Text.Length < 2)
-                        && nodes[i].Type == NodeType.Event)
-                        && nodes[i].Type.CategoryFromNode() != StringCategory.Neither
-                        && nodes[i].ID != ""
-                        && nodes[i].ID != null)
+                    if (nodes[i].ID == string.Empty) continue;
+                    switch (nodes[i].Type)
+                    {
+                        case NodeType.Null:
+                        case NodeType.BGCResponse:
+                        case NodeType.CharacterGroup:
+                        case NodeType.Criterion:
+                        case NodeType.Item:
+                        case NodeType.Pose:
+                        case NodeType.Clothing:
+                        case NodeType.CriteriaGroup:
+                        case NodeType.Cutscene:
+                        case NodeType.Door:
+                        case NodeType.EventTrigger:
+                        case NodeType.Property:
+                        case NodeType.Personality:
+                        case NodeType.Social:
+                        case NodeType.State:
+                        case NodeType.Value:
+                            continue;
+                        default:
+                            break;
+                    }
+                    if (nodes[i].Type == NodeType.Event && nodes[i].DataType == typeof(GameEvent))
+                    {
+                        if (((GameEvent?)nodes[i].Data)?.EventType == StoryEnums.GameEvents.DisplayGameMessage)
+                            data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), ((GameEvent?)nodes[i].Data)?.Value ?? string.Empty, true);
+                    }
+                    else if (nodes[i].Type == NodeType.BGC)
+                    {
+                        data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
+                    }
+                    else
                     {
                         data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
                     }
