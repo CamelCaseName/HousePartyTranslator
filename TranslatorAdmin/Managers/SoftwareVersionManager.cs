@@ -21,13 +21,8 @@ namespace Translator.Managers
         public static void ReplaceFileIfNew()
         {
             //modify client signatures
-#pragma warning disable CS0219
-#pragma warning disable IDE0059
-            const string decoyUrl = "127.0.0.1";
-#pragma warning restore CS0219
-#pragma warning restore IDE0059
             client.DefaultRequestHeaders.Add("User-Agent", "House Party Translator update service");
-            client.DefaultRequestHeaders.Add("Authorization", "Bearer" + " github_pat_11ALOXG6I0" + "VTVCYWIu8bWu_KGJusR6gA2ANHAg5ltQgP7Md1M" + "xrPX41Y2Z3HTaISOeJ5HOOC65tSb26oWQ");
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer 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");
             client.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
 
             //offload async context
