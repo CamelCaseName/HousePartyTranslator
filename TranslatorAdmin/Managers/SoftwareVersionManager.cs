@@ -22,7 +22,8 @@ namespace Translator.Managers
         {
             //modify client signatures
             client.DefaultRequestHeaders.Add("User-Agent", "House Party Translator update service");
-            client.DefaultRequestHeaders.Add("Authorization", "Bearer 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");
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer" + " 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");
+            client.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
 
             //offload async context
             DoWork();
