@@ -76,10 +76,10 @@ namespace Translator.Core.Helpers
         {
             try
             {
-                string result = "";
+                string result = string.Empty;
                 System.Threading.Tasks.Task<string> task = Translator.TranslateAsync(new Translate()
                 {
-                    ApiKey = "",
+                    ApiKey = string.Empty,
                     Source = langCodeTemplate,
                     Target = langCodeTranslation,
                     Text = data.TemplateString

@@ -337,7 +337,7 @@ internal sealed unsafe class OpenCLManager
 
         //create buffers on gpu
         // we can quickly swap buffers and start the calculations again if we want
-        //Todo write access violation here, originating from opencl lib. maybe there is a max buffer size?
+        //Todo write access violation here, originating from opencl lib. maybe there is a max buffer size? only sometimes tho
         node_pos_1 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer1.Length * sizeof(float) * 4), nodePosBuffer1.AsSpan(), &err);
         if (err != 0) return err;
         node_pos_2 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer2.Length * sizeof(float) * 4), nodePosBuffer2.AsSpan(), &err);
@@ -392,7 +392,6 @@ internal sealed unsafe class OpenCLManager
                 if (Provider.MovingNodePositionOverrideEnded)
                 {
                     resultBuffer[(index * 4) + 2] = 0.0f;
-                    Provider.ConsumedNodePositionOverrideEnded();
                 }
                 else
                 {
@@ -406,6 +405,7 @@ internal sealed unsafe class OpenCLManager
                     err = _cl.EnqueueWriteBuffer(_commandQueue, node_pos_2, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), inputBuffer, 0, null, null);
                     if (err != 0) return err;
                 }
+                    Provider.ConsumedNodePositionOverrideEnded();
             }
         }
 

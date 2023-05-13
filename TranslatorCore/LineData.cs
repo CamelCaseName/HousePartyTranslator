@@ -4,15 +4,15 @@ namespace Translator.Core.Helpers
 {
     public sealed class LineData
     {
-        public string ID = "";
-        public string Story = "";
-        public string FileName = "";
+        public string ID = string.Empty;
+        public string Story = string.Empty;
+        public string FileName = string.Empty;
         public StringCategory Category = StringCategory.Neither;
         public bool IsTranslated = false;
         public bool IsApproved = false;
         public bool IsTemplate = false;
-        public string TemplateString = "";
-        public string TranslationString = "";
+        public string TemplateString = string.Empty;
+        public string TranslationString = string.Empty;
         public string[] Comments = Array.Empty<string>();
 
         public int TemplateLength => TemplateString.Length;
@@ -62,7 +62,7 @@ namespace Translator.Core.Helpers
         public override string ToString()
         {
             string value;
-            if (TranslationString != null && TranslationString != "")
+            if (TranslationString != null && TranslationString != string.Empty)
             {
                 value = ID + "|" + TranslationString;
             }

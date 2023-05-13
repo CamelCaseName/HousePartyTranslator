@@ -59,7 +59,7 @@ namespace Translator.Core
                         IsTemplate = false,
                         IsTranslated = reader.GetInt32("translated") > 0,
                         Story = story,
-                        TemplateString = "",
+                        TemplateString = string.Empty,
                         TranslationString = reader.GetString("translation")
                     };
                     wasSuccessfull = true;
@@ -126,7 +126,7 @@ namespace Translator.Core
                                 IsTemplate = false,
                                 IsTranslated = reader.GetInt32("translated") > 0,
                                 Story = story,
-                                TemplateString = "",
+                                TemplateString = string.Empty,
                                 TranslationString = reader.GetString("translation")
                             };
                             if (LineDataList.ContainsKey(id))
@@ -266,7 +266,7 @@ namespace Translator.Core
             {
                 using MySqlConnection connection = new(GetConnString());
                 if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-                using var cmd = new MySqlCommand("", connection);
+                using var cmd = new MySqlCommand(string.Empty, connection);
                 _ = CheckOrReopenConnection(connection);
                 //Console.WriteLine("DB opened");
 
@@ -280,7 +280,7 @@ namespace Translator.Core
                 reader.Close();
 
                 string fileVersion = Settings.Default.FileVersion;
-                if (fileVersion == "")
+                if (fileVersion == string.Empty)
                 {
                     // get software version from db
                     SoftwareVersion = DBVersion;
@@ -420,7 +420,7 @@ namespace Translator.Core
         /// <returns> True if at least one row was set, false if it was not the case.</returns>
         public static bool UpdateTranslation(LineData lineData, string language)
         {
-            string comment = "";
+            string comment = string.Empty;
             for (int j = 0; j < lineData.Comments?.Length; j++)
             {
                 comment += lineData.Comments[j] + "#";
@@ -477,7 +477,7 @@ namespace Translator.Core
                 //insert all the parameters
                 foreach (LineData item in translationData.Values)
                 {
-                    string comment = "";
+                    string comment = string.Empty;
                     for (int j = 0; j < item.Comments?.Length; j++)
                     {
                         if (item.Comments[j].Length > 1)
@@ -614,13 +614,13 @@ namespace Translator.Core
         {
             string password = Settings.Default.DbPassword;
             string returnString;
-            if (password != "")
+            if (password != string.Empty)
             {
                 returnString = "Server=www.rinderha.cc;Uid=user;Pwd=" + password + ";Database=main;Pooling=True;MinimumPoolSize=10;MaximumPoolSize=150;";
             }
             else
             {
-                returnString = "";
+                returnString = string.Empty;
             }
             return returnString;
         }

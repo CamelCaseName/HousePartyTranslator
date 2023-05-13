@@ -12,8 +12,8 @@ namespace Translator.Managers
     public sealed class DiscordPresenceManager
     {
         public DiscordRPC? DiscordPresenceClient;
-        private string Character = "";
-        private string Story = "";
+        private string Character = string.Empty;
+        private string Story = string.Empty;
         private string ImageKey = Characters.CharacterEnum.rule34.ToString();
 
         public DiscordPresenceManager()

@@ -35,7 +35,7 @@ namespace Translator.Core
                 if (value)
                     TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName + "*");
                 else
-                    TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName ?? "");
+                    TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName ?? string.Empty);
                 _changesPending = value;
             }
         }
@@ -56,13 +56,13 @@ namespace Translator.Core
         private int templateCounter = 0;
 
         public FileData TranslationData = new();
-        private string fileName = "";
+        private string fileName = string.Empty;
         private bool isSaveAs = false;
         private static string language = Settings.Default.Language;
         private int searchTabIndex = 0;
         private bool selectedNew = false;
-        private string sourceFilePath = "";
-        private string storyName = "";
+        private string sourceFilePath = string.Empty;
+        private string storyName = string.Empty;
 #nullable disable
         private static IUIHandler<TLineItem, TTabController, TTab> UI;
 #nullable restore
@@ -567,7 +567,7 @@ namespace Translator.Core
             LogManager.Log("saving file " + StoryName + "/" + FileName);
             History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
 
-            if (SourceFilePath == "" || Language == "")
+            if (SourceFilePath == string.Empty || Language == string.Empty)
             {
                 UI.SignalUserEndWait();
                 return;
@@ -601,7 +601,6 @@ namespace Translator.Core
                 UI.SignalUserEndWait();
                 LogManager.Log("Successfully saved the file remotely");
             }
-
         }
 
         private List<CategorizedLines> InitializeCategories()
@@ -658,7 +657,7 @@ namespace Translator.Core
                     else
                     {
                         //create file if it does not exist, as well as all folders
-                        _ = Directory.CreateDirectory(Path.GetDirectoryName(gameFilePath) ?? "");
+                        _ = Directory.CreateDirectory(Path.GetDirectoryName(gameFilePath) ?? string.Empty);
                         File.Copy(SourceFilePath, gameFilePath, true);
                     }
                 }
@@ -714,11 +713,11 @@ namespace Translator.Core
                 {
                     if (TranslationData.TryGetValue(item.ID, out LineData? TempResult))
                     {
-                        item.TranslationString = TempResult?.TranslationString ?? IdsToExport[item.ID].TemplateString;
+                        item.TranslationString = TempResult?.TranslationString ?? IdsToExport[item.ID].TemplateString.RemoveVAHints();
                     }
                     else
                     {
-                        item.TranslationString = IdsToExport[item.ID].TemplateString;
+                        item.TranslationString = IdsToExport[item.ID].TemplateString.RemoveVAHints();
                     }
                 }
 
@@ -746,7 +745,7 @@ namespace Translator.Core
         /// </summary>
         public void SaveFileAs()
         {
-            if (SourceFilePath != "")
+            if (SourceFilePath != string.Empty)
             {
                 isSaveAs = true;
                 string oldFile = SourceFilePath;
@@ -895,10 +894,10 @@ namespace Translator.Core
             {
                 Language = UI.Language;
             }
-            else if (Settings.Default.Language != "")
+            else if (Settings.Default.Language != string.Empty)
             {
                 string languageFromFile = Settings.Default.Language;
-                if (languageFromFile != "")
+                if (languageFromFile != string.Empty)
                 {
                     Language = languageFromFile;
                 }
@@ -1044,7 +1043,7 @@ namespace Translator.Core
             CategoriesInFile.Clear();
             TranslationData.Clear();
             TabUI.Lines.Clear();
-            if (SourceFilePath != "")
+            if (SourceFilePath != string.Empty)
             {
                 //get parent folder name and check if it is the story, else search around a bit
                 //get language text representation
@@ -1067,7 +1066,7 @@ namespace Translator.Core
             }
         }
 
-        private string ExtractStoryName(string path)
+        public static string ExtractStoryName(string path)
         {
             var paths = path.Split('\\');
 
@@ -1194,26 +1193,26 @@ namespace Translator.Core
 
             var fileData = new FileData();
             StringCategory currentCategory = StringCategory.General;
-            string multiLineCollector = "";
+            string multiLineCollector = string.Empty;
             string[] lastLine = Array.Empty<string>();
             //string[] lastLastLine = { };
             //read in lines
             var LinesFromFile = File.ReadAllLines(path).ToList();
             //remove last if empty, breaks line lioading for the last
-            while (LinesFromFile.Last() == "") _ = LinesFromFile.Remove(LinesFromFile.Last());
+            while (LinesFromFile.Last() == string.Empty) _ = LinesFromFile.Remove(LinesFromFile.Last());
             //load lines and their data and split accordingly
             foreach (string line in LinesFromFile)
             {
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : "" + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                    if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
 
                     //get current line
                     lastLine = line.Split('|');
 
                     //reset multiline collector
-                    multiLineCollector = "";
+                    multiLineCollector = string.Empty;
                 }
                 else
                 {
@@ -1226,15 +1225,15 @@ namespace Translator.Core
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : "" + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                        if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1] + multiLineCollector, true);
                         lastLine = Array.Empty<string>();
-                        multiLineCollector = "";
+                        multiLineCollector = string.Empty;
                         currentCategory = tempCategory;
                     }
                 }
             }
             //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : "" + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true);
+            if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, currentCategory, lastLine[1], true);
 
             return fileData;
         }
@@ -1245,7 +1244,7 @@ namespace Translator.Core
         private void ReadStringsTranslationsFromFile()
         {
             StringCategory currentCategory = StringCategory.General;
-            FileData IdsToExport = new();
+            FileData IdsToExport;
             if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
             {
                 _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineDataTemplate(FileName, StoryName, out IdsToExport);
@@ -1365,7 +1364,7 @@ namespace Translator.Core
             if (IdsToExport.TryGetValue(lastLine[0], out LineData? templateLine))
                 TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation);
             else
-                TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, "", lastLine[1] + translation);
+                TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, string.Empty, lastLine[1] + translation);
         }
 
         private void TryFixEmptyFile()
@@ -1595,9 +1594,11 @@ namespace Translator.Core
 
                 //create translation and open it
                 string newFile = SelectSaveLocation(file, path);
-                if (!File.Exists(newFile) && newFile != string.Empty)
+                if (newFile != string.Empty)
                 {
-                    File.OpenWrite(newFile).Close();
+                    var writer = File.CreateText(newFile);
+                    writer.Write(string.Empty);
+                    writer.Close();
                 }
                 UI.SignalUserEndWait();
                 LoadFileIntoProgram(newFile);

@@ -134,7 +134,6 @@ namespace Translator.Core.Helpers
             return builder.ToString();
         }
 
-
         /// <summary>
         /// Moves the cursor in the given textbox to the next beginning/end of a word to the left
         /// </summary>

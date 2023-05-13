@@ -9,11 +9,13 @@ namespace Translator.Managers
     internal static class SoftwareVersionManager
     {
         public const string LocalVersion = "0.7.3.0";
-        public static string? LatestGithubVersion;
+        public static string? LatestGithubVersion = "0.0.0.0";
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new();
+#if !DEBUG
         private static bool DownloadDone = false;
         const string APIUrl = "https://api.github.com/repos/CamelCaseName/HousePartyTranslator/releases/latest";
+#endif
 
         /// <summary>
         /// Download and replaces the running application if necessary
@@ -22,13 +24,21 @@ namespace Translator.Managers
         {
             //modify client signatures
             client.DefaultRequestHeaders.Add("User-Agent", "House Party Translator update service");
+            client.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
 
             //offload async context
             DoWork();
         }
 
+#if DEBUG
+#pragma warning disable CS1998
+#endif
         private static async void DoWork()
         {
+#if DEBUG
+#pragma warning restore CS1998
+            return;
+#else
             if (App.MainForm?.UI == null) return;
             try
             {
@@ -38,8 +48,11 @@ namespace Translator.Managers
                 string oldFile = DeleteOld();//deletes prev.exe if it exists
 
                 //check version and for need of update
-                if (!UpdateNeeded(response?.TagName ?? "0.0.0.0")) return;
-
+                if (!UpdateNeeded(response?.TagName ?? "0.0.0.0"))
+                {
+                    LogManager.Log("no update needed");
+                    return;
+                }
                 //prepare files
                 (bool successfull, string newFile) = CreateFiles();
                 if (!successfull) return;
@@ -53,7 +66,7 @@ namespace Translator.Managers
 
                     LogManager.Log("Self update started");
 
-                    Download(response?.Assets?[0]?.BrowserDownloadUrl ?? "", oldFile, newFile);
+                    Download(response?.Assets?[0]?.BrowserDownloadUrl ?? string.Empty, oldFile, newFile);
                 }
             }
             catch (Exception e)
@@ -89,13 +102,13 @@ namespace Translator.Managers
             {
                 LogManager.Log(e.Message);
             }
-            return (false, "");
+            return (false, string.Empty);
         }
 
         private static string DeleteOld()
         {
             //delete old one if it exists
-            string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath) ?? "", "prev.exe");
+            string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath) ?? string.Empty, "prev.exe");
             if (File.Exists(oldFile)) File.Delete(oldFile);
             return oldFile;
         }
@@ -157,6 +170,7 @@ namespace Translator.Managers
                 _ = Msg.ErrorOk($"The update failed because the program could not access\n   {Directory.GetCurrentDirectory()}\n or the folder it is in.", "Update failed");
                 return false;
             }
+#endif
+        }
         }
     }
-}

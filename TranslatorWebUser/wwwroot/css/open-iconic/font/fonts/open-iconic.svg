@@ -25,7 +25,7 @@ Created by P.J. Onori with FontForge 2.0 (http://fontforge.sf.net)
     unicode-range="U+E000-E0DE"
   />
     <missing-glyph />
-    <glyph glyph-name="" unicode="&#xe000;" 
+    <glyph glyph-name=string.Empty unicode="&#xe000;" 
 d="M300 700h500v-700h-500v100h400v500h-400v100zM400 500l200 -150l-200 -150v100h-400v100h400v100z" />
     <glyph glyph-name="1" unicode="&#xe001;" 
 d="M300 700h500v-700h-500v100h400v500h-400v100zM200 500v-100h400v-100h-400v-100l-200 150z" />

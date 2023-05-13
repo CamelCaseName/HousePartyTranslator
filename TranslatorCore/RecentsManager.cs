@@ -85,11 +85,11 @@ namespace Translator.Core
             where TTab : class, ITab<TLineItem>, new()
         {
             //set most recent to the last file open in the selected tab so the index is correct
-            Settings.Default.Recents0 = TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.SourceFilePath ?? "";
-            Settings.Default.Recents1 = recents.Count > 1 ? recents[1] : "";
-            Settings.Default.Recents2 = recents.Count > 2 ? recents[2] : "";
-            Settings.Default.Recents3 = recents.Count > 3 ? recents[3] : "";
-            Settings.Default.Recents4 = recents.Count > 4 ? recents[4] : "";
+            Settings.Default.Recents0 = TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.SourceFilePath ?? string.Empty;
+            Settings.Default.Recents1 = recents.Count > 1 ? recents[1] : string.Empty;
+            Settings.Default.Recents2 = recents.Count > 2 ? recents[2] : string.Empty;
+            Settings.Default.Recents3 = recents.Count > 3 ? recents[3] : string.Empty;
+            Settings.Default.Recents4 = recents.Count > 4 ? recents[4] : string.Empty;
             Settings.Default.RecentIndex = TabManager<TLineItem, TUIHandler, TTabController, TTab>.SelectedTab.SelectedLineIndex;
 
             //save settings
