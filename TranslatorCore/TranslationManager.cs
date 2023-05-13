@@ -560,7 +560,7 @@ namespace Translator.Core
         /// <summary>
         /// Saves all strings to the file we read from.
         /// </summary>
-        public void SaveFile()
+        public void SaveFile(bool doOnlineUpdate = true)
         {
             UI.SignalUserWait();
 
@@ -572,7 +572,7 @@ namespace Translator.Core
                 UI.SignalUserEndWait();
                 return;
             }
-            _ = Task.Run(RemoteUpdate);
+            if (doOnlineUpdate) _ = Task.Run(RemoteUpdate);
 
             List<CategorizedLines> CategorizedStrings = InitializeCategories();
 
@@ -697,7 +697,7 @@ namespace Translator.Core
                 //iterate through each and print them
                 foreach (LineData line in CategorizedLines.lines)
                 {
-                    OutputWriter.WriteLine(line.ToString());
+                    OutputWriter.WriteLine(line.ToString().RemoveVAHints());
                 }
                 //newline after each category
                 OutputWriter.WriteLine();
@@ -713,7 +713,10 @@ namespace Translator.Core
                 {
                     if (TranslationData.TryGetValue(item.ID, out LineData? TempResult))
                     {
-                        item.TranslationString = TempResult?.TranslationString ?? IdsToExport[item.ID].TemplateString.RemoveVAHints();
+                        if (TempResult?.TranslationLength > 0)
+                            item.TranslationString = TempResult?.TranslationString ?? IdsToExport[item.ID].TemplateString.RemoveVAHints();
+                        else
+                            item.TranslationString = IdsToExport[item.ID].TemplateString.RemoveVAHints();
                     }
                     else
                     {
@@ -1375,9 +1378,19 @@ namespace Translator.Core
                 _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
                 foreach (LineData item in IdsToExport.Values)
                 {
-                    TranslationData[item.ID] = new LineData(item.ID, StoryName, FileName, item.Category);
+                    TranslationData[item.ID] = new LineData(
+                        item.ID,
+                        StoryName,
+                        FileName,
+                        item.Category,
+                        TranslationData.TryGetValue(item.ID, out LineData? tempLineData) ?
+                        (tempLineData?.TranslationLength > 0 ?
+                        tempLineData?.TranslationString ?? item.TemplateString.RemoveVAHints()
+                        : item.TemplateString.RemoveVAHints())
+                        : item.TemplateString.RemoveVAHints()
+                        );
                 }
-                SaveFile();
+                SaveFile(false);
                 TranslationData.Clear();
                 ReadStringsTranslationsFromFile();
             }

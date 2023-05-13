@@ -35,7 +35,7 @@ namespace Translator.Managers
                 data = new()
                 {
                     //add name as first template (its not in the file)
-                    { "Name", new LineData("Name", story, filename, StringCategory.General, filename) }
+                    { "Name", new LineData("Name", story, filename, StringCategory.General, filename, true) }
                 };
 
                 //Add all new lines, but check if they are relevant
