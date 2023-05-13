@@ -31,7 +31,7 @@ namespace Translator.Core
         void ReplaceSingle(string replacement);
         void RequestAutomaticTranslation();
         void SaveCurrentString();
-        void SaveFile();
+        void SaveFile(bool doOnlineUpdate = true);
         void SaveFileAs();
         void SaveFileHandler(object? sender, ElapsedEventArgs? e);
         void Search();

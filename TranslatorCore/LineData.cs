@@ -12,51 +12,52 @@ namespace Translator.Core.Helpers
         public bool IsApproved = false;
         public bool IsTemplate = false;
         public string TemplateString = string.Empty;
-        public string TranslationString = string.Empty;
+        public string TranslationString { get => _translationString; set => _translationString = value.RemoveVAHints(); }
+        private string _translationString = string.Empty;
         public string[] Comments = Array.Empty<string>();
 
-        public int TemplateLength => TemplateString.Length;
+        public int TemplateLength => TemplateString.RemoveVAHints().Length;
         public int TranslationLength => TranslationString.Length;
 
         public LineData() { }
 
         public LineData(string id, string story, string filename, StringCategory category)
         {
-            ID = id;
-            Story = story;
-            FileName = filename;
+            ID = id.Trim();
+            Story = story.Trim();
+            FileName = filename.Trim();
             Category = category;
         }
 
         public LineData(string id, string story, string filename, StringCategory category, string english, bool isTemplate)
         {
-            ID = id;
-            TemplateString = english;
-            Story = story;
+            ID = id.Trim();
+            TemplateString = english.Trim();
+            Story = story.Trim();
             IsTranslated = true;
-            FileName = filename;
+            FileName = filename.Trim();
             Category = category;
             IsTemplate = isTemplate;
         }
 
         public LineData(string id, string story, string filename, StringCategory category, string english, string translation)
         {
-            ID = id;
-            Story = story;
-            FileName = filename;
+            ID = id.Trim();
+            Story = story.Trim();
+            FileName = filename.Trim();
             Category = category;
-            TemplateString = english;
-            TranslationString = translation;
+            TemplateString = english.Trim();
+            TranslationString = translation.Trim();
             IsTranslated = translation.Length > 1;
         }
 
         public LineData(string id, string story, string filename, StringCategory category, string translation)
         {
-            ID = id;
-            Story = story;
-            FileName = filename;
+            ID = id.Trim();
+            Story = story.Trim();
+            FileName = filename.Trim();
             Category = category;
-            TranslationString = translation;
+            TranslationString = translation.Trim();
         }
 
         public override string ToString()

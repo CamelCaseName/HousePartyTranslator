@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using Translator.UICompatibilityLayer;
@@ -8,6 +7,8 @@ namespace Translator.Core.Helpers
 {
     public static class Extensions
     {
+        public static readonly char[] trimmers = { '\0', ' ', '\t', '\n', '\r' };
+
         /// <summary>
         /// Returns whether a story is official or not
         /// </summary>
@@ -50,7 +51,7 @@ namespace Translator.Core.Helpers
         /// <returns>The cleaned string</returns>
         public static string RemoveVAHints(this string input)
         {
-            return input.AsSpan().RemoveVAHints().ToString();
+            return input.AsSpan().RemoveVAHints().ToString().Trim(trimmers);
         }
 
         public static ReadOnlySpan<char> RemoveVAHints(this ReadOnlySpan<char> span)
@@ -74,7 +75,7 @@ namespace Translator.Core.Helpers
                 }
             }
 
-            return (ReadOnlySpan<char>)output;
+            return (ReadOnlySpan<char>)output[..iterator];
         }
 
         /// <summary>
@@ -232,12 +233,17 @@ namespace Translator.Core.Helpers
         /// <returns></returns>
         public static string TrimWithDelim(this string toTrim, string delimiter = "...", int maxLength = 18)
         {
+            return toTrim.AsSpan().TrimWithDelim(delimiter, maxLength).ToString();
+        }
+
+        public static ReadOnlySpan<char> TrimWithDelim(this ReadOnlySpan<char> toTrim, string delimiter = "...", int maxLength = 18)
+        {
             int length = toTrim.Length, delimLength = delimiter.Length;
             if (length > maxLength - delimLength)
             {
                 length = maxLength - delimLength;
             }
-            return toTrim.Length > length ? toTrim[..length].Trim() + delimiter : toTrim;
+            return toTrim.Length > length ? string.Concat(toTrim[..length], delimiter.AsSpan()).AsSpan() : toTrim;
         }
 
         /// <summary>
