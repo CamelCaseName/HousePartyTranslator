@@ -2,7 +2,6 @@
 using System.Runtime.Versioning;
 using System.Text;
 using Translator.Core;
-using Translator.Helpers;
 using WinUtils = Translator.Core.Helpers.Utils<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
 
 
@@ -312,7 +311,7 @@ internal sealed unsafe class OpenCLManager
         int err;
 
         //todo add method to redo the buffers once node count changes and so on, once nodes and edges get added
-        //todo set up buffers so stopping and restarting works on gpu
+        //todo fix crash on big stories, maybe check for max size? doubt thats the issue though
         //maybe do like a buffer bool, so create bigger initially and then limit length, idk
 
         //create and fill buffers on cpu side
@@ -338,6 +337,7 @@ internal sealed unsafe class OpenCLManager
 
         //create buffers on gpu
         // we can quickly swap buffers and start the calculations again if we want
+        //Todo write access violation here, originating from opencl lib. maybe there is a max buffer size?
         node_pos_1 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer1.Length * sizeof(float) * 4), nodePosBuffer1.AsSpan(), &err);
         if (err != 0) return err;
         node_pos_2 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer2.Length * sizeof(float) * 4), nodePosBuffer2.AsSpan(), &err);

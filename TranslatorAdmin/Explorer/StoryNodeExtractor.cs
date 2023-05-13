@@ -39,10 +39,11 @@ namespace Translator.Explorer
                 //responses
                 foreach (var response in backgroundChatter.Responses ?? new())
                 {
-                    var nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.Response, "see id", bgcNode) { Data = response, DataType = typeof(Response) };
+                    var nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.BGCResponse, "see id", bgcNode) { Data = response, DataType = typeof(Response) };
 
                     bgcNode.AddChildNode(nodeResponse);
                 }
+                nodes.Add(bgcNode);
             }
 
             return nodes;

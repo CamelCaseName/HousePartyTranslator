@@ -1,8 +1,6 @@
 ﻿using System.Buffers;
-using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Versioning;
-using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Explorer.Window;

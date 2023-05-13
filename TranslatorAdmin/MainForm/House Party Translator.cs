@@ -49,6 +49,8 @@ namespace Translator
         private readonly LineList CheckListBoxLeft;
         private readonly System.Timers.Timer PresenceTimer = new(2000);
         private WinMenuItem customOpenStoryExplorer;
+        private WinMenuItem createTemplateForFile;
+        private WinMenuItem createTemplateForCompleteStory;
         private WinMenuItem editToolStripMenuItem;
         private WinMenuItem exitToolStripMenuItem;
         private WinMenuItem fileToolStripMenuItem;
@@ -58,6 +60,7 @@ namespace Translator
         private WinMenuItem openToolStripMenuItem;
         private WinMenuItem overrideCloudSaveToolStripMenuItem;
         private WinMenuItem Recents;
+        private WinMenuItem ReloadFileMenuItem;
         private WinMenuItem replaceToolStripMenuItem;
         private WinMenuItem saveAllToolStripMenuItem;
         private WinMenuItem saveAsToolStripMenuItem;
@@ -93,8 +96,8 @@ namespace Translator
         {
             //custom exception handlers to handle mysql exceptions
 #if RELEASE || USER_RELEASE
-			AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
-			Application.ThreadException += ThreadExceptionHandler;
+            AppDomain.CurrentDomain.UnhandledException += FensterUnhandledExceptionHandler;
+            Application.ThreadException += ThreadExceptionHandler;
 #endif
             UI = new(TabControl);
 
@@ -390,6 +393,28 @@ namespace Translator
             ComponentResourceManager resources = new(typeof(Fenster));
             SuspendLayout();
 
+            // createTemplateForFile
+            createTemplateForFile = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(createTemplateForFile),
+                Size = new Size(236, 22),
+                Text = "C&reate one Template file",
+                ToolTipText = "Creates the template for a single file"
+            };
+            createTemplateForFile.Click += new EventHandler(CreateTemplateForFile_click);
+
+            // createTemplateForCompleteStory
+            createTemplateForCompleteStory = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(createTemplateForCompleteStory),
+                Size = new Size(236, 22),
+                Text = "&Create all Template files",
+                ToolTipText = "Creates templates for a complete story"
+            };
+            createTemplateForCompleteStory.Click += new EventHandler(CreateTemplateForCompleteStory_Click);
+
             // searchToolStripMenuItem
             searchToolStripMenuItem = new WinMenuItem()
             {
@@ -412,6 +437,17 @@ namespace Translator
             };
             searchAllToolStripMenuItem.Click += new EventHandler(SearchAllToolStripMenuItem_click);
 
+            // ReloadFileMenuItem
+            ReloadFileMenuItem = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(ReloadFileMenuItem),
+                Size = new Size(236, 22),
+                Text = "Reload selecte&d file",
+                ToolTipText = "Reloads the currently selected file"
+            };
+            ReloadFileMenuItem.Click += new EventHandler(ReloadFileMenuItem_Click);
+
             // replaceToolStripMenuItem
             replaceToolStripMenuItem = new WinMenuItem()
             {
@@ -419,7 +455,7 @@ namespace Translator
                 Name = nameof(replaceToolStripMenuItem),
                 Size = new Size(236, 22),
                 Text = "&Replace",
-                ToolTipText = "opens the searchbar in replace mode"
+                ToolTipText = "Opens the searchbar in replace mode"
             };
             replaceToolStripMenuItem.Click += new EventHandler(ReplaceToolStripMenuItem_click);
 
@@ -442,7 +478,7 @@ namespace Translator
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(openAllToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "Open &all",
+                Text = "O&pen all",
                 ToolTipText = "Opens a dialog to select a file, all others will be discovered automatically. Usually."
             };
             openAllToolStripMenuItem.Click += new EventHandler(OpenAllToolStripMenuItem_Click);
@@ -466,7 +502,8 @@ namespace Translator
                 Name = nameof(Recents),
                 ShowShortcutKeys = false,
                 Size = new Size(236, 22),
-                Text = "Recents:"
+                Text = "Recents:",
+                ToolTipText = "The 5 most recently opened files"
             };
 
             // saveToolStripMenuItem
@@ -658,6 +695,8 @@ namespace Translator
                 new WinMenuSeperator(),
                 replaceToolStripMenuItem,
                 new WinMenuSeperator(),
+                ReloadFileMenuItem,
+                new WinMenuSeperator(),
                 overrideCloudSaveToolStripMenuItem
             });
 
@@ -678,6 +717,9 @@ namespace Translator
                 openInNewTabToolStripMenuItem,
                 new WinMenuSeperator(),
                 Recents,
+                new WinMenuSeperator(),
+                createTemplateForFile,
+                createTemplateForCompleteStory,
                 new WinMenuSeperator(),
                 saveToolStripMenuItem,
                 saveAllToolStripMenuItem,
@@ -742,6 +784,18 @@ namespace Translator
             PerformLayout();
         }
 
+        private void ReloadFileMenuItem_Click(object? sender, EventArgs e) => InputHandler.ReloadFile();
+
+        private void CreateTemplateForCompleteStory_Click(object? sender, EventArgs e)
+        {
+            InputHandler.CreateTemplateForAllFiles();
+        }
+
+        private void CreateTemplateForFile_click(object? sender, EventArgs e)
+        {
+            InputHandler.CreateTemplateForSingleFile();
+        }
+
         private void LanguageToolStripComboBox_SelectedIndexChanged(object? sender, EventArgs? e)
         {
             InputHandler.SelectedLanguageChanged();
@@ -756,6 +810,7 @@ namespace Translator
         private void OnFormClosing(object? sender, FormClosingEventArgs? e)
         {
             Settings.Default.Save();
+            LogManager.SaveLogFile();
 
             //prevent discord from getting angry
             PresenceManager?.DeInitialize();
@@ -769,7 +824,6 @@ namespace Translator
             //show save unsaved changes dialog
             TabManager.ShowAutoSaveDialog();
 
-            LogManager.SaveLogFile();
         }
 
         private void OnFormShown(object? sender, EventArgs? e)
@@ -863,7 +917,11 @@ namespace Translator
         private void SearchAllToolStripMenuItem_click(object? sender, EventArgs? e)
         {
             searchToolStripTextBox.Focus();
-            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "?search here";
+            if (searchToolStripTextBox.Text.Length == 0)
+            {
+                searchToolStripTextBox.Text = "?search here";
+                searchToolStripTextBox.SelectionStart = 1;
+            }
         }
 
         private void SearchToolStripMenuItem_click(object? sender, EventArgs? e)

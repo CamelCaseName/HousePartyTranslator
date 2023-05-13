@@ -19,7 +19,7 @@ namespace Translator.Core
 
         public static void AutoTranslate()
         {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.RequestedAutomaticTranslation();
+            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.RequestAutomaticTranslation();
         }
 
         public static void CheckItemChanged()
@@ -139,7 +139,7 @@ namespace Translator.Core
             //opne the story in tabs
             TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenAllTabs();
         }
-        
+
         public static void OpenNewFiles()
         {
             //get currently active translationmanager
@@ -185,6 +185,16 @@ namespace Translator.Core
 
             if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex >= 0)
                 TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.ApproveItem(TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex);
+        }
+
+        public static void CreateTemplateForSingleFile()
+        {
+            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.CreateTemplateForSingleFile();
+        }
+
+        public static void CreateTemplateForAllFiles()
+        {
+            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.CreateTemplateForAllFiles();
         }
     }
 }

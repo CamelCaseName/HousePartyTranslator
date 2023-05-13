@@ -766,5 +766,17 @@ namespace TranslatorDesktopApp.Properties {
                 this["ShowExtendedExplorerInfo"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IgnoreMissingLinesWarning {
+            get {
+                return ((bool)(this["IgnoreMissingLinesWarning"]));
+            }
+            set {
+                this["IgnoreMissingLinesWarning"] = value;
+            }
+        }
     }
 }
