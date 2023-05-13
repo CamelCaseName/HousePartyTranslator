@@ -318,7 +318,7 @@ namespace Translator.Explorer
                 //create info
                 //strip text of all VA performance hints, embedded in []. if user wants it
                 string info;
-                if (Settings.WDefault.DisplayVAHints) { info = node.Text.ConstrainLength(); }
+                if (Settings.WDefault.DisplayVoiceActorHints) { info = node.Text.ConstrainLength(); }
                 else { info = node.Text.RemoveVAHints().ConstrainLength(); }
 
                 //create seperator

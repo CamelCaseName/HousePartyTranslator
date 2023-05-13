@@ -94,8 +94,8 @@ namespace Translator.Explorer
 
         public Node()
         {
-            ID = "";
-            Text = "";
+            ID = string.Empty;
+            Text = string.Empty;
             Type = NodeType.Null;
             ParentNodes = new NodeList();
             ChildNodes = new NodeList();

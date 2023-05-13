@@ -22,7 +22,7 @@ namespace Translator.Managers
         {
             //modify client signatures
             client.DefaultRequestHeaders.Add("User-Agent", "House Party Translator update service");
-            client.DefaultRequestHeaders.Add("Authorization", "Bearer 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");
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer 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");
             client.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
 
             //offload async context
@@ -40,8 +40,11 @@ namespace Translator.Managers
                 string oldFile = DeleteOld();//deletes prev.exe if it exists
 
                 //check version and for need of update
-                if (!UpdateNeeded(response?.TagName ?? "0.0.0.0")) return;
-
+                if (!UpdateNeeded(response?.TagName ?? "0.0.0.0"))
+                {
+                    LogManager.Log("no update needed");
+                    return;
+                }
                 //prepare files
                 (bool successfull, string newFile) = CreateFiles();
                 if (!successfull) return;
@@ -55,7 +58,7 @@ namespace Translator.Managers
 
                     LogManager.Log("Self update started");
 
-                    Download(response?.Assets?[0]?.BrowserDownloadUrl ?? "", oldFile, newFile);
+                    Download(response?.Assets?[0]?.BrowserDownloadUrl ?? string.Empty, oldFile, newFile);
                 }
             }
             catch (Exception e)
@@ -91,13 +94,13 @@ namespace Translator.Managers
             {
                 LogManager.Log(e.Message);
             }
-            return (false, "");
+            return (false, string.Empty);
         }
 
         private static string DeleteOld()
         {
             //delete old one if it exists
-            string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath) ?? "", "prev.exe");
+            string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath) ?? string.Empty, "prev.exe");
             if (File.Exists(oldFile)) File.Delete(oldFile);
             return oldFile;
         }

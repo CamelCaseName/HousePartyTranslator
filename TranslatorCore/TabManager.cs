@@ -240,7 +240,7 @@ namespace Translator.Core
             {
                 if (InGlobalSearch)
                 {
-                    ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? "");
+                    ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? string.Empty);
                 }
                 else
                 {
@@ -326,7 +326,7 @@ namespace Translator.Core
             }
             else
             {
-                ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? "");
+                ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? string.Empty);
             }
         }
 
@@ -335,7 +335,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyId()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.SelectedId ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.SelectedId ?? string.Empty);
         }
 
         /// <summary>
@@ -343,7 +343,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyFileName()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.FileName ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.FileName ?? string.Empty);
         }
 
         /// <summary>
@@ -351,7 +351,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyStoryName()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.StoryName ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.StoryName ?? string.Empty);
         }
 
         /// <summary>
@@ -363,7 +363,7 @@ namespace Translator.Core
                 ActiveTranslationManager.StoryName +
                 "/" + ActiveTranslationManager.FileName +
                 " : " +
-                ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? ""].ToString());
+                ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? string.Empty].ToString());
         }
 
         /// <summary>
@@ -371,7 +371,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyAsOutput()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? ""].ToString() ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? string.Empty].ToString() ?? string.Empty);
         }
 
         /// <summary>
@@ -379,7 +379,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTranslation()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? ""].TranslationString ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? string.Empty].TranslationString ?? string.Empty);
         }
 
         /// <summary>
@@ -387,7 +387,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTemplate()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? ""].TemplateString ?? "");
+            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? string.Empty].TemplateString ?? string.Empty);
         }
 
         public static void ReplaceAll()
@@ -400,18 +400,18 @@ namespace Translator.Core
                     if (i != 0) History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(i - 1, i) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
                     else History.AddAction(new SelectedTabChanged<TLineItem, TUIHandler, TTabController, TTab>(0, i) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
 
-                    translationManagers[TabControl.TabPages[i]].ReplaceAll(UI.ReplaceBarText ?? "");
+                    translationManagers[TabControl.TabPages[i]].ReplaceAll(UI.ReplaceBarText ?? string.Empty);
                 }
             }
             else
             {
-                ActiveTranslationManager.ReplaceAll(UI.ReplaceBarText ?? "");
+                ActiveTranslationManager.ReplaceAll(UI.ReplaceBarText ?? string.Empty);
             }
         }
 
         public static void Replace()
         {
-            ActiveTranslationManager.ReplaceSingle(UI.ReplaceBarText ?? "");
+            ActiveTranslationManager.ReplaceSingle(UI.ReplaceBarText ?? string.Empty);
         }
 
         public static void OpenFile()

@@ -68,7 +68,7 @@ namespace Translator.Core.Helpers
             }
             //this comparer checks if the id can be converted to a number, if so remove the u and comapre.
             int parsed2 = 0;
-            bool isNumber = int.TryParse(line1.ID.Replace("u", ""), out int parsed1) && int.TryParse(line2.ID.Replace("u", ""), out parsed2);
+            bool isNumber = int.TryParse(line1.ID.Replace("u", string.Empty), out int parsed1) && int.TryParse(line2.ID.Replace("u", string.Empty), out parsed2);
             return isNumber ? parsed1.CompareTo(parsed2) : line1.ID.CompareTo(line2.ID);
         }
 
@@ -86,7 +86,7 @@ namespace Translator.Core.Helpers
         {
             //this comparer checks if the id can be converted to a number, if so remove the u and comapre.
             int parsed2 = 0;
-            bool isNumber = int.TryParse(line1?.ID?.Replace("u", "") ?? " -1", out int parsed1) && int.TryParse(line2?.ID?.Replace("u", "") ?? " 0", out parsed2);
+            bool isNumber = int.TryParse(line1?.ID?.Replace("u", string.Empty) ?? " -1", out int parsed1) && int.TryParse(line2?.ID?.Replace("u", string.Empty) ?? " 0", out parsed2);
             return isNumber ? parsed1.CompareTo(parsed2) : line1?.ID?.CompareTo(line2?.ID) ?? 0;
         }
     }

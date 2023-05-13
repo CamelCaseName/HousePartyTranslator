@@ -66,7 +66,7 @@ namespace Translator.Core.Helpers
                     Settings.Default.TemplatePath.Length > 0 && !isTranslation ?
                         Settings.Default.TemplatePath :
                         @"C:\Users\%USER%\Documents",
-                /*filename*/preselectedFile ?? "",
+                /*filename*/preselectedFile ?? string.Empty,
             });
             if (selectFileDialog == null) { return string.Empty; }
 
@@ -101,7 +101,7 @@ namespace Translator.Core.Helpers
                     Settings.Default.TemplatePath.Length > 0 && !isTranslation ?
                         Settings.Default.TemplatePath :
                         @"C:\Users\%USER%\Documents",
-                /*filename*/preselectedFile ?? ""
+                /*filename*/preselectedFile ?? string.Empty
             });
             if (selectFileDialog == null) { return Array.Empty<string>(); }
 
@@ -237,8 +237,8 @@ namespace Translator.Core.Helpers
                 StringCategory.ItemAction => "[Item Actions]",
                 StringCategory.ItemGroupAction => "[Item Group Actions]",
                 StringCategory.Achievement => "[Achievements]",
-                StringCategory.Neither => "",//do nothing hehehehe
-                _ => "",//do nothing hehehehe
+                StringCategory.Neither => string.Empty,//do nothing hehehehe
+                _ => string.Empty,//do nothing hehehehe
             };
         }
     }
