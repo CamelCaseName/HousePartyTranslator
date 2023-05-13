@@ -9,11 +9,13 @@ namespace Translator.Managers
     internal static class SoftwareVersionManager
     {
         public const string LocalVersion = "0.7.3.0";
-        public static string? LatestGithubVersion;
+        public static string? LatestGithubVersion = "0.0.0.0";
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new();
+#if !DEBUG
         private static bool DownloadDone = false;
         const string APIUrl = "https://api.github.com/repos/CamelCaseName/HousePartyTranslator/releases/latest";
+#endif
 
         /// <summary>
         /// Download and replaces the running application if necessary
@@ -22,15 +24,21 @@ namespace Translator.Managers
         {
             //modify client signatures
             client.DefaultRequestHeaders.Add("User-Agent", "House Party Translator update service");
-            client.DefaultRequestHeaders.Add("Authorization", "Bearer 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");
             client.DefaultRequestHeaders.Add("Accept", "application/vnd.github+json");
 
             //offload async context
             DoWork();
         }
 
+#if DEBUG
+#pragma warning disable CS1998
+#endif
         private static async void DoWork()
         {
+#if DEBUG
+#pragma warning restore CS1998
+            return;
+#else
             if (App.MainForm?.UI == null) return;
             try
             {
@@ -162,6 +170,7 @@ namespace Translator.Managers
                 _ = Msg.ErrorOk($"The update failed because the program could not access\n   {Directory.GetCurrentDirectory()}\n or the folder it is in.", "Update failed");
                 return false;
             }
+#endif
+        }
         }
     }
-}

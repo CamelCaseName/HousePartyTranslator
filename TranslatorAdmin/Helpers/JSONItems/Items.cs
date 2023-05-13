@@ -2,7 +2,6 @@
 
 namespace Translator.Explorer.JSON
 {
-#pragma warning disable 1591
     internal sealed class Criterion
     {
         public BoolCritera? BoolValue { get; set; }
@@ -353,8 +352,8 @@ namespace Translator.Explorer.JSON
 
     internal sealed class Value
     {
+#pragma warning disable IDE1006
         public string? value { get; set; }
+#pragma warning restore IDE1006
     }
-
-#pragma warning restore
 }

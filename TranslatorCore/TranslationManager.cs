@@ -601,7 +601,6 @@ namespace Translator.Core
                 UI.SignalUserEndWait();
                 LogManager.Log("Successfully saved the file remotely");
             }
-
         }
 
         private List<CategorizedLines> InitializeCategories()
@@ -1067,7 +1066,7 @@ namespace Translator.Core
             }
         }
 
-        private string ExtractStoryName(string path)
+        public static string ExtractStoryName(string path)
         {
             var paths = path.Split('\\');
 
@@ -1245,7 +1244,7 @@ namespace Translator.Core
         private void ReadStringsTranslationsFromFile()
         {
             StringCategory currentCategory = StringCategory.General;
-            FileData IdsToExport = new();
+            FileData IdsToExport;
             if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
             {
                 _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineDataTemplate(FileName, StoryName, out IdsToExport);
