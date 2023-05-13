@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using Translator.UICompatibilityLayer;
@@ -49,9 +50,15 @@ namespace Translator.Core.Helpers
         /// <returns>The cleaned string</returns>
         public static string RemoveVAHints(this string input)
         {
+            return input.AsSpan().RemoveVAHints().ToString();
+        }
+
+        public static ReadOnlySpan<char> RemoveVAHints(this ReadOnlySpan<char> span)
+        {
             bool inVAHint = false;
-            string output = "";
-            foreach (char character in input)
+            Span<char> output = new Span<char>(new char[span.Length]);
+            int iterator = 0;
+            foreach (char character in span)
             {
                 if (character == '[' && !inVAHint)
                 {
@@ -63,11 +70,11 @@ namespace Translator.Core.Helpers
                 }
                 else if (!inVAHint)
                 {
-                    output += character;
+                    output[iterator++] = character;
                 }
             }
 
-            return output;
+            return (ReadOnlySpan<char>)output;
         }
 
         /// <summary>

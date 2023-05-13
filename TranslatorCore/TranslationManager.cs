@@ -366,7 +366,10 @@ namespace Translator.Core
 
             if (currentIndex >= 0)
             {
-                TabUI.TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine);
+                if (Settings.Default.DisplayVoiceActorHints)
+                    TabUI.TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine);
+                else
+                    TabUI.TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine).RemoveVAHints();
 
                 if (!isTemplate)
                 {
@@ -1117,12 +1120,15 @@ namespace Translator.Core
                     TranslationData[key].IsTemplate = false;
                     TranslationData[key].IsTranslated = tempLine.IsTranslated;
                     TranslationData[key].Story = tempLine.Story;
-                    if (!localTakesPriority && DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) TranslationData[key].TranslationString = tempLine.TranslationString;
+                    if (!localTakesPriority
+                        && DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline
+                        && tempLine.TranslationLength > 0)
+                        TranslationData[key].TranslationString = tempLine.TranslationString;
                     else if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
                     TranslationData[key].IsApproved = tempLine.IsApproved;
                 }
 
-                if (TranslationData[key].TemplateString == null) TranslationData[key].TemplateString = "";
+                if (TranslationData[key].TemplateString == null) TranslationData[key].TemplateString = string.Empty;
 
                 TabUI.Lines.Add(key, TranslationData[key].IsApproved);
 

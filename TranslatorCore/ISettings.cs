@@ -27,6 +27,7 @@ namespace Translator.Core
         public bool AutoLoadRecentIndex { get => false; set { } }
         public bool AutoSave { get => false; set { } }
         public bool AutoTranslate { get => false; set { } }
+        public bool DisplayVoiceActorHints { get => false; set { } }
         public bool DoDiscordRichPresence { get => false; set { } }
         public bool UseFalseFolder { get => false; set { } }
         public int RecentIndex { get => -1; set { } }
@@ -61,6 +62,7 @@ namespace Translator.Core
         public bool AutoLoadRecentIndex { get; set; }
         public bool AutoSave { get; set; }
         public bool AutoTranslate { get; set; }
+        public bool DisplayVoiceActorHints { get; set; }
         public bool DoDiscordRichPresence { get; set; }
         public bool UseFalseFolder { get; set; }
         public int RecentIndex { get; set; }

@@ -41,7 +41,7 @@ namespace Translator.InterfaceImpls
         public string TemplatePath { get => Settings.Default.template_path; set => Settings.Default.template_path = value; }
         public string TranslationPath { get => Settings.Default.translation_path; set => Settings.Default.translation_path = value; }
         public TimeSpan AutoSaveInterval { get => Settings.Default.AutoSaveInterval; set => Settings.Default.AutoSaveInterval = value; }
-        public bool DisplayVAHints { get => Settings.Default.displayVAHints; set => Settings.Default.displayVAHints = value; }
+        public bool DisplayVoiceActorHints { get => Settings.Default.displayVAHints; set => Settings.Default.displayVAHints = value; }
         public string StoryPath { get => Settings.Default.story_path; set => Settings.Default.story_path = value; }
         public bool UpdateSettings { get => Settings.Default.UpdateSettings; set => Settings.Default.UpdateSettings = value; }
         public bool IgnoreCustomStoryWarning { get => Settings.Default.IgnoreCustomStoryWarning; set => Settings.Default.IgnoreCustomStoryWarning = value; }

@@ -27,12 +27,12 @@ namespace Translator.Managers
             }
 
             UI.SignalUserWait();
-            data = new FileData();
+            data = new();
             var explorer = new ContextProvider(new(), story == Path.GetFileNameWithoutExtension(path), false, filename, story, path);
             NodeList nodes = explorer.GetTemplateNodes();
             if (nodes != null)
             {
-                data = new FileData
+                data = new()
                 {
                     //add name as first template (its not in the file)
                     { "Name", new LineData("Name", story, filename, StringCategory.General, filename) }
