@@ -486,9 +486,10 @@ namespace Translator.Core
         /// <summary>
         /// replaces the template version of the string with a computer translated one to speed up translation.
         /// </summary>
-        public void RequestedAutomaticTranslation()
+        public void RequestAutomaticTranslation()
         {
-            AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+            if (SelectedId != string.Empty)
+                AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
         }
 
         /// <summary>
@@ -1295,11 +1296,11 @@ namespace Translator.Core
         private void SplitReadTranslations(List<string> LinesFromFile, StringCategory category, FileData IdsToExport)
         {
             string[] lastLine = Array.Empty<string>();
-            string multiLineCollector = "";
+            string multiLineCollector = string.Empty;
             //remove last if empty, breaks line loading for the last
             while (LinesFromFile.Count > 0)
             {
-                if (LinesFromFile.Last() == "")
+                if (LinesFromFile.Last() == string.Empty)
                     LinesFromFile.RemoveAt(LinesFromFile.Count - 1);
                 else break;
             }
@@ -1313,7 +1314,7 @@ namespace Translator.Core
                     //get current line
                     lastLine = line.Split('|');
                     //reset multiline collector
-                    multiLineCollector = "";
+                    multiLineCollector = string.Empty;
                 }
                 else
                 {
@@ -1334,12 +1335,12 @@ namespace Translator.Core
                             }
                             else
                             {//write last line with id if no real line of text is afterwards
-                                CreateLineInTranslations(lastLine, category, IdsToExport, lastLine[1]);
+                                CreateLineInTranslations(lastLine, category, IdsToExport, string.Empty);
                             }
                         }
                         //resetting for next iteration
                         lastLine = Array.Empty<string>();
-                        multiLineCollector = "";
+                        multiLineCollector = string.Empty;
                         category = tempCategory;
                         CategoriesInFile.Add(category);
                     }

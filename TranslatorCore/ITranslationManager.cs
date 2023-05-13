@@ -29,7 +29,7 @@ namespace Translator.Core
         void ReloadTranslationTextbox();
         void ReplaceAll(string replacement);
         void ReplaceSingle(string replacement);
-        void RequestedAutomaticTranslation();
+        void RequestAutomaticTranslation();
         void SaveCurrentString();
         void SaveFile();
         void SaveFileAs();

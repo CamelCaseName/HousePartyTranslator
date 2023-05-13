@@ -19,7 +19,7 @@ namespace Translator.Core
 
         public static void AutoTranslate()
         {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.RequestedAutomaticTranslation();
+            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.RequestAutomaticTranslation();
         }
 
         public static void CheckItemChanged()
