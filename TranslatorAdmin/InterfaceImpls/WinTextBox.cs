@@ -1,6 +1,13 @@
 ﻿using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.UICompatibilityLayer;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Design;
+using System.Runtime.InteropServices;
+using System.Windows.Forms.VisualStyles;
+using Silk.NET.OpenCL;
 
 namespace Translator.InterfaceImpls
 {
@@ -47,37 +54,95 @@ namespace Translator.InterfaceImpls
         {
             base.OnPaint(e);
 
-            //if we have a WM_PAINT and should display a shighlight somewhere
-            if (customDrawNeeded && ShowHighlight && HighlightEnd > HighlightStart && HighlightStart < Text.Length && HighlightEnd <= Text.Length)
+            if (!string.IsNullOrEmpty(PlaceholderText) && !Focused && TextLength == 0)
             {
-                //overlay the other text highlight
-                //get text positions
-                int currentHighlightLength = 0, newStartPos = HighlightStart;
-                while (newStartPos + currentHighlightLength < HighlightEnd)
-                {
-                    currentHighlightLength = Text.AsSpan()[newStartPos..HighlightEnd].IndexOfAny(" ,.-".AsSpan());
-                    if (currentHighlightLength < 0)
-                        currentHighlightLength = HighlightEnd - newStartPos;
-                    else
-                        ++currentHighlightLength;//so that we also contain the other character
-
-                    Point highlightLocation = GetPositionFromCharIndex(newStartPos);
-                    highlightLocation.X -= 2;
-                    TextRenderer.DrawText(e.Graphics, Text.AsSpan()[newStartPos..(newStartPos + currentHighlightLength)], base.Font, highlightLocation, Utils.darkText, Utils.highlight);
-                    //move over
-                    newStartPos += currentHighlightLength;
-                    currentHighlightLength = 0;
-                }
-                customDrawNeeded = false;
+                DrawPlaceholderText(e.Graphics);
             }
+            //if we have a WM_PAINT and should display a shighlight somewhere
+            else if (customDrawNeeded && ShowHighlight && HighlightEnd > HighlightStart && HighlightStart < Text.Length && HighlightEnd <= Text.Length)
+            {
+                DrawHighlightedText(e.Graphics);
+            }
+        }
+
+        private void DrawHighlightedText(Graphics g)
+        {
+            //overlay the other text highlight
+            //get text positions
+            int currentHighlightLength = 0, newStartPos = HighlightStart;
+            while (newStartPos + currentHighlightLength < HighlightEnd)
+            {
+                currentHighlightLength = Text.AsSpan()[newStartPos..HighlightEnd].IndexOfAny(" ,.-".AsSpan());
+                if (currentHighlightLength < 0)
+                    currentHighlightLength = HighlightEnd - newStartPos;
+                else
+                    ++currentHighlightLength;//so that we also contain the other character
+
+                Point highlightLocation = GetPositionFromCharIndex(newStartPos);
+                highlightLocation.X -= 2;
+                TextRenderer.DrawText(g, Text.AsSpan()[newStartPos..(newStartPos + currentHighlightLength)], base.Font, highlightLocation, Utils.darkText, Utils.highlight);
+                //move over
+                newStartPos += currentHighlightLength;
+                currentHighlightLength = 0;
+            }
+            customDrawNeeded = false;
         }
 
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-            if ((m.Msg == WM_PAINT || m.Msg == WM_MOUSEMOVE) && IsHandleCreated && customDrawNeeded)
+            if ((m.Msg == WM_PAINT || m.Msg == WM_MOUSEMOVE) && IsHandleCreated)
                 //we have a paint message, send to own handler. only if we have a gdi handle
                 OnPaint(new PaintEventArgs(Graphics.FromHwnd(m.HWnd), ClientRectangle));
+
+        }
+
+        private void DrawPlaceholderText(Graphics g)
+        {
+            TextFormatFlags flags = TextFormatFlags.NoPadding | TextFormatFlags.Top |
+                                    TextFormatFlags.EndEllipsis;
+            Rectangle rectangle = ClientRectangle;
+
+            if (RightToLeft == RightToLeft.Yes)
+            {
+                flags |= TextFormatFlags.RightToLeft;
+                switch (TextAlign)
+                {
+                    case HorizontalAlignment.Center:
+                        flags |= TextFormatFlags.HorizontalCenter;
+                        rectangle.Offset(0, 1);
+                        break;
+                    case HorizontalAlignment.Left:
+                        flags |= TextFormatFlags.Right;
+                        rectangle.Offset(1, 1);
+                        break;
+                    case HorizontalAlignment.Right:
+                        flags |= TextFormatFlags.Left;
+                        rectangle.Offset(0, 1);
+                        break;
+                }
+            }
+            else
+            {
+                flags &= ~TextFormatFlags.RightToLeft;
+                switch (TextAlign)
+                {
+                    case HorizontalAlignment.Center:
+                        flags |= TextFormatFlags.HorizontalCenter;
+                        rectangle.Offset(0, 1);
+                        break;
+                    case HorizontalAlignment.Left:
+                        flags |= TextFormatFlags.Left;
+                        rectangle.Offset(1, 1);
+                        break;
+                    case HorizontalAlignment.Right:
+                        flags |= TextFormatFlags.Right;
+                        rectangle.Offset(0, 1);
+                        break;
+                }
+            }
+
+            TextRenderer.DrawText(g, PlaceholderText, Font, rectangle, Utils.darkText, Utils.background, flags);
         }
     }
 }

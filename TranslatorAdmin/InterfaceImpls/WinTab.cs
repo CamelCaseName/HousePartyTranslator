@@ -75,6 +75,7 @@ namespace Translator.InterfaceImpls
             TranslationTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
             TranslationTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
             TranslationTextBox.PlaceholderText = "Translation goes here";
+            
             // 
             // AutoTranslateThis
             // 
