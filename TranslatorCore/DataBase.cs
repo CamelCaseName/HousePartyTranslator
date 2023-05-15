@@ -382,10 +382,13 @@ namespace Translator.Core
                 int v = c;
                 for (int j = 0; j < 400; j++)
                 {
+                    if (v >= lines.Values.Count) break;
                     _ = builder.Append($"(@id{v}, @story{v}, @fileName{v}, @category{v}, @english{v}, @deleted{v}),");
                     v++;
-                    if (v >= lines.Values.Count) break;
                 }
+
+                //we can exit if we sent everything, this an occurr if the story has exactly a multiple of 400 entries
+                if (v == c) break;
 
                 _ = builder.Remove(builder.Length - 1, 1);
                 string command = builder.ToString() + " ON DUPLICATE KEY UPDATE english = VALUES(english), deleted = VALUES(deleted);";
@@ -397,6 +400,7 @@ namespace Translator.Core
                 //insert all the parameters
                 for (int k = 0; k < 400; k++)
                 {
+                    if (c >= lines.Values.Count) break;
                     LineData line = lines.Values.ElementAt(c);
                     _ = cmd.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + "template");
                     _ = cmd.Parameters.AddWithValue($"@story{c}", line.Story);
@@ -405,7 +409,6 @@ namespace Translator.Core
                     _ = cmd.Parameters.AddWithValue($"@english{c}", line.TemplateString.Trim());
                     _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
                     ++c;
-                    if (c >= lines.Values.Count) break;
                 }
 
                 _ = ExecuteOrReOpen(cmd);
