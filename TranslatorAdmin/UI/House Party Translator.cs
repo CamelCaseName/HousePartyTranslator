@@ -774,7 +774,11 @@ namespace Translator.Desktop.UI
             Name = nameof(Fenster);
             ShowIcon = false;
             Icon = Properties.Resources.wumpus_smoll;
+#if DEBUG || DEBUG_ADMIN
+            Text = "Translator (DEBUG)";
+#else
             Text = "Translator";
+#endif
             StartPosition = FormStartPosition.CenterScreen;
             FormClosing += new FormClosingEventHandler(OnFormClosing);
             MouseUp += new MouseEventHandler(TextContextOpened);

@@ -913,7 +913,7 @@ namespace Translator.Core
             //remove pipe to not break saving/export
             TabUI.TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
             SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
-            UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
+            UpdateCharacterCountLabel(SelectedLine.TranslationLength, SelectedLine.TemplateLength);
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
         }

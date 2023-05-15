@@ -47,6 +47,7 @@ namespace Translator.Desktop.Explorer.JSONItems
             Posing = 120,
             Property = 133,
             Quest = 100,
+            IsDLCActive,
             SameZoneAs = 911,
             Social = 50,
             State = 130,
