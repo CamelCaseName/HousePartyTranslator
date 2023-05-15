@@ -50,10 +50,19 @@ namespace Translator.InterfaceImpls
 
         public new void Focus() => base.Focus();
 
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+            if ((m.Msg == WM_PAINT || m.Msg == WM_MOUSEMOVE) && IsHandleCreated)
+                //we have a paint message, send to own handler. only if we have a gdi handle
+                OnPaint(new PaintEventArgs(Graphics.FromHwnd(m.HWnd), ClientRectangle));
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
+            //let the base handle backgorund and border drawing and so on
             base.OnPaint(e);
-
+            //if the control isnt focused and we can draw a placeholdertext, do it
             if (!string.IsNullOrEmpty(PlaceholderText) && !Focused && TextLength == 0)
             {
                 DrawPlaceholderText(e.Graphics);
@@ -72,6 +81,7 @@ namespace Translator.InterfaceImpls
             int currentHighlightLength = 0, newStartPos = HighlightStart;
             while (newStartPos + currentHighlightLength < HighlightEnd)
             {
+                //find length of search term in the current line
                 currentHighlightLength = Text.AsSpan()[newStartPos..HighlightEnd].IndexOfAny(" ,.-".AsSpan());
                 if (currentHighlightLength < 0)
                     currentHighlightLength = HighlightEnd - newStartPos;
@@ -79,7 +89,10 @@ namespace Translator.InterfaceImpls
                     ++currentHighlightLength;//so that we also contain the other character
 
                 Point highlightLocation = GetPositionFromCharIndex(newStartPos);
+                //adjust offset
                 highlightLocation.X -= 2;
+
+                //render highlight in the current line
                 AdjustTextRegion(out TextFormatFlags flags, out highlightLocation);
                 TextRenderer.DrawText(g, Text.AsSpan()[newStartPos..(newStartPos + currentHighlightLength)], base.Font, highlightLocation, Utils.darkText, Utils.highlight, flags);
                 //move over
@@ -87,15 +100,6 @@ namespace Translator.InterfaceImpls
                 currentHighlightLength = 0;
             }
             customDrawNeeded = false;
-        }
-
-        protected override void WndProc(ref Message m)
-        {
-            base.WndProc(ref m);
-            if ((m.Msg == WM_PAINT || m.Msg == WM_MOUSEMOVE) && IsHandleCreated)
-                //we have a paint message, send to own handler. only if we have a gdi handle
-                OnPaint(new PaintEventArgs(Graphics.FromHwnd(m.HWnd), ClientRectangle));
-
         }
 
         private void DrawPlaceholderText(Graphics g)
