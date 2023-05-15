@@ -169,9 +169,8 @@ namespace Translator.Desktop.UI
 
         public void Comments_TextChanged(object? sender, EventArgs? e)
         {
-            if (ActiveControl == null) return;
             TabManager.ActiveTranslationManager.UpdateComments();
-            InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
+            InputHandler.TextChangedCallback(TabManager.SelectedTab.Comments, CheckListBoxLeft.SelectedIndex);
         }
 
         /// <summary>

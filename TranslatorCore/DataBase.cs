@@ -465,13 +465,13 @@ namespace Translator.Core
                 string fileName = translationData.ElementAt(0).Value.FileName;
                 for (int x = 0; x < ((translationData.Count / 400) + 0.5); x++)
                 {
-                    var builder = new StringBuilder(INSERT + @" (id, translated, approved, comment, translation, deleted) VALUES ", translationData.Count * 100);
+                    var builder = new StringBuilder(INSERT + @" (id,  story, filename, category, translated, approved, language, comment, translation, deleted) VALUES ", translationData.Count * 100);
 
                     //add all values
                     int v = c;
                     for (int j = 0; j < 400; j++)
                     {
-                        _ = builder.Append($"(@id{v}, @translated{v}, @approved{v}, @comment{v}, @translation{v}, @deleted{v}),");
+                        _ = builder.Append($"(@id{v}, @story{v}, @filename{v}, @category{v}, @translated{v}, @approved{v}, @language{v}, @comment{v}, @translation{v}, @deleted{v}),");
 
                         v++;
                         if (v >= translationData.Values.Count) break;
@@ -479,7 +479,7 @@ namespace Translator.Core
 
                     _ = builder.Remove(builder.Length - 1, 1);
                     using MySqlCommand cmd = connection.CreateCommand(); 
-                    cmd.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
+                    cmd.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved), story = VALUES(story), category = VALUES(category), filename = VALUES(filename)");
                     cmd.Parameters.Clear();
 
                     //insert all the parameters
@@ -494,8 +494,12 @@ namespace Translator.Core
                         }
 
                         _ = cmd.Parameters.AddWithValue($"@id{c}", storyName + fileName + item.ID + language);
+                        _ = cmd.Parameters.AddWithValue($"@story{c}", storyName);
+                        _ = cmd.Parameters.AddWithValue($"@filename{c}", fileName);
+                        _ = cmd.Parameters.AddWithValue($"@category{c}", (int)item.Category);
                         _ = cmd.Parameters.AddWithValue($"@translated{c}", 1);
                         _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
+                        _ = cmd.Parameters.AddWithValue($"@language{c}", language);
                         _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
                         _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
                         _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);

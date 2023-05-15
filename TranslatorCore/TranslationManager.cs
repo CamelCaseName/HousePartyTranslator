@@ -387,7 +387,7 @@ namespace Translator.Core
                     TabUI.ApprovedButtonChecked = SelectedLine.IsApproved;
 
                     //update label
-                    UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
+                    UpdateCharacterCountLabel(SelectedLine.TranslationLength, SelectedLine.TemplateLength);
 
                     TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
 
