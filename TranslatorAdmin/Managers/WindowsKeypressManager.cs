@@ -1,5 +1,7 @@
-﻿using Translator.Core.UICompatibilityLayer;
+﻿using Translator.Core;
+using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.UI;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using InputHandler = Translator.Core.InputHandler<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 using TabManager = Translator.Core.TabManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 
@@ -68,7 +70,7 @@ namespace Translator.Desktop.Managers
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
                 case (Keys.Enter):
-                    return InputHandler.AdvanceSearchResultSelection();
+                    return TabManager.ActiveTranslationManager.SelectNextResultIfApplicable();
 
                 //set selected string as search string and place cursor in search box
                 case (Keys.Control | Keys.F):
@@ -77,27 +79,27 @@ namespace Translator.Desktop.Managers
 
                 //search, but also with replacing
                 case (Keys.Control | Keys.Shift | Keys.F):
-                    InputHandler.ToggleReplaceUI();
+                    TabManager.ActiveTranslationManager.ToggleReplaceUI();
                     return true;
 
                 //save current file
                 case (Keys.Control | Keys.S):
-                    InputHandler.SaveFile();
+                    TabManager.ActiveTranslationManager.SaveFile();
                     return true;
 
                 //save current string
                 case (Keys.Control | Keys.Shift | Keys.S):
-                    InputHandler.SaveSelectedString();
+                    TabManager.ActiveTranslationManager.SaveCurrentString();
                     return true;
 
                 //saves all open tabs
                 case (Keys.Alt | Keys.Shift | Keys.S):
-                    InputHandler.SaveAllTabs();
+                    _ = TabManager.SaveAllTabs();
                     return true;
 
                 //reload currently loaded file
                 case (Keys.Control | Keys.R):
-                    InputHandler.ReloadFile();
+                    TabManager.ActiveTranslationManager.ReloadFile();
                     return true;
 
                 //select string above current selection
@@ -144,23 +146,23 @@ namespace Translator.Desktop.Managers
                     return App.MainForm.MoveCursorInText(false);
 
                 case Keys.Control | Keys.O:
-                    InputHandler.OpenNewFiles();
+                    TabManager.OpenNewFiles();
                     return true;
 
                 case Keys.Control | Keys.Z:
-                    InputHandler.Undo();
+                    History.Undo();
                     return true;
 
                 case Keys.Control | Keys.U:
-                    InputHandler.Redo();
+                    History.Redo();
                     return true;
 
                 case Keys.Control | Keys.Shift | Keys.O:
-                    InputHandler.OpenNewTab();
+                    TabManager.OpenNewTab();
                     return true;
 
                 case Keys.Alt | Keys.Shift | Keys.O:
-                    InputHandler.OpenAll();
+                    TabManager.OpenAllTabs();
                     return true;
 
                 case Keys.Control | Keys.E:

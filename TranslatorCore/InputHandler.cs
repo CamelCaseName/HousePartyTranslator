@@ -12,27 +12,6 @@ namespace Translator.Core
         private static string? lastText;
         private static int lastIndex = Settings.Default.RecentIndex;
 
-        public static void ApprovedButtonChanged()
-        {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.ApprovedButtonHandler();
-        }
-
-        public static void AutoTranslate()
-        {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.RequestAutomaticTranslation();
-        }
-
-        public static void CheckItemChanged()
-        {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.ApproveIfPossible(false);
-        }
-
-        public static void Redo() => History.Redo();
-
-        public static void Undo() => History.Undo();
-
-        public static void OnSwitchTabs() => TabManager<TLineItem, TUIHandler, TTabController, TTab>.OnSwitchTabs();
-
         public static void SaveAndApproveAndSelectNewLine()
         {
             if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex >= 0)
@@ -74,17 +53,6 @@ namespace Translator.Core
                 TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex--;
         }
 
-        public static void ReloadFile() =>
-                            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.ReloadFile();
-
-        public static void SaveAllTabs() =>
-                            _ = TabManager<TLineItem, TUIHandler, TTabController, TTab>.SaveAllTabs();
-
-        public static void SaveSelectedString() =>
-                            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.SaveCurrentString();
-
-        public static void SaveFile() => TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.SaveFile();
-
         public static void FocusSearch()
         {
             //we have something selected we want to search for
@@ -101,8 +69,6 @@ namespace Translator.Core
             }
             TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.FocusSearchBar();
         }
-
-        public static bool AdvanceSearchResultSelection() => TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.SelectNextResultIfApplicable();
 
         /// <summary>
         /// call this before the text changed
@@ -134,23 +100,6 @@ namespace Translator.Core
             }
         }
 
-        public static void OpenAll()
-        {
-            //opne the story in tabs
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenAllTabs();
-        }
-
-        public static void OpenNewFiles()
-        {
-            //get currently active translationmanager
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenNewFiles();
-        }
-
-        public static void OpenNewTab()
-        {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenNewTab();
-        }
-
         public static void SelectedItemChanged(ILineList<TLineItem> listBox)
         {
             if (lastIndex >= 0 && listBox.SelectedIndex >= 0)
@@ -170,31 +119,10 @@ namespace Translator.Core
             TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.ReloadFile();
         }
 
-        public static void ToggleReplaceUI()
-        {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.ToggleReplaceUI();
-        }
-
-        public static void TranslationTextChanged()
-        {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.UpdateTranslationString();
-        }
-
         public static void SaveAndApproveLine()
         {
-
             if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex >= 0)
                 TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.ApproveItem(TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex);
-        }
-
-        public static void CreateTemplateForSingleFile()
-        {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.CreateTemplateForSingleFile();
-        }
-
-        public static void CreateTemplateForAllFiles()
-        {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.CreateTemplateForAllFiles();
         }
     }
 }

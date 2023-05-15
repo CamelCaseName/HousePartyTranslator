@@ -33,8 +33,8 @@ namespace Translator.Desktop.Managers
         private static async void DoWork()
         {
 #if DEBUG
-#pragma warning restore CS1998
             return;
+#pragma warning restore CS1998
 #else
             if (App.MainForm?.UI == null) return;
             try
