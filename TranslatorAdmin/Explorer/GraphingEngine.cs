@@ -1,5 +1,4 @@
 ﻿using System.Buffers;
-using System.Reflection;
 using System.Runtime.Versioning;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;

@@ -1,4 +1,5 @@
-﻿using Translator.Core.Data;
+﻿using System.Diagnostics.Eventing.Reader;
+using Translator.Core.Data;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.JSONItems;
 using Translator.Desktop.Explorer.Story;
@@ -33,11 +34,8 @@ namespace Translator.Desktop.Managers
             NodeList nodes = explorer.GetTemplateNodes();
             if (nodes != null)
             {
-                data = new()
-                {
-                    //add name as first template (its not in the file)
-                    { "Name", new LineData("Name", story, filename, StringCategory.General, filename, true) }
-                };
+                data = new();
+                if (story != filename) data.Add("Name", new LineData("Name", story, filename, StringCategory.General, filename, true));
 
                 //Add all new lines, but check if they are relevant
                 for (int i = 0; i < nodes.Count; i++)
@@ -49,8 +47,8 @@ namespace Translator.Desktop.Managers
                         case NodeType.Null:
                         case NodeType.BGCResponse:
                         case NodeType.CharacterGroup:
+                        case NodeType.ItemGroup:
                         case NodeType.Criterion:
-                        case NodeType.Item:
                         case NodeType.Pose:
                         case NodeType.Clothing:
                         case NodeType.CriteriaGroup:
@@ -63,13 +61,26 @@ namespace Translator.Desktop.Managers
                         case NodeType.State:
                         case NodeType.Value:
                             continue;
+                        case NodeType.Item:
+                        {
+                            if (story == filename)
+                                if (nodes[i].DataType == typeof(ItemOverride))
+                                    data[((ItemOverride?)nodes[i].Data)?.DisplayName!] = new LineData(((ItemOverride?)nodes[i].Data)?.DisplayName!, story, filename, nodes[i].Type.CategoryFromNode(), ((ItemOverride?)nodes[i].Data)?.DisplayName!, true);
+                                else if (nodes[i].Text != string.Empty && nodes[i].ID != string.Empty)
+                                    data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].ID, true);
+                            continue;
+                        }
                         default:
                             break;
                     }
                     if (nodes[i].Type == NodeType.Event && nodes[i].DataType == typeof(GameEvent))
                     {
                         if (((GameEvent?)nodes[i].Data)?.EventType == StoryEnums.GameEvents.DisplayGameMessage)
-                            data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), ((GameEvent?)nodes[i].Data)?.Value ?? string.Empty, true);
+                            data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), ((GameEvent?)nodes[i].Data)?.Value!, true);
+
+                        else if (((GameEvent?)nodes[i].Data)?.EventType == StoryEnums.GameEvents.Item)
+                            if (((GameEvent?)nodes[i].Data)?.Option == 2)
+                                data[((GameEvent?)nodes[i].Data)?.Value!] = new LineData(((GameEvent?)nodes[i].Data)?.Value!, story, filename, nodes[i].Type.CategoryFromNode(), ((GameEvent?)nodes[i].Data)?.Value!, true);
                     }
                     else if (nodes[i].Type == NodeType.BGC)
                     {

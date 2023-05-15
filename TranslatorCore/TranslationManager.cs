@@ -605,7 +605,7 @@ namespace Translator.Core
             var CategorizedStrings = new List<CategorizedLines>();
 
             //we need to check whether the file has any strings at all, expecially the categories, if no, add them first or shit breaks.
-            if (CategoriesInFile.Count == 0) GenerateCategories();
+            GenerateCategories();
 
             foreach (StringCategory category in CategoriesInFile)
             {//add a list for every category we have in the file, so we can then add the strings to these.
@@ -1577,6 +1577,8 @@ namespace Translator.Core
                 string file = Path.GetFileNameWithoutExtension(path);
                 string story = ExtractStoryName(path);
 
+                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) return;
+
                 LogManager.Log("creating template for " + story + "/" + file);
                 //create and upload templates
                 if (UI.CreateTemplateFromStory(story, file, path, out FileData templates))
@@ -1627,6 +1629,7 @@ namespace Translator.Core
                 UI.SignalUserWait();
                 string story = ExtractStoryName(path);
 
+                if(story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) return;
                 LogManager.Log("creating templates for " + story);
 
                 //create translation and open it
