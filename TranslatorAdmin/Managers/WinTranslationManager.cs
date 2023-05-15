@@ -46,6 +46,7 @@ namespace Translator.Desktop.Managers
                         case NodeType.Null:
                         case NodeType.BGCResponse:
                         case NodeType.CharacterGroup:
+                        case NodeType.ItemGroup:
                         case NodeType.Criterion:
                         case NodeType.Item:
                         case NodeType.Pose:

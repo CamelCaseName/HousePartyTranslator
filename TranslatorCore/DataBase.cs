@@ -372,13 +372,13 @@ namespace Translator.Core
         {
             int c = 0;
             using MySqlConnection connection = new(GetConnString());
-            for (int x = 0; x < ((lines.Count / 500) + 0.5); x++)
+            for (int x = 0; x < ((lines.Count / 400) + 0.5); x++)
             {
                 var builder = new StringBuilder(INSERT + " (id, story, filename, category, english, deleted) VALUES ", lines.Count * 100);
 
                 //add all values
                 int v = c;
-                for (int j = 0; j < 500; j++)
+                for (int j = 0; j < 400; j++)
                 {
                     _ = builder.Append($"(@id{v}, @story{v}, @fileName{v}, @category{v}, @english{v}, @deleted{v}),");
                     v++;
@@ -393,7 +393,7 @@ namespace Translator.Core
                 cmd.Parameters.Clear();
 
                 //insert all the parameters
-                for (int k = 0; k < 500; k++)
+                for (int k = 0; k < 400; k++)
                 {
                     LineData line = lines.Values.ElementAt(c);
                     _ = cmd.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + "template");
@@ -457,48 +457,56 @@ namespace Translator.Core
         {
             if (translationData.Count > 0)
             {
+                int c = 0;
+                using MySqlConnection connection = new(GetConnString());
                 string storyName = translationData.ElementAt(0).Value.Story;
                 string fileName = translationData.ElementAt(0).Value.FileName;
-                var builder = new StringBuilder(INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation, deleted) VALUES ", translationData.Count * 100);
-
-                //add all values
-                for (int j = 0; j < translationData.Count; j++)
+                for (int x = 0; x < ((translationData.Count / 400) + 0.5); x++)
                 {
-                    _ = builder.Append($"(@id{j}, @story{j}, @filename{j}, @category{j}, @translated{j}, @approved{j}, @language{j}, @comment{j}, @translation{j}, @deleted{j}),");
-                }
+                    var builder = new StringBuilder(INSERT + @" (id, translated, approved, language, comment, translation, deleted) VALUES ", translationData.Count * 100);
 
-                _ = builder.Remove(builder.Length - 1, 1);
-
-                using MySqlConnection connection = new(GetConnString());
-                using MySqlCommand cmd = connection.CreateCommand();
-                cmd.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
-                cmd.Parameters.Clear();
-
-                int i = 0;
-                //insert all the parameters
-                foreach (LineData item in translationData.Values)
-                {
-                    string comment = string.Empty;
-                    for (int j = 0; j < item.Comments?.Length; j++)
+                    //add all values
+                    int v = c;
+                    for (int j = 0; j < 400; j++)
                     {
-                        if (item.Comments[j].Length > 1)
-                            comment += item.Comments[j] + "#";
+                        _ = builder.Append($"(@id{v}, @translated{v}, @approved{v}, @language{v}, @comment{v}, @translation{v}, @deleted{v}),");
+
+                        v++;
+                        if (v >= translationData.Values.Count) break;
                     }
 
-                    _ = cmd.Parameters.AddWithValue($"@id{i}", storyName + fileName + item.ID + language);
-                    _ = cmd.Parameters.AddWithValue($"@story{i}", storyName);
-                    _ = cmd.Parameters.AddWithValue($"@fileName{i}", fileName);
-                    _ = cmd.Parameters.AddWithValue($"@category{i}", (int)item.Category);
-                    _ = cmd.Parameters.AddWithValue($"@translated{i}", 1);
-                    _ = cmd.Parameters.AddWithValue($"@approved{i}", item.IsApproved ? 1 : 0);
-                    _ = cmd.Parameters.AddWithValue($"@language{i}", language);
-                    _ = cmd.Parameters.AddWithValue($"@comment{i}", comment);
-                    _ = cmd.Parameters.AddWithValue($"@translation{i}", item.TranslationString.RemoveVAHints());
-                    _ = cmd.Parameters.AddWithValue($"@deleted{i}", 0);
-                    ++i;
+                    _ = builder.Remove(builder.Length - 1, 1);
+                    using MySqlCommand cmd = connection.CreateCommand(); 
+                    cmd.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
+                    cmd.Parameters.Clear();
+
+                    //insert all the parameters
+                    for (int k = 0; k < 400; k++)
+                    {
+                        LineData item = translationData.Values.ElementAt(c);
+                        string comment = string.Empty;
+                        for (int j = 0; j < item.Comments?.Length; j++)
+                        {
+                            if (item.Comments[j].Length > 1)
+                                comment += item.Comments[j] + "#";
+                        }
+
+                        _ = cmd.Parameters.AddWithValue($"@id{c}", storyName + fileName + item.ID + language);
+                        _ = cmd.Parameters.AddWithValue($"@translated{c}", 1);
+                        _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
+                        _ = cmd.Parameters.AddWithValue($"@language{c}", language);
+                        _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
+                        _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
+                        _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
+                        ++c;
+                        if (c >= translationData.Values.Count) break;
+                    }
+
+                    _ = ExecuteOrReOpen(cmd);
                 }
 
-                return ExecuteOrReOpen(cmd);
+                //return if at least ione row was changed
+                return true;
             }
             return false;
         }
