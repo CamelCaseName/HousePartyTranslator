@@ -33,11 +33,8 @@ namespace Translator.Desktop.Managers
             NodeList nodes = explorer.GetTemplateNodes();
             if (nodes != null)
             {
-                data = new()
-                {
-                    //add name as first template (its not in the file)
-                    { "Name", new LineData("Name", story, filename, StringCategory.General, filename, true) }
-                };
+                data = new();
+                if (story != filename) data.Add("Name", new LineData("Name", story, filename, StringCategory.General, filename, true));
 
                 //Add all new lines, but check if they are relevant
                 for (int i = 0; i < nodes.Count; i++)
