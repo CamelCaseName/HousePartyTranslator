@@ -2,7 +2,6 @@
 
 namespace Translator.Helpers
 {
-#pragma warning disable 1591
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
     internal sealed class Author
     {
@@ -219,6 +218,4 @@ namespace Translator.Helpers
         [JsonPropertyName("mentions_count")]
         public int MentionsCount { get; set; }
     }
-
-#pragma warning restore
 }

@@ -1,15 +1,8 @@
 ﻿using System.Runtime.Versioning;
 using Translator.Core.Helpers;
-using Translator.UICompatibilityLayer;
-using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.Drawing.Design;
-using System.Runtime.InteropServices;
-using System.Windows.Forms.VisualStyles;
-using Silk.NET.OpenCL;
+using Translator.Core.UICompatibilityLayer;
 
-namespace Translator.InterfaceImpls
+namespace Translator.Desktop.InterfaceImpls
 {
     [SupportedOSPlatform("windows")]
     public class WinTextBox : TextBox, ITextBox

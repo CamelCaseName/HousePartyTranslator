@@ -1,7 +1,7 @@
 ﻿using System.Runtime.Versioning;
-using Translator.UICompatibilityLayer;
+using Translator.Core.UICompatibilityLayer;
 
-namespace Translator.InterfaceImpls
+namespace Translator.Desktop.InterfaceImpls
 {
     [SupportedOSPlatform("Windows")]
     public class WinTabController : TabControl, ITabController<WinLineItem, WinTab>

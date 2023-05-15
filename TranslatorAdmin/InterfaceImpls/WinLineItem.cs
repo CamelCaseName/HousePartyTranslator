@@ -1,6 +1,6 @@
-﻿using Translator.UICompatibilityLayer;
+﻿using Translator.Core.UICompatibilityLayer;
 
-namespace Translator.InterfaceImpls
+namespace Translator.Desktop.InterfaceImpls
 {
     public class WinLineItem : object, ILineItem
     {

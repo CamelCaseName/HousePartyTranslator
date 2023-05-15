@@ -1,9 +1,6 @@
 ﻿using System.Runtime.Versioning;
-using System.Text.Json;
-using Translator.Core;
-using Translator.Helpers;
 
-namespace Translator.Managers
+namespace Translator.Desktop.Managers
 {
     [SupportedOSPlatform("Windows")]
     internal static class SoftwareVersionManager
@@ -172,5 +169,5 @@ namespace Translator.Managers
             }
 #endif
         }
-        }
     }
+}

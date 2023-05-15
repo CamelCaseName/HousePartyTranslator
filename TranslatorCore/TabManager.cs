@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Translator.Core.Data;
 using Translator.Core.Helpers;
-using Translator.UICompatibilityLayer;
+using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
 {

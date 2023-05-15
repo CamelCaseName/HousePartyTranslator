@@ -1,8 +1,9 @@
-﻿using Translator.UICompatibilityLayer;
-using InputHandler = Translator.Core.InputHandler<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
-using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+﻿using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.UI;
+using InputHandler = Translator.Core.InputHandler<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
+using TabManager = Translator.Core.TabManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 
-namespace Translator.Managers
+namespace Translator.Desktop.Managers
 {
     /// <summary>
     /// Class that handles all keyboard presses and calls the appropiate methods if a hotkey was detected
@@ -31,7 +32,7 @@ namespace Translator.Managers
 
         public static void ShowSettings()
         {
-            var settings = new SettingsForm.SettingsForm();
+            var settings = new SettingsForm();
             if (!settings.IsDisposed) settings.Show();
         }
 

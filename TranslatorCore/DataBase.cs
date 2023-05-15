@@ -2,8 +2,9 @@
 using System;
 using System.Linq;
 using System.Text;
+using Translator.Core.Data;
 using Translator.Core.Helpers;
-using Translator.UICompatibilityLayer;
+using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
 {

@@ -8,8 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using Translator.Core.Data;
 using Translator.Core.Helpers;
-using Translator.UICompatibilityLayer;
+using Translator.Core.UICompatibilityLayer;
 using Timer = System.Timers.Timer;
 
 //TODO add tests

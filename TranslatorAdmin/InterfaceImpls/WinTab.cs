@@ -1,9 +1,10 @@
 ﻿using System.Runtime.Versioning;
 using Translator.Core.Helpers;
-using Translator.Helpers;
-using Translator.UICompatibilityLayer;
+using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.UI;
+using Translator.Desktop.UI.Components;
 
-namespace Translator.InterfaceImpls
+namespace Translator.Desktop.InterfaceImpls
 {
     [SupportedOSPlatform("Windows")]
     public class WinTab : TabPage, ITab<WinLineItem>
@@ -75,7 +76,7 @@ namespace Translator.InterfaceImpls
             TranslationTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
             TranslationTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
             TranslationTextBox.PlaceholderText = "Translation goes here";
-            
+
             // 
             // AutoTranslateThis
             // 

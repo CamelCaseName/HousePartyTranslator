@@ -1,7 +1,8 @@
 ﻿using System.Runtime.Versioning;
-using Translator.UICompatibilityLayer;
+using Translator.Core.Data;
+using Translator.Core.UICompatibilityLayer;
 
-namespace Translator.InterfaceImpls
+namespace Translator.Desktop.InterfaceImpls
 {
     [SupportedOSPlatform("Windows")]
     public class WinFolderDialog : IFolderDialog

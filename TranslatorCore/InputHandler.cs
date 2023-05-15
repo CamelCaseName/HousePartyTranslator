@@ -1,4 +1,4 @@
-﻿using Translator.UICompatibilityLayer;
+﻿using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
 {
