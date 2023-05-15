@@ -80,7 +80,8 @@ namespace Translator.InterfaceImpls
 
                 Point highlightLocation = GetPositionFromCharIndex(newStartPos);
                 highlightLocation.X -= 2;
-                TextRenderer.DrawText(g, Text.AsSpan()[newStartPos..(newStartPos + currentHighlightLength)], base.Font, highlightLocation, Utils.darkText, Utils.highlight);
+                AdjustTextRegion(out TextFormatFlags flags, out highlightLocation);
+                TextRenderer.DrawText(g, Text.AsSpan()[newStartPos..(newStartPos + currentHighlightLength)], base.Font, highlightLocation, Utils.darkText, Utils.highlight, flags);
                 //move over
                 newStartPos += currentHighlightLength;
                 currentHighlightLength = 0;
@@ -99,10 +100,16 @@ namespace Translator.InterfaceImpls
 
         private void DrawPlaceholderText(Graphics g)
         {
-            TextFormatFlags flags = TextFormatFlags.NoPadding | TextFormatFlags.Top |
-                                    TextFormatFlags.EndEllipsis;
-            Rectangle rectangle = ClientRectangle;
+            AdjustTextRegion(out TextFormatFlags flags, out Point point);
 
+            TextRenderer.DrawText(g, PlaceholderText, Font, point, Utils.darkText, Utils.background, flags);
+        }
+
+        private void AdjustTextRegion(out TextFormatFlags flags, out Point point)
+        {
+            flags = TextFormatFlags.NoPadding | TextFormatFlags.Top |
+                                                TextFormatFlags.EndEllipsis;
+            point = ClientRectangle.Location;
             if (RightToLeft == RightToLeft.Yes)
             {
                 flags |= TextFormatFlags.RightToLeft;
@@ -110,15 +117,15 @@ namespace Translator.InterfaceImpls
                 {
                     case HorizontalAlignment.Center:
                         flags |= TextFormatFlags.HorizontalCenter;
-                        rectangle.Offset(0, 1);
+                        point.Offset(0, 1);
                         break;
                     case HorizontalAlignment.Left:
                         flags |= TextFormatFlags.Right;
-                        rectangle.Offset(1, 1);
+                        point.Offset(1, 1);
                         break;
                     case HorizontalAlignment.Right:
                         flags |= TextFormatFlags.Left;
-                        rectangle.Offset(0, 1);
+                        point.Offset(0, 1);
                         break;
                 }
             }
@@ -129,20 +136,18 @@ namespace Translator.InterfaceImpls
                 {
                     case HorizontalAlignment.Center:
                         flags |= TextFormatFlags.HorizontalCenter;
-                        rectangle.Offset(0, 1);
+                        point.Offset(0, 1);
                         break;
                     case HorizontalAlignment.Left:
                         flags |= TextFormatFlags.Left;
-                        rectangle.Offset(1, 1);
+                        point.Offset(1, 1);
                         break;
                     case HorizontalAlignment.Right:
                         flags |= TextFormatFlags.Right;
-                        rectangle.Offset(0, 1);
+                        point.Offset(0, 1);
                         break;
                 }
             }
-
-            TextRenderer.DrawText(g, PlaceholderText, Font, rectangle, Utils.darkText, Utils.background, flags);
         }
     }
 }
