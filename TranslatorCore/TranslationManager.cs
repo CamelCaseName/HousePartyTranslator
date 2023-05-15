@@ -858,6 +858,7 @@ namespace Translator.Core
                 SelectedResultIndex = 0;
                 SearchQuery = string.Empty;
                 CleanedSearchQuery = string.Empty;
+                TabUI.Template.ShowHighlight = false;
             }
 
             UI.UpdateResults();
