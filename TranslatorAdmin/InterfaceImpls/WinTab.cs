@@ -3,6 +3,8 @@ using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.UI;
 using Translator.Desktop.UI.Components;
+using TabManager = Translator.Core.TabManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
+
 
 namespace Translator.Desktop.InterfaceImpls
 {
@@ -89,7 +91,7 @@ namespace Translator.Desktop.InterfaceImpls
             TranslateThis.TabIndex = 13;
             TranslateThis.Text = "Automatic Translation";
             TranslateThis.UseVisualStyleBackColor = true;
-            TranslateThis.Click += new EventHandler(MainForm.TranslateThis_Click);
+            TranslateThis.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.RequestAutomaticTranslation();
             // 
             // TemplateTextBox
             // 
@@ -165,7 +167,7 @@ namespace Translator.Desktop.InterfaceImpls
             ApprovedBox.TabIndex = 13;
             ApprovedBox.Text = "Approved";
             ApprovedBox.UseVisualStyleBackColor = true;
-            ApprovedBox.CheckedChanged += new EventHandler(MainForm.ApprovedBox_CheckedChanged);
+            ApprovedBox.CheckedChanged += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ApprovedButtonHandler();
             // 
             // mainTableLayoutPanel
             // 
@@ -236,7 +238,7 @@ namespace Translator.Desktop.InterfaceImpls
             CheckListBoxLeft.Size = new Size(680, 666);
             CheckListBoxLeft.TabIndex = 10;
             CheckListBoxLeft.ThreeDCheckBoxes = true;
-            CheckListBoxLeft.ItemCheck += new ItemCheckEventHandler(MainForm.CheckListBoxLeft_ItemCheck);
+            CheckListBoxLeft.ItemCheck += (object? sender, ItemCheckEventArgs e) => TabManager.ActiveTranslationManager.ApproveIfPossible(false);
             CheckListBoxLeft.SelectedIndexChanged += new EventHandler(MainForm.CheckListBoxLeft_SelectedIndexChanged);
             CheckListBoxLeft.ContextMenuStrip = ListContextMenu;
             CheckListBoxLeft.MouseDown += new MouseEventHandler(MainForm.OpeningContextMenu);
@@ -260,49 +262,49 @@ namespace Translator.Desktop.InterfaceImpls
             CopyIdContextMenuButton.Name = "CopyIdContextMenuButton";
             CopyIdContextMenuButton.Size = new Size(236, 22);
             CopyIdContextMenuButton.Text = "Copy Id";
-            CopyIdContextMenuButton.Click += new EventHandler(MainForm.CopyIdContextMenuButton_Click);
+            CopyIdContextMenuButton.Click += (object? sender, EventArgs e) => TabManager.CopyId();
             // 
             // CopyFileNameContextMenuButton
             // 
             CopyFileNameContextMenuButton.Name = "CopyFileNameContextMenuButton";
             CopyFileNameContextMenuButton.Size = new Size(236, 22);
             CopyFileNameContextMenuButton.Text = "Copy file name";
-            CopyFileNameContextMenuButton.Click += new EventHandler(MainForm.CopyFileNameContextMenuButton_Click);
+            CopyFileNameContextMenuButton.Click += (object? sender, EventArgs e) => TabManager.CopyFileName();
             // 
             // CopyStoryNameContextMenuButton
             // 
             CopyStoryNameContextMenuButton.Name = "CopyStoryNameContextMenuButton";
             CopyStoryNameContextMenuButton.Size = new Size(236, 22);
             CopyStoryNameContextMenuButton.Text = "Copy story name";
-            CopyStoryNameContextMenuButton.Click += new EventHandler(MainForm.CopyStoryNameContextMenuButton_Click);
+            CopyStoryNameContextMenuButton.Click += (object? sender, EventArgs e) => TabManager.CopyStoryName();
             // 
             // CopyAllContextMenuButton
             // 
             CopyAllContextMenuButton.Name = "CopyAllContextMenuButton";
             CopyAllContextMenuButton.Size = new Size(236, 22);
             CopyAllContextMenuButton.Text = "Copy everything";
-            CopyAllContextMenuButton.Click += new EventHandler(MainForm.CopyAllContextMenuButton_Click);
+            CopyAllContextMenuButton.Click += (object? sender, EventArgs e) => TabManager.CopyAll();
             // 
             // CopyAsOutputContextMenuButton
             // 
             CopyAsOutputContextMenuButton.Name = "CopyAsOutputContextMenuButton";
             CopyAsOutputContextMenuButton.Size = new Size(236, 22);
             CopyAsOutputContextMenuButton.Text = "Copy as output";
-            CopyAsOutputContextMenuButton.Click += new EventHandler(MainForm.CopyAsOutputContextMenuButton_Click);
+            CopyAsOutputContextMenuButton.Click += (object? sender, EventArgs e) => TabManager.CopyAsOutput();
             // 
             // CopyTemplateContextMenuButton
             // 
             CopyTemplateContextMenuButton.Name = "CopyTemplateContextMenuButton";
             CopyTemplateContextMenuButton.Size = new Size(236, 22);
             CopyTemplateContextMenuButton.Text = "Copy template";
-            CopyTemplateContextMenuButton.Click += new EventHandler(MainForm.CopyTemplateContextMenuButton_Click);
+            CopyTemplateContextMenuButton.Click += (object? sender, EventArgs e) => TabManager.CopyTemplate();
             // 
             // CopyTranslationContextMenuButton
             // 
             CopyTranslationContextMenuButton.Name = "CopyTranslationContextMenuButton";
             CopyTranslationContextMenuButton.Size = new Size(236, 22);
             CopyTranslationContextMenuButton.Text = "Copy translation";
-            CopyTranslationContextMenuButton.Click += new EventHandler(MainForm.CopyTranslationContextMenuButton_Click);
+            CopyTranslationContextMenuButton.Click += (object? sender, EventArgs e) => TabManager.CopyTranslation();
             //
             // ListContextMenu
             //

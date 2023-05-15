@@ -1,4 +1,7 @@
 ﻿using System.Runtime.Versioning;
+using System.Text.Json;
+using Translator.Core.Helpers;
+using Translator.Helpers;
 
 namespace Translator.Desktop.Managers
 {

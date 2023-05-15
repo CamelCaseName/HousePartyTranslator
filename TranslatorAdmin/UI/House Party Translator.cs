@@ -8,7 +8,6 @@ using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Explorer.Window;
 using Translator.Helpers;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using DataBase = Translator.Core.DataBase<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 using InputHandler = Translator.Core.InputHandler<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
@@ -158,10 +157,6 @@ namespace Translator.Desktop.UI
         internal WinMenuItem ReplaceButton => toolStripReplaceButton;
         internal ToolStripTextBox SearchBox => searchToolStripTextBox;
 
-        public void ApprovedBox_CheckedChanged(object? sender, EventArgs? e) => TabManager.ActiveTranslationManager.ApprovedButtonHandler();
-
-        public void CheckListBoxLeft_ItemCheck(object? sender, ItemCheckEventArgs? e) => TabManager.ActiveTranslationManager.RequestAutomaticTranslation();
-
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
             InputHandler.SelectedItemChanged(CheckListBoxLeft);
@@ -178,20 +173,6 @@ namespace Translator.Desktop.UI
             TabManager.ActiveTranslationManager.UpdateComments();
             InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
         }
-
-        public void CopyAllContextMenuButton_Click(object? sender, EventArgs? e) => TabManager.CopyAll();
-
-        public void CopyAsOutputContextMenuButton_Click(object? sender, EventArgs? e) => TabManager.CopyAsOutput();
-
-        public void CopyFileNameContextMenuButton_Click(object? sender, EventArgs? e) => TabManager.CopyFileName();
-
-        public void CopyIdContextMenuButton_Click(object? sender, EventArgs? e) => TabManager.CopyId();
-
-        public void CopyStoryNameContextMenuButton_Click(object? sender, EventArgs? e) => TabManager.CopyStoryName();
-
-        public void CopyTemplateContextMenuButton_Click(object? sender, EventArgs? e) => TabManager.CopyTemplate();
-
-        public void CopyTranslationContextMenuButton_Click(object? sender, EventArgs? e) => TabManager.CopyTranslation();
 
         /// <summary>
         /// Moves the cursor to the beginning/end of the next word in the specified direction
@@ -248,8 +229,6 @@ namespace Translator.Desktop.UI
             }
         }
 
-        public void TranslateThis_Click(object? sender, EventArgs? e) => TabManager.ActiveTranslationManager.RequestAutomaticTranslation();
-
         /// <summary>
         /// Override to intercept the Keystrokes windows sends us.
         /// </summary>
@@ -282,8 +261,6 @@ namespace Translator.Desktop.UI
                 }
             }
         }
-
-        private void CustomStoryExplorerStripMenuItem_Click(object? sender, EventArgs? e) => Explorer = CreateStoryExplorer(false, CancelTokens);
 
         internal static StoryExplorer? CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
         {
@@ -323,8 +300,6 @@ namespace Translator.Desktop.UI
             }
         }
 
-        private void ExitToolStripMenuItem_Click(object? sender, EventArgs? e) => UI.SignalAppExit();
-
         private void FensterUnhandledExceptionHandler(object? sender, UnhandledExceptionEventArgs? e)
         {
             if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); }
@@ -343,6 +318,13 @@ namespace Translator.Desktop.UI
                     WinUtils.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
                 }
             }
+        }
+
+        private void ThreadExceptionHandler(object? sender, ThreadExceptionEventArgs? e)
+        {
+            if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
+            LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
+            WinUtils.DisplayExceptionMessage(e.Exception.Message);
         }
 
         private void CheckForPassword()
@@ -896,8 +878,6 @@ namespace Translator.Desktop.UI
             }
             TabManager.Search();
         }
-
-        private void SettingsToolStripMenuItem_Click(object? sender, EventArgs? e) => WindowsKeypressManager.ShowSettings();
 
         private void ToolStripMenuReplaceBox_TextChanged(object? sender, EventArgs? e)
         {
