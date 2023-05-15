@@ -20,7 +20,6 @@ namespace Translator.Core.UICompatibilityLayer
         bool CustomStoryTemplateHandle(string story);
         void CreateTemplateForSingleFile();
         void CreateTemplateForAllFiles();
-        void LoadFileIntoProgram();
         void LoadFileIntoProgram(string path);
         void OverrideCloudSave();
         void PopulateTextBoxes();

@@ -52,6 +52,8 @@ namespace Translator.Desktop.UI
         private readonly LineList CheckListBoxLeft;
         private readonly System.Timers.Timer PresenceTimer = new(2000);
         private WinMenuItem customOpenStoryExplorer;
+        private WinMenuItem undoMenuButton;
+        private WinMenuItem redoMenuButton;
         private WinMenuItem createTemplateForFile;
         private WinMenuItem createTemplateForCompleteStory;
         private WinMenuItem exportTemplateForFile;
@@ -367,10 +369,10 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(createTemplateForFile),
                 Size = new Size(236, 22),
-                Text = "C&reate one Template file",
+                Text = "Create &one Template file",
                 ToolTipText = "Creates the template for a single file"
             };
-            createTemplateForFile.Click += new EventHandler(CreateTemplateForFile_click);
+            createTemplateForFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.CreateTemplateForSingleFile();
 
             // createTemplateForCompleteStory
             createTemplateForCompleteStory = new WinMenuItem()
@@ -381,7 +383,29 @@ namespace Translator.Desktop.UI
                 Text = "&Create all Template files",
                 ToolTipText = "Creates templates for a complete story"
             };
-            createTemplateForCompleteStory.Click += new EventHandler(CreateTemplateForCompleteStory_Click);
+            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.CreateTemplateForAllFiles();
+
+            // undoMenuButton
+            undoMenuButton = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(undoMenuButton),
+                Size = new Size(236, 22),
+                Text = "&Undo",
+                ToolTipText = "Undoes the latest action"
+            };
+            undoMenuButton.Click += (object? sender, EventArgs e) => History.Undo();
+
+            // redoMenuButton
+            redoMenuButton = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(redoMenuButton),
+                Size = new Size(236, 22),
+                Text = "&Redo",
+                ToolTipText = "Redoes the latest undone action"
+            };
+            redoMenuButton.Click += (object? sender, EventArgs e) => History.Redo();
 
             // exportTemplateForFile
             exportTemplateForFile = new WinMenuItem()
@@ -392,7 +416,7 @@ namespace Translator.Desktop.UI
                 Text = "Ex&port one Template file",
                 ToolTipText = "Exports the template for a single file"
             };
-            exportTemplateForFile.Click += new EventHandler(ExportTemplateForFile_click);
+            exportTemplateForFile.Click += (object? sender, EventArgs e) => throw new NotImplementedException();
 
             // exportTemplateForCompleteStory
             exportTemplateForCompleteStory = new WinMenuItem()
@@ -403,7 +427,7 @@ namespace Translator.Desktop.UI
                 Text = "E&xport all Template files",
                 ToolTipText = "Exports templates for a complete story"
             };
-            exportTemplateForCompleteStory.Click += new EventHandler(ExportTemplateForCompleteStory_Click);
+            exportTemplateForCompleteStory.Click += (object? sender, EventArgs e) => throw new NotImplementedException();
 
             // searchToolStripMenuItem
             searchToolStripMenuItem = new WinMenuItem()
@@ -436,7 +460,7 @@ namespace Translator.Desktop.UI
                 Text = "Reload selecte&d file",
                 ToolTipText = "Reloads the currently selected file"
             };
-            ReloadFileMenuItem.Click += new EventHandler(ReloadFileMenuItem_Click);
+            ReloadFileMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ReloadFile();
 
             // replaceToolStripMenuItem
             replaceToolStripMenuItem = new WinMenuItem()
@@ -444,10 +468,10 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(replaceToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "&Replace",
+                Text = "R&eplace",
                 ToolTipText = "Opens the searchbar in replace mode"
             };
-            replaceToolStripMenuItem.Click += new EventHandler(ReplaceToolStripMenuItem_click);
+            replaceToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ToggleReplaceUI();
 
             // openToolStripMenuItem
             openToolStripMenuItem = new WinMenuItem()
@@ -459,7 +483,7 @@ namespace Translator.Desktop.UI
                 Text = "&Open",
                 ToolTipText = "Opens a dialog to select a file"
             };
-            openToolStripMenuItem.Click += new EventHandler(OpenToolStripMenuItem_Click);
+            openToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.OpenNewFiles();
 
             // openAllToolStripMenuItem
             openAllToolStripMenuItem = new WinMenuItem()
@@ -471,7 +495,7 @@ namespace Translator.Desktop.UI
                 Text = "O&pen all",
                 ToolTipText = "Opens a dialog to select a file, all others will be discovered automatically. Usually."
             };
-            openAllToolStripMenuItem.Click += new EventHandler(OpenAllToolStripMenuItem_Click);
+            openAllToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.OpenAllTabs();
 
             // openInNewTabToolStripMenuItem
             openInNewTabToolStripMenuItem = new WinMenuItem()
@@ -483,7 +507,7 @@ namespace Translator.Desktop.UI
                 Text = "Open in new &tab",
                 ToolTipText = "Opens a dialog to select a file"
             };
-            openInNewTabToolStripMenuItem.Click += new EventHandler(OpenInNewTabToolStripMenuItem_Click);
+            openInNewTabToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.OpenNewTab();
 
             // Recents
             Recents = new WinMenuItem()
@@ -505,7 +529,7 @@ namespace Translator.Desktop.UI
                 Size = new Size(236, 22),
                 Text = "&Save"
             };
-            saveToolStripMenuItem.Click += new EventHandler(SaveToolStripMenuItem_Click);
+            saveToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.SaveFile();
 
             // saveAllToolStripMenuItem
             saveAllToolStripMenuItem = new WinMenuItem()
@@ -516,7 +540,7 @@ namespace Translator.Desktop.UI
                 Size = new Size(236, 22),
                 Text = "Sa&ve All"
             };
-            saveAllToolStripMenuItem.Click += new EventHandler(SaveAllToolStripMenuItem_Click);
+            saveAllToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.SaveAllTabs();
 
             // saveAsToolStripMenuItem
             saveAsToolStripMenuItem = new WinMenuItem()
@@ -527,7 +551,7 @@ namespace Translator.Desktop.UI
                 Size = new Size(236, 22),
                 Text = "Save &As"
             };
-            saveAsToolStripMenuItem.Click += new EventHandler(SaveAsToolStripMenuItem_Click);
+            saveAsToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.SaveFileAs();
 
             // overrideCloudSaveToolStripMenuItem
             overrideCloudSaveToolStripMenuItem = new WinMenuItem()
@@ -538,7 +562,7 @@ namespace Translator.Desktop.UI
                 Size = new Size(236, 22),
                 Text = "Override &Cloud Save"
             };
-            overrideCloudSaveToolStripMenuItem.Click += new EventHandler(OverrideCloudSaveToolStripMenuItem_Click);
+            overrideCloudSaveToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.OverrideCloudSave();
 
             // exitToolStripMenuItem
             exitToolStripMenuItem = new WinMenuItem()
@@ -547,7 +571,7 @@ namespace Translator.Desktop.UI
                 Size = new Size(236, 22),
                 Text = "&Exit"
             };
-            exitToolStripMenuItem.Click += new EventHandler(ExitToolStripMenuItem_Click);
+            exitToolStripMenuItem.Click += (object? sender, EventArgs e) => UI.SignalAppExit();
 
             // saveCurrentStringToolStripMenuItem
             saveCurrentStringToolStripMenuItem = new WinMenuItem()
@@ -559,7 +583,7 @@ namespace Translator.Desktop.UI
                 Margin = new Padding(1),
                 Text = "&Save selected string"
             };
-            saveCurrentStringToolStripMenuItem.Click += new EventHandler(SaveCurrentStringToolStripMenuItem_Click);
+            saveCurrentStringToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.SaveCurrentString();
 
             // searchToolStripTextBox
             searchToolStripTextBox = new WinToolStripTextBox()
@@ -600,7 +624,7 @@ namespace Translator.Desktop.UI
                 Text = "Replace all",
                 Visible = false
             };
-            toolStripReplaceAllButton.Click += new EventHandler(ToolStripReplaceAllButton_Click);
+            toolStripReplaceAllButton.Click += (object? sender, EventArgs e) => TabManager.ReplaceAll();
 
             // toolStripReplaceButton
             toolStripReplaceButton = new WinMenuItem()
@@ -614,7 +638,7 @@ namespace Translator.Desktop.UI
                 Text = "Replace",
                 Visible = false
             };
-            toolStripReplaceButton.Click += new EventHandler(ToolStripReplaceButton_Click);
+            toolStripReplaceButton.Click += (object? sender, EventArgs e) => TabManager.Replace();
 
             // languageToolStripComboBox
             languageToolStripComboBox = new ToolStripComboBox()
@@ -630,7 +654,7 @@ namespace Translator.Desktop.UI
             };
             languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
             languageToolStripComboBox.SelectedItem = Settings.Default.Language;
-            languageToolStripComboBox.SelectedIndexChanged += new EventHandler(LanguageToolStripComboBox_SelectedIndexChanged);
+            languageToolStripComboBox.SelectedIndexChanged += (object? sender, EventArgs e) => InputHandler.SelectedLanguageChanged();
 
             // storyExplorerStripMenuItem
             storyExplorerStripMenuItem = new WinMenuItem()
@@ -642,7 +666,7 @@ namespace Translator.Desktop.UI
                 Margin = new Padding(1),
                 Text = "&Auto StoryExplorer"
             };
-            storyExplorerStripMenuItem.Click += new EventHandler(StoryExplorerStripMenuItem_Click);
+            storyExplorerStripMenuItem.Click += (object? sender, EventArgs e) => Explorer = CreateStoryExplorer(true, CancelTokens);
 
             // customOpenStoryExplorer
             customOpenStoryExplorer = new WinMenuItem()
@@ -654,8 +678,8 @@ namespace Translator.Desktop.UI
                 Margin = new Padding(1),
                 Text = "Open StoryE&xplorer"
             };
-            customOpenStoryExplorer.Click += new EventHandler(CustomStoryExplorerStripMenuItem_Click);
-            // 
+            customOpenStoryExplorer.Click += (object? sender, EventArgs e) => Explorer = CreateStoryExplorer(false, CancelTokens);
+
             // settingsToolStripMenuItem
             settingsToolStripMenuItem = new WinMenuItem()
             {
@@ -666,7 +690,7 @@ namespace Translator.Desktop.UI
                 Margin = new Padding(1),
                 Text = "Se&ttings"
             };
-            settingsToolStripMenuItem.Click += new EventHandler(SettingsToolStripMenuItem_Click);
+            settingsToolStripMenuItem.Click += (object? sender, EventArgs e) => WindowsKeypressManager.ShowSettings();
 
             // editToolStripMenuItem
             editToolStripMenuItem = new WinMenuItem()
@@ -680,15 +704,18 @@ namespace Translator.Desktop.UI
                 ToolTipText = "All relevant controls for editing a file, plus special controls"
             };
             editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+                undoMenuButton,
+                redoMenuButton,
+                new WinMenuSeperator(),
                 searchToolStripMenuItem,
                 searchAllToolStripMenuItem,
+                new WinMenuSeperator(),
+                replaceToolStripMenuItem,
                 new WinMenuSeperator(),
                 createTemplateForFile,
                 createTemplateForCompleteStory,
                 exportTemplateForFile,
                 exportTemplateForCompleteStory,
-                new WinMenuSeperator(),
-                replaceToolStripMenuItem,
                 new WinMenuSeperator(),
                 ReloadFileMenuItem,
                 new WinMenuSeperator(),
@@ -776,18 +803,6 @@ namespace Translator.Desktop.UI
             PerformLayout();
         }
 
-        private void ExportTemplateForCompleteStory_Click(object? sender, EventArgs e) => throw new NotImplementedException();
-
-        private void ExportTemplateForFile_click(object? sender, EventArgs e) => throw new NotImplementedException();
-
-        private void ReloadFileMenuItem_Click(object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ReloadFile();
-
-        private void CreateTemplateForCompleteStory_Click(object? sender, EventArgs e) => TabManager.ActiveTranslationManager.CreateTemplateForAllFiles();
-
-        private void CreateTemplateForFile_click(object? sender, EventArgs e) => TabManager.ActiveTranslationManager.CreateTemplateForSingleFile();
-
-        private void LanguageToolStripComboBox_SelectedIndexChanged(object? sender, EventArgs? e) => InputHandler.SelectedLanguageChanged();
-
         private void MainTabControl_SelectedIndexChanged(object? sender, EventArgs? e)
         {
             TabManager.OnSwitchTabs();
@@ -856,24 +871,6 @@ namespace Translator.Desktop.UI
 
         }
 
-        private void OpenAllToolStripMenuItem_Click(object? sender, EventArgs? e) =>TabManager.OpenAllTabs();
-
-        private void OpenInNewTabToolStripMenuItem_Click(object? sender, EventArgs? e) => TabManager.OpenNewTab();
-
-        private void OpenToolStripMenuItem_Click(object? sender, EventArgs? e) => TabManager.OpenNewFiles();
-
-        private void OverrideCloudSaveToolStripMenuItem_Click(object? sender, EventArgs? e) => TabManager.ActiveTranslationManager.OverrideCloudSave();
-
-        private void ReplaceToolStripMenuItem_click(object? sender, EventArgs? e) => TabManager.ActiveTranslationManager.ToggleReplaceUI();
-
-        private void SaveAllToolStripMenuItem_Click(object? sender, EventArgs? e) => _ = TabManager.SaveAllTabs();
-
-        private void SaveAsToolStripMenuItem_Click(object? sender, EventArgs? e) => TabManager.ActiveTranslationManager.SaveFileAs();
-
-        private void SaveCurrentStringToolStripMenuItem_Click(object? sender, EventArgs? e) => TabManager.ActiveTranslationManager.SaveCurrentString();
-
-        private void SaveToolStripMenuItem_Click(object? sender, EventArgs? e) => TabManager.ActiveTranslationManager.SaveFile();
-
         private void SearchAllToolStripMenuItem_click(object? sender, EventArgs? e)
         {
             searchToolStripTextBox.Focus();
@@ -902,25 +899,11 @@ namespace Translator.Desktop.UI
 
         private void SettingsToolStripMenuItem_Click(object? sender, EventArgs? e) => WindowsKeypressManager.ShowSettings();
 
-        private void StoryExplorerStripMenuItem_Click(object? sender, EventArgs? e) => Explorer = CreateStoryExplorer(true, CancelTokens);
-
-        private void ThreadExceptionHandler(object? sender, ThreadExceptionEventArgs? e)
-        {
-            if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
-
-            LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
-            WinUtils.DisplayExceptionMessage(e.Exception.Message);
-        }
-
         private void ToolStripMenuReplaceBox_TextChanged(object? sender, EventArgs? e)
         {
             if (ActiveControl == null) return;
             InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
         }
-
-        private void ToolStripReplaceAllButton_Click(object? sender, EventArgs? e) => TabManager.ReplaceAll();
-
-        private void ToolStripReplaceButton_Click(object? sender, EventArgs? e) => TabManager.Replace();
 
         private void UpdateFileMenuItems()
         {

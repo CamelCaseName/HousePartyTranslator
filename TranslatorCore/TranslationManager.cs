@@ -286,18 +286,10 @@ namespace Translator.Core
         /// <summary>
         /// Loads a file into the program and calls all UI routines
         /// </summary>
-        public void LoadFileIntoProgram()
-        {
-            LoadFileIntoProgram(Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFileFromSystem());
-        }
-
-        /// <summary>
-        /// Loads a file into the program and calls all UI routines
-        /// </summary>
         /// <param name="path">The path to the file to translate</param>
         public void LoadFileIntoProgram(string path)
         {
-            if (path.Length > 0)
+            if (path.Length > 0 && File.Exists(path))
             {
                 if (TranslationData.Count > 0) TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
                 //clear history if we have a new file, we dont need old one anymore
@@ -324,6 +316,10 @@ namespace Translator.Core
                     RecentsManager.SetMostRecent(SourceFilePath);
                     UI.SetFileMenuItems(RecentsManager.GetUpdatedMenuItems<TLineItem, TUIHandler, TTabController, TTab>(UI.FileMenuItems));
                 }
+            }
+            else
+            {
+                UI.ErrorOk("File doesnt exist");
             }
         }
 
