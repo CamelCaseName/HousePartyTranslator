@@ -1,7 +1,9 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Xml.Linq;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
@@ -463,13 +465,13 @@ namespace Translator.Core
                 string fileName = translationData.ElementAt(0).Value.FileName;
                 for (int x = 0; x < ((translationData.Count / 400) + 0.5); x++)
                 {
-                    var builder = new StringBuilder(INSERT + @" (id, translated, approved, language, comment, translation, deleted) VALUES ", translationData.Count * 100);
+                    var builder = new StringBuilder(INSERT + @" (id, translated, approved, comment, translation, deleted) VALUES ", translationData.Count * 100);
 
                     //add all values
                     int v = c;
                     for (int j = 0; j < 400; j++)
                     {
-                        _ = builder.Append($"(@id{v}, @translated{v}, @approved{v}, @language{v}, @comment{v}, @translation{v}, @deleted{v}),");
+                        _ = builder.Append($"(@id{v}, @translated{v}, @approved{v}, @comment{v}, @translation{v}, @deleted{v}),");
 
                         v++;
                         if (v >= translationData.Values.Count) break;
@@ -494,7 +496,6 @@ namespace Translator.Core
                         _ = cmd.Parameters.AddWithValue($"@id{c}", storyName + fileName + item.ID + language);
                         _ = cmd.Parameters.AddWithValue($"@translated{c}", 1);
                         _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
-                        _ = cmd.Parameters.AddWithValue($"@language{c}", language);
                         _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
                         _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
                         _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
