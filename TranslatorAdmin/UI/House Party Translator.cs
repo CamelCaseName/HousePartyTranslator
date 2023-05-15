@@ -396,7 +396,8 @@ namespace Translator.Desktop.UI
                 Name = nameof(exportTemplateForFile),
                 Size = new Size(236, 22),
                 Text = "Ex&port one Template file",
-                ToolTipText = "Exports the template for a single file"
+                ToolTipText = "Exports the template for a single file",
+                Enabled = false
             };
             exportTemplateForFile.Click += (object? sender, EventArgs e) => throw new NotImplementedException();
 
@@ -407,7 +408,8 @@ namespace Translator.Desktop.UI
                 Name = nameof(exportTemplateForCompleteStory),
                 Size = new Size(236, 22),
                 Text = "E&xport all Template files",
-                ToolTipText = "Exports templates for a complete story"
+                ToolTipText = "Exports templates for a complete story",
+                Enabled = false
             };
             exportTemplateForCompleteStory.Click += (object? sender, EventArgs e) => throw new NotImplementedException();
 
