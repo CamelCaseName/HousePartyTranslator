@@ -1,7 +1,8 @@
-﻿using Translator.Core;
-using Settings = Translator.InterfaceImpls.WinSettings;
+﻿using Translator.Core.Helpers;
+using Translator.Desktop.UI;
+using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 
-namespace Translator
+namespace Translator.Desktop
 {
 
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]

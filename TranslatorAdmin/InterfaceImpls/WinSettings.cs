@@ -1,9 +1,9 @@
-﻿using TranslatorDesktopApp.Properties;
-namespace Translator.InterfaceImpls
+﻿using Translator.Desktop.Properties;
+namespace Translator.Desktop.InterfaceImpls
 {
-    internal class WinSettings : Core.ISettings
+    internal class WinSettings : Core.UICompatibilityLayer.ISettings
     {
-        public static readonly Core.ISettings Default = new WinSettings();
+        public static readonly Core.UICompatibilityLayer.ISettings Default = new WinSettings();
 
         public static WinSettings WDefault => (WinSettings)Default;
         public bool AdvancedModeEnabled

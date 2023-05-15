@@ -1,6 +1,6 @@
-﻿using Translator.UICompatibilityLayer;
+﻿using Translator.Core.UICompatibilityLayer;
 
-namespace Translator.InterfaceImpls
+namespace Translator.Desktop.InterfaceImpls
 {
     internal class WinMenuSeperator : ToolStripSeparator, IMenuItem
     {

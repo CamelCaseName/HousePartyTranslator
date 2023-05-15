@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using Translator.Core.Data;
 using Translator.Core.Helpers;
-using Translator.UICompatibilityLayer;
+using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
 {
@@ -414,19 +415,30 @@ namespace Translator.Core
             ActiveTranslationManager.ReplaceSingle(UI.ReplaceBarText ?? string.Empty);
         }
 
-        public static void OpenFile()
+        public static void OpenFile() => OpenFile(Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFileFromSystem());
+
+        public static void OpenFile(string path)
         {
             //load new file
-            ActiveTranslationManager.LoadFileIntoProgram();
+            ActiveTranslationManager.LoadFileIntoProgram(path);
             //update tab name
             SelectedTab.Text = ActiveTranslationManager.FileName;
         }
 
         public static void OpenNewFiles()
         {
-            foreach (var path in Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFilesFromSystem())
+            var paths = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFilesFromSystem();
+            if (paths.Length == 1)
             {
-                OpenInNewTab(path);
+
+                OpenFile(paths[0]);
+            }
+            else
+            {
+                foreach (var path in paths)
+                {
+                    OpenInNewTab(path);
+                }
             }
         }
 

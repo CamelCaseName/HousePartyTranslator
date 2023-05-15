@@ -1,12 +1,13 @@
-﻿using Translator.Core.Helpers;
-using Translator.Explorer;
-using Translator.Explorer.JSON;
+﻿using Translator.Core.Data;
+using Translator.Desktop.Explorer.Graph;
+using Translator.Desktop.Explorer.JSONItems;
+using Translator.Desktop.Explorer.Story;
+using Translator.Desktop.InterfaceImpls;
 using Translator.Helpers;
-using Translator.InterfaceImpls;
-using TabManager = Translator.Core.TabManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
-using TranslationManager = Translator.Core.TranslationManager<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using TabManager = Translator.Core.TabManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
+using TranslationManager = Translator.Core.TranslationManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 
-namespace Translator.Managers
+namespace Translator.Desktop.Managers
 {
     //also contains some extensions to ease programming
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]

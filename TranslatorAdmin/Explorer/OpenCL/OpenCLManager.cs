@@ -1,11 +1,13 @@
 ﻿using Silk.NET.OpenCL;
 using System.Runtime.Versioning;
 using System.Text;
-using Translator.Core;
-using WinUtils = Translator.Core.Helpers.Utils<Translator.InterfaceImpls.WinLineItem, Translator.InterfaceImpls.WinUIHandler, Translator.InterfaceImpls.WinTabController, Translator.InterfaceImpls.WinTab>;
+using Translator.Core.Helpers;
+using Translator.Desktop.Explorer.Graph;
+using Translator.Explorer.OpenCL;
+using WinUtils = Translator.Core.Helpers.Utils<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 
 
-namespace Translator.Explorer.OpenCL;
+namespace Translator.Desktop.Explorer.OpenCL;
 [SupportedOSPlatform("windows")]
 internal sealed unsafe class OpenCLManager
 {
@@ -361,6 +363,7 @@ internal sealed unsafe class OpenCLManager
         err = _cl.SetKernelArg(_nbody_kernel, 3, sizeof(int), NodeCount);
         if (err != 0) return err;
         err = _cl.SetKernelArg(_nbody_kernel, 4, sizeof(float) * 4 * neededLocalSize, null);
+        if (err != 0) return err;
 
         //set arguments (except position) for edge kernel
         //    float4 parameters /*first is edge length, second attraction, third repulsion
@@ -405,7 +408,7 @@ internal sealed unsafe class OpenCLManager
                     err = _cl.EnqueueWriteBuffer(_commandQueue, node_pos_2, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), inputBuffer, 0, null, null);
                     if (err != 0) return err;
                 }
-                    Provider.ConsumedNodePositionOverrideEnded();
+                Provider.ConsumedNodePositionOverrideEnded();
             }
         }
 

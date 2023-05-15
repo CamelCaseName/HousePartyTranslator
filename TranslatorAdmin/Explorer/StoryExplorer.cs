@@ -1,6 +1,10 @@
 ﻿using Translator.Core.Helpers;
-using Translator.Helpers;
-using TranslatorDesktopApp.Properties;
+using Translator.Desktop;
+using Translator.Desktop.Explorer;
+using Translator.Desktop.Explorer.Graph;
+using Translator.Desktop.Explorer.Story;
+using Translator.Desktop.Properties;
+using Translator.Desktop.UI.Components;
 
 namespace Translator.Explorer.Window
 {
@@ -40,7 +44,7 @@ namespace Translator.Explorer.Window
             Provider = new();
             Context = new(Provider, IsStory, AutoLoad, FileName, StoryName);
             engine = new(Provider, this, NodeInfoLabel);
-            ShowExtendedInfo.Checked = engine.ShowExtendedInfo;
+            ShowExtendedInfo.Checked = GraphingEngine.ShowExtendedInfo;
 
             //if user cancels during file selection
             if (Context.FileName == "character" || Context.StoryName == "story") Close();
@@ -191,7 +195,7 @@ namespace Translator.Explorer.Window
 
         private void ShowExtendedInfo_CheckedChanged(object sender, EventArgs e)
         {
-            Grapher.ShowExtendedInfo = ShowExtendedInfo.Checked;
+            GraphingEngine.ShowExtendedInfo = ShowExtendedInfo.Checked;
         }
 
         private void MoveUpButton_Click(object sender, EventArgs e)

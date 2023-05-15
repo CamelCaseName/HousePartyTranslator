@@ -2,7 +2,7 @@
 using System.Drawing.Text;
 using System.Runtime.Versioning;
 
-namespace TranslatorDesktopApp.Explorer
+namespace Translator.Desktop.Explorer
 {
     [SupportedOSPlatform("windows")]
     internal static class ExplorerExtensions

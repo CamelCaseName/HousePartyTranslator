@@ -1,10 +1,10 @@
 ﻿using System.Runtime.Versioning;
-using Translator.Core.Helpers;
-using Translator.Explorer;
-using Translator.UICompatibilityLayer;
+using Translator.Core.Data;
+using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.Explorer.Graph;
 using static System.Windows.Forms.TabControl;
 
-namespace Translator.InterfaceImpls
+namespace Translator.Desktop.InterfaceImpls
 {
     [SupportedOSPlatform("Windows")]
     internal static class WinExtensions

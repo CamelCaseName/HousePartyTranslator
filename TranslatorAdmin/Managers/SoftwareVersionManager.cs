@@ -1,9 +1,6 @@
 ﻿using System.Runtime.Versioning;
-using System.Text.Json;
-using Translator.Core;
-using Translator.Helpers;
 
-namespace Translator.Managers
+namespace Translator.Desktop.Managers
 {
     [SupportedOSPlatform("Windows")]
     internal static class SoftwareVersionManager
@@ -36,8 +33,8 @@ namespace Translator.Managers
         private static async void DoWork()
         {
 #if DEBUG
-#pragma warning restore CS1998
             return;
+#pragma warning restore CS1998
 #else
             if (App.MainForm?.UI == null) return;
             try
@@ -172,5 +169,5 @@ namespace Translator.Managers
             }
 #endif
         }
-        }
     }
+}
