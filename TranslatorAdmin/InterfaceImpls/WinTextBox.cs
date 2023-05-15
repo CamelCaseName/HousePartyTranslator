@@ -37,9 +37,17 @@ namespace Translator.Desktop.InterfaceImpls
 
         public int HighlightEnd { get; set; }
 
-        public bool ShowHighlight { get => showHighlight; set { Invalidate(); showHighlight = value; customDrawNeeded = true; } }
+        public bool ShowHighlight
+        {
+            get => showHighlight;
+            set { Invalidate(); showHighlight = value; customDrawNeeded = true; }
+        }
 
-        public new string Text { get => base.Text; set { Invalidate(); customDrawNeeded = true; base.Text = value; } }
+        public new string Text
+        {
+            get => base.Text;
+            set { Invalidate(); customDrawNeeded = true; base.Text = value; }
+        }
 
         public new void Focus() => base.Focus();
 
@@ -61,7 +69,7 @@ namespace Translator.Desktop.InterfaceImpls
                 DrawPlaceholderText(e.Graphics);
             }
             //if we have a WM_PAINT and should display a shighlight somewhere
-            else if (customDrawNeeded && ShowHighlight && HighlightEnd > HighlightStart && HighlightStart < Text.Length && HighlightEnd <= Text.Length)
+            if (customDrawNeeded && ShowHighlight && HighlightEnd > HighlightStart && HighlightStart < Text.Length && HighlightEnd <= Text.Length)
             {
                 DrawHighlightedText(e.Graphics);
             }
@@ -86,7 +94,7 @@ namespace Translator.Desktop.InterfaceImpls
                 highlightLocation.X -= 2;
 
                 //render highlight in the current line
-                AdjustTextRegion(out TextFormatFlags flags, out highlightLocation);
+                AdjustTextRegion(out TextFormatFlags flags, ref highlightLocation);
                 TextRenderer.DrawText(g, Text.AsSpan()[newStartPos..(newStartPos + currentHighlightLength)], base.Font, highlightLocation, Utils.darkText, Utils.highlight, flags);
                 //move over
                 newStartPos += currentHighlightLength;
@@ -97,16 +105,17 @@ namespace Translator.Desktop.InterfaceImpls
 
         private void DrawPlaceholderText(Graphics g)
         {
-            AdjustTextRegion(out TextFormatFlags flags, out Point point);
+            Point point = Point.Empty;
+            AdjustTextRegion(out TextFormatFlags flags, ref point);
 
             TextRenderer.DrawText(g, PlaceholderText, Font, point, Utils.darkText, Utils.background, flags);
         }
 
-        private void AdjustTextRegion(out TextFormatFlags flags, out Point point)
+        private void AdjustTextRegion(out TextFormatFlags flags, ref Point point)
         {
             flags = TextFormatFlags.NoPadding | TextFormatFlags.Top |
                                                 TextFormatFlags.EndEllipsis;
-            point = ClientRectangle.Location;
+            if (point.IsEmpty) point = ClientRectangle.Location;
             if (RightToLeft == RightToLeft.Yes)
             {
                 flags |= TextFormatFlags.RightToLeft;

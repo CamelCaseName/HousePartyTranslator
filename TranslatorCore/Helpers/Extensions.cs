@@ -8,7 +8,7 @@ namespace Translator.Core.Helpers
 {
     public static class Extensions
     {
-        public static readonly char[] trimmers = { '\0', ' ', '\t', '\n', '\r' };
+        public static readonly char[] trimmers = { '\0', ' ', '\t', '\n', '\r', (char)160 };
 
         /// <summary>
         /// Returns whether a story is official or not
@@ -52,7 +52,7 @@ namespace Translator.Core.Helpers
         /// <returns>The cleaned string</returns>
         public static string RemoveVAHints(this string input)
         {
-            return input.AsSpan().RemoveVAHints().ToString().Trim(trimmers);
+            return input.AsSpan().RemoveVAHints().ToString();
         }
 
         public static ReadOnlySpan<char> RemoveVAHints(this ReadOnlySpan<char> span)
@@ -76,7 +76,9 @@ namespace Translator.Core.Helpers
                 }
             }
 
-            return (ReadOnlySpan<char>)output[..iterator];
+            output = output.Trim(trimmers);
+
+            return (ReadOnlySpan<char>)output;
         }
 
         /// <summary>
