@@ -161,7 +161,6 @@ namespace Translator.Core
         public string CleanedSearchQuery { get; private set; } = string.Empty;
         public bool CaseSensitiveSearch { get; private set; } = false;
 
-
         public int SelectedResultIndex = 0;
         public TLineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : new TLineItem();
 
@@ -193,6 +192,12 @@ namespace Translator.Core
         {
             if (Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
             {
+                TranslationManager.AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
+                TranslationManager.AutoSaveTimer.Start();
+            }
+            else
+            {
+                Settings.Default.AutoSaveInterval = TimeSpan.FromMinutes(1);
                 TranslationManager.AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
                 TranslationManager.AutoSaveTimer.Start();
             }
