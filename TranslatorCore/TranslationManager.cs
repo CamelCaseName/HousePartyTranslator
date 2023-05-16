@@ -22,7 +22,7 @@ namespace Translator.Core
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    public class TranslationManager<TLineItem, TUIHandler, TTabController, TTab> : ITranslationManager<TLineItem>
+    public class TranslationManager<TLineItem, TUIHandler, TTabController, TTab>
         where TLineItem : class, ILineItem, new()
         where TUIHandler : class, IUIHandler<TLineItem, TTabController, TTab>, new()
         where TTabController : class, ITabController<TLineItem, TTab>, new()
@@ -1565,10 +1565,10 @@ namespace Translator.Core
             }
         }
 
-        public void CreateTemplateForSingleFile()
+        public void GenerateTemplateForSingleFile(bool SaveOnline = false)
         {
             PopupResult typeResult;
-            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file you want to create the template for.", "Create a template")) != PopupResult.CANCEL)
+            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file you want to create the template for. (Note: templates of official stories can only be created for local use)", "Create a template")) != PopupResult.CANCEL)
             {
                 //set up 
                 string path = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFileFromSystem(false, "Select the file to create the template for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
@@ -1578,18 +1578,18 @@ namespace Translator.Core
                 string file = Path.GetFileNameWithoutExtension(path);
                 string story = ExtractStoryName(path);
 
-                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) return;
+                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
 
                 LogManager.Log("creating template for " + story + "/" + file);
                 //create and upload templates
                 if (UI.CreateTemplateFromStory(story, file, path, out FileData templates))
                 {
-                    if (templates.Count > 0)
+                    if (templates.Count > 0 && SaveOnline)
                     {
                         _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.RemoveOldTemplates(file, story);
                         _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.UploadTemplates(templates);
                     }
-                    else
+                    else if(SaveOnline)
                     {
                         _ = UI.ErrorOk("No template resulted from the generation, please try again.");
                         UI.SignalUserEndWait();
@@ -1614,11 +1614,12 @@ namespace Translator.Core
                     writer.Close();
                 }
                 UI.SignalUserEndWait();
+                //todo replace by template export
                 LoadFileIntoProgram(newFile);
             }
         }
 
-        public void CreateTemplateForAllFiles()
+        public void GenerateTemplateForAllFiles(bool SaveOnline = false)
         {
             PopupResult typeResult;
             if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select any file in the story folder you want to create the templates for. After that you must select the folder in which the translations will be placed.", "Create templates for a complete story")) != PopupResult.CANCEL)
@@ -1630,7 +1631,7 @@ namespace Translator.Core
                 UI.SignalUserWait();
                 string story = ExtractStoryName(path);
 
-                if(story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) return;
+                if(story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
                 LogManager.Log("creating templates for " + story);
 
                 //create translation and open it
@@ -1643,12 +1644,12 @@ namespace Translator.Core
                     //create and upload templates
                     if (UI.CreateTemplateFromStory(story, file, file_path, out FileData templates))
                     {
-                        if (templates.Count > 0)
+                        if (templates.Count > 0 && SaveOnline)
                         {
                             _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.RemoveOldTemplates(file, story);
                             _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.UploadTemplates(templates);
                         }
-                        else
+                        else if (SaveOnline)
                         {
                             _ = UI.ErrorOk("No templates resulted from the generation, please try again.");
                             UI.SignalUserEndWait();
@@ -1662,9 +1663,11 @@ namespace Translator.Core
                         return;
                     }
 
-                    if (!File.Exists(Path.Combine(newFiles_dir, file + ".txt")))
+                    if (newFiles_dir != string.Empty)
                     {
-                        File.OpenWrite(Path.Combine(newFiles_dir, file + ".txt")).Close();
+                        var writer = File.CreateText(Path.Combine(newFiles_dir, file + ".txt"));
+                        writer.Write(string.Empty);
+                        writer.Close();
                     }
                 }
 
@@ -1676,10 +1679,16 @@ namespace Translator.Core
                 {
                     if (Path.GetExtension(filePath) == ".txt")
                     {
+                        //todo replace by template export
                         TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenInNewTab(filePath);
                     }
                 }
             }
+        }
+
+        public void ExportTemplate(string story, string file, string path)
+        {
+
         }
     }
 }
