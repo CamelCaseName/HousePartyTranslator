@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Google.Protobuf;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 
@@ -53,7 +55,7 @@ namespace Translator.Core.Helpers
         /// Opens a select file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the selected file.</returns>
-        public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "", string filter = "Text files (*.txt)|*.txt")
+        public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "", string filter = "Text files (*.txt)|*.txt", bool checkFileExists = false)
         {
             if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
 
@@ -71,6 +73,7 @@ namespace Translator.Core.Helpers
             if (selectFileDialog == null) { return string.Empty; }
 
             selectFileDialog.MultiSelect = false;
+            selectFileDialog.CheckFileExists = checkFileExists;
             if (selectFileDialog.ShowDialog() == PopupResult.OK)
             {
                 if (isTranslation)
@@ -156,6 +159,35 @@ namespace Translator.Core.Helpers
             }
             return string.Empty;
         }
+
+        /// <summary>
+        /// Opens a save file dialogue and returns the selected file as a path.
+        /// </summary>
+        /// <returns>The path to the file to save to.</returns>
+        public static string SelectSaveLocation(string message = "", string path = "", string file = "", string extension = "txt", bool checkFileExists = true, bool checkPathExists = true)
+        { 
+            if (!MainUI?.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
+
+            var saveFileDialog = (ISaveFileDialog?)Activator.CreateInstance(MainUI?.SaveFileDialogType ?? typeof(ISaveFileDialog), new object?[]
+            {
+                /*Title*/message,
+                /*Extension*/ extension,
+                /*CreatePrompt*/ false,
+                /*OverwritePrompt*/ true,
+                /*FileName*/ file,
+                /*InitialDirectory*/ path
+            });
+            if (saveFileDialog == null) return string.Empty;
+
+            saveFileDialog.CheckFileExists = checkFileExists;
+            saveFileDialog.CheckPathExists = checkPathExists;
+
+            if (saveFileDialog.ShowDialog() == PopupResult.OK)
+            {
+                return saveFileDialog.FileName;
+            }
+            return string.Empty;
+        }
     }
 
     public static partial class Utils
@@ -170,6 +202,32 @@ namespace Translator.Core.Helpers
         public static readonly Color menu = SystemColors.ScrollBar;
         public static readonly Color frame = SystemColors.WindowFrame;
         public static readonly Color highlight = SystemColors.Info;
+
+        public static string ExtractStoryName(string path)
+        {
+            var paths = path.Split('\\');
+
+            if (paths.Length < 3) throw new ArgumentException("the file needs to be at least 2 folders deep from your drive?");
+
+            string tempStoryName = paths[^2];
+            if (!paths[^1].Contains('.'))
+                tempStoryName = paths[^1];
+
+            bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText);
+            if (!gotLanguage) throw new LanguageHelper.LanguageException();
+            //compare
+            if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
+                //get folder one more up
+                tempStoryName = paths[^3];
+
+            if (tempStoryName == "Languages")
+            {
+                //get folder one more up
+                tempStoryName = "UI";
+            }
+
+            return tempStoryName;
+        }
 
         /// <summary>
         /// Gets the current assembly version as a string.

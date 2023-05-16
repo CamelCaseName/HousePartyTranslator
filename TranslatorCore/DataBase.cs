@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
 {
+    //todo reformat commands to not have all these tabs as it is not useful
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
@@ -106,7 +108,7 @@ namespace Translator.Core
             _ = cmd.Parameters.AddWithValue("@story", story);
             _ = cmd.Parameters.AddWithValue("@language", language);
 
-            LineDataList = new FileData();
+            LineDataList = new FileData(story, fileName);
 
             if (CheckOrReopenConnection(connection))
             {
@@ -168,17 +170,19 @@ namespace Translator.Core
             string command;
             if (story == "Hints")
             {
-                command = @"SELECT id, category, english
-                                    " + FROM + @"
-                                    WHERE story = @story AND language IS NULL AND deleted = 0
-                                    ORDER BY category ASC;";
+                command =
+@"SELECT id, category, english
+" + FROM +
+@" WHERE story = @story AND language IS NULL AND deleted = 0
+ORDER BY category ASC;";
             }
             else
             {
-                command = @"SELECT id, category, english
-                                    " + FROM + @"
-                                    WHERE filename = @filename AND story = @story AND language IS NULL AND deleted = 0
-                                    ORDER BY category ASC;";
+                command =
+@"SELECT id, category, english
+" + FROM +
+@" WHERE filename = @filename AND story = @story AND language IS NULL AND deleted = 0
+ORDER BY category ASC;";
             }
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -188,7 +192,7 @@ namespace Translator.Core
             if (story != "Hints") _ = cmd.Parameters.AddWithValue("@filename", fileName);
             _ = cmd.Parameters.AddWithValue("@story", story);
 
-            LineDataList = new FileData();
+            LineDataList = new FileData(story, fileName);
 
             if (CheckOrReopenConnection(connection))
             {
@@ -263,7 +267,11 @@ namespace Translator.Core
 
             if (!IsOnline)
             {
+#if DEBUG || DEBUG_ADMIN
+                AppTitle = "Translator (DEBUG) (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
+#else
                 AppTitle = "Translator (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
+#endif
             }
             else
             {
@@ -325,12 +333,16 @@ namespace Translator.Core
                 Settings.Default.Save();
 
                 //set global variable for later actions
-                TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.IsUpToDate = DBVersion == SoftwareVersion;
-                if (!TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.IsUpToDate && Settings.Default.AdvancedModeEnabled)
+                TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
+                if (!TranslationManager.IsUpToDate && Settings.Default.AdvancedModeEnabled)
                 {
                     _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
                 }
+#if DEBUG || DEBUG_ADMIN
+                AppTitle = "Translator (DEBUG) (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
+#else
                 AppTitle = "Translator (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
+#endif
             }
         }
 
@@ -382,10 +394,13 @@ namespace Translator.Core
                 int v = c;
                 for (int j = 0; j < 400; j++)
                 {
+                    if (v >= lines.Values.Count) break;
                     _ = builder.Append($"(@id{v}, @story{v}, @fileName{v}, @category{v}, @english{v}, @deleted{v}),");
                     v++;
-                    if (v >= lines.Values.Count) break;
                 }
+
+                //we can exit if we sent everything, this an occurr if the story has exactly a multiple of 400 entries
+                if (v == c) break;
 
                 _ = builder.Remove(builder.Length - 1, 1);
                 string command = builder.ToString() + " ON DUPLICATE KEY UPDATE english = VALUES(english), deleted = VALUES(deleted);";
@@ -397,6 +412,7 @@ namespace Translator.Core
                 //insert all the parameters
                 for (int k = 0; k < 400; k++)
                 {
+                    if (c >= lines.Values.Count) break;
                     LineData line = lines.Values.ElementAt(c);
                     _ = cmd.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + "template");
                     _ = cmd.Parameters.AddWithValue($"@story{c}", line.Story);
@@ -405,7 +421,6 @@ namespace Translator.Core
                     _ = cmd.Parameters.AddWithValue($"@english{c}", line.TemplateString.Trim());
                     _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
                     ++c;
-                    if (c >= lines.Values.Count) break;
                 }
 
                 _ = ExecuteOrReOpen(cmd);
@@ -465,21 +480,21 @@ namespace Translator.Core
                 string fileName = translationData.ElementAt(0).Value.FileName;
                 for (int x = 0; x < ((translationData.Count / 400) + 0.5); x++)
                 {
-                    var builder = new StringBuilder(INSERT + @" (id, translated, approved, comment, translation, deleted) VALUES ", translationData.Count * 100);
+                    var builder = new StringBuilder(INSERT + @" (id,  story, filename, category, translated, approved, language, comment, translation, deleted) VALUES ", translationData.Count * 100);
 
                     //add all values
                     int v = c;
                     for (int j = 0; j < 400; j++)
                     {
-                        _ = builder.Append($"(@id{v}, @translated{v}, @approved{v}, @comment{v}, @translation{v}, @deleted{v}),");
+                        _ = builder.Append($"(@id{v}, @story{v}, @filename{v}, @category{v}, @translated{v}, @approved{v}, @language{v}, @comment{v}, @translation{v}, @deleted{v}),");
 
                         v++;
                         if (v >= translationData.Values.Count) break;
                     }
 
                     _ = builder.Remove(builder.Length - 1, 1);
-                    using MySqlCommand cmd = connection.CreateCommand(); 
-                    cmd.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved)");
+                    using MySqlCommand cmd = connection.CreateCommand();
+                    cmd.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved), story = VALUES(story), category = VALUES(category), filename = VALUES(filename)");
                     cmd.Parameters.Clear();
 
                     //insert all the parameters
@@ -494,8 +509,12 @@ namespace Translator.Core
                         }
 
                         _ = cmd.Parameters.AddWithValue($"@id{c}", storyName + fileName + item.ID + language);
+                        _ = cmd.Parameters.AddWithValue($"@story{c}", storyName);
+                        _ = cmd.Parameters.AddWithValue($"@filename{c}", fileName);
+                        _ = cmd.Parameters.AddWithValue($"@category{c}", (int)item.Category);
                         _ = cmd.Parameters.AddWithValue($"@translated{c}", 1);
                         _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
+                        _ = cmd.Parameters.AddWithValue($"@language{c}", language);
                         _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
                         _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
                         _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
@@ -536,7 +555,7 @@ namespace Translator.Core
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId[(story + fileName).Length..];
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.Language.Length));
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
         }
 
         /// <summary>
@@ -633,6 +652,44 @@ namespace Translator.Core
                 returnString = string.Empty;
             }
             return returnString;
+        }
+
+        internal static bool GetFilesForStory(string story, out string[] names)
+        {
+            UI.SignalUserWait();
+            string command = "SELECT DISTINCT filename " + FROM + " WHERE story = @story AND language IS NULL AND deleted = 0";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            _ = cmd.Parameters.AddWithValue("@story", story);
+            List<string> files = new();
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0))
+                            files.Add(reader.GetString(0));
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No files found for the story " + story, "Info");
+                    LogManager.Log("No files found for the story " + story);
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+            names = files.ToArray();
+            return files.Count > 0;
         }
     }
 }

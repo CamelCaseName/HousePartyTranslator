@@ -135,8 +135,8 @@ namespace Translator.Core
                 {
                     IgnoreNextRecents = 1;
                     TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.LoadFileIntoProgram(recents[0]);
-                    if (Settings.Default.AutoLoadRecentIndex) TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.SelectLine(recentIndex);
-                    else TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.SelectLine(0);
+                    if (Settings.Default.AutoLoadRecentIndex) TabManager<TLineItem, TUIHandler, TTabController, TTab>.SelectLine(recentIndex);
+                    else TabManager<TLineItem, TUIHandler, TTabController, TTab>.SelectLine(0);
                 }
             }
         }
@@ -197,7 +197,7 @@ namespace Translator.Core
             if (sender == null || TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager == null) return;
             TabManager<TLineItem, TUIHandler, TTabController, TTab>.ShowAutoSaveDialog();
             TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.LoadFileIntoProgram(((IMenuItem)sender).Text);
-            if (Settings.Default.AutoLoadRecentIndex) TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.SelectLine(recentIndex);
+            if (Settings.Default.AutoLoadRecentIndex) TabManager<TLineItem, TUIHandler, TTabController, TTab>.SelectLine(recentIndex);
         }
     }
 }

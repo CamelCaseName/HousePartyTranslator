@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿using Microsoft.VisualBasic;
+using Microsoft.VisualBasic.FileIO;
+using Org.BouncyCastle.Asn1.Ess;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -8,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Web;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
@@ -22,98 +25,12 @@ namespace Translator.Core
     /// <summary>
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
-    public class TranslationManager<TLineItem, TUIHandler, TTabController, TTab> : ITranslationManager<TLineItem>
-        where TLineItem : class, ILineItem, new()
-        where TUIHandler : class, IUIHandler<TLineItem, TTabController, TTab>, new()
-        where TTabController : class, ITabController<TLineItem, TTab>, new()
-        where TTab : class, ITab<TLineItem>, new()
+
+    public partial class TranslationManager
     {
-        public bool ChangesPending
-        {
-            get { return _changesPending; }
-            set
-            {
-                if (value)
-                    TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName + "*");
-                else
-                    TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName ?? string.Empty);
-                _changesPending = value;
-            }
-        }
-        private bool _changesPending = false;
         public static bool IsUpToDate { get; internal set; } = false;
-        public List<StringCategory> CategoriesInFile = new();
-        public bool isTemplate = false;
-        public string SearchQuery { get; private set; } = string.Empty;
-        public string CleanedSearchQuery { get; private set; } = string.Empty;
-        public bool CaseSensitiveSearch { get; private set; } = false;
-
-        private static readonly Timer AutoSaveTimer = new();
-
-        public int SelectedResultIndex = 0;
-        public TLineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : new TLineItem();
-
-        //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
-        private int templateCounter = 0;
-
-        public FileData TranslationData = new();
-        private string fileName = string.Empty;
-        private bool isSaveAs = false;
-        private static string language = Settings.Default.Language;
-        private int searchTabIndex = 0;
-        private bool selectedNew = false;
-        private string sourceFilePath = string.Empty;
-        private string storyName = string.Empty;
-#nullable disable
-        private static IUIHandler<TLineItem, TTabController, TTab> UI;
-#nullable restore
-        private static bool StaticUIInitialized = false;
-        private readonly ITab<TLineItem> TabUI;
-        private bool triedFixingOnce = false;
-        private bool triedSavingFixOnce = false;
-
-        public TranslationManager(IUIHandler<TLineItem, TTabController, TTab> ui, ITab<TLineItem> tab)
-        {
-            if (!StaticUIInitialized) { UI = ui; StaticUIInitialized = true; }
-            TabUI = tab;
-            AutoSaveTimer.Elapsed += SaveFileHandler;
-        }
-
-        static TranslationManager()
-        {
-            if (Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
-            {
-                AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
-                AutoSaveTimer.Start();
-            }
-        }
-
-        public void SaveFileHandler(object? sender, ElapsedEventArgs? e)
-        {
-            SaveFile();
-        }
-
-        /// <summary>
-        /// The Name of the file loaded, without the extension.
-        /// </summary>
-        public string FileName
-        {
-            get
-            {
-                return fileName;
-            }
-            set
-            {
-                fileName = value;
-            }
-        }
-
-        /// <summary>
-        /// Provides the id of the currently selected line
-        /// </summary>
-        public string SelectedId { get { return TabUI.SelectedLineItem.Text; } }
-
-        public LineData SelectedLine { get { return TranslationData[SelectedId]; } }
+        internal static readonly Timer AutoSaveTimer = new();
+        internal static string language = Settings.Default.Language;
 
         /// <summary>
         /// The Language of the current translation.
@@ -145,6 +62,168 @@ namespace Translator.Core
                 }
             }
         }
+
+        /// <summary>
+        /// Generates a list of all string categories depending on the filename.
+        /// </summary>
+        public static List<StringCategory> GetCategories(string story, string file)
+        {
+            if (story == "UI" || story == "Hints")
+            {
+                return new List<StringCategory>() { StringCategory.General };
+            }
+            else if (file == story)
+            {
+                return new List<StringCategory>() {
+                            StringCategory.General,
+                            StringCategory.ItemName,
+                            StringCategory.ItemAction,
+                            StringCategory.ItemGroupAction,
+                            StringCategory.Event,
+                            StringCategory.Achievement };
+            }
+            else
+            {
+                return new List<StringCategory>() {
+                            StringCategory.General,
+                            StringCategory.Dialogue,
+                            StringCategory.Response,
+                            StringCategory.Quest,
+                            StringCategory.Event,
+                            StringCategory.BGC};
+            }
+        }
+
+        internal static void SortIntoCategories(ref List<CategorizedLines> CategorizedStrings, FileData IdsToExport, FileData translationData)
+        {
+            var CategoriesInFile = GetCategories(IdsToExport.StoryName, IdsToExport.FileName);
+
+            foreach (LineData item in IdsToExport.Values)
+            {
+                if (translationData.TryGetValue(item.ID, out LineData? TempResult))
+                {
+                    if (TempResult?.TranslationLength > 0)
+                        item.TranslationString = TempResult?.TranslationString ?? IdsToExport[item.ID].TemplateString.RemoveVAHints();
+                    else
+                        item.TranslationString = IdsToExport[item.ID].TemplateString.RemoveVAHints();
+                }
+                else
+                {
+                    item.TranslationString = IdsToExport[item.ID].TemplateString.RemoveVAHints();
+                }
+
+                int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
+
+                if (intCategory < CategorizedStrings.Count && intCategory >= 0)
+                    CategorizedStrings[intCategory].lines.Add(item);
+                else
+                {
+                    CategorizedStrings.Add((new List<LineData>(), StringCategory.Neither));
+                    CategorizedStrings.Last().lines.Add(item);
+                }
+            }
+        }
+
+        internal static List<CategorizedLines> InitializeCategories(string story, string file)
+        {
+            var CategorizedStrings = new List<CategorizedLines>();
+
+            foreach (StringCategory category in GetCategories(story, file))
+            {//add a list for every category we have in the file, so we can then add the strings to these.
+                CategorizedStrings.Add((new List<LineData>(), category));
+            }
+
+            return CategorizedStrings;
+        }
+    }
+
+    public class TranslationManager<TLineItem, TUIHandler, TTabController, TTab>
+        where TLineItem : class, ILineItem, new()
+        where TUIHandler : class, IUIHandler<TLineItem, TTabController, TTab>, new()
+        where TTabController : class, ITabController<TLineItem, TTab>, new()
+        where TTab : class, ITab<TLineItem>, new()
+    {
+        public bool ChangesPending
+        {
+            get { return _changesPending; }
+            set
+            {
+                if (value)
+                    TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName + "*");
+                else
+                    TabManager<TLineItem, TUIHandler, TTabController, TTab>.UpdateTabTitle(this, FileName ?? string.Empty);
+                _changesPending = value;
+            }
+        }
+        private bool _changesPending = false;
+        public bool isTemplate = false;
+        public string SearchQuery { get; private set; } = string.Empty;
+        public string CleanedSearchQuery { get; private set; } = string.Empty;
+        public bool CaseSensitiveSearch { get; private set; } = false;
+
+
+        public int SelectedResultIndex = 0;
+        public TLineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : new TLineItem();
+
+        //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
+        private int templateCounter = 0;
+
+        public FileData TranslationData = new(string.Empty, string.Empty);
+        private string fileName = string.Empty;
+        private bool isSaveAs = false;
+        private int searchTabIndex = 0;
+        private bool selectedNew = false;
+        private string sourceFilePath = string.Empty;
+        private string storyName = string.Empty;
+#nullable disable
+        private static IUIHandler<TLineItem, TTabController, TTab> UI;
+#nullable restore
+        private static bool StaticUIInitialized = false;
+        private readonly ITab<TLineItem> TabUI;
+        private bool triedFixingOnce = false;
+
+        public TranslationManager(IUIHandler<TLineItem, TTabController, TTab> ui, ITab<TLineItem> tab)
+        {
+            if (!StaticUIInitialized) { UI = ui; StaticUIInitialized = true; }
+            TabUI = tab;
+            TranslationManager.AutoSaveTimer.Elapsed += SaveFileHandler;
+        }
+
+        static TranslationManager()
+        {
+            if (Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
+            {
+                TranslationManager.AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
+                TranslationManager.AutoSaveTimer.Start();
+            }
+        }
+
+        public void SaveFileHandler(object? sender, ElapsedEventArgs? e)
+        {
+            SaveFile();
+        }
+
+        /// <summary>
+        /// The Name of the file loaded, without the extension.
+        /// </summary>
+        public string FileName
+        {
+            get
+            {
+                return fileName;
+            }
+            set
+            {
+                fileName = value;
+            }
+        }
+
+        /// <summary>
+        /// Provides the id of the currently selected line
+        /// </summary>
+        public string SelectedId { get { return TabUI.SelectedLineItem.Text; } }
+
+        public LineData SelectedLine { get { return TranslationData[SelectedId]; } }
 
         /// <summary>
         /// The path to the file currently loaded.
@@ -297,7 +376,7 @@ namespace Translator.Core
                     History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
                 ResetTranslationManager();
 
-                if (!IsUpToDate && Settings.Default.AdvancedModeEnabled && DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
+                if (!TranslationManager.IsUpToDate && Settings.Default.AdvancedModeEnabled && DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
                 {
                     LoadTemplates();
                 }
@@ -387,7 +466,7 @@ namespace Translator.Core
                     TabUI.ApprovedButtonChecked = SelectedLine.IsApproved;
 
                     //update label
-                    UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
+                    UpdateCharacterCountLabel(SelectedLine.TranslationLength, SelectedLine.TemplateLength);
 
                     TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
 
@@ -436,7 +515,7 @@ namespace Translator.Core
         public void ReplaceAll(string replacement)
         {
             //save old lines for history
-            FileData old = new(TranslationData);
+            FileData old = new(TranslationData, StoryName, FileName);
 
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
@@ -489,7 +568,7 @@ namespace Translator.Core
         public void RequestAutomaticTranslation()
         {
             if (SelectedId != string.Empty)
-                AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+                AutoTranslation.AutoTranslationAsync(SelectedLine, TranslationManager.Language, AutoTranslationCallback);
         }
 
         /// <summary>
@@ -498,7 +577,7 @@ namespace Translator.Core
         private void ConvenienceAutomaticTranslation()
         {
             if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
-                AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
+                AutoTranslation.AutoTranslationAsync(SelectedLine, TranslationManager.Language, ConvenienceTranslationCallback);
         }
 
         private void AutoTranslationCallback(bool successfull, LineData data)
@@ -546,7 +625,7 @@ namespace Translator.Core
                 UI.SignalUserWait();
 
                 //update translation in the DataBase
-                _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslation(SelectedLine, Language);
+                _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslation(SelectedLine, TranslationManager.Language);
 
                 if (TabUI.SimilarStringsToEnglish.Contains(SelectedId)) _ = TabUI.SimilarStringsToEnglish.Remove(SelectedId);
 
@@ -564,23 +643,23 @@ namespace Translator.Core
             LogManager.Log("saving file " + StoryName + "/" + FileName);
             History.ClearForFile<TLineItem, TUIHandler, TTabController, TTab>(FileName, StoryName);
 
-            if (SourceFilePath == string.Empty || Language == string.Empty)
+            if (SourceFilePath == string.Empty || TranslationManager.Language == string.Empty)
             {
                 UI.SignalUserEndWait();
                 return;
             }
             if (doOnlineUpdate) _ = Task.Run(RemoteUpdate);
 
-            List<CategorizedLines> CategorizedStrings = InitializeCategories();
+            List<CategorizedLines> CategorizedStrings = TranslationManager.InitializeCategories(StoryName, FileName);
 
             //sort online line ids into translations but use local values for translations if applicable
             if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
-                SortIntoCategories(CategorizedStrings, IdsToExport);
+                TranslationManager.SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
             else
-                SortIntoCategories(CategorizedStrings, TranslationData);
+                TranslationManager.SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
 
             //save all categorized lines to disk
-            WriteCategorizedLinesToDisk(CategorizedStrings);
+            WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
 
             //copy file to game rather than writing again
             if (Settings.Default.AlsoSaveToGame)
@@ -594,31 +673,16 @@ namespace Translator.Core
             void RemoteUpdate()
             {
                 UI.SignalUserWait();
-                if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslations(TranslationData, Language) || !DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+                if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateTranslations(TranslationData, TranslationManager.Language) || !DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
                 UI.SignalUserEndWait();
                 LogManager.Log("Successfully saved the file remotely");
             }
         }
 
-        private List<CategorizedLines> InitializeCategories()
-        {
-            var CategorizedStrings = new List<CategorizedLines>();
-
-            //we need to check whether the file has any strings at all, expecially the categories, if no, add them first or shit breaks.
-            GenerateCategories();
-
-            foreach (StringCategory category in CategoriesInFile)
-            {//add a list for every category we have in the file, so we can then add the strings to these.
-                CategorizedStrings.Add((new List<LineData>(), category));
-            }
-
-            return CategorizedStrings;
-        }
-
         private void CopyToGameModsFolder()
         {
             //get language path
-            if (LanguageHelper.Languages.TryGetValue(Language, out string? languageAsText))
+            if (LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
             {
                 //add new to langauge if wanted
                 if (Settings.Default.UseFalseFolder)
@@ -661,85 +725,6 @@ namespace Translator.Core
             }
         }
 
-        private void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings)
-        {
-            CultureInfo culture = CultureInfo.InvariantCulture;
-            using var OutputWriter = new StreamWriter(SourceFilePath, false, new UTF8Encoding(true));
-            foreach (CategorizedLines CategorizedLines in CategorizedStrings)
-            {
-                //write category if it has any lines, else we skip the category
-                if (CategorizedLines.lines.Count > 0) OutputWriter.WriteLine(CategorizedLines.category.AsString());
-                else continue;
-
-                //sort strings depending on category
-                if (CategorizedLines.category == StringCategory.Dialogue)
-                {
-                    CategorizedLines.lines.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
-                }
-                else if (CategorizedLines.category == StringCategory.BGC)
-                {
-                    //sort using custom IComparer
-                    CategorizedLines.lines.Sort(new BGCComparer());
-                }
-                else if (CategorizedLines.category == StringCategory.General)
-                {
-                    //hints have to be sortet a bit different because the numbers can contain a u
-                    CategorizedLines.lines.Sort(new GeneralComparer());
-                }
-                else if (CategorizedLines.category == StringCategory.Quest || CategorizedLines.category == StringCategory.Achievement)
-                {
-                    CategorizedLines.lines.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
-                }
-
-                //iterate through each and print them
-                foreach (LineData line in CategorizedLines.lines)
-                {
-                    OutputWriter.WriteLine(line.ToString().RemoveVAHints());
-                }
-                //newline after each category
-                OutputWriter.WriteLine();
-            }
-        }
-
-        private void SortIntoCategories(List<CategorizedLines> CategorizedStrings, FileData IdsToExport)
-        {
-            foreach (LineData item in IdsToExport.Values)
-            {
-                //add template to list if no translation is in the file
-                if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
-                {
-                    if (TranslationData.TryGetValue(item.ID, out LineData? TempResult))
-                    {
-                        if (TempResult?.TranslationLength > 0)
-                            item.TranslationString = TempResult?.TranslationString ?? IdsToExport[item.ID].TemplateString.RemoveVAHints();
-                        else
-                            item.TranslationString = IdsToExport[item.ID].TemplateString.RemoveVAHints();
-                    }
-                    else
-                    {
-                        item.TranslationString = IdsToExport[item.ID].TemplateString.RemoveVAHints();
-                    }
-                }
-
-                int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
-
-                if (intCategory < CategorizedStrings.Count && intCategory >= 0)
-                    CategorizedStrings[intCategory].lines.Add(item);
-                else if (!triedSavingFixOnce)
-                {
-                    triedSavingFixOnce = true;
-                    GenerateCategories();
-                    SaveFile();
-                    triedSavingFixOnce = false;
-                }
-                else
-                {
-                    CategorizedStrings.Add((new List<LineData>(), StringCategory.Neither));
-                    CategorizedStrings.Last().lines.Add(item);
-                }
-            }
-        }
-
         /// <summary>
         /// Saves all strings to a specified file location.
         /// </summary>
@@ -749,40 +734,12 @@ namespace Translator.Core
             {
                 isSaveAs = true;
                 string oldFile = SourceFilePath;
-                string SaveFile = SelectSaveLocation();
+                string SaveFile = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Choose a file to save the translation to");
                 SourceFilePath = SaveFile;
                 this.SaveFile();
                 SourceFilePath = oldFile;
                 isSaveAs = false;
             }
-        }
-
-        /// <summary>
-        /// Opens a save file dialogue and returns the selected file as a path.
-        /// </summary>
-        /// <returns>The path to the file to save to.</returns>
-        public string SelectSaveLocation(string file = "", string path = "")
-        {
-            if (file == string.Empty) file = StoryName;
-            if (path == string.Empty) path = SourceFilePath;
-            if (!UI.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog))) throw new ArgumentException($"{nameof(UI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
-
-            var saveFileDialog = (ISaveFileDialog?)Activator.CreateInstance(UI.SaveFileDialogType, new object?[]
-            {
-                /*Title*/"Choose a file to save the translations to",
-                /*Extension*/ "txt",
-                /*CreatePrompt*/ false,
-                /*OverwritePrompt*/ true,
-                /*FileName*/ file,
-                /*InitialDirectory*/ path
-            });
-            if (saveFileDialog == null) return string.Empty;
-
-            if (saveFileDialog.ShowDialog() == PopupResult.OK)
-            {
-                return saveFileDialog.FileName;
-            }
-            return string.Empty;
         }
 
         /// <summary>
@@ -858,6 +815,7 @@ namespace Translator.Core
                 SelectedResultIndex = 0;
                 SearchQuery = string.Empty;
                 CleanedSearchQuery = string.Empty;
+                TabUI.Template.ShowHighlight = false;
             }
 
             UI.UpdateResults();
@@ -877,35 +835,6 @@ namespace Translator.Core
         }
 
         /// <summary>
-        /// Selects the index given in the list of strings
-        /// </summary>
-        /// <param name="index">The index to select</param>
-        public static void SelectLine(int index)
-        {
-            if (index >= 0 && index < TabManager<TLineItem, TUIHandler, TTabController, TTab>.SelectedTab.LineCount) TabManager<TLineItem, TUIHandler, TTabController, TTab>.SelectedTab.SelectLineItem(index);
-        }
-
-        /// <summary>
-        /// Sets the language the translation is associated with
-        /// </summary>
-        public static void SetLanguage()
-        {
-            if (UI.Language.Length >= 0)
-            {
-                Language = UI.Language;
-            }
-            else if (Settings.Default.Language != string.Empty)
-            {
-                string languageFromFile = Settings.Default.Language;
-                if (languageFromFile != string.Empty)
-                {
-                    Language = languageFromFile;
-                }
-            }
-            UI.Language = Language;
-        }
-
-        /// <summary>
         /// Update the currently selected translation string in the TranslationData.
         /// </summary>
         public void UpdateTranslationString()
@@ -913,7 +842,7 @@ namespace Translator.Core
             //remove pipe to not break saving/export
             TabUI.TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
             SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
-            UpdateCharacterCountLabel(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
+            UpdateCharacterCountLabel(SelectedLine.TranslationLength, SelectedLine.TemplateLength);
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
         }
@@ -922,37 +851,6 @@ namespace Translator.Core
         {
             //remove pipe to not break saving/export
             SelectedLine.Comments = TabUI.CommentBoxTextArr;
-        }
-
-        /// <summary>
-        /// Generates a list of all string categories depending on the filename.
-        /// </summary>
-        private void GenerateCategories()
-        {
-            if (StoryName == "UI" || StoryName == "Hints")
-            {
-                CategoriesInFile = new List<StringCategory>() { StringCategory.General };
-            }
-            else if (FileName == StoryName)
-            {
-                CategoriesInFile = new List<StringCategory>() {
-                            StringCategory.General,
-                            StringCategory.ItemName,
-                            StringCategory.ItemAction,
-                            StringCategory.ItemGroupAction,
-                            StringCategory.Event,
-                            StringCategory.Achievement };
-            }
-            else
-            {
-                CategoriesInFile = new List<StringCategory>() {
-                            StringCategory.General,
-                            StringCategory.Dialogue,
-                            StringCategory.Response,
-                            StringCategory.Quest,
-                            StringCategory.Event,
-                            StringCategory.BGC};
-            }
         }
 
         /// <summary>
@@ -1025,7 +923,7 @@ namespace Translator.Core
             {
                 if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.UpdateDBVersion())
                 {
-                    IsUpToDate = true;
+                    TranslationManager.IsUpToDate = true;
                     isTemplate = false;
                 }
             }
@@ -1040,14 +938,13 @@ namespace Translator.Core
         /// </summary>
         private void LoadTranslationFile(bool localTakesPriority = false)
         {
-            CategoriesInFile.Clear();
             TranslationData.Clear();
             TabUI.Lines.Clear();
             if (SourceFilePath != string.Empty)
             {
                 //get parent folder name and check if it is the story, else search around a bit
                 //get language text representation
-                StoryName = ExtractStoryName(SourceFilePath);
+                StoryName = Utils.ExtractStoryName(SourceFilePath);
                 //actually load all strings into the program
                 ReadInStringsFromFile();
 
@@ -1066,29 +963,6 @@ namespace Translator.Core
             }
         }
 
-        public static string ExtractStoryName(string path)
-        {
-            var paths = path.Split('\\');
-
-            if (paths.Length < 3) throw new ArgumentException("the file needs to be at least 2 folders deep from your drive?");
-
-            string tempStoryName = paths[^2];
-            bool gotLanguage = LanguageHelper.Languages.TryGetValue(Language, out string? languageAsText);
-            if (!gotLanguage) throw new LanguageHelper.LanguageException();
-            //compare
-            if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
-                //get folder one more up
-                tempStoryName = paths[^3];
-
-            if (tempStoryName == "Languages")
-            {
-                //get folder one more up
-                tempStoryName = "UI";
-            }
-
-            return tempStoryName;
-        }
-
         /// <summary>
         /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
@@ -1101,7 +975,7 @@ namespace Translator.Core
 
             if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.IsOnline)
                 //get template lines from online
-                _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineData(FileName, StoryName, out onlineLines, Language);
+                _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineData(FileName, StoryName, out onlineLines, TranslationManager.Language);
             else
                 //get template lines from user if they want
                 onlineLines = GetTemplatesFromUser();
@@ -1159,7 +1033,7 @@ namespace Translator.Core
             {
                 return GetTemplateFromFile(Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFileFromSystem(false, $"Choose the template for {StoryName}\\{FileName}.", FileName + ".txt"), false);
             }
-            return new FileData();
+            return new FileData(StoryName, FileName);
         }
 
         /// <summary>
@@ -1188,10 +1062,10 @@ namespace Translator.Core
             if (Path.GetFileNameWithoutExtension(path) != FileName)
             {
                 _ = UI.WarningOk("The template file must have the same name as the file you want to translate!");
-                return new FileData();
+                return new FileData(StoryName, FileName);
             }
 
-            var fileData = new FileData();
+            var fileData = new FileData(StoryName, FileName);
             StringCategory currentCategory = StringCategory.General;
             string multiLineCollector = string.Empty;
             string[] lastLine = Array.Empty<string>();
@@ -1277,9 +1151,6 @@ namespace Translator.Core
                 TryFixEmptyFile();
             }
 
-            //set categories if file is a hint file
-            if (StoryName == "Hints") CategoriesInFile = new List<StringCategory>() { StringCategory.General };
-
             if (IdsToExport.Count != TranslationData.Count)
             {
                 if (TranslationData.Count == 0)
@@ -1346,8 +1217,6 @@ namespace Translator.Core
                         //resetting for next iteration
                         lastLine = Array.Empty<string>();
                         multiLineCollector = string.Empty;
-                        category = tempCategory;
-                        CategoriesInFile.Add(category);
                     }
                 }
             }
@@ -1413,7 +1282,6 @@ namespace Translator.Core
             Settings.Default.RecentIndex = TabUI.SelectedLineIndex;
             TranslationData.Clear();
             TabUI.Lines.Clear();
-            CategoriesInFile.Clear();
             TabUI.SimilarStringsToEnglish.Clear();
             SelectedResultIndex = 0;
             TabManager<TLineItem, TUIHandler, TTabController, TTab>.SelectedTab.Text = "Tab";
@@ -1564,10 +1432,10 @@ namespace Translator.Core
             }
         }
 
-        public void CreateTemplateForSingleFile()
+        public void GenerateTemplateForSingleFile(bool SaveOnline = false)
         {
             PopupResult typeResult;
-            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file you want to create the template for.", "Create a template")) != PopupResult.CANCEL)
+            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file you want to create the template for. (Note: templates of official stories can only be created for local use)", "Create a template")) != PopupResult.CANCEL)
             {
                 //set up 
                 string path = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFileFromSystem(false, "Select the file to create the template for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
@@ -1575,20 +1443,20 @@ namespace Translator.Core
 
                 UI.SignalUserWait();
                 string file = Path.GetFileNameWithoutExtension(path);
-                string story = ExtractStoryName(path);
+                string story = Utils.ExtractStoryName(path);
 
-                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) return;
+                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
 
                 LogManager.Log("creating template for " + story + "/" + file);
                 //create and upload templates
                 if (UI.CreateTemplateFromStory(story, file, path, out FileData templates))
                 {
-                    if (templates.Count > 0)
+                    if (templates.Count > 0 && SaveOnline)
                     {
                         _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.RemoveOldTemplates(file, story);
                         _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.UploadTemplates(templates);
                     }
-                    else
+                    else if (SaveOnline)
                     {
                         _ = UI.ErrorOk("No template resulted from the generation, please try again.");
                         UI.SignalUserEndWait();
@@ -1605,7 +1473,7 @@ namespace Translator.Core
                 LogManager.Log("successfully created template");
 
                 //create translation and open it
-                string newFile = SelectSaveLocation(file, path);
+                string newFile = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Select a file to save the generated templates to", path, file);
                 if (newFile != string.Empty)
                 {
                     var writer = File.CreateText(newFile);
@@ -1613,11 +1481,11 @@ namespace Translator.Core
                     writer.Close();
                 }
                 UI.SignalUserEndWait();
-                LoadFileIntoProgram(newFile);
+                ExportTemplate(newFile, story, file);
             }
         }
 
-        public void CreateTemplateForAllFiles()
+        public void GenerateTemplateForAllFiles(bool SaveOnline = false)
         {
             PopupResult typeResult;
             if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select any file in the story folder you want to create the templates for. After that you must select the folder in which the translations will be placed.", "Create templates for a complete story")) != PopupResult.CANCEL)
@@ -1627,13 +1495,14 @@ namespace Translator.Core
                 if (path.Length == 0) return;
 
                 UI.SignalUserWait();
-                string story = ExtractStoryName(path);
+                string story = Utils.ExtractStoryName(path);
 
-                if(story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) return;
+                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
                 LogManager.Log("creating templates for " + story);
 
                 //create translation and open it
-                string newFiles_dir = Directory.GetParent(SelectSaveLocation("translation", path))?.FullName ?? SpecialDirectories.MyDocuments;
+                string newFiles_dir = Directory.GetParent(Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Select the folder where you want the translations to go", path, "translation", string.Empty))?.FullName
+                    ?? SpecialDirectories.MyDocuments;
                 foreach (var file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
                 {
                     string file = Path.GetFileNameWithoutExtension(file_path);
@@ -1642,12 +1511,12 @@ namespace Translator.Core
                     //create and upload templates
                     if (UI.CreateTemplateFromStory(story, file, file_path, out FileData templates))
                     {
-                        if (templates.Count > 0)
+                        if (templates.Count > 0 && SaveOnline)
                         {
                             _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.RemoveOldTemplates(file, story);
                             _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.UploadTemplates(templates);
                         }
-                        else
+                        else if (SaveOnline)
                         {
                             _ = UI.ErrorOk("No templates resulted from the generation, please try again.");
                             UI.SignalUserEndWait();
@@ -1661,9 +1530,11 @@ namespace Translator.Core
                         return;
                     }
 
-                    if (!File.Exists(Path.Combine(newFiles_dir, file + ".txt")))
+                    if (newFiles_dir != string.Empty)
                     {
-                        File.OpenWrite(Path.Combine(newFiles_dir, file + ".txt")).Close();
+                        var writer = File.CreateText(Path.Combine(newFiles_dir, file + ".txt"));
+                        writer.Write(string.Empty);
+                        writer.Close();
                     }
                 }
 
@@ -1671,14 +1542,142 @@ namespace Translator.Core
                 UI.SignalUserEndWait();
 
                 //open all the files
-                foreach (string filePath in Directory.GetFiles(newFiles_dir))
+                ExportTemplatesForStory(newFiles_dir);
+            }
+        }
+
+        /// <summary>
+        /// Sets the language the translation is associated with
+        /// </summary>
+        public static void SetLanguage()
+        {
+            if (UI.Language.Length >= 0)
+            {
+                TranslationManager.Language = UI.Language;
+            }
+            else if (Settings.Default.Language != string.Empty)
+            {
+                string languageFromFile = Settings.Default.Language;
+                if (languageFromFile != string.Empty)
                 {
-                    if (Path.GetExtension(filePath) == ".txt")
-                    {
-                        TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenInNewTab(filePath);
-                    }
+                    TranslationManager.Language = languageFromFile;
                 }
             }
+            UI.Language = TranslationManager.Language;
+        }
+
+        internal static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false)
+        {
+            CultureInfo culture = CultureInfo.InvariantCulture;
+            if (warnOnOverwrite)
+                if (File.OpenRead(path).Length > 0)
+                    if (UI.WarningYesNo("You are about to overwrite " + path + " \nAre you sure?", "Warning", PopupResult.NO))
+                        return;
+            using var OutputWriter = new StreamWriter(path, false, new UTF8Encoding(true));
+            foreach (CategorizedLines CategorizedLines in CategorizedStrings)
+            {
+                //write category if it has any lines, else we skip the category
+                if (CategorizedLines.lines.Count > 0) OutputWriter.WriteLine(CategorizedLines.category.AsString());
+                else continue;
+
+                //sort strings depending on category
+                if (CategorizedLines.category == StringCategory.Dialogue)
+                {
+                    CategorizedLines.lines.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
+                }
+                else if (CategorizedLines.category == StringCategory.BGC)
+                {
+                    //sort using custom IComparer
+                    CategorizedLines.lines.Sort(new BGCComparer());
+                }
+                else if (CategorizedLines.category == StringCategory.General)
+                {
+                    //hints have to be sortet a bit different because the numbers can contain a u
+                    CategorizedLines.lines.Sort(new GeneralComparer());
+                }
+                else if (CategorizedLines.category == StringCategory.Quest || CategorizedLines.category == StringCategory.Achievement)
+                {
+                    CategorizedLines.lines.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
+                }
+
+                //iterate through each and print them
+                foreach (LineData line in CategorizedLines.lines)
+                {
+                    OutputWriter.WriteLine(line.ToString().RemoveVAHints());
+                }
+                //newline after each category
+                OutputWriter.WriteLine();
+            }
+        }
+
+        public static void ExportTemplatesForStory()
+        {
+            string path = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false);
+            if (Path.GetExtension(path) != string.Empty) ExportTemplate(path);
+            else ExportTemplatesForStory(path);
+        }
+
+        public static void ExportTemplate(string path, string story = "", string file = "", bool warnOnOverwrite = false, bool confirmSuccess = true)
+        {
+            if (path == string.Empty) return;
+            if (!File.Exists(path)) File.OpenWrite(path).Close();
+            else if (warnOnOverwrite)
+                if (UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO)) return;
+
+            if (story == string.Empty) story = Utils.ExtractStoryName(path);
+            //todo add fallback to have the user enter the story if the story cant be found
+            if (file == string.Empty) file = Path.GetFileNameWithoutExtension(path);
+
+            if (story == "Hints")
+                file = "Hints";
+
+            LogManager.Log("Exporting template for" + story + "/" + file + " to " + path);
+            if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineDataTemplate(file, story, out FileData templates))
+            {
+                UI.WarningOk("No template found for that story/file, nothing exported.");
+                LogManager.Log("\tNo template found for that file");
+                return;
+            }
+
+            var sortedLines = TranslationManager.InitializeCategories(story, file);
+            TranslationManager.SortIntoCategories(ref sortedLines, templates, templates);
+
+            WriteCategorizedLinesToDisk(sortedLines, path);
+
+            if (confirmSuccess) UI.InfoOk("Template exported to " + path);
+            LogManager.Log("\tSucessfully exported the template");
+        }
+
+        public static void ExportTemplatesForStory(string path, string story = "")
+        {
+            if (path == string.Empty) return;
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+            if (story == string.Empty) story = Utils.ExtractStoryName(path);
+            //todo add fallback to have the user enter the story if the story cant be found
+            LogManager.Log("Exporting all templates for " + story + " to " + path);
+
+            //export templates as hints.txt if we have the hints, no need to get filenames
+            if (story == "Hints")
+                ExportTemplate(Path.Combine(path, "Hints.txt"), story, story, confirmSuccess: false);
+            else if (Directory.GetFiles(path).Length > 0)
+                foreach (var file in Directory.GetFiles(path))
+                {
+                    ExportTemplate(file, story, warnOnOverwrite: true, confirmSuccess: false);
+                }
+            else if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetFilesForStory(story, out string[] names))
+                foreach (var item in names)
+                {
+                    ExportTemplate(Path.Combine(path, item + ".txt"), story, item, confirmSuccess: false);
+                }
+            else
+            {
+                UI.WarningOk("No templates found for that story, nothing exported.");
+                LogManager.Log("\tNo templates found for that story");
+                return;
+            }
+
+            UI.InfoOk("Templates exported to " + path);
+            LogManager.Log("\tSucessfully exported the templates");
         }
     }
 }

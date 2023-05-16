@@ -370,10 +370,10 @@ namespace Translator.Core
 
         public AllTranslationsChanged(TranslationManager<TLineItem, TUIHandler, TTabController, TTab> manager, FileData oldTranslations, FileData newTranslations)
         {
-            this.oldTranslations = new FileData(oldTranslations);
-            this.newTranslations = new FileData(newTranslations);
+            this.oldTranslations = new FileData(oldTranslations, manager.StoryName, manager.FileName);
+            this.newTranslations = new FileData(newTranslations, manager.StoryName, manager.FileName);
             this.manager = manager;
-            this.language = TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.Language;
+            this.language = TranslationManager.Language;
             FileName = manager.FileName;
             StoryName = manager.StoryName;
         }

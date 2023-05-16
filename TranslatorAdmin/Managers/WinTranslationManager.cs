@@ -16,25 +16,22 @@ namespace Translator.Desktop.Managers
     {
         public static bool UpdateStoryExplorerSelection { get; internal set; } = true;
 
-        public static WinUIHandler? UI { get; internal set; }
-
         public static DiscordPresenceManager? DiscordPresence { get; internal set; }
 
         internal static bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
         {
-            if (UI == null)
+            if (TabManager.UI == null)
             {
-                data = new();
+                data = new(string.Empty, string.Empty);
                 return false;
             }
 
-            UI.SignalUserWait();
-            data = new();
-            var explorer = new ContextProvider(new(), story == Path.GetFileNameWithoutExtension(path), false, filename, story, path);
+            TabManager.UI.SignalUserWait();
+            data = new(story, filename);
+            var explorer = new ContextProvider(new(), story == filename, false, filename, story, path);
             NodeList nodes = explorer.GetTemplateNodes();
             if (nodes != null)
             {
-                data = new();
                 if (story != filename) data.Add("Name", new LineData("Name", story, filename, StringCategory.General, filename, true));
 
                 //Add all new lines, but check if they are relevant
@@ -92,13 +89,13 @@ namespace Translator.Desktop.Managers
                     }
                 }
 
-                UI.SignalUserEndWait();
+                TabManager.UI.SignalUserEndWait();
 
                 return true;
             }
 
             _ = Msg.ErrorOk("Something broke, please try again.");
-            UI.SignalUserEndWait();
+            TabManager.UI.SignalUserEndWait();
             return false;
         }
 

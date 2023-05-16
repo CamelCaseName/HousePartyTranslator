@@ -28,6 +28,7 @@ namespace Translator.Desktop.InterfaceImpls
         public string[] SelectedPaths => dialog.FileNames;
         public string Title { get => dialog.Title; set => dialog.Title = value; }
         public bool MultiSelect { get => dialog.Multiselect; set => dialog.Multiselect = value; }
+        public bool CheckFileExists { get => dialog.CheckFileExists; set => dialog.CheckFileExists = value; }
 
         PopupResult IFileDialog.ShowDialog() => dialog.ShowDialog().ToPopupResult();
     }

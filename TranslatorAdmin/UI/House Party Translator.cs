@@ -53,10 +53,11 @@ namespace Translator.Desktop.UI
         private WinMenuItem customOpenStoryExplorer;
         private WinMenuItem undoMenuButton;
         private WinMenuItem redoMenuButton;
+        private WinMenuItem generateTemplateForFile;
+        private WinMenuItem generateTemplateForCompleteStory;
         private WinMenuItem createTemplateForFile;
         private WinMenuItem createTemplateForCompleteStory;
-        private WinMenuItem exportTemplateForFile;
-        private WinMenuItem exportTemplateForCompleteStory;
+        private WinMenuItem exportTemplates;
         private WinMenuItem editToolStripMenuItem;
         private WinMenuItem exitToolStripMenuItem;
         private WinMenuItem fileToolStripMenuItem;
@@ -169,9 +170,8 @@ namespace Translator.Desktop.UI
 
         public void Comments_TextChanged(object? sender, EventArgs? e)
         {
-            if (ActiveControl == null) return;
             TabManager.ActiveTranslationManager.UpdateComments();
-            InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
+            InputHandler.TextChangedCallback(TabManager.SelectedTab.Comments, CheckListBoxLeft.SelectedIndex);
         }
 
         /// <summary>
@@ -345,6 +345,28 @@ namespace Translator.Desktop.UI
             ComponentResourceManager resources = new(typeof(Fenster));
             SuspendLayout();
 
+            // generateTemplateForFile
+            generateTemplateForFile = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(generateTemplateForFile),
+                Size = new Size(236, 22),
+                Text = "Generate o&ne Template file",
+                ToolTipText = "Generates and uploads the template for a single file"
+            };
+            generateTemplateForFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.GenerateTemplateForSingleFile(true);
+
+            // generateTemplateForCompleteStory
+            generateTemplateForCompleteStory = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(generateTemplateForCompleteStory),
+                Size = new Size(236, 22),
+                Text = "&Generate all Template files",
+                ToolTipText = "Generates and uploads templates for a complete story"
+            };
+            generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.GenerateTemplateForAllFiles(true);
+
             // createTemplateForFile
             createTemplateForFile = new WinMenuItem()
             {
@@ -352,9 +374,9 @@ namespace Translator.Desktop.UI
                 Name = nameof(createTemplateForFile),
                 Size = new Size(236, 22),
                 Text = "Create &one Template file",
-                ToolTipText = "Creates the template for a single file"
+                ToolTipText = "Creates the template locally for a single file"
             };
-            createTemplateForFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.CreateTemplateForSingleFile();
+            createTemplateForFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.GenerateTemplateForSingleFile(false);
 
             // createTemplateForCompleteStory
             createTemplateForCompleteStory = new WinMenuItem()
@@ -363,9 +385,9 @@ namespace Translator.Desktop.UI
                 Name = nameof(createTemplateForCompleteStory),
                 Size = new Size(236, 22),
                 Text = "&Create all Template files",
-                ToolTipText = "Creates templates for a complete story"
+                ToolTipText = "Creates templates locally for a complete story"
             };
-            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.CreateTemplateForAllFiles();
+            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.GenerateTemplateForAllFiles(false);
 
             // undoMenuButton
             undoMenuButton = new WinMenuItem()
@@ -389,29 +411,16 @@ namespace Translator.Desktop.UI
             };
             redoMenuButton.Click += (object? sender, EventArgs e) => History.Redo();
 
-            // exportTemplateForFile
-            exportTemplateForFile = new WinMenuItem()
+            // exportTemplates
+            exportTemplates = new WinMenuItem()
             {
                 ImageTransparentColor = Color.Magenta,
-                Name = nameof(exportTemplateForFile),
+                Name = nameof(exportTemplates),
                 Size = new Size(236, 22),
-                Text = "Ex&port one Template file",
-                ToolTipText = "Exports the template for a single file",
-                Enabled = false
+                Text = "Export &Template files",
+                ToolTipText = "Exports templates for a complete story"
             };
-            exportTemplateForFile.Click += (object? sender, EventArgs e) => throw new NotImplementedException();
-
-            // exportTemplateForCompleteStory
-            exportTemplateForCompleteStory = new WinMenuItem()
-            {
-                ImageTransparentColor = Color.Magenta,
-                Name = nameof(exportTemplateForCompleteStory),
-                Size = new Size(236, 22),
-                Text = "E&xport all Template files",
-                ToolTipText = "Exports templates for a complete story",
-                Enabled = false
-            };
-            exportTemplateForCompleteStory.Click += (object? sender, EventArgs e) => throw new NotImplementedException();
+            exportTemplates.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplatesForStory();
 
             // searchToolStripMenuItem
             searchToolStripMenuItem = new WinMenuItem()
@@ -696,10 +705,11 @@ namespace Translator.Desktop.UI
                 new WinMenuSeperator(),
                 replaceToolStripMenuItem,
                 new WinMenuSeperator(),
+                generateTemplateForFile,
+                generateTemplateForCompleteStory,
                 createTemplateForFile,
                 createTemplateForCompleteStory,
-                exportTemplateForFile,
-                exportTemplateForCompleteStory,
+                exportTemplates,
                 new WinMenuSeperator(),
                 ReloadFileMenuItem,
                 new WinMenuSeperator(),
@@ -775,7 +785,11 @@ namespace Translator.Desktop.UI
             Name = nameof(Fenster);
             ShowIcon = false;
             Icon = Properties.Resources.wumpus_smoll;
+#if DEBUG || DEBUG_ADMIN
+            Text = "Translator (DEBUG)";
+#else
             Text = "Translator";
+#endif
             StartPosition = FormStartPosition.CenterScreen;
             FormClosing += new FormClosingEventHandler(OnFormClosing);
             MouseUp += new MouseEventHandler(TextContextOpened);
