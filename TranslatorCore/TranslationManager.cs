@@ -291,6 +291,7 @@ namespace Translator.Core
             }
             if (result == PopupResult.YES)
             {
+                //replace by template generation method
                 UI.SignalUserWait();
                 //check if the template has been added and generated once before
                 _ = DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineDataTemplate(fileName, story, out FileData data);
@@ -1345,30 +1346,6 @@ namespace Translator.Core
             else
             {
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Does some logic to figure out wether to show or hide the replacing ui
-        /// </summary>
-        public void ToggleReplaceUI()
-        {
-            if (!UI.ReplaceBarIsVisible)
-            {
-                if (TabUI.SelectedTranslationBoxText.Length > 0)
-                {
-                    UI.SearchBarText = TabUI.SelectedTranslationBoxText;
-                }
-                UI.SetReplaceMenuVisible();
-
-                //set focus to most needed text box, search first
-                if (UI.SearchBarText.Length > 0) UI.FocusReplaceBar();
-                else UI.FocusSearchBar();
-            }
-            else
-            {
-                UI.SetReplaceMenuInVisible();
-                TabUI.FocusTranslationBox();
             }
         }
 

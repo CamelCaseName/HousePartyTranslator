@@ -130,5 +130,29 @@ namespace Translator.Desktop.InterfaceImpls
             App.MainForm.SearchBox.SelectionStart = start;
             App.MainForm.SearchBox.SelectionLength = end - start;
         }
+
+        /// <summary>
+        /// Does some logic to figure out wether to show or hide the replacing ui
+        /// </summary>
+        public void ToggleReplaceBar()
+        {
+            if (!ReplaceBarIsVisible)
+            {
+                if (SelectedTab.SelectedTranslationBoxText.Length > 0)
+                {
+                    SearchBarText = SelectedTab.SelectedTranslationBoxText;
+                }
+                SetReplaceMenuVisible();
+
+                //set focus to most needed text box, search first
+                if (SearchBarText.Length > 0) FocusReplaceBar();
+                else FocusSearchBar();
+            }
+            else
+            {
+                SetReplaceMenuInVisible();
+                SelectedTab.FocusTranslationBox();
+            }
+        }
     }
 }

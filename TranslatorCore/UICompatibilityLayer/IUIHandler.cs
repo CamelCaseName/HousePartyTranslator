@@ -72,6 +72,8 @@ namespace Translator.Core.UICompatibilityLayer
         string SearchBarText { get; set; }
 
         void UpdateResults();
+
+        void ToggleReplaceBar();
         #endregion
 
         #region menubar

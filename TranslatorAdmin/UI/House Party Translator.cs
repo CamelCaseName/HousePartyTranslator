@@ -464,7 +464,7 @@ namespace Translator.Desktop.UI
                 Text = "R&eplace",
                 ToolTipText = "Opens the searchbar in replace mode"
             };
-            replaceToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ToggleReplaceUI();
+            replaceToolStripMenuItem.Click += (object? sender, EventArgs e) => UI.ToggleReplaceBar();
 
             // openToolStripMenuItem
             openToolStripMenuItem = new WinMenuItem()
