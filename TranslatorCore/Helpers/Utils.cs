@@ -134,7 +134,7 @@ namespace Translator.Core.Helpers
         /// </summary>
         /// <param name="message">The description of the dialogue to display</param>
         /// <returns>The folder path selected.</returns>
-        public static string SelectFolderFromSystem(string message)
+        public static string SelectFolderFromSystem(string message, bool checkFolderExists = true)
         {
             if (!MainUI?.FolderDialogType.IsAssignableTo(typeof(IFolderDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FolderDialogType)} does not inherit {nameof(IFolderDialog)}");
 

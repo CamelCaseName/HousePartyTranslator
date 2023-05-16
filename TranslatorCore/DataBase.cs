@@ -1,5 +1,6 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
 {
+    //todo reformat commands to not have all these tabs as it is not useful
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
@@ -106,7 +108,7 @@ namespace Translator.Core
             _ = cmd.Parameters.AddWithValue("@story", story);
             _ = cmd.Parameters.AddWithValue("@language", language);
 
-            LineDataList = new FileData();
+            LineDataList = new FileData(story, fileName);
 
             if (CheckOrReopenConnection(connection))
             {
@@ -168,17 +170,19 @@ namespace Translator.Core
             string command;
             if (story == "Hints")
             {
-                command = @"SELECT id, category, english
-                                    " + FROM + @"
-                                    WHERE story = @story AND language IS NULL AND deleted = 0
-                                    ORDER BY category ASC;";
+                command =
+@"SELECT id, category, english
+" + FROM +
+@" WHERE story = @story AND language IS NULL AND deleted = 0
+ORDER BY category ASC;";
             }
             else
             {
-                command = @"SELECT id, category, english
-                                    " + FROM + @"
-                                    WHERE filename = @filename AND story = @story AND language IS NULL AND deleted = 0
-                                    ORDER BY category ASC;";
+                command =
+@"SELECT id, category, english
+" + FROM +
+@" WHERE filename = @filename AND story = @story AND language IS NULL AND deleted = 0
+ORDER BY category ASC;";
             }
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -188,7 +192,7 @@ namespace Translator.Core
             if (story != "Hints") _ = cmd.Parameters.AddWithValue("@filename", fileName);
             _ = cmd.Parameters.AddWithValue("@story", story);
 
-            LineDataList = new FileData();
+            LineDataList = new FileData(story, fileName);
 
             if (CheckOrReopenConnection(connection))
             {
@@ -489,7 +493,7 @@ namespace Translator.Core
                     }
 
                     _ = builder.Remove(builder.Length - 1, 1);
-                    using MySqlCommand cmd = connection.CreateCommand(); 
+                    using MySqlCommand cmd = connection.CreateCommand();
                     cmd.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved), story = VALUES(story), category = VALUES(category), filename = VALUES(filename)");
                     cmd.Parameters.Clear();
 
@@ -648,6 +652,44 @@ namespace Translator.Core
                 returnString = string.Empty;
             }
             return returnString;
+        }
+
+        internal static bool GetFilesForStory(string story, out string[] names)
+        {
+            UI.SignalUserWait();
+            string command = "SELECT DISTINCT filename " + FROM + " WHERE story = @story AND language IS NULL AND deleted = 0";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            _ = cmd.Parameters.AddWithValue("@story", story);
+            List<string> files = new();
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0))
+                            files.Add(reader.GetString(0));
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No files found for the story " + story, "Info");
+                    LogManager.Log("No files found for the story " + story);
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+            names = files.ToArray();
+            return files.Count > 0;
         }
     }
 }

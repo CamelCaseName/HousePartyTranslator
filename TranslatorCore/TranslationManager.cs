@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.FileIO;
+using Org.BouncyCastle.Asn1.Ess;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -1676,17 +1677,28 @@ namespace Translator.Core
 
         public static void ExportTemplatesForStory()
         {
-            ExportTemplatesForStory(Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFolderFromSystem("Select the folder to export the templates to"));
+            ExportTemplatesForStory(Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFolderFromSystem("Select the folder to export the templates to", false));
         }
 
-        public static void ExportTemplate(string path, string story = "", string file = "", bool warnOnOverwrite = false)
+        public static void ExportTemplate(string path, string story = "", string file = "", bool warnOnOverwrite = false, bool confirmSuccess = true)
         {
-            if (!File.Exists(path)) return;
+            if (path == string.Empty) return;
+            if (!File.Exists(path)) File.OpenWrite(path).Close();
+            else if (warnOnOverwrite)
+                if (UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO)) return;
+
             if (story == string.Empty) story = ExtractStoryName(path);
+            //todo add fallback to have the user enter the story if the story cant be found
             if (file == string.Empty) file = Path.GetFileNameWithoutExtension(path);
+
+            if (story == "Hints")
+                file = "Hints";
+
+            LogManager.Log("Exporting template for" + story + "/" + file + " to " + path);
             if (!DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetAllLineDataTemplate(file, story, out FileData templates))
             {
-                UI.WarningOk("No template found for that story, nothing exported.");
+                UI.WarningOk("No template found for that story/file, nothing exported.");
+                LogManager.Log("\tNo template found for that file");
                 return;
             }
 
@@ -1695,26 +1707,40 @@ namespace Translator.Core
 
             WriteCategorizedLinesToDisk(sortedLines, path);
 
-            UI.InfoOk("Template exported to " + path);
+            if (confirmSuccess) UI.InfoOk("Template exported to " + path);
+            LogManager.Log("\tSucessfully exported the template");
         }
-        /*
+
         public static void ExportTemplatesForStory(string path, string story = "")
         {
-            if (!Directory.Exists(path)) return;
+            if (path == string.Empty) return;
+            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             if (story == string.Empty) story = ExtractStoryName(path);
+            //todo add fallback to have the user enter the story if the story cant be found
+            LogManager.Log("Exporting all templates for " + story + " to " + path);
 
-            if (Directory.GetFiles(path).Length > 0)
+            //export templates as hints.txt if we have the hints, no need to get filenames
+            if (story == "Hints")
+                ExportTemplate(Path.Combine(path, "Hints.txt"), story, story, confirmSuccess: false);
+            else if (Directory.GetFiles(path).Length > 0)
                 foreach (var file in Directory.GetFiles(path))
                 {
-                    ExportTemplate(file, story, warnOnOverwrite: true);
+                    ExportTemplate(file, story, warnOnOverwrite: true, confirmSuccess: false);
                 }
             else if (DataBase<TLineItem, TUIHandler, TTabController, TTab>.GetFilesForStory(story, out string[] names))
                 foreach (var item in names)
                 {
-                    ExportTemplate(Path.Combine(path, item, ".txt"), story, item);
+                    ExportTemplate(Path.Combine(path, item + ".txt"), story, item, confirmSuccess: false);
                 }
+            else
+            {
+                UI.WarningOk("No templates found for that story, nothing exported.");
+                LogManager.Log("\tNo templates found for that story");
+                return;
+            }
 
             UI.InfoOk("Templates exported to " + path);
-        }*/
+            LogManager.Log("\tSucessfully exported the templates");
+        }
     }
 }
