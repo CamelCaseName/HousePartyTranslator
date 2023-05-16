@@ -1395,7 +1395,7 @@ namespace Translator.Core
                 LogManager.Log("successfully created template");
 
                 //create translation and open it
-                string newFile = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Select a file to generate the templates for", path, file);
+                string newFile = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Select a file to save the generated templates to", path, file);
                 if (newFile != string.Empty)
                 {
                     var writer = File.CreateText(newFile);
@@ -1403,8 +1403,7 @@ namespace Translator.Core
                     writer.Close();
                 }
                 UI.SignalUserEndWait();
-                //todo replace by template export
-                LoadFileIntoProgram(newFile);
+                ExportTemplate(newFile, story, file);
             }
         }
 
@@ -1465,14 +1464,7 @@ namespace Translator.Core
                 UI.SignalUserEndWait();
 
                 //open all the files
-                foreach (string filePath in Directory.GetFiles(newFiles_dir))
-                {
-                    if (Path.GetExtension(filePath) == ".txt")
-                    {
-                        //todo replace by template export
-                        TabManager<TLineItem, TUIHandler, TTabController, TTab>.OpenInNewTab(filePath);
-                    }
-                }
+                ExportTemplatesForStory(newFiles_dir);
             }
         }
 
