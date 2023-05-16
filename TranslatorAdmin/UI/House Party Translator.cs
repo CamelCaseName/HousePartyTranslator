@@ -57,8 +57,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem generateTemplateForCompleteStory;
         private WinMenuItem createTemplateForFile;
         private WinMenuItem createTemplateForCompleteStory;
-        private WinMenuItem exportTemplateForFile;
-        private WinMenuItem exportTemplateForCompleteStory;
+        private WinMenuItem exportTemplates;
         private WinMenuItem editToolStripMenuItem;
         private WinMenuItem exitToolStripMenuItem;
         private WinMenuItem fileToolStripMenuItem;
@@ -412,27 +411,16 @@ namespace Translator.Desktop.UI
             };
             redoMenuButton.Click += (object? sender, EventArgs e) => History.Redo();
 
-            // exportTemplateForFile
-            exportTemplateForFile = new WinMenuItem()
+            // exportTemplates
+            exportTemplates = new WinMenuItem()
             {
                 ImageTransparentColor = Color.Magenta,
-                Name = nameof(exportTemplateForFile),
+                Name = nameof(exportTemplates),
                 Size = new Size(236, 22),
-                Text = "Ex&port one Template file",
-                ToolTipText = "Exports the template for a single file"
-            };
-            exportTemplateForFile.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplate();
-
-            // exportTemplateForCompleteStory
-            exportTemplateForCompleteStory = new WinMenuItem()
-            {
-                ImageTransparentColor = Color.Magenta,
-                Name = nameof(exportTemplateForCompleteStory),
-                Size = new Size(236, 22),
-                Text = "E&xport all Template files",
+                Text = "Export &Template files",
                 ToolTipText = "Exports templates for a complete story"
             };
-            exportTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplatesForStory();
+            exportTemplates.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplatesForStory();
 
             // searchToolStripMenuItem
             searchToolStripMenuItem = new WinMenuItem()
@@ -721,8 +709,7 @@ namespace Translator.Desktop.UI
                 generateTemplateForCompleteStory,
                 createTemplateForFile,
                 createTemplateForCompleteStory,
-                exportTemplateForFile,
-                exportTemplateForCompleteStory,
+                exportTemplates,
                 new WinMenuSeperator(),
                 ReloadFileMenuItem,
                 new WinMenuSeperator(),

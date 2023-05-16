@@ -10,6 +10,8 @@ namespace Translator.Core.UICompatibilityLayer
         string Extension { get; set; }
         bool PromptCreate { get; set; }
         bool PromptOverwrite { get; set; }
+        bool CheckPathExists { get; set; }
+        bool CheckFileExists { get; set; }
 
         PopupResult ShowDialog();
     }

@@ -656,40 +656,12 @@ namespace Translator.Core
             {
                 isSaveAs = true;
                 string oldFile = SourceFilePath;
-                string SaveFile = SelectSaveLocation();
+                string SaveFile = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Choose a file to save the translation to");
                 SourceFilePath = SaveFile;
                 this.SaveFile();
                 SourceFilePath = oldFile;
                 isSaveAs = false;
             }
-        }
-
-        /// <summary>
-        /// Opens a save file dialogue and returns the selected file as a path.
-        /// </summary>
-        /// <returns>The path to the file to save to.</returns>
-        public string SelectSaveLocation(string file = "", string path = "")
-        {
-            if (file == string.Empty) file = StoryName;
-            if (path == string.Empty) path = SourceFilePath;
-            if (!UI.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog))) throw new ArgumentException($"{nameof(UI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
-
-            var saveFileDialog = (ISaveFileDialog?)Activator.CreateInstance(UI.SaveFileDialogType, new object?[]
-            {
-                /*Title*/"Choose a file to save the translations to",
-                /*Extension*/ "txt",
-                /*CreatePrompt*/ false,
-                /*OverwritePrompt*/ true,
-                /*FileName*/ file,
-                /*InitialDirectory*/ path
-            });
-            if (saveFileDialog == null) return string.Empty;
-
-            if (saveFileDialog.ShowDialog() == PopupResult.OK)
-            {
-                return saveFileDialog.FileName;
-            }
-            return string.Empty;
         }
 
         /// <summary>
@@ -1423,7 +1395,7 @@ namespace Translator.Core
                 LogManager.Log("successfully created template");
 
                 //create translation and open it
-                string newFile = SelectSaveLocation(file, path);
+                string newFile = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Select a file to generate the templates for", path, file);
                 if (newFile != string.Empty)
                 {
                     var writer = File.CreateText(newFile);
@@ -1452,7 +1424,8 @@ namespace Translator.Core
                 LogManager.Log("creating templates for " + story);
 
                 //create translation and open it
-                string newFiles_dir = Directory.GetParent(SelectSaveLocation("translation", path))?.FullName ?? SpecialDirectories.MyDocuments;
+                string newFiles_dir = Directory.GetParent(Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Select the folder where you want the translations to go", path, "translation", string.Empty))?.FullName
+                    ?? SpecialDirectories.MyDocuments;
                 foreach (var file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
                 {
                     string file = Path.GetFileNameWithoutExtension(file_path);
@@ -1670,14 +1643,11 @@ namespace Translator.Core
             return CategorizedStrings;
         }
 
-        public static void ExportTemplate()
-        {
-            ExportTemplate(Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFileFromSystem(true, "Select the file to export the template to", "template.txt", checkFileExists: false));
-        }
-
         public static void ExportTemplatesForStory()
         {
-            ExportTemplatesForStory(Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectFolderFromSystem("Select the folder to export the templates to", false));
+            string path = Utils<TLineItem, TUIHandler, TTabController, TTab>.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false);
+            if (Path.GetExtension(path) != string.Empty) ExportTemplate(path);
+            else ExportTemplatesForStory(path);
         }
 
         public static void ExportTemplate(string path, string story = "", string file = "", bool warnOnOverwrite = false, bool confirmSuccess = true)

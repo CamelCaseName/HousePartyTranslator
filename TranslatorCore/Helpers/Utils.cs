@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Google.Protobuf;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 
@@ -134,7 +136,7 @@ namespace Translator.Core.Helpers
         /// </summary>
         /// <param name="message">The description of the dialogue to display</param>
         /// <returns>The folder path selected.</returns>
-        public static string SelectFolderFromSystem(string message, bool checkFolderExists = true)
+        public static string SelectFolderFromSystem(string message)
         {
             if (!MainUI?.FolderDialogType.IsAssignableTo(typeof(IFolderDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FolderDialogType)} does not inherit {nameof(IFolderDialog)}");
 
@@ -154,6 +156,35 @@ namespace Translator.Core.Helpers
                     Settings.Default.Save();
                     return t;
                 }
+            }
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Opens a save file dialogue and returns the selected file as a path.
+        /// </summary>
+        /// <returns>The path to the file to save to.</returns>
+        public static string SelectSaveLocation(string message = "", string path = "", string file = "", string extension = "txt", bool checkFileExists = true, bool checkPathExists = true)
+        { 
+            if (!MainUI?.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
+
+            var saveFileDialog = (ISaveFileDialog?)Activator.CreateInstance(MainUI?.SaveFileDialogType ?? typeof(ISaveFileDialog), new object?[]
+            {
+                /*Title*/message,
+                /*Extension*/ extension,
+                /*CreatePrompt*/ false,
+                /*OverwritePrompt*/ true,
+                /*FileName*/ file,
+                /*InitialDirectory*/ path
+            });
+            if (saveFileDialog == null) return string.Empty;
+
+            saveFileDialog.CheckFileExists = checkFileExists;
+            saveFileDialog.CheckPathExists = checkPathExists;
+
+            if (saveFileDialog.ShowDialog() == PopupResult.OK)
+            {
+                return saveFileDialog.FileName;
             }
             return string.Empty;
         }

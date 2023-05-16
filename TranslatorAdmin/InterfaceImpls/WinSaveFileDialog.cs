@@ -24,6 +24,8 @@ namespace Translator.Desktop.InterfaceImpls
         public string Extension { get => dialog.DefaultExt; set => dialog.DefaultExt = value; }
         public bool PromptCreate { get => dialog.CreatePrompt; set => dialog.CreatePrompt = value; }
         public bool PromptOverwrite { get => dialog.OverwritePrompt; set => dialog.OverwritePrompt = value; }
+        public bool CheckPathExists { get => dialog.CheckPathExists; set => dialog.CheckPathExists = value; }
+        public bool CheckFileExists { get => dialog.CheckFileExists; set => dialog.CheckFileExists = value; }
 
         public PopupResult ShowDialog() => dialog.ShowDialog().ToPopupResult();
     }

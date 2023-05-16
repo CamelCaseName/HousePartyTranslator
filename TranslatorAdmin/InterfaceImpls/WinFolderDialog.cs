@@ -15,7 +15,7 @@ namespace Translator.Desktop.InterfaceImpls
             SelectedFolderPath = selectedPath;
         }
 
-        private readonly FolderBrowserDialog dialog = new() { UseDescriptionForTitle = true, RootFolder = Environment.SpecialFolder.Recent };
+        private readonly FolderBrowserDialog dialog = new() { UseDescriptionForTitle = true, RootFolder = Environment.SpecialFolder.Recent, ShowNewFolderButton = true };
         public string SelectedFolderPath { get => dialog.SelectedPath; set => dialog.SelectedPath = value; }
         public string Text { get => dialog.Description; set => dialog.Description = value; }
 
