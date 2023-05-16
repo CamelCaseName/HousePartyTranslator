@@ -68,7 +68,13 @@ namespace Translator.Core.Helpers
         /// <param name="level">The level of the logged message</param>
         public static void Log(string message, Level level, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
         {
-            string _message = $"[{level}] {path}:{line} | {DateTime.Now} | {message}";
+            string file = string.Empty;
+            if (path.Split('\\')[^3] == "HousePartyTranslator")
+                file = path.Split('\\')[^2][10..] + '\\' + path.Split('\\')[^1];
+            else
+                file = path.Split('\\')[^3][10..] + '\\' + path.Split('\\')[^2] + '\\' + path.Split('\\')[^1];
+            string _message = $"[{level}] {DateTime.Now} | {file}:{line} | {message}";
+
 
             //add the message as lines to our list of all lines
             FileLines.AddRange(_message.Split('\n'));
