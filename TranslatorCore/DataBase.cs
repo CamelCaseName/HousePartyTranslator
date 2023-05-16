@@ -333,8 +333,8 @@ ORDER BY category ASC;";
                 Settings.Default.Save();
 
                 //set global variable for later actions
-                TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.IsUpToDate = DBVersion == SoftwareVersion;
-                if (!TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.IsUpToDate && Settings.Default.AdvancedModeEnabled)
+                TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
+                if (!TranslationManager.IsUpToDate && Settings.Default.AdvancedModeEnabled)
                 {
                     _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
                 }
@@ -555,7 +555,7 @@ ORDER BY category ASC;";
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId[(story + fileName).Length..];
-            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.Language.Length));
+            return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
         }
 
         /// <summary>

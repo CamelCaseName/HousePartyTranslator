@@ -203,6 +203,32 @@ namespace Translator.Core.Helpers
         public static readonly Color frame = SystemColors.WindowFrame;
         public static readonly Color highlight = SystemColors.Info;
 
+        public static string ExtractStoryName(string path)
+        {
+            var paths = path.Split('\\');
+
+            if (paths.Length < 3) throw new ArgumentException("the file needs to be at least 2 folders deep from your drive?");
+
+            string tempStoryName = paths[^2];
+            if (!paths[^1].Contains('.'))
+                tempStoryName = paths[^1];
+
+            bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText);
+            if (!gotLanguage) throw new LanguageHelper.LanguageException();
+            //compare
+            if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
+                //get folder one more up
+                tempStoryName = paths[^3];
+
+            if (tempStoryName == "Languages")
+            {
+                //get folder one more up
+                tempStoryName = "UI";
+            }
+
+            return tempStoryName;
+        }
+
         /// <summary>
         /// Gets the current assembly version as a string.
         /// </summary>

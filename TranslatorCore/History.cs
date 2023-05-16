@@ -373,7 +373,7 @@ namespace Translator.Core
             this.oldTranslations = new FileData(oldTranslations, manager.StoryName, manager.FileName);
             this.newTranslations = new FileData(newTranslations, manager.StoryName, manager.FileName);
             this.manager = manager;
-            this.language = TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.Language;
+            this.language = TranslationManager.Language;
             FileName = manager.FileName;
             StoryName = manager.StoryName;
         }
