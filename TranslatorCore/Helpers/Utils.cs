@@ -53,7 +53,7 @@ namespace Translator.Core.Helpers
         /// Opens a select file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the selected file.</returns>
-        public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "", string filter = "Text files (*.txt)|*.txt")
+        public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "", string filter = "Text files (*.txt)|*.txt", bool checkFileExists = false)
         {
             if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
 
@@ -71,6 +71,7 @@ namespace Translator.Core.Helpers
             if (selectFileDialog == null) { return string.Empty; }
 
             selectFileDialog.MultiSelect = false;
+            selectFileDialog.CheckFileExists = checkFileExists;
             if (selectFileDialog.ShowDialog() == PopupResult.OK)
             {
                 if (isTranslation)

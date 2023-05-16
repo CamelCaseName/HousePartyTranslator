@@ -4,16 +4,23 @@ namespace Translator.Core.Data
 {
     public sealed class FileData : Dictionary<string, LineData>
     {
-        public FileData(Dictionary<string, LineData> data)
+        public readonly string FileName;
+        public readonly string StoryName; 
+
+        public FileData(Dictionary<string, LineData> data, string story, string file)
         {
+            FileName = file;
+            StoryName = story;
             foreach (KeyValuePair<string, LineData> item in data)
             {
                 Add(item.Key, item.Value);
             }
         }
 
-        public FileData()
+        public FileData(string story, string file)
         {
+            FileName = file;
+            StoryName = story;
             Clear();
         }
     }

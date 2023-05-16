@@ -22,17 +22,16 @@ namespace Translator.Desktop.Managers
         {
             if (TabManager.UI == null)
             {
-                data = new();
+                data = new(string.Empty, string.Empty);
                 return false;
             }
 
             TabManager.UI.SignalUserWait();
-            data = new();
-            var explorer = new ContextProvider(new(), story == Path.GetFileNameWithoutExtension(path), false, filename, story, path);
+            data = new(story, filename);
+            var explorer = new ContextProvider(new(), story == filename, false, filename, story, path);
             NodeList nodes = explorer.GetTemplateNodes();
             if (nodes != null)
             {
-                data = new();
                 if (story != filename) data.Add("Name", new LineData("Name", story, filename, StringCategory.General, filename, true));
 
                 //Add all new lines, but check if they are relevant

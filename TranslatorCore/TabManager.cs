@@ -81,6 +81,15 @@ namespace Translator.Core
         }
 
         /// <summary>
+        /// Selects the index given in the list of strings
+        /// </summary>
+        /// <param name="index">The index to select</param>
+        public static void SelectLine(int index)
+        {
+            if (index >= 0 && index < SelectedTab.LineCount) SelectedTab.SelectLineItem(index);
+        }
+
+        /// <summary>
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tab">The initial tab</param>

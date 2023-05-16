@@ -419,10 +419,9 @@ namespace Translator.Desktop.UI
                 Name = nameof(exportTemplateForFile),
                 Size = new Size(236, 22),
                 Text = "Ex&port one Template file",
-                ToolTipText = "Exports the template for a single file",
-                Enabled = false
+                ToolTipText = "Exports the template for a single file"
             };
-            exportTemplateForFile.Click += (object? sender, EventArgs e) => throw new NotImplementedException();
+            exportTemplateForFile.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplate();
 
             // exportTemplateForCompleteStory
             exportTemplateForCompleteStory = new WinMenuItem()
@@ -431,10 +430,9 @@ namespace Translator.Desktop.UI
                 Name = nameof(exportTemplateForCompleteStory),
                 Size = new Size(236, 22),
                 Text = "E&xport all Template files",
-                ToolTipText = "Exports templates for a complete story",
-                Enabled = false
+                ToolTipText = "Exports templates for a complete story"
             };
-            exportTemplateForCompleteStory.Click += (object? sender, EventArgs e) => throw new NotImplementedException();
+            exportTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplatesForStory();
 
             // searchToolStripMenuItem
             searchToolStripMenuItem = new WinMenuItem()
