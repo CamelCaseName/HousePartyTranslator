@@ -43,7 +43,7 @@ namespace Translator.Desktop.InterfaceImpls
 
         public int TranslationBoxSelectedTextLength => TabControl.SelectedTab.SelectedTemplateBoxText.Length;
 
-        public ITab SelectedTab => (ITab)TabControl.SelectedTab;
+        public ITab SelectedTab => TabControl.SelectedTab;
 
         public string TranslationBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
         public string TemplateBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
@@ -52,7 +52,7 @@ namespace Translator.Desktop.InterfaceImpls
         public ITab? CreateNewTab()
         {
             if (App.MainForm == null) return null;
-            return (ITab)new WinTab(App.MainForm);
+            return new WinTab(App.MainForm);
         }
 
         public PopupResult ErrorOk(string message, string title = "Error") => Msg.ErrorOk(message, title).ToPopupResult();

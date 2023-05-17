@@ -105,7 +105,7 @@ namespace Translator.Desktop.UI
             var tab = new WinTab(this);
             CheckForPassword();
 
-            TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), SoftwareVersionManager.LocalVersion, (ITab)tab, new WinSettings());
+            TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), SoftwareVersionManager.LocalVersion, tab, new WinSettings());
             CheckListBoxLeft = tab.Lines;
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
 
@@ -153,7 +153,7 @@ namespace Translator.Desktop.UI
 
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
-            InputHandler.SelectedItemChanged((ILineList)CheckListBoxLeft);
+            InputHandler.SelectedItemChanged(CheckListBoxLeft);
             if (Explorer != null
                 && Explorer.IsHandleCreated
                 && Explorer.StoryName == TabManager.ActiveTranslationManager.StoryName
@@ -248,7 +248,7 @@ namespace Translator.Desktop.UI
                 {
                     if (TabControl.GetTabRect(i).Contains(e.Location))
                     {
-                        TabManager.CloseTab((ITab)(((WinTabController?)sender)?.TabPages[i] ?? (WinTab)new object()));
+                        TabManager.CloseTab(((WinTabController?)sender)?.TabPages[i] ?? (WinTab)new object());
                         return;
                     }
                 }
