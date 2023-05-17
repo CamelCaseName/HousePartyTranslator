@@ -4,8 +4,6 @@ using System.Text;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Explorer.OpenCL;
-using WinUtils = Translator.Core.Helpers.Utils<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-
 
 namespace Translator.Desktop.Explorer.OpenCL;
 [SupportedOSPlatform("windows")]
@@ -258,7 +256,7 @@ internal sealed unsafe class OpenCLManager
         {
             LogManager.Log(e.ToString(), LogManager.Level.Error);
 
-            WinUtils.DisplayExceptionMessage(e.Message);
+            Utils.DisplayExceptionMessage(e.Message);
         }
     }
 

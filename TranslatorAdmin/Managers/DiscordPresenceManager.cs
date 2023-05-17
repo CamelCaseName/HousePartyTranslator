@@ -1,9 +1,9 @@
 ﻿using NetDiscordRpc;
 using NetDiscordRpc.RPC;
 using System.Runtime.Versioning;
+using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Helpers;
-using DataBase = Translator.Core.DataBase<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 
 namespace Translator.Desktop.Managers

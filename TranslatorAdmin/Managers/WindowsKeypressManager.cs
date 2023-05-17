@@ -1,10 +1,7 @@
 ﻿using Translator.Core;
 using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.UI;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-using InputHandler = Translator.Core.InputHandler<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-using TabManager = Translator.Core.TabManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-
 namespace Translator.Desktop.Managers
 {
     /// <summary>
@@ -19,7 +16,7 @@ namespace Translator.Desktop.Managers
             {
                 if (TabManager.UI.SelectedTab.Lines.Count > 0)
                 {
-                    TabManager.UI.SelectedTab.Lines.SelectedIndex = TabManager.UI.SelectedTab.Lines.IndexFromPoint(e.Location);
+                    TabManager.UI.SelectedTab.Lines.SelectedIndex = ((LineList)TabManager.UI.SelectedTab.Lines).IndexFromPoint(e.Location);
                     if (TabManager.UI.SelectedTab.Lines.SelectedIndex <= 0) TabManager.UI.SelectedTab.Lines.SelectedIndex = 0;
                     context.Show();
                 }

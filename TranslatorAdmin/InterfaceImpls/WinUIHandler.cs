@@ -7,12 +7,12 @@ using Translator.Helpers;
 namespace Translator.Desktop.InterfaceImpls
 {
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public sealed class WinUIHandler : IUIHandler<WinLineItem, WinTabController, WinTab>
+    public sealed class WinUIHandler : IUIHandler
     {
         private int waitCounter = 0;
         public WinUIHandler() { }
 
-        internal WinUIHandler(ITabController<WinLineItem, WinTab> control)
+        internal WinUIHandler(ITabController control)
         {
             TabControl = (WinTabController)control;
         }
@@ -25,15 +25,15 @@ namespace Translator.Desktop.InterfaceImpls
 
         public CreateTemplateFromStoryDelegate CreateTemplateFromStory { get => WinTranslationManager.CreateTemplateFromStory; }
 
-        public WinTabController TabControl { get; } = new();
+        public ITabController TabControl { get; } = new WinTabController();
 
         public string Language { get => App.MainForm?.LanguageBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the language"); App.MainForm.LanguageBox.Text = value; } }
 
         public bool ReplaceBarIsVisible => App.MainForm?.ReplaceAllButton.Visible ?? false && App.MainForm.ReplaceButton.Visible && App.MainForm.ReplaceBox.Visible;
 
-        Type IUIHandler<WinLineItem, WinTabController, WinTab>.InternalFileDialogType => typeof(WinFileDialog);
-        Type IUIHandler<WinLineItem, WinTabController, WinTab>.InternalFolderDialogType => typeof(WinFolderDialog);
-        Type IUIHandler<WinLineItem, WinTabController, WinTab>.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
+        Type IUIHandler.InternalFileDialogType => typeof(WinFileDialog);
+        Type IUIHandler.InternalFolderDialogType => typeof(WinFolderDialog);
+        Type IUIHandler.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
 
         public int TranslationBoxTextLength => TabControl.SelectedTab.TranslationBoxText.Length;
 
@@ -43,16 +43,16 @@ namespace Translator.Desktop.InterfaceImpls
 
         public int TranslationBoxSelectedTextLength => TabControl.SelectedTab.SelectedTemplateBoxText.Length;
 
-        public WinTab SelectedTab => TabControl.SelectedTab;
+        public ITab SelectedTab => (ITab)TabControl.SelectedTab;
 
         public string TranslationBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
         public string TemplateBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
 
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
-        public WinTab? CreateNewTab()
+        public ITab? CreateNewTab()
         {
             if (App.MainForm == null) return null;
-            return new(App.MainForm);
+            return (ITab)new WinTab(App.MainForm);
         }
 
         public PopupResult ErrorOk(string message, string title = "Error") => Msg.ErrorOk(message, title).ToPopupResult();
@@ -106,8 +106,8 @@ namespace Translator.Desktop.InterfaceImpls
             App.MainForm?.Invalidate();
         }
         public void Update() => App.MainForm?.Update();
-        public void UpdateTranslationProgressIndicator() => SelectedTab.ProgressbarTranslated.Invalidate();
-        public void UpdateResults() => SelectedTab.Lines.Invalidate();
+        public void UpdateTranslationProgressIndicator() => ((WinTab)SelectedTab).ProgressbarTranslated.Invalidate();
+        public void UpdateResults() => ((LineList)SelectedTab.Lines).Invalidate();
 
         public PopupResult WarningOk(string message, string title = "Warning") => Msg.WarningOk(message, title).ToPopupResult();
         public PopupResult WarningOkCancel(string message, string title = "Warning") => Msg.WarningOkCancel(message, title).ToPopupResult();

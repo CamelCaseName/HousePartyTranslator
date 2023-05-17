@@ -88,12 +88,12 @@ namespace Translator.Desktop.InterfaceImpls
             return new ToolStripItemCollection(owner, items);
         }
 
-        internal static List<WinTab> ToTabList(this TabPageCollection collection)
+        internal static List<ITab> ToTabList(this TabPageCollection collection)
         {
-            var items = new List<WinTab>(collection.Count);
+            var items = new List<ITab>(collection.Count);
             for (int i = 0; i < collection.Count; i++)
             {
-                items.Add((WinTab)collection[i]);
+                items.Add((ITab)collection[i]);
             }
             return items;
         }

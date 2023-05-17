@@ -4,38 +4,37 @@ using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core.DefaultImpls
 {
-    public class NullLineList<TLineItem> : ILineList<TLineItem>
-        where TLineItem : class, ILineItem, new()
+    public class NullLineList : ILineList
     {
-        public readonly List<TLineItem> Items = new();
+        public readonly List<ILineItem> Items = new();
 
         public int Count => Items.Count;
         public int ApprovedCount { get; internal set; }
-        public NullLineList() : this(new List<TLineItem>()) { }
+        public NullLineList() : this(new List<ILineItem>()) { }
 
-        public NullLineList(List<TLineItem> items, TLineItem selectedLineItem, int selectedIndex)
+        public NullLineList(List<ILineItem> items, ILineItem selectedLineItem, int selectedIndex)
         {
             Items = items;
             SelectedLineItem = selectedLineItem;
             SelectedIndex = selectedIndex;
         }
 
-        public NullLineList(List<TLineItem> items)
+        public NullLineList(List<ILineItem> items)
         {
             Items = items;
-            SelectedLineItem = items.Count > 0 ? items[0] : new TLineItem();
+            SelectedLineItem = items.Count > 0 ? items[0] : new DefaultLineItem();
             SelectedIndex = items.Count > 0 ? 0 : -1;
         }
 
-        public TLineItem this[int index] { get { return Items[index]; } set { Items[index] = value; } }
+        public ILineItem this[int index] { get { return Items[index]; } set { Items[index] = value; } }
 
         public int SelectedIndex { get { return InternalSelectedIndex; } set { SelectIndex(value); } }
-        public TLineItem SelectedLineItem { get; set; }
+        public ILineItem SelectedLineItem { get; set; }
         private int InternalSelectedIndex { get; set; }
         public List<string> SearchResults { get; internal set; } = new();
         public List<string> TranslationSimilarToTemplate { get; internal set; } = new();
 
-        public void AddLineItem(TLineItem item)
+        public void AddLineItem(ILineItem item)
         {
             Items.Add(item);
         }
@@ -71,7 +70,7 @@ namespace Translator.Core.DefaultImpls
             }
         }
 
-        public void RemoveLineItem(TLineItem item)
+        public void RemoveLineItem(ILineItem item)
         {
             if (item.IsApproved) --ApprovedCount;
             _ = Items.Remove(item);
@@ -118,7 +117,7 @@ namespace Translator.Core.DefaultImpls
 
         public void Add(string iD, bool lineIsApproved)
         {
-            Items.Add(new TLineItem() { Text = iD, IsApproved = lineIsApproved });
+            Items.Add(new DefaultLineItem() { Text = iD, IsApproved = lineIsApproved });
         }
 
         public void FreezeLayout() { }

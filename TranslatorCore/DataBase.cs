@@ -15,16 +15,12 @@ namespace Translator.Core
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
-    public static class DataBase<TLineItem, TUIHandler, TTabController, TTab>
-        where TLineItem : class, ILineItem, new()
-        where TUIHandler : class, IUIHandler<TLineItem, TTabController, TTab>, new()
-        where TTabController : class, ITabController<TLineItem, TTab>, new()
-        where TTab : class, ITab<TLineItem>, new()
+    public static class DataBase
     {
         public static string DBVersion { get; private set; } = "0.0.0";
         public static string AppTitle { get; private set; } = string.Empty;
         private static string SoftwareVersion = "0.0.0.0";
-        private static TUIHandler UI = new();
+        private static IUIHandler? UI;
         public static bool IsOnline { get; private set; } = false;
 
 #if DEBUG || DEBUG_ADMIN
@@ -148,7 +144,7 @@ namespace Translator.Core
                 }
                 else
                 {
-                    _ = UI.WarningOk("Ids can't be loaded", "Potential issue");
+                    _ = UI!.WarningOk("Ids can't be loaded", "Potential issue");
                 }
                 reader.Close();
             }
@@ -166,7 +162,7 @@ namespace Translator.Core
         /// </returns>
         public static bool GetAllLineDataTemplate(string fileName, string story, out FileData LineDataList)
         {
-            UI.SignalUserWait();
+            UI!.SignalUserWait();
             string command;
             if (story == "Hints")
             {
@@ -243,13 +239,13 @@ ORDER BY category ASC;";
                     if (e.Number == 0)
                     {
                         //0 means offline
-                        _ = UI.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
+                        _ = UI!.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
                             "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
                     }
                     else if (e.Number == 1045)
                     {
                         //means invalid creds
-                        _ = UI.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                        _ = UI!.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                     }
                     return;
                 }
@@ -259,9 +255,9 @@ ORDER BY category ASC;";
         /// <summary>
         /// Needs to be called in order to use the class, checks the connection and displays the current version information in the window title.
         /// </summary>
-        public static void Initialize(TUIHandler uIHandler, string AppVersion)
+        public static void Initialize(IUIHandler uIHandler, string AppVersion)
         {
-            UI = uIHandler;
+            UI = uIHandler ?? throw new ArgumentNullException(nameof(uIHandler));
             //establish connection and handle password
             EstablishConnection();
 
@@ -623,14 +619,14 @@ ORDER BY category ASC;";
                     if (errorCode == 0)
                     {
                         //0 means offline
-                        _ = UI.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
+                        _ = UI!.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
                                         "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
                         return IsOnline = false;
                     }
                     else if (errorCode == 1045 || errorCode == 1042)
                     {
                         //means invalid creds or empty host/password
-                        _ = UI.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                        _ = UI!.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                         return IsOnline = false;
                     }
                 }
@@ -656,7 +652,7 @@ ORDER BY category ASC;";
 
         internal static bool GetFilesForStory(string story, out string[] names)
         {
-            UI.SignalUserWait();
+            UI!.SignalUserWait();
             string command = "SELECT DISTINCT filename " + FROM + " WHERE story = @story AND language IS NULL AND deleted = 0";
 
             using MySqlConnection connection = new(GetConnString());

@@ -3,7 +3,7 @@ using Translator.Desktop.UI.Components;
 
 namespace Translator.Desktop.InterfaceImpls
 {
-    public class LineList : ColouredCheckedListBox, ILineList<WinLineItem>
+    public class LineList : ColouredCheckedListBox, ILineList
     {
         protected override void WndProc(ref Message m) => base.WndProc(ref m);
         protected override void OnDrawItem(DrawItemEventArgs e) => base.OnDrawItem(e);
@@ -15,7 +15,7 @@ namespace Translator.Desktop.InterfaceImpls
         {
             Items.Clear();
             Items.AddRange((ListBox.ObjectCollection)items.Cast<object>());
-            ((ILineList<WinLineItem>)this).SelectedLineItem = selectedLineItem;
+            ((ILineList)this).SelectedLineItem = selectedLineItem;
             SelectedIndex = selectedIndex;
         }
 
@@ -26,23 +26,23 @@ namespace Translator.Desktop.InterfaceImpls
             {
                 _ = Items.Add(items[i]);
             }
-            ((ILineList<WinLineItem>)this).SelectedLineItem = items.Count > 0 ? items[0] : new WinLineItem();
+            ((ILineList)this).SelectedLineItem = items.Count > 0 ? items[0] : new WinLineItem();
             SelectedIndex = items.Count > 0 ? 0 : -1;
         }
 
         public WinLineItem this[int index] { get { return (WinLineItem)Items[index]; } set { Items[index] = value; } }
 
-        WinLineItem ILineList<WinLineItem>.SelectedLineItem { get; set; } = new WinLineItem();
+        ILineItem ILineList.SelectedLineItem { get; set; } = new WinLineItem();
 
         public List<int> TranslationSimilarToTemplate { get; internal set; } = new();
 
-        List<string> ILineList<WinLineItem>.SearchResults => SearchResults;
+        List<string> ILineList.SearchResults => SearchResults;
 
-        List<string> ILineList<WinLineItem>.TranslationSimilarToTemplate { get; } = new();
+        List<string> ILineList.TranslationSimilarToTemplate { get; } = new();
 
-        WinLineItem ILineList<WinLineItem>.this[int index] { get => (WinLineItem)Items[index]; set => Items[index] = value; }
+        ILineItem ILineList.this[int index] { get => (WinLineItem)Items[index]; set => Items[index] = value; }
 
-        void ILineList<WinLineItem>.AddLineItem(WinLineItem item)
+        void ILineList.AddLineItem(ILineItem item)
         {
             _ = Items.Add(item);
         }
@@ -77,7 +77,7 @@ namespace Translator.Desktop.InterfaceImpls
             }
         }
 
-        public void RemoveLineItem(WinLineItem item)
+        public void RemoveLineItem(ILineItem item)
         {
             Items.Remove(item);
         }
@@ -86,7 +86,7 @@ namespace Translator.Desktop.InterfaceImpls
         {
             try
             {
-                ((ILineList<WinLineItem>)this).SelectedLineItem = ((WinLineItem)Items[index]);
+                ((ILineList)this).SelectedLineItem = ((WinLineItem)Items[index]);
             }
             catch
             {

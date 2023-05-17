@@ -75,7 +75,6 @@ namespace Translator.Core.Helpers
                 file = path.Split('\\')[^3][10..] + '\\' + path.Split('\\')[^2] + '\\' + path.Split('\\')[^1];
             string _message = $"[{level}] {DateTime.Now} | {file}:{line} | {message}";
 
-
             //add the message as lines to our list of all lines
             FileLines.AddRange(_message.Split('\n'));
 

@@ -2,11 +2,7 @@
 
 namespace Translator.Core
 {
-    public class InputHandler<TLineItem, TUIHandler, TTabController, TTab>
-        where TLineItem : class, ILineItem, new()
-        where TUIHandler : class, IUIHandler<TLineItem, TTabController, TTab>, new()
-        where TTabController : class, ITabController<TLineItem, TTab>, new()
-        where TTab : class, ITab<TLineItem>, new()
+    public class InputHandler
     {
         private static ITextBox? lastChangedTextBox;
         private static string? lastText;
@@ -14,60 +10,60 @@ namespace Translator.Core
 
         public static void SaveAndApproveAndSelectNewLine()
         {
-            if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex >= 0)
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.ApproveItem(TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex);
+            if (TabManager.UI.SelectedTab.Lines.SelectedIndex >= 0)
+                TabManager.UI.SelectedTab.Lines.ApproveItem(TabManager.UI.SelectedTab.Lines.SelectedIndex);
             else
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.ApproveItem(0);
-            if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex < TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.LineCount - 1)
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex++;
+                TabManager.UI.SelectedTab.Lines.ApproveItem(0);
+            if (TabManager.UI.SelectedTab.Lines.SelectedIndex < TabManager.UI.SelectedTab.LineCount - 1)
+                TabManager.UI.SelectedTab.Lines.SelectedIndex++;
         }
 
         public static void SaveAndSelectNewLine()
         {
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.SaveCurrentString();
-            if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex < TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.Count - 1)
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex++;
+            TabManager.ActiveTranslationManager.SaveCurrentString();
+            if (TabManager.UI.SelectedTab.Lines.SelectedIndex < TabManager.UI.SelectedTab.Lines.Count - 1)
+                TabManager.UI.SelectedTab.Lines.SelectedIndex++;
         }
 
         public static void SelectTabRight()
         {
-            if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.TabCount > 1)
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.SwitchToTab(TabManager<TLineItem, TUIHandler, TTabController, TTab>.SelectedTabIndex + 1);
+            if (TabManager.TabCount > 1)
+                TabManager.SwitchToTab(TabManager.SelectedTabIndex + 1);
         }
 
         public static void SelectTabLeft()
         {
-            if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.TabCount > 1)
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.SwitchToTab(TabManager<TLineItem, TUIHandler, TTabController, TTab>.SelectedTabIndex - 1);
+            if (TabManager.TabCount > 1)
+                TabManager.SwitchToTab(TabManager.SelectedTabIndex - 1);
         }
 
         public static void MoveLineSelectionDown()
         {
-            if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex < TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.LineCount - 1)
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex++;
+            if (TabManager.UI.SelectedTab.Lines.SelectedIndex < TabManager.UI.SelectedTab.LineCount - 1)
+                TabManager.UI.SelectedTab.Lines.SelectedIndex++;
         }
 
         public static void MoveLineSelectionUp()
         {
-            if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex > 0)
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex--;
+            if (TabManager.UI.SelectedTab.Lines.SelectedIndex > 0)
+                TabManager.UI.SelectedTab.Lines.SelectedIndex--;
         }
 
         public static void FocusSearch()
         {
             //we have something selected we want to search for
-            if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.TabControl.SelectedTab.SelectedTranslationBoxText.Length > 0)
+            if (TabManager.UI.TabControl.SelectedTab.SelectedTranslationBoxText.Length > 0)
             {
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SearchBarText = TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.TranslationBoxText;
+                TabManager.UI.SearchBarText = TabManager.UI.TranslationBoxText;
             }
             //we dont have anything selected, enter empty query
             else
             {
                 const string query = "Search here";
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SearchBarText = query;
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SetSelectedSearchBarText(0, query.Length);
+                TabManager.UI.SearchBarText = query;
+                TabManager.UI.SetSelectedSearchBarText(0, query.Length);
             }
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.FocusSearchBar();
+            TabManager.UI.FocusSearchBar();
         }
 
         /// <summary>
@@ -95,34 +91,34 @@ namespace Translator.Core
                     lastChangedTextBox,
                     lastText,
                     lastChangedTextBox.Text,
-                    TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.FileName,
-                    TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.StoryName));
+                    TabManager.ActiveTranslationManager.FileName,
+                    TabManager.ActiveTranslationManager.StoryName));
             }
         }
 
-        public static void SelectedItemChanged(ILineList<TLineItem> listBox)
+        public static void SelectedItemChanged(ILineList listBox)
         {
             if (lastIndex >= 0 && listBox.SelectedIndex >= 0)
             {
-                if (History.Peek().FileName == TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.StoryName)
-                    History.AddAction(new SelectedLineChanged<TLineItem>(listBox, lastIndex, listBox.SelectedIndex, TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.FileName, TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.StoryName));
+                if (History.Peek().FileName == TabManager.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
+                    History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
                 else
-                    History.AddAction(new SelectedLineChanged<TLineItem>(listBox, 0, listBox.SelectedIndex, TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.FileName, TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.StoryName));
+                    History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
             }
             lastIndex = listBox.SelectedIndex;
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.PopulateTextBoxes();
+            TabManager.ActiveTranslationManager.PopulateTextBoxes();
         }
 
         public static void SelectedLanguageChanged()
         {
-            TranslationManager<TLineItem, TUIHandler, TTabController, TTab>.SetLanguage();
-            TabManager<TLineItem, TUIHandler, TTabController, TTab>.ActiveTranslationManager.ReloadFile();
+            TranslationManager.SetLanguage();
+            TabManager.ActiveTranslationManager.ReloadFile();
         }
 
         public static void SaveAndApproveLine()
         {
-            if (TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex >= 0)
-                TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.ApproveItem(TabManager<TLineItem, TUIHandler, TTabController, TTab>.UI.SelectedTab.Lines.SelectedIndex);
+            if (TabManager.UI.SelectedTab.Lines.SelectedIndex >= 0)
+                TabManager.UI.SelectedTab.Lines.ApproveItem(TabManager.UI.SelectedTab.Lines.SelectedIndex);
         }
     }
 }
