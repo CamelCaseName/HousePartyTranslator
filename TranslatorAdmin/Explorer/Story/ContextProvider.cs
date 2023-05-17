@@ -109,7 +109,7 @@ namespace Translator.Desktop.Explorer.Story
                     if (selectFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         Settings.WDefault.StoryPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? string.Empty;
-                        Settings.Default.Save();
+                        Settings.WDefault.Save();
                         _StoryFilePath = selectFileDialog.FileName;
                     }
                     else
