@@ -7,7 +7,7 @@ namespace Translator.Core.UICompatibilityLayer
     {
         public static ISettings Default { get; private set; } = new DefaultSettings();
         public static bool IsInitialized { get; private set; }
-        internal static bool Initialize(ISettings settings)
+        public static bool Initialize(ISettings settings)
         {
             if (!IsInitialized)
             {

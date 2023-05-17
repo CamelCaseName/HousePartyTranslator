@@ -34,9 +34,10 @@ namespace Translator.Desktop
             {
                 Settings.WDefault.Upgrade();
                 Settings.WDefault.UpdateSettings = false;
-                Settings.Default.Save();
+                Settings.WDefault.Save();
             }
 
+            Core.UICompatibilityLayer.Settings.Initialize(Settings.WDefault);
             MainForm = new Fenster();
             Application.Run(MainForm);
         }
