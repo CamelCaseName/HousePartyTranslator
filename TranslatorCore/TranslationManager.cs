@@ -93,8 +93,6 @@ namespace Translator.Core
 
         internal static void SortIntoCategories(ref List<CategorizedLines> CategorizedStrings, FileData IdsToExport, FileData translationData)
         {
-            var CategoriesInFile = GetCategories(IdsToExport.StoryName, IdsToExport.FileName);
-
             foreach (LineData item in IdsToExport.Values)
             {
                 if (item.ID == string.Empty) continue;
@@ -110,13 +108,13 @@ namespace Translator.Core
                     item.TranslationString = item.TemplateString.RemoveVAHints();
                 }
 
-                int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
+                int intCategory = CategorizedStrings.FindIndex(predicateCategory => predicateCategory.category == item.Category);
 
                 if (intCategory < CategorizedStrings.Count && intCategory >= 0)
                     CategorizedStrings[intCategory].lines.Add(item);
                 else
                 {
-                    CategorizedStrings.Add((new List<LineData>(), StringCategory.Neither));
+                    CategorizedStrings.Add((new List<LineData>(), item.Category));
                     CategorizedStrings[^1].lines.Add(item);
                 }
             }
@@ -176,21 +174,21 @@ namespace Translator.Core
         {
             if (!StaticUIInitialized) { UI = ui; StaticUIInitialized = true; }
             TabUI = tab;
-            TranslationManager.AutoSaveTimer.Elapsed += SaveFileHandler;
+            AutoSaveTimer.Elapsed += SaveFileHandler;
         }
 
         static TranslationManager()
         {
             if (Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
             {
-                TranslationManager.AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
-                TranslationManager.AutoSaveTimer.Start();
+                AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
+                AutoSaveTimer.Start();
             }
             else
             {
                 Settings.Default.AutoSaveInterval = TimeSpan.FromMinutes(1);
-                TranslationManager.AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
-                TranslationManager.AutoSaveTimer.Start();
+                AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
+                AutoSaveTimer.Start();
             }
         }
 
@@ -373,7 +371,7 @@ namespace Translator.Core
                     History.ClearForFile(FileName, StoryName);
                 ResetTranslationManager();
 
-                if (!TranslationManager.IsUpToDate && Settings.Default.AdvancedModeEnabled && DataBase.IsOnline)
+                if (!IsUpToDate && Settings.Default.AdvancedModeEnabled && DataBase.IsOnline)
                 {
                     LoadTemplates();
                 }
@@ -565,7 +563,7 @@ namespace Translator.Core
         public void RequestAutomaticTranslation()
         {
             if (SelectedId != string.Empty)
-                AutoTranslation.AutoTranslationAsync(SelectedLine, TranslationManager.Language, AutoTranslationCallback);
+                AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
         }
 
         /// <summary>
@@ -574,7 +572,7 @@ namespace Translator.Core
         private void ConvenienceAutomaticTranslation()
         {
             if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
-                AutoTranslation.AutoTranslationAsync(SelectedLine, TranslationManager.Language, ConvenienceTranslationCallback);
+                AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
         }
 
         private void AutoTranslationCallback(bool successfull, LineData data)
@@ -622,7 +620,7 @@ namespace Translator.Core
                 UI.SignalUserWait();
 
                 //update translation in the DataBase
-                _ = DataBase.UpdateTranslation(SelectedLine, TranslationManager.Language);
+                _ = DataBase.UpdateTranslation(SelectedLine, Language);
 
                 if (TabUI.SimilarStringsToEnglish.Contains(SelectedId)) _ = TabUI.SimilarStringsToEnglish.Remove(SelectedId);
 
@@ -640,20 +638,20 @@ namespace Translator.Core
             LogManager.Log("saving file " + StoryName + "/" + FileName);
             History.ClearForFile(FileName, StoryName);
 
-            if (SourceFilePath == string.Empty || TranslationManager.Language == string.Empty)
+            if (SourceFilePath == string.Empty || Language == string.Empty)
             {
                 UI.SignalUserEndWait();
                 return;
             }
             if (doOnlineUpdate) _ = Task.Run(RemoteUpdate);
 
-            List<CategorizedLines> CategorizedStrings = TranslationManager.InitializeCategories(StoryName, FileName);
+            List<CategorizedLines> CategorizedStrings = InitializeCategories(StoryName, FileName);
 
             //sort online line ids into translations but use local values for translations if applicable
             if (DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase.IsOnline)
-                TranslationManager.SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
+                SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
             else
-                TranslationManager.SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
+                SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
 
             //save all categorized lines to disk
             WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
@@ -670,7 +668,7 @@ namespace Translator.Core
             void RemoteUpdate()
             {
                 UI.SignalUserWait();
-                if (!DataBase.UpdateTranslations(TranslationData, TranslationManager.Language) || !DataBase.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+                if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
                 UI.SignalUserEndWait();
                 LogManager.Log("Successfully saved the file remotely");
             }
@@ -679,7 +677,7 @@ namespace Translator.Core
         private void CopyToGameModsFolder()
         {
             //get language path
-            if (LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
+            if (LanguageHelper.Languages.TryGetValue(Language, out string? languageAsText))
             {
                 //add new to langauge if wanted
                 if (Settings.Default.UseFalseFolder)
@@ -920,7 +918,7 @@ namespace Translator.Core
             {
                 if (DataBase.UpdateDBVersion())
                 {
-                    TranslationManager.IsUpToDate = true;
+                    IsUpToDate = true;
                     isTemplate = false;
                 }
             }
@@ -972,7 +970,7 @@ namespace Translator.Core
 
             if (DataBase.IsOnline)
                 //get template lines from online
-                _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, TranslationManager.Language);
+                _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
             else
                 //get template lines from user if they want
                 onlineLines = GetTemplatesFromUser();
@@ -1533,17 +1531,17 @@ namespace Translator.Core
         {
             if (UI.Language.Length >= 0)
             {
-                TranslationManager.Language = UI.Language;
+                Language = UI.Language;
             }
             else if (Settings.Default.Language != string.Empty)
             {
                 string languageFromFile = Settings.Default.Language;
                 if (languageFromFile != string.Empty)
                 {
-                    TranslationManager.Language = languageFromFile;
+                    Language = languageFromFile;
                 }
             }
-            UI.Language = TranslationManager.Language;
+            UI.Language = Language;
         }
 
         internal static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false)
@@ -1619,8 +1617,8 @@ namespace Translator.Core
                 return;
             }
 
-            var sortedLines = TranslationManager.InitializeCategories(story, file);
-            TranslationManager.SortIntoCategories(ref sortedLines, templates, templates);
+            var sortedLines = InitializeCategories(story, file);
+            SortIntoCategories(ref sortedLines, templates, templates);
 
             WriteCategorizedLinesToDisk(sortedLines, path);
 
