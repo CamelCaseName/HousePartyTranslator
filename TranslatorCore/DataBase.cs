@@ -141,7 +141,7 @@ namespace Translator.Core
                 }
                 else
                 {
-                    _ = UI!.WarningOk("Ids can't be loaded", "Potential issue");
+                    _ = UI!.WarningOk("No lines approved so far", "Potential issue");
                 }
                 reader.Close();
             }
