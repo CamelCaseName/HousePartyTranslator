@@ -8,13 +8,6 @@ using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Explorer.Window;
 using Translator.Helpers;
-using DataBase = Translator.Core.DataBase<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-using InputHandler = Translator.Core.InputHandler<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
-using TabManager = Translator.Core.TabManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-using TextBox = System.Windows.Forms.TextBox;
-using TranslationManager = Translator.Core.TranslationManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-using WinUtils = Translator.Core.Helpers.Utils<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 
 namespace Translator.Desktop.UI
 {
@@ -112,7 +105,7 @@ namespace Translator.Desktop.UI
             var tab = new WinTab(this);
             CheckForPassword();
 
-            TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), SoftwareVersionManager.LocalVersion, tab, new Settings());
+            TabManager.Initialize(UI, typeof(WinMenuItem), typeof(WinMenuSeperator), SoftwareVersionManager.LocalVersion, tab, new WinSettings());
             CheckListBoxLeft = tab.Lines;
             ListContextMenu = CheckListBoxLeft.ContextMenuStrip;
 
@@ -311,11 +304,11 @@ namespace Translator.Desktop.UI
 
                 if (e.ExceptionObject.GetType().IsAssignableTo(typeof(Exception)))
                 {
-                    WinUtils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
+                    Utils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
                 }
                 else
                 {
-                    WinUtils.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
+                    Utils.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
                 }
             }
         }
@@ -324,7 +317,7 @@ namespace Translator.Desktop.UI
         {
             if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
             LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
-            WinUtils.DisplayExceptionMessage(e.Exception.Message);
+            Utils.DisplayExceptionMessage(e.Exception.Message);
         }
 
         private void CheckForPassword()
@@ -354,7 +347,7 @@ namespace Translator.Desktop.UI
                 Text = "Generate o&ne Template file",
                 ToolTipText = "Generates and uploads the template for a single file"
             };
-            generateTemplateForFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.GenerateTemplateForSingleFile(true);
+            generateTemplateForFile.Click += (object? sender, EventArgs e) => TranslationManager.GenerateTemplateForSingleFile(true);
 
             // generateTemplateForCompleteStory
             generateTemplateForCompleteStory = new WinMenuItem()
@@ -365,7 +358,7 @@ namespace Translator.Desktop.UI
                 Text = "&Generate all Template files",
                 ToolTipText = "Generates and uploads templates for a complete story"
             };
-            generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.GenerateTemplateForAllFiles(true);
+            generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TranslationManager.GenerateTemplateForAllFiles(true);
 
             // createTemplateForFile
             createTemplateForFile = new WinMenuItem()
@@ -376,7 +369,7 @@ namespace Translator.Desktop.UI
                 Text = "Create &one Template file",
                 ToolTipText = "Creates the template locally for a single file"
             };
-            createTemplateForFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.GenerateTemplateForSingleFile(false);
+            createTemplateForFile.Click += (object? sender, EventArgs e) => TranslationManager.GenerateTemplateForSingleFile(false);
 
             // createTemplateForCompleteStory
             createTemplateForCompleteStory = new WinMenuItem()
@@ -387,7 +380,7 @@ namespace Translator.Desktop.UI
                 Text = "&Create all Template files",
                 ToolTipText = "Creates templates locally for a complete story"
             };
-            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.GenerateTemplateForAllFiles(false);
+            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TranslationManager.GenerateTemplateForAllFiles(false);
 
             // undoMenuButton
             undoMenuButton = new WinMenuItem()
@@ -464,7 +457,7 @@ namespace Translator.Desktop.UI
                 Text = "R&eplace",
                 ToolTipText = "Opens the searchbar in replace mode"
             };
-            replaceToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ToggleReplaceUI();
+            replaceToolStripMenuItem.Click += (object? sender, EventArgs e) => UI.ToggleReplaceBar();
 
             // openToolStripMenuItem
             openToolStripMenuItem = new WinMenuItem()
@@ -815,7 +808,7 @@ namespace Translator.Desktop.UI
             //prevent discord from getting angry
             PresenceManager?.DeInitialize();
 
-            RecentsManager.SaveRecents<WinLineItem, WinUIHandler, WinTabController, WinTab>();
+            RecentsManager.SaveRecents();
 
             CancelTokens.Cancel();
 
@@ -849,7 +842,7 @@ namespace Translator.Desktop.UI
             ProgressbarWindow.Status.Text = "Loading recents";
             //open most recent after db is initialized
             UpdateFileMenuItems();
-            RecentsManager.OpenMostRecent<WinLineItem, WinUIHandler, WinTabController, WinTab>();
+            RecentsManager.SaveRecents();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
@@ -903,7 +896,7 @@ namespace Translator.Desktop.UI
 
         private void UpdateFileMenuItems()
         {
-            MenuItems items = RecentsManager.GetUpdatedMenuItems<WinLineItem, WinUIHandler, WinTabController, WinTab>(FileToolStripMenuItem.DropDownItems.ToMenuItems());
+            MenuItems items = RecentsManager.GetUpdatedMenuItems(FileToolStripMenuItem.DropDownItems.ToMenuItems());
             FileToolStripMenuItem.DropDownItems.Clear();
             for (int i = 0; i < items.Count; i++)
             {

@@ -3,8 +3,7 @@ using System.Drawing;
 
 namespace Translator.Core.UICompatibilityLayer
 {
-    public interface ITab<TLineItem>
-        where TLineItem : class, ILineItem, new()
+    public interface ITab
     {
         int LineCount => Lines.Count;
         string Text { get; set; }
@@ -20,11 +19,11 @@ namespace Translator.Core.UICompatibilityLayer
         #region list of translations
         void ClearLines();
 
-        TLineItem AtIndex(int index);
+        ILineItem AtIndex(int index);
 
-        ILineList<TLineItem> Lines { get; set; }
+        ILineList Lines { get; set; }
         int SelectedLineIndex { get; }
-        TLineItem SelectedLineItem { get; }
+        ILineItem SelectedLineItem { get; }
         string SelectedLine { get { return SelectedLineItem.Text; } }
 
         bool IsTranslationBoxFocused { get; }
@@ -34,7 +33,7 @@ namespace Translator.Core.UICompatibilityLayer
 
         void SelectLineItem(int index);
 
-        void SelectLineItem(TLineItem item);
+        void SelectLineItem(ILineItem item);
         void UpdateLines();
 
         #endregion

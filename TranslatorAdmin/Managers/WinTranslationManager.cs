@@ -1,13 +1,10 @@
-﻿using System.Diagnostics.Eventing.Reader;
+﻿using Translator.Core;
 using Translator.Core.Data;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.JSONItems;
 using Translator.Desktop.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Helpers;
-using TabManager = Translator.Core.TabManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-using TranslationManager = Translator.Core.TranslationManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-
 namespace Translator.Desktop.Managers
 {
     //also contains some extensions to ease programming

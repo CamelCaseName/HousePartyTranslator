@@ -4,19 +4,19 @@ using Translator.Core.UICompatibilityLayer;
 namespace Translator.Desktop.InterfaceImpls
 {
     [SupportedOSPlatform("Windows")]
-    public class WinTabController : TabControl, ITabController<WinLineItem, WinTab>
+    public class WinTabController : TabControl, ITabController
     {
         public new int SelectedIndex { get => base.SelectedIndex; set => base.SelectedIndex = value; }
-        public new WinTab SelectedTab { get => (WinTab)base.SelectedTab; set => base.SelectedTab = value; }
+        public new ITab SelectedTab { get => (ITab)base.SelectedTab; set => base.SelectedTab = (TabPage)value; }
 
         public new int TabCount => TabPages.Count;
 
-        public new List<WinTab> TabPages => base.TabPages.ToTabList();
+        public new List<ITab> TabPages => base.TabPages.ToTabList();
 
-        public void AddTab(WinTab tab) => base.TabPages.Add(tab);
-        public bool CloseTab(WinTab tab)
+        public void AddTab(ITab tab) => base.TabPages.Add((TabPage)tab);
+        public bool CloseTab(ITab tab)
         {
-            base.TabPages.Remove(tab);
+            base.TabPages.Remove((TabPage)tab);
             return true;
         }
     }

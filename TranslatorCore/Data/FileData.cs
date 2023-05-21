@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Translator.Core.Data
 {
@@ -22,6 +23,20 @@ namespace Translator.Core.Data
             FileName = file;
             StoryName = story;
             Clear();
+        }
+
+        public KeyValuePair<string, LineData> ElementAt(int index)
+        {
+            if(index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+
+            var enumerator = GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                if (i == index) return enumerator.Current;
+                else ++i;
+            }
+            throw new IndexOutOfRangeException(nameof(index));
         }
     }
 }

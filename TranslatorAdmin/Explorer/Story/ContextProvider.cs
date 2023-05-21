@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
 using System.Runtime.Versioning;
+using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.JSONItems;
 using static Translator.Desktop.Explorer.JSONItems.StoryEnums;
-using DataBase = Translator.Core.DataBase<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 
 namespace Translator.Desktop.Explorer.Story
@@ -109,7 +109,7 @@ namespace Translator.Desktop.Explorer.Story
                     if (selectFileDialog.ShowDialog() == DialogResult.OK)
                     {
                         Settings.WDefault.StoryPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? string.Empty;
-                        Settings.Default.Save();
+                        Settings.WDefault.Save();
                         _StoryFilePath = selectFileDialog.FileName;
                     }
                     else

@@ -3,8 +3,7 @@ namespace Translator.Desktop.InterfaceImpls
 {
     internal class WinSettings : Core.UICompatibilityLayer.ISettings
     {
-        public static readonly Core.UICompatibilityLayer.ISettings Default = new WinSettings();
-
+        public static Core.UICompatibilityLayer.ISettings Default => Core.UICompatibilityLayer.Settings.Default;
         public static WinSettings WDefault => (WinSettings)Default;
         public bool AdvancedModeEnabled
         {

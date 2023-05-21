@@ -14,16 +14,12 @@ namespace Translator.Core.Helpers
     /// Provides some generic utility methods.
     /// </summary>
 
-    public static partial class Utils<TLineItem, TUIHandler, TTabController, TTab>
-        where TLineItem : class, ILineItem, new()
-        where TUIHandler : class, IUIHandler<TLineItem, TTabController, TTab>, new()
-        where TTabController : class, ITabController<TLineItem, TTab>, new()
-        where TTab : class, ITab<TLineItem>, new()
+    public static partial class Utils
     {
         private static int ExceptionCount = 0;
-        private static TUIHandler? MainUI { get; set; }
+        private static IUIHandler? MainUI { get; set; }
 
-        internal static void Initialize(TUIHandler ui)
+        internal static void Initialize(IUIHandler ui)
         {
             MainUI = ui;
         }

@@ -3,10 +3,7 @@ using Translator.Core.Data;
 
 namespace Translator.Core.UICompatibilityLayer
 {
-    public interface IUIHandler<TLineItem, TTabController, TTab>
-        where TLineItem : class, ILineItem, new()
-        where TTabController : class, ITabController<TLineItem, TTab>, new()
-        where TTab : class, ITab<TLineItem>, new()
+    public interface IUIHandler
     {
         #region cursor
         void SignalUserEndWait();
@@ -72,6 +69,8 @@ namespace Translator.Core.UICompatibilityLayer
         string SearchBarText { get; set; }
 
         void UpdateResults();
+
+        void ToggleReplaceBar();
         #endregion
 
         #region menubar
@@ -90,7 +89,7 @@ namespace Translator.Core.UICompatibilityLayer
 
         void ClipboardSetText(string text);
 
-        TTab? CreateNewTab();
+        ITab? CreateNewTab();
 
         void SignalAppExit();
         void Update();
@@ -102,7 +101,7 @@ namespace Translator.Core.UICompatibilityLayer
         #endregion
 
         #region tabs
-        TTabController TabControl { get; }
+        ITabController TabControl { get; }
         string Language { get; set; }
         bool ReplaceBarIsVisible { get; }
         #endregion
@@ -112,7 +111,7 @@ namespace Translator.Core.UICompatibilityLayer
         int TemplateBoxTextLength { get; }
         int TemplateBoxSelectedTextLength { get; }
         int TranslationBoxSelectedTextLength { get; }
-        TTab SelectedTab { get; }
+        ITab SelectedTab { get; }
         string TranslationBoxText { get; set; }
         string TemplateBoxText { get; set; }
         #endregion

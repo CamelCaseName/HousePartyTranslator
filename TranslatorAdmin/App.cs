@@ -1,10 +1,10 @@
 ﻿using Translator.Core.Helpers;
+using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.UI;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 
 namespace Translator.Desktop
 {
-
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class App
     {
@@ -30,11 +30,12 @@ namespace Translator.Desktop
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            Core.UICompatibilityLayer.Settings.Initialize(new WinSettings());
             if (Settings.WDefault.UpdateSettings)
             {
                 Settings.WDefault.Upgrade();
                 Settings.WDefault.UpdateSettings = false;
-                Settings.Default.Save();
+                Settings.WDefault.Save();
             }
 
             MainForm = new Fenster();

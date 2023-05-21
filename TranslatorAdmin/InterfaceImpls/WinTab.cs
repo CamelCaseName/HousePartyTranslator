@@ -1,15 +1,13 @@
 ﻿using System.Runtime.Versioning;
+using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.UI;
 using Translator.Desktop.UI.Components;
-using TabManager = Translator.Core.TabManager<Translator.Desktop.InterfaceImpls.WinLineItem, Translator.Desktop.InterfaceImpls.WinUIHandler, Translator.Desktop.InterfaceImpls.WinTabController, Translator.Desktop.InterfaceImpls.WinTab>;
-
-
 namespace Translator.Desktop.InterfaceImpls
 {
     [SupportedOSPlatform("Windows")]
-    public class WinTab : TabPage, ITab<WinLineItem>
+    public class WinTab : TabPage, ITab
     {
         //todo add progress bar to tab title
         public WinTab() { MainForm = (Fenster)new Form(); }
@@ -344,7 +342,7 @@ namespace Translator.Desktop.InterfaceImpls
 
         public int SelectedLineIndex => Lines.SelectedIndex;
 
-        public WinLineItem SelectedLineItem => (WinLineItem?)Lines.SelectedItem ?? new WinLineItem();
+        public ILineItem SelectedLineItem => (ILineItem)(Lines.SelectedItem ?? new WinLineItem());
 
         public bool IsTranslationBoxFocused => TranslationTextBox.Focused;
 
@@ -364,7 +362,7 @@ namespace Translator.Desktop.InterfaceImpls
         public string[] CommentBoxTextArr { get => CommentTextBox.Lines; set => CommentTextBox.Lines = value; }
         public bool ApprovedButtonChecked { get => ApprovedBox.Checked; set => ApprovedBox.Checked = value; }
         public LineList Lines { get => CheckListBoxLeft; }
-        ILineList<WinLineItem> ITab<WinLineItem>.Lines
+        ILineList ITab.Lines
         {
             get => Lines;
             set
@@ -378,7 +376,7 @@ namespace Translator.Desktop.InterfaceImpls
 
         public int LineCount { get => Lines.Count; }
 
-        string ITab<WinLineItem>.Text
+        string ITab.Text
         {
             get
             {
@@ -398,13 +396,13 @@ namespace Translator.Desktop.InterfaceImpls
         public ITextBox Comments => CommentTextBox;
 
         public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
-        public WinLineItem AtIndex(int index) => CheckListBoxLeft[index];
+        public ILineItem AtIndex(int index) => CheckListBoxLeft[index];
         public void ClearLines() => CheckListBoxLeft.Clear();
         public void FocusCommentBox() => CommentTextBox.Focus();
         public void FocusTranslationBox() => TranslationTextBox.Focus();
         public string SelectedCommentBoxText() => CommentTextBox.SelectedText;
         public void SelectLineItem(int index) => CheckListBoxLeft.SelectedIndex = index;
-        public void SelectLineItem(WinLineItem item) => CheckListBoxLeft.SelectedItem = item;
+        public void SelectLineItem(ILineItem item) => CheckListBoxLeft.SelectedItem = item;
         public void SetApprovedLabelText(string text) => LinesTranslated.Text = text;
         public void SetCharacterCountLabelText(string text) => CharacterCountLabel.Text = text;
         public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
