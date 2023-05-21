@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Translator.Core.Data;
@@ -267,6 +268,20 @@ namespace Translator.Core.Helpers
         public static string AsString(this StringCategory category)
         {
             return Utils.GetStringFromCategory(category);
+        }
+
+        public static LineData ElementAt(this Dictionary<string, LineData>.ValueCollection dict, int index)
+        {
+            if (index >= dict.Count) throw new ArgumentOutOfRangeException(nameof(index));
+
+            var enumerator = dict.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                if (i == index) return enumerator.Current;
+                else ++i;
+            }
+            throw new IndexOutOfRangeException(nameof(index));
         }
     }
 }

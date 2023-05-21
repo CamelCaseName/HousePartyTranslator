@@ -1,16 +1,12 @@
-﻿using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.FileIO;
-using Org.BouncyCastle.Asn1.Ess;
+﻿using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
-using System.Web;
 using Translator.Core.Data;
 using Translator.Core.DefaultImpls;
 using Translator.Core.Helpers;
@@ -101,16 +97,17 @@ namespace Translator.Core
 
             foreach (LineData item in IdsToExport.Values)
             {
+                if (item.ID == string.Empty) continue;
                 if (translationData.TryGetValue(item.ID, out LineData? TempResult))
                 {
                     if (TempResult?.TranslationLength > 0)
-                        item.TranslationString = TempResult?.TranslationString ?? IdsToExport[item.ID].TemplateString.RemoveVAHints();
+                        item.TranslationString = TempResult?.TranslationString ?? item.TemplateString.RemoveVAHints();
                     else
-                        item.TranslationString = IdsToExport[item.ID].TemplateString.RemoveVAHints();
+                        item.TranslationString = item.TemplateString.RemoveVAHints();
                 }
                 else
                 {
-                    item.TranslationString = IdsToExport[item.ID].TemplateString.RemoveVAHints();
+                    item.TranslationString = item.TemplateString.RemoveVAHints();
                 }
 
                 int intCategory = CategoriesInFile.FindIndex(predicateCategory => predicateCategory == item.Category);
@@ -120,7 +117,7 @@ namespace Translator.Core
                 else
                 {
                     CategorizedStrings.Add((new List<LineData>(), StringCategory.Neither));
-                    CategorizedStrings.Last().lines.Add(item);
+                    CategorizedStrings[^1].lines.Add(item);
                 }
             }
         }
@@ -1071,9 +1068,9 @@ namespace Translator.Core
             string[] lastLine = Array.Empty<string>();
             //string[] lastLastLine = { };
             //read in lines
-            var LinesFromFile = File.ReadAllLines(path).ToList();
+            var LinesFromFile = new List<string>(File.ReadAllLines(path));
             //remove last if empty, breaks line lioading for the last
-            while (LinesFromFile.Last() == string.Empty) _ = LinesFromFile.Remove(LinesFromFile.Last());
+            while (LinesFromFile[^1] == string.Empty) _ = LinesFromFile.Remove(LinesFromFile[^1]);
             //load lines and their data and split accordingly
             foreach (string line in LinesFromFile)
             {
@@ -1131,7 +1128,7 @@ namespace Translator.Core
             try
             {
                 //read in lines
-                LinesFromFile = File.ReadAllLines(SourceFilePath).ToList();
+                LinesFromFile = new List<string>(File.ReadAllLines(SourceFilePath));
             }
             catch (Exception e)
             {
@@ -1176,7 +1173,7 @@ namespace Translator.Core
             //remove last if empty, breaks line loading for the last
             while (LinesFromFile.Count > 0)
             {
-                if (LinesFromFile.Last() == string.Empty)
+                if (LinesFromFile[^1] == string.Empty)
                     LinesFromFile.RemoveAt(LinesFromFile.Count - 1);
                 else break;
             }
@@ -1186,7 +1183,11 @@ namespace Translator.Core
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
+                    if (lastLine.Length != 0)
+                    {
+                        multiLineCollector = multiLineCollector.TrimEnd(new char[] { '\n', '\r', ' ' });
+                        CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
+                    }
                     //get current line
                     lastLine = line.Split('|');
                     //reset multiline collector
@@ -1206,8 +1207,9 @@ namespace Translator.Core
                         if (lastLine.Length != 0)
                         {
                             if (multiLineCollector.Length > 2)
-                            {//write last string with id plus all lines after that minus the last new line char
-                                CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector.Remove(multiLineCollector.Length - 2, 1));
+                            {//write last string with id plus all lines after that minus the last new line char(s)
+                                multiLineCollector = multiLineCollector.TrimEnd(new char[] { '\n', '\r', ' ' });
+                                CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
                             }
                             else
                             {//write last line with id if no real line of text is afterwards
@@ -1230,6 +1232,7 @@ namespace Translator.Core
 
         private void CreateLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation)
         {
+            if (lastLine[0] == string.Empty) return;
             if (IdsToExport.TryGetValue(lastLine[0], out LineData? templateLine))
                 TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation);
             else
@@ -1272,6 +1275,7 @@ namespace Translator.Core
             if (UI == null) return;
             //select recent index
             if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.SelectLineItem(Settings.Default.RecentIndex);
+            LogManager.Log($"Reloaded {StoryName}/{FileName}");
         }
 
         /// <summary>
@@ -1294,7 +1298,7 @@ namespace Translator.Core
         /// <returns>True if a new result could be selected</returns>
         public bool SelectNextResultIfApplicable()
         {
-            if (!TabUI.IsTranslationBoxFocused && !TabUI.IsCommentBoxFocused && TabUI.Lines.SearchResults.Any())
+            if (!TabUI.IsTranslationBoxFocused && !TabUI.IsCommentBoxFocused && TabUI.Lines.SearchResults.Count > 0)
             {
                 //loop back to start
                 if (SelectedResultIndex > TabUI.Lines.SearchResults.Count - 1)
