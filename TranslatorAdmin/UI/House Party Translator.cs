@@ -411,7 +411,7 @@ namespace Translator.Desktop.UI
                 Name = nameof(exportTemplates),
                 Size = new Size(236, 22),
                 Text = "Export &Template files",
-                ToolTipText = "Exports templates for a complete story"
+                ToolTipText = "Exports templates for a complete story or single file"
             };
             exportTemplates.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplatesForStory();
 
@@ -513,7 +513,8 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(saveToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "&Save"
+                Text = "&Save",
+                ToolTipText = "Saves the currently selected file to disk and online."
             };
             saveToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.SaveFile();
 
@@ -524,7 +525,8 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(saveAllToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "Sa&ve All"
+                Text = "Sa&ve All",
+                ToolTipText = "Saves all currently opened files to disk and online."
             };
             saveAllToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.SaveAllTabs();
 
@@ -535,7 +537,8 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(saveAsToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "Save &As"
+                Text = "Save &As",
+                ToolTipText = "Saves the currently selected file online and to disk with a new name."
             };
             saveAsToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.SaveFileAs();
 
@@ -546,7 +549,8 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(overrideCloudSaveToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "Override &Cloud Save"
+                Text = "Override &Cloud Save",
+                ToolTipText = "Overrides the online state with the actual contents of the currently opened file. Only available in the Admin version."
             };
             overrideCloudSaveToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.OverrideCloudSave();
 
@@ -555,7 +559,8 @@ namespace Translator.Desktop.UI
             {
                 Name = nameof(exitToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "&Exit"
+                Text = "&Exit",
+                ToolTipText = "Exits the application gracefully."
             };
             exitToolStripMenuItem.Click += (object? sender, EventArgs e) => UI.SignalAppExit();
 
@@ -567,7 +572,8 @@ namespace Translator.Desktop.UI
                 Size = new Size(122, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
-                Text = "&Save selected string"
+                Text = "&Save selected string",
+                ToolTipText = "Saves the currently selected string/line to the online database."
             };
             saveCurrentStringToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.SaveCurrentString();
 
@@ -580,7 +586,8 @@ namespace Translator.Desktop.UI
                 AutoSize = true,
                 Name = nameof(searchToolStripTextBox),
                 Size = new Size(150, 23),
-                Margin = new Padding(1)
+                Margin = new Padding(1),
+                ToolTipText = "Enter your searchterm here."
             };
             searchToolStripTextBox.TextChanged += new EventHandler(SearchToolStripTextBox_TextChanged);
 
@@ -594,6 +601,7 @@ namespace Translator.Desktop.UI
                 Size = new Size(100, 23),
                 AutoSize = true,
                 Margin = new Padding(1),
+                ToolTipText = "Enter the text to replace with here.",
                 Visible = false
             };
             ToolStripMenuReplaceBox.TextChanged += new EventHandler(ToolStripMenuReplaceBox_TextChanged);
@@ -608,6 +616,7 @@ namespace Translator.Desktop.UI
                 AutoSize = false,
                 Margin = new Padding(1),
                 Text = "Replace all",
+                ToolTipText = "Replaces all occurances of the searchterm with the text from the right text field.",
                 Visible = false
             };
             toolStripReplaceAllButton.Click += (object? sender, EventArgs e) => TabManager.ReplaceAll();
@@ -622,6 +631,7 @@ namespace Translator.Desktop.UI
                 AutoSize = false,
                 Margin = new Padding(1),
                 Text = "Replace",
+                ToolTipText = "Replaces the occurance of the search term in the currently selected line with the text from the replace box, if applicable.",
                 Visible = false
             };
             toolStripReplaceButton.Click += (object? sender, EventArgs e) => TabManager.Replace();
@@ -636,7 +646,8 @@ namespace Translator.Desktop.UI
                 Size = new Size(50, 23),
                 MaxLength = 4,
                 AutoSize = true,
-                Margin = new Padding(1)
+                Margin = new Padding(1),
+                ToolTipText = "Select your language here"
             };
             languageToolStripComboBox.Items.AddRange(LanguageHelper.ShortLanguages);
             languageToolStripComboBox.SelectedItem = Settings.Default.Language;
@@ -650,7 +661,8 @@ namespace Translator.Desktop.UI
                 Size = new Size(118, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
-                Text = "&Auto StoryExplorer"
+                Text = "&Auto StoryExplorer",
+                ToolTipText = "Starts the StoryExplorer with the currently selected character/story loaded."
             };
             storyExplorerStripMenuItem.Click += (object? sender, EventArgs e) => Explorer = CreateStoryExplorer(true, CancelTokens);
 
@@ -662,7 +674,8 @@ namespace Translator.Desktop.UI
                 Size = new Size(121, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
-                Text = "Open StoryE&xplorer"
+                Text = "Open StoryE&xplorer",
+                ToolTipText = "Opens the StoryExplorer and gives you the choice which file to open."
             };
             customOpenStoryExplorer.Click += (object? sender, EventArgs e) => Explorer = CreateStoryExplorer(false, CancelTokens);
 
@@ -674,7 +687,8 @@ namespace Translator.Desktop.UI
                 Size = new Size(61, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
-                Text = "Se&ttings"
+                Text = "Se&ttings",
+                ToolTipText = "Opens a list of all settings for the translator, see the github for reference."
             };
             settingsToolStripMenuItem.Click += (object? sender, EventArgs e) => WindowsKeypressManager.ShowSettings();
 
