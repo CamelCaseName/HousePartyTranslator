@@ -32,7 +32,7 @@ namespace Translator.Core
 
         public static bool GetLineData(string id, string fileName, string story, out LineData translation, string language)
         {
-            string command = @"SELECT * " + FROM + @" WHERE id = @id AND language = @language AND deleted = 0;";
+            string command = @"SELECT * " + FROM + @" WHERE id = @id AND story = @story AND deleted = 0;";
             bool wasSuccessfull = false;
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -40,7 +40,7 @@ namespace Translator.Core
             cmd.CommandText = command;
             cmd.Parameters.Clear();
             _ = cmd.Parameters.AddWithValue("@id", story + fileName + id + language);
-            _ = cmd.Parameters.AddWithValue("@language", language);
+            _ = cmd.Parameters.AddWithValue("@story", language);
 
             if (CheckOrReopenConnection(connection))
             {
@@ -82,13 +82,13 @@ namespace Translator.Core
             if (story == "Hints")
             {
                 command = @"SELECT * " + FROM + @"
-                            WHERE story = @story AND language = @language AND deleted = 0
+                            WHERE story = @story AND story = @story AND deleted = 0
                             ORDER BY category ASC;";
             }
             else
             {
                 command = @"SELECT * " + FROM + @"
-                            WHERE filename = @filename AND story = @story AND language = @language AND deleted = 0
+                            WHERE filename = @filename AND story = @story AND story = @story AND deleted = 0
                             ORDER BY category ASC;";
             }
             using MySqlConnection connection = new(GetConnString());
@@ -99,7 +99,7 @@ namespace Translator.Core
 
             if (story != "Hints") _ = cmd.Parameters.AddWithValue("@filename", fileName);
             _ = cmd.Parameters.AddWithValue("@story", story);
-            _ = cmd.Parameters.AddWithValue("@language", language);
+            _ = cmd.Parameters.AddWithValue("@story", language);
 
             LineDataList = new FileData(story, fileName);
 
@@ -166,7 +166,7 @@ namespace Translator.Core
                 command =
 @"SELECT id, category, english
 " + FROM +
-@" WHERE story = @story AND language IS NULL AND deleted = 0
+@" WHERE story = @story AND story IS NULL AND deleted = 0
 ORDER BY category ASC;";
             }
             else
@@ -174,7 +174,7 @@ ORDER BY category ASC;";
                 command =
 @"SELECT id, category, english
 " + FROM +
-@" WHERE filename = @filename AND story = @story AND language IS NULL AND deleted = 0
+@" WHERE filename = @filename AND story = @story AND story IS NULL AND deleted = 0
 ORDER BY category ASC;";
             }
             using MySqlConnection connection = new(GetConnString());
@@ -329,7 +329,7 @@ ORDER BY category ASC;";
                 TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
                 if (!TranslationManager.IsUpToDate && Settings.Default.AdvancedModeEnabled)
                 {
-                    _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template files to upload the new versions!", "Updating string database");
+                    _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template stories to upload the new versions!", "Updating string database");
                 }
 #if DEBUG || DEBUG_ADMIN
                 AppTitle = "Translator (DEBUG) (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
@@ -424,10 +424,10 @@ ORDER BY category ASC;";
         }
 
         /// <summary>
-        /// Sets the translation of a string in the database in the given language.
+        /// Sets the translation of a string in the database in the given story.
         /// </summary>
         /// <param name="lineData">LineData with the lines to update<param>
-        /// <param name="language">The translated language in ISO 639-1 notation.</param>
+        /// <param name="language">The translated story in ISO 639-1 notation.</param>
         /// <returns> True if at least one row was set, false if it was not the case.</returns>
         public static bool UpdateTranslation(LineData lineData, string language)
         {
@@ -436,8 +436,8 @@ ORDER BY category ASC;";
             {
                 comment += lineData.Comments[j] + "#";
             }
-            string command = INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation, deleted)
-                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @comment, @translation, @deleted)
+            string command = INSERT + @" (id, story, filename, category, translated, approved, story, comment, translation, deleted)
+                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @story, @comment, @translation, @deleted)
                                      ON DUPLICATE KEY UPDATE translation = @translation;";
             using MySqlConnection connection = new(GetConnString());
             using MySqlCommand cmd = connection.CreateCommand();
@@ -449,7 +449,7 @@ ORDER BY category ASC;";
             _ = cmd.Parameters.AddWithValue("@category", (int)lineData.Category);
             _ = cmd.Parameters.AddWithValue("@translated", 1);
             _ = cmd.Parameters.AddWithValue("@approved", lineData.IsApproved ? 1 : 0);
-            _ = cmd.Parameters.AddWithValue("@language", language);
+            _ = cmd.Parameters.AddWithValue("@story", language);
             _ = cmd.Parameters.AddWithValue($"@comment", comment);
             _ = cmd.Parameters.AddWithValue("@translation", lineData.TranslationString.RemoveVAHints());
             _ = cmd.Parameters.AddWithValue($"@deleted", 0);
@@ -461,7 +461,7 @@ ORDER BY category ASC;";
         /// Updates all translated strings for the selected file
         /// </summary>
         /// <param name="translationData">A list of all loaded lines for this file</param>
-        /// <param name="language">The translated language in ISO 639-1 notation.</param>
+        /// <param name="language">The translated story in ISO 639-1 notation.</param>
         /// <returns></returns>
         public static bool UpdateTranslations(FileData translationData, string language)
         {
@@ -473,13 +473,13 @@ ORDER BY category ASC;";
                 string fileName = translationData.ElementAt(0).Value.FileName;
                 for (int x = 0; x < ((translationData.Count / 400) + 0.5); x++)
                 {
-                    var builder = new StringBuilder(INSERT + @" (id,  story, filename, category, translated, approved, language, comment, translation, deleted) VALUES ", translationData.Count * 100);
+                    var builder = new StringBuilder(INSERT + @" (id,  story, filename, category, translated, approved, story, comment, translation, deleted) VALUES ", translationData.Count * 100);
 
                     //add all values
                     int v = c;
                     for (int j = 0; j < 400; j++)
                     {
-                        _ = builder.Append($"(@id{v}, @story{v}, @filename{v}, @category{v}, @translated{v}, @approved{v}, @language{v}, @comment{v}, @translation{v}, @deleted{v}),");
+                        _ = builder.Append($"(@id{v}, @story{v}, @filename{v}, @category{v}, @translated{v}, @approved{v}, @story{v}, @comment{v}, @translation{v}, @deleted{v}),");
 
                         v++;
                         if (v >= translationData.Values.Count) break;
@@ -507,7 +507,7 @@ ORDER BY category ASC;";
                         _ = cmd.Parameters.AddWithValue($"@category{c}", (int)item.Category);
                         _ = cmd.Parameters.AddWithValue($"@translated{c}", 1);
                         _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
-                        _ = cmd.Parameters.AddWithValue($"@language{c}", language);
+                        _ = cmd.Parameters.AddWithValue($"@story{c}", language);
                         _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
                         _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
                         _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
@@ -650,7 +650,7 @@ ORDER BY category ASC;";
         public static bool GetFilesForStory(string story, out string[] names)
         {
             UI!.SignalUserWait();
-            string command = "SELECT DISTINCT filename " + FROM + " WHERE story = @story AND language IS NULL AND deleted = 0";
+            string command = "SELECT DISTINCT filename " + FROM + " WHERE story = @story AND story IS NULL AND deleted = 0";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -667,16 +667,21 @@ ORDER BY category ASC;";
 
                 if (reader.HasRows)
                 {
+                    string file;
                     while (reader.Read())
                     {
                         if (!reader.IsDBNull(0))
-                            files.Add(reader.GetString(0));
+                        {
+                            file = reader.GetString(0);
+                            if (file != string.Empty)
+                                files.Add(reader.GetString(0));
+                        }
                     }
                 }
                 else
                 {
-                    _ = UI.WarningOk("No files found for the story " + story, "Info");
-                    LogManager.Log("No files found for the story " + story);
+                    _ = UI.WarningOk("No stories found for the story " + story, "Info");
+                    LogManager.Log("No stories found for the story " + story);
                 }
                 reader.Close();
             }
@@ -688,7 +693,7 @@ ORDER BY category ASC;";
         public static bool GetStoriesInTranslation(string language, out string[] names)
         {
             UI!.SignalUserWait();
-            string command = "SELECT DISTINCT story " + FROM + " WHERE language = @language AND deleted = 0";
+            string command = "SELECT DISTINCT story " + FROM + " WHERE story = @story AND deleted = 0";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -696,8 +701,8 @@ ORDER BY category ASC;";
 
             cmd.CommandText = command;
             cmd.Parameters.Clear();
-            _ = cmd.Parameters.AddWithValue("@language", language);
-            List<string> files = new();
+            _ = cmd.Parameters.AddWithValue("@story", language);
+            List<string> stories = new();
 
             if (CheckOrReopenConnection(connection))
             {
@@ -705,10 +710,15 @@ ORDER BY category ASC;";
 
                 if (reader.HasRows)
                 {
+                    string story;
                     while (reader.Read())
                     {
                         if (!reader.IsDBNull(0))
-                            files.Add(reader.GetString(0));
+                        {
+                            story = reader.GetString(0);
+                            if (story != string.Empty)
+                                stories.Add(reader.GetString(0));
+                        }
                     }
                 }
                 else
@@ -719,14 +729,14 @@ ORDER BY category ASC;";
                 reader.Close();
             }
             UI.SignalUserEndWait();
-            names = files.ToArray();
-            return files.Count > 0;
+            names = stories.ToArray();
+            return stories.Count > 0;
         }
 
         public static bool GetStoriesWithTemplates(out string[] names)
         {
             UI!.SignalUserWait();
-            string command = "SELECT DISTINCT story " + FROM + " WHERE language IS NULL AND deleted = 0";
+            string command = "SELECT DISTINCT story " + FROM + " WHERE story IS NULL AND deleted = 0";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -734,7 +744,7 @@ ORDER BY category ASC;";
 
             cmd.CommandText = command;
             cmd.Parameters.Clear();
-            List<string> files = new();
+            List<string> stories = new();
 
             if (CheckOrReopenConnection(connection))
             {
@@ -742,10 +752,15 @@ ORDER BY category ASC;";
 
                 if (reader.HasRows)
                 {
+                    string story;
                     while (reader.Read())
                     {
                         if (!reader.IsDBNull(0))
-                            files.Add(reader.GetString(0));
+                        {
+                            story = reader.GetString(0);
+                            if (story != string.Empty)
+                                stories.Add(reader.GetString(0));
+                        }
                     }
                 }
                 else
@@ -756,8 +771,95 @@ ORDER BY category ASC;";
                 reader.Close();
             }
             UI.SignalUserEndWait();
-            names = files.ToArray();
-            return files.Count > 0;
+            names = stories.ToArray();
+            return stories.Count > 0;
+        }
+
+        public static bool GetLanguagesForStory(string story, out string[] names)
+        {
+            UI!.SignalUserWait();
+            string command = "SELECT DISTINCT story " + FROM + " WHERE story = @story AND deleted = 0";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            _ = cmd.Parameters.AddWithValue("@story", story);
+            List<string> languages = new();
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    string lang;
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0))
+                        {
+                            lang = reader.GetString(0);
+                            if (lang != string.Empty)
+                                languages.Add(reader.GetString(0));
+                        }
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No languages found for " + story, "Info");
+                    LogManager.Log("No languages found for " + story);
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+            names = languages.ToArray();
+            return languages.Count > 0;
+        }
+
+        public static bool GetLanguagesForFile(string story, string file, out string[] names)
+        {
+            UI!.SignalUserWait();
+            string command = "SELECT DISTINCT story " + FROM + " WHERE story = @story AND filename = @file AND deleted = 0";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            _ = cmd.Parameters.AddWithValue("@story", story);
+            _ = cmd.Parameters.AddWithValue("@file", file);
+            List<string> languages = new();
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    string lang;
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0))
+                        {
+                            lang = reader.GetString(0);
+                            if (lang != string.Empty)
+                                languages.Add(reader.GetString(0));
+                        }
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No languages found for " + story + "/" + file, "Info");
+                    LogManager.Log("No languages found for " + story + "/" + file);
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+            names = languages.ToArray();
+            return languages.Count > 0;
         }
     }
 }
