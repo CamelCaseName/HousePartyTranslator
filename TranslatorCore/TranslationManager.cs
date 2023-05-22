@@ -375,11 +375,8 @@ namespace Translator.Core
                     History.ClearForFile(FileName, StoryName);
                 ResetTranslationManager();
 
-                if (IsUpToDate)
-                {
-                    SourceFilePath = path;
-                    LoadTranslationFile();
-                }
+                SourceFilePath = path;
+                LoadTranslationFile();
 
                 if (TranslationData.Count > 0)
                 {
@@ -839,7 +836,7 @@ namespace Translator.Core
                 //get language text representation
                 StoryName = Utils.ExtractStoryName(SourceFilePath);
                 //actually load all strings into the program
-                ReadStringsTranslationsFromFile();
+                ReadStringsTranslationsFromFile(out FileData templates);
 
                 if (TranslationData.Count > 0)
                 {
@@ -848,7 +845,7 @@ namespace Translator.Core
                     TabUI.SetFileInfoText($"File: {storyNameToDisplay}/{fileNameToDisplay}.txt");
 
                     //is up to date, so we can start translation
-                    LoadTranslations(localTakesPriority);
+                    LoadTranslations(localTakesPriority, templates);
                     UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 }
                 //update tab name
@@ -859,39 +856,26 @@ namespace Translator.Core
         /// <summary>
         /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
-        private void LoadTranslations(bool localTakesPriority = false)
+        private void LoadTranslations(bool localTakesPriority = false, FileData templates = null!)
         {
-            UI.SignalUserWait();
-
             int currentIndex = 0;
-            FileData onlineLines;
-
-            if (DataBase.IsOnline)
-                //get template lines from online
-                _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
-            else
-                //get template lines from user if they want
-                onlineLines = GetTemplatesFromUser();
-
+            UI.SignalUserWait();
             TabUI.Lines.FreezeLayout();
+
+            if (templates == null)
+            {
+                if (DataBase.IsOnline) _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out templates);
+                else templates = GetTemplatesFromUser();
+            }
 
             foreach (string key in TranslationData.Keys)
             {
-                if (onlineLines.TryGetValue(key, out LineData? tempLine))
+                if (templates.TryGetValue(key, out LineData? tempLine))
                 {
-                    TranslationData[key].Category = tempLine.Category;
-                    if (DataBase.IsOnline) TranslationData[key].Comments = tempLine.Comments;
-                    TranslationData[key].FileName = tempLine.FileName;
-                    TranslationData[key].ID = key;
-                    TranslationData[key].IsTemplate = false;
-                    TranslationData[key].IsTranslated = tempLine.IsTranslated;
-                    TranslationData[key].Story = tempLine.Story;
-                    if (!localTakesPriority
+                    if (localTakesPriority
                         && DataBase.IsOnline
                         && tempLine.TranslationLength > 0)
                         TranslationData[key].TranslationString = tempLine.TranslationString;
-                    else if (!DataBase.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
-                    TranslationData[key].IsApproved = tempLine.IsApproved;
                 }
 
                 if (TranslationData[key].TemplateString == null) TranslationData[key].TemplateString = string.Empty;
@@ -924,7 +908,7 @@ namespace Translator.Core
         {
             if (UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES))
             {
-                return GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}\\{FileName}.", FileName + ".txt"), StoryName, FileName, false);
+                return GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false);
             }
             return new FileData(StoryName, FileName);
         }
@@ -932,17 +916,16 @@ namespace Translator.Core
         /// <summary>
         /// loads all the strings from the selected file into a list of LineData elements.
         /// </summary>
-        private void ReadStringsTranslationsFromFile()
+        private void ReadStringsTranslationsFromFile(out FileData templates)
         {
             StringCategory currentCategory = StringCategory.General;
-            FileData IdsToExport;
             if (DataBase.IsOnline)
             {
-                _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out IdsToExport);
+                _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out templates);
             }
             else
             {
-                IdsToExport = GetTemplatesFromUser();
+                templates = GetTemplatesFromUser();
             }
             List<string> LinesFromFile;
             try
@@ -961,14 +944,14 @@ namespace Translator.Core
             //if we got lines at all
             if (LinesFromFile.Count > 0)
             {
-                SplitReadTranslations(LinesFromFile, currentCategory, IdsToExport);
+                SplitReadTranslations(LinesFromFile, currentCategory, templates);
             }
             else
             {
                 TryFixEmptyFile();
             }
 
-            if (IdsToExport.Count != TranslationData.Count)
+            if (templates.Count != TranslationData.Count)
             {
                 if (TranslationData.Count == 0)
                 {
@@ -1081,7 +1064,7 @@ namespace Translator.Core
                 }
                 SaveFile(false);
                 TranslationData.Clear();
-                ReadStringsTranslationsFromFile();
+                ReadStringsTranslationsFromFile(out _);
             }
         }
 
