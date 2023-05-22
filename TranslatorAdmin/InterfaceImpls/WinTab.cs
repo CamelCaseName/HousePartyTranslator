@@ -425,17 +425,17 @@ namespace Translator.Desktop.InterfaceImpls
         {
             if (translationCount <= templateCount)
             {
-                ForeColor = Color.LawnGreen;
+                CharacterCountLabel.ForeColor = Color.LawnGreen;
             }//if bigger by no more than 20 percent
             else if (translationCount <= templateCount * 1.2f)
             {
-                ForeColor = Color.DarkOrange;
+                CharacterCountLabel.ForeColor = Color.DarkOrange;
             }
             else
             {
-                ForeColor = Color.Red;
+                CharacterCountLabel.ForeColor = Color.Red;
             }
-            Text = $"Template: {templateCount} | Translation: {translationCount}";
+            CharacterCountLabel.Text = $"Template: {templateCount} | Translation: {translationCount}";
         }
         public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
         public void SetFileInfoText(string info) => SelectedFile.Text = info;
