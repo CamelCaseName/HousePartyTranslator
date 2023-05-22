@@ -647,7 +647,7 @@ ORDER BY category ASC;";
             return returnString;
         }
 
-        internal static bool GetFilesForStory(string story, out string[] names)
+        public static bool GetFilesForStory(string story, out string[] names)
         {
             UI!.SignalUserWait();
             string command = "SELECT DISTINCT filename " + FROM + " WHERE story = @story AND language IS NULL AND deleted = 0";
@@ -677,6 +677,81 @@ ORDER BY category ASC;";
                 {
                     _ = UI.WarningOk("No files found for the story " + story, "Info");
                     LogManager.Log("No files found for the story " + story);
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+            names = files.ToArray();
+            return files.Count > 0;
+        }
+
+        public static bool GetStoriesInTranslation(string language, out string[] names)
+        {
+            UI!.SignalUserWait();
+            string command = "SELECT DISTINCT story " + FROM + " WHERE language = @language AND deleted = 0";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            _ = cmd.Parameters.AddWithValue("@language", language);
+            List<string> files = new();
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0))
+                            files.Add(reader.GetString(0));
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No stories found in " + language, "Info");
+                    LogManager.Log("No stories found in " + language);
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+            names = files.ToArray();
+            return files.Count > 0;
+        }
+
+        public static bool GetStoriesWithTemplates(out string[] names)
+        {
+            UI!.SignalUserWait();
+            string command = "SELECT DISTINCT story " + FROM + " WHERE language IS NULL AND deleted = 0";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            List<string> files = new();
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0))
+                            files.Add(reader.GetString(0));
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No story templates found?", "Info");
+                    LogManager.Log("No story templates found?");
                 }
                 reader.Close();
             }
