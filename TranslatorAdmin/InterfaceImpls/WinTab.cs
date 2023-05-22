@@ -403,8 +403,40 @@ namespace Translator.Desktop.InterfaceImpls
         public string SelectedCommentBoxText() => CommentTextBox.SelectedText;
         public void SelectLineItem(int index) => CheckListBoxLeft.SelectedIndex = index;
         public void SelectLineItem(ILineItem item) => CheckListBoxLeft.SelectedItem = item;
-        public void SetApprovedLabelText(string text) => LinesTranslated.Text = text;
-        public void SetCharacterCountLabelText(string text) => CharacterCountLabel.Text = text;
+        public void SetApprovedCount(int Approved, int Total)
+        {
+            float percentage = Approved / (float)Total;
+            LinesTranslated.Text = $"Approved: {Approved} / {Total} {(int)(percentage * 100)}%";
+            int ProgressValue = (int)(Approved / (float)Total * 100);
+            if (ProgressValue != ProgressbarTranslated.Value)
+            {
+                if (ProgressValue > 0 && ProgressValue <= 100)
+                {
+                    ProgressbarTranslated.Value = ProgressValue;
+                }
+                else
+                {
+                    ProgressbarTranslated.Value = 0;
+                }
+                ProgressbarTranslated.Update();
+            }
+        }
+        public void UpdateCharacterCounts(int templateCount, int translationCount)
+        {
+            if (translationCount <= templateCount)
+            {
+                CharacterCountLabel.ForeColor = Color.LawnGreen;
+            }//if bigger by no more than 20 percent
+            else if (translationCount <= templateCount * 1.2f)
+            {
+                CharacterCountLabel.ForeColor = Color.DarkOrange;
+            }
+            else
+            {
+                CharacterCountLabel.ForeColor = Color.Red;
+            }
+            CharacterCountLabel.Text = $"Template: {templateCount} | Translation: {translationCount}";
+        }
         public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
         public void SetFileInfoText(string info) => SelectedFile.Text = info;
         public void SetSelectedCommentBoxText(int start, int end) { CommentTextBox.SelectionStart = start; CommentTextBox.SelectionEnd = end; }
