@@ -166,7 +166,7 @@ namespace Translator.Core
                 command =
 @"SELECT id, category, english
 " + FROM +
-@" WHERE story = @story AND story IS NULL AND deleted = 0
+@" WHERE story = @story AND language IS NULL AND deleted = 0
 ORDER BY category ASC;";
             }
             else
@@ -174,7 +174,7 @@ ORDER BY category ASC;";
                 command =
 @"SELECT id, category, english
 " + FROM +
-@" WHERE filename = @filename AND story = @story AND story IS NULL AND deleted = 0
+@" WHERE filename = @filename AND story = @story AND language IS NULL AND deleted = 0
 ORDER BY category ASC;";
             }
             using MySqlConnection connection = new(GetConnString());
