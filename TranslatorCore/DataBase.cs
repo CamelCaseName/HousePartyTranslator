@@ -14,9 +14,8 @@ namespace Translator.Core
     /// </summary>
     public static class DataBase
     {
-        public static string DBVersion { get; private set; } = "0.0.0";
+        public static string DBVersion { get; private set; } = "0.00";
         public static string AppTitle { get; private set; } = string.Empty;
-        private static string SoftwareVersion = "0.0.0.0";
         private static IUIHandler? UI;
         public static bool IsOnline { get; private set; } = false;
 
@@ -261,9 +260,9 @@ ORDER BY category ASC;";
             if (!IsOnline)
             {
 #if DEBUG || DEBUG_ADMIN
-                AppTitle = "Translator (DEBUG) (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
+                AppTitle = "Translator (DEBUG) (File Version: " + Settings.Default.FileVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
 #else
-                AppTitle = "Translator (File Version: " + SoftwareVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
+                AppTitle = "Translator (File Version: " + Settings.Default.FileVersion + ", DB Version: *Offline*, Application version: " + AppVersion + ")";
 #endif
             }
             else
@@ -287,7 +286,6 @@ ORDER BY category ASC;";
                 if (fileVersion == string.Empty)
                 {
                     // get software version from db
-                    SoftwareVersion = DBVersion;
                     Settings.Default.FileVersion = DBVersion;
                 }
                 else
@@ -314,27 +312,21 @@ ORDER BY category ASC;";
                     if (_dbVersion > _fileVersion)
                     {
                         //update local software version from db
-                        SoftwareVersion = DBVersion;
                         Settings.Default.FileVersion = DBVersion;
-                    }
-                    else
-                    {
-                        //set version from settings
-                        SoftwareVersion = fileVersion;
                     }
                 }
                 Settings.Default.Save();
 
                 //set global variable for later actions
-                TranslationManager.IsUpToDate = DBVersion == SoftwareVersion;
+                TranslationManager.IsUpToDate = DBVersion == Settings.Default.FileVersion;
                 if (!TranslationManager.IsUpToDate && Settings.Default.AdvancedModeEnabled)
                 {
-                    _ = UI.WarningOk($"Current software version({SoftwareVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template stories to upload the new versions!", "Updating string database");
+                    _ = UI.WarningOk($"Current software version({Settings.Default.FileVersion}) and data version({DBVersion}) differ. " + "You may acquire the latest version of this program. " + "If you know that you have newer strings, you may select the template stories to upload the new versions!", "Updating string database");
                 }
 #if DEBUG || DEBUG_ADMIN
-                AppTitle = "Translator (DEBUG) (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
+                AppTitle = "Translator (DEBUG) (File Version: " + Settings.Default.FileVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
 #else
-                AppTitle = "Translator (File Version: " + SoftwareVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
+                AppTitle = "Translator (File Version: " + Settings.Default.FileVersion + ", DB Version: " + DBVersion + ", Application version: " + AppVersion + ")";
 #endif
             }
         }

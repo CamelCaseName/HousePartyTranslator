@@ -397,59 +397,6 @@ namespace Translator.Core
             }
         }
 
-        private static void GenerateOfficialTemplates()
-        {
-            if (UI.InfoYesNoCancel($"You will now be prompted to select any folder in the folder which contains all Official Stories and UI/Hints.", "Create templates for a official stories") != PopupResult.YES)
-                return;
-
-            //set up 
-            string path = Utils.SelectTemplateFolderFromSystem();
-            if (path.Length == 0) return;
-
-            UI.SignalUserWait();
-
-            LogManager.Log("Creating official templates for version " + Settings.Default.FileVersion);
-
-            //create translation and open it
-            FileData templates;
-            foreach (var folder_path in Directory.GetDirectories(Directory.GetParent(path)?.FullName ?? string.Empty))
-            {
-                string story = Utils.ExtractStoryName(folder_path);
-                foreach (var file_path in Directory.GetFiles(folder_path))
-                {
-                    var file = Path.GetFileNameWithoutExtension(file_path);
-                    if (Path.GetExtension(file_path) != ".txt") continue;
-
-                    //create and upload templates
-                    templates = GetTemplateFromFile(file_path, story, file, false);
-                    if (templates.Count > 0)
-                    {
-                        if (!DataBase.RemoveOldTemplates(file, story))
-                        {
-                            _ = UI.ErrorOk("New official templates were not removed, please try again.");
-                            UI.SignalUserEndWait();
-                            return;
-                        }
-                        if (!DataBase.UploadTemplates(templates))
-                        {
-                            _ = UI.ErrorOk("New official templates were not uploaded, please try again.");
-                            UI.SignalUserEndWait();
-                            return;
-                        }
-                        LogManager.Log($"Successfully read and uploaded templates for {story}/{file}");
-                    }
-                    else
-                    {
-                        _ = UI.ErrorOk($"{story}/{file} contained no templates, skipping");
-                    }
-                }
-            }
-            DataBase.UpdateDBVersion();
-            UI.InfoOk("Successfully created and uploaded offical templates");
-            LogManager.Log("Successfully created and uploaded offical templates");
-            UI.SignalUserEndWait();
-        }
-
         private void MarkSimilarLine()
         {
             if (TabUI.TranslationBoxText == TabUI.TemplateBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved)
@@ -983,66 +930,6 @@ namespace Translator.Core
         }
 
         /// <summary>
-        /// tldr: magic
-        ///
-        /// loads all the strings from the selected file into a list of LineData elements.
-        /// </summary>
-        private static FileData GetTemplateFromFile(string path, string story = "", string fileName = "", bool doIterNumbers = true)
-        {
-            if (Path.GetFileNameWithoutExtension(path) != fileName)
-            {
-                _ = UI.WarningOk("The template file must have the same name as the file you want to translate!");
-                return new FileData(story, fileName);
-            }
-
-            var fileData = new FileData(story, fileName);
-            StringCategory currentCategory = StringCategory.General;
-            string multiLineCollector = string.Empty;
-            string[] lastLine = Array.Empty<string>();
-            //string[] lastLastLine = { };
-            //read in lines
-            var LinesFromFile = new List<string>(File.ReadAllLines(path));
-            //remove last if empty, breaks line loading for the last
-            while (LinesFromFile[^1] == string.Empty) _ = LinesFromFile.Remove(LinesFromFile[^1]);
-            //load lines and their data and split accordingly
-            foreach (string line in LinesFromFile)
-            {
-                if (line.Contains('|'))
-                {
-                    //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
-
-                    //get current line
-                    lastLine = line.Split('|');
-
-                    //reset multiline collector
-                    multiLineCollector = string.Empty;
-                }
-                else
-                {
-                    StringCategory tempCategory = line.AsCategory();
-                    if (tempCategory == StringCategory.Neither)
-                    {
-                        //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
-                        multiLineCollector += "\n" + line;
-                    }
-                    else
-                    {
-                        //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
-                        lastLine = Array.Empty<string>();
-                        multiLineCollector = string.Empty;
-                        currentCategory = tempCategory;
-                    }
-                }
-            }
-            //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1], true);
-
-            return fileData;
-        }
-
-        /// <summary>
         /// loads all the strings from the selected file into a list of LineData elements.
         /// </summary>
         private void ReadStringsTranslationsFromFile()
@@ -1343,6 +1230,119 @@ namespace Translator.Core
                     ReloadFile();
                 }
             }
+        }
+
+        /// <summary>
+        /// tldr: magic
+        ///
+        /// loads all the strings from the selected file into a list of LineData elements.
+        /// </summary>
+        private static FileData GetTemplateFromFile(string path, string story = "", string fileName = "", bool doIterNumbers = true)
+        {
+            if (Path.GetFileNameWithoutExtension(path) != fileName)
+            {
+                _ = UI.WarningOk("The template file must have the same name as the file you want to translate!");
+                return new FileData(story, fileName);
+            }
+
+            var fileData = new FileData(story, fileName);
+            StringCategory currentCategory = StringCategory.General;
+            string multiLineCollector = string.Empty;
+            string[] lastLine = Array.Empty<string>();
+            //string[] lastLastLine = { };
+            //read in lines
+            var LinesFromFile = new List<string>(File.ReadAllLines(path));
+            //remove last if empty, breaks line loading for the last
+            while (LinesFromFile[^1] == string.Empty) _ = LinesFromFile.Remove(LinesFromFile[^1]);
+            //load lines and their data and split accordingly
+            foreach (string line in LinesFromFile)
+            {
+                if (line.Contains('|'))
+                {
+                    //if we reach a new id, we can add the old string to the translation manager
+                    if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
+
+                    //get current line
+                    lastLine = line.Split('|');
+
+                    //reset multiline collector
+                    multiLineCollector = string.Empty;
+                }
+                else
+                {
+                    StringCategory tempCategory = line.AsCategory();
+                    if (tempCategory == StringCategory.Neither)
+                    {
+                        //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
+                        multiLineCollector += "\n" + line;
+                    }
+                    else
+                    {
+                        //if we reach a category, we can add the old string to the translation manager
+                        if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                        lastLine = Array.Empty<string>();
+                        multiLineCollector = string.Empty;
+                        currentCategory = tempCategory;
+                    }
+                }
+            }
+            //add last line (dont care about duplicates because sql will get rid of them)
+            if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1], true);
+
+            return fileData;
+        }
+
+        private static void GenerateOfficialTemplates()
+        {
+            if (UI.InfoYesNoCancel($"You will now be prompted to select any folder in the folder which contains all Official Stories and UI/Hints.", "Create templates for a official stories") != PopupResult.YES)
+                return;
+
+            //set up 
+            string path = Utils.SelectTemplateFolderFromSystem();
+            if (path.Length == 0) return;
+
+            UI.SignalUserWait();
+
+            LogManager.Log("Creating official templates for version " + Settings.Default.FileVersion);
+
+            //create translation and open it
+            FileData templates;
+            foreach (var folder_path in Directory.GetDirectories(Directory.GetParent(path)?.FullName ?? string.Empty))
+            {
+                string story = Utils.ExtractStoryName(folder_path);
+                foreach (var file_path in Directory.GetFiles(folder_path))
+                {
+                    var file = Path.GetFileNameWithoutExtension(file_path);
+                    if (Path.GetExtension(file_path) != ".txt") continue;
+
+                    //create and upload templates
+                    templates = GetTemplateFromFile(file_path, story, file, false);
+                    if (templates.Count > 0)
+                    {
+                        if (!DataBase.RemoveOldTemplates(file, story))
+                        {
+                            _ = UI.ErrorOk("New official templates were not removed, please try again.");
+                            UI.SignalUserEndWait();
+                            return;
+                        }
+                        if (!DataBase.UploadTemplates(templates))
+                        {
+                            _ = UI.ErrorOk("New official templates were not uploaded, please try again.");
+                            UI.SignalUserEndWait();
+                            return;
+                        }
+                        LogManager.Log($"Successfully read and uploaded templates for {story}/{file}");
+                    }
+                    else
+                    {
+                        _ = UI.ErrorOk($"{story}/{file} contained no templates, skipping");
+                    }
+                }
+            }
+            DataBase.UpdateDBVersion();
+            UI.InfoOk("Successfully created and uploaded offical templates");
+            LogManager.Log("Successfully created and uploaded offical templates");
+            UI.SignalUserEndWait();
         }
 
         public static void GenerateTemplateForSingleFile(bool SaveOnline = false)
