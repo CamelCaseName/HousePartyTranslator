@@ -154,7 +154,7 @@ namespace Translator.Core
         public int SelectedResultIndex = 0;
         public ILineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : new DefaultLineItem();
 
-        //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
+        //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading onlineLines
         private static int templateCounter = 0;
 
         public FileData TranslationData = new(string.Empty, string.Empty);
@@ -836,7 +836,7 @@ namespace Translator.Core
                 //get language text representation
                 StoryName = Utils.ExtractStoryName(SourceFilePath);
                 //actually load all strings into the program
-                ReadStringsTranslationsFromFile(out FileData templates);
+                ReadStringsTranslationsFromFile(out FileData onlineLines);
 
                 if (TranslationData.Count > 0)
                 {
@@ -845,7 +845,7 @@ namespace Translator.Core
                     TabUI.SetFileInfoText($"File: {storyNameToDisplay}/{fileNameToDisplay}.txt");
 
                     //is up to date, so we can start translation
-                    LoadTranslations(localTakesPriority, templates);
+                    IntegrateOnlineTranslations(localTakesPriority);
                     TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 }
                 //update tab name
@@ -856,26 +856,32 @@ namespace Translator.Core
         /// <summary>
         /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
-        private void LoadTranslations(bool localTakesPriority = false, FileData templates = null!)
+        private void IntegrateOnlineTranslations(bool localTakesPriority = false)
         {
             int currentIndex = 0;
             UI.SignalUserWait();
             TabUI.Lines.FreezeLayout();
 
-            if (templates == null)
-            {
-                if (DataBase.IsOnline) _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out templates);
-                else templates = GetTemplatesFromUser();
-            }
+            FileData onlineLines = new(StoryName, FileName);
+            if (DataBase.IsOnline) _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
 
             foreach (string key in TranslationData.Keys)
             {
-                if (templates.TryGetValue(key, out LineData? tempLine))
+                if (onlineLines.TryGetValue(key, out LineData? tempLine))
                 {
+                    TranslationData[key].Category = tempLine.Category;
+                    if (DataBase.IsOnline) TranslationData[key].Comments = tempLine.Comments;
+                    TranslationData[key].FileName = tempLine.FileName;
+                    TranslationData[key].ID = key;
+                    TranslationData[key].IsTemplate = false;
+                    TranslationData[key].IsTranslated = tempLine.IsTranslated;
+                    TranslationData[key].Story = tempLine.Story;
                     if (localTakesPriority
                         && DataBase.IsOnline
                         && tempLine.TranslationLength > 0)
                         TranslationData[key].TranslationString = tempLine.TranslationString;
+                    else if (!DataBase.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
+                    TranslationData[key].IsApproved = tempLine.IsApproved;
                 }
 
                 if (TranslationData[key].TemplateString == null) TranslationData[key].TemplateString = string.Empty;
@@ -906,7 +912,7 @@ namespace Translator.Core
 
         private FileData GetTemplatesFromUser()
         {
-            if (UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES))
+            if (UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate onlineLines from the game's story files.", "Templates available?", PopupResult.YES))
             {
                 return GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false);
             }
@@ -1231,7 +1237,7 @@ namespace Translator.Core
 
         private static void GenerateOfficialTemplates()
         {
-            if (UI.InfoYesNoCancel($"You will now be prompted to select any folder in the folder which contains all Official Stories and UI/Hints.", "Create templates for a official stories") != PopupResult.YES)
+            if (UI.InfoYesNoCancel($"You will now be prompted to select any folder in the folder which contains all Official Stories and UI/Hints.", "Create onlineLines for a official stories") != PopupResult.YES)
                 return;
 
             //set up 
@@ -1240,7 +1246,7 @@ namespace Translator.Core
 
             UI.SignalUserWait();
 
-            LogManager.Log("Creating official templates for version " + Settings.Default.FileVersion);
+            LogManager.Log("Creating official onlineLines for version " + Settings.Default.FileVersion);
 
             //create translation and open it
             FileData templates;
@@ -1252,40 +1258,40 @@ namespace Translator.Core
                     var file = Path.GetFileNameWithoutExtension(file_path);
                     if (Path.GetExtension(file_path) != ".txt") continue;
 
-                    //create and upload templates
+                    //create and upload onlineLines
                     templates = GetTemplateFromFile(file_path, story, file, false);
                     if (templates.Count > 0)
                     {
                         if (!DataBase.RemoveOldTemplates(file, story))
                         {
-                            _ = UI.ErrorOk("New official templates were not removed, please try again.");
+                            _ = UI.ErrorOk("New official onlineLines were not removed, please try again.");
                             UI.SignalUserEndWait();
                             return;
                         }
                         if (!DataBase.UploadTemplates(templates))
                         {
-                            _ = UI.ErrorOk("New official templates were not uploaded, please try again.");
+                            _ = UI.ErrorOk("New official onlineLines were not uploaded, please try again.");
                             UI.SignalUserEndWait();
                             return;
                         }
-                        LogManager.Log($"Successfully read and uploaded templates for {story}/{file}");
+                        LogManager.Log($"Successfully read and uploaded onlineLines for {story}/{file}");
                     }
                     else
                     {
-                        _ = UI.ErrorOk($"{story}/{file} contained no templates, skipping");
+                        _ = UI.ErrorOk($"{story}/{file} contained no onlineLines, skipping");
                     }
                 }
             }
             DataBase.UpdateDBVersion();
-            UI.InfoOk("Successfully created and uploaded offical templates");
-            LogManager.Log("Successfully created and uploaded offical templates");
+            UI.InfoOk("Successfully created and uploaded offical onlineLines");
+            LogManager.Log("Successfully created and uploaded offical onlineLines");
             UI.SignalUserEndWait();
         }
 
         public static void GenerateTemplateForSingleFile(bool SaveOnline = false)
         {
             PopupResult typeResult;
-            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file you want to create the template for. (Note: templates of official stories can only be created for local use)", "Create a template")) != PopupResult.CANCEL)
+            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file you want to create the template for. (Note: onlineLines of official stories can only be created for local use)", "Create a template")) != PopupResult.CANCEL)
             {
                 //set up 
                 string path = Utils.SelectFileFromSystem(false, "Select the file to create the template for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
@@ -1298,7 +1304,7 @@ namespace Translator.Core
                 if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
 
                 LogManager.Log("creating template for " + story + "/" + file);
-                //create and upload templates
+                //create and upload onlineLines
                 if (UI.CreateTemplateFromStory(story, file, path, out FileData templates))
                 {
                     if (templates.Count > 0 && SaveOnline)
@@ -1323,7 +1329,7 @@ namespace Translator.Core
                 LogManager.Log("successfully created template");
 
                 //create translation and open it
-                string newFile = Utils.SelectSaveLocation("Select a file to save the generated templates to", path, file, "txt", false, false);
+                string newFile = Utils.SelectSaveLocation("Select a file to save the generated onlineLines to", path, file, "txt", false, false);
                 if (newFile != string.Empty)
                 {
                     var sortedLines = InitializeCategories(story, file);
@@ -1338,27 +1344,27 @@ namespace Translator.Core
         public static void GenerateTemplateForAllFiles(bool SaveOnline = false)
         {
             PopupResult typeResult;
-            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select any file in the story folder you want to create the templates for. After that you must select the folder in which the translations will be placed.", "Create templates for a complete story")) != PopupResult.CANCEL)
+            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select any file in the story folder you want to create the onlineLines for. After that you must select the folder in which the translations will be placed.", "Create onlineLines for a complete story")) != PopupResult.CANCEL)
             {
                 //set up 
-                string path = Utils.SelectFileFromSystem(false, "Select a file in the folder you want to create templates for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
+                string path = Utils.SelectFileFromSystem(false, "Select a file in the folder you want to create onlineLines for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
                 if (path.Length == 0) return;
 
                 UI.SignalUserWait();
                 string story = Utils.ExtractStoryName(path);
 
                 if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
-                LogManager.Log("creating templates for " + story);
+                LogManager.Log("creating onlineLines for " + story);
 
                 //create translation and open it
-                string newFiles_dir = Directory.GetParent(Utils.SelectSaveLocation("Select the folder where you want the generated templates to go", path, "template export", string.Empty, false, false))?.FullName
+                string newFiles_dir = Directory.GetParent(Utils.SelectSaveLocation("Select the folder where you want the generated onlineLines to go", path, "template export", string.Empty, false, false))?.FullName
                     ?? SpecialDirectories.MyDocuments;
                 foreach (var file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
                 {
                     string file = Path.GetFileNameWithoutExtension(file_path);
                     if (Path.GetExtension(file_path) != ".character" && Path.GetExtension(file_path) != ".story") continue;
 
-                    //create and upload templates
+                    //create and upload onlineLines
                     if (UI.CreateTemplateFromStory(story, file, file_path, out FileData templates))
                     {
                         if (templates.Count > 0 && SaveOnline)
@@ -1368,7 +1374,7 @@ namespace Translator.Core
                         }
                         else if (SaveOnline)
                         {
-                            _ = UI.ErrorOk("No templates resulted from the generation, please try again.");
+                            _ = UI.ErrorOk("No onlineLines resulted from the generation, please try again.");
                             UI.SignalUserEndWait();
                             return;
                         }
@@ -1388,7 +1394,7 @@ namespace Translator.Core
                     }
                 }
 
-                LogManager.Log("successfully created templates");
+                LogManager.Log("successfully created onlineLines");
                 UI.SignalUserEndWait();
             }
         }
@@ -1459,7 +1465,7 @@ namespace Translator.Core
 
         public static void ExportTemplatesForStory()
         {
-            string path = Utils.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false);
+            string path = Utils.SelectSaveLocation("Select a file or folder to export the onlineLines to", checkFileExists: false, checkPathExists: false);
             if (Path.GetExtension(path) != string.Empty) ExportTemplate(path);
             else ExportTemplatesForStory(path);
         }
@@ -1501,9 +1507,9 @@ namespace Translator.Core
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             if (story == string.Empty) story = Utils.ExtractStoryName(path);
             //todo add fallback to have the user enter the story if the story cant be found
-            LogManager.Log("Exporting all templates for " + story + " to " + path);
+            LogManager.Log("Exporting all onlineLines for " + story + " to " + path);
 
-            //export templates as hints.txt if we have the hints, no need to get filenames
+            //export onlineLines as hints.txt if we have the hints, no need to get filenames
             if (story == "Hints")
                 ExportTemplate(Path.Combine(path, "Hints.txt"), story, story, confirmSuccess: false);
             else if (Directory.GetFiles(path).Length > 0)
@@ -1518,13 +1524,13 @@ namespace Translator.Core
                 }
             else
             {
-                UI.WarningOk("No templates found for that story, nothing exported.");
-                LogManager.Log("\tNo templates found for that story");
+                UI.WarningOk("No onlineLines found for that story, nothing exported.");
+                LogManager.Log("\tNo onlineLines found for that story");
                 return;
             }
 
             UI.InfoOk("Templates exported to " + path);
-            LogManager.Log("\tSucessfully exported the templates");
+            LogManager.Log("\tSucessfully exported the onlineLines");
         }
     }
 }
