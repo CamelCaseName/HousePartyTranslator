@@ -1369,15 +1369,15 @@ namespace Translator.Core
                 LogManager.Log("successfully created template");
 
                 //create translation and open it
-                string newFile = Utils.SelectSaveLocation("Select a file to save the generated templates to", path, file);
+                string newFile = Utils.SelectSaveLocation("Select a file to save the generated templates to", path, file, "txt", false, false);
                 if (newFile != string.Empty)
                 {
-                    var writer = File.CreateText(newFile);
-                    writer.Write(string.Empty);
-                    writer.Close();
+                    var sortedLines = InitializeCategories(story, file);
+                    SortIntoCategories(ref sortedLines, templates, templates);
+
+                    WriteCategorizedLinesToDisk(sortedLines, newFile);
                 }
                 UI.SignalUserEndWait();
-                ExportTemplate(newFile, story, file);
             }
         }
 
@@ -1397,7 +1397,7 @@ namespace Translator.Core
                 LogManager.Log("creating templates for " + story);
 
                 //create translation and open it
-                string newFiles_dir = Directory.GetParent(Utils.SelectSaveLocation("Select the folder where you want the translations to go", path, "translation", string.Empty))?.FullName
+                string newFiles_dir = Directory.GetParent(Utils.SelectSaveLocation("Select the folder where you want the generated templates to go", path, "template export", string.Empty, false, false))?.FullName
                     ?? SpecialDirectories.MyDocuments;
                 foreach (var file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
                 {
@@ -1428,17 +1428,14 @@ namespace Translator.Core
 
                     if (newFiles_dir != string.Empty)
                     {
-                        var writer = File.CreateText(Path.Combine(newFiles_dir, file + ".txt"));
-                        writer.Write(string.Empty);
-                        writer.Close();
+                        var sortedLines = InitializeCategories(story, file);
+                        SortIntoCategories(ref sortedLines, templates, templates);
+                        WriteCategorizedLinesToDisk(sortedLines, Path.Combine(newFiles_dir, file + ".txt"));
                     }
                 }
 
                 LogManager.Log("successfully created templates");
                 UI.SignalUserEndWait();
-
-                //open all the files
-                ExportTemplatesForStory(newFiles_dir);
             }
         }
 
