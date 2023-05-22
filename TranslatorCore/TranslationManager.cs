@@ -331,7 +331,7 @@ namespace Translator.Core
                 //inverse checked state at the selected index
                 if (Index >= 0) TabUI.Lines.SetApprovalState(Index, TabUI.ApprovedButtonChecked);
 
-                UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
+                TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 UI.UpdateTranslationProgressIndicator();
             }
         }
@@ -356,7 +356,7 @@ namespace Translator.Core
                     if (currentIndex < TabUI.Lines.Count - 1) TabUI.SelectLineItem(currentIndex + 1);
                 }
 
-                UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
+                TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 UI.UpdateTranslationProgressIndicator();
             }
         }
@@ -437,7 +437,7 @@ namespace Translator.Core
                 TabUI.ApprovedButtonChecked = SelectedLine.IsApproved;
 
                 //update label
-                UpdateCharacterCountLabel(SelectedLine.TranslationLength, SelectedLine.TemplateLength);
+                TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
 
                 TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
 
@@ -447,7 +447,7 @@ namespace Translator.Core
             {
                 if (TabUI.LineCount > 0) TabUI.SelectLineItem(0);
             }
-            UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.LineCount);
+            TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.LineCount);
         }
 
         private void UpdateSearchAndSearchHighlight()
@@ -812,7 +812,7 @@ namespace Translator.Core
             //remove pipe to not break saving/export
             TabUI.TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
             SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
-            UpdateCharacterCountLabel(SelectedLine.TranslationLength, SelectedLine.TemplateLength);
+            TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
         }
@@ -846,7 +846,7 @@ namespace Translator.Core
 
                     //is up to date, so we can start translation
                     LoadTranslations(localTakesPriority, templates);
-                    UpdateApprovedCountLabel(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
+                    TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 }
                 //update tab name
                 TabManager.UpdateSelectedTabTitle(FileName);
@@ -1092,7 +1092,7 @@ namespace Translator.Core
             TabUI.SimilarStringsToEnglish.Clear();
             SelectedResultIndex = 0;
             TabManager.SelectedTab.Text = "Tab";
-            UpdateApprovedCountLabel(1, 1);
+            TabUI.SetApprovedCount(1, 1);
         }
 
         /// <summary>
@@ -1148,52 +1148,6 @@ namespace Translator.Core
             {
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Updates the label schowing the number lines approved so far
-        /// </summary>
-        /// <param name="Approved">The number of approved strings.</param>
-        /// <param name="Total">The total number of strings.</param>
-        private void UpdateApprovedCountLabel(int Approved, int Total)
-        {
-            float percentage = Approved / (float)Total;
-            TabUI.SetApprovedLabelText($"Approved: {Approved} / {Total} {(int)(percentage * 100)}%");
-            int ProgressValue = (int)(Approved / (float)Total * 100);
-            if (ProgressValue != TabUI.SingleProgressValue)
-            {
-                if (ProgressValue > 0 && ProgressValue <= 100)
-                {
-                    TabUI.SingleProgressValue = ProgressValue;
-                }
-                else
-                {
-                    TabUI.SingleProgressValue = 0;
-                }
-                UI.UpdateTranslationProgressIndicator();
-            }
-        }
-
-        /// <summary>
-        /// Updates the label displaying the character count
-        /// </summary>
-        /// <param name="TemplateCount">The number of chars in the template string.</param>
-        /// <param name="TranslationCount">The number of chars in the translated string.</param>
-        public void UpdateCharacterCountLabel(int TranslationCount, int TemplateCount)
-        {
-            if (TranslationCount <= TemplateCount)
-            {
-                TabUI.SetCharacterLabelColor(Color.LawnGreen);
-            }//if bigger by no more than 20 percent
-            else if (TranslationCount <= TemplateCount * 1.2f)
-            {
-                TabUI.SetCharacterLabelColor(Color.DarkOrange);
-            }
-            else
-            {
-                TabUI.SetCharacterLabelColor(Color.Red);
-            }
-            TabUI.SetCharacterCountLabelText($"Template: {TemplateCount} | Translation: {TranslationCount}");
         }
 
         public void OverrideCloudSave()

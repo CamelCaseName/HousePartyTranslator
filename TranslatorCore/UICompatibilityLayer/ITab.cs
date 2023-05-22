@@ -76,9 +76,8 @@ namespace Translator.Core.UICompatibilityLayer
         bool ApprovedButtonChecked { get; set; }
 
         void SetFileInfoText(string info);
-        void SetApprovedLabelText(string text);
-        void SetCharacterLabelColor(Color color);
-        void SetCharacterCountLabelText(string text);
+        void SetApprovedCount(int Approved, int Total);
+        void UpdateCharacterCounts(int templateCount, int translationCount);
         #endregion
     }
 }
