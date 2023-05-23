@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-TranslatorWebUser-fa6577c3-bddb-4822-9f7c-8571ad450edf</UserSecretsId>
+    <UserSecretsId>aspnet-Translator.Web-fa6577c3-bddb-4822-9f7c-8571ad450edf</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
