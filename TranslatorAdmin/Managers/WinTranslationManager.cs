@@ -57,32 +57,47 @@ namespace Translator.Desktop.Managers
                             continue;
                         case NodeType.Item:
                         {
-                            if (story == filename)
-                                if (nodes[i].DataType == typeof(ItemOverride))
-                                    data[((ItemOverride?)nodes[i].Data)?.DisplayName!] = new LineData(((ItemOverride?)nodes[i].Data)?.DisplayName!, story, filename, nodes[i].Type.CategoryFromNode(), ((ItemOverride?)nodes[i].Data)?.DisplayName!, true);
-                                else if (nodes[i].Text != string.Empty && nodes[i].ID != string.Empty)
-                                    data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].ID, true);
+                            if (story != filename) continue;
+
+                            if (nodes[i].DataType == typeof(ItemOverride) && nodes[i].Data != null)
+                            {
+                                ItemOverride itemOverride = (ItemOverride)nodes[i].Data!;
+                                data[itemOverride.DisplayName!] = new LineData(itemOverride.DisplayName!, story, filename, nodes[i].Type.CategoryFromNode(), itemOverride.DisplayName!, true);
+                            }
+                            else if (nodes[i].Text != string.Empty && nodes[i].ID != string.Empty)
+                            {
+                                data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].ID, true);
+                            }
+                            continue;
+                        }
+                        case NodeType.Event:
+                        {
+                            if (nodes[i].DataType != typeof(GameEvent) || nodes[i].Data == null) continue;
+
+                            GameEvent gameEvent = (GameEvent)nodes[i].Data!;
+                            if (gameEvent.EventType == StoryEnums.GameEvents.DisplayGameMessage)
+                            {
+                                data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), gameEvent.Value!, true);
+                            }
+                            else if (gameEvent.EventType == StoryEnums.GameEvents.Item)
+                            {
+                                if (gameEvent.Option == 2)
+                                    data[gameEvent.Value!] = new LineData(gameEvent.Value!, story, filename, nodes[i].Type.CategoryFromNode(), gameEvent.Value!, true);
+                            }
+                            continue;
+                        }
+                        case NodeType.Achievement:
+                        {
+                            if (nodes[i].ID.Contains("SteamName")) continue;
+
+                            data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
                             continue;
                         }
                         default:
-                            break;
-                    }
-                    if (nodes[i].Type == NodeType.Event && nodes[i].DataType == typeof(GameEvent))
-                    {
-                        if (((GameEvent?)nodes[i].Data)?.EventType == StoryEnums.GameEvents.DisplayGameMessage)
-                            data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), ((GameEvent?)nodes[i].Data)?.Value!, true);
-
-                        else if (((GameEvent?)nodes[i].Data)?.EventType == StoryEnums.GameEvents.Item)
-                            if (((GameEvent?)nodes[i].Data)?.Option == 2)
-                                data[((GameEvent?)nodes[i].Data)?.Value!] = new LineData(((GameEvent?)nodes[i].Data)?.Value!, story, filename, nodes[i].Type.CategoryFromNode(), ((GameEvent?)nodes[i].Data)?.Value!, true);
-                    }
-                    else if (nodes[i].Type == NodeType.BGC)
-                    {
-                        data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
-                    }
-                    else
-                    {
-                        data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
+                        {
+                            data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
+                            continue;
+                        }
                     }
                 }
 
