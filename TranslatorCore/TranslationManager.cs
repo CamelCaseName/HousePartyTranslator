@@ -836,7 +836,7 @@ namespace Translator.Core
                 //get language text representation
                 StoryName = Utils.ExtractStoryName(SourceFilePath);
                 //actually load all strings into the program
-                ReadStringsTranslationsFromFile(out FileData onlineLines);
+                ReadStringsTranslationsFromFile();
 
                 if (TranslationData.Count > 0)
                 {
@@ -922,8 +922,9 @@ namespace Translator.Core
         /// <summary>
         /// loads all the strings from the selected file into a list of LineData elements.
         /// </summary>
-        private void ReadStringsTranslationsFromFile(out FileData templates)
+        private void ReadStringsTranslationsFromFile()
         {
+            FileData templates;
             StringCategory currentCategory = StringCategory.General;
             if (DataBase.IsOnline)
             {
@@ -1070,7 +1071,7 @@ namespace Translator.Core
                 }
                 SaveFile(false);
                 TranslationData.Clear();
-                ReadStringsTranslationsFromFile(out _);
+                ReadStringsTranslationsFromFile();
             }
         }
 
