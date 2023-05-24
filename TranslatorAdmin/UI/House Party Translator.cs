@@ -856,7 +856,7 @@ namespace Translator.Desktop.UI
             ProgressbarWindow.Status.Text = "Loading recents";
             //open most recent after db is initialized
             UpdateFileMenuItems();
-            RecentsManager.SaveRecents();
+            RecentsManager.OpenMostRecent();
 
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
