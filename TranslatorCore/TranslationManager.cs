@@ -64,9 +64,9 @@ namespace Translator.Core
             get { return _changesPending; }
             set
             {
-                if (value)
+                if (value && !_changesPending)
                     TabManager.UpdateTabTitle(this, FileName + "*");
-                else
+                else if(!value && _changesPending)
                     TabManager.UpdateTabTitle(this, FileName ?? string.Empty);
                 _changesPending = value;
             }
@@ -1023,7 +1023,7 @@ namespace Translator.Core
             TabUI.Lines.Clear();
             TabUI.SimilarStringsToEnglish.Clear();
             SelectedResultIndex = 0;
-            TabManager.SelectedTab.Text = "Tab";
+            TabManager.UpdateSelectedTabTitle("Tab");
             TabUI.SetApprovedCount(1, 1);
         }
 
