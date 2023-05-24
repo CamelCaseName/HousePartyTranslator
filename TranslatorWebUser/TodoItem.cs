@@ -1,4 +1,4 @@
-﻿namespace TranslatorWebUser
+﻿namespace Translator.Web
 {
     public class TodoItem
     {

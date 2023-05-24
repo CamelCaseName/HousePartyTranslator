@@ -93,8 +93,8 @@ namespace Translator.Core
         {
             UI = ui;
             _ = Settings.Initialize(settings);
-            Utils.Initialize(ui);
             DataBase.Initialize(ui, appVersion);
+            Utils.Initialize(ui);
             RecentsManager.Initialize(MenuItem, MenuItemSeperator);
             firstTab = tab;
         }

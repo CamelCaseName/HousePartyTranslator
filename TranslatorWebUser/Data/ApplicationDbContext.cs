@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace TranslatorWebUser.Data
+namespace Translator.Web.Data
 {
     public class ApplicationDbContext : IdentityDbContext
     {

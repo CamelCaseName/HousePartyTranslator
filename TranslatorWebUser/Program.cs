@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TranslatorWebUser.Areas.Identity;
-using TranslatorWebUser.Data;
+using Translator.Web.Areas.Identity;
+using Translator.Web.Data;
 
-namespace TranslatorWebUser
+namespace Translator.Web
 {
     public class Program
     {

@@ -8,7 +8,6 @@ using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
 {
-    //todo reformat commands to not have all these tabs as it is not useful
     /// <summary>
     /// A static class to interface with the database running on https://www.rinderha.cc for use with the Translation Helper for the game House Party.
     /// </summary>
@@ -20,18 +19,20 @@ namespace Translator.Core
         public static bool IsOnline { get; private set; } = false;
 
 #if DEBUG || DEBUG_ADMIN
-        private static readonly string FROM = "FROM debug ";
-        private static readonly string INSERT = "INSERT INTO debug ";
-        private static readonly string UPDATE = "UPDATE debug ";
+        private static readonly string FROM = " FROM debug";
+        private static readonly string INSERT = " INSERT INTO debug";
+        private static readonly string UPDATE = " UPDATE debug";
 #else
-        private static readonly string FROM = "FROM translations ";
-        private static readonly string INSERT = "INSERT INTO translations ";
-        private static readonly string UPDATE = "UPDATE translations ";
+        private static readonly string FROM = " FROM translations";
+        private static readonly string INSERT = " INSERT INTO translations";
+        private static readonly string UPDATE = " UPDATE translations";
 #endif
 
         public static bool GetLineData(string id, string fileName, string story, out LineData translation, string language)
         {
-            string command = @"SELECT * " + FROM + @" WHERE id = @id AND language = @language AND deleted = 0;";
+            string command = "SELECT *"
+                + FROM
+                + " WHERE id = @id AND language = @language AND deleted = 0;";
             bool wasSuccessfull = false;
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -80,15 +81,17 @@ namespace Translator.Core
             string command;
             if (story == "Hints")
             {
-                command = @"SELECT * " + FROM + @"
-                            WHERE story = @story AND filename = @filename AND deleted = 0
-                            ORDER BY category ASC;";
+                command = "SELECT *"
+                    + FROM
+                    + " WHERE story = @story AND filename = @filename AND deleted = 0"
+                    + " ORDER BY category ASC;";
             }
             else
             {
-                command = @"SELECT * " + FROM + @"
-                            WHERE filename = @filename AND story = @story AND language = @language AND deleted = 0
-                            ORDER BY category ASC;";
+                command = "SELECT *"
+                    + FROM
+                    + " WHERE filename = @filename AND story = @story AND language = @language AND deleted = 0"
+                    + " ORDER BY category ASC;";
             }
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -162,19 +165,17 @@ namespace Translator.Core
             string command;
             if (story == "Hints")
             {
-                command =
-@"SELECT id, category, english
-" + FROM +
-@" WHERE story = @story AND language IS NULL AND deleted = 0
-ORDER BY category ASC;";
+                command = "SELECT id, category, english"
+                    + FROM
+                    + " WHERE story = @story AND language IS NULL AND deleted = 0"
+                    + " ORDER BY category ASC;";
             }
             else
             {
-                command =
-@"SELECT id, category, english
-" + FROM +
-@" WHERE filename = @filename AND story = @story AND language IS NULL AND deleted = 0
-ORDER BY category ASC;";
+                command = "SELECT id, category, english"
+                    + FROM
+                    + " WHERE filename = @filename AND story = @story AND language IS NULL AND deleted = 0"
+                    + " ORDER BY category ASC;";
             }
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -274,9 +275,11 @@ ORDER BY category ASC;";
                 //Console.WriteLine("DB opened");
 
                 //checking template version
-                var getVersion = new MySqlCommand("SELECT story " +
-                                                    FROM +
-                                                    "WHERE ID = \"version\";", connection);
+                var getVersion = new MySqlCommand(
+                    "SELECT story"
+                    + FROM
+                    + " WHERE ID = \"version\";",
+                    connection);
                 using MySqlDataReader reader = getVersion.ExecuteReader();
                 _ = reader.Read();
                 DBVersion = reader.GetString(0);
@@ -333,7 +336,9 @@ ORDER BY category ASC;";
 
         public static bool RemoveOldTemplates(string fileName, string story)
         {
-            string command = UPDATE + @"SET deleted = 1 WHERE filename = @filename AND story = @story AND SUBSTRING(id, -8) = @templateid";
+            string command = UPDATE
+                + " SET deleted = 1"
+                + " WHERE filename = @filename AND story = @story AND SUBSTRING(id, -8) = @templateid";
             using MySqlConnection connection = new(GetConnString());
             using MySqlCommand cmd = connection.CreateCommand();
             cmd.CommandText = command;
@@ -348,7 +353,9 @@ ORDER BY category ASC;";
 
         public static bool RemoveOldTemplates(string story)
         {
-            string command = UPDATE + @"SET deleted = 1 WHERE story = @story AND SUBSTRING(id, -8) = @templateid";
+            string command = UPDATE
+                + " SET deleted = 1"
+                + " WHERE story = @story AND SUBSTRING(id, -8) = @templateid";
             using MySqlConnection connection = new(GetConnString());
             using MySqlCommand cmd = connection.CreateCommand();
             cmd.CommandText = command;
@@ -373,7 +380,10 @@ ORDER BY category ASC;";
             using MySqlConnection connection = new(GetConnString());
             for (int x = 0; x < ((lines.Count / 400) + 0.5); x++)
             {
-                var builder = new StringBuilder(INSERT + " (id, story, filename, category, english, deleted) VALUES ", lines.Count * 100);
+                var builder = new StringBuilder(
+                    INSERT
+                    + " (id, story, filename, category, english, deleted) VALUES ",
+                    lines.Count * 100);
 
                 //add all values
                 int v = c;
@@ -399,7 +409,7 @@ ORDER BY category ASC;";
                 {
                     if (c >= lines.Values.Count) break;
                     LineData line = lines.Values.ElementAt(c);
-                    _ = cmd.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + "template");
+                    _ = cmd.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + " template");
                     _ = cmd.Parameters.AddWithValue($"@story{c}", line.Story);
                     _ = cmd.Parameters.AddWithValue($"@fileName{c}", line.FileName);
                     _ = cmd.Parameters.AddWithValue($"@category{c}", (int)line.Category);
@@ -428,9 +438,10 @@ ORDER BY category ASC;";
             {
                 comment += lineData.Comments[j] + "#";
             }
-            string command = INSERT + @" (id, story, filename, category, translated, approved, language, comment, translation, deleted)
-                                     VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @comment, @translation, @deleted)
-                                     ON DUPLICATE KEY UPDATE translation = @translation;";
+            string command = INSERT
+                + " (id, story, filename, category, translated, approved, language, comment, translation, deleted)"
+                + " VALUES(@id, @story, @filename, @category, @translated, @approved, @language, @comment, @translation, @deleted)"
+                + " ON DUPLICATE KEY UPDATE translation = @translation;";
             using MySqlConnection connection = new(GetConnString());
             using MySqlCommand cmd = connection.CreateCommand();
             cmd.CommandText = command;
@@ -465,7 +476,10 @@ ORDER BY category ASC;";
                 string fileName = translationData.ElementAt(0).Value.FileName;
                 for (int x = 0; x < ((translationData.Count / 400) + 0.5); x++)
                 {
-                    var builder = new StringBuilder(INSERT + @" (id,  story, filename, category, translated, approved, language, comment, translation, deleted) VALUES ", translationData.Count * 100);
+                    var builder = new StringBuilder(
+                        INSERT
+                        + " (id,  story, filename, category, translated, approved, language, comment, translation, deleted) VALUES ",
+                        translationData.Count * 100);
 
                     //add all values
                     int v = c;
@@ -479,7 +493,7 @@ ORDER BY category ASC;";
 
                     _ = builder.Remove(builder.Length - 1, 1);
                     using MySqlCommand cmd = connection.CreateCommand();
-                    cmd.CommandText = builder.ToString() + ("  ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved), story = VALUES(story), category = VALUES(category), filename = VALUES(filename)");
+                    cmd.CommandText = builder.ToString() + (" ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved), story = VALUES(story), category = VALUES(category), filename = VALUES(filename)");
                     cmd.Parameters.Clear();
 
                     //insert all the parameters
@@ -524,7 +538,9 @@ ORDER BY category ASC;";
         /// </returns>
         public static bool UpdateDBVersion()
         {
-            string command = UPDATE + @"SET story = @story WHERE ID = @version;";
+            string command = UPDATE
+                + " SET story = @story"
+                + " WHERE ID = @version;";
             using MySqlConnection connection = new(GetConnString());
             using MySqlCommand cmd = connection.CreateCommand();
             cmd.CommandText = command;
@@ -642,7 +658,9 @@ ORDER BY category ASC;";
         public static bool GetFilesForStory(string story, out string[] names)
         {
             UI!.SignalUserWait();
-            string command = "SELECT DISTINCT filename " + FROM + " WHERE story = @story AND language IS NULL AND deleted = 0";
+            string command = "SELECT DISTINCT filename"
+                + FROM
+                + " WHERE story = @story AND language IS NULL AND deleted = 0";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -666,7 +684,7 @@ ORDER BY category ASC;";
                         {
                             file = reader.GetString(0);
                             if (file != string.Empty)
-                                files.Add(reader.GetString(0));
+                                files.Add(file);
                         }
                     }
                 }
@@ -685,7 +703,9 @@ ORDER BY category ASC;";
         public static bool GetStoriesInTranslation(string language, out string[] names)
         {
             UI!.SignalUserWait();
-            string command = "SELECT DISTINCT story " + FROM + " WHERE language = @language AND deleted = 0";
+            string command = "SELECT DISTINCT story"
+                + FROM
+                + " WHERE language = @language AND deleted = 0";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -709,7 +729,7 @@ ORDER BY category ASC;";
                         {
                             story = reader.GetString(0);
                             if (story != string.Empty)
-                                stories.Add(reader.GetString(0));
+                                stories.Add(story);
                         }
                     }
                 }
@@ -728,7 +748,9 @@ ORDER BY category ASC;";
         public static bool GetStoriesWithTemplates(out string[] names)
         {
             UI!.SignalUserWait();
-            string command = "SELECT DISTINCT story " + FROM + " WHERE language IS NULL AND deleted = 0";
+            string command = "SELECT DISTINCT story"
+                + FROM
+                + " WHERE language IS NULL AND deleted = 0";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -751,7 +773,7 @@ ORDER BY category ASC;";
                         {
                             story = reader.GetString(0);
                             if (story != string.Empty)
-                                stories.Add(reader.GetString(0));
+                                stories.Add(story);
                         }
                     }
                 }
@@ -770,7 +792,9 @@ ORDER BY category ASC;";
         public static bool GetLanguagesForStory(string story, out string[] names)
         {
             UI!.SignalUserWait();
-            string command = "SELECT DISTINCT story " + FROM + " WHERE story = @story AND deleted = 0";
+            string command = "SELECT DISTINCT language"
+                + FROM
+                + " WHERE story = @story AND deleted = 0";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -794,7 +818,7 @@ ORDER BY category ASC;";
                         {
                             lang = reader.GetString(0);
                             if (lang != string.Empty)
-                                languages.Add(reader.GetString(0));
+                                languages.Add(lang);
                         }
                     }
                 }
@@ -813,7 +837,9 @@ ORDER BY category ASC;";
         public static bool GetLanguagesForFile(string story, string file, out string[] names)
         {
             UI!.SignalUserWait();
-            string command = "SELECT DISTINCT story " + FROM + " WHERE story = @story AND filename = @file AND deleted = 0";
+            string command = "SELECT DISTINCT language"
+                + FROM
+                + " WHERE story = @story AND filename = @file AND deleted = 0";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -838,20 +864,91 @@ ORDER BY category ASC;";
                         {
                             lang = reader.GetString(0);
                             if (lang != string.Empty)
-                                languages.Add(reader.GetString(0));
+                                languages.Add(lang);
                         }
                     }
                 }
                 else
                 {
-                    _ = UI.WarningOk("No languages found for " + story + "/" + file, "Info");
-                    LogManager.Log("No languages found for " + story + "/" + file);
+                    _ = UI.WarningOk("No languages found for " + story + " /" + file, "Info");
+                    LogManager.Log("No languages found for " + story + " /" + file);
                 }
                 reader.Close();
             }
             UI.SignalUserEndWait();
             names = languages.ToArray();
             return languages.Count > 0;
+        }
+
+        public static bool GetAllFilesAndStories(out HashSet<string> stories, out HashSet<string> files)
+        {
+            UI!.SignalUserWait();
+            string command = "SELECT DISTINCT story, filename"
+                + FROM
+                + " WHERE deleted = 0 AND language IS NULL";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            stories = new();
+            files = new();
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    string story;
+                    string file;
+                    while (reader.Read())
+                    {
+                        if (!reader.IsDBNull(0))
+                        {
+                            story = reader.GetString(0);
+                            if (story != string.Empty)
+                                _ = stories.Add(story);
+                        }
+                        if (!reader.IsDBNull(1))
+                        {
+                            file = reader.GetString(1);
+                            if (file != string.Empty)
+                                _ = files.Add(file);
+                        }
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No files found in the database??", "Info");
+                    LogManager.Log("No files found in the database at all??");
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+
+
+            return files.Count > 0 || stories.Count > 0;
+        }
+
+        public static bool GetAllFilesAndStories(out string[] stories, out string[] files)
+        {
+            if (GetAllFilesAndStories(out HashSet<string> _stories, out HashSet<string> _files))
+            {
+                stories = new string[_stories.Count];
+                _stories.CopyTo(stories);
+                files = new string[_files.Count];
+                _files.CopyTo(files);
+                return true;
+            }
+            else
+            {
+                stories = Array.Empty<string>();
+                files = Array.Empty<string>();
+                return false;
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-namespace TranslatorWebUser.Data
+namespace Translator.Web.Data
 {
     public class WeatherForecast
     {
