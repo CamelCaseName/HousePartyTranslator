@@ -961,7 +961,7 @@ namespace Translator.Core
             if (lastLine.Length > 0)
             {
                 //add last line (dont care about duplicates because the dict)
-                CreateLineInTranslations(lastLine, category, IdsToExport, lastLine[1]);
+                CreateLineInTranslations(lastLine, category, IdsToExport, string.Empty);
             }
         }
 
@@ -1482,11 +1482,11 @@ namespace Translator.Core
             if (story == "Hints")
                 file = "Hints";
 
-            LogManager.Log("Exporting template for" + story + "/" + file + " to " + path);
+            LogManager.Log("Exporting template for " + story + "/" + file + " to " + path);
             if (!DataBase.GetAllLineDataTemplate(file, story, out FileData templates))
             {
                 UI.WarningOk("No template found for that story/file, nothing exported.");
-                LogManager.Log("\tNo template found for that file");
+                LogManager.Log("    No template found for that file");
                 return;
             }
 
@@ -1496,7 +1496,7 @@ namespace Translator.Core
             WriteCategorizedLinesToDisk(sortedLines, path);
 
             if (confirmSuccess) UI.InfoOk("Template exported to " + path);
-            LogManager.Log("\tSucessfully exported the template");
+            LogManager.Log("    Sucessfully exported the template");
         }
 
         public static void ExportTemplatesForStory(string path, string story = "")
