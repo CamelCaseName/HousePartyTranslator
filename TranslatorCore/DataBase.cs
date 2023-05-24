@@ -880,7 +880,7 @@ namespace Translator.Core
             return languages.Count > 0;
         }
 
-        public static bool GetAllFilesAndStories(out string[] stories, out string[] files)
+        public static bool GetAllFilesAndStories(out HashSet<string> stories, out HashSet<string> files)
         {
             UI!.SignalUserWait();
             string command = "SELECT DISTINCT story, filename"
@@ -893,8 +893,8 @@ namespace Translator.Core
 
             cmd.CommandText = command;
             cmd.Parameters.Clear();
-            HashSet<string> _stories = new();
-            HashSet<string> _files = new();
+            stories = new();
+            files = new();
 
             if (CheckOrReopenConnection(connection))
             {
@@ -910,13 +910,13 @@ namespace Translator.Core
                         {
                             story = reader.GetString(0);
                             if (story != string.Empty)
-                                _ = _stories.Add(story);
+                                _ = stories.Add(story);
                         }
                         if (!reader.IsDBNull(1))
                         {
                             file = reader.GetString(1);
                             if (file != string.Empty)
-                                _ = _files.Add(file);
+                                _ = files.Add(file);
                         }
                     }
                 }
@@ -929,12 +929,26 @@ namespace Translator.Core
             }
             UI.SignalUserEndWait();
 
-            stories = new string[_stories.Count];
-            _stories.CopyTo(stories);
-            files = new string[_files.Count];
-            _files.CopyTo(files);
 
-            return files.Length > 0 || stories.Length > 0;
+            return files.Count > 0 || stories.Count > 0;
+        }
+
+        public static bool GetAllFilesAndStories(out string[] stories, out string[] files)
+        {
+            if (GetAllFilesAndStories(out HashSet<string> _stories, out HashSet<string> _files))
+            {
+                stories = new string[_stories.Count];
+                _stories.CopyTo(stories);
+                files = new string[_files.Count];
+                _files.CopyTo(files);
+                return true;
+            }
+            else
+            {
+                stories = Array.Empty<string>();
+                files = Array.Empty<string>();
+                return false;
+            }
         }
     }
 }

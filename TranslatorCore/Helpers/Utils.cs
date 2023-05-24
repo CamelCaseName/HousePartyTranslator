@@ -1,7 +1,11 @@
 ﻿using Google.Protobuf;
+using Org.BouncyCastle.Asn1.Mozilla;
+using Org.BouncyCastle.Utilities.Collections;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
@@ -17,11 +21,27 @@ namespace Translator.Core.Helpers
     public static partial class Utils
     {
         private static int ExceptionCount = 0;
+        public const int MaxTextLength = 100;
+        public const int MaxWordLength = 15;
+        public static readonly Color foreground = SystemColors.Window;
+        public static readonly Color background = SystemColors.ControlDarkDark;
+        public static readonly Color backgroundDarker = SystemColors.MenuText;
+        public static readonly Color brightText = SystemColors.HighlightText;
+        public static readonly Color darkText = SystemColors.WindowText;
+        public static readonly Color menu = SystemColors.ScrollBar;
+        public static readonly Color frame = SystemColors.WindowFrame;
+        public static readonly Color highlight = SystemColors.Info;
+        private static HashSet<string> fileNames = new();
+        private static HashSet<string> storyNames = new();
+        private static DateTime namesAcquired = DateTime.MinValue;
+
         private static IUIHandler? MainUI { get; set; }
 
         internal static void Initialize(IUIHandler ui)
         {
             MainUI = ui;
+            DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
+            namesAcquired = DateTime.Now;
         }
 
         /// <summary>
@@ -83,6 +103,7 @@ namespace Translator.Core.Helpers
             }
             return string.Empty;
         }
+
         /// <summary>
         /// Opens a select file dialogue and returns the selected file as a path.
         /// </summary>
@@ -161,7 +182,7 @@ namespace Translator.Core.Helpers
         /// </summary>
         /// <returns>The path to the file to save to.</returns>
         public static string SelectSaveLocation(string message = "", string path = "", string file = "", string extension = "txt", bool checkFileExists = true, bool checkPathExists = true)
-        { 
+        {
             if (!MainUI?.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
 
             var saveFileDialog = (ISaveFileDialog?)Activator.CreateInstance(MainUI?.SaveFileDialogType ?? typeof(ISaveFileDialog), new object?[]
@@ -184,46 +205,93 @@ namespace Translator.Core.Helpers
             }
             return string.Empty;
         }
-    }
-
-    public static partial class Utils
-    {
-        public const int MaxTextLength = 100;
-        public const int MaxWordLength = 15;
-        public static readonly Color foreground = SystemColors.Window;
-        public static readonly Color background = SystemColors.ControlDarkDark;
-        public static readonly Color backgroundDarker = SystemColors.MenuText;
-        public static readonly Color brightText = SystemColors.HighlightText;
-        public static readonly Color darkText = SystemColors.WindowText;
-        public static readonly Color menu = SystemColors.ScrollBar;
-        public static readonly Color frame = SystemColors.WindowFrame;
-        public static readonly Color highlight = SystemColors.Info;
 
         public static string ExtractStoryName(string path)
         {
-            var paths = path.Split('\\');
+            if ((DateTime.Now - namesAcquired).Hours > 1)
+                DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
 
+            if (!LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
+                throw new LanguageHelper.LanguageException();
+
+            var paths = path.Split('\\');
             if (paths.Length < 3) throw new ArgumentException("the file needs to be at least 2 folders deep from your drive?");
 
-            string tempStoryName = paths[^2];
-            if (!paths[^1].Contains('.'))
-                tempStoryName = paths[^1];
-
-            bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText);
-            if (!gotLanguage) throw new LanguageHelper.LanguageException();
-            //compare
-            if ((tempStoryName == languageAsText || tempStoryName == (languageAsText + " new")) && gotLanguage)
-                //get folder one more up
-                tempStoryName = paths[^3];
-
-            if (tempStoryName == "Languages")
+            //check if we have a similar name to the cloud, return that if we have
+            for (int i = paths.Length - 1; i >= 0; i--)
             {
-                //get folder one more up
-                tempStoryName = "UI";
+                var enumerator = storyNames.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    if (string.Compare(paths[i], enumerator.Current, true, CultureInfo.InvariantCulture) == 0)
+                        return enumerator.Current;
+                }
             }
 
-            return tempStoryName;
+            string maybeStoryName = paths[^2];
+            if (!paths[^1].Contains('.')) //if we already got a folder in path we can use the last element
+                return paths[^1];
+
+            //check if we are in the games documents
+            if (string.Compare(maybeStoryName, languageAsText, true, CultureInfo.InvariantCulture) == 0 ||
+                string.Compare(maybeStoryName, string.Concat(languageAsText, " new"), true, CultureInfo.InvariantCulture) == 0)
+                //get folder one more up
+                maybeStoryName = paths[^3];
+
+            //also can return instantly, we are in the folder which has the languages in it
+            if (string.Compare(maybeStoryName, "Languages", true, CultureInfo.InvariantCulture) == 0) //get folder one more up
+                return "UI";
+
+            //check if we have a similar name to the cloud, return that if we have
+            for (int i = paths.Length - 1; i >= 0; i--)
+            {
+                //check again more lenient
+                var enumerator = storyNames.GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    if (paths[i].Contains(enumerator.Current, StringComparison.InvariantCultureIgnoreCase))
+                        if (MainUI!.InfoYesNo($"Is this the correct story, as it appeared in the templates: {enumerator.Current}?", "Correct story?", PopupResult.YES))
+                            return enumerator.Current;
+                    if (enumerator.Current.Contains(paths[i], StringComparison.InvariantCultureIgnoreCase))
+                        if (MainUI!.InfoYesNo($"Is this the correct story, as it appeared in the templates: {enumerator.Current}?", "Correct story?", PopupResult.YES))
+                            return enumerator.Current;
+                }
+            }
+
+            //we didnt find it, probably new custom story
+            return maybeStoryName;
         }
+
+        public static string ExtractFileName(string path)
+        {
+            if ((DateTime.Now - namesAcquired).Hours > 1)
+                DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
+
+            string maybeFileName = Path.GetFileNameWithoutExtension(path);
+
+            var enumerator = fileNames.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                if (string.Compare(maybeFileName, enumerator.Current, true, CultureInfo.InvariantCulture) == 0)
+                    return enumerator.Current;
+            }
+            //search again more lenient
+            enumerator = fileNames.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                if (maybeFileName.Contains(enumerator.Current, StringComparison.InvariantCultureIgnoreCase))
+                    if (MainUI!.InfoYesNo($"Is this the correct filename, as it appeared in the templates: {enumerator.Current}?", "Correct file?", PopupResult.YES))
+                        return enumerator.Current;
+                if (enumerator.Current.Contains(maybeFileName, StringComparison.InvariantCultureIgnoreCase))
+                    if (MainUI!.InfoYesNo($"Is this the correct filename, as it appeared in the templates: {enumerator.Current}?", "Correct file?", PopupResult.YES))
+                        return enumerator.Current;
+            }
+
+            //we have no known filename, we can just continue and ask if its a custom story
+            return maybeFileName;
+        }
+
+        public static (string story, string file) ExtractFileAndStoryName(string path) => (ExtractStoryName(path), ExtractFileName(path));
 
         /// <summary>
         /// Gets the current assembly version as a string.
@@ -235,6 +303,7 @@ namespace Translator.Core.Helpers
             var fileVersion = FileVersionInfo.GetVersionInfo(assembly.Location);
             return fileVersion?.FileVersion ?? "0.0.0.0";
         }
+
         /// <summary>
         /// Tries to parse a line into the category it indicates.
         /// </summary>
@@ -272,6 +341,7 @@ namespace Translator.Core.Helpers
             }
             return StringCategory.Neither;
         }
+
         /// <summary>
         /// Returns the string representatio of a category.
         /// </summary>

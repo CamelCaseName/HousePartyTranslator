@@ -1,11 +1,8 @@
-﻿using Google.Protobuf.WellKnownTypes;
-using Microsoft.VisualBasic.FileIO;
+﻿using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
@@ -60,78 +57,6 @@ namespace Translator.Core
                     Settings.Default.Save();
                 }
             }
-        }
-
-        /// <summary>
-        /// Generates a list of all string categories depending on the filename.
-        /// </summary>
-        public static List<StringCategory> GetCategories(string story, string file)
-        {
-            if (story == "UI" || story == "Hints")
-            {
-                return new List<StringCategory>() { StringCategory.General };
-            }
-            else if (file == story)
-            {
-                return new List<StringCategory>() {
-                            StringCategory.General,
-                            StringCategory.ItemName,
-                            StringCategory.ItemAction,
-                            StringCategory.ItemGroupAction,
-                            StringCategory.Event,
-                            StringCategory.Achievement };
-            }
-            else
-            {
-                return new List<StringCategory>() {
-                            StringCategory.General,
-                            StringCategory.Dialogue,
-                            StringCategory.Response,
-                            StringCategory.Quest,
-                            StringCategory.Event,
-                            StringCategory.BGC};
-            }
-        }
-
-        internal static void SortIntoCategories(ref List<CategorizedLines> CategorizedStrings, FileData IdsToExport, FileData translationData)
-        {
-            foreach (LineData item in IdsToExport.Values)
-            {
-                if (item.ID == string.Empty) continue;
-                if (translationData.TryGetValue(item.ID, out LineData? TempResult))
-                {
-                    if (TempResult?.TranslationLength > 0)
-                        item.TranslationString = TempResult?.TranslationString ?? item.TemplateString.RemoveVAHints();
-                    else
-                        item.TranslationString = item.TemplateString.RemoveVAHints();
-                }
-                else
-                {
-                    item.TranslationString = item.TemplateString.RemoveVAHints();
-                }
-
-                int intCategory = CategorizedStrings.FindIndex(predicateCategory => predicateCategory.category == item.Category);
-
-                if (intCategory < CategorizedStrings.Count && intCategory >= 0)
-                    CategorizedStrings[intCategory].lines.Add(item);
-                else
-                {
-                    CategorizedStrings.Add((new List<LineData>(), item.Category));
-                    CategorizedStrings[^1].lines.Add(item);
-                }
-            }
-        }
-
-        internal static List<CategorizedLines> InitializeCategories(string story, string file)
-        {
-            var CategorizedStrings = new List<CategorizedLines>();
-
-            foreach (StringCategory category in GetCategories(story, file))
-            {//add a list for every category we have in the file, so we can then add the strings to these.
-                CategorizedStrings.Add((new List<LineData>(), category));
-            }
-
-            return CategorizedStrings;
         }
 
         public bool ChangesPending
@@ -235,7 +160,7 @@ namespace Translator.Core
             set
             {
                 sourceFilePath = value;
-                if (!isSaveAs) FileName = Path.GetFileNameWithoutExtension(value);
+                if (!isSaveAs) FileName = Utils.ExtractFileName(value);
             }
         }
 
@@ -1183,11 +1108,13 @@ namespace Translator.Core
         /// </summary>
         private static FileData GetTemplateFromFile(string path, string story = "", string fileName = "", bool doIterNumbers = true)
         {
-            if (Path.GetFileNameWithoutExtension(path) != fileName)
+            if (Utils.ExtractFileName(path) != fileName)
             {
                 _ = UI.WarningOk("The template file must have the same name as the file you want to translate!");
                 return new FileData(story, fileName);
             }
+            if(story == string.Empty) story = Utils.ExtractStoryName(path);
+            if(fileName == string.Empty) fileName = Utils.ExtractFileName(path);
 
             var fileData = new FileData(story, fileName);
             StringCategory currentCategory = StringCategory.General;
@@ -1256,7 +1183,7 @@ namespace Translator.Core
                 string story = Utils.ExtractStoryName(folder_path);
                 foreach (var file_path in Directory.GetFiles(folder_path))
                 {
-                    var file = Path.GetFileNameWithoutExtension(file_path);
+                    var file = Utils.ExtractFileName(file_path);
                     if (Path.GetExtension(file_path) != ".txt") continue;
 
                     //create and upload onlineLines
@@ -1299,8 +1226,7 @@ namespace Translator.Core
                 if (path.Length == 0) return;
 
                 UI.SignalUserWait();
-                string file = Path.GetFileNameWithoutExtension(path);
-                string story = Utils.ExtractStoryName(path);
+                (string story, string file) = Utils.ExtractFileAndStoryName(path);
 
                 if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
 
@@ -1362,7 +1288,7 @@ namespace Translator.Core
                     ?? SpecialDirectories.MyDocuments;
                 foreach (var file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
                 {
-                    string file = Path.GetFileNameWithoutExtension(file_path);
+                    string file = Utils.ExtractFileName(file_path);
                     if (Path.GetExtension(file_path) != ".character" && Path.GetExtension(file_path) != ".story") continue;
 
                     //create and upload onlineLines
@@ -1418,6 +1344,78 @@ namespace Translator.Core
                 }
             }
             UI.Language = Language;
+        }
+
+        /// <summary>
+        /// Generates a list of all string categories depending on the filename.
+        /// </summary>
+        public static List<StringCategory> GetCategories(string story, string file)
+        {
+            if (story == "UI" || story == "Hints")
+            {
+                return new List<StringCategory>() { StringCategory.General };
+            }
+            else if (file == story)
+            {
+                return new List<StringCategory>() {
+                            StringCategory.General,
+                            StringCategory.ItemName,
+                            StringCategory.ItemAction,
+                            StringCategory.ItemGroupAction,
+                            StringCategory.Event,
+                            StringCategory.Achievement };
+            }
+            else
+            {
+                return new List<StringCategory>() {
+                            StringCategory.General,
+                            StringCategory.Dialogue,
+                            StringCategory.Response,
+                            StringCategory.Quest,
+                            StringCategory.Event,
+                            StringCategory.BGC};
+            }
+        }
+
+        internal static void SortIntoCategories(ref List<CategorizedLines> CategorizedStrings, FileData IdsToExport, FileData translationData)
+        {
+            foreach (LineData item in IdsToExport.Values)
+            {
+                if (item.ID == string.Empty) continue;
+                if (translationData.TryGetValue(item.ID, out LineData? TempResult))
+                {
+                    if (TempResult?.TranslationLength > 0)
+                        item.TranslationString = TempResult?.TranslationString ?? item.TemplateString.RemoveVAHints();
+                    else
+                        item.TranslationString = item.TemplateString.RemoveVAHints();
+                }
+                else
+                {
+                    item.TranslationString = item.TemplateString.RemoveVAHints();
+                }
+
+                int intCategory = CategorizedStrings.FindIndex(predicateCategory => predicateCategory.category == item.Category);
+
+                if (intCategory < CategorizedStrings.Count && intCategory >= 0)
+                    CategorizedStrings[intCategory].lines.Add(item);
+                else
+                {
+                    CategorizedStrings.Add((new List<LineData>(), item.Category));
+                    CategorizedStrings[^1].lines.Add(item);
+                }
+            }
+        }
+
+        internal static List<CategorizedLines> InitializeCategories(string story, string file)
+        {
+            var CategorizedStrings = new List<CategorizedLines>();
+
+            foreach (StringCategory category in GetCategories(story, file))
+            {//add a list for every category we have in the file, so we can then add the strings to these.
+                CategorizedStrings.Add((new List<LineData>(), category));
+            }
+
+            return CategorizedStrings;
         }
 
         internal static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false)
@@ -1479,8 +1477,7 @@ namespace Translator.Core
                 if (UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO)) return;
 
             if (story == string.Empty) story = Utils.ExtractStoryName(path);
-            //todo add fallback to have the user enter the story if the story cant be found
-            if (file == string.Empty) file = Path.GetFileNameWithoutExtension(path);
+            if (file == string.Empty) file = Utils.ExtractFileName(path);
 
             if (story == "Hints")
                 file = "Hints";

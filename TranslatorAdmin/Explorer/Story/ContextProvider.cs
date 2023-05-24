@@ -62,8 +62,7 @@ namespace Translator.Desktop.Explorer.Story
 
             if (FilePath.Length > 0)
             {
-                this.FileName = Path.GetFileNameWithoutExtension(FilePath);
-                this.StoryName = Directory.GetParent(FilePath)?.Name ?? string.Empty;
+                (this.StoryName, this.FileName) = Utils.ExtractFileAndStoryName(FilePath);
             }
         }
 
@@ -211,7 +210,7 @@ namespace Translator.Desktop.Explorer.Story
                             DissectStory(
                                 JsonConvert.DeserializeObject<MainStory>(
                                     File.ReadAllText(item)) ?? new(),
-                                Path.GetFileNameWithoutExtension(item)));
+                                Utils.ExtractFileName(item)));
                     }
 
                     else
