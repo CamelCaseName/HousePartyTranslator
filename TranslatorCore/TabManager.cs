@@ -45,7 +45,6 @@ namespace Translator.Core
                 else
                 {
                     throw new UnreachableException("There should never be no tab/no translationmanager.");
-                    //return new((IUIHandler<ILineItem>)NullUIHandler.Instance, (ITab<ILineItem>)NullTab.Instance);
                 }
             }
         }

@@ -429,7 +429,7 @@ namespace Translator.Core
         /// Sets the translation of a string in the database in the given story.
         /// </summary>
         /// <param name="lineData">LineData with the lines to update<param>
-        /// <param name="language">The translated story in ISO 639-1 notation.</param>
+        /// <param name="language">The language of the translation in ISO 639-1 notation.</param>
         /// <returns> True if at least one row was set, false if it was not the case.</returns>
         public static bool UpdateTranslation(LineData lineData, string language)
         {
@@ -464,7 +464,7 @@ namespace Translator.Core
         /// Updates all translated strings for the selected file
         /// </summary>
         /// <param name="translationData">A list of all loaded lines for this file</param>
-        /// <param name="language">The translated story in ISO 639-1 notation.</param>
+        /// <param name="language">The language of the translation in ISO 639-1 notation.</param>
         /// <returns></returns>
         public static bool UpdateTranslations(FileData translationData, string language)
         {
