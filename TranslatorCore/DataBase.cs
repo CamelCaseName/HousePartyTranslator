@@ -409,7 +409,7 @@ namespace Translator.Core
                 {
                     if (c >= lines.Values.Count) break;
                     LineData line = lines.Values.ElementAt(c);
-                    _ = cmd.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + " template");
+                    _ = cmd.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + "template");
                     _ = cmd.Parameters.AddWithValue($"@story{c}", line.Story);
                     _ = cmd.Parameters.AddWithValue($"@fileName{c}", line.FileName);
                     _ = cmd.Parameters.AddWithValue($"@category{c}", (int)line.Category);
