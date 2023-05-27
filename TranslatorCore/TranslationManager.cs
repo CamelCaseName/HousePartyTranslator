@@ -1462,9 +1462,9 @@ namespace Translator.Core
             }
         }
 
-        public static void ExportTemplatesForStory()
+        public static void ExportTemplatesForStoryOrFile()
         {
-            string path = Utils.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false);
+            string path = Utils.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false, extension: string.Empty);
             if (Path.GetExtension(path) != string.Empty) ExportTemplate(path);
             else ExportTemplatesForStory(path);
         }

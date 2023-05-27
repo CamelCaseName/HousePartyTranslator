@@ -413,7 +413,7 @@ namespace Translator.Desktop.UI
                 Text = "Export &Template files",
                 ToolTipText = "Exports templates for a complete story or single file"
             };
-            exportTemplates.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplatesForStory();
+            exportTemplates.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplatesForStoryOrFile();
 
             // searchToolStripMenuItem
             searchToolStripMenuItem = new WinMenuItem()
