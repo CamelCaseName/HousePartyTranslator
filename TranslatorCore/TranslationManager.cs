@@ -1005,6 +1005,7 @@ namespace Translator.Core
         /// </summary>
         public void ReloadFile()
         {
+            Settings.Default.RecentIndex = TabUI.SelectedLineIndex;
             TabManager.ShowAutoSaveDialog();
             LoadTranslationFile();
             if (UI == null) return;

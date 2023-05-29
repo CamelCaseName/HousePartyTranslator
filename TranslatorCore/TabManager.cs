@@ -453,9 +453,9 @@ namespace Translator.Core
         {
             if (Settings.Default.AskForSaveDialog && translationManagers.Count > 0)
             {
-                foreach (KeyValuePair<ITab, TranslationManager> translationManager in translationManagers)
+                foreach (var kvp in translationManagers)
                 {
-                    if (translationManager.Value.ChangesPending)
+                    if (kvp.Value.ChangesPending)
                     {
                         if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
                             _ = SaveAllTabs();
