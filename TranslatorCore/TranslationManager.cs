@@ -10,7 +10,6 @@ using Translator.Core.Data;
 using Translator.Core.DefaultImpls;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
-using Timer = System.Timers.Timer;
 
 //TODO add tests
 
@@ -89,9 +88,7 @@ namespace Translator.Core
         private bool selectedNew = false;
         private string sourceFilePath = string.Empty;
         private string storyName = string.Empty;
-#nullable disable
-        private static IUIHandler UI;
-#nullable restore
+        private static IUIHandler UI = null!;
         private static bool StaticUIInitialized = false;
         private readonly ITab TabUI;
         private bool triedFixingOnce = false;
