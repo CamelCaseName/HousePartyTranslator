@@ -798,7 +798,7 @@ namespace Translator.Core
                     TranslationData[key].IsTemplate = false;
                     TranslationData[key].IsTranslated = tempLine.IsTranslated;
                     TranslationData[key].Story = tempLine.Story;
-                    if (localTakesPriority
+                    if (!localTakesPriority
                         && DataBase.IsOnline
                         && tempLine.TranslationLength > 0)
                         TranslationData[key].TranslationString = tempLine.TranslationString;
