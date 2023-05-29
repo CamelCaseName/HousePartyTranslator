@@ -660,7 +660,8 @@ namespace Translator.Core
             UI!.SignalUserWait();
             string command = "SELECT DISTINCT filename"
                 + FROM
-                + " WHERE story = @story AND language IS NULL AND deleted = 0";
+                + " WHERE story = @story AND language IS NULL AND deleted = 0"
+                + " ORDER BY filename ASC";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -705,7 +706,8 @@ namespace Translator.Core
             UI!.SignalUserWait();
             string command = "SELECT DISTINCT story"
                 + FROM
-                + " WHERE language = @language AND deleted = 0";
+                + " WHERE language = @language AND deleted = 0"
+                + " ORDER BY story ASC";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -750,7 +752,8 @@ namespace Translator.Core
             UI!.SignalUserWait();
             string command = "SELECT DISTINCT story"
                 + FROM
-                + " WHERE language IS NULL AND deleted = 0";
+                + " WHERE language IS NULL AND deleted = 0"
+                + " ORDER BY story ASC";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -794,7 +797,8 @@ namespace Translator.Core
             UI!.SignalUserWait();
             string command = "SELECT DISTINCT language"
                 + FROM
-                + " WHERE story = @story AND deleted = 0";
+                + " WHERE story = @story AND deleted = 0"
+                + " ORDER BY language ASC";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -839,7 +843,8 @@ namespace Translator.Core
             UI!.SignalUserWait();
             string command = "SELECT DISTINCT language"
                 + FROM
-                + " WHERE story = @story AND filename = @file AND deleted = 0";
+                + " WHERE story = @story AND filename = @file AND deleted = 0"
+                + " ORDER BY language ASC";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -885,7 +890,8 @@ namespace Translator.Core
             UI!.SignalUserWait();
             string command = "SELECT DISTINCT story, filename"
                 + FROM
-                + " WHERE deleted = 0 AND language IS NULL";
+                + " WHERE deleted = 0 AND language IS NULL"
+                + " ORDER BY story ASC";
 
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
@@ -949,6 +955,59 @@ namespace Translator.Core
                 files = Array.Empty<string>();
                 return false;
             }
+        }
+
+        public static bool GetAllFilesAndStoriesSorted(out HashSet<string> stories, out Dictionary<string, List<string>> files)
+        {
+            UI!.SignalUserWait();
+            string command = "SELECT DISTINCT story, filename"
+                + FROM
+                + " WHERE deleted = 0 AND language IS NULL"
+                + " ORDER BY story ASC";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            stories = new();
+            files = new();
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    string story;
+                    string file;
+                    while (reader.Read())
+                    {
+                        if (reader.IsDBNull(0) || reader.IsDBNull(1))
+                            continue;
+
+                        story = reader.GetString(0);
+                        file = reader.GetString(1);
+
+                        if (file == string.Empty || story == string.Empty)
+                            continue;
+
+                        _ = stories.Add(story);
+                        files[story].Add(file);
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No files found in the database??", "Info");
+                    LogManager.Log("No files found in the database at all??");
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+
+
+            return files.Count > 0 || stories.Count > 0;
         }
     }
 }
