@@ -301,14 +301,14 @@ namespace Translator.Desktop.UI
                 LogManager.Log(e.ExceptionObject?.ToString() ?? "ExceptionObject is null", LogManager.Level.Error);
 
                 if (e.ExceptionObject == null) return;
-                if (e.ExceptionObject.GetType().IsAssignableTo(typeof(LanguageHelper.LanguageException)))
+                if (e.ExceptionObject is LanguageHelper.LanguageException)
                 {
                     Msg.WarningOk("Please select a language first! (Dropdown in the top menu bar)");
                     LogManager.Log("Aborted, no language selected.");
                 }
-                else if (e.ExceptionObject.GetType().IsAssignableTo(typeof(Exception)))
+                else if (e.ExceptionObject is Exception exception)
                 {
-                    Utils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
+                    Utils.DisplayExceptionMessage(exception.Message);
                 }
                 else
                 {
@@ -321,7 +321,15 @@ namespace Translator.Desktop.UI
         {
             if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
             LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
-            Utils.DisplayExceptionMessage(e.Exception.Message);
+            if (e.Exception is LanguageHelper.LanguageException)
+            {
+                Msg.WarningOk("Please select a language first! (Dropdown in the top menu bar)");
+                LogManager.Log("Aborted, no language selected.");
+            }
+            else
+            {
+                Utils.DisplayExceptionMessage(e.Exception.Message);
+            }
         }
 
         private void CheckForPassword()
