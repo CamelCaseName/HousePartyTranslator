@@ -9,10 +9,8 @@ namespace Translator.Core
     {
         private static readonly List<string> recents = new(5);
         private static int IgnoreNextRecents = 0;
-        private static int maxNumberOfMenuItems = 0;
         private static int recentIndex = -1;
         private static Type MenuItem = typeof(IMenuItem);
-        private static Type MenuItemSeperator = typeof(IMenuItem);
 
         /// <summary>
         /// Get the most recently opened files as a collection of ToolStriItems
@@ -59,10 +57,9 @@ namespace Translator.Core
         /// <summary>
         /// Initializes the most recently opened files from the saved settings
         /// </summary>
-        public static void Initialize(Type MenuItem, Type MenuItemSeperator)
+        public static void Initialize(Type MenuItem)
         {
             RecentsManager.MenuItem = MenuItem;
-            RecentsManager.MenuItemSeperator = MenuItemSeperator;
             //add all saved recents
             recents.Add(Settings.Default.Recents0);
             recents.Add(Settings.Default.Recents1);
@@ -127,49 +124,6 @@ namespace Translator.Core
                     else TabManager.SelectLine(0);
                 }
             }
-        }
-
-        /// <summary>
-        /// Updates the recent menuitems in the given collection
-        /// </summary>
-        /// <param name="collection"></param>
-        public static MenuItems GetUpdatedMenuItems(MenuItems collection)
-        {
-            IMenuItem[] items = GetRecents();
-            int recentsStart;
-
-            if (maxNumberOfMenuItems == 0) maxNumberOfMenuItems = collection.Count + 6;
-
-            //find start of recents
-            for (recentsStart = 0; recentsStart < collection.Count; recentsStart++)
-            {
-                if (collection[recentsStart].GetType() == MenuItemSeperator) break;
-            }
-            //update menu
-            if (items.Length > 0 && collection.Count < maxNumberOfMenuItems)
-            {
-                recentsStart += 2;
-                for (int i = 0; i < items.Length; i++)
-                {
-                    //we replace until we hit seperator, then we insert
-                    if (collection[recentsStart + i].GetType() != MenuItemSeperator)
-                    {
-                        collection.RemoveAt(recentsStart + i);
-                    }
-
-                    collection.Insert(recentsStart, items[items.Length - i - 1]);
-                }
-
-                if (collection[recentsStart + items.Length].GetType() != MenuItemSeperator)
-                    collection.Insert(recentsStart + items.Length, (IMenuItem)(Activator.CreateInstance(MenuItemSeperator) ?? new object()));
-                SaveRecents();
-                //for the name update stuff
-                recentsStart -= 2;
-            }
-
-            if (items.Length == 0) collection[recentsStart + 1].Text = "No Recents";
-            else collection[recentsStart + 1].Text = "Recents:";
-            return collection;
         }
 
         private static void RecentsManager_Click(object? sender, EventArgs? e)

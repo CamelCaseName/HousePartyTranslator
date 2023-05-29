@@ -935,7 +935,6 @@ namespace Translator.Core
             }
             UI.SignalUserEndWait();
 
-
             return files.Count > 0 || stories.Count > 0;
         }
 
@@ -1005,7 +1004,6 @@ namespace Translator.Core
                 reader.Close();
             }
             UI.SignalUserEndWait();
-
 
             return files.Count > 0 || stories.Count > 0;
         }

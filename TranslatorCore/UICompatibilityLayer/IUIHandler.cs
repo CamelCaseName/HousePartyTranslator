@@ -96,7 +96,6 @@ namespace Translator.Core.UICompatibilityLayer
         void UpdateTranslationProgressIndicator();
         void SetReplaceMenuVisible();
         void SetReplaceMenuInVisible();
-        void SetFileMenuItems(MenuItems menuItems);
         void SetSelectedSearchBarText(int v, int length);
         #endregion
 

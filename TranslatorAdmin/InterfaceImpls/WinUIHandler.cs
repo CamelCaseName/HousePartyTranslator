@@ -116,12 +116,6 @@ namespace Translator.Desktop.InterfaceImpls
         public bool WarningYesNo(string message, string title = "Warning", PopupResult result = PopupResult.YES) => Msg.WarningYesNoB(message, title, result.ToDialogResult());
         public PopupResult WarningYesNoCancel(string message, string title = "Warning") => Msg.WarningYesNoCancel(message, title).ToPopupResult();
         public bool WarningYesNoCancel(string message, string title = "Warning", PopupResult result = PopupResult.YES) => Msg.WarningYesNoCancelB(message, title, result.ToDialogResult());
-        public void SetFileMenuItems(MenuItems menuItems)
-        {
-            if (App.MainForm == null) return;
-            App.MainForm.FileToolStripMenuItem.DropDownItems.Clear();
-            App.MainForm.FileToolStripMenuItem.DropDownItems.AddRangeFix(menuItems.ToToolStripItemCollection(App.MainForm.MainMenu ?? new MenuStrip()));
-        }
 
         public void SetSelectedSearchBarText(int start, int end)
         {

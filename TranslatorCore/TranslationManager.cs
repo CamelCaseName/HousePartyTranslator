@@ -307,7 +307,6 @@ namespace Translator.Core
 
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
-                    UI.SetFileMenuItems(RecentsManager.GetUpdatedMenuItems(UI.FileMenuItems));
                 }
             }
             else
