@@ -3,7 +3,8 @@ using Translator.Desktop;
 using Translator.Desktop.Explorer;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.Story;
-using Translator.Desktop.Properties;
+using Translator.Desktop.InterfaceImpls;
+using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 using Translator.Desktop.UI.Components;
 
 namespace Translator.Explorer.Window
@@ -26,7 +27,7 @@ namespace Translator.Explorer.Window
         internal NodeProvider Provider { get; }
         public string ParentName { get { return parentName; } }
 
-        //todo implement node saving
+        //todo implement node saving to a story file
         public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
         {
             InitializeComponent();
@@ -58,8 +59,8 @@ namespace Translator.Explorer.Window
             Paint += new PaintEventHandler(Grapher.DrawNodesPaintHandler);
             FormClosing += new FormClosingEventHandler(SaveNodes);
 
-            ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Settings.Default.ColoringDepth;
-            IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Settings.Default.IdealLength);
+            ColoringDepth.Value = StoryExplorerConstants.ColoringDepth = Settings.ColoringDepth;
+            IdealLength.Value = (decimal)(StoryExplorerConstants.IdealLength = Settings.IdealLength);
             NodeSizeField.Value = StoryExplorerConstants.Nodesize;
         }
 
@@ -155,7 +156,7 @@ namespace Translator.Explorer.Window
             if (!inInitialization)
             {
                 StoryExplorerConstants.IdealLength = IdealLength.Value > 1 && IdealLength.Value < IdealLength.Maximum ? (float)IdealLength.Value : StoryExplorerConstants.IdealLength;
-                Settings.Default.IdealLength = (float)IdealLength.Value;
+                Settings.IdealLength = (float)IdealLength.Value;
             }
 
         }
@@ -165,7 +166,7 @@ namespace Translator.Explorer.Window
             if (!inInitialization)
             {
                 StoryExplorerConstants.ColoringDepth = ColoringDepth.Value > 1 && ColoringDepth.Value < ColoringDepth.Maximum ? (int)ColoringDepth.Value : StoryExplorerConstants.ColoringDepth;
-                Settings.Default.ColoringDepth = (int)ColoringDepth.Value;
+                Settings.ColoringDepth = (int)ColoringDepth.Value;
             }
         }
 

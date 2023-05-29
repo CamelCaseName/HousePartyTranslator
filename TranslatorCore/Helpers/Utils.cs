@@ -20,7 +20,6 @@ namespace Translator.Core.Helpers
 
     public static partial class Utils
     {
-        private static int ExceptionCount = 0;
         public const int MaxTextLength = 100;
         public const int MaxWordLength = 15;
         public static readonly Color foreground = SystemColors.Window;
@@ -51,20 +50,13 @@ namespace Translator.Core.Helpers
         public static void DisplayExceptionMessage(string message)
         {
             LogManager.Log("Exception message shown: " + message);
-            LogManager.Log("Current exception count: " + ExceptionCount++);
             _ = MainUI?.ErrorOk(
-                $"The application encountered a Problem. Probably the database can not be reached, or you did something too quickly :). " +
+                $"The application encountered a Problem. Probably the database can not be reached :). " +
                 $"Anyways, here is what happened: \n\n{message}\n\n " +
                 $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
-                $"Some Error found (Nr. {ExceptionCount})");
+                $"Something happened");
 
             MainUI?.SignalUserEndWait();
-
-            if (ExceptionCount > 3)
-            {
-                LogManager.Log("Too many exceptions encountered, aborting", LogManager.Level.Crash);
-                MainUI?.SignalAppExit();
-            }
         }
 
         /// <summary>

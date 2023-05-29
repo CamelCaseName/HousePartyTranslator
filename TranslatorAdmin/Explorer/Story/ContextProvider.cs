@@ -41,9 +41,9 @@ namespace Translator.Desktop.Explorer.Story
             }
             else
             {
-                if (Settings.WDefault.StoryPath != string.Empty && AutoFileSelection)
+                if (Settings.StoryPath != string.Empty && AutoFileSelection)
                 {
-                    string storyPathMinusStory = Directory.GetParent(Settings.WDefault.StoryPath)?.FullName ?? string.Empty;
+                    string storyPathMinusStory = Directory.GetParent(Settings.StoryPath)?.FullName ?? string.Empty;
 
                     if (IsStory)
                     {
@@ -88,7 +88,7 @@ namespace Translator.Desktop.Explorer.Story
                         {
                             Title = $"Choose the story file ({StoryName}) for the templates",
                             Filter = AutoFileSelection ? "Story Files (*.story)|*.story" : string.Empty,
-                            InitialDirectory = Settings.WDefault.StoryPath.Length > 0 ? Settings.WDefault.StoryPath : @"C:\Users\%USER%\Documents",
+                            InitialDirectory = Settings.StoryPath.Length > 0 ? Settings.StoryPath : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false,
                             FileName = FileName + ".story"
                         };
@@ -99,7 +99,7 @@ namespace Translator.Desktop.Explorer.Story
                         {
                             Title = $"Choose the character file ({FileName}) for the templates",
                             Filter = AutoFileSelection ? "Character Files (*.character)|*.character" : string.Empty,
-                            InitialDirectory = Settings.WDefault.StoryPath.Length > 0 ? Settings.WDefault.StoryPath : @"C:\Users\%USER%\Documents",
+                            InitialDirectory = Settings.StoryPath.Length > 0 ? Settings.StoryPath : @"C:\Users\%USER%\Documents",
                             RestoreDirectory = false,
                             FileName = FileName + ".character"
                         };
@@ -107,8 +107,8 @@ namespace Translator.Desktop.Explorer.Story
 
                     if (selectFileDialog.ShowDialog() == DialogResult.OK)
                     {
-                        Settings.WDefault.StoryPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? string.Empty;
-                        Settings.WDefault.Save();
+                        Settings.StoryPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? string.Empty;
+                        Settings.Default.Save();
                         _StoryFilePath = selectFileDialog.FileName;
                     }
                     else
@@ -130,7 +130,7 @@ namespace Translator.Desktop.Explorer.Story
                 NodeFilePath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{StoryName + FileName + DataBase.DBVersion}.json");
 
                 //save path
-                Settings.WDefault.StoryPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
+                Settings.StoryPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
                 //try to laod the saved nodes
                 if (File.Exists(NodeFilePath))
                 {
@@ -172,8 +172,8 @@ namespace Translator.Desktop.Explorer.Story
             {
                 if (FilePath != string.Empty)
                     StoryFolderPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
-                else if (Settings.WDefault.StoryPath != string.Empty)
-                    StoryFolderPath = Settings.WDefault.StoryPath;
+                else if (Settings.StoryPath != string.Empty)
+                    StoryFolderPath = Settings.StoryPath;
             }
             else
             {

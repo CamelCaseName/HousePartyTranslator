@@ -10,7 +10,6 @@ using Translator.Core.Data;
 using Translator.Core.DefaultImpls;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
-using Timer = System.Timers.Timer;
 
 //TODO add tests
 
@@ -64,9 +63,9 @@ namespace Translator.Core
             get { return _changesPending; }
             set
             {
-                if (value)
+                if (value && !_changesPending)
                     TabManager.UpdateTabTitle(this, FileName + "*");
-                else
+                else if(!value && _changesPending)
                     TabManager.UpdateTabTitle(this, FileName ?? string.Empty);
                 _changesPending = value;
             }
@@ -89,9 +88,7 @@ namespace Translator.Core
         private bool selectedNew = false;
         private string sourceFilePath = string.Empty;
         private string storyName = string.Empty;
-#nullable disable
-        private static IUIHandler UI;
-#nullable restore
+        private static IUIHandler UI = null!;
         private static bool StaticUIInitialized = false;
         private readonly ITab TabUI;
         private bool triedFixingOnce = false;
@@ -801,7 +798,7 @@ namespace Translator.Core
                     TranslationData[key].IsTemplate = false;
                     TranslationData[key].IsTranslated = tempLine.IsTranslated;
                     TranslationData[key].Story = tempLine.Story;
-                    if (localTakesPriority
+                    if (!localTakesPriority
                         && DataBase.IsOnline
                         && tempLine.TranslationLength > 0)
                         TranslationData[key].TranslationString = tempLine.TranslationString;
@@ -961,7 +958,7 @@ namespace Translator.Core
             if (lastLine.Length > 0)
             {
                 //add last line (dont care about duplicates because the dict)
-                CreateLineInTranslations(lastLine, category, IdsToExport, lastLine[1]);
+                CreateLineInTranslations(lastLine, category, IdsToExport, string.Empty);
             }
         }
 
@@ -1005,6 +1002,7 @@ namespace Translator.Core
         /// </summary>
         public void ReloadFile()
         {
+            Settings.Default.RecentIndex = TabUI.SelectedLineIndex;
             TabManager.ShowAutoSaveDialog();
             LoadTranslationFile();
             if (UI == null) return;
@@ -1023,7 +1021,7 @@ namespace Translator.Core
             TabUI.Lines.Clear();
             TabUI.SimilarStringsToEnglish.Clear();
             SelectedResultIndex = 0;
-            TabManager.SelectedTab.Text = "Tab";
+            TabManager.UpdateSelectedTabTitle("Tab");
             TabUI.SetApprovedCount(1, 1);
         }
 
@@ -1462,9 +1460,9 @@ namespace Translator.Core
             }
         }
 
-        public static void ExportTemplatesForStory()
+        public static void ExportTemplatesForStoryOrFile()
         {
-            string path = Utils.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false);
+            string path = Utils.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false, extension: string.Empty);
             if (Path.GetExtension(path) != string.Empty) ExportTemplate(path);
             else ExportTemplatesForStory(path);
         }
@@ -1482,11 +1480,11 @@ namespace Translator.Core
             if (story == "Hints")
                 file = "Hints";
 
-            LogManager.Log("Exporting template for" + story + "/" + file + " to " + path);
+            LogManager.Log("Exporting template for " + story + "/" + file + " to " + path);
             if (!DataBase.GetAllLineDataTemplate(file, story, out FileData templates))
             {
                 UI.WarningOk("No template found for that story/file, nothing exported.");
-                LogManager.Log("\tNo template found for that file");
+                LogManager.Log("    No template found for that file");
                 return;
             }
 
@@ -1496,7 +1494,7 @@ namespace Translator.Core
             WriteCategorizedLinesToDisk(sortedLines, path);
 
             if (confirmSuccess) UI.InfoOk("Template exported to " + path);
-            LogManager.Log("\tSucessfully exported the template");
+            LogManager.Log("    Sucessfully exported the template");
         }
 
         public static void ExportTemplatesForStory(string path, string story = "")

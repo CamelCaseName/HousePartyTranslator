@@ -167,6 +167,7 @@ namespace Translator.Core.Helpers
                     case "/":
                     case "\\":
                     case "\n":
+                    case "#":
                         textBox.SelectionStart = i;
                         broken = true;
                         break;
@@ -212,6 +213,7 @@ namespace Translator.Core.Helpers
                     case "/":
                     case "\\":
                     case "\n":
+                    case "#":
                         textBox.SelectionStart = i;
                         broken = true;
                         break;

@@ -31,11 +31,11 @@ namespace Translator.Desktop
             Application.SetCompatibleTextRenderingDefault(false);
 
             Core.UICompatibilityLayer.Settings.Initialize(new WinSettings());
-            if (Settings.WDefault.UpdateSettings)
+            if (Settings.UpdateSettings)
             {
-                Settings.WDefault.Upgrade();
-                Settings.WDefault.UpdateSettings = false;
-                Settings.WDefault.Save();
+                Settings.Upgrade();
+                Settings.UpdateSettings = false;
+                Settings.Default.Save();
             }
 
             MainForm = new Fenster();

@@ -45,7 +45,6 @@ namespace Translator.Core
                 else
                 {
                     throw new UnreachableException("There should never be no tab/no translationmanager.");
-                    //return new((IUIHandler<ILineItem>)NullUIHandler.Instance, (ITab<ILineItem>)NullTab.Instance);
                 }
             }
         }
@@ -454,9 +453,9 @@ namespace Translator.Core
         {
             if (Settings.Default.AskForSaveDialog && translationManagers.Count > 0)
             {
-                foreach (KeyValuePair<ITab, TranslationManager> translationManager in translationManagers)
+                foreach (var kvp in translationManagers)
                 {
-                    if (translationManager.Value.ChangesPending)
+                    if (kvp.Value.ChangesPending)
                     {
                         if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
                             _ = SaveAllTabs();
