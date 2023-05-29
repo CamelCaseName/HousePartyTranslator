@@ -301,8 +301,12 @@ namespace Translator.Desktop.UI
                 LogManager.Log(e.ExceptionObject?.ToString() ?? "ExceptionObject is null", LogManager.Level.Error);
 
                 if (e.ExceptionObject == null) return;
-
-                if (e.ExceptionObject.GetType().IsAssignableTo(typeof(Exception)))
+                if (e.ExceptionObject.GetType().IsAssignableTo(typeof(LanguageHelper.LanguageException)))
+                {
+                    Msg.WarningOk("Please select a language first! (Dropdown in the top menu bar)");
+                    LogManager.Log("Aborted, no language selected.");
+                }
+                else if (e.ExceptionObject.GetType().IsAssignableTo(typeof(Exception)))
                 {
                     Utils.DisplayExceptionMessage(((Exception)e.ExceptionObject).Message);
                 }
