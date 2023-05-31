@@ -59,7 +59,7 @@ namespace Translator.Desktop.UI
             // cancel
             // 
             cancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            cancel.Location = new Point(306, 117);
+            cancel.Location = new Point(307, 116);
             cancel.Name = "cancel";
             cancel.Size = new Size(75, 23);
             cancel.TabIndex = 2;
@@ -70,7 +70,7 @@ namespace Translator.Desktop.UI
             // submit
             // 
             submit.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            submit.Location = new Point(12, 117);
+            submit.Location = new Point(12, 116);
             submit.Name = "submit";
             submit.Size = new Size(75, 23);
             submit.TabIndex = 3;
@@ -102,8 +102,7 @@ namespace Translator.Desktop.UI
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = cancel;
-            ClientSize = new Size(393, 152);
-            ControlBox = false;
+            ClientSize = new Size(394, 151);
             Controls.Add(fileLabel);
             Controls.Add(storyLabel);
             Controls.Add(submit);
@@ -111,9 +110,12 @@ namespace Translator.Desktop.UI
             Controls.Add(fileDropdown);
             Controls.Add(storyDropdown);
             MaximizeBox = false;
+            MaximumSize = new Size(410, 190);
+            MinimumSize = new Size(410, 190);
             Name = "NewFileSelector";
             ShowIcon = false;
             ShowInTaskbar = false;
+            StartPosition = FormStartPosition.CenterParent;
             Text = "Create new file";
             Load += NewFileSelector_Load;
             ResumeLayout(false);
