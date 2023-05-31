@@ -125,7 +125,10 @@ namespace Translator.Core
         /// </summary>
         public static void OpenNewTab()
         {
-            OpenInNewTab(Utils.SelectFileFromSystem());
+            foreach (var file in Utils.SelectFilesFromSystem())
+            {
+                OpenInNewTab(file);
+            }
         }
 
         /// <summary>
