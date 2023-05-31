@@ -88,13 +88,13 @@ namespace Translator.Core
         /// Has to be called on start to set the first tab
         /// </summary>
         /// <param name="tab">The initial tab</param>
-        public static void Initialize(IUIHandler ui, Type MenuItem, Type MenuItemSeperator, string appVersion, ITab tab, ISettings settings)
+        public static void Initialize(IUIHandler ui, Type MenuItem, string appVersion, ITab tab, ISettings settings)
         {
             UI = ui;
             _ = Settings.Initialize(settings);
             DataBase.Initialize(ui, appVersion);
             Utils.Initialize(ui);
-            RecentsManager.Initialize(MenuItem, MenuItemSeperator);
+            RecentsManager.Initialize(MenuItem);
             firstTab = tab;
         }
 

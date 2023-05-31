@@ -1,4 +1,7 @@
-﻿namespace Translator.Desktop.Explorer.Graph
+﻿using System.Collections.Generic;
+using System.Drawing;
+
+namespace Translator.Desktop.Explorer.Graph
 {
     //a kind of an adjacencylist, but with edges and a direct node access in parallel
     internal class NodeList : List<Node>
@@ -14,16 +17,6 @@
                 var edge = new Edge(node, Count - 1, node.ChildNodes[c], IndexOf(node.ChildNodes[c]));
                 if (!Edges.Contains(edge)) Edges.Add(edge);
             }
-        }
-
-        public void AddChild(Node This, Node Child)
-        {
-
-        }
-
-        public void AddParent(Node This, Node Child)
-        {
-
         }
 
         public new bool Remove(Node node)

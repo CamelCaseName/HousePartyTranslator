@@ -1,6 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.Versioning;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.OpenCL;
 

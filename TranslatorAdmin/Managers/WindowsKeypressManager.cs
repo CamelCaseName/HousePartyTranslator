@@ -1,4 +1,6 @@
-﻿using Translator.Core;
+﻿using System.Threading;
+using System.Windows.Forms;
+using Translator.Core;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.UI;

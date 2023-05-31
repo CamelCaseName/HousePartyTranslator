@@ -1,4 +1,6 @@
-﻿using Translator.Desktop.Properties;
+﻿using System;
+using System.Windows.Forms;
+using Translator.Desktop.Properties;
 
 namespace Translator.Desktop.UI
 {

@@ -1,4 +1,7 @@
-﻿using Translator.Desktop.Explorer.JSONItems;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using Translator.Desktop.Explorer.JSONItems;
 using static Translator.Desktop.Explorer.JSONItems.StoryEnums;
 
 namespace Translator.Desktop.Explorer.Graph

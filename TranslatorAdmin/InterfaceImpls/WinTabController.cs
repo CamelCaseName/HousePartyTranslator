@@ -1,4 +1,6 @@
-﻿using System.Runtime.Versioning;
+﻿using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Windows.Forms;
 using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Desktop.InterfaceImpls

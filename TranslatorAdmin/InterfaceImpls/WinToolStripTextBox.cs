@@ -1,4 +1,6 @@
-﻿using Translator.Core.UICompatibilityLayer;
+﻿using System;
+using System.Windows.Forms;
+using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Desktop.InterfaceImpls
 {

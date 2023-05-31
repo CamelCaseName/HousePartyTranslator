@@ -1,4 +1,7 @@
-﻿using System.Runtime.Versioning;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Runtime.Versioning;
 
 namespace Translator.Desktop.Explorer.Graph
 {

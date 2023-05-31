@@ -173,7 +173,7 @@ namespace Translator.Core.Helpers
         /// Opens a save file dialogue and returns the selected file as a path.
         /// </summary>
         /// <returns>The path to the file to save to.</returns>
-        public static string SelectSaveLocation(string message = "", string path = "", string file = "", string extension = "txt", bool checkFileExists = true, bool checkPathExists = true)
+        public static string SelectSaveLocation(string message = "", string path = "", string file = "", string extension = "txt", bool checkFileExists = true, bool checkPathExists = true, bool createPrompt = false)
         {
             if (!MainUI?.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
 
@@ -181,7 +181,7 @@ namespace Translator.Core.Helpers
             {
                 /*Title*/message,
                 /*Extension*/ extension,
-                /*CreatePrompt*/ false,
+                /*CreatePrompt*/ createPrompt,
                 /*OverwritePrompt*/ true,
                 /*FileName*/ file,
                 /*InitialDirectory*/ path

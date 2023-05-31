@@ -1,4 +1,6 @@
-﻿namespace Translator.Explorer.Window
+﻿using System.Windows.Forms;
+
+namespace Translator.Explorer.Window
 {
 	partial class StoryExplorer
 	{

@@ -1,4 +1,7 @@
-﻿using Translator.Core.UICompatibilityLayer;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
+using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.UI.Components;
 
 namespace Translator.Desktop.InterfaceImpls
@@ -14,7 +17,8 @@ namespace Translator.Desktop.InterfaceImpls
         public LineList(List<WinLineItem> items, WinLineItem selectedLineItem, int selectedIndex)
         {
             Items.Clear();
-            Items.AddRange((ListBox.ObjectCollection)items.Cast<object>());
+            ListBox.ObjectCollection collection = new(this, new object[] {items});
+            Items.AddRange(collection);
             ((ILineList)this).SelectedLineItem = selectedLineItem;
             SelectedIndex = selectedIndex;
         }

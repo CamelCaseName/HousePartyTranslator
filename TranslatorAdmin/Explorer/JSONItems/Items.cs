@@ -1,4 +1,5 @@
-﻿using static Translator.Desktop.Explorer.JSONItems.StoryEnums;
+﻿using System.Collections.Generic;
+using static Translator.Desktop.Explorer.JSONItems.StoryEnums;
 
 namespace Translator.Desktop.Explorer.JSONItems
 {

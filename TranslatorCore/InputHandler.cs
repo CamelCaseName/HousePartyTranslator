@@ -111,7 +111,7 @@ namespace Translator.Core
 
         public static void SelectedLanguageChanged()
         {
-            TranslationManager.SetLanguage();
+            SetLanguage();
             TabManager.ActiveTranslationManager.ReloadFile();
         }
 
@@ -119,6 +119,25 @@ namespace Translator.Core
         {
             if (TabManager.UI.SelectedTab.Lines.SelectedIndex >= 0)
                 TabManager.UI.SelectedTab.Lines.ApproveItem(TabManager.UI.SelectedTab.Lines.SelectedIndex);
+        }
+
+        /// <summary>
+        /// Sets the language the translation is associated with
+        /// </summary>
+        public static void SetLanguage()
+        {
+            if (TabManager.UI.Language.Length >= 0)
+            {
+                TranslationManager.Language = TabManager.UI.Language;
+            }
+            else if (Settings.Default.Language != string.Empty)
+            {
+                if (Settings.Default.Language != string.Empty)
+                {
+                    TranslationManager.Language = Settings.Default.Language;
+                }
+            }
+            TabManager.UI.Language = TranslationManager.Language;
         }
     }
 }

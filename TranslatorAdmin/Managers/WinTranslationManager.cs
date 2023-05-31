@@ -1,9 +1,13 @@
-﻿using Translator.Core;
+﻿using System.IO;
+using System.Windows.Forms;
+using Translator.Core;
 using Translator.Core.Data;
+using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.JSONItems;
 using Translator.Desktop.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
+using Translator.Desktop.UI;
 using Translator.Helpers;
 namespace Translator.Desktop.Managers
 {

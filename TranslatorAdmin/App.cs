@@ -1,4 +1,6 @@
-﻿using Translator.Core.Helpers;
+﻿using System;
+using System.Windows.Forms;
+using Translator.Core.Helpers;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.UI;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
