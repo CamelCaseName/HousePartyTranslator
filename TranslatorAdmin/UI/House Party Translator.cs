@@ -14,6 +14,7 @@ using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Explorer.Window;
 using Translator.Helpers;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace Translator.Desktop.UI
 {
@@ -66,6 +67,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem openToolStripMenuItem;
         private WinMenuItem newFileToolStripMenuItem;
         private WinMenuItem newFileInNewTabToolStripMenuItem;
+        private WinMenuItem newFilesForStoryToolStripMenuItem;
         private WinMenuItem overrideCloudSaveToolStripMenuItem;
         private WinMenuItem Recents;
         private WinMenuItem ReloadFileMenuItem;
@@ -515,6 +517,18 @@ namespace Translator.Desktop.UI
             };
             newFileInNewTabToolStripMenuItem.Click += (object? sender, EventArgs e) => CreateNewFileInNewTab();
 
+            // newFilesForStoryToolStripMenuItem
+            newFilesForStoryToolStripMenuItem = new WinMenuItem()
+            {
+                Image = (Image?)resources.GetObject("openToolStripMenuItem.Image"),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(newFilesForStoryToolStripMenuItem),
+                Size = new Size(236, 22),
+                Text = "New files for &a story",
+                ToolTipText = "Opens a dialog to create a all files for a story and opens them in tabs"
+            };
+            newFilesForStoryToolStripMenuItem.Click += (object? sender, EventArgs e) => CreateNewFilesForStory();
+
             // openAllToolStripMenuItem
             openAllToolStripMenuItem = new WinMenuItem()
             {
@@ -781,6 +795,7 @@ namespace Translator.Desktop.UI
             fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
                 newFileToolStripMenuItem,
                 newFileInNewTabToolStripMenuItem,
+                newFilesForStoryToolStripMenuItem,
                 new WinMenuSeperator(),
                 openToolStripMenuItem,
                 openAllToolStripMenuItem,
@@ -957,16 +972,65 @@ namespace Translator.Desktop.UI
 
         private static void CreateNewFile()
         {
-            var path = FileManager.CreateNewFile(new NewFileSelector());
-            if (path != string.Empty)
+            var dialog = new NewFileSelector();
+            var path = FileManager.CreateNewFile(dialog);
+            if (path == string.Empty) return;
+
+            if (dialog.FileName == string.Empty)
+            {
+                foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+                {
+                    File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
+                }
+                TabManager.OpenAllTabs(path!);
+            }
+            else
+            {
                 TabManager.OpenFile(path);
+            }
         }
 
         private static void CreateNewFileInNewTab()
         {
-            var path = FileManager.CreateNewFile(new NewFileSelector());
-            if (path != string.Empty)
+            var dialog = new NewFileSelector();
+            var path = FileManager.CreateNewFile(dialog);
+            if (path == string.Empty) return;
+
+            if (dialog.FileName == string.Empty)
+            {
+                foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+                {
+                    File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
+                }
+                TabManager.OpenAllTabs(path!);
+            }
+            else
+            {
                 TabManager.OpenInNewTab(path);
+            }
+        }
+
+        private static void CreateNewFilesForStory()
+        {
+            var dialog = new NewFileSelector();
+            var result = dialog.ShowDialog();
+            if (result != PopupResult.OK) return;
+
+            var path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
+            if (path == string.Empty || path == null) return;
+
+            if (dialog.StoryName == path.Split('\\')[^2])
+                path = Path.GetDirectoryName(path);
+            else
+                _ = Directory.CreateDirectory(path);
+
+            if (path == string.Empty) return;
+
+            foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+            {
+                File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
+            }
+            TabManager.OpenAllTabs(path!);
         }
 
         private void UpdateFileMenuItems()
@@ -975,7 +1039,7 @@ namespace Translator.Desktop.UI
             int recentsStart;
 
             //find start of recents
-            for (recentsStart = 3; recentsStart < FileToolStripMenuItem.DropDownItems.Count; recentsStart++)
+            for (recentsStart = 4; recentsStart < FileToolStripMenuItem.DropDownItems.Count; recentsStart++)
             {
                 if (FileToolStripMenuItem.DropDownItems[recentsStart] is WinMenuSeperator) break;
             }

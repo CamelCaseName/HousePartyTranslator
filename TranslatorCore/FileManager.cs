@@ -428,7 +428,7 @@ namespace Translator.Core
         public static string CreateNewFile(INewFileSelector dialog)
         {
             var result = dialog.ShowDialog();
-            if (result != PopupResult.OK) return string.Empty;
+            if (result != PopupResult.OK || dialog.StoryName == string.Empty) return string.Empty;
 
             var path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
             if (path == string.Empty || path == null) return string.Empty;
@@ -438,8 +438,11 @@ namespace Translator.Core
             else
                 _ = Directory.CreateDirectory(path);
 
-            path = Path.Combine(path!, dialog.FileName);
-            File.OpenWrite(path).Close();
+            if (dialog.FileName != string.Empty)
+            {
+                path = Path.Combine(path!, dialog.FileName + ".txt");
+                File.OpenWrite(path!).Close();
+            }
             return path;
         }
     }

@@ -16,8 +16,8 @@ namespace Translator.Desktop.UI
         public string CombinedStoryFile { get; private set; } = string.Empty;
         public string StoryName { get; private set; } = string.Empty;
         public string FileName { get; private set; } = string.Empty;
-        private readonly HashSet<string> stories;
-        private readonly Dictionary<string, List<string>> files;
+        public readonly HashSet<string> stories;
+        public readonly Dictionary<string, List<string>> files;
 
         public NewFileSelector()
         {
@@ -28,7 +28,14 @@ namespace Translator.Desktop.UI
         private void NewFileSelector_Load(object sender, EventArgs e)
         {
             storyDropdown.Items.Clear();
-            storyDropdown.Items.AddRange(new object[] { stories });
+            var objects = new object[stories.Count];
+            var enumerator = stories.GetEnumerator();
+            int i = 0;
+            while(enumerator.MoveNext())
+            {
+                objects[i++] = enumerator.Current;
+            }
+            storyDropdown.Items.AddRange(objects);
         }
 
         private void Submit_click(object sender, EventArgs e)
@@ -39,7 +46,7 @@ namespace Translator.Desktop.UI
                 return;
             }
             StoryName = storyDropdown.SelectedItem.ToString()!;
-            FileName = fileDropdown.SelectedItem.ToString()!;
+            FileName = fileDropdown.SelectedItem?.ToString() ?? string.Empty;
             CombinedStoryFile = Path.Combine(StoryName, FileName);
             DialogResult = DialogResult.OK;
         }

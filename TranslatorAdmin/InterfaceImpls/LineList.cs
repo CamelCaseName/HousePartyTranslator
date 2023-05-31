@@ -17,7 +17,12 @@ namespace Translator.Desktop.InterfaceImpls
         public LineList(List<WinLineItem> items, WinLineItem selectedLineItem, int selectedIndex)
         {
             Items.Clear();
-            ListBox.ObjectCollection collection = new(this, new object[] {items});
+            var objects = new object[items.Count];
+            for (int i = 0; i < items.Count; i++)
+            {
+                objects[i] = items[i];  
+            }
+            ListBox.ObjectCollection collection = new(this, objects);
             Items.AddRange(collection);
             ((ILineList)this).SelectedLineItem = selectedLineItem;
             SelectedIndex = selectedIndex;
