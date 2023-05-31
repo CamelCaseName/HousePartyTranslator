@@ -972,16 +972,42 @@ namespace Translator.Desktop.UI
 
         private static void CreateNewFile()
         {
-            var path = FileManager.CreateNewFile(new NewFileSelector());
-            if (path != string.Empty)
+            var dialog = new NewFileSelector();
+            var path = FileManager.CreateNewFile(dialog);
+            if (path == string.Empty) return;
+
+            if (dialog.FileName == string.Empty)
+            {
+                foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+                {
+                    File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
+                }
+                TabManager.OpenAllTabs(path!);
+            }
+            else
+            {
                 TabManager.OpenFile(path);
+            }
         }
 
         private static void CreateNewFileInNewTab()
         {
-            var path = FileManager.CreateNewFile(new NewFileSelector());
-            if (path != string.Empty)
+            var dialog = new NewFileSelector();
+            var path = FileManager.CreateNewFile(dialog);
+            if (path == string.Empty) return;
+
+            if (dialog.FileName == string.Empty)
+            {
+                foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+                {
+                    File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
+                }
+                TabManager.OpenAllTabs(path!);
+            }
+            else
+            {
                 TabManager.OpenInNewTab(path);
+            }
         }
 
         private static void CreateNewFilesForStory()
