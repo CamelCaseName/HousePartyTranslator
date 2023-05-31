@@ -1,4 +1,7 @@
-﻿using Translator.Desktop.Explorer.Graph;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.JSONItems;
 
 namespace Translator.Desktop.Explorer.Story

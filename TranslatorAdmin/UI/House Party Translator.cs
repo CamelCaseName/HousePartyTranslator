@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.Runtime.Versioning;
 using System.Threading;
 using System.Threading.Tasks;
@@ -956,12 +957,16 @@ namespace Translator.Desktop.UI
 
         private void CreateNewFile()
         {
-
+            var path = WinTranslationManager.CreateNewFile();
+            if (path != string.Empty)
+                TabManager.OpenFile(path);
         }
 
         private void CreateNewFileInNewTab()
         {
-
+            var path = WinTranslationManager.CreateNewFile();
+            if (path != string.Empty)
+                TabManager.OpenInNewTab(path);
         }
 
         private void UpdateFileMenuItems()

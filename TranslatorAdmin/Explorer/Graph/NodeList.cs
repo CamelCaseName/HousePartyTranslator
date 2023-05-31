@@ -19,16 +19,6 @@ namespace Translator.Desktop.Explorer.Graph
             }
         }
 
-        public void AddChild(Node This, Node Child)
-        {
-
-        }
-
-        public void AddParent(Node This, Node Child)
-        {
-
-        }
-
         public new bool Remove(Node node)
         {
             for (int i = 0; i < node.ChildNodes.Count; i++)

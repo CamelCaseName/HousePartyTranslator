@@ -55,12 +55,11 @@ namespace Translator.Desktop.UI
             fileDropdown.Name = "fileDropdown";
             fileDropdown.Size = new Size(369, 23);
             fileDropdown.TabIndex = 1;
-            fileDropdown.SelectedIndexChanged += FileDropdown_SelectedIndexChanged;
             // 
             // cancel
             // 
             cancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            cancel.Location = new Point(306, 126);
+            cancel.Location = new Point(306, 117);
             cancel.Name = "cancel";
             cancel.Size = new Size(75, 23);
             cancel.TabIndex = 2;
@@ -71,7 +70,7 @@ namespace Translator.Desktop.UI
             // submit
             // 
             submit.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            submit.Location = new Point(12, 126);
+            submit.Location = new Point(12, 117);
             submit.Name = "submit";
             submit.Size = new Size(75, 23);
             submit.TabIndex = 3;

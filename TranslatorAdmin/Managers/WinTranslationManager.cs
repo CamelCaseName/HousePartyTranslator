@@ -1,9 +1,13 @@
-﻿using Translator.Core;
+﻿using System.IO;
+using System.Windows.Forms;
+using Translator.Core;
 using Translator.Core.Data;
+using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.JSONItems;
 using Translator.Desktop.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
+using Translator.Desktop.UI;
 using Translator.Helpers;
 namespace Translator.Desktop.Managers
 {
@@ -127,6 +131,25 @@ namespace Translator.Desktop.Managers
                     App.MainForm.Invoke(() => App.MainForm.Explorer.Grapher.HighlightedNode = App.MainForm.Explorer?.Provider.Nodes.Find(n => n.ID == id) ?? Node.NullNode);
                 }
             }
+        }
+
+        internal static string CreateNewFile()
+        {
+            var dialog = new NewFileSelector();
+            var result = dialog.ShowDialog();
+            if (result != DialogResult.OK) return string.Empty;
+
+            var path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
+            if (path == string.Empty || path == null) return string.Empty;
+
+            if (dialog.StoryName == path.Split('\\')[^2])
+                path = Path.GetDirectoryName(path);
+            else
+                _ = Directory.CreateDirectory(path);
+
+            path = Path.Combine(path!, dialog.FileName);
+            File.OpenWrite(path).Close();
+            return path;
         }
     }
 }

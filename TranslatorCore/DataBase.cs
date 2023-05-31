@@ -993,7 +993,10 @@ namespace Translator.Core
                             continue;
 
                         _ = stories.Add(story);
-                        files[story].Add(file);
+                        if (!files.ContainsKey(story))
+                            files.Add(story, new List<string> { file });
+                        else 
+                            files[story].Add(file);
                     }
                 }
                 else

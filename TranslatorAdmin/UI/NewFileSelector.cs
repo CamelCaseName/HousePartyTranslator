@@ -9,6 +9,8 @@ namespace Translator.Desktop.UI
 {
     public partial class NewFileSelector : Form
     {
+        public string CombinedStoryFile { get; private set; } = string.Empty;
+        public string StoryName { get; private set; } = string.Empty;
         public string FileName { get; private set; } = string.Empty;
         private readonly HashSet<string> stories;
         private readonly Dictionary<string, List<string>> files;
@@ -29,27 +31,25 @@ namespace Translator.Desktop.UI
         {
             if (storyDropdown.SelectedItem == null)
             {
-                FileName = string.Empty;
+                CombinedStoryFile = string.Empty;
                 return;
             }
-            FileName = Path.Combine(storyDropdown.SelectedItem.ToString()!, string.Concat(fileDropdown.SelectedText, ".txt"));
+            StoryName = storyDropdown.SelectedItem.ToString()!;
+            FileName = fileDropdown.SelectedItem.ToString()!;
+            CombinedStoryFile = Path.Combine(StoryName, FileName);
             DialogResult = DialogResult.OK;
         }
 
         private void Cancel_Click(object sender, EventArgs e)
         {
-            FileName = string.Empty;
+            CombinedStoryFile = string.Empty;
             DialogResult = DialogResult.Cancel;
         }
 
         private void StoryDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
-
-        }
-
-        private void FileDropdown_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
+            fileDropdown.Items.Clear();
+            fileDropdown.Items.AddRange(files[storyDropdown.SelectedItem.ToString()!].ToArray());
         }
     }
 }
