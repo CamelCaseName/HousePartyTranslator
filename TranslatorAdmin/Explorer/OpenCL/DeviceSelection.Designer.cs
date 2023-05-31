@@ -1,4 +1,6 @@
-﻿namespace Translator.Explorer.OpenCL
+﻿using System.Windows.Forms;
+
+namespace Translator.Explorer.OpenCL
 {
 	partial class DeviceSelection
 	{

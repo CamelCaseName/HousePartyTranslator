@@ -1,5 +1,10 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.IO;
 using System.Runtime.Versioning;
+using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;

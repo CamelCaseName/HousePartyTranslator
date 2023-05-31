@@ -1,4 +1,7 @@
-﻿namespace Translator.Desktop.Explorer.Graph
+﻿using System.Collections.Generic;
+using System.Drawing;
+
+namespace Translator.Desktop.Explorer.Graph
 {
     //a kind of an adjacencylist, but with edges and a direct node access in parallel
     internal class NodeList : List<Node>

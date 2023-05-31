@@ -1,5 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Drawing;
 using System.Runtime.Versioning;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
@@ -358,7 +363,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(generateTemplateForFile),
                 Size = new Size(236, 22),
-                Text = "Generate o&ne Template file",
+                Text = "Generate o&ne template file",
                 ToolTipText = "Generates and uploads the template for a single file"
             };
             generateTemplateForFile.Click += (object? sender, EventArgs e) => TranslationManager.GenerateTemplateForSingleFile(true);
@@ -369,7 +374,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(generateTemplateForCompleteStory),
                 Size = new Size(236, 22),
-                Text = "&Generate all Template files",
+                Text = "&Generate all template files",
                 ToolTipText = "Generates and uploads templates for a complete story"
             };
             generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TranslationManager.GenerateTemplateForAllFiles(true);
@@ -380,7 +385,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(createTemplateForFile),
                 Size = new Size(236, 22),
-                Text = "Create &one Template file",
+                Text = "Create &one template file",
                 ToolTipText = "Creates the template locally for a single file"
             };
             createTemplateForFile.Click += (object? sender, EventArgs e) => TranslationManager.GenerateTemplateForSingleFile(false);
@@ -391,7 +396,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(createTemplateForCompleteStory),
                 Size = new Size(236, 22),
-                Text = "&Create all Template files",
+                Text = "&Create all template files",
                 ToolTipText = "Creates templates locally for a complete story"
             };
             createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => TranslationManager.GenerateTemplateForAllFiles(false);
@@ -424,7 +429,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(exportTemplates),
                 Size = new Size(236, 22),
-                Text = "Export &Template files",
+                Text = "Export &template files",
                 ToolTipText = "Exports templates for a complete story or single file"
             };
             exportTemplates.Click += (object? sender, EventArgs e) => TranslationManager.ExportTemplatesForStoryOrFile();
@@ -446,7 +451,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(searchAllToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "Search &All",
+                Text = "Search &all",
                 ToolTipText = "Selects the search bar with the search all open files mode"
             };
             searchAllToolStripMenuItem.Click += new EventHandler(SearchAllToolStripMenuItem_click);
@@ -492,10 +497,10 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(newFileToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "&New File",
+                Text = "&New file",
                 ToolTipText = "Opens a dialog to create a new file"
             };
-            newFileToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.OpenNewFiles();
+            newFileToolStripMenuItem.Click += (object? sender, EventArgs e) => CreateNewFile();
 
             // newFileInNewTabToolStripMenuItem
             newFileInNewTabToolStripMenuItem = new WinMenuItem()
@@ -504,10 +509,10 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(newFileInNewTabToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "New &File",
+                Text = "New &file in new tab",
                 ToolTipText = "Opens a dialog to create a new file and open it in a new tab"
             };
-            newFileInNewTabToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.OpenNewFiles();
+            newFileInNewTabToolStripMenuItem.Click += (object? sender, EventArgs e) => CreateNewFileInNewTab();
 
             // openAllToolStripMenuItem
             openAllToolStripMenuItem = new WinMenuItem()
@@ -563,7 +568,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(saveAllToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "Sa&ve All",
+                Text = "Sa&ve all",
                 ToolTipText = "Saves all currently opened files to disk and online."
             };
             saveAllToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.SaveAllTabs();
@@ -575,7 +580,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(saveAsToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "Save &As",
+                Text = "Save &as",
                 ToolTipText = "Saves the currently selected file online and to disk with a new name."
             };
             saveAsToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.SaveFileAs();
@@ -587,7 +592,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(overrideCloudSaveToolStripMenuItem),
                 Size = new Size(236, 22),
-                Text = "Override &Cloud Save",
+                Text = "Override &cloud save",
                 ToolTipText = "Overrides the online state with the actual contents of the currently opened file. Only available in the Admin version."
             };
             overrideCloudSaveToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.OverrideCloudSave();
@@ -947,6 +952,16 @@ namespace Translator.Desktop.UI
         {
             if (ActiveControl == null) return;
             InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
+        }
+
+        private void CreateNewFile()
+        {
+
+        }
+
+        private void CreateNewFileInNewTab()
+        {
+
         }
 
         private void UpdateFileMenuItems()

@@ -1,4 +1,7 @@
-﻿namespace Translator.Desktop.UI.Components
+﻿using System.Drawing;
+using System.Windows.Forms;
+
+namespace Translator.Desktop.UI.Components
 {
     /// <summary>
     /// A extended WinForms ProgressBar which has a different colour and removes the animation.

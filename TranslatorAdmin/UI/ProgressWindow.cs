@@ -1,4 +1,6 @@
-﻿using Translator.Desktop.UI.Components;
+﻿using System.Drawing;
+using System.Windows.Forms;
+using Translator.Desktop.UI.Components;
 
 namespace Translator.Desktop.UI
 {

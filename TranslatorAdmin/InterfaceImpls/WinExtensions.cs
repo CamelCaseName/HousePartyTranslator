@@ -1,4 +1,6 @@
-﻿using System.Runtime.Versioning;
+﻿using System.Collections.Generic;
+using System.Runtime.Versioning;
+using System.Windows.Forms;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.Explorer.Graph;

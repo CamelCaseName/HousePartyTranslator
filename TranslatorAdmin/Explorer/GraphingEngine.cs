@@ -1,5 +1,9 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Runtime.Versioning;
+using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;

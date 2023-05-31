@@ -1,4 +1,7 @@
-﻿namespace Translator.Desktop.UI
+﻿using System;
+using System.Windows.Forms;
+
+namespace Translator.Desktop.UI
 {
     /// <summary>
     /// A Class providing a Popup Form with a password field and a Submit button whcih returns an Button.OK state when clicked.

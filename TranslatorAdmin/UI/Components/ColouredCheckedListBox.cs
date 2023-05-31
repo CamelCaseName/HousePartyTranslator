@@ -1,4 +1,9 @@
-﻿namespace Translator.Desktop.UI.Components
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Windows.Forms;
+
+namespace Translator.Desktop.UI.Components
 {
     /// <summary>
     /// Borrowed from https://stackoverflow.com/questions/2130934/how-change-the-color-of-selecteditem-in-checkedlistbox-in-windowsforms

@@ -6,6 +6,10 @@ using Translator.Desktop.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 using Translator.Desktop.UI.Components;
+using System.Windows.Forms;
+using System.Threading;
+using System;
+using System.Drawing;
 
 namespace Translator.Explorer.Window
 {

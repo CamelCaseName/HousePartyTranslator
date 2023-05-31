@@ -1,4 +1,6 @@
-﻿namespace Translator.Helpers
+﻿using System.Windows.Forms;
+
+namespace Translator.Helpers
 {
     /// <summary>
     /// Helper class to make messagebox calls smaller and more concise

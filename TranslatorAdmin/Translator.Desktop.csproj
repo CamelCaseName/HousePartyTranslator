@@ -5,7 +5,7 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <ImplicitUsings>disable</ImplicitUsings>
     <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
     <StartupObject>Translator.Desktop.App</StartupObject>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
@@ -52,15 +52,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="UI\House Party Translator.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="UI\PasswordBox.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="UI\ProgressWindow.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="UI\House Party Translator.cs" />
+    <Compile Update="UI\PasswordBox.cs" />
+    <Compile Update="UI\ProgressWindow.cs" />
     <Compile Update="Properties\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -71,16 +65,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Update="UI\SettingsForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
+    <Compile Update="UI\SettingsForm.cs" />
     <Compile Update="Explorer\StoryExplorer.cs" />
-    <Compile Update="UI\Components\ColouredCheckedListBox.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Update="UI\Components\NoAnimationBar.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Update="UI\Components\ColouredCheckedListBox.cs" />
+    <Compile Update="UI\Components\NoAnimationBar.cs" />
   </ItemGroup>
 
   <ItemGroup>

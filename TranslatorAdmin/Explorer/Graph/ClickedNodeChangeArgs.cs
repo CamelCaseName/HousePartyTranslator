@@ -1,4 +1,6 @@
-﻿namespace Translator.Desktop.Explorer.Graph
+﻿using System;
+
+namespace Translator.Desktop.Explorer.Graph
 {
     internal sealed class ClickedNodeChangeArgs : EventArgs
     {

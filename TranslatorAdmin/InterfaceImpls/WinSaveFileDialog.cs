@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Versioning;
+using System.Windows.Forms;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 

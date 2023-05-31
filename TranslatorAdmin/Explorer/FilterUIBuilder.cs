@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Drawing;
+using System.Reflection;
+using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Desktop.Properties;
 

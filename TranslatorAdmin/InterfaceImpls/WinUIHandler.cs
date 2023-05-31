@@ -1,4 +1,6 @@
-﻿using Translator.Core;
+﻿using System;
+using System.Windows.Forms;
+using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.Managers;

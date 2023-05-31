@@ -1,4 +1,6 @@
-﻿using Translator.Core.Helpers;
+﻿using System;
+using System.Drawing;
+using Translator.Core.Helpers;
 using Translator.Desktop.Properties;
 namespace Translator.Desktop.InterfaceImpls
 {
