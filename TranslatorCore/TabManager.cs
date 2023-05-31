@@ -155,41 +155,31 @@ namespace Translator.Core
         }
 
         /// <summary>
+        /// Does all the logic to open all files in the the given folder/path
+        /// </summary>
+        public static void OpenAllTabs(string basePath)
+        {
+            if (basePath == string.Empty) return;
+
+            UI.SignalUserWait();
+
+            foreach (string filePath in Directory.GetFiles(basePath))
+            {
+                if (Path.GetExtension(filePath) == ".txt")
+                {
+                    OpenInNewTab(filePath);
+                }
+            }
+
+            UI.SignalUserEndWait();
+        }
+
+        /// <summary>
         /// Does all the logic to open all files form a story in tabs
         /// </summary>
         public static void OpenAllTabs()
         {
-            string basePath = Utils.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language");
-
-            if (basePath.Length > 0)
-            {
-                UI.SignalUserWait();
-                foreach (string path in Directory.GetDirectories(basePath))
-                {
-                    string[] folders = path.Split('\\');
-
-                    //get parent folder name
-                    string tempName = folders[^1];
-                    //get language text representation
-                    bool gotLanguage = LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText);
-                    //compare
-                    if (tempName == languageAsText && gotLanguage)
-                    {
-                        //get foler one more up
-                        basePath = path;
-                        break;
-                    }
-                }
-
-                foreach (string filePath in Directory.GetFiles(basePath))
-                {
-                    if (Path.GetExtension(filePath) == ".txt")
-                    {
-                        OpenInNewTab(filePath);
-                    }
-                }
-                UI.SignalUserEndWait();
-            }
+            OpenAllTabs(Utils.SelectFolderFromSystem("Select the folder named like the Story you want to translate. It has to contain the Translation files, optionally under a folder named after the language"));
         }
 
         /// <summary>
@@ -434,14 +424,17 @@ namespace Translator.Core
             var paths = Utils.SelectFilesFromSystem();
             if (paths.Length == 1)
             {
-
                 OpenFile(paths[0]);
             }
             else
             {
+                int i = 0;
                 foreach (var path in paths)
                 {
-                    OpenInNewTab(path);
+                    if (i++ == 0)
+                        OpenFile(path);
+                    else
+                        OpenInNewTab(path);
                 }
             }
         }
