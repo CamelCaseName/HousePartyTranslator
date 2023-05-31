@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Org.BouncyCastle.Crypto.Tls;
+using System;
 using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using Translator.Core.Data;
@@ -272,7 +274,8 @@ namespace Translator.Core.Helpers
             return Utils.GetStringFromCategory(category);
         }
 
-        public static LineData ElementAt(this Dictionary<string, LineData>.ValueCollection dict, int index)
+        public static TValue ElementAt<TKey, TValue>(this Dictionary<TKey, TValue>.ValueCollection dict, int index)
+            where TKey: notnull
         {
             if (index >= dict.Count) throw new ArgumentOutOfRangeException(nameof(index));
 
@@ -284,6 +287,45 @@ namespace Translator.Core.Helpers
                 else ++i;
             }
             throw new IndexOutOfRangeException(nameof(index));
+        }
+
+        public static TValue ElementAt<TKey, TValue>(this Dictionary<TKey, TValue> dict, int index)
+            where TKey : notnull
+        {
+            if (index >= dict.Count) throw new ArgumentOutOfRangeException(nameof(index));
+
+            var enumerator = dict.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                if (i == index) return enumerator.Current.Value;
+                else ++i;
+            }
+            throw new IndexOutOfRangeException(nameof(index));
+        }
+
+        public static TKey ElementAt<TKey, TValue>(this Dictionary<TKey, TValue>.KeyCollection dict, int index)
+            where TKey : notnull
+        {
+            if (index >= dict.Count) throw new ArgumentOutOfRangeException(nameof(index));
+
+            var enumerator = dict.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                if (i == index) return enumerator.Current;
+                else ++i;
+            }
+            throw new IndexOutOfRangeException(nameof(index));
+        }
+
+        public static bool Contains(this int[] arr, int value)
+        {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (arr[i] == value) return true;
+            }
+            return false;
         }
     }
 }

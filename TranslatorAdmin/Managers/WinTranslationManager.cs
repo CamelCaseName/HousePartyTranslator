@@ -132,24 +132,5 @@ namespace Translator.Desktop.Managers
                 }
             }
         }
-
-        internal static string CreateNewFile()
-        {
-            var dialog = new NewFileSelector();
-            var result = dialog.ShowDialog();
-            if (result != DialogResult.OK) return string.Empty;
-
-            var path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
-            if (path == string.Empty || path == null) return string.Empty;
-
-            if (dialog.StoryName == path.Split('\\')[^2])
-                path = Path.GetDirectoryName(path);
-            else
-                _ = Directory.CreateDirectory(path);
-
-            path = Path.Combine(path!, dialog.FileName);
-            File.OpenWrite(path).Close();
-            return path;
-        }
     }
 }

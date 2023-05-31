@@ -1,9 +1,6 @@
-﻿using Microsoft.VisualBasic.FileIO;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using Translator.Core.Data;
@@ -78,9 +75,6 @@ namespace Translator.Core
         public int SelectedResultIndex = 0;
         public ILineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : new DefaultLineItem();
 
-        //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
-        private static int templateCounter = 0;
-
         public FileData TranslationData = new(string.Empty, string.Empty);
         private string fileName = string.Empty;
         private bool isSaveAs = false;
@@ -100,7 +94,7 @@ namespace Translator.Core
             AutoSaveTimer.Elapsed += SaveFileHandler;
 
             if (!IsUpToDate && Settings.Default.AdvancedModeEnabled)
-                GenerateOfficialTemplates();
+                FileManager.GenerateOfficialTemplates();
         }
 
         static TranslationManager()
@@ -541,16 +535,17 @@ namespace Translator.Core
             }
             if (doOnlineUpdate) _ = Task.Run(RemoteUpdate);
 
-            List<CategorizedLines> CategorizedStrings = InitializeCategories(StoryName, FileName);
+            List<CategorizedLines> CategorizedStrings = FileManager.InitializeCategories(StoryName, FileName);
 
             //sort online line ids into translations but use local values for translations if applicable
             if (DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase.IsOnline)
-                SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
+                FileManager.SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
             else
-                SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
+                FileManager.SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
+            FileManager.
 
-            //save all categorized lines to disk
-            WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
+                        //save all categorized lines to disk
+                        WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
 
             //copy file to game rather than writing again
             if (Settings.Default.AlsoSaveToGame)
@@ -835,7 +830,7 @@ namespace Translator.Core
         {
             if (UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES))
             {
-                return GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false);
+                return FileManager.GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false);
             }
             return new FileData(StoryName, FileName);
         }
@@ -1096,436 +1091,6 @@ namespace Translator.Core
                     ReloadFile();
                 }
             }
-        }
-
-        /// <summary>
-        /// tldr: magic
-        ///
-        /// loads all the strings from the selected file into a list of LineData elements.
-        /// </summary>
-        private static FileData GetTemplateFromFile(string path, string story = "", string fileName = "", bool doIterNumbers = true)
-        {
-            if (Utils.ExtractFileName(path) != fileName)
-            {
-                _ = UI.WarningOk("The template file must have the same name as the file you want to translate!");
-                return new FileData(story, fileName);
-            }
-            if(story == string.Empty) story = Utils.ExtractStoryName(path);
-            if(fileName == string.Empty) fileName = Utils.ExtractFileName(path);
-
-            var fileData = new FileData(story, fileName);
-            StringCategory currentCategory = StringCategory.General;
-            string multiLineCollector = string.Empty;
-            string[] lastLine = Array.Empty<string>();
-            //string[] lastLastLine = { };
-            //read in lines
-            var LinesFromFile = new List<string>(File.ReadAllLines(path));
-            //remove last if empty, breaks line loading for the last
-            while (LinesFromFile[^1] == string.Empty) _ = LinesFromFile.Remove(LinesFromFile[^1]);
-            //load lines and their data and split accordingly
-            foreach (string line in LinesFromFile)
-            {
-                if (line.Contains('|'))
-                {
-                    //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
-
-                    //get current line
-                    lastLine = line.Split('|');
-
-                    //reset multiline collector
-                    multiLineCollector = string.Empty;
-                }
-                else
-                {
-                    StringCategory tempCategory = line.AsCategory();
-                    if (tempCategory == StringCategory.Neither)
-                    {
-                        //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
-                        multiLineCollector += "\n" + line;
-                    }
-                    else
-                    {
-                        //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
-                        lastLine = Array.Empty<string>();
-                        multiLineCollector = string.Empty;
-                        currentCategory = tempCategory;
-                    }
-                }
-            }
-            //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1], true);
-
-            return fileData;
-        }
-
-        private static void GenerateOfficialTemplates()
-        {
-            if (UI.InfoYesNoCancel($"You will now be prompted to select any folder in the folder which contains all Official Stories and UI/Hints.", "Create templates for a official stories") != PopupResult.YES)
-                return;
-
-            //set up 
-            string path = Utils.SelectTemplateFolderFromSystem();
-            if (path.Length == 0) return;
-
-            UI.SignalUserWait();
-
-            LogManager.Log("Creating official templates for version " + Settings.Default.FileVersion);
-
-            //create translation and open it
-            FileData templates;
-            foreach (var folder_path in Directory.GetDirectories(Directory.GetParent(path)?.FullName ?? string.Empty))
-            {
-                string story = Utils.ExtractStoryName(folder_path);
-                foreach (var file_path in Directory.GetFiles(folder_path))
-                {
-                    var file = Utils.ExtractFileName(file_path);
-                    if (Path.GetExtension(file_path) != ".txt") continue;
-
-                    //create and upload templates
-                    templates = GetTemplateFromFile(file_path, story, file, false);
-                    if (templates.Count > 0)
-                    {
-                        if (!DataBase.RemoveOldTemplates(file, story))
-                        {
-                            _ = UI.ErrorOk("New official templates were not removed, please try again.");
-                            UI.SignalUserEndWait();
-                            return;
-                        }
-                        if (!DataBase.UploadTemplates(templates))
-                        {
-                            _ = UI.ErrorOk("New official templates were not uploaded, please try again.");
-                            UI.SignalUserEndWait();
-                            return;
-                        }
-                        LogManager.Log($"Successfully read and uploaded templates for {story}/{file}");
-                    }
-                    else
-                    {
-                        _ = UI.ErrorOk($"{story}/{file} contained no templates, skipping");
-                    }
-                }
-            }
-            DataBase.UpdateDBVersion();
-            UI.InfoOk("Successfully created and uploaded offical templates");
-            LogManager.Log("Successfully created and uploaded offical templates");
-            UI.SignalUserEndWait();
-        }
-
-        public static void GenerateTemplateForSingleFile(bool SaveOnline = false)
-        {
-            PopupResult typeResult;
-            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file you want to create the template for. (Note: templates of official stories can only be created for local use)", "Create a template")) != PopupResult.CANCEL)
-            {
-                //set up 
-                string path = Utils.SelectFileFromSystem(false, "Select the file to create the template for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
-                if (path.Length == 0) return;
-
-                UI.SignalUserWait();
-                (string story, string file) = Utils.ExtractFileAndStoryName(path);
-
-                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
-
-                LogManager.Log("creating template for " + story + "/" + file);
-                //create and upload templates
-                if (UI.CreateTemplateFromStory(story, file, path, out FileData templates))
-                {
-                    if (templates.Count > 0 && SaveOnline)
-                    {
-                        _ = DataBase.RemoveOldTemplates(file, story);
-                        _ = DataBase.UploadTemplates(templates);
-                    }
-                    else if (SaveOnline)
-                    {
-                        _ = UI.ErrorOk("No template resulted from the generation, please try again.");
-                        UI.SignalUserEndWait();
-                        return;
-                    }
-                }
-                else
-                {
-                    _ = UI.ErrorOk("Template was not created, please try again.");
-                    UI.SignalUserEndWait();
-                    return;
-                }
-
-                LogManager.Log("successfully created template");
-
-                //create translation and open it
-                string newFile = Utils.SelectSaveLocation("Select a file to save the generated templates to", path, file, "txt", false, false);
-                if (newFile != string.Empty)
-                {
-                    var sortedLines = InitializeCategories(story, file);
-                    SortIntoCategories(ref sortedLines, templates, templates);
-
-                    WriteCategorizedLinesToDisk(sortedLines, newFile);
-                }
-                UI.SignalUserEndWait();
-            }
-        }
-
-        public static void GenerateTemplateForAllFiles(bool SaveOnline = false)
-        {
-            PopupResult typeResult;
-            if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select any file in the story folder you want to create the templates for. After that you must select the folder in which the translations will be placed.", "Create templates for a complete story")) != PopupResult.CANCEL)
-            {
-                //set up 
-                string path = Utils.SelectFileFromSystem(false, "Select a file in the folder you want to create templates for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
-                if (path.Length == 0) return;
-
-                UI.SignalUserWait();
-                string story = Utils.ExtractStoryName(path);
-
-                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
-                LogManager.Log("creating templates for " + story);
-
-                //create translation and open it
-                string newFiles_dir = Directory.GetParent(Utils.SelectSaveLocation("Select the folder where you want the generated templates to go", path, "template export", string.Empty, false, false))?.FullName
-                    ?? SpecialDirectories.MyDocuments;
-                foreach (var file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
-                {
-                    string file = Utils.ExtractFileName(file_path);
-                    if (Path.GetExtension(file_path) != ".character" && Path.GetExtension(file_path) != ".story") continue;
-
-                    //create and upload templates
-                    if (UI.CreateTemplateFromStory(story, file, file_path, out FileData templates))
-                    {
-                        if (templates.Count > 0 && SaveOnline)
-                        {
-                            _ = DataBase.RemoveOldTemplates(file, story);
-                            _ = DataBase.UploadTemplates(templates);
-                        }
-                        else if (SaveOnline)
-                        {
-                            _ = UI.ErrorOk("No templates resulted from the generation, please try again.");
-                            UI.SignalUserEndWait();
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        _ = UI.ErrorOk("Templates were not created, please try again.");
-                        UI.SignalUserEndWait();
-                        return;
-                    }
-
-                    if (newFiles_dir != string.Empty)
-                    {
-                        var sortedLines = InitializeCategories(story, file);
-                        SortIntoCategories(ref sortedLines, templates, templates);
-                        WriteCategorizedLinesToDisk(sortedLines, Path.Combine(newFiles_dir, file + ".txt"));
-                    }
-                }
-
-                LogManager.Log("successfully created templates");
-                UI.SignalUserEndWait();
-            }
-        }
-
-        /// <summary>
-        /// Sets the language the translation is associated with
-        /// </summary>
-        public static void SetLanguage()
-        {
-            if (UI.Language.Length >= 0)
-            {
-                Language = UI.Language;
-            }
-            else if (Settings.Default.Language != string.Empty)
-            {
-                string languageFromFile = Settings.Default.Language;
-                if (languageFromFile != string.Empty)
-                {
-                    Language = languageFromFile;
-                }
-            }
-            UI.Language = Language;
-        }
-
-        /// <summary>
-        /// Generates a list of all string categories depending on the filename.
-        /// </summary>
-        public static List<StringCategory> GetCategories(string story, string file)
-        {
-            if (story == "UI" || story == "Hints")
-            {
-                return new List<StringCategory>() { StringCategory.General };
-            }
-            else if (file == story)
-            {
-                return new List<StringCategory>() {
-                            StringCategory.General,
-                            StringCategory.ItemName,
-                            StringCategory.ItemAction,
-                            StringCategory.ItemGroupAction,
-                            StringCategory.Event,
-                            StringCategory.Achievement };
-            }
-            else
-            {
-                return new List<StringCategory>() {
-                            StringCategory.General,
-                            StringCategory.Dialogue,
-                            StringCategory.Response,
-                            StringCategory.Quest,
-                            StringCategory.Event,
-                            StringCategory.BGC};
-            }
-        }
-
-        internal static void SortIntoCategories(ref List<CategorizedLines> CategorizedStrings, FileData IdsToExport, FileData translationData)
-        {
-            foreach (LineData item in IdsToExport.Values)
-            {
-                if (item.ID == string.Empty) continue;
-                if (translationData.TryGetValue(item.ID, out LineData? TempResult))
-                {
-                    if (TempResult?.TranslationLength > 0)
-                        item.TranslationString = TempResult?.TranslationString ?? item.TemplateString.RemoveVAHints();
-                    else
-                        item.TranslationString = item.TemplateString.RemoveVAHints();
-                }
-                else
-                {
-                    item.TranslationString = item.TemplateString.RemoveVAHints();
-                }
-
-                int intCategory = CategorizedStrings.FindIndex(predicateCategory => predicateCategory.category == item.Category);
-
-                if (intCategory < CategorizedStrings.Count && intCategory >= 0)
-                    CategorizedStrings[intCategory].lines.Add(item);
-                else
-                {
-                    CategorizedStrings.Add((new List<LineData>(), item.Category));
-                    CategorizedStrings[^1].lines.Add(item);
-                }
-            }
-        }
-
-        internal static List<CategorizedLines> InitializeCategories(string story, string file)
-        {
-            var CategorizedStrings = new List<CategorizedLines>();
-
-            foreach (StringCategory category in GetCategories(story, file))
-            {//add a list for every category we have in the file, so we can then add the strings to these.
-                CategorizedStrings.Add((new List<LineData>(), category));
-            }
-
-            return CategorizedStrings;
-        }
-
-        internal static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false)
-        {
-            CultureInfo culture = CultureInfo.InvariantCulture;
-            if (warnOnOverwrite)
-                if (File.OpenRead(path).Length > 0)
-                    if (UI.WarningYesNo("You are about to overwrite " + path + " \nAre you sure?", "Warning", PopupResult.NO))
-                        return;
-            using var OutputWriter = new StreamWriter(path, false, new UTF8Encoding(true));
-            foreach (CategorizedLines CategorizedLines in CategorizedStrings)
-            {
-                //write category if it has any lines, else we skip the category
-                if (CategorizedLines.lines.Count > 0) OutputWriter.WriteLine(CategorizedLines.category.AsString());
-                else continue;
-
-                //sort strings depending on category
-                if (CategorizedLines.category == StringCategory.Dialogue)
-                {
-                    CategorizedLines.lines.Sort((line1, line2) => decimal.Parse(line1.ID, culture).CompareTo(decimal.Parse(line2.ID, culture)));
-                }
-                else if (CategorizedLines.category == StringCategory.BGC)
-                {
-                    //sort using custom IComparer
-                    CategorizedLines.lines.Sort(new BGCComparer());
-                }
-                else if (CategorizedLines.category == StringCategory.General)
-                {
-                    //hints have to be sortet a bit different because the numbers can contain a u
-                    CategorizedLines.lines.Sort(new GeneralComparer());
-                }
-                else if (CategorizedLines.category == StringCategory.Quest || CategorizedLines.category == StringCategory.Achievement)
-                {
-                    CategorizedLines.lines.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
-                }
-
-                //iterate through each and print them
-                foreach (LineData line in CategorizedLines.lines)
-                {
-                    OutputWriter.WriteLine(line.ToString().RemoveVAHints());
-                }
-                //newline after each category
-                OutputWriter.WriteLine();
-            }
-        }
-
-        public static void ExportTemplatesForStoryOrFile()
-        {
-            string path = Utils.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false, extension: string.Empty);
-            if (Path.GetExtension(path) != string.Empty) ExportTemplate(path);
-            else ExportTemplatesForStory(path);
-        }
-
-        public static void ExportTemplate(string path, string story = "", string file = "", bool warnOnOverwrite = false, bool confirmSuccess = true)
-        {
-            if (path == string.Empty) return;
-            if (!File.Exists(path)) File.OpenWrite(path).Close();
-            else if (warnOnOverwrite)
-                if (UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO)) return;
-
-            if (story == string.Empty) story = Utils.ExtractStoryName(path);
-            if (file == string.Empty) file = Utils.ExtractFileName(path);
-
-            if (story == "Hints")
-                file = "Hints";
-
-            LogManager.Log("Exporting template for " + story + "/" + file + " to " + path);
-            if (!DataBase.GetAllLineDataTemplate(file, story, out FileData templates))
-            {
-                UI.WarningOk("No template found for that story/file, nothing exported.");
-                LogManager.Log("    No template found for that file");
-                return;
-            }
-
-            var sortedLines = InitializeCategories(story, file);
-            SortIntoCategories(ref sortedLines, templates, templates);
-
-            WriteCategorizedLinesToDisk(sortedLines, path);
-
-            if (confirmSuccess) UI.InfoOk("Template exported to " + path);
-            LogManager.Log("    Sucessfully exported the template");
-        }
-
-        public static void ExportTemplatesForStory(string path, string story = "")
-        {
-            if (path == string.Empty) return;
-            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-            if (story == string.Empty) story = Utils.ExtractStoryName(path);
-            //todo add fallback to have the user enter the story if the story cant be found
-            LogManager.Log("Exporting all templates for " + story + " to " + path);
-
-            //export templates as hints.txt if we have the hints, no need to get filenames
-            if (story == "Hints")
-                ExportTemplate(Path.Combine(path, "Hints.txt"), story, story, confirmSuccess: false);
-            else if (Directory.GetFiles(path).Length > 0)
-                foreach (var file in Directory.GetFiles(path))
-                {
-                    ExportTemplate(file, story, warnOnOverwrite: true, confirmSuccess: false);
-                }
-            else if (DataBase.GetFilesForStory(story, out string[] names))
-                foreach (var item in names)
-                {
-                    ExportTemplate(Path.Combine(path, item + ".txt"), story, item, confirmSuccess: false);
-                }
-            else
-            {
-                UI.WarningOk("No templates found for that story, nothing exported.");
-                LogManager.Log("\tNo templates found for that story");
-                return;
-            }
-
-            UI.InfoOk("Templates exported to " + path);
-            LogManager.Log("\tSucessfully exported the templates");
         }
     }
 }

@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core;
+using Translator.Core.Data;
+using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.InterfaceImpls;
 
 namespace Translator.Desktop.UI
 {
-    public partial class NewFileSelector : Form
+    [SupportedOSPlatform("Windows")]
+    public partial class NewFileSelector : Form, INewFileSelector
     {
         public string CombinedStoryFile { get; private set; } = string.Empty;
         public string StoryName { get; private set; } = string.Empty;
@@ -24,7 +28,7 @@ namespace Translator.Desktop.UI
         private void NewFileSelector_Load(object sender, EventArgs e)
         {
             storyDropdown.Items.Clear();
-            storyDropdown.Items.AddRange(stories.ToArray());
+            storyDropdown.Items.AddRange(new object[] { stories });
         }
 
         private void Submit_click(object sender, EventArgs e)
@@ -50,6 +54,11 @@ namespace Translator.Desktop.UI
         {
             fileDropdown.Items.Clear();
             fileDropdown.Items.AddRange(files[storyDropdown.SelectedItem.ToString()!].ToArray());
+        }
+
+        public new PopupResult ShowDialog()
+        {
+            return base.ShowDialog().ToPopupResult();
         }
     }
 }
