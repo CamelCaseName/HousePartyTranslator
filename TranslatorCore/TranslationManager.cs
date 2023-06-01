@@ -60,11 +60,14 @@ namespace Translator.Core
             get { return _changesPending; }
             set
             {
-                if (value && !_changesPending)
-                    TabManager.UpdateTabTitle(this, FileName + "*");
-                else if (!value && _changesPending)
-                    TabManager.UpdateTabTitle(this, FileName ?? string.Empty);
-                _changesPending = value;
+                if (TranslationData.Count > 0)
+                {
+                    if (value && !_changesPending)
+                        TabManager.UpdateTabTitle(this, FileName + "*");
+                    else if (!value && _changesPending)
+                        TabManager.UpdateTabTitle(this, FileName ?? string.Empty);
+                    _changesPending = value;
+                }
             }
         }
         private bool _changesPending = false;
@@ -137,7 +140,14 @@ namespace Translator.Core
         /// </summary>
         public string SelectedId { get { return TabUI.SelectedLineItem.Text; } }
 
-        public LineData SelectedLine { get { return TranslationData[SelectedId]; } }
+        public LineData SelectedLine
+        {
+            get
+            {
+                if (SelectedId == string.Empty) return new();
+                else return TranslationData[SelectedId];
+            }
+        }
 
         /// <summary>
         /// The path to the file currently loaded.
