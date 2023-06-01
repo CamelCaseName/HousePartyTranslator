@@ -641,9 +641,10 @@ namespace Translator.Desktop.UI
                 BackColor = menu,
                 BorderStyle = BorderStyle.FixedSingle,
                 Font = new Font("Segoe UI", 9F),
-                AutoSize = true,
                 Name = nameof(searchToolStripTextBox),
                 Size = new Size(150, 23),
+                MinimumSize = new Size(150, 23),
+                MaximumSize = new Size(150, 23),
                 Margin = new Padding(1),
                 ToolTipText = "Enter your searchterm here."
             };
@@ -822,7 +823,6 @@ namespace Translator.Desktop.UI
                 Location = new Point(0, 0),
                 Margin = new Padding(0),
                 Name = nameof(MainMenu),
-                Renderer = new CustomToolStripRenderer(),
                 TabIndex = 17
             };
             MainMenu.SuspendLayout();
