@@ -1,6 +1,6 @@
 ﻿namespace Translator.Desktop.Explorer.Graph
 {
-    internal class Edge
+    internal record Edge
     {
         public readonly Node This;
         public readonly Node Child;
