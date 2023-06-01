@@ -4,6 +4,7 @@ using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.Managers;
+using Translator.Desktop.UI.Components;
 using Translator.Helpers;
 
 namespace Translator.Desktop.InterfaceImpls

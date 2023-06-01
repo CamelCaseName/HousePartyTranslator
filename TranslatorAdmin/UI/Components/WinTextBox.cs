@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 
-namespace Translator.Desktop.InterfaceImpls
+namespace Translator.Desktop.UI.Components
 {
     [SupportedOSPlatform("windows")]
     public class WinTextBox : TextBox, ITextBox
@@ -17,15 +17,15 @@ namespace Translator.Desktop.InterfaceImpls
 
         public WinTextBox() : base()
         {
-            MouseDown += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            MouseUp += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            MouseDoubleClick += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            GotFocus += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            Click += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            Resize += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            LostFocus += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            MouseCaptureChanged += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            MouseMove += (object? sender, MouseEventArgs e) => _ = e.Button == MouseButtons.Left ? customDrawNeeded = true : customDrawNeeded = false;
+            MouseDown += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            MouseUp += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            MouseDoubleClick += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            GotFocus += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            Click += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            Resize += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            LostFocus += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            MouseCaptureChanged += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            MouseMove += (sender, e) => _ = e.Button == MouseButtons.Left ? customDrawNeeded = true : customDrawNeeded = false;
         }
 
         public int SelectionEnd

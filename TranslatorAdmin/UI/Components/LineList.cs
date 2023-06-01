@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Translator.Core.UICompatibilityLayer;
-using Translator.Desktop.UI.Components;
+using Translator.Desktop.InterfaceImpls;
 
-namespace Translator.Desktop.InterfaceImpls
+namespace Translator.Desktop.UI.Components
 {
     public class LineList : ColouredCheckedListBox, ILineList
     {
@@ -20,7 +20,7 @@ namespace Translator.Desktop.InterfaceImpls
             var objects = new object[items.Count];
             for (int i = 0; i < items.Count; i++)
             {
-                objects[i] = items[i];  
+                objects[i] = items[i];
             }
             ListBox.ObjectCollection collection = new(this, objects);
             Items.AddRange(collection);
@@ -95,7 +95,7 @@ namespace Translator.Desktop.InterfaceImpls
         {
             try
             {
-                ((ILineList)this).SelectedLineItem = ((WinLineItem)Items[index]);
+                ((ILineList)this).SelectedLineItem = (WinLineItem)Items[index];
             }
             catch
             {

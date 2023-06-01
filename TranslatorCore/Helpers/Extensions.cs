@@ -1,6 +1,8 @@
-﻿using Org.BouncyCastle.Crypto.Tls;
+﻿using Org.BouncyCastle.Bcpg;
+using Org.BouncyCastle.Crypto.Tls;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -275,7 +277,7 @@ namespace Translator.Core.Helpers
         }
 
         public static TValue ElementAt<TKey, TValue>(this Dictionary<TKey, TValue>.ValueCollection dict, int index)
-            where TKey: notnull
+            where TKey : notnull
         {
             if (index >= dict.Count) throw new ArgumentOutOfRangeException(nameof(index));
 
@@ -326,6 +328,15 @@ namespace Translator.Core.Helpers
                 if (arr[i] == value) return true;
             }
             return false;
+        }
+
+        public static int DigitCount(this int num)
+        {
+            int numToWorkOn = num;
+            int count = 0;
+            while ((numToWorkOn /= 10) > 10)
+                ++count;
+            return count;
         }
     }
 }

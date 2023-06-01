@@ -18,7 +18,7 @@ namespace Translator.Core
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
 
-    public sealed  class TranslationManager
+    public sealed class TranslationManager
     {
         public static bool IsUpToDate { get; internal set; } = false;
         internal static readonly Timer AutoSaveTimer = new();
@@ -645,7 +645,7 @@ namespace Translator.Core
         public void Search(string query)
         {
             //reset list if no search is performed
-            if (query.Length > 0)
+            if (query.Length > 0 && TranslationData.Count > 0)
             {
                 //clear results
                 TabUI.Lines.SearchResults.Clear();
@@ -695,6 +695,8 @@ namespace Translator.Core
                 CleanedSearchQuery = query;
 
                 UpdateSearchAndSearchHighlight();
+                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+                UI.SelectedSearchResult = SelectedResultIndex;
             }
             else
             {
@@ -703,6 +705,8 @@ namespace Translator.Core
                 SearchQuery = string.Empty;
                 CleanedSearchQuery = string.Empty;
                 TabUI.Template.ShowHighlight = false;
+                UI.SearchResultCount = 0;
+                UI.SelectedSearchResult = 0;
             }
 
             UI.UpdateResults();
@@ -1066,6 +1070,8 @@ namespace Translator.Core
                         SelectLine(TabUI.Lines.SearchResults[0]);
                     }
                 }
+
+                UI.SelectedSearchResult = SelectedResultIndex;
 
                 return true;
             }

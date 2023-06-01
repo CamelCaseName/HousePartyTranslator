@@ -822,6 +822,7 @@ namespace Translator.Desktop.UI
                 Location = new Point(0, 0),
                 Margin = new Padding(0),
                 Name = nameof(MainMenu),
+                Renderer = new CustomToolStripRenderer(),
                 TabIndex = 17
             };
             MainMenu.SuspendLayout();

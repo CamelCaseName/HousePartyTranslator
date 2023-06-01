@@ -2,8 +2,9 @@
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.InterfaceImpls;
 
-namespace Translator.Desktop.InterfaceImpls
+namespace Translator.Desktop.UI.Components
 {
     [SupportedOSPlatform("Windows")]
     public class WinTabController : TabControl, ITabController

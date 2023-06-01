@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Translator.Desktop.InterfaceImpls;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -22,37 +17,42 @@ namespace Translator.Desktop.UI.Components
                 {
                     throw new ArgumentOutOfRangeException(
                         nameof(TotalSearchResults),
-                        $"{nameof(TotalSearchResults)} cannot be negative");
+                        $"{nameof(TotalSearchResults)} must not be negative");
                 }
                 else
                 {
                     _totalSearchResults = value;
+                    _counter = string.Concat(_currentSearchResult.ToString(), "/", _totalSearchResults.ToString());
                 }
             }
         }
         private int _totalSearchResults = 0;
 
-        public int CurrentSearchResults
+        public int CurrentSearchResult
         {
             get
             {
-                return _currentSearchResults;
+                return _currentSearchResult;
             }
 
             set
             {
-                if (value < 0 && value >= TotalSearchResults)
+                if (value < 0 || value > TotalSearchResults)
                 {
                     throw new ArgumentOutOfRangeException(
-                        nameof(CurrentSearchResults),
-                        $"{nameof(CurrentSearchResults)} cannot be negative or greater than the total number of results");
+                        nameof(CurrentSearchResult),
+                        $"{nameof(CurrentSearchResult)} must not be negative or greater than the total number of results");
                 }
                 else
                 {
-                    _currentSearchResults = value;
+                    _currentSearchResult = value;
+                    _counter = string.Concat(_currentSearchResult.ToString(), "/", _totalSearchResults.ToString());
                 }
             }
         }
-        private int _currentSearchResults = 0;
+        private int _currentSearchResult = 0;
+
+        public string Counter => _counter;
+        private string _counter = "0/0";
     }
 }
