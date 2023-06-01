@@ -49,6 +49,8 @@ namespace Translator.Desktop.InterfaceImpls
 
         public string TranslationBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
         public string TemplateBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
+        public int SearchResultCount { get => App.MainForm?.SearchBox.TotalSearchResults ?? 0; set => App.MainForm.SearchBox.TotalSearchResults = value; }
+        public int SelectedSearchResult { get => App.MainForm?.SearchBox.CurrentSearchResult ?? 0; set => App.MainForm.SearchBox.CurrentSearchResult = value; }
 
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
         public ITab? CreateNewTab()

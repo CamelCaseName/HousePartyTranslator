@@ -12,6 +12,7 @@ using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
+using Translator.Desktop.UI.Components;
 using Translator.Explorer.Window;
 using Translator.Helpers;
 
@@ -77,7 +78,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem saveToolStripMenuItem;
         private WinMenuItem searchAllToolStripMenuItem;
         private WinMenuItem searchToolStripMenuItem;
-        private WinToolStripTextBox searchToolStripTextBox;
+        private SearchToolStripTextBox searchToolStripTextBox;
         private WinMenuItem settingsToolStripMenuItem;
         private WinMenuItem storyExplorerStripMenuItem;
         private WinToolStripTextBox ToolStripMenuReplaceBox;
@@ -158,7 +159,7 @@ namespace Translator.Desktop.UI
         internal ToolStripTextBox ReplaceBox => ToolStripMenuReplaceBox;
 
         internal WinMenuItem ReplaceButton => toolStripReplaceButton;
-        internal ToolStripTextBox SearchBox => searchToolStripTextBox;
+        internal SearchToolStripTextBox SearchBox => searchToolStripTextBox;
 
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
@@ -635,7 +636,7 @@ namespace Translator.Desktop.UI
             saveCurrentStringToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.SaveCurrentString();
 
             // searchToolStripTextBox
-            searchToolStripTextBox = new WinToolStripTextBox()
+            searchToolStripTextBox = new SearchToolStripTextBox()
             {
                 BackColor = menu,
                 BorderStyle = BorderStyle.FixedSingle,
