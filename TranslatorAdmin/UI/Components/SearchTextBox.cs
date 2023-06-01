@@ -46,7 +46,7 @@ namespace Translator.Desktop.UI.Components
 
             set
             {
-                if (value > 0 && value < _totalSearchResults)
+                if (value >= 0 && value <= _totalSearchResults)
                 {
                     _currentSearchResult = value;
                     _counter = string.Concat(" ", _currentSearchResult.ToString(), "/", _totalSearchResults.ToString());
@@ -88,6 +88,7 @@ namespace Translator.Desktop.UI.Components
         protected override void OnPaint(PaintEventArgs e)
         {
             OnPaintOffset(e, new Point(2, 2));
+
             if (_totalSearchResults > 0)
             {
                 MeasureCounterText(out _, out Point pos);
