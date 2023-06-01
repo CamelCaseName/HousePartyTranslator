@@ -12,6 +12,7 @@ namespace Translator.Core.Helpers
     public static class Extensions
     {
         public static readonly char[] trimmers = { '\0', ' ', '\t', '\n', '\r', (char)160 };
+        private static readonly string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
 
         /// <summary>
         /// Returns whether a story is official or not
@@ -20,7 +21,6 @@ namespace Translator.Core.Helpers
         /// <returns></returns>
         public static bool IsOfficialStory(this string storyName)
         {
-            string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
             return Array.IndexOf(stories, storyName) >= 0;
         }
 

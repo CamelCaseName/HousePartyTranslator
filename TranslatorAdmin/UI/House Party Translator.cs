@@ -14,7 +14,6 @@ using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Explorer.Window;
 using Translator.Helpers;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace Translator.Desktop.UI
 {
@@ -22,7 +21,7 @@ namespace Translator.Desktop.UI
     /// The main class which handles the UI for the House Party Translator Window
     /// </summary>
     [SupportedOSPlatform("windows")]
-    public partial class Fenster : Form
+    public sealed class Fenster : Form
     {
         private StoryExplorer? SExplorer;
         private readonly ContextMenuStrip? ListContextMenu;

@@ -443,7 +443,7 @@ namespace Translator.Core
                 path = Path.Combine(path!, dialog.FileName + ".txt");
                 File.OpenWrite(path!).Close();
             }
-            return path;
+            return path!;
         }
     }
 }

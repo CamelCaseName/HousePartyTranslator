@@ -18,7 +18,7 @@ namespace Translator.Core
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
 
-    public partial class TranslationManager
+    public sealed  class TranslationManager
     {
         public static bool IsUpToDate { get; internal set; } = false;
         internal static readonly Timer AutoSaveTimer = new();
@@ -62,7 +62,7 @@ namespace Translator.Core
             {
                 if (value && !_changesPending)
                     TabManager.UpdateTabTitle(this, FileName + "*");
-                else if(!value && _changesPending)
+                else if (!value && _changesPending)
                     TabManager.UpdateTabTitle(this, FileName ?? string.Empty);
                 _changesPending = value;
             }
@@ -283,7 +283,8 @@ namespace Translator.Core
         /// <param name="path">The path to the file to translate</param>
         public void LoadFileIntoProgram(string path)
         {
-            if (path.Length > 0 && File.Exists(path))
+            if (path == string.Empty) return;
+            if (File.Exists(path))
             {
                 if (TranslationData.Count > 0) TabManager.ShowAutoSaveDialog();
                 //clear history if we have a new file, we dont need old one anymore
@@ -305,7 +306,7 @@ namespace Translator.Core
             }
             else
             {
-                UI.ErrorOk("File doesnt exist");
+                UI.ErrorOk("File doesn't exist");
             }
         }
 
