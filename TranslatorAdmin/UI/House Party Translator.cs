@@ -646,7 +646,8 @@ namespace Translator.Desktop.UI
                 MinimumSize = new Size(150, 23),
                 MaximumSize = new Size(150, 23),
                 Margin = new Padding(1),
-                ToolTipText = "Enter your searchterm here."
+                ToolTipText = "Enter your searchterm here.",
+                PlaceHoldeText = "search here"
             };
             searchToolStripTextBox.TextChanged += new EventHandler(SearchToolStripTextBox_TextChanged);
 

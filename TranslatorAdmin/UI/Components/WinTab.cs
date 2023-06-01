@@ -81,6 +81,7 @@ namespace Translator.Desktop.UI.Components
             TranslationTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
             TranslationTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
             TranslationTextBox.PlaceholderText = "Translation goes here";
+            TranslationTextBox.PlaceholderColor = Utils.darkText;
 
             // 
             // AutoTranslateThis
@@ -109,6 +110,7 @@ namespace Translator.Desktop.UI.Components
             TemplateTextBox.Size = new Size(678, 255);
             TemplateTextBox.TabIndex = 9;
             TemplateTextBox.PlaceholderText = "Template will be here";
+            TemplateTextBox.PlaceholderColor = Utils.darkText;
             // 
             // CommentTextBox
             // 
@@ -125,6 +127,7 @@ namespace Translator.Desktop.UI.Components
             CommentTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
             CommentTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
             CommentTextBox.PlaceholderText = "No comments yet";
+            CommentTextBox.PlaceholderColor = Utils.darkText;
             // 
             // CharacterCountLabel
             // 
