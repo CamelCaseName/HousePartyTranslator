@@ -200,7 +200,7 @@ namespace Translator.Core.Helpers
             "yi",
             "yo",
             "za",
-            "zh",
+            "cn",
             "zu",
             "ptbr",
             "exmx"

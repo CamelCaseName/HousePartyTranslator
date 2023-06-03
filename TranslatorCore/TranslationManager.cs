@@ -573,8 +573,8 @@ namespace Translator.Core
             {
                 UI.SignalUserWait();
                 if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+                else LogManager.Log("Successfully saved the file remotely");
                 UI.SignalUserEndWait();
-                LogManager.Log("Successfully saved the file remotely");
             }
         }
 
@@ -1163,8 +1163,7 @@ namespace Translator.Core
                     if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.Lines.SelectedIndex = Settings.Default.RecentIndex;
                     //update to online
                     SaveFile();
-                    //reload latest online, should be the same as local by then
-                    ReloadFile();
+                    _ = UI.InfoOk("Local version saved to database, reload to see changed version.(CTRL+R)");
                 }
             }
         }

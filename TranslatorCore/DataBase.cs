@@ -468,18 +468,20 @@ namespace Translator.Core
         /// <returns></returns>
         public static bool UpdateTranslations(FileData translationData, string language)
         {
-            if (translationData.Count > 0)
+            //copy so we save, regardless of what happens to the translationmamanger that called the save
+            FileData updateData = new(translationData);
+            if (updateData.Count > 0)
             {
                 int c = 0;
                 using MySqlConnection connection = new(GetConnString());
-                string storyName = translationData.ElementAt(0).Value.Story;
-                string fileName = translationData.ElementAt(0).Value.FileName;
-                for (int x = 0; x < ((translationData.Count / 400) + 0.5); x++)
+                string storyName = updateData.ElementAt(0).Value.Story;
+                string fileName = updateData.ElementAt(0).Value.FileName;
+                for (int x = 0; x <= ((updateData.Count / 400) + 0.5); x++)
                 {
                     var builder = new StringBuilder(
                         INSERT
                         + " (id,  story, filename, category, translated, approved, language, comment, translation, deleted) VALUES ",
-                        translationData.Count * 100);
+                        updateData.Count * 100);
 
                     //add all values
                     int v = c;
@@ -488,7 +490,7 @@ namespace Translator.Core
                         _ = builder.Append($"(@id{v}, @story{v}, @filename{v}, @category{v}, @translated{v}, @approved{v}, @language{v}, @comment{v}, @translation{v}, @deleted{v}),");
 
                         v++;
-                        if (v >= translationData.Values.Count) break;
+                        if (v >= updateData.Values.Count) break;
                     }
 
                     _ = builder.Remove(builder.Length - 1, 1);
@@ -499,7 +501,7 @@ namespace Translator.Core
                     //insert all the parameters
                     for (int k = 0; k < 400; k++)
                     {
-                        LineData item = translationData.Values.ElementAt(c);
+                        LineData item = updateData.Values.ElementAt(c);
                         string comment = string.Empty;
                         for (int j = 0; j < item.Comments?.Length; j++)
                         {
@@ -518,7 +520,8 @@ namespace Translator.Core
                         _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
                         _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
                         ++c;
-                        if (c >= translationData.Values.Count) break;
+                        if (c >= updateData.Values.Count) 
+                            break;
                     }
 
                     _ = ExecuteOrReOpen(cmd);
