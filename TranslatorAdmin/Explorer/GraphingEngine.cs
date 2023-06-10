@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Asn1.Crmf;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Drawing;
@@ -19,6 +20,13 @@ namespace Translator.Desktop.Explorer
     {
         private static float Nodesize => StoryExplorerConstants.Nodesize;
         public const float ColorFactor = 0.7f;
+        public bool DrewNodes = false;
+        public bool InternalNodesVisible = true;
+        public DateTime StartTime = DateTime.MinValue;
+        public DateTime FrameStartTime = DateTime.MinValue;
+        public DateTime FrameEndTime = DateTime.MinValue;
+        public int FrameCount { get; private set; }
+        public static bool ShowExtendedInfo { get => Settings.ShowExtendedExplorerInfo; set => Settings.ShowExtendedExplorerInfo = value; }
 
         public readonly NodeProvider Provider;
 
@@ -47,9 +55,6 @@ namespace Translator.Desktop.Explorer
         private bool IsShiftPressed = false;
         private bool IsCtrlPressed = false;
         private bool MovingANode = false;
-        public bool DrewNodes = false;
-        public bool InternalNodesVisible = true;
-        public static bool ShowExtendedInfo { get => Settings.ShowExtendedExplorerInfo; set => Settings.ShowExtendedExplorerInfo = value; }
         private HashSet<Node> NodesHighlighted = new();
         private Cursor priorCursor = Cursors.Default;
 
@@ -128,31 +133,33 @@ namespace Translator.Desktop.Explorer
         //increase drawing speed by switching to direct2d? either custom binding as needed or sharpdx?
         public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
         {
-            if (e != null)
-            {
-                //set up values for this paint cycle
-                MaxEdgeLength = 15 / Scaling; // that one works
+            if (e == null) return;
 
-                //disables and reduces unused features
-                e.Graphics.ToLowQuality();
+            FrameStartTime = FrameEndTime;
+            ++FrameCount;
+            //set up values for this paint cycle
+            MaxEdgeLength = 15 / Scaling; // that one works
 
-                //update canvas transforms
-                e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
-                e.Graphics.ScaleTransform(Scaling, Scaling);
-                Xmin = OffsetX - Nodesize;
-                Ymin = OffsetY - Nodesize;
-                Xmax = e.Graphics.VisibleClipBounds.Right + Nodesize;
-                Ymax = e.Graphics.VisibleClipBounds.Bottom + Nodesize;
+            //disables and reduces unused features
+            e.Graphics.ToLowQuality();
 
-                PaintAllNodes(e.Graphics);
+            //update canvas transforms
+            e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
+            e.Graphics.ScaleTransform(Scaling, Scaling);
+            Xmin = OffsetX - Nodesize;
+            Ymin = OffsetY - Nodesize;
+            Xmax = e.Graphics.VisibleClipBounds.Right + Nodesize;
+            Ymax = e.Graphics.VisibleClipBounds.Bottom + Nodesize;
 
-                //overlay info and highlight
-                DrawHighlightNodeTree(e.Graphics);
-                DrawMovingNodeMarker(e.Graphics);
-                DrawInfoNode(e.Graphics);
-                NodeInfoLabel.Invalidate();
-                NodeInfoLabel.Update();
-            }
+            PaintAllNodes(e.Graphics);
+
+            //overlay info and highlight
+            DrawHighlightNodeTree(e.Graphics);
+            DrawMovingNodeMarker(e.Graphics);
+            DrawInfoNode(e.Graphics);
+            NodeInfoLabel.Invalidate();
+            NodeInfoLabel.Update();
+            FrameEndTime = DateTime.Now;
         }
 
         public void Center()
@@ -359,8 +366,8 @@ namespace Translator.Desktop.Explorer
             {
                 //create new and cache, then display
                 box = FilterUIBuilder.GetDisplayComponentsForType(
-                    node.Data, 
-                    node.DataType, 
+                    node.Data,
+                    node.DataType,
                     new Size(Math.Clamp(NodeInfoLabel.ClientRectangle.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10));
                 Explorer.Controls.Add(box);
                 ExtendedInfoComponents.Add(node.DataType, box);

@@ -34,9 +34,9 @@ namespace Translator.Desktop.Explorer.Graph
         private readonly OpenCLManager opencl;
         private readonly NodeProvider provider;
         private readonly Action LayoutCalculation;
-        private int _framecount = 0;
-        public int FrameCount => _framecount;
-        public bool Finished => FrameCount > Nodes.Count * (long)Nodes.Count && !RunOverride && Started;
+        private int _layoutcount = 0;
+        public int LayoutCount => _layoutcount;
+        public bool Finished => LayoutCount > Nodes.Count * (long)Nodes.Count && !RunOverride && Started;
         public bool Started { get; private set; } = false;
         public NodeList Nodes
         {
@@ -61,7 +61,7 @@ namespace Translator.Desktop.Explorer.Graph
                 opencl.SetUpOpenCL();
                 if (opencl.OpenCLDevicePresent && !opencl.Failed)
                 {
-                    LayoutCalculation = () => opencl.CalculateLayout(() => ++_framecount, cancellationToken.Token);
+                    LayoutCalculation = () => opencl.CalculateLayout(() => ++_layoutcount, cancellationToken.Token);
                 }
                 else
                 {
@@ -83,7 +83,7 @@ namespace Translator.Desktop.Explorer.Graph
             if (!Started)
             {
                 cancellationToken = new();
-                _ = outsideToken.Register(() => cancellationToken.Cancel());
+                _ = outsideToken.Register(cancellationToken.Cancel);
                 StartTime = DateTime.Now;
                 LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
                 Started = true;
@@ -95,10 +95,10 @@ namespace Translator.Desktop.Explorer.Graph
         public void Stop()
         {
             DateTime end = DateTime.Now;
-            LogManager.Log($"\tnode layout ended, rendered {FrameCount} frames in {(end - StartTime).TotalSeconds:F2} seconds -> {FrameCount / (end - StartTime).TotalSeconds:F2} fps");
+            LogManager.Log($"\tnode layout ended, calculated {LayoutCount} layouts in {(end - StartTime).TotalSeconds:F2} seconds -> {LayoutCount / (end - StartTime).TotalSeconds:F2} ups");
             cancellationToken.Cancel();
             Started = false;
-            _framecount = 0;
+            _layoutcount = 0;
         }
 
         public void CalculateForceDirectedLayout(CancellationToken token)
@@ -118,7 +118,7 @@ namespace Translator.Desktop.Explorer.Graph
                 while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
                 //switch to other list once done
                 provider.UsingListA = !provider.UsingListA;
-                ++_framecount;
+                ++_layoutcount;
 
                 //approx 40fps max as more is uneccesary and feels weird (25ms gives ~50fps, 30 gives about 45fps)
                 FrameEndTime = DateTime.Now;

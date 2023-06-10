@@ -118,13 +118,16 @@ namespace Translator.Explorer.Window
             Provider.FreezeNodesAsInitial();
             Layouter = new(Provider, this, token);
             Layouter.Start();
+            Grapher.StartTime = DateTime.Now;
             Grapher.Center();
             Invalidate();
         }
 
         private void SaveNodes(object? sender, FormClosingEventArgs? e)
         {
+            Layouter?.Stop();
             _ = Context.SaveNodes(Provider.GetPositions());
+            LogManager.Log($"\trendering ended, calculated {Grapher.FrameCount} frames in {(Grapher.FrameEndTime - Grapher.StartTime).TotalSeconds:F2} seconds -> {Grapher.FrameCount / (Grapher.FrameEndTime - Grapher.StartTime).TotalSeconds:F2} fps");
             //save story objecs here
             Settings.Default.Save();
         }
