@@ -4,10 +4,10 @@ using System.Drawing;
 namespace Translator.Desktop.Explorer.Graph
 {
     //a kind of an adjacencylist, but with edges and a direct node access in parallel
-    internal class NodeList : List<Node>
+    internal sealed class NodeList : List<Node>
     {
         //primarily used for rendering the edges, for graph stuff we use the actual multigraph in the nodes
-        public readonly List<Edge> Edges = new();
+        public readonly EdgeList Edges = new();
 
         public new void Add(Node node)
         {
@@ -15,7 +15,7 @@ namespace Translator.Desktop.Explorer.Graph
             for (int c = 0; c < node.ChildNodes.Count; c++)
             {
                 var edge = new Edge(node, Count - 1, node.ChildNodes[c], IndexOf(node.ChildNodes[c]));
-                if (!Edges.Contains(edge)) Edges.Add(edge);
+                Edges.Add(edge);
             }
         }
 
@@ -37,7 +37,7 @@ namespace Translator.Desktop.Explorer.Graph
                 for (int c = 0; c < this[x].ChildNodes.Count; c++)
                 {
                     var edge = new Edge(this[x], x, this[x].ChildNodes[c], IndexOf(this[x].ChildNodes[c]));
-                    if (!Edges.Contains(edge)) Edges.Add(edge);
+                    Edges.Add(edge);
                 }
             }
         }
@@ -57,7 +57,7 @@ namespace Translator.Desktop.Explorer.Graph
                     for (int i = 0; i < en.Current.ChildNodes.Count; i++)
                     {
                         var edge = new Edge(en.Current, IndexOf(en.Current), en.Current.ChildNodes[i], IndexOf(en.Current.ChildNodes[i]));
-                        if (!Edges.Contains(edge)) Edges.Add(edge);
+                        Edges.Add(edge);
                     }
                 }
             }
