@@ -42,6 +42,7 @@ namespace Translator.Desktop.Explorer.Graph
 
         public bool Frozen { get => frozen; }
 
+        //todo this function can deadlock in endless syncing if it takes too long to sync one
         private void CheckNodeListSizes()
         {
             if (frozen)

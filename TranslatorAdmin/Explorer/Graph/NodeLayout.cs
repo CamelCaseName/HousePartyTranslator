@@ -58,6 +58,7 @@ namespace Translator.Desktop.Explorer.Graph
             //its not worth it for less nodes
             if (Nodes.Count >= 1024)
             {
+                LogManager.Log("Asking for OpenCL");
                 opencl.SetUpOpenCL();
                 if (opencl.OpenCLDevicePresent && !opencl.Failed)
                 {
@@ -65,6 +66,7 @@ namespace Translator.Desktop.Explorer.Graph
                 }
                 else
                 {
+                    LogManager.Log("Aborted OpenCL device selection");
                     //clear memory
                     opencl.ReleaseOpenCLResources();
                     opencl = null!;
@@ -72,6 +74,7 @@ namespace Translator.Desktop.Explorer.Graph
             }
             else
             {
+                LogManager.Log("Dataset too small for OpenCL");
                 //clear memory
                 opencl.ReleaseOpenCLResources();
                 opencl = null!;

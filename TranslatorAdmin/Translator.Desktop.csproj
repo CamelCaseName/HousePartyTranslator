@@ -45,7 +45,7 @@
 	<ItemGroup>
 		<PackageReference Include="NetDiscordRpc" Version="1.0.2" />
 		<PackageReference Include="SevenZipExtractor" Version="1.0.17" />
-		<PackageReference Include="Silk.NET.OpenCL" Version="2.16.0" />
+		<PackageReference Include="Silk.NET.OpenCL" Version="2.17.1" />
 	</ItemGroup>
 
 	<ItemGroup>
