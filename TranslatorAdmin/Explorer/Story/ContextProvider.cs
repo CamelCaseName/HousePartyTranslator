@@ -173,6 +173,7 @@ internal sealed class ContextProvider
 
     public bool ParseAllFiles()
     {
+        LogManager.Log("Loading story files");
         string StoryFolderPath = string.Empty;
         if (FileName != string.Empty && StoryName != string.Empty)
         {
@@ -229,10 +230,12 @@ internal sealed class ContextProvider
             InterlinkNodes(Nodes);
 
             SetStartingPositions(Nodes);
+            LogManager.Log("Created objects and loaded them");
 
             //save nodes
             return SaveNodes(provider.GetVolatilePositions(), NodeFilePath);
         }
+        LogManager.Log("Loaded old files");
         return Nodes.Count > 0;
     }
 

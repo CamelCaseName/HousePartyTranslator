@@ -42,7 +42,6 @@ namespace Translator.Desktop.Explorer.Graph
 
         public bool Frozen { get => frozen; }
 
-        //todo this function can deadlock in endless syncing if it takes too long to sync one
         private void CheckNodeListSizes()
         {
             if (frozen)
@@ -121,9 +120,11 @@ namespace Translator.Desktop.Explorer.Graph
         {
             if (!frozen)
             {
-                frozen = true;
                 Nodes.Sync();//sync once before we save them finally
                 InternalNodes = Nodes;
+                nodesB.Clear();
+                nodesB.AddRange(nodesA);
+                frozen = true;
             }
         }
 

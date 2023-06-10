@@ -321,7 +321,6 @@ internal sealed unsafe class OpenCLManager
         int err;
 
         //todo add method to redo the buffers once node count changes and so on, once nodes and edges get added
-        //todo fix crash on big stories, maybe check for max size? doubt thats the issue though
         //maybe do like a buffer bool, so create bigger initially and then limit length, idk
 
         //create and fill buffers on cpu side
