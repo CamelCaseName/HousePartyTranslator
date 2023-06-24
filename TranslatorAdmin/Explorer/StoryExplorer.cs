@@ -144,16 +144,26 @@ namespace Translator.Explorer.Window
 
         private void Start_Click(object sender, EventArgs e)
         {
-            NodeCalculations.Text = "Calculation running";
             Layouter?.Start();
+            ShowRunningInfoLabel();
+        }
+
+        internal void ShowRunningInfoLabel()
+        {
+            NodeCalculations.Text = "Calculation running";
             NodeCalculations.Update();
             NodeCalculations.Invalidate();
         }
 
         public void Stop_Click(object sender, EventArgs e)
         {
-            NodeCalculations.Text = "Calculation stopped";
             if (Layouter?.Started ?? false) Layouter?.Stop();
+            ShowStoppedInfoLabel();
+        }
+
+        internal void ShowStoppedInfoLabel()
+        {
+            NodeCalculations.Text = "Calculation stopped";
             NodeCalculations.Update();
             NodeCalculations.Invalidate();
         }

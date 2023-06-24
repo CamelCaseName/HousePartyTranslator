@@ -129,7 +129,7 @@ namespace Translator.Desktop.Explorer.Graph
 
                 App.MainForm?.Explorer?.Invalidate();
             }
-            App.MainForm?.Explorer?.Invoke(() => App.MainForm?.Explorer?.Stop_Click(new(), EventArgs.Empty));
+            App.MainForm?.Explorer?.ShowStoppedInfoLabel();
             Stop();
         }
 
