@@ -555,10 +555,9 @@ namespace Translator.Core
                 FileManager.SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
             else
                 FileManager.SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
-            FileManager.
 
-                        //save all categorized lines to disk
-                        WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
+            //save all categorized lines to disk
+            FileManager.WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
 
             //copy file to game rather than writing again
             if (Settings.Default.AlsoSaveToGame)

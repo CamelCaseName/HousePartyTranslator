@@ -161,7 +161,6 @@ namespace Translator.Core
         /// </returns>
         public static bool GetAllLineDataTemplate(string fileName, string story, out FileData LineDataList)
         {
-            UI!.SignalUserWait();
             string command;
             if (story == "Hints")
             {
@@ -208,12 +207,11 @@ namespace Translator.Core
                 }
                 else
                 {
-                    _ = UI.WarningOk("Ids can't be loaded", "Info");
+                    _ = UI?.WarningOk("Ids can't be loaded", "Info");
                     LogManager.Log("No template ids found for " + story + "/" + fileName);
                 }
                 reader.Close();
             }
-            UI.SignalUserEndWait();
             return LineDataList.Count > 0;
         }
 
