@@ -7,10 +7,10 @@ namespace Translator.Core.UICompatibilityLayer
         ILineItem this[int index] { get; set; }
         int ApprovedCount { get; }
         int Count { get; }
-        List<string> SearchResults { get; }
+        List<int> SearchResults { get; }
         int SelectedIndex { get; set; }
         ILineItem SelectedLineItem { get; set; }
-        List<string> TranslationSimilarToTemplate { get; }
+        List<int> TranslationSimilarToTemplate { get; }
 
         void Add(string iD, bool lineIsApproved);
         void AddLineItem(ILineItem item);

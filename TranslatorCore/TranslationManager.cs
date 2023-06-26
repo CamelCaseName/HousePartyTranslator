@@ -655,72 +655,7 @@ namespace Translator.Core
         /// <param name="query">The search temr to look for</param>
         public void Search(string query)
         {
-            //reset list if no search is performed
-            if (query.Length > 0 && TranslationData.Count > 0)
-            {
-                //clear results
-                TabUI.Lines.SearchResults.Clear();
-
-                CaseSensitiveSearch = false;
-                //decide on case sensitivity
-                if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
-                {
-                    CaseSensitiveSearch = true;
-                    query = query[1..];
-                    //methodolgy: highlight items which fulfill search and show count
-                    int x = 0;
-                    foreach (LineData item in TranslationData.Values)
-                    {
-                        if ((item.TranslationString.Contains(query) /*if the translated text contaisn the search string*/
-                            || (item.TemplateString != null
-                            && item.TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
-                            || item.ID.Contains(query))
-                            && item.TranslationLength > 0)/*if the id contains the searched part*/
-                        {
-                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x].Text);//add index to highligh list
-                        }
-                        ++x;
-                    }
-                }
-                else if (query[0] != '!')
-                {
-                    if (query[0] == '\\') // we have an escaped flag following, so we chop of escaper and continue
-                    {
-                        query = query[1..];
-                    }
-                    //methodolgy: highlight items which fulfill search
-                    int x = 0;
-                    foreach (LineData item in TranslationData.Values)
-                    {
-                        if (item.TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
-                            || (item.TemplateString != null
-                            && item.TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
-                            || item.ID.ToLowerInvariant().Contains(query.ToLowerInvariant())
-                            && item.TranslationLength > 0)/*if the id contains the searched part*/
-                        {
-                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x].Text);//add index to highligh list
-                        }
-                        ++x;
-                    }
-                }
-                CleanedSearchQuery = query;
-
-                UpdateSearchAndSearchHighlight();
-                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
-                UI.SelectedSearchResult = SelectedResultIndex;
-            }
-            else
-            {
-                TabUI.Lines.SearchResults.Clear();
-                SelectedResultIndex = 0;
-                SearchQuery = string.Empty;
-                CleanedSearchQuery = string.Empty;
-                TabUI.Template.ShowHighlight = false;
-                UI.SearchResultCount = 0;
-                UI.SelectedSearchResult = 0;
-            }
-
-            UI.UpdateResults();
+            
         }
 
         /// <summary>

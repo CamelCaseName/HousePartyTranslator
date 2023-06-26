@@ -14,20 +14,6 @@ namespace Translator.Desktop.UI.Components
         public int ApprovedCount { get { return CheckedIndices.Count; } }
         public LineList() : this(new List<WinLineItem>()) { }
 
-        public LineList(List<WinLineItem> items, WinLineItem selectedLineItem, int selectedIndex)
-        {
-            Items.Clear();
-            var objects = new object[items.Count];
-            for (int i = 0; i < items.Count; i++)
-            {
-                objects[i] = items[i];
-            }
-            ListBox.ObjectCollection collection = new(this, objects);
-            Items.AddRange(collection);
-            ((ILineList)this).SelectedLineItem = selectedLineItem;
-            SelectedIndex = selectedIndex;
-        }
-
         public LineList(List<WinLineItem> items)
         {
             Items.Clear();
@@ -39,13 +25,19 @@ namespace Translator.Desktop.UI.Components
             SelectedIndex = items.Count > 0 ? 0 : -1;
         }
 
+        public LineList(List<WinLineItem> items, WinLineItem selectedLineItem, int selectedIndex) : this(items)
+        {
+            ((ILineList)this).SelectedLineItem = selectedLineItem;
+            SelectedIndex = selectedIndex;
+        }
+
         public WinLineItem this[int index] { get { return (WinLineItem)Items[index]; } set { Items[index] = value; } }
 
         ILineItem ILineList.SelectedLineItem { get; set; } = new WinLineItem();
 
-        public List<int> TranslationSimilarToTemplate { get; internal set; } = new();
+        public List<string> TranslationSimilarToTemplate => SimilarStringsToEnglish;
 
-        List<string> ILineList.SearchResults => SearchResults;
+        List<string> ILineList.SearchResults => SearchResults;  
 
         List<string> ILineList.TranslationSimilarToTemplate { get; } = new();
 
