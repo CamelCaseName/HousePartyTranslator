@@ -22,58 +22,65 @@ namespace Translator.Core.Helpers
             StringComparison searchCulture = StringComparison.CurrentCultureIgnoreCase;
             List<SearchImplementation> algorithms = new();
 
-            //escaper
-            query = CheckAndClearEscapedChars(query);
-
             //case sensitive search
-            if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
+            if (!CheckAndClearEscapedChars(ref query))
             {
-                query = query[1..];
-                searchCulture = StringComparison.CurrentCulture;
+                if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
+                {
+                    query = query[1..];
+                    searchCulture = StringComparison.CurrentCulture;
+                }
             }
 
             //2nd escaper
-            query = CheckAndClearEscapedChars(query);
-
-            //we enter specifyer mode
-            if (query[0] == '§' && query.Length > 2)
+            if (!CheckAndClearEscapedChars(ref query))
             {
-                query = query[1..];
-                switch (query[..2])
+                //we enter specifyer mode
+                if (query[0] == '§' && query.Length > 2)
                 {
-                    //search id
-                    case "id":
-                        algorithms.Add(SearchID);
-                        break;
-                    //search translation
-                    case "tn":
-                        algorithms.Add(SearchTranslation);
-                        break;
-                    //search english/template
-                    case "en":
-                        algorithms.Add(SearchTemplate);
-                        break;
-                    //search comments
-                    case "cm":
-                        algorithms.Add(SearchComments);
-                        break;
-                    //search text only, no id
-                    case "tx":
-                        algorithms.Add(SearchTextOnly);
-                        break;
-                    //search approved only
-                    case "ap":
-                        algorithms.Add(SearchApprovedOnly);
-                        break;
-                    //search unapproved only
-                    case "un":
-                        algorithms.Add(SearchUnapprovedOnly);
-                        break;
-                    default:
+                    //just add mupltiple search types like this §id§tn
+                    do
+                    {
+                        query = query[1..];
+                        switch (query[..2])
+                        {
+                            //search id
+                            case "id":
+                                algorithms.Add(SearchID);
+                                break;
+                            //search translation
+                            case "tn":
+                                algorithms.Add(SearchTranslation);
+                                break;
+                            //search english/template
+                            case "en":
+                                algorithms.Add(SearchTemplate);
+                                break;
+                            //search comments
+                            case "cm":
+                                algorithms.Add(SearchComments);
+                                break;
+                            //search text only, no id
+                            case "tx":
+                                algorithms.Add(SearchTextOnly);
+                                break;
+                            //search approved only
+                            case "ap":
+                                algorithms.Add(SearchApprovedOnly);
+                                break;
+                            //search unapproved only
+                            case "un":
+                                algorithms.Add(SearchUnapprovedOnly);
+                                break;
+                            default:
+                                break;
+                        }
                         query = query[2..];
-                        break;
+                    } while (!query.IsEmpty && query[0] == '§' && query.Length > 2);
                 }
             }
+            //we only extracted an specifyer, no query yet
+            if (query.IsEmpty) return false;
 
             if (algorithms.Count == 0) algorithms.Add(SearchAll);
 
@@ -100,26 +107,96 @@ namespace Translator.Core.Helpers
             return results.Count > 0;
         }
 
-        private static ReadOnlySpan<char> CheckAndClearEscapedChars(ReadOnlySpan<char> query)
+        private static bool CheckAndClearEscapedChars(ref ReadOnlySpan<char> query)
         {
-            if (query[0] == '\\') // we have an escaped flag following, so we chop of escaper, the character and continue
+            if (query.IsEmpty) return false;
+            if (query.Length > 1 && query[0] == '\\'
+                && (query[1] == '!' || query[1] == '§')) // we have an escaped flag following, so we chop of escaper and continue
             {
-                if (query[1] == '\\')
-                    query = query[1..];
-                else
-                    query = query[2..];
+                query = query[1..];
+                return true;
             }
 
-            return query;
+            return false;
         }
 
-        private static bool SearchComments(ReadOnlySpan<char> query, LineData line, StringComparison comparison) => throw new NotImplementedException();
-        private static bool SearchUnapprovedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison) => throw new NotImplementedException();
-        private static bool SearchApprovedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison) => throw new NotImplementedException();
-        private static bool SearchTextOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison) => throw new NotImplementedException();
-        private static bool SearchTemplate(ReadOnlySpan<char> query, LineData line, StringComparison comparison) => throw new NotImplementedException();
-        private static bool SearchTranslation(ReadOnlySpan<char> query, LineData line, StringComparison comparison) => throw new NotImplementedException();
-        private static bool SearchID(ReadOnlySpan<char> query, LineData line, StringComparison comparison) => throw new NotImplementedException();
+        private static bool SearchComments(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            if (line.Comments != null)
+            {
+                foreach (var comment in line.Comments.AsSpan())
+                {
+                    if (comment.AsSpan().Contains(query, comparison))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        private static bool SearchUnapprovedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            return !line.IsApproved;
+        }
+
+        private static bool SearchApprovedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            return line.IsApproved;
+        }
+
+        private static bool SearchTextOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            if (line.TranslationString != null)
+            {
+                if (line.TranslationString.AsSpan().Contains(query, comparison))
+                {
+                    return true;
+                }
+            }
+            if (line.TemplateString != null)
+            {
+                if (line.TemplateString.AsSpan().Contains(query, comparison))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool SearchTemplate(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            if (line.TemplateString != null)
+            {
+                if (line.TemplateString.AsSpan().Contains(query, comparison))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool SearchTranslation(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            if (line.TranslationString != null)
+            {
+                if (line.TranslationString.AsSpan().Contains(query, comparison))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool SearchID(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            if (line.ID.AsSpan().Contains(query, comparison))
+            {
+                return true;
+            }
+            return false;
+        }
 
         private static bool SearchAll(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
         {

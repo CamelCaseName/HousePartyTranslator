@@ -661,10 +661,12 @@ namespace Translator.Core
 
                 TabUI.Lines.SearchResults.Clear();
                 TabUI.Lines.SearchResults.AddRange(results!);
+                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
             }
             else
             {
                 TabUI.Lines.SearchResults.Clear();
+                UI.SearchResultCount = 0;
                 CleanedSearchQuery = cleanedSpanQuery.ToString();
                 UI.SignalUserPing();
             }
