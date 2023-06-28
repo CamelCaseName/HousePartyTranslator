@@ -56,13 +56,6 @@ namespace Translator.Core
             {
                 TabManager.UI.SearchBarText = TabManager.UI.TranslationBoxText;
             }
-            //we dont have anything selected, enter empty query
-            else
-            {
-                const string query = "Search here";
-                TabManager.UI.SearchBarText = query;
-                TabManager.UI.SetSelectedSearchBarText(0, query.Length);
-            }
             TabManager.UI.FocusSearchBar();
         }
 

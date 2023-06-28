@@ -42,7 +42,7 @@ internal sealed unsafe class OpenCLManager
     private nint preselectedPlatform = 0;//pointer to preselected platform
     private nint SelectedPlatform = 0;
     private nuint neededGlobalNodeSize, neededGlobalEdgeSize, neededLocalSize;
-    private string DeviceName = string.Empty;
+    public string DeviceName { get; private set; } = string.Empty;
     private uint MaxWorkGroupSize, MaxWorkItems, PreferredLocalWorkSize;
     private DateTime FrameStartTime = DateTime.MinValue;
     private DateTime FrameEndTime = DateTime.MinValue;
@@ -286,6 +286,7 @@ internal sealed unsafe class OpenCLManager
 
     private int SetUpOpenCLImpl()
     {
+        LogManager.Log("Getting available OpenCL platforms");
         //get platform
         int err = FindOpenCLPlatforms();
         if (err != 0) return err;
@@ -298,13 +299,18 @@ internal sealed unsafe class OpenCLManager
         if (_device == nint.Zero) return -1;
 
         DeviceName = Platforms[SelectedPlatform].platformName;
+        LogManager.Log($"Selected {DeviceName} for use with OpenCL");
+        LogManager.Log("Getting OpenCL ressources");
 
         //get all resources we need, context kernel and so on
-        err = AcquireRessources();
+        err = AcquireResources();
         if (err != 0) return err;
+        LogManager.Log("Successfully acquired the resources");
+        LogManager.Log("Creating Buffers");
 
         err = SetUpBuffers();
         if (err != 0) return err;
+        LogManager.Log("Successfully created the buffers");
 
         //do the calculation once
         return CalculateAndCopy(nodePosResultBuffer);
@@ -315,7 +321,6 @@ internal sealed unsafe class OpenCLManager
         int err;
 
         //todo add method to redo the buffers once node count changes and so on, once nodes and edges get added
-        //todo fix crash on big stories, maybe check for max size? doubt thats the issue though
         //maybe do like a buffer bool, so create bigger initially and then limit length, idk
 
         //create and fill buffers on cpu side
@@ -325,15 +330,15 @@ internal sealed unsafe class OpenCLManager
         NodeCount = nodePosBuffer1.Length / 4;
 
         //calculate work size for local stuff
-        neededLocalSize = (nuint)((Math.Sqrt(NodeCount)) + 0.5d);
+        neededLocalSize = (nuint)(Math.Sqrt(NodeCount) + 0.5d);
         if (neededLocalSize > PreferredLocalWorkSize) neededLocalSize = PreferredLocalWorkSize;
-        else while ((neededLocalSize) % 4 > 0) ++neededLocalSize;
+        else while (neededLocalSize % 4 > 0) ++neededLocalSize;
         if (neededLocalSize > MaxWorkGroupSize) return -1;
 
         //calculate item count
         neededGlobalNodeSize = (nuint)NodeCount;
         //divisible by 4 for nice boundaries
-        while ((neededGlobalNodeSize) % neededLocalSize > 0) ++neededGlobalNodeSize;
+        while (neededGlobalNodeSize % neededLocalSize > 0) ++neededGlobalNodeSize;
 
         //create edge buffer after size checks
         (int[] this_index_buffer, int[] child_index_buffer) = GetEdgeBuffers((int)neededLocalSize);
@@ -341,10 +346,9 @@ internal sealed unsafe class OpenCLManager
 
         //create buffers on gpu
         // we can quickly swap buffers and start the calculations again if we want
-        //Todo write access violation here, originating from opencl lib. maybe there is a max buffer size? only sometimes tho
-        node_pos_1 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer1.Length * sizeof(float) * 4), nodePosBuffer1.AsSpan(), &err);
+        node_pos_1 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer1.Length * sizeof(float)), nodePosBuffer1.AsSpan(), &err);
         if (err != 0) return err;
-        node_pos_2 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer2.Length * sizeof(float) * 4), nodePosBuffer2.AsSpan(), &err);
+        node_pos_2 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer2.Length * sizeof(float)), nodePosBuffer2.AsSpan(), &err);
         if (err != 0) return err;
 
         nint this_index = _cl.CreateBuffer(_context, MemFlags.ReadOnly | MemFlags.CopyHostPtr, (nuint)(this_index_buffer.Length * sizeof(int)), this_index_buffer.AsSpan(), &err);
@@ -407,7 +411,7 @@ internal sealed unsafe class OpenCLManager
 
                 fixed (float* inputBuffer = resultBuffer)
                 {
-                    err = _cl.EnqueueWriteBuffer(_commandQueue, node_pos_2, false, 0, (nuint)(resultBuffer.Length * sizeof(float) * 4), inputBuffer, 0, null, null);
+                    err = _cl.EnqueueWriteBuffer(_commandQueue, node_pos_2, false, 0, (nuint)(resultBuffer.Length * sizeof(float)), inputBuffer, 0, null, null);
                     if (err != 0) return err;
                 }
                 Provider.ConsumedNodePositionOverrideEnded();
@@ -450,7 +454,7 @@ internal sealed unsafe class OpenCLManager
         if (err != 0) return err;
 
         //copy new data to other buffer so the deltas add up correctly
-        err = _cl.EnqueueCopyBuffer(_commandQueue, node_pos_1, node_pos_2, 0, 0, (nuint)(nodePosBuffer1.Length * sizeof(float) * 4), 0, null, null);
+        err = _cl.EnqueueCopyBuffer(_commandQueue, node_pos_1, node_pos_2, 0, 0, (nuint)(nodePosBuffer1.Length * sizeof(float)), 0, null, null);
         if (err != 0) return err;
         err = _cl.Finish(_commandQueue);
         if (err != 0) return err;
@@ -493,7 +497,7 @@ internal sealed unsafe class OpenCLManager
         return 0;
     }
 
-    private int AcquireRessources()
+    private int AcquireResources()
     {
         Failed = !Retry;
         int err;
@@ -517,7 +521,7 @@ internal sealed unsafe class OpenCLManager
     {
         if (!ResourcesAreAcquired)
         {
-            int err = AcquireRessources();
+            int err = AcquireResources();
             if (err != 0)
             {
                 LogManager.Log("encountered " + GetOpenCLErrorName(err) + " while acquiring ressources again", LogManager.Level.Error);
@@ -566,7 +570,7 @@ internal sealed unsafe class OpenCLManager
             {
                 //just try setting up again
                 _device = Platforms[SelectedPlatform].deviceId;
-                int err = AcquireRessources();
+                int err = AcquireResources();
                 if (err != 0)
                     ReleaseOpenCLResources();
                 err = SetUpBuffers();

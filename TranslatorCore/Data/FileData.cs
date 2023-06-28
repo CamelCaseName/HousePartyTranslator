@@ -6,7 +6,7 @@ namespace Translator.Core.Data
     public sealed class FileData : Dictionary<string, LineData>
     {
         public readonly string FileName;
-        public readonly string StoryName; 
+        public readonly string StoryName;
 
         public FileData(Dictionary<string, LineData> data, string story, string file)
         {
@@ -25,9 +25,15 @@ namespace Translator.Core.Data
             Clear();
         }
 
+        public FileData(FileData old) : base(old)
+        {
+            FileName = old.FileName;
+            StoryName = old.StoryName;
+        }
+
         public KeyValuePair<string, LineData> ElementAt(int index)
         {
-            if(index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+            if (index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
 
             var enumerator = GetEnumerator();
             int i = 0;

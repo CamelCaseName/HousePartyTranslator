@@ -18,7 +18,7 @@ namespace Translator.Core
     /// A class providing functions for loading, approving, and working with strings to be translated. Heavily integrated in all other parts of this application.
     /// </summary>
 
-    public partial class TranslationManager
+    public sealed class TranslationManager
     {
         public static bool IsUpToDate { get; internal set; } = false;
         internal static readonly Timer AutoSaveTimer = new();
@@ -60,11 +60,14 @@ namespace Translator.Core
             get { return _changesPending; }
             set
             {
-                if (value && !_changesPending)
-                    TabManager.UpdateTabTitle(this, FileName + "*");
-                else if(!value && _changesPending)
-                    TabManager.UpdateTabTitle(this, FileName ?? string.Empty);
-                _changesPending = value;
+                if (TranslationData.Count > 0)
+                {
+                    if (value && !_changesPending)
+                        TabManager.UpdateTabTitle(this, FileName + "*");
+                    else if (!value && _changesPending)
+                        TabManager.UpdateTabTitle(this, FileName ?? string.Empty);
+                    _changesPending = value;
+                }
             }
         }
         private bool _changesPending = false;
@@ -72,8 +75,7 @@ namespace Translator.Core
         public string CleanedSearchQuery { get; private set; } = string.Empty;
         public bool CaseSensitiveSearch { get; private set; } = false;
 
-        public int SelectedResultIndex = 0;
-        public ILineItem SelectedSearchResultItem => SelectedResultIndex < TabUI.LineCount ? TabUI.Lines[SelectedResultIndex] : new DefaultLineItem();
+        private int SelectedResultIndex = 0;
 
         public FileData TranslationData = new(string.Empty, string.Empty);
         private string fileName = string.Empty;
@@ -137,7 +139,14 @@ namespace Translator.Core
         /// </summary>
         public string SelectedId { get { return TabUI.SelectedLineItem.Text; } }
 
-        public LineData SelectedLine { get { return TranslationData[SelectedId]; } }
+        public LineData SelectedLine
+        {
+            get
+            {
+                if (SelectedId == string.Empty) return new();
+                else return TranslationData[SelectedId];
+            }
+        }
 
         /// <summary>
         /// The path to the file currently loaded.
@@ -283,7 +292,8 @@ namespace Translator.Core
         /// <param name="path">The path to the file to translate</param>
         public void LoadFileIntoProgram(string path)
         {
-            if (path.Length > 0 && File.Exists(path))
+            if (path == string.Empty) return;
+            if (File.Exists(path))
             {
                 if (TranslationData.Count > 0) TabManager.ShowAutoSaveDialog();
                 //clear history if we have a new file, we dont need old one anymore
@@ -305,7 +315,7 @@ namespace Translator.Core
             }
             else
             {
-                UI.ErrorOk("File doesnt exist");
+                UI.ErrorOk("File doesn't exist");
             }
         }
 
@@ -368,10 +378,13 @@ namespace Translator.Core
         private void UpdateSearchAndSearchHighlight()
         {
             //renew search result if possible
-            int t = TabUI.Lines.SearchResults.IndexOf(SelectedId);
+            int t = TabUI.Lines.SearchResults.IndexOf(TabUI.SelectedLineIndex);
             if (t >= 0)
             {
-                SelectedResultIndex = t; int TemplateTextQueryLocation;
+                if (SelectedResultIndex > 0) SelectedResultIndex = t;
+                UI.SelectedSearchResult = SelectedResultIndex + 1;
+
+                int TemplateTextQueryLocation;
                 if (CaseSensitiveSearch)
                     TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(CleanedSearchQuery);
                 else
@@ -404,8 +417,8 @@ namespace Translator.Core
 
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
-                if (TabUI.Lines.SearchResults[i].Length == 0) continue;
-                TranslationData[TabUI.Lines.SearchResults[i]].TranslationString = TranslationData[TabUI.Lines.SearchResults[i]].TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
+                if (TabUI.Lines.SearchResults[i] < 0) continue;
+                TranslationData[TabUI.Lines[i].Text].TranslationString = TranslationData[TabUI.Lines[i].Text].TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
             }
 
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
@@ -426,7 +439,7 @@ namespace Translator.Core
         /// <param name="replacement">The string to replace all search matches with</param>
         public void ReplaceSingle(string replacement)
         {
-            if (TabUI.Lines.SearchResults.Contains(SelectedId))
+            if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineIndex))
             {
                 string temp = SelectedLine.TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
                 History.AddAction(new TranslationChanged(this, SelectedId, SelectedLine.TranslationString, temp));
@@ -542,10 +555,9 @@ namespace Translator.Core
                 FileManager.SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
             else
                 FileManager.SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
-            FileManager.
 
-                        //save all categorized lines to disk
-                        WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
+            //save all categorized lines to disk
+            FileManager.WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
 
             //copy file to game rather than writing again
             if (Settings.Default.AlsoSaveToGame)
@@ -560,8 +572,8 @@ namespace Translator.Core
             {
                 UI.SignalUserWait();
                 if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+                else LogManager.Log("Successfully saved the file remotely");
                 UI.SignalUserEndWait();
-                LogManager.Log("Successfully saved the file remotely");
             }
         }
 
@@ -643,68 +655,22 @@ namespace Translator.Core
         /// <param name="query">The search temr to look for</param>
         public void Search(string query)
         {
-            //reset list if no search is performed
-            if (query.Length > 0)
+            if (Searcher.Search(query, TranslationData, out List<int>? results, out ReadOnlySpan<char> cleanedSpanQuery))
             {
-                //clear results
+                CleanedSearchQuery = cleanedSpanQuery.ToString();
+
                 TabUI.Lines.SearchResults.Clear();
-
-                CaseSensitiveSearch = false;
-                //decide on case sensitivity
-                if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
-                {
-                    CaseSensitiveSearch = true;
-                    query = query[1..];
-                    //methodolgy: highlight items which fulfill search and show count
-                    int x = 0;
-                    foreach (LineData item in TranslationData.Values)
-                    {
-                        if ((item.TranslationString.Contains(query) /*if the translated text contaisn the search string*/
-                            || (item.TemplateString != null
-                            && item.TemplateString.Contains(query))/*if the english string is not null and contaisn the searched part*/
-                            || item.ID.Contains(query))
-                            && item.TranslationLength > 0)/*if the id contains the searched part*/
-                        {
-                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x].Text);//add index to highligh list
-                        }
-                        ++x;
-                    }
-                }
-                else if (query[0] != '!')
-                {
-                    if (query[0] == '\\') // we have an escaped flag following, so we chop of escaper and continue
-                    {
-                        query = query[1..];
-                    }
-                    //methodolgy: highlight items which fulfill search
-                    int x = 0;
-                    foreach (LineData item in TranslationData.Values)
-                    {
-                        if (item.TranslationString.ToLowerInvariant().Contains(query.ToLowerInvariant()) /*if the translated text contaisn the search string*/
-                            || (item.TemplateString != null
-                            && item.TemplateString.ToLowerInvariant().Contains(query.ToLowerInvariant()))/*if the english string is not null and contaisn the searched part*/
-                            || item.ID.ToLowerInvariant().Contains(query.ToLowerInvariant())
-                            && item.TranslationLength > 0)/*if the id contains the searched part*/
-                        {
-                            TabUI.Lines.SearchResults.Add(TabUI.Lines[x].Text);//add index to highligh list
-                        }
-                        ++x;
-                    }
-                }
-                CleanedSearchQuery = query;
-
-                UpdateSearchAndSearchHighlight();
+                TabUI.Lines.SearchResults.AddRange(results!);
+                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
             }
             else
             {
                 TabUI.Lines.SearchResults.Clear();
-                SelectedResultIndex = 0;
-                SearchQuery = string.Empty;
-                CleanedSearchQuery = string.Empty;
-                TabUI.Template.ShowHighlight = false;
+                UI.SearchResultCount = 0;
+                CleanedSearchQuery = cleanedSpanQuery.ToString();
+                UI.SignalUserPing();
             }
-
-            UI.UpdateResults();
+            TabUI.UpdateSearchResultDisplay();
         }
 
         /// <summary>
@@ -718,6 +684,11 @@ namespace Translator.Core
             {
                 if (TabUI.Lines[i].Text == id) TabUI.SelectLineItem(i);
             }
+        }
+
+        public void SelectLine(int i)
+        {
+            TabUI.SelectLineItem(i);
         }
 
         /// <summary>
@@ -1027,6 +998,7 @@ namespace Translator.Core
         {
             if (!TabUI.IsTranslationBoxFocused && !TabUI.IsCommentBoxFocused && TabUI.Lines.SearchResults.Count > 0)
             {
+                if (SelectedResultIndex < 0) SelectedResultIndex = 0;
                 //loop back to start
                 if (SelectedResultIndex > TabUI.Lines.SearchResults.Count - 1)
                 {
@@ -1036,6 +1008,7 @@ namespace Translator.Core
                     {
                         searchTabIndex = TabManager.SelectedTabIndex;
                         TabManager.SwitchToTab(++searchTabIndex);
+                        SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
                     }
                     else
                     {
@@ -1043,20 +1016,23 @@ namespace Translator.Core
                         if (SelectedResultIndex < TabUI.LineCount)
                         {
                             SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
+                            ++SelectedResultIndex;
                         }
                     }
                 }
                 else
                 {
-                    if (SelectedResultIndex < TabUI.LineCount)
+                    if (SelectedResultIndex < TabUI.Lines.SearchResults.Count)
                     {
                         SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
                         ++SelectedResultIndex;
                     }
-                    else if (TabManager.InGlobalSearch && TabManager.TabCount > 1)
+                    else if (TabManager.InGlobalSearch)
                     {
                         searchTabIndex = TabManager.SelectedTabIndex;
+                        SelectedResultIndex = 1;
                         TabManager.SwitchToTab(++searchTabIndex);
+                        SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
                         return true;
                     }
                     else
@@ -1065,6 +1041,60 @@ namespace Translator.Core
                         SelectLine(TabUI.Lines.SearchResults[0]);
                     }
                 }
+
+                UI.SelectedSearchResult = SelectedResultIndex;
+
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool SelectPreviousResultIfApplicable()
+        {
+            if (!TabUI.IsTranslationBoxFocused && !TabUI.IsCommentBoxFocused && TabUI.Lines.SearchResults.Count > 0)
+            {
+                if (SelectedResultIndex < 0) SelectedResultIndex = TabUI.Lines.SearchResults.Count - 1;
+                //loop back to start
+                if (SelectedResultIndex < 1)
+                {
+                    SelectedResultIndex = TabUI.Lines.SearchResults.Count - 1;
+                    //loop over to new tab when in global search
+                    if (TabManager.InGlobalSearch)
+                    {
+                        searchTabIndex = TabManager.SelectedTabIndex;
+                        TabManager.SwitchToTab(--searchTabIndex);
+                    }
+                    SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
+                }
+                else
+                {
+                    if (SelectedResultIndex > 0)
+                    {
+                        if (SelectedResultIndex + 2 == UI.SelectedSearchResult)
+                            SelectedResultIndex -= 2;
+                        else
+                            --SelectedResultIndex;
+                        SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
+                    }
+                    else if (TabManager.InGlobalSearch)
+                    {
+                        searchTabIndex = TabManager.SelectedTabIndex;
+                        SelectedResultIndex = TabUI.Lines.SearchResults.Count - 1;
+                        TabManager.SwitchToTab(--searchTabIndex);
+                        SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
+                        return true;
+                    }
+                    else
+                    {
+                        SelectedResultIndex = TabUI.Lines.SearchResults.Count;
+                        SelectLine(TabUI.Lines.SearchResults[^1]);
+                    }
+                }
+
+                UI.SelectedSearchResult = SelectedResultIndex + 1;
 
                 return true;
             }
@@ -1087,8 +1117,7 @@ namespace Translator.Core
                     if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.Lines.SelectedIndex = Settings.Default.RecentIndex;
                     //update to online
                     SaveFile();
-                    //reload latest online, should be the same as local by then
-                    ReloadFile();
+                    _ = UI.InfoOk("Local version saved to database, reload to see changed version.(CTRL+R)");
                 }
             }
         }

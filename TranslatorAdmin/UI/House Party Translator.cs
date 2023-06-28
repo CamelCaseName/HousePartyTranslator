@@ -12,9 +12,9 @@ using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
+using Translator.Desktop.UI.Components;
 using Translator.Explorer.Window;
 using Translator.Helpers;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace Translator.Desktop.UI
 {
@@ -22,7 +22,7 @@ namespace Translator.Desktop.UI
     /// The main class which handles the UI for the House Party Translator Window
     /// </summary>
     [SupportedOSPlatform("windows")]
-    public partial class Fenster : Form
+    public sealed class Fenster : Form
     {
         private StoryExplorer? SExplorer;
         private readonly ContextMenuStrip? ListContextMenu;
@@ -78,7 +78,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem saveToolStripMenuItem;
         private WinMenuItem searchAllToolStripMenuItem;
         private WinMenuItem searchToolStripMenuItem;
-        private WinToolStripTextBox searchToolStripTextBox;
+        private SearchToolStripTextBox searchToolStripTextBox;
         private WinMenuItem settingsToolStripMenuItem;
         private WinMenuItem storyExplorerStripMenuItem;
         private WinToolStripTextBox ToolStripMenuReplaceBox;
@@ -159,7 +159,7 @@ namespace Translator.Desktop.UI
         internal ToolStripTextBox ReplaceBox => ToolStripMenuReplaceBox;
 
         internal WinMenuItem ReplaceButton => toolStripReplaceButton;
-        internal ToolStripTextBox SearchBox => searchToolStripTextBox;
+        internal SearchToolStripTextBox SearchBox => searchToolStripTextBox;
 
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
@@ -636,16 +636,18 @@ namespace Translator.Desktop.UI
             saveCurrentStringToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.SaveCurrentString();
 
             // searchToolStripTextBox
-            searchToolStripTextBox = new WinToolStripTextBox()
+            searchToolStripTextBox = new SearchToolStripTextBox()
             {
                 BackColor = menu,
                 BorderStyle = BorderStyle.FixedSingle,
                 Font = new Font("Segoe UI", 9F),
-                AutoSize = true,
                 Name = nameof(searchToolStripTextBox),
                 Size = new Size(150, 23),
+                MinimumSize = new Size(150, 23),
+                MaximumSize = new Size(150, 23),
                 Margin = new Padding(1),
-                ToolTipText = "Enter your searchterm here."
+                ToolTipText = "Enter your searchterm here.",
+                PlaceHoldeText = "search here"
             };
             searchToolStripTextBox.TextChanged += new EventHandler(SearchToolStripTextBox_TextChanged);
 

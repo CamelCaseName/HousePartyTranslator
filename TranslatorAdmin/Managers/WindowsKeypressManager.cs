@@ -2,8 +2,9 @@
 using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.UICompatibilityLayer;
-using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.UI;
+using Translator.Desktop.UI.Components;
+
 namespace Translator.Desktop.Managers
 {
     /// <summary>
@@ -133,7 +134,8 @@ namespace Translator.Desktop.Managers
 
                 //save translation and approve
                 case (Keys.Shift | Keys.Enter):
-                    InputHandler.SaveAndApproveLine();
+                    if (App.MainForm.SearchBox.Focused) TabManager.ActiveTranslationManager.SelectPreviousResultIfApplicable();
+                    else InputHandler.SaveAndApproveLine();
                     return true;
 
                 //move cursor to the left, clinging to words

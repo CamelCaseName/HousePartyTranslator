@@ -4,6 +4,7 @@ using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.Managers;
+using Translator.Desktop.UI.Components;
 using Translator.Helpers;
 
 namespace Translator.Desktop.InterfaceImpls
@@ -49,6 +50,8 @@ namespace Translator.Desktop.InterfaceImpls
 
         public string TranslationBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
         public string TemplateBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
+        public int SearchResultCount { get => App.MainForm?.SearchBox.TotalSearchResults ?? 0; set => App.MainForm.SearchBox.TotalSearchResults = value; }
+        public int SelectedSearchResult { get => App.MainForm?.SearchBox.CurrentSearchResult ?? 0; set => App.MainForm.SearchBox.CurrentSearchResult = value; }
 
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
         public ITab? CreateNewTab()
@@ -109,7 +112,6 @@ namespace Translator.Desktop.InterfaceImpls
         }
         public void Update() => App.MainForm?.Update();
         public void UpdateTranslationProgressIndicator() => ((WinTab)SelectedTab).ProgressbarTranslated.Invalidate();
-        public void UpdateResults() => ((LineList)SelectedTab.Lines).Invalidate();
 
         public PopupResult WarningOk(string message, string title = "Warning") => Msg.WarningOk(message, title).ToPopupResult();
         public PopupResult WarningOkCancel(string message, string title = "Warning") => Msg.WarningOkCancel(message, title).ToPopupResult();
@@ -150,5 +152,7 @@ namespace Translator.Desktop.InterfaceImpls
                 SelectedTab.FocusTranslationBox();
             }
         }
+
+        public void SignalUserPing() => System.Media.SystemSounds.Exclamation.Play();
     }
 }

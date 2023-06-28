@@ -50,7 +50,6 @@ namespace Translator.Core
             if (path == string.Empty) return;
             if (!Directory.Exists(path)) Directory.CreateDirectory(path);
             if (story == string.Empty) story = Utils.ExtractStoryName(path);
-            //todo add fallback to have the user enter the story if the story cant be found
             LogManager.Log("Exporting all templates for " + story + " to " + path);
 
             //export templates as hints.txt if we have the hints, no need to get filenames
@@ -443,7 +442,7 @@ namespace Translator.Core
                 path = Path.Combine(path!, dialog.FileName + ".txt");
                 File.OpenWrite(path!).Close();
             }
-            return path;
+            return path!;
         }
     }
 }

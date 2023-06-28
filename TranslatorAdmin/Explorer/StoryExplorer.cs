@@ -118,13 +118,16 @@ namespace Translator.Explorer.Window
             Provider.FreezeNodesAsInitial();
             Layouter = new(Provider, this, token);
             Layouter.Start();
+            Grapher.StartTime = DateTime.Now;
             Grapher.Center();
             Invalidate();
         }
 
         private void SaveNodes(object? sender, FormClosingEventArgs? e)
         {
+            Layouter?.Stop();
             _ = Context.SaveNodes(Provider.GetPositions());
+            LogManager.Log($"\trendering ended, calculated {Grapher.FrameCount} frames in {(Grapher.FrameEndTime - Grapher.StartTime).TotalSeconds:F2} seconds -> {Grapher.FrameCount / (Grapher.FrameEndTime - Grapher.StartTime).TotalSeconds:F2} fps");
             //save story objecs here
             Settings.Default.Save();
         }
@@ -141,16 +144,26 @@ namespace Translator.Explorer.Window
 
         private void Start_Click(object sender, EventArgs e)
         {
-            NodeCalculations.Text = "Calculation running";
             Layouter?.Start();
+            ShowRunningInfoLabel();
+        }
+
+        internal void ShowRunningInfoLabel()
+        {
+            NodeCalculations.Text = "Calculation running";
             NodeCalculations.Update();
             NodeCalculations.Invalidate();
         }
 
         public void Stop_Click(object sender, EventArgs e)
         {
-            NodeCalculations.Text = "Calculation stopped";
             if (Layouter?.Started ?? false) Layouter?.Stop();
+            ShowStoppedInfoLabel();
+        }
+
+        internal void ShowStoppedInfoLabel()
+        {
+            NodeCalculations.Text = "Calculation stopped";
             NodeCalculations.Update();
             NodeCalculations.Invalidate();
         }

@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using Translator.Core.UICompatibilityLayer;
 
-namespace Translator.Desktop.InterfaceImpls
+namespace Translator.Desktop.UI.Components
 {
     internal class WinToolStripTextBox : ToolStripTextBox, ITextBox
     {

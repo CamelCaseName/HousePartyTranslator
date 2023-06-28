@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.Explorer.Graph;
+using Translator.Desktop.UI.Components;
 using static System.Windows.Forms.TabControl;
 
 namespace Translator.Desktop.InterfaceImpls

@@ -14,7 +14,7 @@ namespace Translator.Desktop.UI.Components
         /// <summary>
         /// List containing all indices that are part of the search result
         /// </summary>
-        public List<string> SearchResults = new();
+        public List<int> SearchResults = new();
 
         /// <summary>
         /// list containing all indices that are duplicates fo the english string
@@ -43,7 +43,7 @@ namespace Translator.Desktop.UI.Components
                     e.ForeColor, //colour yellow if it is part of the search, else colour normally
                     e.Index > -1 ?
 
-                            SearchResults.Contains(Items[e.Index].ToString() ?? string.Empty) ?
+                            SearchResults.Contains(e.Index) ?
                                 Color.DarkOrange :
                                 SimilarStringsToEnglish.Contains(Items[e.Index].ToString() ?? string.Empty) ?
                                     Color.FromArgb(130, 80, 130) :

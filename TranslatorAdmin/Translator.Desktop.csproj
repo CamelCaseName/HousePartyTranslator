@@ -1,89 +1,90 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net7.0-windows</TargetFramework>
-    <Nullable>enable</Nullable>
-    <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
-    <StartupObject>Translator.Desktop.App</StartupObject>
-    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-    <Configurations>Debug;Release;Debug Admin;Release Admin</Configurations>
-    <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
-    <ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup>
+		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net7.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>disable</ImplicitUsings>
+		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+		<StartupObject>Translator.Desktop.App</StartupObject>
+		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+		<Configurations>Debug;Release;Debug Admin;Release Admin</Configurations>
+		<RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
+		<ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<NeutralLanguage>en</NeutralLanguage>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Optimize>False</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Admin|AnyCPU'">
-    <Optimize>False</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug Admin|AnyCPU'">
+		<Optimize>False</Optimize>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Admin|AnyCPU'">
-    <ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
-    <Optimize>True</Optimize>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release Admin|AnyCPU'">
+		<ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
+		<Optimize>True</Optimize>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="copy.bat" />
-    <None Remove="Release.7z" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="copy.bat" />
+		<None Remove="Release.7z" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Resources\wumpus_smoll.ico" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="Resources\wumpus_smoll.ico" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="NetDiscordRpc" Version="1.0.2" />
-    <PackageReference Include="SevenZipExtractor" Version="1.0.17" />
-    <PackageReference Include="Silk.NET.OpenCL" Version="2.16.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="NetDiscordRpc" Version="1.0.2" />
+		<PackageReference Include="SevenZipExtractor" Version="1.0.17" />
+		<PackageReference Include="Silk.NET.OpenCL" Version="2.17.1" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\TranslatorCore\Translator.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\TranslatorCore\Translator.Core.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="UI\House Party Translator.cs" />
-    <Compile Update="UI\PasswordBox.cs" />
-    <Compile Update="UI\ProgressWindow.cs" />
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Properties\Settings.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Update="UI\SettingsForm.cs" />
-    <Compile Update="Explorer\StoryExplorer.cs" />
-    <Compile Update="UI\Components\ColouredCheckedListBox.cs" />
-    <Compile Update="UI\Components\NoAnimationBar.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="UI\House Party Translator.cs" />
+		<Compile Update="UI\PasswordBox.cs" />
+		<Compile Update="UI\ProgressWindow.cs" />
+		<Compile Update="Properties\Resources.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Resources.resx</DependentUpon>
+		</Compile>
+		<Compile Update="Properties\Settings.Designer.cs">
+			<DesignTimeSharedInput>True</DesignTimeSharedInput>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Settings.settings</DependentUpon>
+		</Compile>
+		<Compile Update="UI\SettingsForm.cs" />
+		<Compile Update="Explorer\StoryExplorer.cs" />
+		<Compile Update="UI\Components\ColouredCheckedListBox.cs" />
+		<Compile Update="UI\Components\NoAnimationBar.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <Generator>PublicResXFileCodeGenerator</Generator>
-    </EmbeddedResource>
-  </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="Properties\Resources.resx">
+			<SubType>Designer</SubType>
+			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
+			<Generator>PublicResXFileCodeGenerator</Generator>
+		</EmbeddedResource>
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="Properties\Settings.settings">
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-      <Generator>SettingsSingleFileGenerator</Generator>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="Properties\Settings.settings">
+			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
+			<Generator>SettingsSingleFileGenerator</Generator>
+		</None>
+	</ItemGroup>
 
 </Project>

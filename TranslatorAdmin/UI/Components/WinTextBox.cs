@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 
-namespace Translator.Desktop.InterfaceImpls
+namespace Translator.Desktop.UI.Components
 {
     [SupportedOSPlatform("windows")]
     public class WinTextBox : TextBox, ITextBox
@@ -17,15 +17,15 @@ namespace Translator.Desktop.InterfaceImpls
 
         public WinTextBox() : base()
         {
-            MouseDown += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            MouseUp += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            MouseDoubleClick += (object? sender, MouseEventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            GotFocus += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            Click += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            Resize += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            LostFocus += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            MouseCaptureChanged += (object? sender, EventArgs e) => { customDrawNeeded = true; Invalidate(); };
-            MouseMove += (object? sender, MouseEventArgs e) => _ = e.Button == MouseButtons.Left ? customDrawNeeded = true : customDrawNeeded = false;
+            MouseDown += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            MouseUp += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            MouseDoubleClick += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            GotFocus += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            Click += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            Resize += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            LostFocus += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            MouseCaptureChanged += (sender, e) => { customDrawNeeded = true; Invalidate(); };
+            MouseMove += (sender, e) => _ = e.Button == MouseButtons.Left ? customDrawNeeded = true : customDrawNeeded = false;
         }
 
         public int SelectionEnd
@@ -52,6 +52,8 @@ namespace Translator.Desktop.InterfaceImpls
             set { Invalidate(); customDrawNeeded = true; base.Text = value; }
         }
 
+        public Color PlaceholderColor { get; set; } = SystemColors.GrayText;
+
         public new void Focus() => base.Focus();
 
         protected override void WndProc(ref Message m)
@@ -62,21 +64,52 @@ namespace Translator.Desktop.InterfaceImpls
                 OnPaint(new PaintEventArgs(Graphics.FromHwnd(m.HWnd), ClientRectangle));
         }
 
+        public void OnPaintOffset(PaintEventArgs e, Point offset)
+        {
+            //let the base handle backgorund and border drawing and so on
+            base.OnPaint(e);
+            //if the control isnt focused and we can draw a placeholdertext, do it
+            if (ShouldDrawPlaceholder())
+            {
+                DrawPlaceholderText(e.Graphics, offset);
+            }
+        }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             //let the base handle backgorund and border drawing and so on
             base.OnPaint(e);
             //if the control isnt focused and we can draw a placeholdertext, do it
-            if (!string.IsNullOrEmpty(PlaceholderText) && !Focused && TextLength == 0)
+            if (ShouldDrawPlaceholder())
             {
                 DrawPlaceholderText(e.Graphics);
             }
             //if we have a WM_PAINT and should display a shighlight somewhere
-            if (customDrawNeeded && ShowHighlight && HighlightEnd > HighlightStart && HighlightStart < Text.Length && HighlightEnd <= Text.Length)
+            if (ShouldDrawHighlight())
             {
                 DrawHighlightedText(e.Graphics);
             }
         }
+
+        private bool ShouldDrawPlaceholder()
+        {
+            return
+            !string.IsNullOrEmpty(PlaceholderText)
+            && !Focused
+            && TextLength == 0;
+        }
+
+        private bool ShouldDrawHighlight()
+        {
+            return
+            customDrawNeeded
+            && ShowHighlight
+            && HighlightEnd > HighlightStart
+            && HighlightStart < Text.Length
+            && HighlightEnd <= Text.Length;
+        }
+
+        private void DrawPlaceholderText(Graphics g) => DrawPlaceholderText(g, Point.Empty);
 
         private void DrawHighlightedText(Graphics g)
         {
@@ -106,12 +139,11 @@ namespace Translator.Desktop.InterfaceImpls
             customDrawNeeded = false;
         }
 
-        private void DrawPlaceholderText(Graphics g)
+        private void DrawPlaceholderText(Graphics g, Point offset)
         {
-            Point point = Point.Empty;
-            AdjustTextRegion(out TextFormatFlags flags, ref point);
+            AdjustTextRegion(out TextFormatFlags flags, ref offset);
 
-            TextRenderer.DrawText(g, PlaceholderText, Font, point, Utils.darkText, Utils.background, flags);
+            TextRenderer.DrawText(g, PlaceholderText, Font, offset, PlaceholderColor, BackColor, flags);
         }
 
         private void AdjustTextRegion(out TextFormatFlags flags, ref Point point)

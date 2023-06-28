@@ -1,6 +1,8 @@
-﻿using Org.BouncyCastle.Crypto.Tls;
+﻿using Org.BouncyCastle.Bcpg;
+using Org.BouncyCastle.Crypto.Tls;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,6 +14,7 @@ namespace Translator.Core.Helpers
     public static class Extensions
     {
         public static readonly char[] trimmers = { '\0', ' ', '\t', '\n', '\r', (char)160 };
+        private static readonly string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
 
         /// <summary>
         /// Returns whether a story is official or not
@@ -20,7 +23,6 @@ namespace Translator.Core.Helpers
         /// <returns></returns>
         public static bool IsOfficialStory(this string storyName)
         {
-            string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
             return Array.IndexOf(stories, storyName) >= 0;
         }
 
@@ -275,7 +277,7 @@ namespace Translator.Core.Helpers
         }
 
         public static TValue ElementAt<TKey, TValue>(this Dictionary<TKey, TValue>.ValueCollection dict, int index)
-            where TKey: notnull
+            where TKey : notnull
         {
             if (index >= dict.Count) throw new ArgumentOutOfRangeException(nameof(index));
 
@@ -326,6 +328,15 @@ namespace Translator.Core.Helpers
                 if (arr[i] == value) return true;
             }
             return false;
+        }
+
+        public static int DigitCount(this int num)
+        {
+            int numToWorkOn = num;
+            int count = 0;
+            while ((numToWorkOn /= 10) > 10)
+                ++count;
+            return count;
         }
     }
 }

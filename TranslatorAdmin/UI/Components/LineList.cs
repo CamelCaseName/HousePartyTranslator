@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using Translator.Core.UICompatibilityLayer;
-using Translator.Desktop.UI.Components;
+using Translator.Desktop.InterfaceImpls;
 
-namespace Translator.Desktop.InterfaceImpls
+namespace Translator.Desktop.UI.Components
 {
     public class LineList : ColouredCheckedListBox, ILineList
     {
@@ -13,20 +13,6 @@ namespace Translator.Desktop.InterfaceImpls
         public int Count => Items.Count;
         public int ApprovedCount { get { return CheckedIndices.Count; } }
         public LineList() : this(new List<WinLineItem>()) { }
-
-        public LineList(List<WinLineItem> items, WinLineItem selectedLineItem, int selectedIndex)
-        {
-            Items.Clear();
-            var objects = new object[items.Count];
-            for (int i = 0; i < items.Count; i++)
-            {
-                objects[i] = items[i];  
-            }
-            ListBox.ObjectCollection collection = new(this, objects);
-            Items.AddRange(collection);
-            ((ILineList)this).SelectedLineItem = selectedLineItem;
-            SelectedIndex = selectedIndex;
-        }
 
         public LineList(List<WinLineItem> items)
         {
@@ -39,15 +25,21 @@ namespace Translator.Desktop.InterfaceImpls
             SelectedIndex = items.Count > 0 ? 0 : -1;
         }
 
+        public LineList(List<WinLineItem> items, WinLineItem selectedLineItem, int selectedIndex) : this(items)
+        {
+            ((ILineList)this).SelectedLineItem = selectedLineItem;
+            SelectedIndex = selectedIndex;
+        }
+
         public WinLineItem this[int index] { get { return (WinLineItem)Items[index]; } set { Items[index] = value; } }
 
         ILineItem ILineList.SelectedLineItem { get; set; } = new WinLineItem();
 
-        public List<int> TranslationSimilarToTemplate { get; internal set; } = new();
+        public List<string> TranslationSimilarToTemplate => SimilarStringsToEnglish;
 
-        List<string> ILineList.SearchResults => SearchResults;
+        List<int> ILineList.SearchResults => SearchResults;  
 
-        List<string> ILineList.TranslationSimilarToTemplate { get; } = new();
+        List<int> ILineList.TranslationSimilarToTemplate { get; } = new();
 
         ILineItem ILineList.this[int index] { get => (WinLineItem)Items[index]; set => Items[index] = value; }
 
@@ -95,7 +87,7 @@ namespace Translator.Desktop.InterfaceImpls
         {
             try
             {
-                ((ILineList)this).SelectedLineItem = ((WinLineItem)Items[index]);
+                ((ILineList)this).SelectedLineItem = (WinLineItem)Items[index];
             }
             catch
             {

@@ -353,8 +353,10 @@ namespace Translator.Desktop.Explorer.JSONItems
 
     internal sealed class Value
     {
+#pragma warning disable IDE0079
 #pragma warning disable IDE1006
         public string? value { get; set; }
 #pragma warning restore IDE1006
+#pragma warning restore IDE0079
     }
 }
