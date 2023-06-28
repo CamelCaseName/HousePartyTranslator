@@ -71,8 +71,6 @@ namespace Translator.Core.UICompatibilityLayer
         int SearchResultCount { get; set; }
         int SelectedSearchResult { get; set; }
 
-        void UpdateResults();
-
         void ToggleReplaceBar();
         void SetSelectedSearchBarText(int v, int length);
         #endregion
@@ -100,6 +98,7 @@ namespace Translator.Core.UICompatibilityLayer
         void UpdateTranslationProgressIndicator();
         void SetReplaceMenuVisible();
         void SetReplaceMenuInVisible();
+        void SignalUserPing();
         #endregion
 
         #region tabs

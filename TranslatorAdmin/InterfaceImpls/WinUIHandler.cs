@@ -112,7 +112,6 @@ namespace Translator.Desktop.InterfaceImpls
         }
         public void Update() => App.MainForm?.Update();
         public void UpdateTranslationProgressIndicator() => ((WinTab)SelectedTab).ProgressbarTranslated.Invalidate();
-        public void UpdateResults() => ((LineList)SelectedTab.Lines).Invalidate();
 
         public PopupResult WarningOk(string message, string title = "Warning") => Msg.WarningOk(message, title).ToPopupResult();
         public PopupResult WarningOkCancel(string message, string title = "Warning") => Msg.WarningOkCancel(message, title).ToPopupResult();
@@ -153,5 +152,7 @@ namespace Translator.Desktop.InterfaceImpls
                 SelectedTab.FocusTranslationBox();
             }
         }
+
+        public void SignalUserPing() => System.Media.SystemSounds.Exclamation.Play();
     }
 }

@@ -378,7 +378,7 @@ namespace Translator.Core
         private void UpdateSearchAndSearchHighlight()
         {
             //renew search result if possible
-            int t = TabUI.Lines.SearchResults.IndexOf(SelectedId);
+            int t = TabUI.Lines.SearchResults.IndexOf(TabUI.SelectedLineIndex);
             if (t >= 0)
             {
                 if (SelectedResultIndex > 0) SelectedResultIndex = t;
@@ -417,8 +417,8 @@ namespace Translator.Core
 
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
-                if (TabUI.Lines.SearchResults[i].Length == 0) continue;
-                TranslationData[TabUI.Lines.SearchResults[i]].TranslationString = TranslationData[TabUI.Lines.SearchResults[i]].TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
+                if (TabUI.Lines.SearchResults[i] < 0) continue;
+                TranslationData[TabUI.Lines[i].Text].TranslationString = TranslationData[TabUI.Lines[i].Text].TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
             }
 
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
@@ -439,7 +439,7 @@ namespace Translator.Core
         /// <param name="replacement">The string to replace all search matches with</param>
         public void ReplaceSingle(string replacement)
         {
-            if (TabUI.Lines.SearchResults.Contains(SelectedId))
+            if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineIndex))
             {
                 string temp = SelectedLine.TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
                 History.AddAction(new TranslationChanged(this, SelectedId, SelectedLine.TranslationString, temp));
@@ -655,7 +655,20 @@ namespace Translator.Core
         /// <param name="query">The search temr to look for</param>
         public void Search(string query)
         {
-            
+            if (Searcher.Search(query, TranslationData, out List<int>? results, out ReadOnlySpan<char> cleanedSpanQuery))
+            {
+                CleanedSearchQuery = cleanedSpanQuery.ToString();
+
+                TabUI.Lines.SearchResults.Clear();
+                TabUI.Lines.SearchResults.AddRange(results!);
+            }
+            else
+            {
+                TabUI.Lines.SearchResults.Clear();
+                CleanedSearchQuery = cleanedSpanQuery.ToString();
+                UI.SignalUserPing();
+            }
+            TabUI.UpdateSearchResultDisplay();
         }
 
         /// <summary>
@@ -669,6 +682,11 @@ namespace Translator.Core
             {
                 if (TabUI.Lines[i].Text == id) TabUI.SelectLineItem(i);
             }
+        }
+
+        public void SelectLine(int i)
+        {
+            TabUI.SelectLineItem(i);
         }
 
         /// <summary>

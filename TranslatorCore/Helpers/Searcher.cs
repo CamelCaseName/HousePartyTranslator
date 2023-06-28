@@ -29,27 +29,27 @@ namespace Translator.Core.Helpers
                 {
                     if (enumerator.Current.TranslationString != null)
                     {
-                        if (enumerator.Current.TranslationString.AsSpan().Contains((ReadOnlySpan<char>)query, StringComparison.CurrentCulture))
+                        if (enumerator.Current.TranslationString.AsSpan().Contains(query, StringComparison.CurrentCulture))
                         {
                             results.Add(x++);
-                            break;
+                            continue;
                         }
                     }
                     if (enumerator.Current.TemplateString != null)
                     {
-                        if (enumerator.Current.TemplateString.AsSpan().Contains((ReadOnlySpan<char>)query, StringComparison.CurrentCulture))
+                        if (enumerator.Current.TemplateString.AsSpan().Contains(query, StringComparison.CurrentCulture))
                         {
                             results.Add(x++);
-                            break;
+                            continue;
                         }
                     }
-                    if (enumerator.Current.ID.AsSpan().Contains((ReadOnlySpan<char>)query, StringComparison.CurrentCulture))
+                    if (enumerator.Current.ID.AsSpan().Contains(query, StringComparison.CurrentCulture))
                     {
                         results.Add(x++);
-                        break;
+                        continue;
                     }
                     ++x;
-                } 
+                }
                 while (enumerator.MoveNext());
             }
             else
@@ -62,32 +62,32 @@ namespace Translator.Core.Helpers
                 //methodolgy: highlight items which fulfill search and show count
                 int x = 0;
                 var enumerator = data.Values.GetEnumerator();
-                do
+
+                while (enumerator.MoveNext())
                 {
                     if (enumerator.Current.TranslationString != null)
                     {
-                        if (enumerator.Current.TranslationString.AsSpan().Contains((ReadOnlySpan<char>)query, StringComparison.CurrentCultureIgnoreCase))
+                        if (enumerator.Current.TranslationString.AsSpan().Contains(query, StringComparison.CurrentCultureIgnoreCase))
                         {
                             results.Add(x++);
-                            break;
+                            continue;
                         }
                     }
                     if (enumerator.Current.TemplateString != null)
                     {
-                        if (enumerator.Current.TemplateString.AsSpan().Contains((ReadOnlySpan<char>)query, StringComparison.CurrentCultureIgnoreCase))
+                        if (enumerator.Current.TemplateString.AsSpan().Contains(query, StringComparison.CurrentCultureIgnoreCase))
                         {
                             results.Add(x++);
-                            break;
+                            continue;
                         }
                     }
-                    if (enumerator.Current.ID.AsSpan().Contains((ReadOnlySpan<char>)query, StringComparison.CurrentCultureIgnoreCase))
+                    if (enumerator.Current.ID.AsSpan().Contains(query, StringComparison.CurrentCultureIgnoreCase))
                     {
                         results.Add(x++);
-                        break;
+                        continue;
                     }
                     ++x;
                 }
-                while (enumerator.MoveNext());
             }
             cleanedQuery = query;
             return results.Count > 0;

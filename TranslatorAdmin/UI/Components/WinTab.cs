@@ -452,5 +452,6 @@ namespace Translator.Desktop.UI.Components
         public void SetSelectedTranslationBoxText(int start, int end) { TranslationTextBox.SelectionStart = start; TranslationTextBox.SelectionEnd = end; }
         public void UnapproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, false);
         public void UpdateLines() => CheckListBoxLeft.Update();
+        public void UpdateSearchResultDisplay() => CheckListBoxLeft.Invalidate();
     }
 }

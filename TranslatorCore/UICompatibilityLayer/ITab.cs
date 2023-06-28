@@ -35,6 +35,7 @@ namespace Translator.Core.UICompatibilityLayer
 
         void SelectLineItem(ILineItem item);
         void UpdateLines();
+        void UpdateSearchResultDisplay();
 
         #endregion
 

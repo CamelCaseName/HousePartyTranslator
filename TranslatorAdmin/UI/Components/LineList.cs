@@ -37,9 +37,9 @@ namespace Translator.Desktop.UI.Components
 
         public List<string> TranslationSimilarToTemplate => SimilarStringsToEnglish;
 
-        List<string> ILineList.SearchResults => SearchResults;  
+        List<int> ILineList.SearchResults => SearchResults;  
 
-        List<string> ILineList.TranslationSimilarToTemplate { get; } = new();
+        List<int> ILineList.TranslationSimilarToTemplate { get; } = new();
 
         ILineItem ILineList.this[int index] { get => (WinLineItem)Items[index]; set => Items[index] = value; }
 
