@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Translator.Core.Data;
 
@@ -110,11 +109,23 @@ namespace Translator.Core.Helpers
         private static bool CheckAndClearEscapedChars(ref ReadOnlySpan<char> query)
         {
             if (query.IsEmpty) return false;
-            if (query.Length > 1 && query[0] == '\\'
-                && (query[1] == '!' || query[1] == '§')) // we have an escaped flag following, so we chop of escaper and continue
+            if (query.Length > 1)
             {
-                query = query[1..];
-                return true;
+                if (query[0] == '\\' && (query[1] == '!' || query[1] == '§')) // we have an escaped flag following, so we chop of escaper and continue
+                {
+                    query = query[1..];
+                    return true;
+                }
+                //only check for inline escape when we find one
+                int pos = query.IndexOf('\\');
+                if (pos == -1) return false;
+                if (pos == query.Length - 1) return false;
+
+                if (query[pos] == '\\' && (query[pos + 1] == '!' || query[pos + 1] == '§')) // we have an escaped flag following, so we chop of escaper and continue
+                {
+                    query = query.RemoveAt(pos, 1);
+                    return true;
+                }
             }
 
             return false;

@@ -1,9 +1,5 @@
-﻿using Org.BouncyCastle.Bcpg;
-using Org.BouncyCastle.Crypto.Tls;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
 using Translator.Core.Data;
@@ -94,6 +90,7 @@ namespace Translator.Core.Helpers
         /// <returns>The formatted, blockified string</returns>
         /// 
         public static string ConstrainLength(this string input) => input.ConstrainLength(Utils.MaxTextLength);
+
         public static string ConstrainLength(this string input, int maxlineLength)
         {
             int currentWordLength = 0, currentLength = 0, lastWordStart = 0, totalCount = 0;
@@ -337,6 +334,17 @@ namespace Translator.Core.Helpers
             while ((numToWorkOn /= 10) > 10)
                 ++count;
             return count;
+        }
+
+        public static ReadOnlySpan<char> RemoveAt(this ReadOnlySpan<char> span, int index, int count)
+        {
+            if (span.IsEmpty) return span;
+            if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), "The index cannot be negative");
+            if (count < 0) throw new ArgumentOutOfRangeException(nameof(index), "The count cannot be negative");
+            if (index >= span.Length) throw new ArgumentOutOfRangeException(nameof(index), "The index has to be less than the length of the span");
+            if (index + count >= span.Length) throw new ArgumentOutOfRangeException(nameof(count), "The count added to the index has to be less than the length of the span");
+
+            return string.Concat(span[..index], span[(index + count)..]);
         }
     }
 }
