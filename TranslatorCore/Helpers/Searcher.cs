@@ -61,7 +61,8 @@ namespace Translator.Core.Helpers
                                 break;
                             //search text only, no id
                             case "tx":
-                                algorithms.Add(SearchTextOnly);
+                                algorithms.Add(SearchTemplate);
+                                algorithms.Add(SearchTranslation);
                                 break;
                             //search approved only
                             case "ap":
@@ -70,6 +71,18 @@ namespace Translator.Core.Helpers
                             //search unapproved only
                             case "un":
                                 algorithms.Add(SearchUnapprovedOnly);
+                                break;
+                            //translated lines only
+                            case "td":
+                                algorithms.Add(SearchTranslatedOnly);
+                                break;
+                            //untranslated lines only
+                            case "ut":
+                                algorithms.Add(SearchUntranslatedOnly);
+                                break;
+                            //finds lines where translation is equal to the template, disregards query
+                            case "ma":
+                                algorithms.Add(FindTemplateTranslationIdentical);
                                 break;
                             default:
                                 break;
@@ -81,7 +94,19 @@ namespace Translator.Core.Helpers
             //we only extracted an specifyer, no query yet
             if (query.IsEmpty) return false;
 
-            if (algorithms.Count == 0) algorithms.Add(SearchAll);
+            //fix search if we have nothing or only modifiers
+            bool SearchOnlyContainsModifiers = !algorithms.Contains(SearchID)
+                && !algorithms.Contains(SearchTranslation)
+                && !algorithms.Contains(SearchTemplate)
+                && !algorithms.Contains(SearchComments);
+
+            if (algorithms.Count == 0 || SearchOnlyContainsModifiers)
+            {
+                algorithms.Add(SearchID);
+                algorithms.Add(SearchTranslation);
+                algorithms.Add(SearchTemplate);
+                algorithms.Add(SearchComments);
+            }
 
             //run all checks agains all lines
             bool successfull = false;
@@ -104,6 +129,21 @@ namespace Translator.Core.Helpers
 
             cleanedQuery = query;
             return results.Count > 0;
+        }
+
+        private static bool FindTemplateTranslationIdentical(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            return line.TemplateString == line.TranslationString;
+        }
+
+        private static bool SearchUntranslatedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            return !line.IsTranslated;
+        }
+
+        private static bool SearchTranslatedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        {
+            return line.IsTranslated;
         }
 
         private static bool CheckAndClearEscapedChars(ref ReadOnlySpan<char> query)
@@ -156,26 +196,6 @@ namespace Translator.Core.Helpers
             return line.IsApproved;
         }
 
-        private static bool SearchTextOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
-        {
-            if (line.TranslationString != null)
-            {
-                if (line.TranslationString.AsSpan().Contains(query, comparison))
-                {
-                    return true;
-                }
-            }
-            if (line.TemplateString != null)
-            {
-                if (line.TemplateString.AsSpan().Contains(query, comparison))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private static bool SearchTemplate(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
         {
             if (line.TemplateString != null)
@@ -206,30 +226,6 @@ namespace Translator.Core.Helpers
             {
                 return true;
             }
-            return false;
-        }
-
-        private static bool SearchAll(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
-        {
-            if (line.TranslationString != null)
-            {
-                if (line.TranslationString.AsSpan().Contains(query, comparison))
-                {
-                    return true;
-                }
-            }
-            if (line.TemplateString != null)
-            {
-                if (line.TemplateString.AsSpan().Contains(query, comparison))
-                {
-                    return true;
-                }
-            }
-            if (line.ID.AsSpan().Contains(query, comparison))
-            {
-                return true;
-            }
-
             return false;
         }
 
