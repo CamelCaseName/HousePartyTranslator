@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Translator.Core.Data;
 
 namespace Translator.Core.Helpers
 {
     internal static class Searcher
     {
-        public delegate bool SearchImplementation(ReadOnlySpan<char> query, LineData line, StringComparison comparison);
+        public delegate bool SearchImplementation(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern);
         public static bool Search(ReadOnlySpan<char> query, FileData data, out List<int>? results, out ReadOnlySpan<char> cleanedQuery)
         {
             results = null;
@@ -20,6 +21,7 @@ namespace Translator.Core.Helpers
             int x = 0;
             StringComparison searchCulture = StringComparison.CurrentCultureIgnoreCase;
             List<SearchImplementation> algorithms = new();
+            bool useRegex = false;
 
             //case sensitive search
             if (!CheckAndClearEscapedChars(ref query))
@@ -61,8 +63,7 @@ namespace Translator.Core.Helpers
                                 break;
                             //search text only, no id
                             case "tx":
-                                algorithms.Add(SearchTemplate);
-                                algorithms.Add(SearchTranslation);
+                                algorithms.Add(SearchText);
                                 break;
                             //search approved only
                             case "ap":
@@ -84,6 +85,10 @@ namespace Translator.Core.Helpers
                             case "ma":
                                 algorithms.Add(FindTemplateTranslationIdentical);
                                 break;
+                            //treat query as regex
+                            case "rg":
+                                useRegex = true;
+                                break;
                             default:
                                 break;
                         }
@@ -102,20 +107,27 @@ namespace Translator.Core.Helpers
 
             if (algorithms.Count == 0 || SearchOnlyContainsModifiers)
             {
-                algorithms.Add(SearchID);
-                algorithms.Add(SearchTranslation);
-                algorithms.Add(SearchTemplate);
-                algorithms.Add(SearchComments);
+                algorithms.Add(SearchAll);
             }
 
             //run all checks agains all lines
             bool successfull = false;
+            Regex? regex = null;
+            if (useRegex)
+            {
+                try
+                {
+                    if (searchCulture == StringComparison.CurrentCultureIgnoreCase) regex = new Regex(query.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                    else regex = new Regex(query.ToString(), RegexOptions.Compiled);
+                }
+                catch { }
+            }
             while (enumerator.MoveNext())
             {
                 successfull = true;
                 foreach (var searchAlgorithm in algorithms)
                 {
-                    if (searchAlgorithm.Invoke(query, enumerator.Current, searchCulture))
+                    if (searchAlgorithm.Invoke(query, enumerator.Current, searchCulture, regex))
                         continue;
 
                     successfull = false;
@@ -129,21 +141,6 @@ namespace Translator.Core.Helpers
 
             cleanedQuery = query;
             return results.Count > 0;
-        }
-
-        private static bool FindTemplateTranslationIdentical(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
-        {
-            return line.TemplateString == line.TranslationString;
-        }
-
-        private static bool SearchUntranslatedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
-        {
-            return !line.IsTranslated;
-        }
-
-        private static bool SearchTranslatedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
-        {
-            return line.IsTranslated;
         }
 
         private static bool CheckAndClearEscapedChars(ref ReadOnlySpan<char> query)
@@ -171,62 +168,119 @@ namespace Translator.Core.Helpers
             return false;
         }
 
-        private static bool SearchComments(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        private static bool FindTemplateTranslationIdentical(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            if (line.Comments != null)
-            {
-                foreach (var comment in line.Comments.AsSpan())
-                {
-                    if (comment.AsSpan().Contains(query, comparison))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            return line.TemplateString == line.TranslationString;
         }
 
-        private static bool SearchUnapprovedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        private static bool SearchUntranslatedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
+        {
+            return !line.IsTranslated;
+        }
+
+        private static bool SearchTranslatedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
+        {
+            return line.IsTranslated;
+        }
+
+        private static bool SearchUnapprovedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
             return !line.IsApproved;
         }
 
-        private static bool SearchApprovedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        private static bool SearchApprovedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
             return line.IsApproved;
         }
 
-        private static bool SearchTemplate(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        private static bool SearchComments(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
+        {
+            if (line.Comments != null && line.Comments.Length > 0)
+            {
+                foreach (var comment in line.Comments)
+                {
+                    bool result;
+                    if (pattern != null)
+                    {
+                        result = SafeRegexSearch(comment, pattern);
+                    }
+                    else
+                    {
+                        result = comment.AsSpan().Contains(query, comparison);
+                    }
+                    if (result) return true;
+                }
+            }
+            return false;
+        }
+
+        private static bool SearchTemplate(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
             if (line.TemplateString != null)
             {
-                if (line.TemplateString.AsSpan().Contains(query, comparison))
+                if (pattern != null)
                 {
-                    return true;
+                    return SafeRegexSearch(line.TemplateString, pattern);
+                }
+                else
+                {
+                    return line.TemplateString.AsSpan().Contains(query, comparison);
                 }
             }
             return false;
         }
 
-        private static bool SearchTranslation(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        private static bool SearchTranslation(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
             if (line.TranslationString != null)
             {
-                if (line.TranslationString.AsSpan().Contains(query, comparison))
+                if (pattern != null)
                 {
-                    return true;
+                    return SafeRegexSearch(line.TranslationString, pattern);
+                }
+                else
+                {
+                    return line.TranslationString.AsSpan().Contains(query, comparison);
                 }
             }
             return false;
         }
 
-        private static bool SearchID(ReadOnlySpan<char> query, LineData line, StringComparison comparison)
+        private static bool SearchID(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            if (line.ID.AsSpan().Contains(query, comparison))
+            if (pattern != null)
             {
-                return true;
+                return SafeRegexSearch(line.ID, pattern);
             }
-            return false;
+            else
+            {
+                return line.ID.AsSpan().Contains(query, comparison);
+            }
+        }
+
+        private static bool SearchAll(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
+        {
+            return SearchID(query, line, comparison, pattern)
+                || SearchTranslation(query, line, comparison, pattern)
+                || SearchTemplate(query, line, comparison, pattern);
+        }
+
+        private static bool SearchText(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
+        {
+            return SearchTranslation(query, line, comparison, pattern)
+                || SearchTemplate(query, line, comparison, pattern);
+        }
+
+        private static bool SafeRegexSearch(ReadOnlySpan<char> text, Regex pattern)
+        {
+            try
+            {
+                return pattern.IsMatch(text);
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public static bool Search(ReadOnlySpan<char> query, FileData data, out List<int>? results)
