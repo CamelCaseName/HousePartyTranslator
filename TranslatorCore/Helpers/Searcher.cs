@@ -233,7 +233,7 @@ namespace Translator.Core.Helpers
             return false;
         }
 
-        public static bool Search(Span<char> query, FileData data, out List<int>? results)
+        public static bool Search(ReadOnlySpan<char> query, FileData data, out List<int>? results)
         {
             return Search(query, data, out results, out _);
         }

@@ -340,7 +340,7 @@ namespace Translator.Core.Helpers
         {
             if (span.IsEmpty) return span;
             if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), "The index cannot be negative");
-            if (count < 0) throw new ArgumentOutOfRangeException(nameof(index), "The count cannot be negative");
+            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "The count cannot be negative");
             if (index >= span.Length) throw new ArgumentOutOfRangeException(nameof(index), "The index has to be less than the length of the span");
             if (index + count >= span.Length) throw new ArgumentOutOfRangeException(nameof(count), "The count added to the index has to be less than the length of the span");
 
