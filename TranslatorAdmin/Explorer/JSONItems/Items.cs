@@ -106,6 +106,7 @@ namespace Translator.Desktop.Explorer.JSONItems
         public string? Id { get; set; }
         public bool Enabled { get; set; }
         public GameEvents EventType { get; set; }
+        public GameEvents GroupSubEventType { get; set; }
         public string? Character { get; set; }
         public string? Character2 { get; set; }
         public string? Key { get; set; }

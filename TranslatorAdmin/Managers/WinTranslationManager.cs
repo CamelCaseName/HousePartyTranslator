@@ -1,14 +1,11 @@
-﻿using System.IO;
-using System.Windows.Forms;
-using Translator.Core;
+﻿using Translator.Core;
 using Translator.Core.Data;
-using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.JSONItems;
 using Translator.Desktop.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
-using Translator.Desktop.UI;
 using Translator.Helpers;
+
 namespace Translator.Desktop.Managers
 {
     //also contains some extensions to ease programming
@@ -42,19 +39,19 @@ namespace Translator.Desktop.Managers
                     if (nodes[i].ID == string.Empty) continue;
                     switch (nodes[i].Type)
                     {
-                        case NodeType.Null:
                         case NodeType.BGCResponse:
                         case NodeType.CharacterGroup:
-                        case NodeType.ItemGroup:
-                        case NodeType.Criterion:
-                        case NodeType.Pose:
                         case NodeType.Clothing:
                         case NodeType.CriteriaGroup:
+                        case NodeType.Criterion:
                         case NodeType.Cutscene:
                         case NodeType.Door:
                         case NodeType.EventTrigger:
-                        case NodeType.Property:
+                        case NodeType.ItemGroup:
+                        case NodeType.Null:
                         case NodeType.Personality:
+                        case NodeType.Pose:
+                        case NodeType.Property:
                         case NodeType.Social:
                         case NodeType.State:
                         case NodeType.Value:
@@ -68,9 +65,16 @@ namespace Translator.Desktop.Managers
                                 ItemOverride itemOverride = (ItemOverride)nodes[i].Data!;
                                 data[itemOverride.DisplayName!] = new LineData(itemOverride.DisplayName!, story, filename, nodes[i].Type.CategoryFromNode(), itemOverride.DisplayName!, true);
                             }
+                            else if (nodes[i].DataType == typeof(UseWith) && nodes[i].Data != null)
+                            {
+                                UseWith use = (UseWith)nodes[i].Data!;
+                                if (use.CustomCantDoThatMessage != string.Empty)
+                                    //not sure if this can even work but ill try, maybe we need the english version as id?
+                                    data[use.ItemName! + "CustomCantDoThatMessage"] = new LineData(use.ItemName! + "CustomCantDoThatMessage", story, filename, nodes[i].Type.CategoryFromNode(), use.CustomCantDoThatMessage!, true);
+                            }
                             else if (nodes[i].Text != string.Empty && nodes[i].ID != string.Empty)
                             {
-                                data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].ID, true);
+                                data[nodes[i].Text] = new LineData(nodes[i].Text, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
                             }
                             continue;
                         }
