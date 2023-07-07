@@ -27,6 +27,8 @@ namespace Translator.Core.UICompatibilityLayer
         public bool AskForSaveDialog { get; set; }
         public bool AutoLoadRecent { get; set; }
         public bool AutoLoadRecentIndex { get; set; }
+        public bool ShowTranslationHighlight { get; set; }
+        public bool ShowCommentHighlight { get; set; }
         public bool AutoSave { get; set; }
         public bool AutoTranslate { get; set; }
         public bool DisplayVoiceActorHints { get; set; }

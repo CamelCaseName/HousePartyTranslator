@@ -1293,6 +1293,9 @@ internal sealed class ContextProvider
 
             _nodes = ExpandNodes(_nodes);
 
+            var t = _nodes.Find(n => n.ID == "4cb05ab4-4986-4d52-b3d6-d2119fc792f0");
+            Console.WriteLine(t);
+
             //clear criteria to free memory, we dont need them anyways
             //cant be called recusrively so we cant add it, it would break the combination
             CriteriaInFile.Clear();

@@ -227,7 +227,7 @@ namespace Translator.Desktop.Explorer.Story
             foreach (ItemOverride itemOverride in story.ItemOverrides ?? new List<ItemOverride>())
             {
                 //add items to list
-                var nodeItem = new Node(itemOverride.DisplayName ?? string.Empty, NodeType.Item, itemOverride.Id ?? string.Empty) { Data = itemOverride, DataType = typeof(ItemOverride) };
+                var nodeItem = new Node(itemOverride.Id ?? string.Empty, NodeType.Item, itemOverride.DisplayName ?? string.Empty) { Data = itemOverride, DataType = typeof(ItemOverride) };
                 //get actions for item
                 foreach (ItemAction itemAction in itemOverride.ItemActions ?? new())
                 {
@@ -242,6 +242,25 @@ namespace Translator.Desktop.Explorer.Story
 
                     //add action to item
                     nodeItem.AddChildNode(nodeAction);
+
+                    //add action to node list for later use
+                    nodes.Add(nodeAction);
+                }
+
+                //get actions for item
+                foreach (UseWith use in itemOverride.UseWiths ?? new())
+                {
+                    //node to add all references to
+                    var useNode = new Node(use.ItemName ?? string.Empty, NodeType.Item, use.CustomCantDoThatMessage ?? string.Empty, nodeItem) { Data = use, DataType = typeof(UseWith) };
+
+                    //add criteria that influence this item
+                    useNode.AddCriteria(use.Criteria ?? new());
+
+                    //add action to item
+                    useNode.AddEvents(use.OnSuccessEvents ?? new());
+
+                    //add note to list for later
+                    nodes.Add(useNode);
                 }
 
                 //add item with all child nodes to collector list

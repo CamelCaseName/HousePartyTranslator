@@ -34,6 +34,9 @@ namespace Translator.Core.DefaultImpls
 
         public bool IgnoreMissingLinesWarning { get => false; set { } }
 
+        public bool ShowTranslationHighlight { get => false; set { } }
+        public bool ShowCommentHighlight { get => false; set { } }
+
         public void Save() { }
     }
 }

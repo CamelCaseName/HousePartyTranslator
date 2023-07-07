@@ -178,6 +178,12 @@ namespace Translator.Desktop.Managers
                     ShowSettings();
                     return true;
 
+                case Keys.Up:
+                    return TabManager.ActiveTranslationManager.TryCycleSearchUp();
+
+                case Keys.Down:
+                    return TabManager.ActiveTranslationManager.TryCycleSearchUp();
+
                 default:
                     DefaultTextChangePreparation();
                     //return false, we dont consume the keypresses, only save a state to monitor for change

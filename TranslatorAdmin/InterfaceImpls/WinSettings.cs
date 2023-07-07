@@ -12,7 +12,7 @@ namespace Translator.Desktop.InterfaceImpls
             get
             {
 #if DEBUG_ADMIN || RELEASE_ADMIN
-				return true;
+                return true;
 #elif DEBUG || RELEASE
                 return false;
 #endif
@@ -84,6 +84,9 @@ namespace Translator.Desktop.InterfaceImpls
         public static bool ShowExtendedExplorerInfo { get => Settings.Default.ShowExtendedExplorerInfo; set => Settings.Default.ShowExtendedExplorerInfo = value; }
         public static float IdealLength { get => Settings.Default.IdealLength; internal set => Settings.Default.IdealLength = value; }
         public static int ColoringDepth { get => Settings.Default.ColoringDepth; internal set => Settings.Default.ColoringDepth = value; }
+        public bool ShowTranslationHighlight { get => Settings.Default.ShowSearchHighlightTranslation; set => Settings.Default.ShowSearchHighlightTranslation = value; }
+        public bool ShowCommentHighlight { get => Settings.Default.ShowSearchHighlightComments; set => Settings.Default.ShowSearchHighlightComments = value; }
+
         public void Save()
         {
             Settings.Default.Save();

@@ -20,7 +20,7 @@ List of all hotkeys so far
 |CTRL + S|saves the file to disk|file will also be saved to the game, use setting "alsoCopyToGame" to control|
 |CTRL + SHIFT + S|saves the currently selected line||
 |ALT + SHIFT + S|Saves all open files||
-|CTRL + F|moves the cursor to the search box|use a '?' at the beginning of your search to perform it in all tabs. use a '!' to enable case sensitive search. you can combine them also like so '?!search' for a case sensitive multitab search. use a '\\' in front of the ? or ! to treat it as a literal. somewhat combineable.|
+|CTRL + F|moves the cursor to the search box|See [Search](#Search)|
 |CTRL + R|reloads the current file in the current tab|can be used to get rid of miscoloured lines|
 |CTRL + UP|select the line above||
 |CTRL + DOWN|select the line below||
@@ -61,6 +61,36 @@ Some explanation for the settings and what they do
 |useFalseFolder|False|will add a "new" after the language in the game folder in order to enable development of languages already implemented in the game.|
 |version|0.22|the game's story verison currently present in the database|
 
+## Search
+Use a '?' at the beginning of your search to perform it in all tabs. 
+Use a '!' to enable case sensitive search. You can combine them also 
+like this '?!search' for a case sensitive multitab search. 
+Use a '\\' in front of the ? or ! to treat it as a literal, so it will not trigger its function.
+There are also search modifiers which you can apply at the start of the search term, so after any '?' or '!' modifiers.
+They can be combined with the global and case sensitivity flag.
+See the table below for a list. Some are exclusive to each other in the sense that they do the exact opposite. 
+For a result to count the conditions of all modifiers have to be met.
+
+|modifier|name|rules behind it|
+|---|---|---|
+|§id|id|query must be in the id of a line|
+|§tn|translations|query must be in the translation of a line|
+|§en|english/template|query must be in the template/english version of a line|
+|§cm|comments|query must be in the comments of a line|
+|§tx|text(no comments)|query must be in the template or translation of a line|
+|§ap|approved|line must be approved|
+|§un|not approved|line must not be approved|
+|§td|translated|line must be translated|
+|§ut|not translated|line must not be translated|
+|§ma|translation matches template| query doesnt matter, translation must match template
+|§rg|regex|treats the searched query as regex
+
+### Example
+- `§tx§cm§apsock` - approved lines that have sock in their translation or template and in the comments
+- `?!§ap§ma` - approved lines in all tabs where the translation matches the template, case sensitive
+- `§id§un§rg[0-9a-fA-F]{8}[-]?([0-9a-fA-F]{4}[-]?){3}[0-9a-fA-F]{12}$` - lines not approved and that have only a guid as their id
+
+see [regexr](https://regexr.com) for help with regex.
 
 # Development
 If you want to build and or develop this application, 
