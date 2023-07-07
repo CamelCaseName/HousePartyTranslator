@@ -127,12 +127,10 @@ namespace Translator.Desktop.Managers
             if (TabManager.UI == null) return;
             if (manager.TranslationData.Count > 0)
             {
-                int currentIndex = App.MainForm.Invoke(() => TabManager.UI.SelectedTab.SelectedLineIndex);
-                string id = App.MainForm.Invoke(() => currentIndex < manager.TranslationData.Count && currentIndex >= 0 ? manager.TranslationData[manager.SelectedId].ID : "Name");
                 //Highlights the node representign the selected string in the story explorer window
                 if (App.MainForm?.Explorer != null && !App.MainForm.Explorer.IsDisposed)
                 {
-                    App.MainForm.Invoke(() => App.MainForm.Explorer.Grapher.HighlightedNode = App.MainForm.Explorer?.Provider.Nodes.Find(n => n.ID == id) ?? Node.NullNode);
+                    App.MainForm.Invoke(() => App.MainForm.Explorer.Grapher.HighlightedNode = App.MainForm.Explorer?.Provider.Nodes.Find(n => n.ID == manager.SelectedId && n.FileName == manager.FileName) ?? Node.NullNode);
                 }
             }
         }
