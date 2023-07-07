@@ -679,7 +679,6 @@ namespace Translator.Core
         internal void Search()
         {
             SearchQuery = UI.SearchBarText;
-            if (SearchQuery.Length <= 0) return;
             Search(SearchQuery);
         }
 
@@ -689,22 +688,28 @@ namespace Translator.Core
         /// <param name="query">The search temr to look for</param>
         internal void Search(string query)
         {
-            if (query.Length <= 0) return;
-            if (Searcher.Search(query, TranslationData, out List<int>? results, out ReadOnlySpan<char> cleanedSpanQuery))
+            if (query.Length > 0)
             {
-                CleanedSearchQuery = cleanedSpanQuery.ToString();
+                if (Searcher.Search(query, TranslationData, out List<int>? results, out ReadOnlySpan<char> cleanedSpanQuery))
+                {
+                    CleanedSearchQuery = cleanedSpanQuery.ToString();
 
-                TabUI.Lines.SearchResults.Clear();
-                TabUI.Lines.SearchResults.AddRange(results!);
-                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+                    TabUI.Lines.SearchResults.Clear();
+                    TabUI.Lines.SearchResults.AddRange(results!);
+                    UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+                    TabUI.UpdateSearchResultDisplay();
+                    UpdateSearchAndSearchHighlight();
+                    return;
+                }
+                else
+                {
+                    UI.SignalUserPing();
+                }
             }
-            else
-            {
-                TabUI.Lines.SearchResults.Clear();
-                UI.SearchResultCount = 0;
-                CleanedSearchQuery = cleanedSpanQuery.ToString();
-                UI.SignalUserPing();
-            }
+
+            UI.SearchResultCount = 0;
+            TabUI.Lines.SearchResults.Clear();
+            CleanedSearchQuery = query;
             TabUI.UpdateSearchResultDisplay();
             UpdateSearchAndSearchHighlight();
         }
