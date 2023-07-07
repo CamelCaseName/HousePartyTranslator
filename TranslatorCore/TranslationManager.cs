@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
@@ -196,6 +197,7 @@ namespace Translator.Core
 
                 TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 UI.UpdateTranslationProgressIndicator();
+                Search();
             }
         }
 
@@ -221,6 +223,7 @@ namespace Translator.Core
 
                 TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 UI.UpdateTranslationProgressIndicator();
+                Search();
             }
         }
 
@@ -535,6 +538,7 @@ namespace Translator.Core
             TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
+            Search();
         }
 
         /// <summary>
@@ -605,6 +609,7 @@ namespace Translator.Core
 
                 TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
 
+                Search();
                 UpdateSearchAndSearchHighlight();
             }
             else
@@ -674,6 +679,7 @@ namespace Translator.Core
         internal void Search()
         {
             SearchQuery = UI.SearchBarText;
+            if (SearchQuery.Length <= 0) return;
             Search(SearchQuery);
         }
 
@@ -683,6 +689,7 @@ namespace Translator.Core
         /// <param name="query">The search temr to look for</param>
         internal void Search(string query)
         {
+            if (query.Length <= 0) return;
             if (Searcher.Search(query, TranslationData, out List<int>? results, out ReadOnlySpan<char> cleanedSpanQuery))
             {
                 CleanedSearchQuery = cleanedSpanQuery.ToString();
@@ -1190,7 +1197,7 @@ namespace Translator.Core
             }
             else
             {
-                TabUI.Comments.ShowHighlight = false;
+                TabUI.Template.ShowHighlight = false;
                 TabUI.Translation.ShowHighlight = false;
                 TabUI.Comments.ShowHighlight = false;
             }
