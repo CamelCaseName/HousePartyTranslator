@@ -778,5 +778,29 @@ namespace Translator.Desktop.Properties {
                 this["IgnoreMissingLinesWarning"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ShowSearchHighlightTranslation {
+            get {
+                return ((bool)(this["ShowSearchHighlightTranslation"]));
+            }
+            set {
+                this["ShowSearchHighlightTranslation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ShowSearchHighlightComments {
+            get {
+                return ((bool)(this["ShowSearchHighlightComments"]));
+            }
+            set {
+                this["ShowSearchHighlightComments"] = value;
+            }
+        }
     }
 }

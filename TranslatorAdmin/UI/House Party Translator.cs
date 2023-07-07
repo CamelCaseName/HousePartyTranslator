@@ -151,13 +151,9 @@ namespace Translator.Desktop.UI
         }
 
         internal WinMenuItem FileToolStripMenuItem => fileToolStripMenuItem;
-
         internal ToolStripComboBox LanguageBox => languageToolStripComboBox;
-
         internal WinMenuItem ReplaceAllButton => toolStripReplaceAllButton;
-
         internal ToolStripTextBox ReplaceBox => ToolStripMenuReplaceBox;
-
         internal WinMenuItem ReplaceButton => toolStripReplaceButton;
         internal SearchToolStripTextBox SearchBox => searchToolStripTextBox;
 

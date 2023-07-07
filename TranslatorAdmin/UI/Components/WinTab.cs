@@ -14,35 +14,52 @@ namespace Translator.Desktop.UI.Components
     [SupportedOSPlatform("Windows")]
     public class WinTab : TabPage, ITab
     {
-        //todo add progress bar to tab title
-        public WinTab() { MainForm = (Fenster)new Form(); }
+        public readonly NoAnimationBar ProgressbarTranslated = new();
 
-        internal Fenster MainForm { get; init; }
+        private readonly CheckBox ApprovedBox = new();
 
-        private static int Number { get; set; } = 0;
+        private readonly Label CharacterCountLabel = new();
+
+        private readonly LineList CheckListBoxLeft = new();
+
+        private readonly GroupBox CommentGroup = new();
+
+        private readonly WinTextBox CommentTextBox = new();
+
+        private readonly WinMenuItem CopyAllContextMenuButton = new();
+
+        private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
+
+        private readonly WinMenuItem CopyFileNameContextMenuButton = new();
+
+        private readonly WinMenuItem CopyIdContextMenuButton = new();
+
+        private readonly WinMenuItem CopyStoryNameContextMenuButton = new();
+
+        private readonly WinMenuItem CopyTemplateContextMenuButton = new();
+
+        private readonly WinMenuItem CopyTranslationContextMenuButton = new();
+
+        private readonly Label LinesTranslated = new();
+
+        private readonly ContextMenuStrip ListContextMenu = new();
+
+        private readonly TableLayoutPanel mainTableLayoutPanel = new();
+
+        private readonly Panel panel1 = new();
+
+        private readonly Panel panel2 = new();
+
+        private readonly Label SelectedFile = new();
+
+        private readonly WinTextBox TemplateTextBox = new();
 
         private readonly Button TranslateThis = new();
-        private readonly CheckBox ApprovedBox = new();
-        private readonly ContextMenuStrip ListContextMenu = new();
-        private readonly GroupBox CommentGroup = new();
-        private readonly Label CharacterCountLabel = new();
-        private readonly Label LinesTranslated = new();
-        private readonly Label SelectedFile = new();
-        private readonly LineList CheckListBoxLeft = new();
-        private readonly Panel panel1 = new();
-        private readonly Panel panel2 = new();
-        private readonly TableLayoutPanel mainTableLayoutPanel = new();
-        private readonly WinMenuItem CopyAllContextMenuButton = new();
-        private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
-        private readonly WinMenuItem CopyFileNameContextMenuButton = new();
-        private readonly WinMenuItem CopyIdContextMenuButton = new();
-        private readonly WinMenuItem CopyStoryNameContextMenuButton = new();
-        private readonly WinMenuItem CopyTemplateContextMenuButton = new();
-        private readonly WinMenuItem CopyTranslationContextMenuButton = new();
-        private readonly WinTextBox CommentTextBox = new();
-        private readonly WinTextBox TemplateTextBox = new();
+
         private readonly WinTextBox TranslationTextBox = new();
-        public readonly NoAnimationBar ProgressbarTranslated = new();
+
+        //todo add progress bar to tab title
+        public WinTab() { MainForm = (Fenster)new Form(); }
 
         public WinTab(Fenster fenster)
         {
@@ -344,31 +361,15 @@ namespace Translator.Desktop.UI.Components
             ResumeLayout();
         }
 
-        public bool IsApproveButtonFocused => ApprovedBox.Focused;
-
-        public List<string> SimilarStringsToEnglish => Lines.SimilarStringsToEnglish;
-
-        public int SelectedLineIndex => Lines.SelectedIndex;
-
-        public ILineItem SelectedLineItem => (ILineItem)(Lines.SelectedItem ?? new WinLineItem());
-
-        public bool IsTranslationBoxFocused => TranslationTextBox.Focused;
-
-        public bool IsCommentBoxFocused => CommentTextBox.Focused;
-
-        public int SingleProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
         public int AllProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
-        public string TranslationBoxText { get => TranslationTextBox.Text; set => TranslationTextBox.Text = value; }
-
-        public string SelectedTranslationBoxText => TranslationTextBox.SelectedText;
-
-        public string TemplateBoxText { get => TemplateTextBox.Text; set => TemplateTextBox.Text = value; }
-
-        public string SelectedTemplateBoxText => TemplateTextBox.SelectedText;
-
+        public bool ApprovedButtonChecked { get => ApprovedBox.Checked; set => ApprovedBox.Checked = value; }
         public string CommentBoxText { get => CommentTextBox.Text; set => CommentTextBox.Text = value; }
         public string[] CommentBoxTextArr { get => CommentTextBox.Lines; set => CommentTextBox.Lines = value; }
-        public bool ApprovedButtonChecked { get => ApprovedBox.Checked; set => ApprovedBox.Checked = value; }
+        public ITextBox Comments => CommentTextBox;
+        public bool IsApproveButtonFocused => ApprovedBox.Focused;
+        public bool IsCommentBoxFocused => CommentTextBox.Focused;
+        public bool IsTranslationBoxFocused => TranslationTextBox.Focused;
+        public int LineCount { get => Lines.Count; }
         public LineList Lines { get => CheckListBoxLeft; }
         ILineList ITab.Lines
         {
@@ -382,8 +383,14 @@ namespace Translator.Desktop.UI.Components
             }
         }
 
-        public int LineCount { get => Lines.Count; }
-
+        public int SelectedLineIndex => Lines.SelectedIndex;
+        public ILineItem SelectedLineItem => (ILineItem)(Lines.SelectedItem ?? new WinLineItem());
+        public string SelectedTemplateBoxText => TemplateTextBox.SelectedText;
+        public string SelectedTranslationBoxText => TranslationTextBox.SelectedText;
+        public List<string> SimilarStringsToEnglish => Lines.SimilarStringsToEnglish;
+        public int SingleProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
+        public ITextBox Template => TemplateTextBox;
+        public string TemplateBoxText { get => TemplateTextBox.Text; set => TemplateTextBox.Text = value; }
         string ITab.Text
         {
             get
@@ -398,11 +405,10 @@ namespace Translator.Desktop.UI.Components
         }
 
         public ITextBox Translation => TranslationTextBox;
+        public string TranslationBoxText { get => TranslationTextBox.Text; set => TranslationTextBox.Text = value; }
+        internal Fenster MainForm { get; init; }
 
-        public ITextBox Template => TemplateTextBox;
-
-        public ITextBox Comments => CommentTextBox;
-
+        private static int Number { get; set; } = 0;
         public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
         public ILineItem AtIndex(int index) => CheckListBoxLeft[index];
         public void ClearLines() => CheckListBoxLeft.Clear();
@@ -429,6 +435,18 @@ namespace Translator.Desktop.UI.Components
                 ProgressbarTranslated.Update();
             }
         }
+        public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
+
+        public void SetFileInfoText(string info) => SelectedFile.Text = info;
+
+        public void SetSelectedCommentBoxText(int start, int end) { CommentTextBox.SelectionStart = start; CommentTextBox.SelectionEnd = end; }
+
+        public void SetSelectedTemplateBoxText(int start, int end) { TemplateTextBox.SelectionStart = start; TemplateTextBox.SelectionEnd = end; }
+
+        public void SetSelectedTranslationBoxText(int start, int end) { TranslationTextBox.SelectionStart = start; TranslationTextBox.SelectionEnd = end; }
+
+        public void UnapproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, false);
+
         public void UpdateCharacterCounts(int templateCount, int translationCount)
         {
             if (translationCount <= templateCount)
@@ -445,12 +463,6 @@ namespace Translator.Desktop.UI.Components
             }
             CharacterCountLabel.Text = $"Template: {templateCount} | Translation: {translationCount}";
         }
-        public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
-        public void SetFileInfoText(string info) => SelectedFile.Text = info;
-        public void SetSelectedCommentBoxText(int start, int end) { CommentTextBox.SelectionStart = start; CommentTextBox.SelectionEnd = end; }
-        public void SetSelectedTemplateBoxText(int start, int end) { TemplateTextBox.SelectionStart = start; TemplateTextBox.SelectionEnd = end; }
-        public void SetSelectedTranslationBoxText(int start, int end) { TranslationTextBox.SelectionStart = start; TranslationTextBox.SelectionEnd = end; }
-        public void UnapproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, false);
         public void UpdateLines() => CheckListBoxLeft.Update();
         public void UpdateSearchResultDisplay() => CheckListBoxLeft.Invalidate();
     }
