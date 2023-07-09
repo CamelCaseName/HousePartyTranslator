@@ -402,7 +402,7 @@ namespace Translator.Core
             cmd.CommandText = command;
             cmd.Parameters.Clear();
             _ = cmd.Parameters.AddWithValue("@story", story);
-            List<string> languages = new();
+            List<string> _languages = new();
 
             if (CheckOrReopenConnection(connection))
             {
@@ -417,7 +417,7 @@ namespace Translator.Core
                         {
                             lang = reader.GetString(0);
                             if (lang != string.Empty)
-                                languages.Add(lang);
+                                _languages.Add(lang);
                         }
                     }
                 }
@@ -429,8 +429,8 @@ namespace Translator.Core
                 reader.Close();
             }
             UI.SignalUserEndWait();
-            languages = languages.ToArray();
-            return languages.Count > 0;
+            languages = _languages.ToArray();
+            return languages.Length > 0;
         }
 
         public static bool GetLineData(string id, string fileName, string story, out LineData translation, string language)
