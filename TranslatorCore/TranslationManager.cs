@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
@@ -535,10 +536,27 @@ namespace Translator.Core
             //remove pipe to not break saving/export
             TabUI.TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
             SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
-            TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
+            UpdateCharacterCountLabel();
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
             Search();
+        }
+
+        private void UpdateCharacterCountLabel()
+        {
+            if (SelectedLine.TranslationLength <= SelectedLine.TemplateLength * 1.1f)
+            {
+                TabUI.SetCharacterLabelColor(Color.LawnGreen);
+            }//if bigger by no more than 30 percent
+            else if (SelectedLine.TranslationLength <= SelectedLine.TemplateLength * 1.3f)
+            {
+                TabUI.SetCharacterLabelColor(Color.DarkOrange);
+            }
+            else
+            {
+                TabUI.SetCharacterLabelColor(Color.Red);
+            }
+            TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
         }
 
         /// <summary>
@@ -605,7 +623,7 @@ namespace Translator.Core
                 TabUI.ApprovedButtonChecked = SelectedLine.IsApproved;
 
                 //update label
-                TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
+                UpdateCharacterCountLabel();
 
                 TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
 

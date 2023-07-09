@@ -79,6 +79,7 @@ namespace Translator.Core.UICompatibilityLayer
         void SetFileInfoText(string info);
         void SetApprovedCount(int Approved, int Total);
         void UpdateCharacterCounts(int templateCount, int translationCount);
+        void SetCharacterLabelColor(Color color);
         #endregion
     }
 }
