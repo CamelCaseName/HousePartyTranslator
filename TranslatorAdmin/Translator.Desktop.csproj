@@ -68,7 +68,7 @@
 		</Compile>
 		<Compile Update="UI\SettingsForm.cs" />
 		<Compile Update="Explorer\StoryExplorer.cs" />
-		<Compile Update="UI\Components\ColouredCheckedListBox.cs" />
+		<Compile Update="UI\Components\ColoredCheckedListBox.cs" />
 		<Compile Update="UI\Components\NoAnimationBar.cs" />
 	</ItemGroup>
 

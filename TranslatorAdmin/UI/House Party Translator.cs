@@ -61,7 +61,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem editToolStripMenuItem;
         private WinMenuItem exitToolStripMenuItem;
         private WinMenuItem fileToolStripMenuItem;
-        private ToolStripComboBox languageToolStripComboBox;
+        private ColoredToolStripDropDown languageToolStripComboBox;
         private WinMenuItem openAllToolStripMenuItem;
         private WinMenuItem openInNewTabToolStripMenuItem;
         private WinMenuItem openToolStripMenuItem;
@@ -151,7 +151,7 @@ namespace Translator.Desktop.UI
         }
 
         internal WinMenuItem FileToolStripMenuItem => fileToolStripMenuItem;
-        internal ToolStripComboBox LanguageBox => languageToolStripComboBox;
+        internal ColoredToolStripDropDown LanguageBox => languageToolStripComboBox;
         internal WinMenuItem ReplaceAllButton => toolStripReplaceAllButton;
         internal ToolStripTextBox ReplaceBox => ToolStripMenuReplaceBox;
         internal WinMenuItem ReplaceButton => toolStripReplaceButton;
@@ -365,7 +365,7 @@ namespace Translator.Desktop.UI
                 Text = "Generate o&ne template file",
                 ToolTipText = "Generates and uploads the template for a single file"
             };
-            generateTemplateForFile.Click += (object? sender, EventArgs e) => Core.FileManager.GenerateTemplateForSingleFile(true);
+            generateTemplateForFile.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForSingleFile(true);
 
             // generateTemplateForCompleteStory
             generateTemplateForCompleteStory = new WinMenuItem()
@@ -376,7 +376,7 @@ namespace Translator.Desktop.UI
                 Text = "&Generate all template files",
                 ToolTipText = "Generates and uploads templates for a complete story"
             };
-            generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => Core.FileManager.GenerateTemplateForAllFiles(true);
+            generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForAllFiles(true);
 
             // createTemplateForFile
             createTemplateForFile = new WinMenuItem()
@@ -387,7 +387,7 @@ namespace Translator.Desktop.UI
                 Text = "Create &one template file",
                 ToolTipText = "Creates the template locally for a single file"
             };
-            createTemplateForFile.Click += (object? sender, EventArgs e) => Core.FileManager.GenerateTemplateForSingleFile(false);
+            createTemplateForFile.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForSingleFile(false);
 
             // createTemplateForCompleteStory
             createTemplateForCompleteStory = new WinMenuItem()
@@ -398,7 +398,7 @@ namespace Translator.Desktop.UI
                 Text = "&Create all template files",
                 ToolTipText = "Creates templates locally for a complete story"
             };
-            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => Core.FileManager.GenerateTemplateForAllFiles(false);
+            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForAllFiles(false);
 
             // undoMenuButton
             undoMenuButton = new WinMenuItem()
@@ -431,7 +431,7 @@ namespace Translator.Desktop.UI
                 Text = "Export &template files",
                 ToolTipText = "Exports templates for a complete story or single file"
             };
-            exportTemplates.Click += (object? sender, EventArgs e) => Core.FileManager.ExportTemplatesForStoryOrFile();
+            exportTemplates.Click += (object? sender, EventArgs e) => FileManager.ExportTemplatesForStoryOrFile();
 
             // searchToolStripMenuItem
             searchToolStripMenuItem = new WinMenuItem()
@@ -693,7 +693,7 @@ namespace Translator.Desktop.UI
             toolStripReplaceButton.Click += (object? sender, EventArgs e) => TabManager.Replace();
 
             // languageToolStripComboBox
-            languageToolStripComboBox = new ToolStripComboBox()
+            languageToolStripComboBox = new ColoredToolStripDropDown()
             {
                 BackColor = menu,
                 DropDownStyle = ComboBoxStyle.DropDownList,

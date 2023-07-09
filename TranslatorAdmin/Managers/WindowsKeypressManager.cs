@@ -182,7 +182,7 @@ namespace Translator.Desktop.Managers
                     return TabManager.ActiveTranslationManager.TryCycleSearchUp();
 
                 case Keys.Down:
-                    return TabManager.ActiveTranslationManager.TryCycleSearchUp();
+                    return TabManager.ActiveTranslationManager.TryCycleSearchDown();
 
                 default:
                     DefaultTextChangePreparation();

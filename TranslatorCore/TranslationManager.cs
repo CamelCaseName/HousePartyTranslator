@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
@@ -535,10 +536,27 @@ namespace Translator.Core
             //remove pipe to not break saving/export
             TabUI.TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
             SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
-            TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
+            UpdateCharacterCountLabel();
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
             Search();
+        }
+
+        private void UpdateCharacterCountLabel()
+        {
+            if (SelectedLine.TranslationLength <= SelectedLine.TemplateLength * 1.1f)
+            {
+                TabUI.SetCharacterLabelColor(Color.LawnGreen);
+            }//if bigger by no more than 30 percent
+            else if (SelectedLine.TranslationLength <= SelectedLine.TemplateLength * 1.3f)
+            {
+                TabUI.SetCharacterLabelColor(Color.DarkOrange);
+            }
+            else
+            {
+                TabUI.SetCharacterLabelColor(Color.Red);
+            }
+            TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
         }
 
         /// <summary>
@@ -605,7 +623,7 @@ namespace Translator.Core
                 TabUI.ApprovedButtonChecked = SelectedLine.IsApproved;
 
                 //update label
-                TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
+                UpdateCharacterCountLabel();
 
                 TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
 
@@ -679,7 +697,6 @@ namespace Translator.Core
         internal void Search()
         {
             SearchQuery = UI.SearchBarText;
-            if (SearchQuery.Length <= 0) return;
             Search(SearchQuery);
         }
 
@@ -689,22 +706,28 @@ namespace Translator.Core
         /// <param name="query">The search temr to look for</param>
         internal void Search(string query)
         {
-            if (query.Length <= 0) return;
-            if (Searcher.Search(query, TranslationData, out List<int>? results, out ReadOnlySpan<char> cleanedSpanQuery))
+            if (query.Length > 0)
             {
-                CleanedSearchQuery = cleanedSpanQuery.ToString();
+                if (Searcher.Search(query, TranslationData, out List<int>? results, out ReadOnlySpan<char> cleanedSpanQuery))
+                {
+                    CleanedSearchQuery = cleanedSpanQuery.ToString();
 
-                TabUI.Lines.SearchResults.Clear();
-                TabUI.Lines.SearchResults.AddRange(results!);
-                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+                    TabUI.Lines.SearchResults.Clear();
+                    TabUI.Lines.SearchResults.AddRange(results!);
+                    UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+                    TabUI.UpdateSearchResultDisplay();
+                    UpdateSearchAndSearchHighlight();
+                    return;
+                }
+                else
+                {
+                    UI.SignalUserPing();
+                }
             }
-            else
-            {
-                TabUI.Lines.SearchResults.Clear();
-                UI.SearchResultCount = 0;
-                CleanedSearchQuery = cleanedSpanQuery.ToString();
-                UI.SignalUserPing();
-            }
+
+            UI.SearchResultCount = 0;
+            TabUI.Lines.SearchResults.Clear();
+            CleanedSearchQuery = query;
             TabUI.UpdateSearchResultDisplay();
             UpdateSearchAndSearchHighlight();
         }

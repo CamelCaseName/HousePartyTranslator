@@ -9,7 +9,7 @@ namespace Translator.Desktop.UI.Components
     /// Borrowed from https://stackoverflow.com/questions/2130934/how-change-the-color-of-selecteditem-in-checkedlistbox-in-windowsforms
     /// Creates a coloured Rectangle in each element, depending on checked state.
     /// </summary>
-    public class ColouredCheckedListBox : CheckedListBox
+    public class ColoredCheckedListBox : CheckedListBox
     {
         /// <summary>
         /// List containing all indices that are part of the search result
@@ -37,7 +37,7 @@ namespace Translator.Desktop.UI.Components
                 (
                     e.Graphics,
                     e.Font,
-                    new Rectangle(e.Bounds.Location, e.Bounds.Size),
+                    e.Bounds,
                     e.Index,
                     e.State,
                     e.ForeColor, //colour yellow if it is part of the search, else colour normally

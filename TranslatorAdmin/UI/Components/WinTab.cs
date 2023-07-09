@@ -360,7 +360,6 @@ namespace Translator.Desktop.UI.Components
             panel2.PerformLayout();
             ResumeLayout();
         }
-
         public int AllProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
         public bool ApprovedButtonChecked { get => ApprovedBox.Checked; set => ApprovedBox.Checked = value; }
         public string CommentBoxText { get => CommentTextBox.Text; set => CommentTextBox.Text = value; }
@@ -382,7 +381,6 @@ namespace Translator.Desktop.UI.Components
                 }
             }
         }
-
         public int SelectedLineIndex => Lines.SelectedIndex;
         public ILineItem SelectedLineItem => (ILineItem)(Lines.SelectedItem ?? new WinLineItem());
         public string SelectedTemplateBoxText => TemplateTextBox.SelectedText;
@@ -403,11 +401,9 @@ namespace Translator.Desktop.UI.Components
                 Update();
             }
         }
-
         public ITextBox Translation => TranslationTextBox;
         public string TranslationBoxText { get => TranslationTextBox.Text; set => TranslationTextBox.Text = value; }
         internal Fenster MainForm { get; init; }
-
         private static int Number { get; set; } = 0;
         public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
         public ILineItem AtIndex(int index) => CheckListBoxLeft[index];
@@ -436,33 +432,12 @@ namespace Translator.Desktop.UI.Components
             }
         }
         public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
-
         public void SetFileInfoText(string info) => SelectedFile.Text = info;
-
         public void SetSelectedCommentBoxText(int start, int end) { CommentTextBox.SelectionStart = start; CommentTextBox.SelectionEnd = end; }
-
         public void SetSelectedTemplateBoxText(int start, int end) { TemplateTextBox.SelectionStart = start; TemplateTextBox.SelectionEnd = end; }
-
         public void SetSelectedTranslationBoxText(int start, int end) { TranslationTextBox.SelectionStart = start; TranslationTextBox.SelectionEnd = end; }
-
         public void UnapproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, false);
-
-        public void UpdateCharacterCounts(int templateCount, int translationCount)
-        {
-            if (translationCount <= templateCount)
-            {
-                CharacterCountLabel.ForeColor = Color.LawnGreen;
-            }//if bigger by no more than 20 percent
-            else if (translationCount <= templateCount * 1.2f)
-            {
-                CharacterCountLabel.ForeColor = Color.DarkOrange;
-            }
-            else
-            {
-                CharacterCountLabel.ForeColor = Color.Red;
-            }
-            CharacterCountLabel.Text = $"Template: {templateCount} | Translation: {translationCount}";
-        }
+        public void UpdateCharacterCounts(int templateCount, int translationCount) => CharacterCountLabel.Text = $"Template: {templateCount} | Translation: {translationCount}";
         public void UpdateLines() => CheckListBoxLeft.Update();
         public void UpdateSearchResultDisplay() => CheckListBoxLeft.Invalidate();
     }
