@@ -61,7 +61,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem editToolStripMenuItem;
         private WinMenuItem exitToolStripMenuItem;
         private WinMenuItem fileToolStripMenuItem;
-        private ToolStripComboBox languageToolStripComboBox;
+        private ColoredToolStripDropDown languageToolStripComboBox;
         private WinMenuItem openAllToolStripMenuItem;
         private WinMenuItem openInNewTabToolStripMenuItem;
         private WinMenuItem openToolStripMenuItem;
@@ -151,7 +151,7 @@ namespace Translator.Desktop.UI
         }
 
         internal WinMenuItem FileToolStripMenuItem => fileToolStripMenuItem;
-        internal ToolStripComboBox LanguageBox => languageToolStripComboBox;
+        internal ColoredToolStripDropDown LanguageBox => languageToolStripComboBox;
         internal WinMenuItem ReplaceAllButton => toolStripReplaceAllButton;
         internal ToolStripTextBox ReplaceBox => ToolStripMenuReplaceBox;
         internal WinMenuItem ReplaceButton => toolStripReplaceButton;
@@ -693,7 +693,7 @@ namespace Translator.Desktop.UI
             toolStripReplaceButton.Click += (object? sender, EventArgs e) => TabManager.Replace();
 
             // languageToolStripComboBox
-            languageToolStripComboBox = new ToolStripComboBox()
+            languageToolStripComboBox = new ColoredToolStripDropDown()
             {
                 BackColor = menu,
                 DropDownStyle = ComboBoxStyle.DropDownList,

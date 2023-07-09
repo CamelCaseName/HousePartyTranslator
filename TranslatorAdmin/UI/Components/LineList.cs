@@ -6,7 +6,7 @@ using Translator.Desktop.InterfaceImpls;
 
 namespace Translator.Desktop.UI.Components
 {
-    public class LineList : ColouredCheckedListBox, ILineList
+    public class LineList : ColoredCheckedListBox, ILineList
     {
         protected override void WndProc(ref Message m) => base.WndProc(ref m);
         protected override void OnDrawItem(DrawItemEventArgs e) => base.OnDrawItem(e);
