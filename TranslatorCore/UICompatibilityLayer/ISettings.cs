@@ -49,6 +49,7 @@ namespace Translator.Core.UICompatibilityLayer
         public TimeSpan AutoSaveInterval { get; set; }
         public bool IgnoreCustomStoryWarning { get; set; }
         public bool IgnoreMissingLinesWarning { get; set; }
+        bool HighlightLanguages { get; set; }
 
         public void Save();
     }

@@ -37,6 +37,8 @@ namespace Translator.Core.DefaultImpls
         public bool ShowTranslationHighlight { get => false; set { } }
         public bool ShowCommentHighlight { get => false; set { } }
 
+        public bool HighlightLanguages { get => false; set { } }
+
         public void Save() { }
     }
 }

@@ -971,6 +971,11 @@ namespace Translator.Core
                     IntegrateOnlineTranslations(localTakesPriority);
                     TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 }
+                if (Settings.Default.HighlightLanguages)
+                {
+                    if(DataBase.GetLanguagesForStory(StoryName, out string[] languages))
+                        UI.SetLanguageHighlights(languages);
+                }
                 //update tab name
                 TabManager.UpdateSelectedTabTitle(FileName);
             }

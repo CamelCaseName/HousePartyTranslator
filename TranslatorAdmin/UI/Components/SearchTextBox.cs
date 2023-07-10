@@ -6,7 +6,7 @@ using System.Windows.Forms;
 namespace Translator.Desktop.UI.Components
 {
     [SupportedOSPlatform("Windows")]
-    internal class SearchTextBox : WinTextBox
+    internal sealed class SearchTextBox : WinTextBox
     {
         internal SearchTextBox()
         {

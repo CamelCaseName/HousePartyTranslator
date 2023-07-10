@@ -99,6 +99,7 @@ namespace Translator.Core.UICompatibilityLayer
         void SetReplaceMenuVisible();
         void SetReplaceMenuInVisible();
         void SignalUserPing();
+        void SetLanguageHighlights(string[] languages);
         #endregion
 
         #region tabs

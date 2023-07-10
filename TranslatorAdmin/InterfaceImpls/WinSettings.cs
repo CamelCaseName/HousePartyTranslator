@@ -86,6 +86,7 @@ namespace Translator.Desktop.InterfaceImpls
         public static int ColoringDepth { get => Settings.Default.ColoringDepth; internal set => Settings.Default.ColoringDepth = value; }
         public bool ShowTranslationHighlight { get => Settings.Default.ShowSearchHighlightTranslation; set => Settings.Default.ShowSearchHighlightTranslation = value; }
         public bool ShowCommentHighlight { get => Settings.Default.ShowSearchHighlightComments; set => Settings.Default.ShowSearchHighlightComments = value; }
+        public bool HighlightLanguages { get => Settings.Default.HighlightLanguages; set => Settings.Default.HighlightLanguages = value; }
 
         public void Save()
         {
