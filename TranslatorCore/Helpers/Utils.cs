@@ -30,6 +30,7 @@ namespace Translator.Core.Helpers
         public static readonly Color menu = SystemColors.ScrollBar;
         public static readonly Color frame = SystemColors.WindowFrame;
         public static readonly Color highlight = SystemColors.Info;
+        public static readonly Color menuHighlight = SystemColors.MenuHighlight;
         private static HashSet<string> fileNames = new();
         private static HashSet<string> storyNames = new();
         private static DateTime namesAcquired = DateTime.MinValue;
