@@ -206,9 +206,10 @@ namespace Translator.Core
 
         private static void SortAndWriteMissingLinesToDiskSingleFile(string path, string story, Dictionary<string, FileData> lines, Dictionary<string, FileData> templates)
         {
-            FileData results = new(story, "all");
+            StreamWriter writer = new(path);
             foreach (var fileData in templates.Values)
             {
+                FileData results = new(story, fileData.FileName);
                 foreach (var lineData in fileData.Values)
                 {
                     lines[fileData.FileName].TryGetValue(lineData.ID, out var translatedLineData);
@@ -230,13 +231,15 @@ namespace Translator.Core
                         results.Add(lineData.ID, lineData);
                     }
                 }
+
+                //sort and save
+                var sortedLines = InitializeCategories(story, fileData.FileName);
+                SortIntoCategories(ref sortedLines, results, results);
+
+                writer.WriteLine("FILE: " + fileData.FileName + ".txt starts here:\n\r");
+                WriteCategorizedLinesToDisk(sortedLines, path, OutputWriter: writer);
             }
-
-            //sort and save
-            var sortedLines = InitializeCategories(story, "all");
-            SortIntoCategories(ref sortedLines, results, results);
-
-            WriteCategorizedLinesToDisk(sortedLines, path);
+            writer.Dispose();
         }
 
         private static void SortAndWriteMissingLinesToDisk(string path, string story, string file, FileData lines, FileData templates)
@@ -464,14 +467,20 @@ namespace Translator.Core
             }
         }
 
-        internal static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false)
+        internal static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false, bool append = false, StreamWriter? OutputWriter = null)
         {
             CultureInfo culture = CultureInfo.InvariantCulture;
-            if (warnOnOverwrite)
-                if (File.OpenRead(path).Length > 0)
-                    if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + " \nAre you sure?", "Warning", PopupResult.NO))
-                        return;
-            using var OutputWriter = new StreamWriter(path, false, new UTF8Encoding(true));
+            bool needDispose = false;
+
+            if (OutputWriter == null)
+            {
+                if (warnOnOverwrite)
+                    if (File.OpenRead(path).Length > 0)
+                        if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + " \nAre you sure?", "Warning", PopupResult.NO))
+                            return;
+                OutputWriter = new StreamWriter(path, append, new UTF8Encoding(true));
+                needDispose = true;
+            }
             foreach (CategorizedLines CategorizedLines in CategorizedStrings)
             {
                 //write category if it has any lines, else we skip the category
@@ -506,6 +515,8 @@ namespace Translator.Core
                 //newline after each category
                 OutputWriter.WriteLine();
             }
+            if (needDispose)
+                OutputWriter.Dispose();
         }
 
         internal static void GenerateOfficialTemplates()

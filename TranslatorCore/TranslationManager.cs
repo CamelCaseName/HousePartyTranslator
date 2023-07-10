@@ -234,7 +234,7 @@ namespace Translator.Core
             if (folder)
                 FileManager.ExportAllMissinglinesForStoryIntoFolder(Utils.SelectFolderFromSystem("Please select where you want to save the missing lines to"), StoryName);
             else
-                FileManager.ExportAllMissinglinesForStoryIntoFile(Utils.SelectFileFromSystem(Title: "Please select where you want to save the missing lines to", preselectedFile: "all_missing.txt"), StoryName);
+                FileManager.ExportAllMissinglinesForStoryIntoFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: "all_missing.txt", createPrompt: true, checkFileExists: false), StoryName);
         }
 
         public void OverrideCloudSave()
