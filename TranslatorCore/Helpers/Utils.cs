@@ -208,11 +208,14 @@ namespace Translator.Core.Helpers
                 throw new LanguageHelper.LanguageException();
 
             var paths = path.Split('\\');
-            if (paths.Length < 3) throw new ArgumentException("the file needs to be at least 2 folders deep from your drive?");
+            if (paths.Length < 2) throw new ArgumentException("the file needs to be at least 1 folders deep from your drive?");
 
             //check if we have a similar name to the cloud, return that if we have
             for (int i = paths.Length - 1; i >= 0; i--)
             {
+                if (Path.GetExtension(paths[i]) != string.Empty)
+                    paths[i] = Path.GetFileNameWithoutExtension(paths[i]);
+
                 var enumerator = storyNames.GetEnumerator();
                 while (enumerator.MoveNext())
                 {

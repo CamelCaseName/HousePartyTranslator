@@ -23,8 +23,8 @@ namespace Translator.Core
     public sealed class TranslationManager
     {
         public FileData TranslationData = new(string.Empty, string.Empty);
-        internal static readonly Timer AutoSaveTimer = new();
-        internal static string language = Settings.Default.Language;
+        private static readonly Timer AutoSaveTimer = new();
+        private static string language = Settings.Default.Language;
         private static bool StaticUIInitialized = false;
         private static IUIHandler UI = null!;
         private readonly ITab TabUI;
@@ -39,6 +39,7 @@ namespace Translator.Core
         private string sourceFilePath = string.Empty;
         private string storyName = string.Empty;
         private bool triedFixingOnce = false;
+
         static TranslationManager()
         {
             if (Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
@@ -226,6 +227,14 @@ namespace Translator.Core
                 UI.UpdateTranslationProgressIndicator();
                 Search();
             }
+        }
+
+        public void ExportMissingLinesForCurrentStory(bool folder)
+        {
+            if (folder)
+                FileManager.ExportAllMissinglinesForStoryIntoFolder(Utils.SelectFolderFromSystem("Please select where you want to save the missing lines to"), StoryName);
+            else
+                FileManager.ExportAllMissinglinesForStoryIntoFile(Utils.SelectFileFromSystem(Title: "Please select where you want to save the missing lines to", preselectedFile: "all_missing.txt"), StoryName);
         }
 
         public void OverrideCloudSave()
@@ -973,7 +982,7 @@ namespace Translator.Core
                 }
                 if (Settings.Default.HighlightLanguages)
                 {
-                    if(DataBase.GetLanguagesForStory(StoryName, out string[] languages))
+                    if (DataBase.GetLanguagesForStory(StoryName, out string[] languages))
                         UI.SetLanguageHighlights(languages);
                 }
                 //update tab name

@@ -60,6 +60,7 @@ namespace Translator.Desktop.UI.Components
             if (e == null) return;
             base.OnDrawItem(e);
 
+            //true when we hover over the item
             if (e.State.HasFlag(DrawItemState.Focus))
             {
                 e.Graphics.FillRectangle(HighlightBrush, e.Bounds);
@@ -72,6 +73,7 @@ namespace Translator.Desktop.UI.Components
                 }
                 else
                 {
+                    //overdraw native drawing as its wrong lol
                     e.Graphics.FillRectangle(BackgroundBrush, e.Bounds);
                 }
             }
