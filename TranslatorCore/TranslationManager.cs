@@ -1102,7 +1102,7 @@ namespace Translator.Core
                     //if we reach a new id, we can add the old string to the translation manager
                     if (lastLine.Length != 0)
                     {
-                        multiLineCollector = multiLineCollector.TrimEnd(new char[] { '\n', '\r', ' ' });
+                        multiLineCollector = multiLineCollector.TrimEnd(Extensions.trimmers);
                         CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
                     }
                     //get current line
@@ -1125,7 +1125,7 @@ namespace Translator.Core
                         {
                             if (multiLineCollector.Length > 2)
                             {//write last string with id plus all lines after that minus the last new line char(s)
-                                multiLineCollector = multiLineCollector.TrimEnd(new char[] { '\n', '\r', ' ' });
+                                multiLineCollector = multiLineCollector.TrimEnd(Extensions.trimmers);
                                 CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
                             }
                             else

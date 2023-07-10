@@ -192,6 +192,7 @@ namespace Translator.Core
                     //this could happen when just clicking through lines in older versions. 
                     else if (!translatedLineData.IsTranslated || (translatedLineData.IsTranslated && translatedLineData.TranslationString == lineData.TemplateString))
                     {
+                        //todo add the current translation to the template as a hint if the setting is set
                         results.Add(lineData.ID, lineData);
                     }
                 }
