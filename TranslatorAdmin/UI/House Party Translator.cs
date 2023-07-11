@@ -73,6 +73,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem ReloadFileMenuItem;
         private WinMenuItem ExportAllMissingLinesFolder;
         private WinMenuItem ExportAllMissingLinesFile;
+        private WinMenuItem ExportMissingLinesCurrentFile;
         private WinMenuItem replaceToolStripMenuItem;
         private WinMenuItem saveAllToolStripMenuItem;
         private WinMenuItem saveAsToolStripMenuItem;
@@ -390,6 +391,17 @@ namespace Translator.Desktop.UI
                 ToolTipText = "Exports all missing lines for the current story into one big file"
             };
             ExportAllMissingLinesFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ExportMissingLinesForCurrentStory(false);
+
+            // ExportMissingLinesCurrentFile
+            ExportMissingLinesCurrentFile = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(ExportMissingLinesCurrentFile),
+                Size = new Size(236, 22),
+                Text = "Export missing lines from the current file",
+                ToolTipText = "Exports all missing lines for the currently opened and selected file into a new file"
+            };
+            ExportMissingLinesCurrentFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ExportMissinglinesForCurrentFile();
 
             // generateTemplateForCompleteStory
             generateTemplateForCompleteStory = new WinMenuItem()
@@ -802,6 +814,7 @@ namespace Translator.Desktop.UI
                 new WinMenuSeperator(),
                 ExportAllMissingLinesFolder,
                 ExportAllMissingLinesFile,
+                ExportMissingLinesCurrentFile,
                 overrideCloudSaveToolStripMenuItem
             });
 

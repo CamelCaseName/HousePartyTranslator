@@ -237,6 +237,11 @@ namespace Translator.Core
                 FileManager.ExportAllMissinglinesForStoryIntoFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: "all_missing.txt", createPrompt: true, checkFileExists: false), StoryName);
         }
 
+        public void ExportMissinglinesForCurrentFile()
+        {
+            FileManager.ExportMissingLinesForFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: FileName + "_missing.txt", createPrompt: true, checkFileExists: false), StoryName, FileName);
+        }
+
         public void OverrideCloudSave()
         {
             if (Settings.Default.AdvancedModeEnabled)

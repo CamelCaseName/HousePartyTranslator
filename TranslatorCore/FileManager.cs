@@ -139,8 +139,6 @@ namespace Translator.Core
             {
                 if (!File.Exists(path))
                     File.OpenWrite(path).Close();
-                else if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
-                    return;
             }
 
             if (story == string.Empty)
@@ -156,6 +154,41 @@ namespace Translator.Core
             }
 
             SortAndWriteMissingLinesToDiskSingleFile(path, story, lines, templates);
+
+            TabManager.UI.InfoOk("Missing lines exported to " + path);
+            LogManager.Log("    Sucessfully exported missing lines");
+        }
+
+        public static void ExportMissingLinesForFile(string path, string story = "", string file = "")
+        {
+            if (path == string.Empty)
+                return;
+            if (Path.GetExtension(path) == string.Empty)
+            {
+                TabManager.UI.WarningOk("Please provide a valid file, " + path + " was not a valid file", "Warning!");
+                return;
+            }
+            else
+            {
+                if (!File.Exists(path))
+                    File.OpenWrite(path).Close();
+            }
+
+            if (story == string.Empty)
+                story = Utils.ExtractStoryName(path);
+            if (file == string.Empty)
+                file = Utils.ExtractFileName(path);
+
+            LogManager.Log("Exporting all missing lines for " + story + "/" + file + " to " + path);
+
+            if (!DataBase.GetAllLinesAndTemplateForFile(story, file, TranslationManager.Language, out FileData lines, out FileData templates))
+            {
+                TabManager.UI.WarningOk("No lines found for that story/file, nothing exported.");
+                LogManager.Log("    No lines found for that file");
+                return;
+            }
+
+            SortAndWriteMissingLinesToDisk(path, story, file, lines, templates);
 
             TabManager.UI.InfoOk("Missing lines exported to " + path);
             LogManager.Log("    Sucessfully exported missing lines");
@@ -249,7 +282,13 @@ namespace Translator.Core
 
             foreach (var lineData in templates.Values)
             {
-                var translatedLineData = lines[lineData.ID];
+                lines.TryGetValue(lineData.ID, out var translatedLineData);
+
+                if (translatedLineData == null)
+                {
+                    results.Add(lineData.ID, lineData);
+                    continue;
+                }
                 //skip line if its approved
                 if (translatedLineData.IsApproved)
                 {
@@ -268,7 +307,6 @@ namespace Translator.Core
             SortIntoCategories(ref sortedLines, results, results);
 
             WriteCategorizedLinesToDisk(sortedLines, path);
-
         }
 
         public static void GenerateTemplateForAllFiles(bool SaveOnline = false)

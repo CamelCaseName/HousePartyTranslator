@@ -262,7 +262,9 @@ namespace Translator.Core
             using MySqlCommand cmd = connection.CreateCommand();
             cmd.CommandText = command;
             cmd.Parameters.Clear();
-            if (story != "Hints") _ = cmd.Parameters.AddWithValue("@filename", fileName);
+
+            if (story != "Hints")
+                _ = cmd.Parameters.AddWithValue("@filename", fileName);
             _ = cmd.Parameters.AddWithValue("@story", story);
 
             LineDataList = new FileData(story, fileName);
@@ -1067,6 +1069,74 @@ namespace Translator.Core
                         {
                             id = CleanId(reader.GetString("id"), story, file, false);
                             lines[file].Add(id, new LineData(
+                                id,
+                                story,
+                                file,
+                                (StringCategory)reader.GetInt32("category"),
+                                reader.GetString("translation"))
+                            {
+                                IsApproved = reader.GetInt32("approved") == 1,
+                                IsTranslated = reader.GetInt32("translated") == 1
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No templates or lines found for " + story + " in " + language, "Info");
+                    LogManager.Log("No stories found for " + story + " in " + language);
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+            return templates.Count > 0;
+        }
+
+        internal static bool GetAllLinesAndTemplateForFile(string story, string file, string language, out FileData lines, out FileData templates)
+        {
+            UI!.SignalUserWait();
+            string command = "SELECT id, english, translation, category, translated, approved"
+                + FROM
+                + " WHERE story = @story AND filename = @filename AND (LANGUAGE IS NULL OR LANGUAGE = @language) AND deleted = 0;";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            _ = cmd.Parameters.AddWithValue("@language", language);
+            _ = cmd.Parameters.AddWithValue("@story", story);
+            _ = cmd.Parameters.AddWithValue("@filename", file);
+            lines = new(story, file);
+            templates = new(story, file);
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    string id = string.Empty;
+                    while (reader.Read())
+                    {
+                        //if translation is null, we have template
+                        if (reader.IsDBNull(2))
+                        {
+                            id = CleanId(reader.GetString("id"), story, file, true);
+                            templates.Add(id, new LineData(
+                                id,
+                                story,
+                                file,
+                                (StringCategory)reader.GetInt32("category"),
+                                reader.GetString("english"),
+                                true));
+                        }
+                        //if it is not, we have a translation
+                        else
+                        {
+                            id = CleanId(reader.GetString("id"), story, file, false);
+                            lines.Add(id, new LineData(
                                 id,
                                 story,
                                 file,
