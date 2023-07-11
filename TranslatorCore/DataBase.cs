@@ -179,9 +179,10 @@ namespace Translator.Core
             cmd.CommandText = command;
             cmd.Parameters.Clear();
 
-            if (story != "Hints") _ = cmd.Parameters.AddWithValue("@filename", fileName);
+            if (story != "Hints")
+                _ = cmd.Parameters.AddWithValue("@language", language);
+            _ = cmd.Parameters.AddWithValue("@filename", fileName);
             _ = cmd.Parameters.AddWithValue("@story", story);
-            _ = cmd.Parameters.AddWithValue("@language", language);
 
             LineDataList = new FileData(story, fileName);
 
