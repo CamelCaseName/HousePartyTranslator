@@ -47,7 +47,6 @@ namespace Translator.Desktop.InterfaceImpls
         public static bool UpdateSettings { get => Settings.Default.UpdateSettings; set => Settings.Default.UpdateSettings = value; }
         public bool IgnoreCustomStoryWarning { get => Settings.Default.IgnoreCustomStoryWarning; set => Settings.Default.IgnoreCustomStoryWarning = value; }
         public bool IgnoreMissingLinesWarning { get => Settings.Default.IgnoreMissingLinesWarning; set => Settings.Default.IgnoreMissingLinesWarning = value; }
-
         public static Color ItemNodeColor { get => Settings.Default.NodeItemColor; set => Settings.Default.NodeItemColor = value; }
         public static Color ItemGroupNodeColor { get => Settings.Default.NodeItemGroupColor; set => Settings.Default.NodeItemGroupColor = value; }
         public static Color InfoNodeColor { get => Settings.Default.NodeInfoColor; set => Settings.Default.NodeInfoColor = value; }
@@ -87,6 +86,7 @@ namespace Translator.Desktop.InterfaceImpls
         public bool ShowTranslationHighlight { get => Settings.Default.ShowSearchHighlightTranslation; set => Settings.Default.ShowSearchHighlightTranslation = value; }
         public bool ShowCommentHighlight { get => Settings.Default.ShowSearchHighlightComments; set => Settings.Default.ShowSearchHighlightComments = value; }
         public bool HighlightLanguages { get => Settings.Default.HighlightLanguages; set => Settings.Default.HighlightLanguages = value; }
+        public bool ExportTranslatedWithMissingLines { get => Settings.Default.ExportTranslationWithMissingLines; set => Settings.Default.ExportTranslationWithMissingLines = value; }
 
         public void Save()
         {

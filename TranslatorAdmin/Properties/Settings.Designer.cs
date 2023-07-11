@@ -805,13 +805,25 @@ namespace Translator.Desktop.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool HighlightLanguages {
             get {
                 return ((bool)(this["HighlightLanguages"]));
             }
             set {
                 this["HighlightLanguages"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ExportTranslationWithMissingLines {
+            get {
+                return ((bool)(this["ExportTranslationWithMissingLines"]));
+            }
+            set {
+                this["ExportTranslationWithMissingLines"] = value;
             }
         }
     }

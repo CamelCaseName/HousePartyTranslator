@@ -39,6 +39,8 @@ namespace Translator.Core.DefaultImpls
 
         public bool HighlightLanguages { get => false; set { } }
 
+        public bool ExportTranslatedWithMissingLines { get => false; set { } }
+
         public void Save() { }
     }
 }

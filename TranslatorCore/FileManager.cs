@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-using Microsoft.VisualBasic.FileIO;
-using Org.BouncyCastle.Bcpg;
+﻿using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -206,29 +204,7 @@ namespace Translator.Core
                 else
                     file = fileData.FileName;
 
-                foreach (var lineData in fileData.Values)
-                {
-                    lines[fileData.FileName].TryGetValue(lineData.ID, out var translatedLineData);
-
-                    if (translatedLineData == null)
-                    {
-                        results.Add(lineData.ID, lineData);
-                        continue;
-                    }
-
-                    //skip line if its approved
-                    if (translatedLineData.IsApproved)
-                    {
-                        continue;
-                    }
-                    //either not translated at all, or translated but its the same and its not approved.
-                    //this could happen when just clicking through lines in older versions. 
-                    else if (!translatedLineData.IsTranslated || (translatedLineData.IsTranslated && translatedLineData.TranslationString == lineData.TemplateString))
-                    {
-                        //todo add the current translation to the template as a hint if the setting is set
-                        results.Add(lineData.ID, lineData);
-                    }
-                }
+                CompareAndAggregateTranslationAndTemplate(lines[file], templates[file], ref results);
 
                 //sort and save
                 var sortedLines = InitializeCategories(story, file);
@@ -244,27 +220,8 @@ namespace Translator.Core
             foreach (var fileData in templates.Values)
             {
                 FileData results = new(story, fileData.FileName);
-                foreach (var lineData in fileData.Values)
-                {
-                    lines[fileData.FileName].TryGetValue(lineData.ID, out var translatedLineData);
 
-                    if (translatedLineData == null)
-                    {
-                        results.Add(lineData.ID, lineData);
-                        continue;
-                    }
-                    //skip line if its approved
-                    if (translatedLineData.IsApproved)
-                    {
-                        continue;
-                    }
-                    //either not translated at all, or translated but its the same and its not approved.
-                    //this could happen when just clicking through lines in older versions. 
-                    else if (!translatedLineData.IsTranslated || (translatedLineData.IsTranslated && translatedLineData.TranslationString == lineData.TemplateString))
-                    {
-                        results.Add(lineData.ID, lineData);
-                    }
-                }
+                CompareAndAggregateTranslationAndTemplate(lines[fileData.FileName], templates[fileData.FileName], ref results);
 
                 //sort and save
                 var sortedLines = InitializeCategories(story, fileData.FileName);
@@ -279,7 +236,17 @@ namespace Translator.Core
         private static void SortAndWriteMissingLinesToDisk(string path, string story, string file, FileData lines, FileData templates)
         {
             FileData results = new(story, templates.FileName);
+            CompareAndAggregateTranslationAndTemplate(lines, templates, ref results);
 
+            //sort and save
+            var sortedLines = InitializeCategories(story, file);
+            SortIntoCategories(ref sortedLines, results, results);
+
+            WriteCategorizedLinesToDisk(sortedLines, path);
+        }
+
+        private static void CompareAndAggregateTranslationAndTemplate(FileData lines, FileData templates, ref FileData results)
+        {
             foreach (var lineData in templates.Values)
             {
                 lines.TryGetValue(lineData.ID, out var translatedLineData);
@@ -296,17 +263,23 @@ namespace Translator.Core
                 }
                 //either not translated at all, or translated but its the same and its not approved.
                 //this could happen when just clicking through lines in older versions. 
-                else if (!translatedLineData.IsTranslated || (translatedLineData.IsTranslated && translatedLineData.TranslationString == lineData.TemplateString))
+                else if (!translatedLineData.IsTranslated)
                 {
                     results.Add(lineData.ID, lineData);
                 }
+                else if (translatedLineData.IsTranslated)
+                {
+                    if (translatedLineData.TranslationString == lineData.TemplateString)
+                    {
+                        results.Add(lineData.ID, lineData);
+                    }
+                    else if (Settings.Default.ExportTranslatedWithMissingLines)
+                    {
+                        lineData.TemplateString += " @@@TN: " + translatedLineData.TranslationString;
+                        results.Add(lineData.ID, lineData);
+                    }
+                }
             }
-
-            //sort and save
-            var sortedLines = InitializeCategories(story, file);
-            SortIntoCategories(ref sortedLines, results, results);
-
-            WriteCategorizedLinesToDisk(sortedLines, path);
         }
 
         public static void GenerateTemplateForAllFiles(bool SaveOnline = false)
