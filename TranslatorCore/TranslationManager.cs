@@ -23,8 +23,8 @@ namespace Translator.Core
     public sealed class TranslationManager
     {
         public FileData TranslationData = new(string.Empty, string.Empty);
-        internal static readonly Timer AutoSaveTimer = new();
-        internal static string language = Settings.Default.Language;
+        private static readonly Timer AutoSaveTimer = new();
+        private static string language = Settings.Default.Language;
         private static bool StaticUIInitialized = false;
         private static IUIHandler UI = null!;
         private readonly ITab TabUI;
@@ -39,6 +39,7 @@ namespace Translator.Core
         private string sourceFilePath = string.Empty;
         private string storyName = string.Empty;
         private bool triedFixingOnce = false;
+
         static TranslationManager()
         {
             if (Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
@@ -226,6 +227,19 @@ namespace Translator.Core
                 UI.UpdateTranslationProgressIndicator();
                 Search();
             }
+        }
+
+        public void ExportMissingLinesForCurrentStory(bool folder)
+        {
+            if (folder)
+                FileManager.ExportAllMissinglinesForStoryIntoFolder(Utils.SelectFolderFromSystem("Please select where you want to save the missing lines to"), StoryName);
+            else
+                FileManager.ExportAllMissinglinesForStoryIntoFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: "all_missing.txt", createPrompt: true, checkFileExists: false), StoryName);
+        }
+
+        public void ExportMissinglinesForCurrentFile()
+        {
+            FileManager.ExportMissingLinesForFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: FileName + "_missing.txt", createPrompt: true, checkFileExists: false), StoryName, FileName);
         }
 
         public void OverrideCloudSave()
@@ -971,6 +985,11 @@ namespace Translator.Core
                     IntegrateOnlineTranslations(localTakesPriority);
                     TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
                 }
+                if (Settings.Default.HighlightLanguages)
+                {
+                    if (DataBase.GetLanguagesForStory(StoryName, out string[] languages))
+                        UI.SetLanguageHighlights(languages);
+                }
                 //update tab name
                 TabManager.UpdateSelectedTabTitle(FileName);
             }
@@ -1088,7 +1107,7 @@ namespace Translator.Core
                     //if we reach a new id, we can add the old string to the translation manager
                     if (lastLine.Length != 0)
                     {
-                        multiLineCollector = multiLineCollector.TrimEnd(new char[] { '\n', '\r', ' ' });
+                        multiLineCollector = multiLineCollector.TrimEnd(Extensions.trimmers);
                         CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
                     }
                     //get current line
@@ -1111,7 +1130,7 @@ namespace Translator.Core
                         {
                             if (multiLineCollector.Length > 2)
                             {//write last string with id plus all lines after that minus the last new line char(s)
-                                multiLineCollector = multiLineCollector.TrimEnd(new char[] { '\n', '\r', ' ' });
+                                multiLineCollector = multiLineCollector.TrimEnd(Extensions.trimmers);
                                 CreateLineInTranslations(lastLine, category, IdsToExport, multiLineCollector);
                             }
                             else

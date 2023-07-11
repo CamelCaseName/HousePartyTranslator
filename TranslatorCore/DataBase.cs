@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
@@ -178,9 +179,10 @@ namespace Translator.Core
             cmd.CommandText = command;
             cmd.Parameters.Clear();
 
-            if (story != "Hints") _ = cmd.Parameters.AddWithValue("@filename", fileName);
+            if (story != "Hints")
+                _ = cmd.Parameters.AddWithValue("@language", language);
+            _ = cmd.Parameters.AddWithValue("@filename", fileName);
             _ = cmd.Parameters.AddWithValue("@story", story);
-            _ = cmd.Parameters.AddWithValue("@language", language);
 
             LineDataList = new FileData(story, fileName);
 
@@ -260,7 +262,9 @@ namespace Translator.Core
             using MySqlCommand cmd = connection.CreateCommand();
             cmd.CommandText = command;
             cmd.Parameters.Clear();
-            if (story != "Hints") _ = cmd.Parameters.AddWithValue("@filename", fileName);
+
+            if (story != "Hints")
+                _ = cmd.Parameters.AddWithValue("@filename", fileName);
             _ = cmd.Parameters.AddWithValue("@story", story);
 
             LineDataList = new FileData(story, fileName);
@@ -479,7 +483,7 @@ namespace Translator.Core
             }
             return wasSuccessfull;
         }
-        
+
         public static bool GetStoriesInTranslation(string language, out string[] names)
         {
             UI!.SignalUserWait();
@@ -932,6 +936,7 @@ namespace Translator.Core
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId[(story + fileName).Length..];
+            if (tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length) <= 0) Debugger.Break();
             return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
         }
 
@@ -966,7 +971,7 @@ namespace Translator.Core
                 }
             }
         }
-        
+
         /// <summary>
         /// Executes the command, returns true if succeeded. reopens the connection if necessary
         /// </summary>
@@ -996,7 +1001,7 @@ namespace Translator.Core
             }
             return false;
         }
-        
+
         static string GetConnString()
         {
             string password = Settings.Default.DbPassword;
@@ -1010,6 +1015,149 @@ namespace Translator.Core
                 returnString = string.Empty;
             }
             return returnString;
+        }
+
+        public static bool GetAllLinesAndTemplateForStory(string story, string language, out Dictionary<string, FileData> lines, out Dictionary<string, FileData> templates)
+        {
+            UI!.SignalUserWait();
+            string command = "SELECT id, filename, english, translation, category, translated, approved"
+                + FROM
+                + " WHERE story = @story AND (LANGUAGE IS NULL OR LANGUAGE = @language) AND deleted = 0;";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            _ = cmd.Parameters.AddWithValue("@language", language);
+            _ = cmd.Parameters.AddWithValue("@story", story);
+            lines = new();
+            templates = new();
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    string file = string.Empty;
+                    string id = string.Empty;
+                    while (reader.Read())
+                    {
+                        file = reader.GetString(1);
+                        if (!lines.ContainsKey(file))
+                        {
+                            //add empty filedata if we have a new file in the results
+                            lines.Add(file, new FileData(story, file));
+                            templates.Add(file, new FileData(story, file));
+                        }
+                        //if translation is null, we have template
+                        if (reader.IsDBNull(3))
+                        {
+                            id = CleanId(reader.GetString("id"), story, file, true);
+                            templates[file].Add(id, new LineData(
+                                id,
+                                story,
+                                file,
+                                (StringCategory)reader.GetInt32("category"),
+                                reader.GetString("english"),
+                                true));
+                        }
+                        //if it is not, we have a translation
+                        else
+                        {
+                            id = CleanId(reader.GetString("id"), story, file, false);
+                            lines[file].Add(id, new LineData(
+                                id,
+                                story,
+                                file,
+                                (StringCategory)reader.GetInt32("category"),
+                                reader.GetString("translation"))
+                            {
+                                IsApproved = reader.GetInt32("approved") == 1,
+                                IsTranslated = reader.GetInt32("translated") == 1
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No templates or lines found for " + story + " in " + language, "Info");
+                    LogManager.Log("No stories found for " + story + " in " + language);
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+            return templates.Count > 0;
+        }
+
+        internal static bool GetAllLinesAndTemplateForFile(string story, string file, string language, out FileData lines, out FileData templates)
+        {
+            UI!.SignalUserWait();
+            string command = "SELECT id, english, translation, category, translated, approved"
+                + FROM
+                + " WHERE story = @story AND filename = @filename AND (LANGUAGE IS NULL OR LANGUAGE = @language) AND deleted = 0;";
+
+            using MySqlConnection connection = new(GetConnString());
+            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            cmd.CommandText = command;
+            cmd.Parameters.Clear();
+            _ = cmd.Parameters.AddWithValue("@language", language);
+            _ = cmd.Parameters.AddWithValue("@story", story);
+            _ = cmd.Parameters.AddWithValue("@filename", file);
+            lines = new(story, file);
+            templates = new(story, file);
+
+            if (CheckOrReopenConnection(connection))
+            {
+                using MySqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.HasRows)
+                {
+                    string id = string.Empty;
+                    while (reader.Read())
+                    {
+                        //if translation is null, we have template
+                        if (reader.IsDBNull(2))
+                        {
+                            id = CleanId(reader.GetString("id"), story, file, true);
+                            templates.Add(id, new LineData(
+                                id,
+                                story,
+                                file,
+                                (StringCategory)reader.GetInt32("category"),
+                                reader.GetString("english"),
+                                true));
+                        }
+                        //if it is not, we have a translation
+                        else
+                        {
+                            id = CleanId(reader.GetString("id"), story, file, false);
+                            lines.Add(id, new LineData(
+                                id,
+                                story,
+                                file,
+                                (StringCategory)reader.GetInt32("category"),
+                                reader.GetString("translation"))
+                            {
+                                IsApproved = reader.GetInt32("approved") == 1,
+                                IsTranslated = reader.GetInt32("translated") == 1
+                            });
+                        }
+                    }
+                }
+                else
+                {
+                    _ = UI.WarningOk("No templates or lines found for " + story + " in " + language, "Info");
+                    LogManager.Log("No stories found for " + story + " in " + language);
+                }
+                reader.Close();
+            }
+            UI.SignalUserEndWait();
+            return templates.Count > 0;
         }
     }
 }

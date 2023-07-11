@@ -320,6 +320,7 @@ namespace Translator.Core.Helpers
 
         public static bool Contains(this int[] arr, int value)
         {
+            if (arr.Length == 0) return false;
             for (int i = 0; i < arr.Length; i++)
             {
                 if (arr[i] == value) return true;

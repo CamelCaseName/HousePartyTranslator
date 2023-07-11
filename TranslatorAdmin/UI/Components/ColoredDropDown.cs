@@ -1,22 +1,46 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 
 namespace Translator.Desktop.UI.Components
 {
-    internal class ColoredDropDown : ComboBox
+    [SupportedOSPlatform("windows")]
+    internal sealed class ColoredDropDown : ComboBox
     {
         private int[] coloredIndices;
-        public Color SpecialIndexBackColor { get; set; } = Color.MediumSeaGreen;
+        public Color SpecialIndexBackColor
+        {
+            get
+            {
+                return _specialIndexBackColor;
+            }
+            set
+            {
+                _specialIndexBackColor = value;
+                SpecialBackgroundBrush.Color = _specialIndexBackColor;
+            }
+        }
+        private Color _specialIndexBackColor = Color.MediumSeaGreen;
+        private readonly Pen BorderPen = new(Utils.foreground);
+        private readonly Pen BlackPen = new(Utils.darkText);
+        private readonly SolidBrush BlackBrush = new(Utils.darkText);
+        private readonly SolidBrush BackgroundBrush = new(Utils.menu);
+        private readonly SolidBrush Borderbrush = new(Utils.foreground);
+        private readonly SolidBrush SpecialBackgroundBrush = new(Color.MediumSeaGreen);
+        private readonly SolidBrush HighlightBrush = new(Utils.menuHighlight);
 
         public ColoredDropDown(int[] coloredIndices)
         {
             this.coloredIndices = coloredIndices;
+            SetStyle(ControlStyles.UserPaint, true);
+            DrawMode = DrawMode.OwnerDrawFixed;
         }
 
         public ColoredDropDown(int length) : this(new int[length]) { }
 
-        public ColoredDropDown() : this(System.Array.Empty<int>()) { }
+        public ColoredDropDown() : this(Array.Empty<int>()) { }
 
         public void SetColoredIndices(int[] indices)
         {
@@ -34,20 +58,40 @@ namespace Translator.Desktop.UI.Components
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
             if (e == null) return;
-            var color = e.BackColor;
+            base.OnDrawItem(e);
 
-            if (coloredIndices.Contains(e.Index))
-                color = SpecialIndexBackColor;
+            //true when we hover over the item
+            if (e.State.HasFlag(DrawItemState.Focus))
+            {
+                e.Graphics.FillRectangle(HighlightBrush, e.Bounds);
+            }
+            else
+            {
+                if (coloredIndices.Contains(e.Index))
+                {
+                    e.Graphics.FillRectangle(SpecialBackgroundBrush, e.Bounds);
+                }
+                else
+                {
+                    //overdraw native drawing as its wrong lol
+                    e.Graphics.FillRectangle(BackgroundBrush, e.Bounds);
+                }
+            }
+            TextRenderer.DrawText(e.Graphics, Items[e.Index].ToString(), Font, new Rectangle(e.Bounds.X + 1, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height), Utils.darkText, TextFormatFlags.Left);
+        }
 
-            var e2 = new DrawItemEventArgs(
-                e.Graphics,
-                e.Font,
-                e.Bounds,
-                e.Index,
-                e.State,
-                e.ForeColor,
-                color);
-            base.OnDrawItem(e2);
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            if (e == null) return;
+            base.OnPaint(e);
+            var h = Height;
+            var w = Width;
+            e.Graphics.DrawLine(BlackPen, new Point(0, h - 1), new Point(w, h - 1));
+            e.Graphics.DrawRectangle(BorderPen, new Rectangle(1, 1, w - 3, h - 4));
+            e.Graphics.FillRectangle(BackgroundBrush, new Rectangle(2, 2, w - 5, h - 6));
+            e.Graphics.FillRectangle(Borderbrush, new Rectangle(w - 18, 2, 16, h - 5));
+            e.Graphics.FillPolygon(BlackBrush, new Point[3] { new Point(w - 12, h - 14), new Point(w - 7, h - 14), new Point(w - 10, h - 11) });
+            TextRenderer.DrawText(e.Graphics, Text, Font, new Rectangle(1, 4, w, h - 4), ForeColor, TextFormatFlags.Left);
         }
     }
 }

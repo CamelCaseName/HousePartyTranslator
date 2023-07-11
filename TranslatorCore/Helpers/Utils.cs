@@ -30,6 +30,7 @@ namespace Translator.Core.Helpers
         public static readonly Color menu = SystemColors.ScrollBar;
         public static readonly Color frame = SystemColors.WindowFrame;
         public static readonly Color highlight = SystemColors.Info;
+        public static readonly Color menuHighlight = SystemColors.MenuHighlight;
         private static HashSet<string> fileNames = new();
         private static HashSet<string> storyNames = new();
         private static DateTime namesAcquired = DateTime.MinValue;
@@ -207,11 +208,14 @@ namespace Translator.Core.Helpers
                 throw new LanguageHelper.LanguageException();
 
             var paths = path.Split('\\');
-            if (paths.Length < 3) throw new ArgumentException("the file needs to be at least 2 folders deep from your drive?");
+            if (paths.Length < 2) throw new ArgumentException("the file needs to be at least 1 folders deep from your drive?");
 
             //check if we have a similar name to the cloud, return that if we have
             for (int i = paths.Length - 1; i >= 0; i--)
             {
+                if (Path.GetExtension(paths[i]) != string.Empty)
+                    paths[i] = Path.GetFileNameWithoutExtension(paths[i]);
+
                 var enumerator = storyNames.GetEnumerator();
                 while (enumerator.MoveNext())
                 {

@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 
 namespace Translator.Desktop.UI.Components
 {
-    public class ColoredToolStripDropDown : ToolStripControlHost
+    [SupportedOSPlatform("windows")]
+    public sealed class ColoredToolStripDropDown : ToolStripControlHost
     {
         public ColoredToolStripDropDown() : base(new ColoredDropDown()) { }
 
-        private ColoredDropDown DropDown => Control as ColoredDropDown ?? new();
+        internal ColoredDropDown DropDown => Control as ColoredDropDown ?? new();
 
         public ComboBoxStyle DropDownStyle { get => DropDown.DropDownStyle; set => DropDown.DropDownStyle = value; }
         public FlatStyle FlatStyle { get => DropDown.FlatStyle; set => DropDown.FlatStyle = value; }

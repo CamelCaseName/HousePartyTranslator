@@ -15,6 +15,6 @@
         ItemAction,
         ItemGroupAction,
         Achievement,
-        Neither
+        Neither,
     }
 }

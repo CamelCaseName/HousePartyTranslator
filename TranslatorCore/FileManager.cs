@@ -83,6 +83,205 @@ namespace Translator.Core
             else ExportTemplatesForStory(path);
         }
 
+        public static void ExportAllMissinglinesForStoryIntoFolder(string path, string story = "")
+        {
+            if (path == string.Empty)
+                return;
+            if (Path.GetExtension(path) == string.Empty)
+            {
+                if (!Directory.Exists(path))
+                {
+                    Directory.CreateDirectory(path);
+                }
+                else if (Directory.GetFiles(path).Length > 0)
+                {
+                    if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
+                        return;
+                }
+            }
+            else
+            {
+                if (!File.Exists(path))
+                    path = Path.GetFileNameWithoutExtension(path);
+                else if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
+                    return;
+            }
+
+            if (story == string.Empty)
+                story = Utils.ExtractStoryName(path);
+            LogManager.Log("Exporting all missing lines for " + story + " to " + path);
+
+            if (!DataBase.GetAllLinesAndTemplateForStory(story, TranslationManager.Language, out Dictionary<string, FileData> lines, out Dictionary<string, FileData> templates))
+            {
+                TabManager.UI.WarningOk("No lines found for that story/file, nothing exported.");
+                LogManager.Log("    No lines found for that file");
+                return;
+            }
+
+            SortAndWriteMissingLinesToDiskMultipleFiles(path, story, lines, templates);
+
+            TabManager.UI.InfoOk("Missing lines exported to " + path);
+            LogManager.Log("    Sucessfully exported missing lines");
+        }
+
+        public static void ExportAllMissinglinesForStoryIntoFile(string path, string story = "")
+        {
+            if (path == string.Empty)
+                return;
+            if (Path.GetExtension(path) == string.Empty)
+            {
+                TabManager.UI.WarningOk("Please provide a valid file, " + path + " was not a valid file", "Warning!");
+                return;
+            }
+            else
+            {
+                if (!File.Exists(path))
+                    File.OpenWrite(path).Close();
+            }
+
+            if (story == string.Empty)
+                story = Utils.ExtractStoryName(path);
+
+            LogManager.Log("Exporting all missing lines for " + story + " to " + path);
+
+            if (!DataBase.GetAllLinesAndTemplateForStory(story, TranslationManager.Language, out Dictionary<string, FileData> lines, out Dictionary<string, FileData> templates))
+            {
+                TabManager.UI.WarningOk("No lines found for that story/file, nothing exported.");
+                LogManager.Log("    No lines found for that file");
+                return;
+            }
+
+            SortAndWriteMissingLinesToDiskSingleFile(path, story, lines, templates);
+
+            TabManager.UI.InfoOk("Missing lines exported to " + path);
+            LogManager.Log("    Sucessfully exported missing lines");
+        }
+
+        public static void ExportMissingLinesForFile(string path, string story = "", string file = "")
+        {
+            if (path == string.Empty)
+                return;
+            if (Path.GetExtension(path) == string.Empty)
+            {
+                TabManager.UI.WarningOk("Please provide a valid file, " + path + " was not a valid file", "Warning!");
+                return;
+            }
+            else
+            {
+                if (!File.Exists(path))
+                    File.OpenWrite(path).Close();
+            }
+
+            if (story == string.Empty)
+                story = Utils.ExtractStoryName(path);
+            if (file == string.Empty)
+                file = Utils.ExtractFileName(path);
+
+            LogManager.Log("Exporting all missing lines for " + story + "/" + file + " to " + path);
+
+            if (!DataBase.GetAllLinesAndTemplateForFile(story, file, TranslationManager.Language, out FileData lines, out FileData templates))
+            {
+                TabManager.UI.WarningOk("No lines found for that story/file, nothing exported.");
+                LogManager.Log("    No lines found for that file");
+                return;
+            }
+
+            SortAndWriteMissingLinesToDisk(path, story, file, lines, templates);
+
+            TabManager.UI.InfoOk("Missing lines exported to " + path);
+            LogManager.Log("    Sucessfully exported missing lines");
+        }
+
+        private static void SortAndWriteMissingLinesToDiskMultipleFiles(string path, string story, Dictionary<string, FileData> lines, Dictionary<string, FileData> templates)
+        {
+            foreach (var fileData in templates.Values)
+            {
+                FileData results = new(story, fileData.FileName);
+                //export templates as hints.txt if we have the hints, no need to get filenames
+                string file;
+                if (story == "Hints")
+                    file = "Hints";
+                else
+                    file = fileData.FileName;
+
+                CompareAndAggregateTranslationAndTemplate(lines[file], templates[file], ref results);
+
+                //sort and save
+                var sortedLines = InitializeCategories(story, file);
+                SortIntoCategories(ref sortedLines, results, results);
+
+                WriteCategorizedLinesToDisk(sortedLines, Path.Combine(path, file + "_missing.txt"));
+            }
+        }
+
+        private static void SortAndWriteMissingLinesToDiskSingleFile(string path, string story, Dictionary<string, FileData> lines, Dictionary<string, FileData> templates)
+        {
+            StreamWriter writer = new(path);
+            foreach (var fileData in templates.Values)
+            {
+                FileData results = new(story, fileData.FileName);
+
+                CompareAndAggregateTranslationAndTemplate(lines[fileData.FileName], templates[fileData.FileName], ref results);
+
+                //sort and save
+                var sortedLines = InitializeCategories(story, fileData.FileName);
+                SortIntoCategories(ref sortedLines, results, results);
+
+                writer.WriteLine("FILE: " + fileData.FileName + ".txt starts here:\n\r");
+                WriteCategorizedLinesToDisk(sortedLines, path, OutputWriter: writer);
+            }
+            writer.Dispose();
+        }
+
+        private static void SortAndWriteMissingLinesToDisk(string path, string story, string file, FileData lines, FileData templates)
+        {
+            FileData results = new(story, templates.FileName);
+            CompareAndAggregateTranslationAndTemplate(lines, templates, ref results);
+
+            //sort and save
+            var sortedLines = InitializeCategories(story, file);
+            SortIntoCategories(ref sortedLines, results, results);
+
+            WriteCategorizedLinesToDisk(sortedLines, path);
+        }
+
+        private static void CompareAndAggregateTranslationAndTemplate(FileData lines, FileData templates, ref FileData results)
+        {
+            foreach (var lineData in templates.Values)
+            {
+                lines.TryGetValue(lineData.ID, out var translatedLineData);
+
+                if (translatedLineData == null)
+                {
+                    results.Add(lineData.ID, lineData);
+                    continue;
+                }
+                //skip line if its approved
+                if (translatedLineData.IsApproved)
+                {
+                    continue;
+                }
+                //either not translated at all, or translated but its the same and its not approved.
+                //this could happen when just clicking through lines in older versions. 
+                else if (!translatedLineData.IsTranslated)
+                {
+                    results.Add(lineData.ID, lineData);
+                }
+                else if (translatedLineData.IsTranslated)
+                {
+                    if (translatedLineData.TranslationString == lineData.TemplateString)
+                    {
+                        results.Add(lineData.ID, lineData);
+                    }
+                    else if (Settings.Default.ExportTranslatedWithMissingLines)
+                    {
+                        lineData.TemplateString += " @@@TN: " + translatedLineData.TranslationString;
+                        results.Add(lineData.ID, lineData);
+                    }
+                }
+            }
+        }
+
         public static void GenerateTemplateForAllFiles(bool SaveOnline = false)
         {
             PopupResult typeResult;
@@ -198,7 +397,22 @@ namespace Translator.Core
         /// </summary>
         public static List<StringCategory> GetCategories(string story, string file)
         {
-            if (story == "UI" || story == "Hints")
+            if (file == "all")
+            {
+                return new List<StringCategory>() {
+                            StringCategory.General,
+                            StringCategory.Dialogue,
+                            StringCategory.Response,
+                            StringCategory.Quest,
+                            StringCategory.Event,
+                            StringCategory.BGC,
+                            StringCategory.ItemName,
+                            StringCategory.ItemAction,
+                            StringCategory.ItemGroupAction,
+                            StringCategory.Achievement,
+                            StringCategory.Neither };
+            }
+            else if (story == "UI" || story == "Hints")
             {
                 return new List<StringCategory>() { StringCategory.General };
             }
@@ -265,14 +479,20 @@ namespace Translator.Core
             }
         }
 
-        internal static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false)
+        internal static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false, bool append = false, StreamWriter? OutputWriter = null)
         {
             CultureInfo culture = CultureInfo.InvariantCulture;
-            if (warnOnOverwrite)
-                if (File.OpenRead(path).Length > 0)
-                    if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + " \nAre you sure?", "Warning", PopupResult.NO))
-                        return;
-            using var OutputWriter = new StreamWriter(path, false, new UTF8Encoding(true));
+            bool needDispose = false;
+
+            if (OutputWriter == null)
+            {
+                if (warnOnOverwrite)
+                    if (File.OpenRead(path).Length > 0)
+                        if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + " \nAre you sure?", "Warning", PopupResult.NO))
+                            return;
+                OutputWriter = new StreamWriter(path, append, new UTF8Encoding(true));
+                needDispose = true;
+            }
             foreach (CategorizedLines CategorizedLines in CategorizedStrings)
             {
                 //write category if it has any lines, else we skip the category
@@ -307,6 +527,8 @@ namespace Translator.Core
                 //newline after each category
                 OutputWriter.WriteLine();
             }
+            if (needDispose)
+                OutputWriter.Dispose();
         }
 
         internal static void GenerateOfficialTemplates()

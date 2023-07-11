@@ -150,5 +150,18 @@ namespace Translator.Desktop.InterfaceImpls
             else if (waitCounter == 0) Application.UseWaitCursor = false;
             App.MainForm?.Invalidate();
         }
+
+        public void SetLanguageHighlights(string[] languages)
+        {
+            var indices = new int[languages.Length].AsSpan();
+            int iterator = 0;
+            for (int i = 0; i < languages.Length; i++)
+            {
+                int index = App.MainForm?.LanguageBox.DropDown.Items.IndexOf(languages[i]) ?? -1;
+                if (index >= 0)
+                    indices[iterator++] = index;
+            }
+            App.MainForm?.LanguageBox.DropDown.SetColoredIndices(indices[..iterator].ToArray());
+        }
     }
 }

@@ -71,6 +71,9 @@ namespace Translator.Desktop.UI
         private WinMenuItem overrideCloudSaveToolStripMenuItem;
         private WinMenuItem Recents;
         private WinMenuItem ReloadFileMenuItem;
+        private WinMenuItem ExportAllMissingLinesFolder;
+        private WinMenuItem ExportAllMissingLinesFile;
+        private WinMenuItem ExportMissingLinesCurrentFile;
         private WinMenuItem replaceToolStripMenuItem;
         private WinMenuItem saveAllToolStripMenuItem;
         private WinMenuItem saveAsToolStripMenuItem;
@@ -366,6 +369,39 @@ namespace Translator.Desktop.UI
                 ToolTipText = "Generates and uploads the template for a single file"
             };
             generateTemplateForFile.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForSingleFile(true);
+
+            // ExportAllMissingLinesFolder
+            ExportAllMissingLinesFolder = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(ExportAllMissingLinesFolder),
+                Size = new Size(236, 22),
+                Text = "Export all &missing lines ->folder",
+                ToolTipText = "Exports all missing lines for the current story into a folder, one filer per character"
+            };
+            ExportAllMissingLinesFolder.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ExportMissingLinesForCurrentStory(true);
+
+            // ExportAllMissingLinesFile
+            ExportAllMissingLinesFile = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(ExportAllMissingLinesFile),
+                Size = new Size(236, 22),
+                Text = "Export all missing lines ->&one file",
+                ToolTipText = "Exports all missing lines for the current story into one big file"
+            };
+            ExportAllMissingLinesFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ExportMissingLinesForCurrentStory(false);
+
+            // ExportMissingLinesCurrentFile
+            ExportMissingLinesCurrentFile = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(ExportMissingLinesCurrentFile),
+                Size = new Size(236, 22),
+                Text = "Export missing lines from the current file",
+                ToolTipText = "Exports all missing lines for the currently opened and selected file into a new file"
+            };
+            ExportMissingLinesCurrentFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ExportMissinglinesForCurrentFile();
 
             // generateTemplateForCompleteStory
             generateTemplateForCompleteStory = new WinMenuItem()
@@ -776,6 +812,9 @@ namespace Translator.Desktop.UI
                 new WinMenuSeperator(),
                 ReloadFileMenuItem,
                 new WinMenuSeperator(),
+                ExportAllMissingLinesFolder,
+                ExportAllMissingLinesFile,
+                ExportMissingLinesCurrentFile,
                 overrideCloudSaveToolStripMenuItem
             });
 
