@@ -41,52 +41,52 @@ namespace Translator.Desktop.InterfaceImpls
         public string Recents4 { get => Settings.Default.recents_4; set => Settings.Default.recents_4 = value; }
         public string TemplatePath { get => Settings.Default.template_path; set => Settings.Default.template_path = value; }
         public string TranslationPath { get => Settings.Default.translation_path; set => Settings.Default.translation_path = value; }
-        public TimeSpan AutoSaveInterval { get => Settings.Default.AutoSaveInterval; set => Settings.Default.AutoSaveInterval = value; }
+        public TimeSpan AutoSaveInterval { get => Settings.Default.autoSaveInterval; set => Settings.Default.autoSaveInterval = value; }
         public bool DisplayVoiceActorHints { get => Settings.Default.displayVAHints; set => Settings.Default.displayVAHints = value; }
         public static string StoryPath { get => Settings.Default.story_path; set => Settings.Default.story_path = value; }
-        public static bool UpdateSettings { get => Settings.Default.UpdateSettings; set => Settings.Default.UpdateSettings = value; }
-        public bool IgnoreCustomStoryWarning { get => Settings.Default.IgnoreCustomStoryWarning; set => Settings.Default.IgnoreCustomStoryWarning = value; }
-        public bool IgnoreMissingLinesWarning { get => Settings.Default.IgnoreMissingLinesWarning; set => Settings.Default.IgnoreMissingLinesWarning = value; }
-        public static Color ItemNodeColor { get => Settings.Default.NodeItemColor; set => Settings.Default.NodeItemColor = value; }
-        public static Color ItemGroupNodeColor { get => Settings.Default.NodeItemGroupColor; set => Settings.Default.NodeItemGroupColor = value; }
-        public static Color InfoNodeColor { get => Settings.Default.NodeInfoColor; set => Settings.Default.NodeInfoColor = value; }
-        public static Color MovingNodeColor { get => Settings.Default.NodeMovingColor; set => Settings.Default.NodeMovingColor = value; }
-        public static Color ActionNodeColor { get => Settings.Default.NodeActionColor; set => Settings.Default.NodeActionColor = value; }
-        public static Color BGCNodeColor { get => Settings.Default.NodeBGCColor; set => Settings.Default.NodeBGCColor = value; }
-        public static Color DoorNodeColor { get => Settings.Default.NodeDoorColor; set => Settings.Default.NodeDoorColor = value; }
-        public static Color CutsceneNodeColor { get => Settings.Default.NodeCutsceneColor; set => Settings.Default.NodeCutsceneColor = value; }
-        public static Color AchievementNodeColor { get => Settings.Default.NodeAchievementColor; set => Settings.Default.NodeAchievementColor = value; }
-        public static Color ClothingNodeColor { get => Settings.Default.NodeClothingColor; set => Settings.Default.NodeClothingColor = value; }
-        public static Color CriteriaGroupNodeColor { get => Settings.Default.NodeCriteriaGroupColor; set => Settings.Default.NodeCriteriaGroupColor = value; }
-        public static Color CriterionNodeColor { get => Settings.Default.NodeCriterionColor; set => Settings.Default.NodeCriterionColor = value; }
-        public static Color DialogueNodeColor { get => Settings.Default.NodeDialogueColor; set => Settings.Default.NodeDialogueColor = value; }
-        public static Color DialogueFemaleOnlyNodeColor { get => Settings.Default.NodeDialogueFemaleOnlyColor; set => Settings.Default.NodeDialogueFemaleOnlyColor = value; }
-        public static Color DialogueMaleOnlyNodeColor { get => Settings.Default.NodeDialogueMaleOnlyColor; set => Settings.Default.NodeDialogueMaleOnlyColor = value; }
-        public static Color EventNodeColor { get => Settings.Default.NodeEventColor; set => Settings.Default.NodeEventColor = value; }
-        public static Color InventoryNodeColor { get => Settings.Default.NodeInventoryColor; set => Settings.Default.NodeInventoryColor = value; }
-        public static Color PersonalityNodeColor { get => Settings.Default.NodePersonalityColor; set => Settings.Default.NodePersonalityColor = value; }
-        public static Color PoseNodeColor { get => Settings.Default.NodePoseColor; set => Settings.Default.NodePoseColor = value; }
-        public static Color PropertyNodeColor { get => Settings.Default.NodePropertyColor; set => Settings.Default.NodePropertyColor = value; }
-        public static Color QuestNodeColor { get => Settings.Default.NodeQuestColor; set => Settings.Default.NodeQuestColor = value; }
-        public static Color ReactionNodeColor { get => Settings.Default.NodeReactionColor; set => Settings.Default.NodeReactionColor = value; }
-        public static Color ResponseNodeColor { get => Settings.Default.NodeResponseColor; set => Settings.Default.NodeResponseColor = value; }
-        public static Color SelectedNodeColor { get => Settings.Default.NodeSelectedColor; set => Settings.Default.NodeSelectedColor = value; }
-        public static Color SocialNodeColor { get => Settings.Default.NodeSocialColor; set => Settings.Default.NodeSocialColor = value; }
-        public static Color StateNodeColor { get => Settings.Default.NodeStateColor; set => Settings.Default.NodeStateColor = value; }
-        public static Color ValueNodeColor { get => Settings.Default.NodeValueColor; set => Settings.Default.NodeValueColor = value; }
-        public static Color DefaultNodeColor { get => Settings.Default.NodeDefaultColor; set => Settings.Default.NodeDefaultColor = value; }
+        public static bool UpdateSettings { get => Settings.Default.updateSettings; set => Settings.Default.updateSettings = value; }
+        public bool IgnoreCustomStoryWarning { get => Settings.Default.ignoreCustomStoryWarning; set => Settings.Default.ignoreCustomStoryWarning = value; }
+        public bool IgnoreMissingLinesWarning { get => Settings.Default.ignoreMissingLinesWarning; set => Settings.Default.ignoreMissingLinesWarning = value; }
+        public static Color ItemNodeColor { get => Settings.Default.nodeItemColor; set => Settings.Default.nodeItemColor = value; }
+        public static Color ItemGroupNodeColor { get => Settings.Default.nodeItemGroupColor; set => Settings.Default.nodeItemGroupColor = value; }
+        public static Color InfoNodeColor { get => Settings.Default.nodeInfoColor; set => Settings.Default.nodeInfoColor = value; }
+        public static Color MovingNodeColor { get => Settings.Default.nodeMovingColor; set => Settings.Default.nodeMovingColor = value; }
+        public static Color ActionNodeColor { get => Settings.Default.nodeActionColor; set => Settings.Default.nodeActionColor = value; }
+        public static Color BGCNodeColor { get => Settings.Default.nodeBGCColor; set => Settings.Default.nodeBGCColor = value; }
+        public static Color DoorNodeColor { get => Settings.Default.nodeDoorColor; set => Settings.Default.nodeDoorColor = value; }
+        public static Color CutsceneNodeColor { get => Settings.Default.nodeCutsceneColor; set => Settings.Default.nodeCutsceneColor = value; }
+        public static Color AchievementNodeColor { get => Settings.Default.nodeAchievementColor; set => Settings.Default.nodeAchievementColor = value; }
+        public static Color ClothingNodeColor { get => Settings.Default.nodeClothingColor; set => Settings.Default.nodeClothingColor = value; }
+        public static Color CriteriaGroupNodeColor { get => Settings.Default.nodeCriteriaGroupColor; set => Settings.Default.nodeCriteriaGroupColor = value; }
+        public static Color CriterionNodeColor { get => Settings.Default.nodeCriterionColor; set => Settings.Default.nodeCriterionColor = value; }
+        public static Color DialogueNodeColor { get => Settings.Default.nodeDialogueColor; set => Settings.Default.nodeDialogueColor = value; }
+        public static Color DialogueFemaleOnlyNodeColor { get => Settings.Default.nodeDialogueFemaleOnlyColor; set => Settings.Default.nodeDialogueFemaleOnlyColor = value; }
+        public static Color DialogueMaleOnlyNodeColor { get => Settings.Default.nodeDialogueMaleOnlyColor; set => Settings.Default.nodeDialogueMaleOnlyColor = value; }
+        public static Color EventNodeColor { get => Settings.Default.nodeEventColor; set => Settings.Default.nodeEventColor = value; }
+        public static Color InventoryNodeColor { get => Settings.Default.nodeInventoryColor; set => Settings.Default.nodeInventoryColor = value; }
+        public static Color PersonalityNodeColor { get => Settings.Default.nodePersonalityColor; set => Settings.Default.nodePersonalityColor = value; }
+        public static Color PoseNodeColor { get => Settings.Default.nodePoseColor; set => Settings.Default.nodePoseColor = value; }
+        public static Color PropertyNodeColor { get => Settings.Default.nodePropertyColor; set => Settings.Default.nodePropertyColor = value; }
+        public static Color QuestNodeColor { get => Settings.Default.nodeQuestColor; set => Settings.Default.nodeQuestColor = value; }
+        public static Color ReactionNodeColor { get => Settings.Default.nodeReactionColor; set => Settings.Default.nodeReactionColor = value; }
+        public static Color ResponseNodeColor { get => Settings.Default.nodeResponseColor; set => Settings.Default.nodeResponseColor = value; }
+        public static Color SelectedNodeColor { get => Settings.Default.nodeSelectedColor; set => Settings.Default.nodeSelectedColor = value; }
+        public static Color SocialNodeColor { get => Settings.Default.nodeSocialColor; set => Settings.Default.nodeSocialColor = value; }
+        public static Color StateNodeColor { get => Settings.Default.nodeStateColor; set => Settings.Default.nodeStateColor = value; }
+        public static Color ValueNodeColor { get => Settings.Default.nodeValueColor; set => Settings.Default.nodeValueColor = value; }
+        public static Color DefaultNodeColor { get => Settings.Default.nodeDefaultColor; set => Settings.Default.nodeDefaultColor = value; }
         public static Color DefaultEdgeColor { get => Settings.Default.edgeDefaultColor; set => Settings.Default.edgeDefaultColor = value; }
-        public static bool UseRainbowEdgeColors { get => Settings.Default.UseRainbowEdges; set => Settings.Default.UseRainbowEdges = value; }
-        public static bool UseRainbowNodeColors { get => Settings.Default.UseRainbowNodes; set => Settings.Default.UseRainbowNodes = value; }
-        public static bool EnableStoryExplorerEdit { get => Settings.Default.EnableStoryExplorerEdit; set => Settings.Default.EnableStoryExplorerEdit = value; }
-        public static int MaxEdgeCount { get => Settings.Default.ExplorerMaxEdgeCount; set => Settings.Default.ExplorerMaxEdgeCount = value; }
-        public static bool ShowExtendedExplorerInfo { get => Settings.Default.ShowExtendedExplorerInfo; set => Settings.Default.ShowExtendedExplorerInfo = value; }
-        public static float IdealLength { get => Settings.Default.IdealLength; internal set => Settings.Default.IdealLength = value; }
-        public static int ColoringDepth { get => Settings.Default.ColoringDepth; internal set => Settings.Default.ColoringDepth = value; }
-        public bool ShowTranslationHighlight { get => Settings.Default.ShowSearchHighlightTranslation; set => Settings.Default.ShowSearchHighlightTranslation = value; }
-        public bool ShowCommentHighlight { get => Settings.Default.ShowSearchHighlightComments; set => Settings.Default.ShowSearchHighlightComments = value; }
-        public bool HighlightLanguages { get => Settings.Default.HighlightLanguages; set => Settings.Default.HighlightLanguages = value; }
-        public bool ExportTranslatedWithMissingLines { get => Settings.Default.ExportTranslationWithMissingLines; set => Settings.Default.ExportTranslationWithMissingLines = value; }
+        public static bool UseRainbowEdgeColors { get => Settings.Default.useRainbowEdges; set => Settings.Default.useRainbowEdges = value; }
+        public static bool UseRainbowNodeColors { get => Settings.Default.useRainbowNodes; set => Settings.Default.useRainbowNodes = value; }
+        public static bool EnableStoryExplorerEdit { get => Settings.Default.enableStoryExplorerEdit; set => Settings.Default.enableStoryExplorerEdit = value; }
+        public static int MaxEdgeCount { get => Settings.Default.explorerMaxEdgeCount; set => Settings.Default.explorerMaxEdgeCount = value; }
+        public static bool ShowExtendedExplorerInfo { get => Settings.Default.showExtendedExplorerInfo; set => Settings.Default.showExtendedExplorerInfo = value; }
+        public static float IdealLength { get => Settings.Default.idealLength; internal set => Settings.Default.idealLength = value; }
+        public static int ColoringDepth { get => Settings.Default.coloringDepth; internal set => Settings.Default.coloringDepth = value; }
+        public bool ShowTranslationHighlight { get => Settings.Default.showSearchHighlightTranslation; set => Settings.Default.showSearchHighlightTranslation = value; }
+        public bool ShowCommentHighlight { get => Settings.Default.showSearchHighlightComments; set => Settings.Default.showSearchHighlightComments = value; }
+        public bool HighlightLanguages { get => Settings.Default.highlightLanguages; set => Settings.Default.highlightLanguages = value; }
+        public bool ExportTranslatedWithMissingLines { get => Settings.Default.exportTranslationInMissingLines; set => Settings.Default.exportTranslationInMissingLines = value; }
 
         public void Save()
         {
