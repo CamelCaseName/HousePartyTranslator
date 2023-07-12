@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MySqlX.XDevAPI.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -9,6 +10,10 @@ namespace Translator.Core.Helpers
     internal static class Searcher
     {
         public delegate bool SearchImplementation(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern);
+
+        private static readonly List<SearchImplementation> algorithms = new();
+        private static StringComparison searchCulture = StringComparison.CurrentCultureIgnoreCase;
+
         public static bool Search(ReadOnlySpan<char> query, FileData data, out List<int>? results, out ReadOnlySpan<char> cleanedQuery)
         {
             results = null;
@@ -19,11 +24,110 @@ namespace Translator.Core.Helpers
             results = new();
             var enumerator = data.Values.GetEnumerator();
             int x = 0;
-            StringComparison searchCulture = StringComparison.CurrentCultureIgnoreCase;
-            List<SearchImplementation> algorithms = new();
-            bool useRegex = false;
 
             //case sensitive search
+            query = ExtractCaseSensitivityCulture(query);
+
+            algorithms.Clear();
+            //2nd escaper
+            bool useRegex = ExtractSearchModifiers(ref query);
+
+            //we only extracted an specifyer, no query yet
+            if (query.IsEmpty) return false;
+
+            //fix search if we have nothing or only modifiers
+            TrySetDefaultAlgorithms();
+
+            //run all checks agains all lines
+            bool successfull;
+            Regex? regex = CreateRegex(query, useRegex);
+            while (enumerator.MoveNext())
+            {
+                successfull = true;
+                foreach (var searchAlgorithm in algorithms)
+                {
+                    if (searchAlgorithm.Invoke(query, enumerator.Current, searchCulture, regex))
+                        continue;
+
+                    successfull = false;
+                    break;
+                }
+                if (successfull)
+                    results.Add(x);
+
+                ++x;
+            }
+
+            cleanedQuery = query;
+            return results.Count > 0;
+        }
+
+        public static bool Search(ReadOnlySpan<char> query, LineData data, out ReadOnlySpan<char> cleanedQuery)
+        {
+            cleanedQuery = ReadOnlySpan<char>.Empty;
+            if (query.IsEmpty) return false;
+
+            //case sensitive search
+            query = ExtractCaseSensitivityCulture(query);
+
+            algorithms.Clear();
+            //2nd escaper
+            bool useRegex = ExtractSearchModifiers(ref query);
+
+            //we only extracted an specifyer, no query yet
+            if (query.IsEmpty) return false;
+
+            //fix search if we have nothing or only modifiers
+            TrySetDefaultAlgorithms();
+
+            //run all checks agains all lines
+            Regex? regex = CreateRegex(query, useRegex);
+
+            bool successfull = true;
+            foreach (var searchAlgorithm in algorithms)
+            {
+                if (searchAlgorithm.Invoke(query, data, searchCulture, regex))
+                    continue;
+
+                successfull = false;
+                break;
+            }
+
+            cleanedQuery = query;
+            return successfull;
+        }
+
+        private static Regex? CreateRegex(ReadOnlySpan<char> query, bool useRegex)
+        {
+            Regex? regex = null;
+            if (useRegex)
+            {
+                try
+                {
+                    if (searchCulture == StringComparison.CurrentCultureIgnoreCase) regex = new Regex(query.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase);
+                    else regex = new Regex(query.ToString(), RegexOptions.Compiled);
+                }
+                catch { }
+            }
+
+            return regex;
+        }
+
+        private static void TrySetDefaultAlgorithms()
+        {
+            bool SearchOnlyContainsModifiers = !algorithms.Contains(SearchID)
+                            && !algorithms.Contains(SearchTranslation)
+                            && !algorithms.Contains(SearchTemplate)
+                            && !algorithms.Contains(SearchComments);
+
+            if (algorithms.Count == 0 || SearchOnlyContainsModifiers)
+            {
+                algorithms.Add(SearchAll);
+            }
+        }
+
+        private static ReadOnlySpan<char> ExtractCaseSensitivityCulture(ReadOnlySpan<char> query)
+        {
             if (!CheckAndClearEscapedChars(ref query))
             {
                 if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
@@ -33,7 +137,12 @@ namespace Translator.Core.Helpers
                 }
             }
 
-            //2nd escaper
+            return query;
+        }
+
+        private static bool ExtractSearchModifiers(ref ReadOnlySpan<char> query)
+        {
+            var useRegex = false;
             if (!CheckAndClearEscapedChars(ref query))
             {
                 //we enter specifyer mode
@@ -96,51 +205,7 @@ namespace Translator.Core.Helpers
                     } while (!query.IsEmpty && query[0] == '§' && query.Length > 2);
                 }
             }
-            //we only extracted an specifyer, no query yet
-            if (query.IsEmpty) return false;
-
-            //fix search if we have nothing or only modifiers
-            bool SearchOnlyContainsModifiers = !algorithms.Contains(SearchID)
-                && !algorithms.Contains(SearchTranslation)
-                && !algorithms.Contains(SearchTemplate)
-                && !algorithms.Contains(SearchComments);
-
-            if (algorithms.Count == 0 || SearchOnlyContainsModifiers)
-            {
-                algorithms.Add(SearchAll);
-            }
-
-            //run all checks agains all lines
-            bool successfull = false;
-            Regex? regex = null;
-            if (useRegex)
-            {
-                try
-                {
-                    if (searchCulture == StringComparison.CurrentCultureIgnoreCase) regex = new Regex(query.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase);
-                    else regex = new Regex(query.ToString(), RegexOptions.Compiled);
-                }
-                catch { }
-            }
-            while (enumerator.MoveNext())
-            {
-                successfull = true;
-                foreach (var searchAlgorithm in algorithms)
-                {
-                    if (searchAlgorithm.Invoke(query, enumerator.Current, searchCulture, regex))
-                        continue;
-
-                    successfull = false;
-                    break;
-                }
-                if (successfull)
-                    results.Add(x);
-
-                ++x;
-            }
-
-            cleanedQuery = query;
-            return results.Count > 0;
+            return useRegex;
         }
 
         private static bool CheckAndClearEscapedChars(ref ReadOnlySpan<char> query)
@@ -291,6 +356,16 @@ namespace Translator.Core.Helpers
         public static bool Search(string query, FileData data, out List<int>? results)
         {
             return Search(query, data, out results, out _);
+        }
+
+        public static bool Search(ReadOnlySpan<char> query, LineData data)
+        {
+            return Search(query, data, out _);
+        }
+
+        public static bool Search(string query, LineData data)
+        {
+            return Search(query.AsSpan(), data, out _);
         }
     }
 }

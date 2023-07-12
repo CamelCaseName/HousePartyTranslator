@@ -31,8 +31,8 @@ namespace Translator.Desktop.InterfaceImpls
         public string ReplaceBarText { get => App.MainForm?.ReplaceBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the ReplaceBarText"); App.MainForm.ReplaceBox.Text = value; } }
 
         public string SearchBarText { get => App.MainForm?.SearchBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the SearchBArText"); App.MainForm.SearchBox.Text = value; } }
-        public int SearchResultCount { get => App.MainForm?.SearchBox.TotalSearchResults ?? 0; set => App.MainForm.SearchBox.TotalSearchResults = value; }
-        public int SelectedSearchResult { get => App.MainForm?.SearchBox.CurrentSearchResult ?? 0; set => App.MainForm.SearchBox.CurrentSearchResult = value; }
+        public int SearchResultCount { get => App.MainForm?.SearchBox.TotalSearchResults ?? 0; set { App.MainForm.SearchBox.TotalSearchResults = value; App.MainForm?.SearchBox.Invalidate(); } }
+        public int SelectedSearchResult { get => App.MainForm?.SearchBox.CurrentSearchResult ?? 0; set { App.MainForm.SearchBox.CurrentSearchResult = value; App.MainForm?.SearchBox.Invalidate(); } }
         public ITab SelectedTab => TabControl.SelectedTab;
         public ITabController TabControl { get; } = new WinTabController();
         public int TemplateBoxSelectedTextLength => TabControl.SelectedTab.SelectedTranslationBoxText.Length;

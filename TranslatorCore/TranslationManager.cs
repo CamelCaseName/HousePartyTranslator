@@ -554,7 +554,25 @@ namespace Translator.Core
             UpdateCharacterCountLabel();
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
-            Search();
+            SearchUpdateSingle();
+        }
+
+        private void SearchUpdateSingle()
+        {
+            int index = TabUI.SelectedLineIndex;
+            if (Searcher.Search(SearchQuery, SelectedLine))
+            {
+                if (!TabUI.Lines.SearchResults.Contains(index))
+                    TabUI.Lines.SearchResults.Add(index);
+
+                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+                UpdateHighlightPositions(index);
+            }
+            else if (TabUI.Lines.SearchResults.Remove(index))
+            {
+                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+                DisableHighlights();
+            }
         }
 
         private void UpdateCharacterCountLabel()
@@ -642,7 +660,6 @@ namespace Translator.Core
 
                 TabUI.SetSelectedTranslationBoxText(SelectedLine.TranslationLength, SelectedLine.TranslationLength);
 
-                Search();
                 UpdateSearchAndSearchHighlight();
             }
             else
@@ -731,7 +748,6 @@ namespace Translator.Core
                     TabUI.Lines.SearchResults.Clear();
                     TabUI.Lines.SearchResults.AddRange(results!);
                     UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
-                    TabUI.UpdateSearchResultDisplay();
                     UpdateSearchAndSearchHighlight();
                     return;
                 }
@@ -746,7 +762,6 @@ namespace Translator.Core
             if (SearchNeedsCleanup)
             {
                 TabUI.Lines.SearchResults.Clear();
-                TabUI.UpdateSearchResultDisplay();
                 UpdateSearchAndSearchHighlight();
                 SearchNeedsCleanup = false;
             }
@@ -1186,67 +1201,78 @@ namespace Translator.Core
 
         private void UpdateSearchAndSearchHighlight()
         {
+            TabUI.UpdateSearchResultDisplay();
             //renew search result if possible
             int t = TabUI.Lines.SearchResults.IndexOf(TabUI.SelectedLineIndex);
             if (t >= 0)
             {
-                if (SelectedResultIndex > 0) SelectedResultIndex = t;
-                UI.SelectedSearchResult = SelectedResultIndex + 1;
+                UpdateHighlightPositions(t);
+            }
+            else
+            {
+                DisableHighlights();
+            }
+        }
 
-                int TemplateTextQueryLocation, TranslationTextQueryLocation = -1, CommentsTextQueryLocation = -1;
-                if (CaseSensitiveSearch)
-                {
-                    TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(CleanedSearchQuery);
-                    if (Settings.Default.ShowTranslationHighlight)
-                        TranslationTextQueryLocation = TabUI.TranslationBoxText.IndexOf(CleanedSearchQuery);
-                    if (Settings.Default.ShowCommentHighlight)
-                        CommentsTextQueryLocation = TabUI.CommentBoxText.IndexOf(CleanedSearchQuery);
-                }
-                else
-                {
-                    TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(CleanedSearchQuery, StringComparison.InvariantCultureIgnoreCase);
-                    if (Settings.Default.ShowTranslationHighlight)
-                        TranslationTextQueryLocation = TabUI.TranslationBoxText.IndexOf(CleanedSearchQuery, StringComparison.InvariantCultureIgnoreCase);
-                    if (Settings.Default.ShowCommentHighlight)
-                        CommentsTextQueryLocation = TabUI.CommentBoxText.IndexOf(CleanedSearchQuery, StringComparison.InvariantCultureIgnoreCase);
-                }
-                if (TemplateTextQueryLocation >= 0)
-                {
-                    TabUI.Template.HighlightStart = TemplateTextQueryLocation;
-                    TabUI.Template.HighlightEnd = TemplateTextQueryLocation + CleanedSearchQuery.Length;
-                    TabUI.Template.ShowHighlight = true;
-                }
-                else
-                {
-                    TabUI.Template.ShowHighlight = false;
-                }
+        private void DisableHighlights()
+        {
+            TabUI.Template.ShowHighlight = false;
+            TabUI.Translation.ShowHighlight = false;
+            TabUI.Comments.ShowHighlight = false;
+        }
 
-                if (TranslationTextQueryLocation >= 0)
-                {
-                    TabUI.Translation.HighlightStart = TranslationTextQueryLocation;
-                    TabUI.Translation.HighlightEnd = TranslationTextQueryLocation + CleanedSearchQuery.Length;
-                    TabUI.Translation.ShowHighlight = true;
-                }
-                else
-                {
-                    TabUI.Translation.ShowHighlight = false;
-                }
+        private void UpdateHighlightPositions(int t)
+        {
+            if (SelectedResultIndex > 0) SelectedResultIndex = t;
+            UI.SelectedSearchResult = SelectedResultIndex + 1;
 
-                if (CommentsTextQueryLocation >= 0)
-                {
-                    TabUI.Comments.HighlightStart = CommentsTextQueryLocation;
-                    TabUI.Comments.HighlightEnd = CommentsTextQueryLocation + CleanedSearchQuery.Length;
-                    TabUI.Comments.ShowHighlight = true;
-                }
-                else
-                {
-                    TabUI.Comments.ShowHighlight = false;
-                }
+            int TemplateTextQueryLocation, TranslationTextQueryLocation = -1, CommentsTextQueryLocation = -1;
+            if (CaseSensitiveSearch)
+            {
+                TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(CleanedSearchQuery);
+                if (Settings.Default.ShowTranslationHighlight)
+                    TranslationTextQueryLocation = TabUI.TranslationBoxText.IndexOf(CleanedSearchQuery);
+                if (Settings.Default.ShowCommentHighlight)
+                    CommentsTextQueryLocation = TabUI.CommentBoxText.IndexOf(CleanedSearchQuery);
+            }
+            else
+            {
+                TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(CleanedSearchQuery, StringComparison.InvariantCultureIgnoreCase);
+                if (Settings.Default.ShowTranslationHighlight)
+                    TranslationTextQueryLocation = TabUI.TranslationBoxText.IndexOf(CleanedSearchQuery, StringComparison.InvariantCultureIgnoreCase);
+                if (Settings.Default.ShowCommentHighlight)
+                    CommentsTextQueryLocation = TabUI.CommentBoxText.IndexOf(CleanedSearchQuery, StringComparison.InvariantCultureIgnoreCase);
+            }
+            if (TemplateTextQueryLocation >= 0)
+            {
+                TabUI.Template.HighlightStart = TemplateTextQueryLocation;
+                TabUI.Template.HighlightEnd = TemplateTextQueryLocation + CleanedSearchQuery.Length;
+                TabUI.Template.ShowHighlight = true;
             }
             else
             {
                 TabUI.Template.ShowHighlight = false;
+            }
+
+            if (TranslationTextQueryLocation >= 0)
+            {
+                TabUI.Translation.HighlightStart = TranslationTextQueryLocation;
+                TabUI.Translation.HighlightEnd = TranslationTextQueryLocation + CleanedSearchQuery.Length;
+                TabUI.Translation.ShowHighlight = true;
+            }
+            else
+            {
                 TabUI.Translation.ShowHighlight = false;
+            }
+
+            if (CommentsTextQueryLocation >= 0)
+            {
+                TabUI.Comments.HighlightStart = CommentsTextQueryLocation;
+                TabUI.Comments.HighlightEnd = CommentsTextQueryLocation + CleanedSearchQuery.Length;
+                TabUI.Comments.ShowHighlight = true;
+            }
+            else
+            {
                 TabUI.Comments.ShowHighlight = false;
             }
         }
