@@ -324,6 +324,7 @@ namespace Translator.Desktop.UI
                     Utils.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
                 }
             }
+            UI.ClearUserWaitCount();
         }
 
         private void ThreadExceptionHandler(object? sender, ThreadExceptionEventArgs? e)
@@ -339,6 +340,7 @@ namespace Translator.Desktop.UI
             {
                 Utils.DisplayExceptionMessage(e.Exception.Message);
             }
+            UI.ClearUserWaitCount();
         }
 
         private void CheckForPassword()

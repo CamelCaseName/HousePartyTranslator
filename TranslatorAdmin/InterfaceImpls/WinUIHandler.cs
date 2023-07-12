@@ -146,6 +146,7 @@ namespace Translator.Desktop.InterfaceImpls
 
         private void SetWaitCursor()
         {
+            if (waitCounter < 0) waitCounter = 0;
             if (waitCounter > 0 && !Application.UseWaitCursor) Application.UseWaitCursor = true;
             else if (waitCounter == 0) Application.UseWaitCursor = false;
             App.MainForm?.Invalidate();
@@ -162,6 +163,12 @@ namespace Translator.Desktop.InterfaceImpls
                     indices[iterator++] = index;
             }
             App.MainForm?.LanguageBox.DropDown.SetColoredIndices(indices[..iterator].ToArray());
+        }
+
+        internal void ClearUserWaitCount()
+        {
+            waitCounter = 0;
+            Application.UseWaitCursor = false;
         }
     }
 }
