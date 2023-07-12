@@ -39,6 +39,7 @@ namespace Translator.Core
         private string sourceFilePath = string.Empty;
         private string storyName = string.Empty;
         private bool triedFixingOnce = false;
+        private bool SearchNeedsCleanup = false;
 
         static TranslationManager()
         {
@@ -722,6 +723,7 @@ namespace Translator.Core
         {
             if (query.Length > 0)
             {
+                SearchNeedsCleanup = true;
                 if (Searcher.Search(query, TranslationData, out List<int>? results, out ReadOnlySpan<char> cleanedSpanQuery))
                 {
                     CleanedSearchQuery = cleanedSpanQuery.ToString();
@@ -740,10 +742,14 @@ namespace Translator.Core
             }
 
             UI.SearchResultCount = 0;
-            TabUI.Lines.SearchResults.Clear();
             CleanedSearchQuery = query;
-            TabUI.UpdateSearchResultDisplay();
-            UpdateSearchAndSearchHighlight();
+            if (SearchNeedsCleanup)
+            {
+                TabUI.Lines.SearchResults.Clear();
+                TabUI.UpdateSearchResultDisplay();
+                UpdateSearchAndSearchHighlight();
+                SearchNeedsCleanup = false;
+            }
         }
 
         private void AutoTranslationCallback(bool successfull, LineData data)
