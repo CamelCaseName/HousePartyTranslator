@@ -22,8 +22,8 @@ List of all hotkeys so far
 |ALT + SHIFT + S|Saves all open files||
 |CTRL + F|moves the cursor to the search box|See [Search](#Search)|
 |CTRL + R|reloads the current file in the current tab|can be used to get rid of miscoloured lines|
-|CTRL + UP|select the line above||
-|CTRL + DOWN|select the line below||
+|CTRL + UP|select the line above|can also be used to cycle through search queries when in the search box|
+|CTRL + DOWN|select the line below|can also be used to cycle through search queries when in the search box|
 |CTRL + ENTER|save line and select the one below||
 |CTRL + SHIFT + ENTER|save the line, set it as approved and move one down||
 |CTRL + E|opens the AutoStoryExplorer||
@@ -43,11 +43,21 @@ Some explanation for the settings and what they do
 |autoLoadRecent|True|load the most recently opened file on start when enabled|
 |autoLoadRecentIndex|True|loads the most recenlty selected line on start when enabled and possible|
 |autoSave|True|enable automatic saving of the last line when a new one is selected|
+|AutoSaveInterval|5 min| the interval in which the progress is automatically saved|
 |autoTranslate|True|if true, the program will try to translate the selected line if it has never before been seen|
+|ColoringDepth|3|The depth of the nodes that are colored in the StoryExplorer|
 |dbPassword||the password for the database|
+|dbUserName|user|the username for the database|
 |displayVAHints|False|set to True to enable the voice acting hints in the node info text in the StoryExplorer|
-|enableDiscordRP|True|set to False to disable the discord rich presence integration|
 |enableCustomStories|False|enables custom stories to be translated with this software|
+|enableDiscordRP|True|set to False to disable the discord rich presence integration|
+|enableStoryExplorerEdit|False|wether or not you can edit the extended info in the StoryExplorer|
+|explorerMaxEdgeCount|100000|the max number of edges displayed in the StoryExplorer|
+|exportTranslationInMissingLines|False|will add the translated string to the template when exporting missing lines|
+|highlightLanguages|True|highlights the languages a story is being worked on in the language list|
+|idealLength|120|the ideal length an edge should have in the StoryExplorer|
+|ignoreCustomStoryWarning|False|ignores the warning that your story is detected as a custom story|
+|ignoreMissingLinesWarning|False|ignores the warning that you might be missing lines which are added on saving|
 |language||the two letter short form of the language you have selected|
 |recent_index|-1|the index of the line to resume to, should not be edited!|
 |recents_0||a path to the most recent file, should not be edited!|
@@ -55,11 +65,16 @@ Some explanation for the settings and what they do
 |recents_2||a path to the third most recent file, should not be edited!|
 |recents_3||a path to the fourth most recent file, should not be edited!|
 |recents_4||a path to the fifth most recent file, should not be edited!|
+|showExtendedExplorerInfo|False|toggles the extended info in the StoryExplorer|
+|showSearchHighlightComments|False|toggles the highlighting of the search term in the comments|
+|showSearchHighlightTranslation|False|toggles the highlighting of the search term in the translation|
 |story_path||a file path to the folde rcontaining the original story character files, set when loading the first file ever into the StoryExplorer|
 |template_path|C:\\Users\\|points to the folder containing the new template files for the story, in the correct folder structure. not used in normal program behaviour|
-|translation_path|path to the last opened file, used as a reference to open the folder dialog in it's parent folder|
+|translation_path|C..\\Users\\|path to the last opened file, used as a reference to open the folder dialog in it's parent folder|
 |useFalseFolder|False|will add a "new" after the language in the game folder in order to enable development of languages already implemented in the game.|
-|version|0.22|the game's story verison currently present in the database|
+|useRainbowEdges|False|colors the edges in the StoryExplorer in a rainbow manner|
+|useRainbowNodes|False|colors the nodes in the StoryExplorer in a rainbow manner|
+|version|1.2.1|the game's story verison currently present in the database|
 
 ## Search
 Use a '?' at the beginning of your search to perform it in all tabs. 

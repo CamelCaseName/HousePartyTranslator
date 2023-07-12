@@ -9,7 +9,7 @@ namespace Translator.Desktop.Explorer
 {
     internal static class FilterUIBuilder
     {
-        internal static bool ReadOnly => !Settings.Default.EnableStoryExplorerEdit;
+        internal static bool ReadOnly => !Settings.Default.enableStoryExplorerEdit;
 
         internal static void CheckBoxSetValue(object? sender, PropertyInfo property, object data)
         {

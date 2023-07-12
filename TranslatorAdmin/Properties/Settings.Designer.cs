@@ -37,7 +37,7 @@ namespace Translator.Desktop.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1.06")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.21")]
         public string version {
             get {
                 return ((string)(this["version"]));
@@ -278,24 +278,24 @@ namespace Translator.Desktop.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool EnableCustomStories {
+        public bool enableCustomStories {
             get {
-                return ((bool)(this["EnableCustomStories"]));
+                return ((bool)(this["enableCustomStories"]));
             }
             set {
-                this["EnableCustomStories"] = value;
+                this["enableCustomStories"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("05:00:00")]
-        public global::System.TimeSpan AutoSaveInterval {
+        [global::System.Configuration.DefaultSettingValueAttribute("00:05:00")]
+        public global::System.TimeSpan autoSaveInterval {
             get {
-                return ((global::System.TimeSpan)(this["AutoSaveInterval"]));
+                return ((global::System.TimeSpan)(this["autoSaveInterval"]));
             }
             set {
-                this["AutoSaveInterval"] = value;
+                this["autoSaveInterval"] = value;
             }
         }
         
@@ -314,516 +314,516 @@ namespace Translator.Desktop.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool UpdateSettings {
+        public bool updateSettings {
             get {
-                return ((bool)(this["UpdateSettings"]));
+                return ((bool)(this["updateSettings"]));
             }
             set {
-                this["UpdateSettings"] = value;
+                this["updateSettings"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("120")]
-        public float IdealLength {
+        public float idealLength {
             get {
-                return ((float)(this["IdealLength"]));
+                return ((float)(this["idealLength"]));
             }
             set {
-                this["IdealLength"] = value;
+                this["idealLength"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("15")]
-        public int ColoringDepth {
+        [global::System.Configuration.DefaultSettingValueAttribute("3")]
+        public int coloringDepth {
             get {
-                return ((int)(this["ColoringDepth"]));
+                return ((int)(this["coloringDepth"]));
             }
             set {
-                this["ColoringDepth"] = value;
+                this["coloringDepth"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IgnoreCustomStoryWarning {
+        public bool ignoreCustomStoryWarning {
             get {
-                return ((bool)(this["IgnoreCustomStoryWarning"]));
+                return ((bool)(this["ignoreCustomStoryWarning"]));
             }
             set {
-                this["IgnoreCustomStoryWarning"] = value;
+                this["ignoreCustomStoryWarning"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("128, 255, 255")]
-        public global::System.Drawing.Color NodeItemColor {
+        public global::System.Drawing.Color nodeItemColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeItemColor"]));
+                return ((global::System.Drawing.Color)(this["nodeItemColor"]));
             }
             set {
-                this["NodeItemColor"] = value;
+                this["nodeItemColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0, 192, 192")]
-        public global::System.Drawing.Color NodeItemGroupColor {
+        public global::System.Drawing.Color nodeItemGroupColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeItemGroupColor"]));
+                return ((global::System.Drawing.Color)(this["nodeItemGroupColor"]));
             }
             set {
-                this["NodeItemGroupColor"] = value;
+                this["nodeItemGroupColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("255, 128, 0")]
-        public global::System.Drawing.Color NodeActionColor {
+        public global::System.Drawing.Color nodeActionColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeActionColor"]));
+                return ((global::System.Drawing.Color)(this["nodeActionColor"]));
             }
             set {
-                this["NodeActionColor"] = value;
+                this["nodeActionColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("255, 255, 128")]
-        public global::System.Drawing.Color NodeEventColor {
+        public global::System.Drawing.Color nodeEventColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeEventColor"]));
+                return ((global::System.Drawing.Color)(this["nodeEventColor"]));
             }
             set {
-                this["NodeEventColor"] = value;
+                this["nodeEventColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Fuchsia")]
-        public global::System.Drawing.Color NodeCriterionColor {
+        public global::System.Drawing.Color nodeCriterionColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeCriterionColor"]));
+                return ((global::System.Drawing.Color)(this["nodeCriterionColor"]));
             }
             set {
-                this["NodeCriterionColor"] = value;
+                this["nodeCriterionColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("128, 128, 255")]
-        public global::System.Drawing.Color NodeResponseColor {
+        public global::System.Drawing.Color nodeResponseColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeResponseColor"]));
+                return ((global::System.Drawing.Color)(this["nodeResponseColor"]));
             }
             set {
-                this["NodeResponseColor"] = value;
+                this["nodeResponseColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Blue")]
-        public global::System.Drawing.Color NodeDialogueColor {
+        public global::System.Drawing.Color nodeDialogueColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeDialogueColor"]));
+                return ((global::System.Drawing.Color)(this["nodeDialogueColor"]));
             }
             set {
-                this["NodeDialogueColor"] = value;
+                this["nodeDialogueColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("255, 192, 255")]
-        public global::System.Drawing.Color NodeDialogueFemaleOnlyColor {
+        public global::System.Drawing.Color nodeDialogueFemaleOnlyColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeDialogueFemaleOnlyColor"]));
+                return ((global::System.Drawing.Color)(this["nodeDialogueFemaleOnlyColor"]));
             }
             set {
-                this["NodeDialogueFemaleOnlyColor"] = value;
+                this["nodeDialogueFemaleOnlyColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("192, 192, 255")]
-        public global::System.Drawing.Color NodeDialogueMaleOnlyColor {
+        public global::System.Drawing.Color nodeDialogueMaleOnlyColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeDialogueMaleOnlyColor"]));
+                return ((global::System.Drawing.Color)(this["nodeDialogueMaleOnlyColor"]));
             }
             set {
-                this["NodeDialogueMaleOnlyColor"] = value;
+                this["nodeDialogueMaleOnlyColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("192, 0, 192")]
-        public global::System.Drawing.Color NodeQuestColor {
+        public global::System.Drawing.Color nodeQuestColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeQuestColor"]));
+                return ((global::System.Drawing.Color)(this["nodeQuestColor"]));
             }
             set {
-                this["NodeQuestColor"] = value;
+                this["nodeQuestColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("255, 224, 192")]
-        public global::System.Drawing.Color NodeReactionColor {
+        public global::System.Drawing.Color nodeReactionColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeReactionColor"]));
+                return ((global::System.Drawing.Color)(this["nodeReactionColor"]));
             }
             set {
-                this["NodeReactionColor"] = value;
+                this["nodeReactionColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Cyan")]
-        public global::System.Drawing.Color NodeAchievementColor {
+        public global::System.Drawing.Color nodeAchievementColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeAchievementColor"]));
+                return ((global::System.Drawing.Color)(this["nodeAchievementColor"]));
             }
             set {
-                this["NodeAchievementColor"] = value;
+                this["nodeAchievementColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0, 0, 192")]
-        public global::System.Drawing.Color NodeBGCColor {
+        public global::System.Drawing.Color nodeBGCColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeBGCColor"]));
+                return ((global::System.Drawing.Color)(this["nodeBGCColor"]));
             }
             set {
-                this["NodeBGCColor"] = value;
+                this["nodeBGCColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Purple")]
-        public global::System.Drawing.Color NodeValueColor {
+        public global::System.Drawing.Color nodeValueColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeValueColor"]));
+                return ((global::System.Drawing.Color)(this["nodeValueColor"]));
             }
             set {
-                this["NodeValueColor"] = value;
+                this["nodeValueColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Maroon")]
-        public global::System.Drawing.Color NodeDoorColor {
+        public global::System.Drawing.Color nodeDoorColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeDoorColor"]));
+                return ((global::System.Drawing.Color)(this["nodeDoorColor"]));
             }
             set {
-                this["NodeDoorColor"] = value;
+                this["nodeDoorColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("192, 192, 0")]
-        public global::System.Drawing.Color NodeInventoryColor {
+        public global::System.Drawing.Color nodeInventoryColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeInventoryColor"]));
+                return ((global::System.Drawing.Color)(this["nodeInventoryColor"]));
             }
             set {
-                this["NodeInventoryColor"] = value;
+                this["nodeInventoryColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Green")]
-        public global::System.Drawing.Color NodeStateColor {
+        public global::System.Drawing.Color nodeStateColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeStateColor"]));
+                return ((global::System.Drawing.Color)(this["nodeStateColor"]));
             }
             set {
-                this["NodeStateColor"] = value;
+                this["nodeStateColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("192, 0, 192")]
-        public global::System.Drawing.Color NodePersonalityColor {
+        public global::System.Drawing.Color nodePersonalityColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodePersonalityColor"]));
+                return ((global::System.Drawing.Color)(this["nodePersonalityColor"]));
             }
             set {
-                this["NodePersonalityColor"] = value;
+                this["nodePersonalityColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("255, 192, 192")]
-        public global::System.Drawing.Color NodeCutsceneColor {
+        public global::System.Drawing.Color nodeCutsceneColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeCutsceneColor"]));
+                return ((global::System.Drawing.Color)(this["nodeCutsceneColor"]));
             }
             set {
-                this["NodeCutsceneColor"] = value;
+                this["nodeCutsceneColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("192, 255, 192")]
-        public global::System.Drawing.Color NodeClothingColor {
+        public global::System.Drawing.Color nodeClothingColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeClothingColor"]));
+                return ((global::System.Drawing.Color)(this["nodeClothingColor"]));
             }
             set {
-                this["NodeClothingColor"] = value;
+                this["nodeClothingColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("192, 255, 255")]
-        public global::System.Drawing.Color NodeCriteriaGroupColor {
+        public global::System.Drawing.Color nodeCriteriaGroupColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeCriteriaGroupColor"]));
+                return ((global::System.Drawing.Color)(this["nodeCriteriaGroupColor"]));
             }
             set {
-                this["NodeCriteriaGroupColor"] = value;
+                this["nodeCriteriaGroupColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("255, 128, 128")]
-        public global::System.Drawing.Color NodePoseColor {
+        public global::System.Drawing.Color nodePoseColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodePoseColor"]));
+                return ((global::System.Drawing.Color)(this["nodePoseColor"]));
             }
             set {
-                this["NodePoseColor"] = value;
+                this["nodePoseColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Yellow")]
-        public global::System.Drawing.Color NodePropertyColor {
+        public global::System.Drawing.Color nodePropertyColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodePropertyColor"]));
+                return ((global::System.Drawing.Color)(this["nodePropertyColor"]));
             }
             set {
-                this["NodePropertyColor"] = value;
+                this["nodePropertyColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Lime")]
-        public global::System.Drawing.Color NodeSocialColor {
+        public global::System.Drawing.Color nodeSocialColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeSocialColor"]));
+                return ((global::System.Drawing.Color)(this["nodeSocialColor"]));
             }
             set {
-                this["NodeSocialColor"] = value;
+                this["nodeSocialColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool UseRainbowEdges {
+        public bool useRainbowEdges {
             get {
-                return ((bool)(this["UseRainbowEdges"]));
+                return ((bool)(this["useRainbowEdges"]));
             }
             set {
-                this["UseRainbowEdges"] = value;
+                this["useRainbowEdges"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("224, 224, 224")]
-        public global::System.Drawing.Color NodeMovingColor {
+        public global::System.Drawing.Color nodeMovingColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeMovingColor"]));
+                return ((global::System.Drawing.Color)(this["nodeMovingColor"]));
             }
             set {
-                this["NodeMovingColor"] = value;
+                this["nodeMovingColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Red")]
-        public global::System.Drawing.Color NodeInfoColor {
+        public global::System.Drawing.Color nodeInfoColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeInfoColor"]));
+                return ((global::System.Drawing.Color)(this["nodeInfoColor"]));
             }
             set {
-                this["NodeInfoColor"] = value;
+                this["nodeInfoColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("White")]
-        public global::System.Drawing.Color NodeSelectedColor {
+        public global::System.Drawing.Color nodeSelectedColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeSelectedColor"]));
+                return ((global::System.Drawing.Color)(this["nodeSelectedColor"]));
             }
             set {
-                this["NodeSelectedColor"] = value;
+                this["nodeSelectedColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Silver")]
-        public global::System.Drawing.Color NodeDefaultColor {
+        public global::System.Drawing.Color nodeDefaultColor {
             get {
-                return ((global::System.Drawing.Color)(this["NodeDefaultColor"]));
+                return ((global::System.Drawing.Color)(this["nodeDefaultColor"]));
             }
             set {
-                this["NodeDefaultColor"] = value;
+                this["nodeDefaultColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("64, 64, 64")]
-        public global::System.Drawing.Color EdgeDefaultColor {
+        public global::System.Drawing.Color edgeDefaultColor {
             get {
-                return ((global::System.Drawing.Color)(this["EdgeDefaultColor"]));
+                return ((global::System.Drawing.Color)(this["edgeDefaultColor"]));
             }
             set {
-                this["EdgeDefaultColor"] = value;
+                this["edgeDefaultColor"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool UseRainbowNodes {
+        public bool useRainbowNodes {
             get {
-                return ((bool)(this["UseRainbowNodes"]));
+                return ((bool)(this["useRainbowNodes"]));
             }
             set {
-                this["UseRainbowNodes"] = value;
+                this["useRainbowNodes"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool EnableStoryExplorerEdit {
+        public bool enableStoryExplorerEdit {
             get {
-                return ((bool)(this["EnableStoryExplorerEdit"]));
+                return ((bool)(this["enableStoryExplorerEdit"]));
             }
             set {
-                this["EnableStoryExplorerEdit"] = value;
+                this["enableStoryExplorerEdit"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("100000")]
-        public int ExplorerMaxEdgeCount {
+        public int explorerMaxEdgeCount {
             get {
-                return ((int)(this["ExplorerMaxEdgeCount"]));
+                return ((int)(this["explorerMaxEdgeCount"]));
             }
             set {
-                this["ExplorerMaxEdgeCount"] = value;
+                this["explorerMaxEdgeCount"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ShowExtendedExplorerInfo {
+        public bool showExtendedExplorerInfo {
             get {
-                return ((bool)(this["ShowExtendedExplorerInfo"]));
+                return ((bool)(this["showExtendedExplorerInfo"]));
             }
             set {
-                this["ShowExtendedExplorerInfo"] = value;
+                this["showExtendedExplorerInfo"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool IgnoreMissingLinesWarning {
+        public bool ignoreMissingLinesWarning {
             get {
-                return ((bool)(this["IgnoreMissingLinesWarning"]));
+                return ((bool)(this["ignoreMissingLinesWarning"]));
             }
             set {
-                this["IgnoreMissingLinesWarning"] = value;
+                this["ignoreMissingLinesWarning"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool ShowSearchHighlightTranslation {
+        public bool showSearchHighlightTranslation {
             get {
-                return ((bool)(this["ShowSearchHighlightTranslation"]));
+                return ((bool)(this["showSearchHighlightTranslation"]));
             }
             set {
-                this["ShowSearchHighlightTranslation"] = value;
+                this["showSearchHighlightTranslation"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ShowSearchHighlightComments {
+        public bool showSearchHighlightComments {
             get {
-                return ((bool)(this["ShowSearchHighlightComments"]));
+                return ((bool)(this["showSearchHighlightComments"]));
             }
             set {
-                this["ShowSearchHighlightComments"] = value;
+                this["showSearchHighlightComments"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool HighlightLanguages {
+        public bool highlightLanguages {
             get {
-                return ((bool)(this["HighlightLanguages"]));
+                return ((bool)(this["highlightLanguages"]));
             }
             set {
-                this["HighlightLanguages"] = value;
+                this["highlightLanguages"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool ExportTranslationWithMissingLines {
+        public bool exportTranslationInMissingLines {
             get {
-                return ((bool)(this["ExportTranslationWithMissingLines"]));
+                return ((bool)(this["exportTranslationInMissingLines"]));
             }
             set {
-                this["ExportTranslationWithMissingLines"] = value;
+                this["exportTranslationInMissingLines"] = value;
             }
         }
     }

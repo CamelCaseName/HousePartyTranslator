@@ -20,7 +20,7 @@ namespace Translator.Desktop.InterfaceImpls
             set { }
         }
         public static bool EnableDiscordRP { get => Settings.Default.enableDiscordRP; set => Settings.Default.enableDiscordRP = value; }
-        public bool AllowCustomStories { get => Settings.Default.EnableCustomStories; set => Settings.Default.EnableCustomStories = value; }
+        public bool AllowCustomStories { get => Settings.Default.enableCustomStories; set => Settings.Default.enableCustomStories = value; }
         public bool AlsoSaveToGame { get => Settings.Default.alsoSaveToGame; set => Settings.Default.alsoSaveToGame = value; }
         public bool AskForSaveDialog { get => Settings.Default.askForSaveDialog; set => Settings.Default.askForSaveDialog = value; }
         public bool AutoLoadRecent { get => Settings.Default.autoLoadRecent; set => Settings.Default.autoLoadRecent = value; }
@@ -75,7 +75,7 @@ namespace Translator.Desktop.InterfaceImpls
         public static Color StateNodeColor { get => Settings.Default.NodeStateColor; set => Settings.Default.NodeStateColor = value; }
         public static Color ValueNodeColor { get => Settings.Default.NodeValueColor; set => Settings.Default.NodeValueColor = value; }
         public static Color DefaultNodeColor { get => Settings.Default.NodeDefaultColor; set => Settings.Default.NodeDefaultColor = value; }
-        public static Color DefaultEdgeColor { get => Settings.Default.EdgeDefaultColor; set => Settings.Default.EdgeDefaultColor = value; }
+        public static Color DefaultEdgeColor { get => Settings.Default.edgeDefaultColor; set => Settings.Default.edgeDefaultColor = value; }
         public static bool UseRainbowEdgeColors { get => Settings.Default.UseRainbowEdges; set => Settings.Default.UseRainbowEdges = value; }
         public static bool UseRainbowNodeColors { get => Settings.Default.UseRainbowNodes; set => Settings.Default.UseRainbowNodes = value; }
         public static bool EnableStoryExplorerEdit { get => Settings.Default.EnableStoryExplorerEdit; set => Settings.Default.EnableStoryExplorerEdit = value; }
