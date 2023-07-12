@@ -225,8 +225,6 @@ namespace Translator.Core.Helpers
             }
 
             string maybeStoryName = paths[^2];
-            if (!paths[^1].Contains('.')) //if we already got a folder in path we can use the last element
-                return paths[^1];
 
             //check if we are in the games documents
             if (string.Compare(maybeStoryName, languageAsText, true, CultureInfo.InvariantCulture) == 0 ||

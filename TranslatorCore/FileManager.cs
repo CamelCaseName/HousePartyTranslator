@@ -310,8 +310,7 @@ namespace Translator.Core
                     {
                         if (templates.Count > 0 && SaveOnline)
                         {
-                            _ = DataBase.RemoveOldTemplates(file, story);
-                            _ = DataBase.UploadTemplates(templates);
+                            _ = DataBase.UpdateTemplates(templates);
                         }
                         else if (SaveOnline)
                         {
@@ -360,8 +359,7 @@ namespace Translator.Core
                 {
                     if (templates.Count > 0 && SaveOnline)
                     {
-                        _ = DataBase.RemoveOldTemplates(file, story);
-                        _ = DataBase.UploadTemplates(templates);
+                        _ = DataBase.UpdateTemplates(templates);
                     }
                     else if (SaveOnline)
                     {
@@ -558,13 +556,7 @@ namespace Translator.Core
                     templates = GetTemplateFromFile(file_path, story, file, false);
                     if (templates.Count > 0)
                     {
-                        if (!DataBase.RemoveOldTemplates(file, story))
-                        {
-                            _ = TabManager.UI.ErrorOk("New official templates were not removed, please try again.");
-                            TabManager.UI.SignalUserEndWait();
-                            return;
-                        }
-                        if (!DataBase.UploadTemplates(templates))
+                        if (!DataBase.UpdateTemplates(templates))
                         {
                             _ = TabManager.UI.ErrorOk("New official templates were not uploaded, please try again.");
                             TabManager.UI.SignalUserEndWait();

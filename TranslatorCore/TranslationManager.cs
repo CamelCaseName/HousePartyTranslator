@@ -893,8 +893,7 @@ namespace Translator.Core
                         if (UI.CreateTemplateFromStory(story, fileName, SourceFilePath, out FileData templates))
                             if (templates.Count > 0)
                             {
-                                _ = DataBase.RemoveOldTemplates(FileName, story);
-                                _ = DataBase.UploadTemplates(templates);
+                                _ = DataBase.UpdateTemplates(templates);
 
                                 UI.SignalUserEndWait();
                                 return true;
