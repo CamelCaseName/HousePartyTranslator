@@ -51,6 +51,7 @@ namespace Translator.Core.UICompatibilityLayer
         public bool IgnoreMissingLinesWarning { get; set; }
         public bool HighlightLanguages { get; set; }
         public bool ExportTranslatedWithMissingLines { get; set; }
+        bool ExportTemplateDiff { get; set; }
 
         public void Save();
     }

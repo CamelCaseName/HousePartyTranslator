@@ -827,24 +827,31 @@ namespace Translator.Core
             //Save old template
             _ = GetAllLineDataTemplate(templates.FileName, templates.StoryName, out var oldTemplates);
 
-            var result = DataBase.RemoveOldTemplates(templates.FileName, templates.StoryName);
+            var result = RemoveOldTemplates(templates.FileName, templates.StoryName);
 
             //upload new
             UploadAllTemplates(templates, cmd);
 
             //generate "diff" and unapprove templates where the template changed
             List<string> idsToUnapprove = new();
+            FileData diff = new(templates.StoryName, templates.FileName);
             foreach (var newTemplate in templates)
             {
                 if (!oldTemplates.TryGetValue(newTemplate.Key, out var oldTemplateLine))
+                {
+                    diff.Add(newTemplate.Key, newTemplate.Value);
                     continue;
+                }
 
                 if (oldTemplateLine.TemplateString != newTemplate.Value.TemplateString)
                 {
+                    diff.Add(newTemplate.Key, newTemplate.Value);
                     idsToUnapprove.Add(oldTemplateLine.ID);
                 }
             }
             if (idsToUnapprove.Count == 0) return result;
+
+            FileManager.SaveTemplateDiff(diff);
 
             int x = 0;
             var command = new StringBuilder(UPDATE
