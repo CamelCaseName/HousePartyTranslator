@@ -158,29 +158,18 @@ namespace Translator.Core
         public static bool GetAllLineData(string fileName, string story, out FileData LineDataList, string language)
         {
             bool wasSuccessfull = false;
-            string command;
-            if (story == "Hints")
-            {
-                command = "SELECT *"
-                    + FROM
-                    + " WHERE story = @story AND filename = @filename AND deleted = 0"
-                    + " ORDER BY category ASC;";
-            }
-            else
-            {
-                command = "SELECT *"
+            string command = "SELECT *"
                     + FROM
                     + " WHERE filename = @filename AND story = @story AND language = @language AND deleted = 0"
                     + " ORDER BY category ASC;";
-            }
+
             using MySqlConnection connection = new(GetConnString());
             if (connection.State != System.Data.ConnectionState.Open) connection.Open();
             using MySqlCommand cmd = connection.CreateCommand();
             cmd.CommandText = command;
             cmd.Parameters.Clear();
 
-            if (story != "Hints")
-                _ = cmd.Parameters.AddWithValue("@language", language);
+            _ = cmd.Parameters.AddWithValue("@language", language);
             _ = cmd.Parameters.AddWithValue("@filename", fileName);
             _ = cmd.Parameters.AddWithValue("@story", story);
 

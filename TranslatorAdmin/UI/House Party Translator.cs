@@ -324,6 +324,7 @@ namespace Translator.Desktop.UI
                     Utils.DisplayExceptionMessage(e.ExceptionObject.ToString() ?? "ExceptionObject is null");
                 }
             }
+            UI.ClearUserWaitCount();
         }
 
         private void ThreadExceptionHandler(object? sender, ThreadExceptionEventArgs? e)
@@ -339,6 +340,7 @@ namespace Translator.Desktop.UI
             {
                 Utils.DisplayExceptionMessage(e.Exception.Message);
             }
+            UI.ClearUserWaitCount();
         }
 
         private void CheckForPassword()
@@ -398,7 +400,7 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(ExportMissingLinesCurrentFile),
                 Size = new Size(236, 22),
-                Text = "Export missing lines from the current file",
+                Text = "E&xport missing lines from the current file",
                 ToolTipText = "Exports all missing lines for the currently opened and selected file into a new file"
             };
             ExportMissingLinesCurrentFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ExportMissinglinesForCurrentFile();
