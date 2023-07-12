@@ -826,5 +826,17 @@ namespace Translator.Desktop.Properties {
                 this["exportTranslationInMissingLines"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool exportTemplateDiff {
+            get {
+                return ((bool)(this["exportTemplateDiff"]));
+            }
+            set {
+                this["exportTemplateDiff"] = value;
+            }
+        }
     }
 }
