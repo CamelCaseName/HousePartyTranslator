@@ -82,7 +82,6 @@ namespace Translator.Desktop.UI.Components
             // TranslationTextBox
             // 
             TranslationTextBox.AcceptsReturn = true;
-            TranslationTextBox.AllowDrop = true;
             TranslationTextBox.AutoCompleteMode = AutoCompleteMode.Suggest;
             TranslationTextBox.BackColor = Utils.background;
             TranslationTextBox.Dock = DockStyle.Fill;

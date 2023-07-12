@@ -6,7 +6,7 @@
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="version" Type="System.String" Scope="User">
-      <Value Profile="(Default)">1.06</Value>
+      <Value Profile="(Default)">1.21</Value>
     </Setting>
     <Setting Name="language" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
@@ -65,142 +65,142 @@
     <Setting Name="enableDiscordRP" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="EnableCustomStories" Type="System.Boolean" Scope="User">
+    <Setting Name="enableCustomStories" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="AutoSaveInterval" Type="System.TimeSpan" Scope="User">
-      <Value Profile="(Default)">05:00:00</Value>
+    <Setting Name="autoSaveInterval" Type="System.TimeSpan" Scope="User">
+      <Value Profile="(Default)">00:05:00</Value>
     </Setting>
     <Setting Name="dbUserName" Type="System.String" Scope="User">
       <Value Profile="(Default)">user</Value>
     </Setting>
-    <Setting Name="UpdateSettings" Type="System.Boolean" Scope="User">
+    <Setting Name="updateSettings" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="IdealLength" Type="System.Single" Scope="User">
+    <Setting Name="idealLength" Type="System.Single" Scope="User">
       <Value Profile="(Default)">120</Value>
     </Setting>
-    <Setting Name="ColoringDepth" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">15</Value>
+    <Setting Name="coloringDepth" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">3</Value>
     </Setting>
-    <Setting Name="IgnoreCustomStoryWarning" Type="System.Boolean" Scope="User">
+    <Setting Name="ignoreCustomStoryWarning" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="NodeItemColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeItemColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">128, 255, 255</Value>
     </Setting>
-    <Setting Name="NodeItemGroupColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeItemGroupColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">0, 192, 192</Value>
     </Setting>
-    <Setting Name="NodeActionColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeActionColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">255, 128, 0</Value>
     </Setting>
-    <Setting Name="NodeEventColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeEventColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">255, 255, 128</Value>
     </Setting>
-    <Setting Name="NodeCriterionColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeCriterionColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Fuchsia</Value>
     </Setting>
-    <Setting Name="NodeResponseColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeResponseColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">128, 128, 255</Value>
     </Setting>
-    <Setting Name="NodeDialogueColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeDialogueColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Blue</Value>
     </Setting>
-    <Setting Name="NodeDialogueFemaleOnlyColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeDialogueFemaleOnlyColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">255, 192, 255</Value>
     </Setting>
-    <Setting Name="NodeDialogueMaleOnlyColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeDialogueMaleOnlyColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">192, 192, 255</Value>
     </Setting>
-    <Setting Name="NodeQuestColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeQuestColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">192, 0, 192</Value>
     </Setting>
-    <Setting Name="NodeReactionColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeReactionColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">255, 224, 192</Value>
     </Setting>
-    <Setting Name="NodeAchievementColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeAchievementColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Cyan</Value>
     </Setting>
-    <Setting Name="NodeBGCColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeBGCColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">0, 0, 192</Value>
     </Setting>
-    <Setting Name="NodeValueColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeValueColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Purple</Value>
     </Setting>
-    <Setting Name="NodeDoorColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeDoorColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Maroon</Value>
     </Setting>
-    <Setting Name="NodeInventoryColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeInventoryColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">192, 192, 0</Value>
     </Setting>
-    <Setting Name="NodeStateColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeStateColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Green</Value>
     </Setting>
-    <Setting Name="NodePersonalityColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodePersonalityColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">192, 0, 192</Value>
     </Setting>
-    <Setting Name="NodeCutsceneColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeCutsceneColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">255, 192, 192</Value>
     </Setting>
-    <Setting Name="NodeClothingColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeClothingColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">192, 255, 192</Value>
     </Setting>
-    <Setting Name="NodeCriteriaGroupColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeCriteriaGroupColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">192, 255, 255</Value>
     </Setting>
-    <Setting Name="NodePoseColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodePoseColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">255, 128, 128</Value>
     </Setting>
-    <Setting Name="NodePropertyColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodePropertyColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Yellow</Value>
     </Setting>
-    <Setting Name="NodeSocialColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeSocialColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Lime</Value>
     </Setting>
-    <Setting Name="UseRainbowEdges" Type="System.Boolean" Scope="User">
+    <Setting Name="useRainbowEdges" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="NodeMovingColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeMovingColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">224, 224, 224</Value>
     </Setting>
-    <Setting Name="NodeInfoColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeInfoColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Red</Value>
     </Setting>
-    <Setting Name="NodeSelectedColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeSelectedColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">White</Value>
     </Setting>
-    <Setting Name="NodeDefaultColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="nodeDefaultColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">Silver</Value>
     </Setting>
-    <Setting Name="EdgeDefaultColor" Type="System.Drawing.Color" Scope="User">
+    <Setting Name="edgeDefaultColor" Type="System.Drawing.Color" Scope="User">
       <Value Profile="(Default)">64, 64, 64</Value>
     </Setting>
-    <Setting Name="UseRainbowNodes" Type="System.Boolean" Scope="User">
+    <Setting Name="useRainbowNodes" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="EnableStoryExplorerEdit" Type="System.Boolean" Scope="User">
+    <Setting Name="enableStoryExplorerEdit" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="ExplorerMaxEdgeCount" Type="System.Int32" Scope="User">
+    <Setting Name="explorerMaxEdgeCount" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">100000</Value>
     </Setting>
-    <Setting Name="ShowExtendedExplorerInfo" Type="System.Boolean" Scope="User">
+    <Setting Name="showExtendedExplorerInfo" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="IgnoreMissingLinesWarning" Type="System.Boolean" Scope="User">
+    <Setting Name="ignoreMissingLinesWarning" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="ShowSearchHighlightTranslation" Type="System.Boolean" Scope="User">
+    <Setting Name="showSearchHighlightTranslation" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="ShowSearchHighlightComments" Type="System.Boolean" Scope="User">
+    <Setting Name="showSearchHighlightComments" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="HighlightLanguages" Type="System.Boolean" Scope="User">
+    <Setting Name="highlightLanguages" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="ExportTranslationInMissingLines" Type="System.Boolean" Scope="User">
+    <Setting Name="exportTranslationInMissingLines" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>

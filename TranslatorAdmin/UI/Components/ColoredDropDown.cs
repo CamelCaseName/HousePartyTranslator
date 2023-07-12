@@ -77,7 +77,8 @@ namespace Translator.Desktop.UI.Components
                     e.Graphics.FillRectangle(BackgroundBrush, e.Bounds);
                 }
             }
-            TextRenderer.DrawText(e.Graphics, Items[e.Index].ToString(), Font, new Rectangle(e.Bounds.X + 1, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height), Utils.darkText, TextFormatFlags.Left);
+            if (e.Index > -1)
+                TextRenderer.DrawText(e.Graphics, Items[e.Index].ToString(), Font, new Rectangle(e.Bounds.X + 1, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height), Utils.darkText, TextFormatFlags.Left);
         }
 
         protected override void OnPaint(PaintEventArgs e)

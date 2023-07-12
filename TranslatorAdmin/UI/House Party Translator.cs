@@ -883,6 +883,7 @@ namespace Translator.Desktop.UI
             TabControl.MouseClick += new MouseEventHandler(CloseTab_Click);
 
             // Fenster
+            AllowDrop = true;
             AutoScaleDimensions = new SizeF(6F, 13F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = backgroundDarker;
@@ -907,6 +908,41 @@ namespace Translator.Desktop.UI
             TabControl.ResumeLayout(false);
             ResumeLayout();
             PerformLayout();
+        }
+
+        protected override void OnDragDrop(DragEventArgs drgevent)
+        {
+            if (drgevent.Data == null) return;
+            if (drgevent.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] files = (string[]?)drgevent.Data.GetData(DataFormats.FileDrop) ?? Array.Empty<string>();
+                foreach (string filePath in files)
+                {
+                    TabManager.OpenInNewTab(filePath);
+                }
+            }
+            else if (drgevent.Data.GetDataPresent(DataFormats.OemText)
+                || drgevent.Data.GetDataPresent(DataFormats.Text)
+                || drgevent.Data.GetDataPresent(DataFormats.UnicodeText))
+
+            {
+                string? str = (string?)drgevent.Data.GetData(DataFormats.UnicodeText, true);
+                if (string.IsNullOrEmpty(str)) return;
+
+                TabControl.SelectedTab.Translation.Text += str;
+            }
+        }
+
+        protected override void OnDragEnter(DragEventArgs e)
+        {
+            if (e.Data == null) return;
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)
+                || e.Data.GetDataPresent(DataFormats.UnicodeText)
+                || e.Data.GetDataPresent(DataFormats.OemText)
+                || e.Data.GetDataPresent(DataFormats.Text))
+                e.Effect = DragDropEffects.All;
+            else
+                e.Effect = DragDropEffects.None;
         }
 
         private void MainTabControl_SelectedIndexChanged(object? sender, EventArgs? e)
