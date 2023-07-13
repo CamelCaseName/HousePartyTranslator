@@ -41,6 +41,8 @@ namespace Translator.Core.DefaultImpls
 
         public bool ExportTranslatedWithMissingLines { get => false; set { } }
 
+        public bool ExportTemplateDiff { get => false; set { } }
+
         public void Save() { }
     }
 }

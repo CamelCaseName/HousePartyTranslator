@@ -251,14 +251,17 @@ namespace Translator.Desktop.UI
 
         private void CloseTab_Click(object? sender, MouseEventArgs? e)
         {
-            if (e?.Button == MouseButtons.Right)
+            if (sender is WinTabController tabController)
             {
-                for (int i = 0; i < TabControl.TabCount; i++)
+                if (e?.Button == MouseButtons.Right)
                 {
-                    if (TabControl.GetTabRect(i).Contains(e.Location))
+                    for (int i = 0; i < TabControl.TabCount; i++)
                     {
-                        TabManager.CloseTab(((WinTabController?)sender)?.TabPages[i] ?? (WinTab)new object());
-                        return;
+                        if (TabControl.GetTabRect(i).Contains(e.Location))
+                        {
+                            TabManager.CloseTab(tabController.TabPages[i]);
+                            return;
+                        }
                     }
                 }
             }

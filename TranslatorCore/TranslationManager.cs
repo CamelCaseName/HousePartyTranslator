@@ -320,7 +320,7 @@ namespace Translator.Core
                 UI.SignalUserEndWait();
                 return;
             }
-            if (doOnlineUpdate) _ = Task.Run(RemoteUpdate);
+            if (doOnlineUpdate) _ = Task.Run(RemoteUpdate).ContinueWith(RemoteUpdateExceptionHandler(), TaskContinuationOptions.OnlyOnFaulted);
 
             List<CategorizedLines> CategorizedStrings = FileManager.InitializeCategories(StoryName, FileName);
 
@@ -348,6 +348,20 @@ namespace Translator.Core
                 if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
                 else LogManager.Log("Successfully saved the file remotely");
                 UI.SignalUserEndWait();
+            }
+
+            static Action<Task> RemoteUpdateExceptionHandler()
+            {
+                return faultedTask =>
+                {
+                    if (faultedTask.Exception == null) return;
+                    LogManager.Log(faultedTask.Exception.Message);
+                    foreach (var exception in faultedTask.Exception.InnerExceptions)
+                    {
+                        LogManager.Log(exception.Message);
+                        LogManager.Log("    " + exception.StackTrace);
+                    }
+                };
             }
         }
 
@@ -893,8 +907,7 @@ namespace Translator.Core
                         if (UI.CreateTemplateFromStory(story, fileName, SourceFilePath, out FileData templates))
                             if (templates.Count > 0)
                             {
-                                _ = DataBase.RemoveOldTemplates(FileName, story);
-                                _ = DataBase.UploadTemplates(templates);
+                                _ = DataBase.UpdateTemplates(templates);
 
                                 UI.SignalUserEndWait();
                                 return true;

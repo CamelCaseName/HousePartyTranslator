@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
@@ -213,7 +214,7 @@ namespace Translator.Core
                 }
                 else
                 {
-                    _ = UI!.WarningOk("No lines approved so far", "Potential issue");
+                    _ = UI!.WarningOk("No templates approved so far", "Potential issue");
                 }
                 reader.Close();
             }
@@ -707,7 +708,7 @@ namespace Translator.Core
         /// <summary>
         /// Sets the translation of a string in the database in the given story.
         /// </summary>
-        /// <param name="lineData">LineData with the lines to update<param>
+        /// <param name="lineData">LineData with the templates to update<param>
         /// <param name="language">The language of the translation in ISO 639-1 notation.</param>
         /// <returns> True if at least one row was set, false if it was not the case.</returns>
         public static bool UpdateTranslation(LineData lineData, string language)
@@ -742,7 +743,7 @@ namespace Translator.Core
         /// <summary>
         /// Updates all translated strings for the selected file
         /// </summary>
-        /// <param name="translationData">A list of all loaded lines for this file</param>
+        /// <param name="translationData">A list of all loaded templates for this file</param>
         /// <param name="language">The language of the translation in ISO 639-1 notation.</param>
         /// <returns></returns>
         public static bool UpdateTranslations(FileData translationData, string language)
@@ -777,33 +778,40 @@ namespace Translator.Core
                     cmd.CommandText = builder.ToString() + (" ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved), story = VALUES(story), category = VALUES(category), filename = VALUES(filename)");
                     cmd.Parameters.Clear();
 
-                    //insert all the parameters
-                    for (int k = 0; k < 400; k++)
+                    if (c < updateData.Count)
                     {
-                        LineData item = updateData.Values.ElementAt(c);
-                        string comment = string.Empty;
-                        for (int j = 0; j < item.Comments?.Length; j++)
+                        //insert all the parameters
+                        for (int k = 0; k < 400; k++)
                         {
-                            if (item.Comments[j].Length > 1)
-                                comment += item.Comments[j] + "#";
+                            LineData item = updateData.Values.ElementAt(c);
+                            string comment = string.Empty;
+                            for (int j = 0; j < item.Comments?.Length; j++)
+                            {
+                                if (item.Comments[j].Length > 1)
+                                    comment += item.Comments[j] + "#";
+                            }
+
+                            _ = cmd.Parameters.AddWithValue($"@id{c}", storyName + fileName + item.ID + language);
+                            _ = cmd.Parameters.AddWithValue($"@story{c}", storyName);
+                            _ = cmd.Parameters.AddWithValue($"@filename{c}", fileName);
+                            _ = cmd.Parameters.AddWithValue($"@category{c}", (int)item.Category);
+                            _ = cmd.Parameters.AddWithValue($"@translated{c}", 1);
+                            _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
+                            _ = cmd.Parameters.AddWithValue($"@language{c}", language);
+                            _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
+                            _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
+                            _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
+                            ++c;
+                            if (c >= updateData.Count)
+                                break;
                         }
 
-                        _ = cmd.Parameters.AddWithValue($"@id{c}", storyName + fileName + item.ID + language);
-                        _ = cmd.Parameters.AddWithValue($"@story{c}", storyName);
-                        _ = cmd.Parameters.AddWithValue($"@filename{c}", fileName);
-                        _ = cmd.Parameters.AddWithValue($"@category{c}", (int)item.Category);
-                        _ = cmd.Parameters.AddWithValue($"@translated{c}", 1);
-                        _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
-                        _ = cmd.Parameters.AddWithValue($"@language{c}", language);
-                        _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
-                        _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
-                        _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
-                        ++c;
-                        if (c >= updateData.Values.Count)
-                            break;
+                        _ = ExecuteOrReOpen(cmd);
                     }
-
-                    _ = ExecuteOrReOpen(cmd);
+                    else
+                    {
+                        Debugger.Break();
+                    }
                 }
 
                 //return if at least ione row was changed
@@ -815,14 +823,74 @@ namespace Translator.Core
         /// <summary>
         /// Set the english template for string in the database.
         /// </summary>
-        /// <param name="lines">FileData object with the relevant info</param>
+        /// <param name="templates">FileData object with the relevant info</param>
         /// <returns>
         /// True if exactly one row was set, false if it was not the case.
         /// </returns>
-        public static bool UploadTemplates(FileData lines)
+        public static bool UpdateTemplates(FileData templates)
+        {
+            using MySqlConnection connection = new(GetConnString());
+            using MySqlCommand cmd = connection.CreateCommand();
+
+            //Save old template
+            _ = GetAllLineDataTemplate(templates.FileName, templates.StoryName, out var oldTemplates);
+
+            var result = RemoveOldTemplates(templates.FileName, templates.StoryName);
+
+            //upload new
+            UploadAllTemplates(templates, cmd);
+
+            //generate "diff" and unapprove templates where the template changed
+            List<string> idsToUnapprove = new();
+            FileData diff = new(templates.StoryName, templates.FileName);
+            foreach (var newTemplate in templates)
+            {
+                if (!oldTemplates.TryGetValue(newTemplate.Key, out var oldTemplateLine))
+                {
+                    diff.Add(newTemplate.Key, newTemplate.Value);
+                    continue;
+                }
+
+                if (oldTemplateLine.TemplateString != newTemplate.Value.TemplateString)
+                {
+                    diff.Add(newTemplate.Key, newTemplate.Value);
+                    idsToUnapprove.Add(oldTemplateLine.ID);
+                }
+            }
+            if (idsToUnapprove.Count == 0) return result;
+
+            FileManager.SaveTemplateDiff(diff);
+
+            int x = 0;
+            var command = new StringBuilder(UPDATE
+                + " SET approved = 0"
+                + " WHERE story = @story AND filename = @filename AND language IS NOT NULL AND (");
+
+            cmd.Parameters.Clear();
+            foreach (var id in idsToUnapprove)
+            {
+                command.Append($"SUBSTR(id, 1, LENGTH(id) - LENGTH(language)) = @id{x} OR");
+                x++;
+            }
+            command.Length -= 3;
+            command.Append(");");
+
+            cmd.CommandText = command.ToString();
+            _ = cmd.Parameters.AddWithValue("@story", templates.StoryName);
+            _ = cmd.Parameters.AddWithValue("@fileName", templates.FileName);
+            x = 0;
+            foreach (var id in idsToUnapprove)
+            {
+                _ = cmd.Parameters.AddWithValue($"@id{x}", templates.StoryName + templates.FileName + id);
+                x++;
+            }
+
+            return ExecuteOrReOpen(cmd);
+        }
+
+        private static void UploadAllTemplates(FileData lines, MySqlCommand cmd)
         {
             int c = 0;
-            using MySqlConnection connection = new(GetConnString());
             for (int x = 0; x < ((lines.Count / 400) + 0.5); x++)
             {
                 var builder = new StringBuilder(
@@ -843,10 +911,8 @@ namespace Translator.Core
                 if (v == c) break;
 
                 _ = builder.Remove(builder.Length - 1, 1);
-                string command = builder.ToString() + " ON DUPLICATE KEY UPDATE english = VALUES(english), deleted = VALUES(deleted);";
 
-                using MySqlCommand cmd = connection.CreateCommand();
-                cmd.CommandText = command;
+                cmd.CommandText = builder.ToString() + " ON DUPLICATE KEY UPDATE english = VALUES(english), deleted = VALUES(deleted);";
                 cmd.Parameters.Clear();
 
                 //insert all the parameters
@@ -865,9 +931,6 @@ namespace Translator.Core
 
                 _ = ExecuteOrReOpen(cmd);
             }
-
-            //return if at least ione row was changed
-            return true;
         }
 
         /// <summary>
@@ -1072,7 +1135,7 @@ namespace Translator.Core
                 }
                 else
                 {
-                    _ = UI.WarningOk("No templates or lines found for " + story + " in " + language, "Info");
+                    _ = UI.WarningOk("No templates or templates found for " + story + " in " + language, "Info");
                     LogManager.Log("No stories found for " + story + " in " + language);
                 }
                 reader.Close();
@@ -1140,7 +1203,7 @@ namespace Translator.Core
                 }
                 else
                 {
-                    _ = UI.WarningOk("No templates or lines found for " + story + " in " + language, "Info");
+                    _ = UI.WarningOk("No templates or templates found for " + story + " in " + language, "Info");
                     LogManager.Log("No stories found for " + story + " in " + language);
                 }
                 reader.Close();

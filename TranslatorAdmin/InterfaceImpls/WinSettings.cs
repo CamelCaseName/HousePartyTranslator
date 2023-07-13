@@ -87,6 +87,7 @@ namespace Translator.Desktop.InterfaceImpls
         public bool ShowCommentHighlight { get => Settings.Default.showSearchHighlightComments; set => Settings.Default.showSearchHighlightComments = value; }
         public bool HighlightLanguages { get => Settings.Default.highlightLanguages; set => Settings.Default.highlightLanguages = value; }
         public bool ExportTranslatedWithMissingLines { get => Settings.Default.exportTranslationInMissingLines; set => Settings.Default.exportTranslationInMissingLines = value; }
+        public bool ExportTemplateDiff { get => Settings.Default.exportTemplateDiff; set => Settings.Default.exportTemplateDiff = value; }
 
         public void Save()
         {

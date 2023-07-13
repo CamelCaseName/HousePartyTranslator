@@ -192,6 +192,25 @@ namespace Translator.Core
             LogManager.Log("    Sucessfully exported missing lines");
         }
 
+        public static void SaveTemplateDiff(FileData diff)
+        {
+            if (Settings.Default.ExportTemplateDiff)
+            {
+                string path = Utils.SelectSaveLocation("Select where you want to save the template diff to", file: diff.FileName + "_diff", checkFileExists: false);
+                if (path == string.Empty)
+                    return;
+                if (!File.Exists(path))
+                    File.OpenWrite(path).Close();
+                else if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
+                    return;
+
+                var categories = InitializeCategories(diff.StoryName, diff.FileName);
+                SortIntoCategories(ref categories, diff, diff);
+
+                WriteCategorizedLinesToDisk(categories, path, true);
+            }
+        }
+
         private static void SortAndWriteMissingLinesToDiskMultipleFiles(string path, string story, Dictionary<string, FileData> lines, Dictionary<string, FileData> templates)
         {
             foreach (var fileData in templates.Values)
@@ -310,8 +329,7 @@ namespace Translator.Core
                     {
                         if (templates.Count > 0 && SaveOnline)
                         {
-                            _ = DataBase.RemoveOldTemplates(file, story);
-                            _ = DataBase.UploadTemplates(templates);
+                            _ = DataBase.UpdateTemplates(templates);
                         }
                         else if (SaveOnline)
                         {
@@ -360,8 +378,7 @@ namespace Translator.Core
                 {
                     if (templates.Count > 0 && SaveOnline)
                     {
-                        _ = DataBase.RemoveOldTemplates(file, story);
-                        _ = DataBase.UploadTemplates(templates);
+                        _ = DataBase.UpdateTemplates(templates);
                     }
                     else if (SaveOnline)
                     {
@@ -558,13 +575,7 @@ namespace Translator.Core
                     templates = GetTemplateFromFile(file_path, story, file, false);
                     if (templates.Count > 0)
                     {
-                        if (!DataBase.RemoveOldTemplates(file, story))
-                        {
-                            _ = TabManager.UI.ErrorOk("New official templates were not removed, please try again.");
-                            TabManager.UI.SignalUserEndWait();
-                            return;
-                        }
-                        if (!DataBase.UploadTemplates(templates))
+                        if (!DataBase.UpdateTemplates(templates))
                         {
                             _ = TabManager.UI.ErrorOk("New official templates were not uploaded, please try again.");
                             TabManager.UI.SignalUserEndWait();
