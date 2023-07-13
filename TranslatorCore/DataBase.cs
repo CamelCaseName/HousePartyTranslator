@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
@@ -777,33 +778,40 @@ namespace Translator.Core
                     cmd.CommandText = builder.ToString() + (" ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved), story = VALUES(story), category = VALUES(category), filename = VALUES(filename)");
                     cmd.Parameters.Clear();
 
-                    //insert all the parameters
-                    for (int k = 0; k < 400; k++)
+                    if (c < updateData.Count)
                     {
-                        LineData item = updateData.Values.ElementAt(c);
-                        string comment = string.Empty;
-                        for (int j = 0; j < item.Comments?.Length; j++)
+                        //insert all the parameters
+                        for (int k = 0; k < 400; k++)
                         {
-                            if (item.Comments[j].Length > 1)
-                                comment += item.Comments[j] + "#";
+                            LineData item = updateData.Values.ElementAt(c);
+                            string comment = string.Empty;
+                            for (int j = 0; j < item.Comments?.Length; j++)
+                            {
+                                if (item.Comments[j].Length > 1)
+                                    comment += item.Comments[j] + "#";
+                            }
+
+                            _ = cmd.Parameters.AddWithValue($"@id{c}", storyName + fileName + item.ID + language);
+                            _ = cmd.Parameters.AddWithValue($"@story{c}", storyName);
+                            _ = cmd.Parameters.AddWithValue($"@filename{c}", fileName);
+                            _ = cmd.Parameters.AddWithValue($"@category{c}", (int)item.Category);
+                            _ = cmd.Parameters.AddWithValue($"@translated{c}", 1);
+                            _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
+                            _ = cmd.Parameters.AddWithValue($"@language{c}", language);
+                            _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
+                            _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
+                            _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
+                            ++c;
+                            if (c >= updateData.Count)
+                                break;
                         }
 
-                        _ = cmd.Parameters.AddWithValue($"@id{c}", storyName + fileName + item.ID + language);
-                        _ = cmd.Parameters.AddWithValue($"@story{c}", storyName);
-                        _ = cmd.Parameters.AddWithValue($"@filename{c}", fileName);
-                        _ = cmd.Parameters.AddWithValue($"@category{c}", (int)item.Category);
-                        _ = cmd.Parameters.AddWithValue($"@translated{c}", 1);
-                        _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
-                        _ = cmd.Parameters.AddWithValue($"@language{c}", language);
-                        _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
-                        _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
-                        _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
-                        ++c;
-                        if (c >= updateData.Values.Count)
-                            break;
+                        _ = ExecuteOrReOpen(cmd);
                     }
-
-                    _ = ExecuteOrReOpen(cmd);
+                    else
+                    {
+                        Debugger.Break();
+                    }
                 }
 
                 //return if at least ione row was changed
