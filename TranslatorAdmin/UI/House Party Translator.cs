@@ -701,7 +701,6 @@ namespace Translator.Desktop.UI
                 ToolTipText = "Enter the text to replace with here.",
                 Visible = false
             };
-            ToolStripMenuReplaceBox.TextChanged += new EventHandler(ToolStripMenuReplaceBox_TextChanged);
 
             // toolStripReplaceAllButton
             toolStripReplaceAllButton = new WinMenuItem()
@@ -1028,24 +1027,13 @@ namespace Translator.Desktop.UI
 
         private void SearchToolStripMenuItem_click(object? sender, EventArgs? e)
         {
-            searchToolStripTextBox.Focus();
-            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "search here";
+            InputHandler.FocusSearch();
         }
 
         private void SearchToolStripTextBox_TextChanged(object? sender, EventArgs? e)
         {
-            if (ActiveControl == null) return;
-            if (ActiveControl.GetType().IsAssignableFrom(typeof(ITextBox)))
-            {
-                InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
-            }
+            if (sender == null) return;
             TabManager.Search();
-        }
-
-        private void ToolStripMenuReplaceBox_TextChanged(object? sender, EventArgs? e)
-        {
-            if (ActiveControl == null) return;
-            InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
         }
 
         private static void CreateNewFile()
