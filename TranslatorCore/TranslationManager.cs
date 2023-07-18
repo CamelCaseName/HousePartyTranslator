@@ -1017,15 +1017,20 @@ namespace Translator.Core
 
                     //is up to date, so we can start translation
                     IntegrateOnlineTranslations(localTakesPriority);
+                    //update tab name
+                    TabManager.UpdateTabTitle(this, FileName);
                     TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
+
+                    if (Settings.Default.HighlightLanguages)
+                    {
+                        if (DataBase.GetLanguagesForStory(StoryName, out string[] languages))
+                            UI.SetLanguageHighlights(languages);
+                    }
                 }
-                if (Settings.Default.HighlightLanguages)
+                else
                 {
-                    if (DataBase.GetLanguagesForStory(StoryName, out string[] languages))
-                        UI.SetLanguageHighlights(languages);
+                    ResetTranslationManager();
                 }
-                //update tab name
-                TabManager.UpdateSelectedTabTitle(FileName);
             }
         }
 

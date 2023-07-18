@@ -51,7 +51,7 @@ namespace Translator.Core.UICompatibilityLayer
 
         MenuItems FileMenuItems { get; }
 
-        void SetTitle(string title);
+        string Title { get; set; }
         #endregion
 
         #region login user control

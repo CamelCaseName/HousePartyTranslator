@@ -186,7 +186,7 @@ namespace Translator.Core
         }
 
         /// <summary>
-        /// Updates the current tabs title
+        /// Updates the corresponding tabs title
         /// </summary>
         /// <param name="manager">The corresponding tab will be updated</param>
         /// <param name="title">The title to set</param>
@@ -418,8 +418,6 @@ namespace Translator.Core
         {
             //load new file
             ActiveTranslationManager.LoadFileIntoProgram(path);
-            //update tab name
-            SelectedTab.Text = ActiveTranslationManager.FileName;
         }
 
         public static void OpenNewFiles()
