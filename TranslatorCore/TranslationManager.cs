@@ -199,7 +199,7 @@ namespace Translator.Core
                 if (Index >= 0) TabUI.Lines.SetApprovalState(Index, TabUI.ApprovedButtonChecked);
 
                 TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
-                UI.UpdateTranslationProgressIndicator();
+                TabUI.UpdateTranslationProgressIndicator();
                 Search();
             }
         }
@@ -225,7 +225,7 @@ namespace Translator.Core
                 }
 
                 TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
-                UI.UpdateTranslationProgressIndicator();
+                TabUI.UpdateTranslationProgressIndicator();
                 Search();
             }
         }

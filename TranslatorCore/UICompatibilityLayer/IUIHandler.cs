@@ -95,7 +95,6 @@ namespace Translator.Core.UICompatibilityLayer
 
         void SignalAppExit();
         void Update();
-        void UpdateTranslationProgressIndicator();
         void SetReplaceMenuVisible();
         void SetReplaceMenuInVisible();
         void SignalUserPing();

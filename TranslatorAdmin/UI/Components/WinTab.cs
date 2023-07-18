@@ -359,7 +359,7 @@ namespace Translator.Desktop.UI.Components
             panel2.PerformLayout();
             ResumeLayout();
         }
-        public int AllProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
+        public int AllProgressValue { get => ProgressbarTranslated.SecondValue; set => ProgressbarTranslated.SecondValue = value; }
         public bool ApprovedButtonChecked { get => ApprovedBox.Checked; set => ApprovedBox.Checked = value; }
         public string CommentBoxText { get => CommentTextBox.Text; set => CommentTextBox.Text = value; }
         public string[] CommentBoxTextArr { get => CommentTextBox.Lines; set => CommentTextBox.Lines = value; }
@@ -439,5 +439,6 @@ namespace Translator.Desktop.UI.Components
         public void UpdateCharacterCounts(int templateCount, int translationCount) => CharacterCountLabel.Text = $"Template: {templateCount} | Translation: {translationCount}";
         public void UpdateLines() => CheckListBoxLeft.Update();
         public void UpdateSearchResultDisplay() => CheckListBoxLeft.Invalidate();
+        public void UpdateTranslationProgressIndicator() => ProgressbarTranslated.Invalidate();
     }
 }
