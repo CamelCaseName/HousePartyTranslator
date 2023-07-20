@@ -396,6 +396,7 @@ namespace Translator.Desktop.UI.Components
             }
             set
             {
+                Font = new Font(Font, value.Contains('*') ? FontStyle.Bold : FontStyle.Regular);
                 base.Text = value;
                 Update();
             }
