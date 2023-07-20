@@ -165,5 +165,10 @@ namespace Translator.Desktop.InterfaceImpls
             waitCounter = 0;
             Application.UseWaitCursor = false;
         }
+
+        public void UpdateRecentFileList()
+        {
+            App.MainForm.UpdateFileMenuItems();
+        }
     }
 }

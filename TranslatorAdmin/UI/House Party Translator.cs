@@ -1099,7 +1099,7 @@ namespace Translator.Desktop.UI
             TabManager.OpenAllTabs(path!);
         }
 
-        private void UpdateFileMenuItems()
+        public void UpdateFileMenuItems()
         {
             var items = RecentsManager.GetRecents();
             int recentsStart;

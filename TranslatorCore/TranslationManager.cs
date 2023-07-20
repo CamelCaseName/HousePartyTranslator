@@ -631,6 +631,7 @@ namespace Translator.Core
 
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
+                    UI.UpdateRecentFileList(); 
                 }
             }
             else
