@@ -412,11 +412,9 @@ namespace Translator.Desktop.UI.Components
         public string SelectedCommentBoxText() => CommentTextBox.SelectedText;
         public void SelectLineItem(int index) => CheckListBoxLeft.SelectedIndex = index;
         public void SelectLineItem(ILineItem item) => CheckListBoxLeft.SelectedItem = item;
-        public void SetApprovedCount(int Approved, int Total)
+        public void SetApprovedCount(int Approved, int Total, string text)
         {
-            float percentage = Approved / (float)Total;
-            LinesTranslated.Text = $"Approved: {Approved} / {Total} {(int)(percentage * 100)}%";
-            UpdateTabText(percentage);
+            LinesTranslated.Text = text;
             int ProgressValue = (int)(Approved / (float)Total * 100);
             if (ProgressValue != ProgressbarTranslated.Value)
             {
@@ -430,17 +428,6 @@ namespace Translator.Desktop.UI.Components
                 }
                 ProgressbarTranslated.Update();
             }
-        }
-
-        private void UpdateTabText(float percentage)
-        {
-            if (!Text.Contains('%'))
-                Text += $" ({(int)(percentage * 100),000}%)";
-            else if (Text[^1] == '*')
-                Text = Text[..^6] + $" ({(int)(percentage * 100),000}%)*";
-            else
-                Text = Text[..^5] + $" ({(int)(percentage * 100),000}%)";
-
         }
         public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
         public void SetFileInfoText(string info) => SelectedFile.Text = info;

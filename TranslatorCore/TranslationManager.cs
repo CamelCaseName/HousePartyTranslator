@@ -9,6 +9,7 @@ using Translator.Core.Data;
 using Translator.Core.DefaultImpls;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
+using static System.Net.Mime.MediaTypeNames;
 
 //TODO add tests
 
@@ -105,11 +106,11 @@ namespace Translator.Core
             {
                 if (TranslationData.Count > 0)
                 {
-                    if (value && !_changesPending)
-                        TabManager.UpdateTabTitle(this, FileName + "*");
-                    else if (!value && _changesPending)
-                        TabManager.UpdateTabTitle(this, FileName ?? string.Empty);
-                    _changesPending = value;
+                    if (value != _changesPending)
+                    {
+                        _changesPending = value;
+                        TabManager.UpdateTabTitle(this, GetTabName());
+                    }
                 }
             }
         }
@@ -197,11 +198,28 @@ namespace Translator.Core
                 int Index = TabUI.SelectedLineIndex;
                 //inverse checked state at the selected index
                 if (Index >= 0) TabUI.Lines.SetApprovalState(Index, TabUI.ApprovedButtonChecked);
-
-                TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
-                TabUI.UpdateTranslationProgressIndicator();
+                UpdateApprovedAndTabName();
                 Search();
             }
+        }
+
+        private void UpdateApprovedAndTabName()
+        {
+            TabUI.SetApprovedCount(
+                TabUI.Lines.ApprovedCount,
+                TabUI.Lines.Count,
+                $"Approved: {TabUI.Lines.ApprovedCount} / {TabUI.Lines.Count} {(int)(TabUI.Lines.ApprovedCount / (float)TabUI.Lines.Count * 100)}%");
+            TabUI.UpdateTranslationProgressIndicator();
+            TabUI.Text = GetTabName();
+        }
+
+        public string GetTabName()
+        {
+            float percentage = TabUI.Lines.ApprovedCount / (float)TabUI.Lines.Count;
+            if (ChangesPending)
+                return FileName + $" ({(int)(percentage * 100),000}%)*";
+            else
+                return FileName + $" ({(int)(percentage * 100),000}%)";
         }
 
         /// <summary>
@@ -224,8 +242,7 @@ namespace Translator.Core
                     if (currentIndex < TabUI.Lines.Count - 1) TabUI.SelectLineItem(currentIndex + 1);
                 }
 
-                TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
-                TabUI.UpdateTranslationProgressIndicator();
+                UpdateApprovedAndTabName();
                 Search();
             }
         }
@@ -631,12 +648,12 @@ namespace Translator.Core
 
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
-                    UI.UpdateRecentFileList(); 
+                    UI.UpdateRecentFileList();
                 }
             }
             else
             {
-                UI.ErrorOk("File doesn't exist");
+                UI.ErrorOk("File doesn'indexOfSelectedSearchResult exist");
             }
         }
 
@@ -681,7 +698,7 @@ namespace Translator.Core
             {
                 if (TabUI.LineCount > 0) TabUI.SelectLineItem(0);
             }
-            TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.LineCount);
+            UpdateApprovedAndTabName();
         }
 
         internal void ReloadTranslationTextbox()
@@ -1019,8 +1036,8 @@ namespace Translator.Core
                     //is up to date, so we can start translation
                     AddLinesToUIAndIntegrateOnline(localTakesPriority);
                     //update tab name
-                    TabManager.UpdateTabTitle(this, FileName);
-                    TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
+                    TabManager.UpdateTabTitle(this, GetTabName());
+                    UpdateApprovedAndTabName();
 
                     if (Settings.Default.HighlightLanguages)
                     {
@@ -1093,7 +1110,7 @@ namespace Translator.Core
                 }
                 else if (DataBase.IsOnline && !Settings.Default.IgnoreMissingLinesWarning)
                 //inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
-                //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don't know if that is ok to do :)
+                //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don'indexOfSelectedSearchResult know if that is ok to do :)
                 {
                     _ = UI.InfoOk(
                     "Some strings are missing from your translation, they will be added with the english version when you first save the file!",
@@ -1114,7 +1131,7 @@ namespace Translator.Core
             TabUI.SimilarStringsToEnglish.Clear();
             SelectedResultIndex = 0;
             TabManager.UpdateSelectedTabTitle("Tab");
-            TabUI.SetApprovedCount(1, 1);
+            TabUI.SetApprovedCount(1, 1, "empty tab");
         }
 
         private void SaveFileHandler(object? sender, ElapsedEventArgs? e)
@@ -1243,9 +1260,9 @@ namespace Translator.Core
             TabUI.Comments.ShowHighlight = false;
         }
 
-        private void UpdateHighlightPositions(int t)
+        private void UpdateHighlightPositions(int indexOfSelectedSearchResult)
         {
-            if (SelectedResultIndex > 0) SelectedResultIndex = t;
+            if (SelectedResultIndex > 0) SelectedResultIndex = indexOfSelectedSearchResult;
             UI.SelectedSearchResult = SelectedResultIndex + 1;
 
             int TemplateTextQueryLocation, TranslationTextQueryLocation = -1, CommentsTextQueryLocation = -1;

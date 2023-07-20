@@ -970,6 +970,7 @@ namespace Translator.Core
                     connection.Open();
                     System.Threading.Thread.Sleep(100 * tries);
                 }
+                if (tries == 10 && connection.State != System.Data.ConnectionState.Open) IsForcedOffline = true;
                 return IsOnline = connection.State == System.Data.ConnectionState.Open;
             }
             else return IsOnline = true;

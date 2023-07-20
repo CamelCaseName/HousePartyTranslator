@@ -77,7 +77,7 @@ namespace Translator.Core.UICompatibilityLayer
         bool ApprovedButtonChecked { get; set; }
 
         void SetFileInfoText(string info);
-        void SetApprovedCount(int Approved, int Total);
+        void SetApprovedCount(int Approved, int Total, string text);
         void UpdateCharacterCounts(int templateCount, int translationCount);
         void SetCharacterLabelColor(Color color);
         void UpdateTranslationProgressIndicator();
