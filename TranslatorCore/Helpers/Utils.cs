@@ -8,6 +8,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
@@ -34,6 +35,8 @@ namespace Translator.Core.Helpers
         private static HashSet<string> fileNames = new();
         private static HashSet<string> storyNames = new();
         private static DateTime namesAcquired = DateTime.MinValue;
+        public static readonly string[] OfficialStories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
+        public static readonly string[] OfficialFileNames = { "Amala", "Amy", "Arin", "Ashley", "Brittney", "Compubrah", "Dan", "Derek", "Doja Cat", "Frank", "Katherine", "Leah", "Lety", "Liz Katz", "Madison", "Original Story", "Patrick", "Phone Call", "Rachael", "Stephanie", "Vickie", "Hints", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney", "CSCManager", "GeneralMenu", "GraphicsMenu", "InputManager", "MainMenu", "PauseMenu" };
 
         private static IUIHandler? MainUI { get; set; }
 
@@ -207,8 +210,9 @@ namespace Translator.Core.Helpers
             if (!LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
                 throw new LanguageHelper.LanguageException();
 
-            var paths = path.Split('\\');
-            if (paths.Length < 2) throw new ArgumentException("the file needs to be at least 1 folders deep from your drive?");
+            var paths = path.Contains('\\')
+                ? path.Split('\\')
+                : new string[] { path };
 
             //check if we have a similar name to the cloud, return that if we have
             for (int i = paths.Length - 1; i >= 0; i--)
@@ -224,13 +228,17 @@ namespace Translator.Core.Helpers
                 }
             }
 
-            string maybeStoryName = paths[^2];
+            string maybeStoryName = paths.Length > 1
+                ? paths[^2]
+                : paths[0];
 
             //check if we are in the games documents
             if (string.Compare(maybeStoryName, languageAsText, true, CultureInfo.InvariantCulture) == 0 ||
                 string.Compare(maybeStoryName, string.Concat(languageAsText, " new"), true, CultureInfo.InvariantCulture) == 0)
                 //get folder one more up
-                maybeStoryName = paths[^3];
+                maybeStoryName = paths.Length > 1
+                    ? paths[^3]
+                    : paths[0];
 
             //also can return instantly, we are in the folder which has the languages in it
             if (string.Compare(maybeStoryName, "Languages", true, CultureInfo.InvariantCulture) == 0) //get folder one more up

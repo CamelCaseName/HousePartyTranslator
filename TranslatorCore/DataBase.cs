@@ -40,8 +40,8 @@ namespace Translator.Core
                 + " ORDER BY story ASC";
 
             using MySqlConnection connection = new(GetConnString());
-            stories = new();
-            files = new();
+            stories = new(Utils.OfficialStories);
+            files = new(Utils.OfficialFileNames);
 
             if (CheckOrReopenConnection(connection))
             {
