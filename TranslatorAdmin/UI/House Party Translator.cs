@@ -373,7 +373,7 @@ namespace Translator.Desktop.UI
                 Text = "Generate o&ne template file",
                 ToolTipText = "Generates and uploads the template for a single file"
             };
-            generateTemplateForFile.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForSingleFile(true);
+            generateTemplateForFile.Click += (object? sender, EventArgs e) => SaveAndExportManager.GenerateTemplateForSingleFile(true);
 
             // ExportAllMissingLinesFolder
             ExportAllMissingLinesFolder = new WinMenuItem()
@@ -417,7 +417,7 @@ namespace Translator.Desktop.UI
                 Text = "&Generate all template files",
                 ToolTipText = "Generates and uploads templates for a complete story"
             };
-            generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForAllFiles(true);
+            generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => SaveAndExportManager.GenerateTemplateForAllFiles(true);
 
             // createTemplateForFile
             createTemplateForFile = new WinMenuItem()
@@ -428,7 +428,7 @@ namespace Translator.Desktop.UI
                 Text = "Create &one template file",
                 ToolTipText = "Creates the template locally for a single file"
             };
-            createTemplateForFile.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForSingleFile(false);
+            createTemplateForFile.Click += (object? sender, EventArgs e) => SaveAndExportManager.GenerateTemplateForSingleFile(false);
 
             // createTemplateForCompleteStory
             createTemplateForCompleteStory = new WinMenuItem()
@@ -439,7 +439,7 @@ namespace Translator.Desktop.UI
                 Text = "&Create all template files",
                 ToolTipText = "Creates templates locally for a complete story"
             };
-            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForAllFiles(false);
+            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => SaveAndExportManager.GenerateTemplateForAllFiles(false);
 
             // undoMenuButton
             undoMenuButton = new WinMenuItem()
@@ -472,7 +472,7 @@ namespace Translator.Desktop.UI
                 Text = "Export &template files",
                 ToolTipText = "Exports templates for a complete story or single file"
             };
-            exportTemplates.Click += (object? sender, EventArgs e) => FileManager.ExportTemplatesForStoryOrFile();
+            exportTemplates.Click += (object? sender, EventArgs e) => SaveAndExportManager.ExportTemplatesForStoryOrFile();
 
             // searchToolStripMenuItem
             searchToolStripMenuItem = new WinMenuItem()
@@ -701,7 +701,6 @@ namespace Translator.Desktop.UI
                 ToolTipText = "Enter the text to replace with here.",
                 Visible = false
             };
-            ToolStripMenuReplaceBox.TextChanged += new EventHandler(ToolStripMenuReplaceBox_TextChanged);
 
             // toolStripReplaceAllButton
             toolStripReplaceAllButton = new WinMenuItem()
@@ -964,9 +963,12 @@ namespace Translator.Desktop.UI
 
             RecentsManager.SaveRecents();
 
-            CancelTokens.Cancel();
-
-            CancelTokens.Dispose();
+            try
+            {
+                CancelTokens.Cancel();
+                CancelTokens.Dispose();
+            }
+            catch { }
 
             //show save unsaved changes dialog
             TabManager.ShowAutoSaveDialog();
@@ -1028,30 +1030,19 @@ namespace Translator.Desktop.UI
 
         private void SearchToolStripMenuItem_click(object? sender, EventArgs? e)
         {
-            searchToolStripTextBox.Focus();
-            if (searchToolStripTextBox.Text.Length == 0) searchToolStripTextBox.Text = "search here";
+            InputHandler.FocusSearch();
         }
 
         private void SearchToolStripTextBox_TextChanged(object? sender, EventArgs? e)
         {
-            if (ActiveControl == null) return;
-            if (ActiveControl.GetType().IsAssignableFrom(typeof(ITextBox)))
-            {
-                InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
-            }
+            if (sender == null) return;
             TabManager.Search();
-        }
-
-        private void ToolStripMenuReplaceBox_TextChanged(object? sender, EventArgs? e)
-        {
-            if (ActiveControl == null) return;
-            InputHandler.TextChangedCallback((ITextBox)ActiveControl, CheckListBoxLeft.SelectedIndex);
         }
 
         private static void CreateNewFile()
         {
             var dialog = new NewFileSelector();
-            var path = FileManager.CreateNewFile(dialog);
+            var path = SaveAndExportManager.CreateNewFile(dialog);
             if (path == string.Empty) return;
 
             if (dialog.FileName == string.Empty)
@@ -1071,7 +1062,7 @@ namespace Translator.Desktop.UI
         private static void CreateNewFileInNewTab()
         {
             var dialog = new NewFileSelector();
-            var path = FileManager.CreateNewFile(dialog);
+            var path = SaveAndExportManager.CreateNewFile(dialog);
             if (path == string.Empty) return;
 
             if (dialog.FileName == string.Empty)
@@ -1111,7 +1102,7 @@ namespace Translator.Desktop.UI
             TabManager.OpenAllTabs(path!);
         }
 
-        private void UpdateFileMenuItems()
+        public void UpdateFileMenuItems()
         {
             var items = RecentsManager.GetRecents();
             int recentsStart;

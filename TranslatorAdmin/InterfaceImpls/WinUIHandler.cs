@@ -34,13 +34,13 @@ namespace Translator.Desktop.InterfaceImpls
         public int SearchResultCount { get => App.MainForm?.SearchBox.TotalSearchResults ?? 0; set { App.MainForm.SearchBox.TotalSearchResults = value; App.MainForm?.SearchBox.Invalidate(); } }
         public int SelectedSearchResult { get => App.MainForm?.SearchBox.CurrentSearchResult ?? 0; set { App.MainForm.SearchBox.CurrentSearchResult = value; App.MainForm?.SearchBox.Invalidate(); } }
         public ITab SelectedTab => TabControl.SelectedTab;
-        public ITabController TabControl { get; } = new WinTabController();
-        public int TemplateBoxSelectedTextLength => TabControl.SelectedTab.SelectedTranslationBoxText.Length;
-        public string TemplateBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
-        public int TemplateBoxTextLength => TabControl.SelectedTab.TemplateBoxText.Length;
-        public int TranslationBoxSelectedTextLength => TabControl.SelectedTab.SelectedTemplateBoxText.Length;
-        public string TranslationBoxText { get => TabControl.SelectedTab.TranslationBoxText; set => TabControl.SelectedTab.TranslationBoxText = value; }
-        public int TranslationBoxTextLength => TabControl.SelectedTab.TranslationBoxText.Length;
+        public ITabController TabControl { get; } = App.MainForm?.TabControl ?? new();
+        public int TemplateBoxSelectedTextLength => SelectedTab.SelectedTranslationBoxText.Length;
+        public string TemplateBoxText { get => SelectedTab.TranslationBoxText; set => SelectedTab.TranslationBoxText = value; }
+        public int TemplateBoxTextLength => SelectedTab.TemplateBoxText.Length;
+        public int TranslationBoxSelectedTextLength => SelectedTab.SelectedTemplateBoxText.Length;
+        public string TranslationBoxText { get => SelectedTab.TranslationBoxText; set => SelectedTab.TranslationBoxText = value; }
+        public int TranslationBoxTextLength => SelectedTab.TranslationBoxText.Length;
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
         public ITab? CreateNewTab()
         {
@@ -84,11 +84,8 @@ namespace Translator.Desktop.InterfaceImpls
             App.MainForm.SearchBox.SelectionLength = end - start;
         }
 
-        public void SetTitle(string title)
-        {
-            _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the App title");
-            App.MainForm.Text = title;
-        }
+        public string Title { get => App.MainForm.Text; set => App.MainForm.Text = value; }
+
         public void SignalAppExit() => Application.Exit();
         public void SignalUserEndWait()
         {
@@ -107,6 +104,8 @@ namespace Translator.Desktop.InterfaceImpls
         /// </summary>
         public void ToggleReplaceBar()
         {
+            return;
+            /*
             if (!ReplaceBarIsVisible)
             {
                 if (SelectedTab.SelectedTranslationBoxText.Length > 0)
@@ -123,12 +122,10 @@ namespace Translator.Desktop.InterfaceImpls
             {
                 SetReplaceMenuInVisible();
                 SelectedTab.FocusTranslationBox();
-            }
+            }*/
         }
 
         public void Update() => App.MainForm?.Update();
-
-        public void UpdateTranslationProgressIndicator() => ((WinTab)SelectedTab).ProgressbarTranslated.Invalidate();
 
         public PopupResult WarningOk(string message, string title = "Warning") => Msg.WarningOk(message, title).ToPopupResult();
 
@@ -169,6 +166,11 @@ namespace Translator.Desktop.InterfaceImpls
         {
             waitCounter = 0;
             Application.UseWaitCursor = false;
+        }
+
+        public void UpdateRecentFileList()
+        {
+            App.MainForm.UpdateFileMenuItems();
         }
     }
 }

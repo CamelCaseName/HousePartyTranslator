@@ -10,7 +10,7 @@ using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
 {
-    public static class FileManager
+    public static class SaveAndExportManager
     {
         //counter so we dont get multiple ids, we dont use the dictionary as ids anyways when uploading templates
         private static int templateCounter = 0;
@@ -474,10 +474,13 @@ namespace Translator.Core
                 if (item.ID == string.Empty) continue;
                 if (translationData.TryGetValue(item.ID, out LineData? TempResult))
                 {
-                    if (TempResult?.TranslationLength > 0)
-                        item.TranslationString = TempResult?.TranslationString ?? item.TemplateString.RemoveVAHints();
-                    else
-                        item.TranslationString = item.TemplateString.RemoveVAHints();
+                    if (TempResult != null)
+                    {
+                        if (TempResult.TranslationLength > 0)
+                            item.TranslationString = TempResult.TranslationString;
+                        else
+                            item.TranslationString = item.TemplateString.RemoveVAHints();
+                    }
                 }
                 else
                 {

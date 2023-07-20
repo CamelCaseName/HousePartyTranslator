@@ -359,7 +359,7 @@ namespace Translator.Desktop.UI.Components
             panel2.PerformLayout();
             ResumeLayout();
         }
-        public int AllProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
+        public int AllProgressValue { get => ProgressbarTranslated.SecondValue; set => ProgressbarTranslated.SecondValue = value; }
         public bool ApprovedButtonChecked { get => ApprovedBox.Checked; set => ApprovedBox.Checked = value; }
         public string CommentBoxText { get => CommentTextBox.Text; set => CommentTextBox.Text = value; }
         public string[] CommentBoxTextArr { get => CommentTextBox.Lines; set => CommentTextBox.Lines = value; }
@@ -396,6 +396,7 @@ namespace Translator.Desktop.UI.Components
             }
             set
             {
+                Font = new Font(Font, value.Contains('*') ? FontStyle.Bold : FontStyle.Regular);
                 base.Text = value;
                 Update();
             }
@@ -412,10 +413,9 @@ namespace Translator.Desktop.UI.Components
         public string SelectedCommentBoxText() => CommentTextBox.SelectedText;
         public void SelectLineItem(int index) => CheckListBoxLeft.SelectedIndex = index;
         public void SelectLineItem(ILineItem item) => CheckListBoxLeft.SelectedItem = item;
-        public void SetApprovedCount(int Approved, int Total)
+        public void SetApprovedCount(int Approved, int Total, string text)
         {
-            float percentage = Approved / (float)Total;
-            LinesTranslated.Text = $"Approved: {Approved} / {Total} {(int)(percentage * 100)}%";
+            LinesTranslated.Text = text;
             int ProgressValue = (int)(Approved / (float)Total * 100);
             if (ProgressValue != ProgressbarTranslated.Value)
             {
@@ -439,5 +439,6 @@ namespace Translator.Desktop.UI.Components
         public void UpdateCharacterCounts(int templateCount, int translationCount) => CharacterCountLabel.Text = $"Template: {templateCount} | Translation: {translationCount}";
         public void UpdateLines() => CheckListBoxLeft.Update();
         public void UpdateSearchResultDisplay() => CheckListBoxLeft.Invalidate();
+        public void UpdateTranslationProgressIndicator() => ProgressbarTranslated.Invalidate();
     }
 }

@@ -51,7 +51,7 @@ namespace Translator.Core.UICompatibilityLayer
 
         MenuItems FileMenuItems { get; }
 
-        void SetTitle(string title);
+        string Title { get; set; }
         #endregion
 
         #region login user control
@@ -95,11 +95,11 @@ namespace Translator.Core.UICompatibilityLayer
 
         void SignalAppExit();
         void Update();
-        void UpdateTranslationProgressIndicator();
         void SetReplaceMenuVisible();
         void SetReplaceMenuInVisible();
         void SignalUserPing();
         void SetLanguageHighlights(string[] languages);
+        void UpdateRecentFileList();
         #endregion
 
         #region tabs

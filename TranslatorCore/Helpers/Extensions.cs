@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using Translator.Core.Data;
@@ -10,8 +9,7 @@ namespace Translator.Core.Helpers
     public static class Extensions
     {
         public static readonly char[] trimmers = { '\0', ' ', '\t', '\n', '\r', (char)160 };
-        private static readonly string[] stories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
-
+        
         /// <summary>
         /// Returns whether a story is official or not
         /// </summary>
@@ -19,7 +17,7 @@ namespace Translator.Core.Helpers
         /// <returns></returns>
         public static bool IsOfficialStory(this string storyName)
         {
-            return Array.IndexOf(stories, storyName) >= 0;
+            return Array.IndexOf(Utils.OfficialStories, Utils.ExtractStoryName(storyName)) >= 0;
         }
 
         /// <summary>
