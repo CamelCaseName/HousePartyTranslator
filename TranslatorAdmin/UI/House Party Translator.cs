@@ -963,9 +963,12 @@ namespace Translator.Desktop.UI
 
             RecentsManager.SaveRecents();
 
-            CancelTokens.Cancel();
-
-            CancelTokens.Dispose();
+            try
+            {
+                CancelTokens.Cancel();
+                CancelTokens.Dispose();
+            }
+            catch { }
 
             //show save unsaved changes dialog
             TabManager.ShowAutoSaveDialog();
