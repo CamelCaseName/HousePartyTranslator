@@ -19,6 +19,7 @@ namespace Translator.Core
         public static string AppTitle { get; private set; } = string.Empty;
         public static string DBVersion { get; private set; } = "0.00";
         public static bool IsOnline { get; private set; } = false;
+        public static bool IsForcedOffline { get; private set; } = false;
 
 #if DEBUG || DEBUG_ADMIN
         private static readonly string FROM = " FROM debug";
@@ -39,16 +40,15 @@ namespace Translator.Core
                 + " ORDER BY story ASC";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
             stories = new();
             files = new();
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -110,16 +110,14 @@ namespace Translator.Core
                 + " ORDER BY story ASC";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
             stories = new();
             files = new();
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -165,19 +163,18 @@ namespace Translator.Core
                     + " ORDER BY category ASC;";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
-
-            _ = cmd.Parameters.AddWithValue("@language", language);
-            _ = cmd.Parameters.AddWithValue("@filename", fileName);
-            _ = cmd.Parameters.AddWithValue("@story", story);
 
             LineDataList = new FileData(story, fileName);
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
+
+                _ = cmd.Parameters.AddWithValue("@language", language);
+                _ = cmd.Parameters.AddWithValue("@filename", fileName);
+                _ = cmd.Parameters.AddWithValue("@story", story);
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -248,19 +245,18 @@ namespace Translator.Core
                     + " ORDER BY category ASC;";
             }
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
-
-            if (story != "Hints")
-                _ = cmd.Parameters.AddWithValue("@filename", fileName);
-            _ = cmd.Parameters.AddWithValue("@story", story);
-
             LineDataList = new FileData(story, fileName);
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
+
+                if (story != "Hints")
+                    _ = cmd.Parameters.AddWithValue("@filename", fileName);
+                _ = cmd.Parameters.AddWithValue("@story", story);
+
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -297,16 +293,15 @@ namespace Translator.Core
                 + " ORDER BY filename ASC";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
-            _ = cmd.Parameters.AddWithValue("@story", story);
             List<string> files = new();
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
+                _ = cmd.Parameters.AddWithValue("@story", story);
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -343,17 +338,16 @@ namespace Translator.Core
                 + " ORDER BY language ASC";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
-            _ = cmd.Parameters.AddWithValue("@story", story);
-            _ = cmd.Parameters.AddWithValue("@file", file);
             List<string> _languages = new();
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
+                _ = cmd.Parameters.AddWithValue("@story", story);
+                _ = cmd.Parameters.AddWithValue("@file", file);
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -390,16 +384,15 @@ namespace Translator.Core
                 + " ORDER BY language ASC";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
-            _ = cmd.Parameters.AddWithValue("@story", story);
             List<string> _languages = new();
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
+                _ = cmd.Parameters.AddWithValue("@story", story);
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -434,15 +427,14 @@ namespace Translator.Core
                 + " WHERE id = @id AND language = @language AND deleted = 0;";
             bool wasSuccessfull = false;
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
-            _ = cmd.Parameters.AddWithValue("@id", story + fileName + id + language);
-            _ = cmd.Parameters.AddWithValue("@language", language);
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
+                _ = cmd.Parameters.AddWithValue("@id", story + fileName + id + language);
+                _ = cmd.Parameters.AddWithValue("@language", language);
                 using MySqlDataReader reader = cmd.ExecuteReader();
                 if (reader.HasRows && !reader.IsDBNull(0))
                 {
@@ -483,16 +475,15 @@ namespace Translator.Core
                 + " ORDER BY story ASC";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
-            _ = cmd.Parameters.AddWithValue("@language", language);
             List<string> stories = new();
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
+                _ = cmd.Parameters.AddWithValue("@language", language);
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -529,15 +520,14 @@ namespace Translator.Core
                 + " ORDER BY story ASC";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
             List<string> stories = new();
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -859,7 +849,7 @@ namespace Translator.Core
             }
             if (idsToUnapprove.Count == 0) return result;
 
-            FileManager.SaveTemplateDiff(diff);
+            SaveAndExportManager.SaveTemplateDiff(diff);
 
             int x = 0;
             var command = new StringBuilder(UPDATE
@@ -941,16 +931,7 @@ namespace Translator.Core
         {
             //end early
             if (connection.State == System.Data.ConnectionState.Open) return IsOnline = true;
-
-            //try to reopen the connection if it is not open
-            int tries = 0;
-            while (connection.State != System.Data.ConnectionState.Open && tries < 10)
-            {
-                ++tries;
-                if (connection.State == System.Data.ConnectionState.Open) return IsOnline = true;
-                connection.Open();
-                System.Threading.Thread.Sleep(100 * tries);
-            }
+            if (IsForcedOffline) return false;
             //if we are still offline
             if (connection.State != System.Data.ConnectionState.Open)
             {
@@ -965,19 +946,29 @@ namespace Translator.Core
                     if (e.InnerException != null && e.InnerException.GetType().IsAssignableTo(typeof(MySqlException))) errorCode = ((MySqlException)e.InnerException).Number;
                     else errorCode = e.Number;
 
-                    if (errorCode == 0)
+                    if (errorCode == 0 || errorCode == 1042)
                     {
                         //0 means offline
                         _ = UI!.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
                                         "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
+                        IsForcedOffline = true;
                         return IsOnline = false;
                     }
-                    else if (errorCode == 1045 || errorCode == 1042)
+                    else if (errorCode == 1045)
                     {
                         //means invalid creds or empty host/password
                         _ = UI!.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
                         return IsOnline = false;
                     }
+                }
+                //if we have no exception of that kind we can try and just reopen
+                int tries = 0;
+                while (connection.State != System.Data.ConnectionState.Open && tries < 10)
+                {
+                    ++tries;
+                    if (connection.State == System.Data.ConnectionState.Open) return IsOnline = true;
+                    connection.Open();
+                    System.Threading.Thread.Sleep(100 * tries);
                 }
                 return IsOnline = connection.State == System.Data.ConnectionState.Open;
             }
@@ -995,6 +986,7 @@ namespace Translator.Core
         /// <summary>
         /// Establishes the connection and handles the password stuff
         /// </summary>
+        [DebuggerNonUserCode()]
         private static void EstablishConnection()
         {
             bool ValidPassword = false;
@@ -1077,18 +1069,17 @@ namespace Translator.Core
                 + " WHERE story = @story AND (LANGUAGE IS NULL OR LANGUAGE = @language) AND deleted = 0;";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
-            _ = cmd.Parameters.AddWithValue("@language", language);
-            _ = cmd.Parameters.AddWithValue("@story", story);
             lines = new();
             templates = new();
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
+                _ = cmd.Parameters.AddWithValue("@language", language);
+                _ = cmd.Parameters.AddWithValue("@story", story);
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)
@@ -1152,19 +1143,18 @@ namespace Translator.Core
                 + " WHERE story = @story AND filename = @filename AND (LANGUAGE IS NULL OR LANGUAGE = @language) AND deleted = 0;";
 
             using MySqlConnection connection = new(GetConnString());
-            if (connection.State != System.Data.ConnectionState.Open) connection.Open();
-            using MySqlCommand cmd = connection.CreateCommand();
-
-            cmd.CommandText = command;
-            cmd.Parameters.Clear();
-            _ = cmd.Parameters.AddWithValue("@language", language);
-            _ = cmd.Parameters.AddWithValue("@story", story);
-            _ = cmd.Parameters.AddWithValue("@filename", file);
             lines = new(story, file);
             templates = new(story, file);
 
             if (CheckOrReopenConnection(connection))
             {
+                using MySqlCommand cmd = connection.CreateCommand();
+
+                cmd.CommandText = command;
+                cmd.Parameters.Clear();
+                _ = cmd.Parameters.AddWithValue("@language", language);
+                _ = cmd.Parameters.AddWithValue("@story", story);
+                _ = cmd.Parameters.AddWithValue("@filename", file);
                 using MySqlDataReader reader = cmd.ExecuteReader();
 
                 if (reader.HasRows)

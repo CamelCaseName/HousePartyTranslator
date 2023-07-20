@@ -373,7 +373,7 @@ namespace Translator.Desktop.UI
                 Text = "Generate o&ne template file",
                 ToolTipText = "Generates and uploads the template for a single file"
             };
-            generateTemplateForFile.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForSingleFile(true);
+            generateTemplateForFile.Click += (object? sender, EventArgs e) => SaveAndExportManager.GenerateTemplateForSingleFile(true);
 
             // ExportAllMissingLinesFolder
             ExportAllMissingLinesFolder = new WinMenuItem()
@@ -417,7 +417,7 @@ namespace Translator.Desktop.UI
                 Text = "&Generate all template files",
                 ToolTipText = "Generates and uploads templates for a complete story"
             };
-            generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForAllFiles(true);
+            generateTemplateForCompleteStory.Click += (object? sender, EventArgs e) => SaveAndExportManager.GenerateTemplateForAllFiles(true);
 
             // createTemplateForFile
             createTemplateForFile = new WinMenuItem()
@@ -428,7 +428,7 @@ namespace Translator.Desktop.UI
                 Text = "Create &one template file",
                 ToolTipText = "Creates the template locally for a single file"
             };
-            createTemplateForFile.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForSingleFile(false);
+            createTemplateForFile.Click += (object? sender, EventArgs e) => SaveAndExportManager.GenerateTemplateForSingleFile(false);
 
             // createTemplateForCompleteStory
             createTemplateForCompleteStory = new WinMenuItem()
@@ -439,7 +439,7 @@ namespace Translator.Desktop.UI
                 Text = "&Create all template files",
                 ToolTipText = "Creates templates locally for a complete story"
             };
-            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => FileManager.GenerateTemplateForAllFiles(false);
+            createTemplateForCompleteStory.Click += (object? sender, EventArgs e) => SaveAndExportManager.GenerateTemplateForAllFiles(false);
 
             // undoMenuButton
             undoMenuButton = new WinMenuItem()
@@ -472,7 +472,7 @@ namespace Translator.Desktop.UI
                 Text = "Export &template files",
                 ToolTipText = "Exports templates for a complete story or single file"
             };
-            exportTemplates.Click += (object? sender, EventArgs e) => FileManager.ExportTemplatesForStoryOrFile();
+            exportTemplates.Click += (object? sender, EventArgs e) => SaveAndExportManager.ExportTemplatesForStoryOrFile();
 
             // searchToolStripMenuItem
             searchToolStripMenuItem = new WinMenuItem()
@@ -1039,7 +1039,7 @@ namespace Translator.Desktop.UI
         private static void CreateNewFile()
         {
             var dialog = new NewFileSelector();
-            var path = FileManager.CreateNewFile(dialog);
+            var path = SaveAndExportManager.CreateNewFile(dialog);
             if (path == string.Empty) return;
 
             if (dialog.FileName == string.Empty)
@@ -1059,7 +1059,7 @@ namespace Translator.Desktop.UI
         private static void CreateNewFileInNewTab()
         {
             var dialog = new NewFileSelector();
-            var path = FileManager.CreateNewFile(dialog);
+            var path = SaveAndExportManager.CreateNewFile(dialog);
             if (path == string.Empty) return;
 
             if (dialog.FileName == string.Empty)

@@ -63,7 +63,7 @@ namespace Translator.Core
             AutoSaveTimer.Elapsed += SaveFileHandler;
 
             if (!IsUpToDate && Settings.Default.AdvancedModeEnabled)
-                FileManager.GenerateOfficialTemplates();
+                SaveAndExportManager.GenerateOfficialTemplates();
         }
 
         public static bool IsUpToDate { get; internal set; } = false;
@@ -233,14 +233,14 @@ namespace Translator.Core
         public void ExportMissingLinesForCurrentStory(bool folder)
         {
             if (folder)
-                FileManager.ExportAllMissinglinesForStoryIntoFolder(Utils.SelectFolderFromSystem("Please select where you want to save the missing lines to"), StoryName);
+                SaveAndExportManager.ExportAllMissinglinesForStoryIntoFolder(Utils.SelectFolderFromSystem("Please select where you want to save the missing lines to"), StoryName);
             else
-                FileManager.ExportAllMissinglinesForStoryIntoFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: "all_missing.txt", createPrompt: true, checkFileExists: false), StoryName);
+                SaveAndExportManager.ExportAllMissinglinesForStoryIntoFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: "all_missing.txt", createPrompt: true, checkFileExists: false), StoryName);
         }
 
         public void ExportMissinglinesForCurrentFile()
         {
-            FileManager.ExportMissingLinesForFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: FileName + "_missing.txt", createPrompt: true, checkFileExists: false), StoryName, FileName);
+            SaveAndExportManager.ExportMissingLinesForFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: FileName + "_missing.txt", createPrompt: true, checkFileExists: false), StoryName, FileName);
         }
 
         public void OverrideCloudSave()
@@ -320,18 +320,18 @@ namespace Translator.Core
                 UI.SignalUserEndWait();
                 return;
             }
-            if (doOnlineUpdate) _ = Task.Run(RemoteUpdate).ContinueWith(RemoteUpdateExceptionHandler(), TaskContinuationOptions.OnlyOnFaulted);
+            if (doOnlineUpdate && DataBase.IsOnline) _ = Task.Run(RemoteUpdate).ContinueWith(RemoteUpdateExceptionHandler(), TaskContinuationOptions.OnlyOnFaulted);
 
-            List<CategorizedLines> CategorizedStrings = FileManager.InitializeCategories(StoryName, FileName);
+            List<CategorizedLines> CategorizedStrings = SaveAndExportManager.InitializeCategories(StoryName, FileName);
 
             //sort online line ids into translations but use local values for translations if applicable
             if (DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase.IsOnline)
-                FileManager.SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
+                SaveAndExportManager.SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
             else
-                FileManager.SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
+                SaveAndExportManager.SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
 
             //save all categorized lines to disk
-            FileManager.WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
+            SaveAndExportManager.WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
 
             //copy file to game rather than writing again
             if (Settings.Default.AlsoSaveToGame)
@@ -931,7 +931,7 @@ namespace Translator.Core
         {
             if (UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES))
             {
-                return FileManager.GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false);
+                return SaveAndExportManager.GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false);
             }
             return new FileData(StoryName, FileName);
         }
@@ -939,7 +939,7 @@ namespace Translator.Core
         /// <summary>
         /// Loads the strings and does some work around to ensure smooth sailing.
         /// </summary>
-        private void IntegrateOnlineTranslations(bool localTakesPriority = false)
+        private void AddLinesToUIAndIntegrateOnline(bool localTakesPriority = false)
         {
             int currentIndex = 0;
             UI.SignalUserWait();
@@ -1017,7 +1017,7 @@ namespace Translator.Core
                     TabUI.SetFileInfoText($"File: {storyNameToDisplay}/{fileNameToDisplay}.txt");
 
                     //is up to date, so we can start translation
-                    IntegrateOnlineTranslations(localTakesPriority);
+                    AddLinesToUIAndIntegrateOnline(localTakesPriority);
                     //update tab name
                     TabManager.UpdateTabTitle(this, FileName);
                     TabUI.SetApprovedCount(TabUI.Lines.ApprovedCount, TabUI.Lines.Count);
@@ -1053,7 +1053,6 @@ namespace Translator.Core
         private void ReadStringsTranslationsFromFile()
         {
             FileData templates;
-            StringCategory currentCategory = StringCategory.General;
             if (DataBase.IsOnline)
             {
                 _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out templates);
@@ -1079,7 +1078,7 @@ namespace Translator.Core
             //if we got lines at all
             if (LinesFromFile.Count > 0)
             {
-                SplitReadTranslations(LinesFromFile, currentCategory, templates);
+                SplitReadTranslations(LinesFromFile, templates);
             }
             else
             {
@@ -1128,10 +1127,11 @@ namespace Translator.Core
             TabUI.SelectLineItem(i);
         }
 
-        private void SplitReadTranslations(List<string> LinesFromFile, StringCategory category, FileData IdsToExport)
+        private void SplitReadTranslations(List<string> LinesFromFile, FileData IdsToExport)
         {
             string[] lastLine = Array.Empty<string>();
             string multiLineCollector = string.Empty;
+            StringCategory category = StringCategory.General;
             //remove last if empty, breaks line loading for the last
             while (LinesFromFile.Count > 0)
             {
@@ -1168,6 +1168,7 @@ namespace Translator.Core
                         //if we reach a category, we can add the old string to the translation manager
                         if (lastLine.Length != 0)
                         {
+
                             if (multiLineCollector.Length > 2)
                             {//write last string with id plus all lines after that minus the last new line char(s)
                                 multiLineCollector = multiLineCollector.TrimEnd(Extensions.trimmers);
@@ -1178,6 +1179,8 @@ namespace Translator.Core
                                 CreateLineInTranslations(lastLine, category, IdsToExport, string.Empty);
                             }
                         }
+                        //only set new category after we added the last line of the old one
+                        category = tempCategory;
                         //resetting for next iteration
                         lastLine = Array.Empty<string>();
                         multiLineCollector = string.Empty;
