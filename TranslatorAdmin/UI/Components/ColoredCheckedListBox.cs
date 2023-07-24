@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using Translator.Desktop.Helpers;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -63,12 +64,12 @@ namespace Translator.Desktop.UI.Components
         /// <param name="m"> The windows Message to be used</param>
         protected override void WndProc(ref Message m)
         {
-            // Filter WM_LBUTTONDBLCLK and MW_LBUTTONDOWN and MW_LBUTTONUP
-            if (m.Msg != 0x203 && m.Msg != 0x201)
+            // Filter WM_LBUTTONDBLCLK and MW_LBUTTONDOWN
+            if (m.Msg != Winutils.WM_LBUTTONDBLCLK && m.Msg != Winutils.WM_LBUTTONDOWN)
             {
                 base.WndProc(ref m);
             }
-            else if (m.Msg == 0x201) //our own handle
+            else if (m.Msg == Winutils.WM_LBUTTONDOWN) //our own handle
             {
                 //get mouse cursor position from message https://docs.microsoft.com/en-us/windows/win32/inputdev/wm-lbuttondown
                 byte[] bytes = BitConverter.GetBytes(m.LParam.ToInt64());

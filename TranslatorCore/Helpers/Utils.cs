@@ -19,7 +19,7 @@ namespace Translator.Core.Helpers
     /// Provides some generic utility methods.
     /// </summary>
 
-    public static partial class Utils
+    public static class Utils
     {
         public const int MaxTextLength = 100;
         public const int MaxWordLength = 15;
