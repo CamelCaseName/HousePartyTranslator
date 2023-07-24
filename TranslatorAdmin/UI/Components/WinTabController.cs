@@ -23,6 +23,7 @@ namespace Translator.Desktop.UI.Components
             DrawMode = TabDrawMode.OwnerDrawFixed;
             DrawItem += DrawTabTitleCards;
             Padding = Point.Empty;
+            Margin = System.Windows.Forms.Padding.Empty;
             Resize += RedrawClean;
             FontChanged += RedrawClean;
             Layout += RedrawClean;
@@ -48,7 +49,6 @@ namespace Translator.Desktop.UI.Components
             //backgrounds
             if (e.State == DrawItemState.Selected)
             {
-                //todo adjust rectangles so it is consistent
                 var newBounds = new Rectangle(e.Bounds.X - 2, 0, e.Bounds.Width + 4, 24);
                 e.Graphics.FillRectangle(background, newBounds);
                 TextRenderer.DrawText(e.Graphics, TabPages[e.Index].Text, font, newBounds, Utils.darkText);
