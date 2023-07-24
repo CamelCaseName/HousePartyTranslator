@@ -20,7 +20,7 @@ List of all hotkeys so far
 |CTRL + S|saves the file to disk|file will also be saved to the game, use setting "alsoCopyToGame" to control|
 |CTRL + SHIFT + S|saves the currently selected line||
 |ALT + SHIFT + S|Saves all open files||
-|CTRL + F|moves the cursor to the search box|See [Search](#Search)|
+|CTRL + F|moves the cursor to the search box|See [Search](#search)|
 |CTRL + R|reloads the current file in the current tab|can be used to get rid of miscoloured lines|
 |CTRL + UP|select the line above|can also be used to cycle through search queries when in the search box|
 |CTRL + DOWN|select the line below|can also be used to cycle through search queries when in the search box|
@@ -88,22 +88,22 @@ For a result to count the conditions of all modifiers have to be met.
 
 |modifier|name|rules behind it|
 |---|---|---|
-|§id|id|query must be in the id of a line|
-|§tn|translations|query must be in the translation of a line|
-|§en|english/template|query must be in the template/english version of a line|
-|§cm|comments|query must be in the comments of a line|
-|§tx|text(no comments)|query must be in the template or translation of a line|
-|§ap|approved|line must be approved|
-|§un|not approved|line must not be approved|
-|§td|translated|line must be translated|
-|§ut|not translated|line must not be translated|
-|§ma|translation matches template| query doesnt matter, translation must match template
-|§rg|regex|treats the searched query as regex
+|Â§id|id|query must be in the id of a line|
+|Â§tn|translations|query must be in the translation of a line|
+|Â§en|english/template|query must be in the template/english version of a line|
+|Â§cm|comments|query must be in the comments of a line|
+|Â§tx|text(no comments)|query must be in the template or translation of a line|
+|Â§ap|approved|line must be approved|
+|Â§un|not approved|line must not be approved|
+|Â§td|translated|line must be translated|
+|Â§ut|not translated|line must not be translated|
+|Â§ma|translation matches template| query doesnt matter, translation must match template
+|Â§rg|regex|treats the searched query as regex
 
 ### Example
-- `§tx§cm§apsock` - approved lines that have sock in their translation or template and in the comments
-- `?!§ap§ma` - approved lines in all tabs where the translation matches the template, case sensitive
-- `§id§un§rg[0-9a-fA-F]{8}[-]?([0-9a-fA-F]{4}[-]?){3}[0-9a-fA-F]{12}$` - lines not approved and that have only a guid as their id
+- `Â§txÂ§cmÂ§apsock` - approved lines that have sock in their translation or template and in the comments
+- `?!Â§apÂ§ma` - approved lines in all tabs where the translation matches the template, case sensitive
+- `Â§idÂ§unÂ§rg[0-9a-fA-F]{8}[-]?([0-9a-fA-F]{4}[-]?){3}[0-9a-fA-F]{12}$` - lines not approved and that have only a guid as their id
 
 see [regexr](https://regexr.com) for help with regex.
 
