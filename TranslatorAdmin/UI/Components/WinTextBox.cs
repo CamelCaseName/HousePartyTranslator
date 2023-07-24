@@ -4,14 +4,13 @@ using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.Helpers;
 
 namespace Translator.Desktop.UI.Components
 {
     [SupportedOSPlatform("windows")]
     public class WinTextBox : TextBox, ITextBox
     {
-        private const int WM_PAINT = 15;
-        private const int WM_MOUSEMOVE = 512;
         private bool customDrawNeeded = false;
         private bool showHighlight = false;
 
@@ -59,7 +58,7 @@ namespace Translator.Desktop.UI.Components
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-            if ((m.Msg == WM_PAINT || m.Msg == WM_MOUSEMOVE) && IsHandleCreated)
+            if ((m.Msg == Winutils.WM_PAINT || m.Msg == Winutils.WM_MOUSEMOVE) && IsHandleCreated)
                 //we have a paint message, send to own handler. only if we have a gdi handle
                 OnPaint(new PaintEventArgs(Graphics.FromHwnd(m.HWnd), ClientRectangle));
         }

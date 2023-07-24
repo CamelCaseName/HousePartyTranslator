@@ -225,9 +225,9 @@ namespace Translator.Desktop.UI
         public void TextContextOpened(object? sender, EventArgs? e)
         {
             if (sender == null) return;
-            if (sender.GetType().IsAssignableFrom(typeof(ITextBox)))
+            if (sender is ITextBox textBox)
             {
-                InputHandler.PrepareTextChanged((ITextBox)sender);
+                InputHandler.PrepareTextChanged(textBox);
             }
         }
 
