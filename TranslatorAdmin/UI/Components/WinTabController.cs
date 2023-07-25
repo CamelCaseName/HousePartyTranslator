@@ -76,7 +76,12 @@ namespace Translator.Desktop.UI.Components
 
         public new List<ITab> TabPages => base.TabPages.ToTabList();
 
-        public void AddTab(ITab tab) => base.TabPages.Add((TabPage)tab);
+        public void AddTab(ITab tab)
+        {
+            base.TabPages.Add((TabPage)tab);
+            ((TabPage)tab).TextChanged += RedrawClean;
+        }
+
         public bool CloseTab(ITab tab)
         {
             base.TabPages.Remove((TabPage)tab);
