@@ -1004,7 +1004,7 @@ namespace Translator.Desktop.UI
             //start timer to update presence
             PresenceTimer.Elapsed += (sender_, args) =>
             {
-                DiscordPresenceManager.Update();
+                Invoke(DiscordPresenceManager.Update);
             };
             PresenceTimer.Start();
 
@@ -1018,7 +1018,6 @@ namespace Translator.Desktop.UI
                 overrideCloudSaveToolStripMenuItem.Enabled = false;
 
             ProgressbarWindow.Hide();
-
         }
 
         private void SearchAllToolStripMenuItem_click(object? sender, EventArgs? e)

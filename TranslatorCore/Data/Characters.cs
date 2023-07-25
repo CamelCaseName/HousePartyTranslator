@@ -26,6 +26,7 @@ namespace Translator.Helpers
 
         public enum CharacterEnum
         {
+            amala,
             amy,
             arin,
             ashley,
@@ -33,10 +34,12 @@ namespace Translator.Helpers
             compubrah,
             dan,
             derek,
+            dojacat,
             frank,
             katherine,
             leah,
             lety,
+            lizkatz,
             madison,
             patrick,
             phonecall,

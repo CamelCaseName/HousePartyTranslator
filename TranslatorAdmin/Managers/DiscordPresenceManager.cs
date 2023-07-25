@@ -11,7 +11,7 @@ namespace Translator.Desktop.Managers
     [SupportedOSPlatform("Windows")]
     public static class DiscordPresenceManager
     {
-        public static DiscordRPC? DiscordPresenceClient;
+        private static DiscordRPC? DiscordPresenceClient;
         private static string Character = string.Empty;
         private static string Story = string.Empty;
         private static string ImageKey = Characters.CharacterEnum.rule34.ToString();
@@ -30,13 +30,17 @@ namespace Translator.Desktop.Managers
                         {
                             LargeImageKey = ImageKey,
                             LargeImageText = Character
+                        },
+                        Timestamps = new Timestamps()
+                        {
+                            Start = System.DateTime.Now
                         }
                     });
                     _ = DiscordPresenceClient?.UpdateStartTime();
                 }
                 catch
                 {
-                    LogManager.Log("Couldn't update presence.");
+                    LogManager.Log("Couldn't update presence.", LogManager.Level.Warning);
                 }
             }
         }
