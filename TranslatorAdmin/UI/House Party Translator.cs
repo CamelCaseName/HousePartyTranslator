@@ -60,6 +60,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem editToolStripMenuItem;
         private WinMenuItem exitToolStripMenuItem;
         private WinMenuItem fileToolStripMenuItem;
+        private WinMenuItem templateToolStripMenuItem;
         private ColoredToolStripDropDown languageToolStripComboBox;
         private WinMenuItem openAllToolStripMenuItem;
         private WinMenuItem openInNewTabToolStripMenuItem;
@@ -786,7 +787,7 @@ namespace Translator.Desktop.UI
                 Size = new Size(61, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
-                Text = "Se&ttings",
+                Text = "Settin&gs",
                 ToolTipText = "Opens a list of all settings for the translator, see the github for reference."
             };
             settingsToolStripMenuItem.Click += (object? sender, EventArgs e) => WindowsKeypressManager.ShowSettings();
@@ -796,7 +797,7 @@ namespace Translator.Desktop.UI
             {
                 BackColor = menu,
                 Name = nameof(editToolStripMenuItem),
-                Size = new Size(37, 23),
+                Size = new Size(35, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
                 Text = "&Edit",
@@ -811,17 +812,8 @@ namespace Translator.Desktop.UI
                 new WinMenuSeperator(),
                 replaceToolStripMenuItem,
                 new WinMenuSeperator(),
-                generateTemplateForFile,
-                generateTemplateForCompleteStory,
-                createTemplateForFile,
-                createTemplateForCompleteStory,
-                exportTemplates,
-                new WinMenuSeperator(),
                 ReloadFileMenuItem,
                 new WinMenuSeperator(),
-                ExportAllMissingLinesFolder,
-                ExportAllMissingLinesFile,
-                ExportMissingLinesCurrentFile,
                 overrideCloudSaveToolStripMenuItem
             });
 
@@ -830,7 +822,7 @@ namespace Translator.Desktop.UI
             {
                 BackColor = menu,
                 Name = nameof(fileToolStripMenuItem),
-                Size = new Size(37, 23),
+                Size = new Size(35, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
                 Text = "&File",
@@ -854,6 +846,29 @@ namespace Translator.Desktop.UI
                 exitToolStripMenuItem
             });
 
+            // templateToolStripMenuItem
+            templateToolStripMenuItem = new WinMenuItem()
+            {
+                BackColor = menu,
+                Name = nameof(templateToolStripMenuItem),
+                Size = new Size(60, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&Template",
+                ToolTipText = "All relevant controls for generating or exporting templates"
+            };
+            templateToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+                generateTemplateForFile,
+                generateTemplateForCompleteStory,
+                createTemplateForFile,
+                createTemplateForCompleteStory,
+                exportTemplates,
+                new WinMenuSeperator(),
+                ExportAllMissingLinesFolder,
+                ExportAllMissingLinesFile,
+                ExportMissingLinesCurrentFile,
+            });
+
             // MainMenu
             MainMenu = new MenuStrip()
             {
@@ -872,6 +887,7 @@ namespace Translator.Desktop.UI
             MainMenu.Items.AddRange(new ToolStripItem[] {
                 fileToolStripMenuItem,
                 editToolStripMenuItem,
+                templateToolStripMenuItem,
                 saveCurrentStringToolStripMenuItem,
                 searchToolStripTextBox,
                 ToolStripMenuReplaceBox,

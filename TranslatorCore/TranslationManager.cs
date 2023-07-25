@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
 using Translator.Core.Data;
-using Translator.Core.DefaultImpls;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
-using static System.Net.Mime.MediaTypeNames;
 
 //TODO add tests
 
