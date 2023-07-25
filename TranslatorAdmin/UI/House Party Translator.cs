@@ -26,7 +26,6 @@ namespace Translator.Desktop.UI
     {
         private StoryExplorer? SExplorer;
         private readonly ContextMenuStrip? ListContextMenu;
-        private DiscordPresenceManager? PresenceManager;
 #nullable disable
         public MenuStrip MainMenu;
         internal readonly WinTabController TabControl = new()
@@ -528,7 +527,11 @@ namespace Translator.Desktop.UI
                 Text = "&Open",
                 ToolTipText = "Opens a dialog to select a file"
             };
-            openToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.OpenNewFiles();
+            openToolStripMenuItem.Click += (object? sender, EventArgs e) =>
+            {
+                TabManager.OpenNewFiles();
+                DiscordPresenceManager.Update();
+            };
 
             // newFileToolStripMenuItem
             newFileToolStripMenuItem = new WinMenuItem()
@@ -950,7 +953,7 @@ namespace Translator.Desktop.UI
         private void MainTabControl_SelectedIndexChanged(object? sender, EventArgs? e)
         {
             TabManager.OnSwitchTabs();
-            WindowsKeypressManager.SelectedTabChanged(PresenceManager);
+            WindowsKeypressManager.SelectedTabChanged();
         }
 
         private void OnFormClosing(object? sender, FormClosingEventArgs? e)
@@ -959,7 +962,7 @@ namespace Translator.Desktop.UI
             LogManager.SaveLogFile();
 
             //prevent discord from getting angry
-            PresenceManager?.DeInitialize();
+            DiscordPresenceManager.DeInitialize();
 
             RecentsManager.SaveRecents();
 
@@ -990,9 +993,7 @@ namespace Translator.Desktop.UI
 
             LogManager.Log("Application initializing...");
             ProgressbarWindow.Status.Text = "Starting discord worker";
-            PresenceManager = new DiscordPresenceManager();
 
-            WinTranslationManager.DiscordPresence = PresenceManager;
             ProgressbarWindow.PerformStep();
 
             ProgressbarWindow.Status.Text = "Loading recents";
@@ -1001,11 +1002,13 @@ namespace Translator.Desktop.UI
             RecentsManager.OpenMostRecent();
 
             //start timer to update presence
-            PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
+            PresenceTimer.Elapsed += (sender_, args) =>
+            {
+                DiscordPresenceManager.Update();
+            };
             PresenceTimer.Start();
 
-            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName ?? "None", TabManager.ActiveTranslationManager.FileName ?? "None");
-
+            DiscordPresenceManager.Update();
             //done
             ProgressbarWindow.PerformStep();
             LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{(DataBase.IsOnline ? DataBase.DBVersion : "*offline*")} story version:{Settings.Default.FileVersion}");
@@ -1056,6 +1059,7 @@ namespace Translator.Desktop.UI
             else
             {
                 TabManager.OpenFile(path);
+                DiscordPresenceManager.Update();
             }
         }
 

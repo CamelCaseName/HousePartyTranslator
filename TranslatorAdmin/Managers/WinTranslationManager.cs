@@ -14,8 +14,6 @@ namespace Translator.Desktop.Managers
     {
         public static bool UpdateStoryExplorerSelection { get; internal set; } = true;
 
-        public static DiscordPresenceManager? DiscordPresence { get; internal set; }
-
         internal static bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
         {
             if (TabManager.UI == null)

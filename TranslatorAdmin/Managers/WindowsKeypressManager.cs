@@ -26,10 +26,11 @@ namespace Translator.Desktop.Managers
             }
         }
 
-        public static void SelectedTabChanged(DiscordPresenceManager? presenceManager)
+        public static void SelectedTabChanged()
         {
             //update presence
-            if (TabManager.ActiveTranslationManager != null) presenceManager?.Update(TabManager.ActiveTranslationManager.StoryName, TabManager.ActiveTranslationManager.FileName);
+            if (TabManager.ActiveTranslationManager != null)
+                DiscordPresenceManager.Update();
         }
 
         public static void ShowSettings()
