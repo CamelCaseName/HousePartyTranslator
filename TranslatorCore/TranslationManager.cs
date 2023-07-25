@@ -334,7 +334,7 @@ namespace Translator.Core
                 UI.SignalUserEndWait();
                 return;
             }
-            if (doOnlineUpdate && DataBase.IsOnline) _ = Task.Run(RemoteUpdate).ContinueWith(RemoteUpdateExceptionHandler(), TaskContinuationOptions.OnlyOnFaulted);
+            if (doOnlineUpdate) _ = Task.Run(RemoteUpdate).ContinueWith(RemoteUpdateExceptionHandler(), TaskContinuationOptions.OnlyOnFaulted);
 
             List<CategorizedLines> CategorizedStrings = SaveAndExportManager.InitializeCategories(StoryName, FileName);
 
@@ -359,7 +359,7 @@ namespace Translator.Core
             void RemoteUpdate()
             {
                 UI.SignalUserWait();
-                if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+                if (!DataBase.UpdateTranslations(TranslationData, Language)) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
                 else LogManager.Log("Successfully saved the file remotely");
                 UI.SignalUserEndWait();
             }

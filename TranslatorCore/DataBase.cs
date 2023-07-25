@@ -19,7 +19,6 @@ namespace Translator.Core
         public static string AppTitle { get; private set; } = string.Empty;
         public static string DBVersion { get; private set; } = "0.00";
         public static bool IsOnline { get; private set; } = false;
-        public static bool IsForcedOffline { get; private set; } = false;
 
 #if DEBUG || DEBUG_ADMIN
         private static readonly string FROM = " FROM debug";
@@ -30,6 +29,7 @@ namespace Translator.Core
         private static readonly string INSERT = " INSERT INTO translations";
         private static readonly string UPDATE = " UPDATE translations";
 #endif
+        private static readonly Queue<MySqlCommand> OfflineToDo = new();
 
         public static bool GetAllFilesAndStories(out HashSet<string> stories, out HashSet<string> files)
         {
@@ -798,10 +798,6 @@ namespace Translator.Core
 
                         _ = ExecuteOrReOpen(cmd);
                     }
-                    else
-                    {
-                        Debugger.Break();
-                    }
                 }
 
                 //return if at least ione row was changed
@@ -931,7 +927,6 @@ namespace Translator.Core
         {
             //end early
             if (connection.State == System.Data.ConnectionState.Open) return IsOnline = true;
-            if (IsForcedOffline) return false;
             //if we are still offline
             if (connection.State != System.Data.ConnectionState.Open)
             {
@@ -951,7 +946,6 @@ namespace Translator.Core
                         //0 means offline
                         _ = UI!.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
                                         "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
-                        IsForcedOffline = true;
                         return IsOnline = false;
                     }
                     else if (errorCode == 1045)
@@ -970,7 +964,6 @@ namespace Translator.Core
                     connection.Open();
                     System.Threading.Thread.Sleep(100 * tries);
                 }
-                if (tries == 10 && connection.State != System.Data.ConnectionState.Open) IsForcedOffline = true;
                 return IsOnline = connection.State == System.Data.ConnectionState.Open;
             }
             else return IsOnline = true;
@@ -1001,16 +994,18 @@ namespace Translator.Core
                 }
                 catch (MySqlException e)
                 {
-                    if (e.Number == 0)
+                    if (e.Number == 0 || e.Number == 1042)
                     {
                         //0 means offline
                         _ = UI!.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
-                            "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
+                                        "If you are sure you have internet, please check your networking and firewall settings and restart.", "No Internet!");
+                        IsOnline = false;
                     }
                     else if (e.Number == 1045)
                     {
-                        //means invalid creds
+                        //means invalid creds or empty host/password
                         _ = UI!.ErrorOk($"Invalid password\nChange in \"Settings\" window, then restart!\n\n {e.Message}", "Wrong password");
+                        IsOnline = false;
                     }
                     return;
                 }
@@ -1026,23 +1021,52 @@ namespace Translator.Core
         {
             if (CheckOrReopenConnection(command.Connection))
             {
+                if (OfflineToDo.Count > 0)
+                {
+                    LogManager.Log("Queued commands found, executing those first");
+                    UI?.InfoOk("You are back online, syncing progress to server", "Back online!");
+
+                    while (OfflineToDo.Count > 0)
+                    {
+                        try
+                        {
+                            OfflineToDo.Dequeue().ExecuteNonQuery();
+                        }
+                        catch (Exception e)
+                        {
+                            LogManager.Log($"While trying to execute a queued command, this happened:\n" + e.ToString(), LogManager.Level.Error);
+                        }
+                    }
+
+                    LogManager.Log("All queued commands executed");
+                    UI?.InfoOk("Sync done!", "Back online!");
+                }
+
                 bool executedSuccessfully = false;
                 int tries = 0; //reset try count
                 while (!executedSuccessfully && tries < 10)
                 {
+                    Exception? e = null;
                     try
                     {
                         ++tries;
                         executedSuccessfully = command.ExecuteNonQuery() > 0;
                     }
-                    catch (Exception e)
+                    catch (Exception _e)
                     {
                         if (!executedSuccessfully) System.Threading.Thread.Sleep(500 * tries);
-                        LogManager.Log($"While trying to execute the following command  {command.CommandText.TrimWithDelim("[...]", 1000)},\n this happened:\n" + e.ToString(), LogManager.Level.Error);
+                        e = _e;
                     }
+                    if (!executedSuccessfully)
+                        LogManager.Log($"even after executing the {command.CommandText.TrimWithDelim("[...]", 1000)},\n for ten times we got an exception, probably no internet. " + e?.ToString(), LogManager.Level.Error);
                 }
 
                 return executedSuccessfully;
+            }
+            else
+            {
+                OfflineToDo.Enqueue(command);
+                LogManager.Log("Database cannot be reached, queueing command");
             }
             return false;
         }
