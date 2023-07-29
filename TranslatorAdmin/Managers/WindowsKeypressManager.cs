@@ -40,18 +40,6 @@ namespace Translator.Desktop.Managers
         }
 
         /// <summary>
-        /// Call this after performing base.WndProc, but before returning in the overriden form WndProc
-        /// </summary>
-        public static void WinTextChangedCallback(Form parent, int selectedIndex)
-        {
-            if (parent.ActiveControl == null) return;
-            if (parent.ActiveControl.GetType().IsAssignableFrom(typeof(ITextBox)))
-            {
-                InputHandler.TextChangedCallback((ITextBox)parent.ActiveControl, selectedIndex);
-            }
-        }
-
-        /// <summary>
         /// Detects for hotkeys used, if they are consumed we return true, else false is returned. Call TextChangedCallback if this returned false and the base.WndProc has finished to call back on text changes.
         /// </summary>
         /// <param name="msg">Windows message contaning the info on the event.</param>
@@ -193,9 +181,9 @@ namespace Translator.Desktop.Managers
         private static void DefaultTextChangePreparation()
         {
             if (App.MainForm?.ActiveControl == null || App.MainForm == null) return;
-            if (App.MainForm.ActiveControl.GetType().IsAssignableFrom(typeof(ITextBox)))
+            if (App.MainForm.ActiveControl is ITextBox box)
             {
-                InputHandler.PrepareTextChanged((ITextBox)App.MainForm.ActiveControl);
+                InputHandler.PrepareTextChanged(box);
             }
         }
     }

@@ -172,8 +172,8 @@ namespace Translator.Desktop.UI
 
         public void Comments_TextChanged(object? sender, EventArgs? e)
         {
+            InputHandler.TextChangedCallback(TabControl.SelectedTab.Comments, CheckListBoxLeft.SelectedIndex);
             TabManager.ActiveTranslationManager.UpdateComments();
-            InputHandler.TextChangedCallback(TabManager.SelectedTab.Comments, CheckListBoxLeft.SelectedIndex);
         }
 
         /// <summary>
@@ -214,11 +214,7 @@ namespace Translator.Desktop.UI
 
         public void TextBoxRight_TextChanged(object? sender, EventArgs? e)
         {
-            if (sender == null) return;
-            if (sender.GetType().IsAssignableFrom(typeof(ITextBox)))
-            {
-                InputHandler.TextChangedCallback((ITextBox)sender, CheckListBoxLeft.SelectedIndex);
-            }
+            InputHandler.TextChangedCallback(TabControl.SelectedTab.Translation, CheckListBoxLeft.SelectedIndex);
             TabManager.ActiveTranslationManager.UpdateTranslationString();
         }
 
