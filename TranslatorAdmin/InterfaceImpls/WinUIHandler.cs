@@ -104,8 +104,6 @@ namespace Translator.Desktop.InterfaceImpls
         /// </summary>
         public void ToggleReplaceBar()
         {
-            return;
-            /*
             if (!ReplaceBarIsVisible)
             {
                 if (SelectedTab.SelectedTranslationBoxText.Length > 0)
@@ -122,7 +120,7 @@ namespace Translator.Desktop.InterfaceImpls
             {
                 SetReplaceMenuInVisible();
                 SelectedTab.FocusTranslationBox();
-            }*/
+            }
         }
 
         public void Update() => App.MainForm?.Update();

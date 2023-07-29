@@ -1,13 +1,14 @@
-﻿using MySqlX.XDevAPI.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Translator.Core.Data;
+using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Translator.Core.Helpers
 {
-    internal static class Searcher
+    public static class Searcher
     {
         public delegate bool SearchImplementation(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern);
 
@@ -346,6 +347,60 @@ namespace Translator.Core.Helpers
             {
                 return false;
             }
+        }
+
+        internal static bool TryGetSearchResult(ReadOnlySpan<char> query, ReadOnlySpan<char> line, out int position, out int length)
+        {
+            position = -1;
+            length = -1;
+            if (query.IsEmpty) return false;
+            if (line == null) return false;
+
+            StringComparison comparison = StringComparison.InvariantCultureIgnoreCase;
+
+            //case sensitive search
+            if (!CheckAndClearEscapedChars(ref query))
+            {
+                if (query[0] == '!' && query.Length > 1) // we set the case sensitive flag
+                {
+                    query = query[1..];
+                    comparison = StringComparison.CurrentCulture;
+                }
+            }
+
+            //we only extracted an specifyer, no query yet
+            if (query.IsEmpty) return false;
+
+            //regex used?
+            bool useRegex = query.Contains("§rg".AsSpan(), StringComparison.InvariantCultureIgnoreCase)
+                && !query.Contains("!§rg".AsSpan(), StringComparison.InvariantCultureIgnoreCase);
+
+            if (useRegex)
+            {
+                //run all checks agains all lines
+                Regex? regex = CreateRegex(query, useRegex);
+                if (regex != null)
+                {
+                    try
+                    {
+                        var match = regex.Match(line.ToString());
+                        if (match.Success)
+                        {
+                            position = match.Index;
+                            length = match.Length;
+                            return true;
+                        }
+                        return false;
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+            }
+            position = line.IndexOf(query, comparison);
+            length = query.Length;
+            return position >= 0;
         }
 
         public static bool Search(ReadOnlySpan<char> query, FileData data, out List<int>? results)

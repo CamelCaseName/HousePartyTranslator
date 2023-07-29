@@ -711,13 +711,14 @@ namespace Translator.Core
         /// <param name="replacement">The string to replace all search matches with</param>
         internal void ReplaceAll(string replacement)
         {
+            if (TabUI.Lines.SearchResults.Count == 0) return;
             //save old lines for history
             FileData old = new(TranslationData, StoryName, FileName);
 
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
                 if (TabUI.Lines.SearchResults[i] < 0) continue;
-                TranslationData[TabUI.Lines[i].Text].TranslationString = TranslationData[TabUI.Lines[i].Text].TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
+                TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].Text].TranslationString = Replacer.Replace(TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].Text].TranslationString, replacement, CleanedSearchQuery).ToString();
             }
 
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
@@ -740,7 +741,7 @@ namespace Translator.Core
         {
             if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineIndex))
             {
-                string temp = SelectedLine.TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
+                string temp = Replacer.Replace(SelectedLine.TranslationString, replacement, CleanedSearchQuery).ToString();
                 History.AddAction(new TranslationChanged(this, SelectedId, SelectedLine.TranslationString, temp));
                 SelectedLine.TranslationString = temp;
 
