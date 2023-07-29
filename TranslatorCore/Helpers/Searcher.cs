@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Translator.Core.Data;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Translator.Core.Helpers
 {
@@ -209,6 +207,34 @@ namespace Translator.Core.Helpers
             return useRegex;
         }
 
+        private static bool RemoveModifiers(ref ReadOnlySpan<char> query)
+        {
+            var useRegex = false;
+            if (!CheckAndClearEscapedChars(ref query))
+            {
+                //we enter specifyer mode
+                if (query[0] == '§' && query.Length > 2)
+                {
+                    //just add mupltiple search types like this §id§tn
+                    do
+                    {
+                        query = query[1..];
+                        switch (query[..2])
+                        {
+                            //treat query as regex
+                            case "rg":
+                                useRegex = true;
+                                break;
+                            default:
+                                break;
+                        }
+                        query = query[2..];
+                    } while (!query.IsEmpty && query[0] == '§' && query.Length > 2);
+                }
+            }
+            return useRegex;
+        }
+
         private static bool CheckAndClearEscapedChars(ref ReadOnlySpan<char> query)
         {
             if (query.IsEmpty) return false;
@@ -371,14 +397,10 @@ namespace Translator.Core.Helpers
             //we only extracted an specifyer, no query yet
             if (query.IsEmpty) return false;
 
-            //regex used?
-            bool useRegex = query.Contains("§rg".AsSpan(), StringComparison.InvariantCultureIgnoreCase)
-                && !query.Contains("!§rg".AsSpan(), StringComparison.InvariantCultureIgnoreCase);
-
-            if (useRegex)
+            if (RemoveModifiers(ref query))
             {
                 //run all checks agains all lines
-                Regex? regex = CreateRegex(query, useRegex);
+                Regex? regex = CreateRegex(query, true);
                 if (regex != null)
                 {
                     try

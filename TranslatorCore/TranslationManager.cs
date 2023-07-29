@@ -718,7 +718,7 @@ namespace Translator.Core
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
                 if (TabUI.Lines.SearchResults[i] < 0) continue;
-                TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].Text].TranslationString = Replacer.Replace(TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].Text].TranslationString, replacement, CleanedSearchQuery).ToString();
+                TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].Text].TranslationString = Replacer.Replace(TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].Text].TranslationString, replacement, SearchQuery).ToString();
             }
 
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
@@ -741,7 +741,7 @@ namespace Translator.Core
         {
             if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineIndex))
             {
-                string temp = Replacer.Replace(SelectedLine.TranslationString, replacement, CleanedSearchQuery).ToString();
+                string temp = Replacer.Replace(SelectedLine.TranslationString, replacement, SearchQuery).ToString();
                 History.AddAction(new TranslationChanged(this, SelectedId, SelectedLine.TranslationString, temp));
                 SelectedLine.TranslationString = temp;
 
