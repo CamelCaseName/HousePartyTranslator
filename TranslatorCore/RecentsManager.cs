@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core

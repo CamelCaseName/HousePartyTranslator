@@ -19,11 +19,25 @@ namespace Translator.Desktop.Explorer.Graph
         private readonly NodeList nodesA = new();
         private readonly NodeList nodesB = new();
         private bool _usingListA = true;
-        public bool UsingListA { get { if (frozen) return _usingListA; else return true; } set { if (frozen) _usingListA = value; } }
+        private readonly List<NodeType> allowedTypes = new();
+        public bool UsingListA
+        {
+            get
+            {
+                if (frozen)
+                    return _usingListA;
+                else
+                    return true;
+            }
+            set
+            {
+                if (frozen)
+                    _usingListA = value;
+            }
+        }
         private bool frozen = false;
-        private (int lockedNodeIndex, float movedNodePos_X, float movedNodePos_Y) _movingNodeInfo = (-1, 0.0f, 0.0f);
-
-        public (int lockedNodeIndex, float movedNodePos_X, float movedNodePos_Y) MovingNodeInfo => _movingNodeInfo;
+        private NodeMovementInfo _movingNodeInfo = (-1, 0.0f, 0.0f);
+        public NodeMovementInfo MovingNodeInfo => _movingNodeInfo;
 
         public NodeList Nodes
         {
@@ -138,9 +152,9 @@ namespace Translator.Desktop.Explorer.Graph
         {
             if (index >= 0)
             {
-                _movingNodeInfo.lockedNodeIndex = index;
-                _movingNodeInfo.movedNodePos_X = Nodes[index].Position.X;
-                _movingNodeInfo.movedNodePos_Y = Nodes[index].Position.Y;
+                _movingNodeInfo.Index = index;
+                _movingNodeInfo.PosX = Nodes[index].Position.X;
+                _movingNodeInfo.PosY = Nodes[index].Position.Y;
                 MovingNodePositionOverrideEnded = false;
                 MovingNodePositionOverridden = true;
             }
@@ -148,8 +162,8 @@ namespace Translator.Desktop.Explorer.Graph
 
         internal void UpdatePositionChange(float x, float y)
         {
-            _movingNodeInfo.movedNodePos_X = x;
-            _movingNodeInfo.movedNodePos_Y = y;
+            _movingNodeInfo.PosX = x;
+            _movingNodeInfo.PosY = y;
         }
 
         internal void EndPositionChange()
@@ -167,19 +181,15 @@ namespace Translator.Desktop.Explorer.Graph
             return Nodes.GetPositions();
         }
 
-        internal void SetFilter(NodeType[] disabledTypes)
+        internal void AddFilter(NodeType allowedType)
         {
-
+            if (!allowedTypes.Contains(allowedType))
+                allowedTypes.Add(allowedType);
         }
 
-        internal void AddFilter(NodeType disabledType)
+        internal void RemoveFilter(NodeType disallowedType)
         {
-
-        }
-
-        internal void RemoveFilter(NodeType allowedType)
-        {
-
+            allowedTypes.Remove(disallowedType);
         }
     }
 }

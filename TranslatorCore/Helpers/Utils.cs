@@ -1,15 +1,10 @@
-﻿using Google.Protobuf;
-using Org.BouncyCastle.Asn1.Mozilla;
-using Org.BouncyCastle.Utilities.Collections;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 

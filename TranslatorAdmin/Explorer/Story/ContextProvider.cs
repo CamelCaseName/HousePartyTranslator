@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
 using System.Runtime.Versioning;
@@ -10,7 +9,6 @@ using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.JSONItems;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Translator.Desktop.Explorer.JSONItems.StoryEnums;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 

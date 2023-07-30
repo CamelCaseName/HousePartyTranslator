@@ -1,15 +1,14 @@
-﻿using Translator.Core.Helpers;
+﻿using System;
+using System.Drawing;
+using System.Threading;
+using System.Windows.Forms;
+using Translator.Core.Helpers;
 using Translator.Desktop;
 using Translator.Desktop.Explorer;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.Story;
-using Translator.Desktop.InterfaceImpls;
-using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 using Translator.Desktop.UI.Components;
-using System.Windows.Forms;
-using System.Threading;
-using System;
-using System.Drawing;
+using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 
 namespace Translator.Explorer.Window
 {
@@ -77,7 +76,7 @@ namespace Translator.Explorer.Window
                 var type = values[i];
                 var typeButton = new ToggleButton()
                 {
-                    Text = Enum.GetName(type),
+                    Text = type.ToString(),
                     AutoSize = true,
                     ForeColor = Utils.darkText,
                     BackColor = Color.FromKnownColor(KnownColor.ButtonFace)

@@ -31,7 +31,7 @@ namespace Translator.Desktop.UI
             var objects = new object[stories.Count];
             var enumerator = stories.GetEnumerator();
             int i = 0;
-            while(enumerator.MoveNext())
+            while (enumerator.MoveNext())
             {
                 objects[i++] = enumerator.Current;
             }

@@ -8,7 +8,7 @@ namespace Translator.Core.Helpers
     public static class Extensions
     {
         public static readonly char[] trimmers = { '\0', ' ', '\t', '\n', '\r', (char)160 };
-        
+
         /// <summary>
         /// Returns whether a story is official or not
         /// </summary>
@@ -245,7 +245,7 @@ namespace Translator.Core.Helpers
         {
             return Utils.GetStringFromCategory(category);
         }
-        
+
         public static int DigitCount(this int num)
         {
             int numToWorkOn = num;

@@ -1,5 +1,4 @@
-﻿using Org.BouncyCastle.Asn1.Crmf;
-using System;
+﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Drawing;
@@ -365,7 +364,7 @@ namespace Translator.Desktop.Explorer
             if (!ExtendedInfoComponents.TryGetValue(node.DataType, out var box))
             {
                 //create new and cache, then display
-                box = FilterUIBuilder.GetDisplayComponentsForType(
+                box = ExtendedInfoUIBuilder.GetDisplayComponentsForType(
                     node.Data,
                     node.DataType,
                     new Size(Math.Clamp(NodeInfoLabel.ClientRectangle.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10));
@@ -374,12 +373,12 @@ namespace Translator.Desktop.Explorer
             }
             else
             {
-                FilterUIBuilder.FillDisplayComponents(box, node.Data);
+                ExtendedInfoUIBuilder.FillDisplayComponents(box, node.Data);
             }
             box.Location = new Point(infoLabelRect.Left, infoLabelRect.Bottom + 5);
             box.MaximumSize = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10);
             box.Size = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), 10);
-            FilterUIBuilder.SetEditableStates(box);
+            ExtendedInfoUIBuilder.SetEditableStates(box);
             box.BringToFront();
             box.Visible = true;
         }

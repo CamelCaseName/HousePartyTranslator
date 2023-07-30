@@ -7,7 +7,6 @@ using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.InterfaceImpls;
-using Translator.Desktop.UI;
 
 namespace Translator.Desktop.UI.Components
 {

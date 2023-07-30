@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Translator.Core.Data;
-using Translator.Core.DefaultImpls;
 using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
@@ -236,7 +235,7 @@ namespace Translator.Core
     }
 
     public sealed class ApprovedChanged<ILineItem> : ICommand
-        
+
     {
         readonly int index;
         readonly ILineList ListBox;

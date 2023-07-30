@@ -7,7 +7,7 @@ using Translator.Desktop.Properties;
 
 namespace Translator.Desktop.Explorer
 {
-    internal static class FilterUIBuilder
+    internal static class ExtendedInfoUIBuilder
     {
         internal static bool ReadOnly => !Settings.Default.enableStoryExplorerEdit;
 
@@ -135,8 +135,8 @@ namespace Translator.Desktop.Explorer
                     {
                         var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
                         grid.Controls.Add(label);
-                        var text = new TextBox() { Text = (string?)value ?? string.Empty, Name = property.Name + "TextBox", Multiline = true, WordWrap = true, Dock = DockStyle.Fill, ReadOnly = FilterUIBuilder.ReadOnly, };
-                        text.TextChanged += (object? sender, EventArgs e) => FilterUIBuilder.TextBoxSetValue(sender, property, data);
+                        var text = new TextBox() { Text = (string?)value ?? string.Empty, Name = property.Name + "TextBox", Multiline = true, WordWrap = true, Dock = DockStyle.Fill, ReadOnly = ReadOnly, };
+                        text.TextChanged += (object? sender, EventArgs e) => TextBoxSetValue(sender, property, data);
                         grid.Controls.Add(text);
                     }
                     //numbers
@@ -144,9 +144,9 @@ namespace Translator.Desktop.Explorer
                     {
                         var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
                         grid.Controls.Add(label);
-                        var numeric = new NumericUpDown() { Minimum = int.MinValue, Maximum = int.MaxValue, Value = Convert.ToDecimal(value), Name = property.Name + "Numeric", ReadOnly = FilterUIBuilder.ReadOnly, InterceptArrowKeys = true };
-                        if (valueType == typeof(int)) numeric.ValueChanged += (object? sender, EventArgs e) => FilterUIBuilder.NumericIntSetValue(sender, property, data);
-                        else numeric.ValueChanged += (object? sender, EventArgs e) => FilterUIBuilder.NumericFloatSetValue(sender, property, data);
+                        var numeric = new NumericUpDown() { Minimum = int.MinValue, Maximum = int.MaxValue, Value = Convert.ToDecimal(value), Name = property.Name + "Numeric", ReadOnly = ReadOnly, InterceptArrowKeys = true };
+                        if (valueType == typeof(int)) numeric.ValueChanged += (object? sender, EventArgs e) => NumericIntSetValue(sender, property, data);
+                        else numeric.ValueChanged += (object? sender, EventArgs e) => NumericFloatSetValue(sender, property, data);
                         grid.Controls.Add(numeric);
                     }
                     //bool
@@ -154,8 +154,8 @@ namespace Translator.Desktop.Explorer
                     {
                         var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
                         grid.Controls.Add(label);
-                        var checkBox = new CheckBox { Checked = Convert.ToBoolean(value), Name = property.Name + "Checkbox", Enabled = !FilterUIBuilder.ReadOnly };
-                        checkBox.CheckedChanged += (object? sender, EventArgs e) => FilterUIBuilder.CheckBoxSetValue(sender, property, data);
+                        var checkBox = new CheckBox { Checked = Convert.ToBoolean(value), Name = property.Name + "Checkbox", Enabled = !ReadOnly };
+                        checkBox.CheckedChanged += (object? sender, EventArgs e) => CheckBoxSetValue(sender, property, data);
                         grid.Controls.Add(checkBox);
                     }
                     //nullable enum
@@ -171,8 +171,8 @@ namespace Translator.Desktop.Explorer
                                 dropDown.Items.Add(enumItem);
                             }
                             dropDown.SelectedItem = value?.ToString();
-                            dropDown.SelectedValueChanged += (object? sender, EventArgs e) => FilterUIBuilder.DropDownNullableSetValue(sender, property, data);
-                            dropDown.Enabled = !FilterUIBuilder.ReadOnly;
+                            dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownNullableSetValue(sender, property, data);
+                            dropDown.Enabled = !ReadOnly;
                             grid.Controls.Add(dropDown);
                         }
                     }
@@ -187,8 +187,8 @@ namespace Translator.Desktop.Explorer
                             dropDown.Items.Add(enumItem);
                         }
                         dropDown.SelectedItem = value?.ToString();
-                        dropDown.SelectedValueChanged += (object? sender, EventArgs e) => FilterUIBuilder.DropDownSetValue(sender, property, data);
-                        dropDown.Enabled = !FilterUIBuilder.ReadOnly;
+                        dropDown.SelectedValueChanged += (object? sender, EventArgs e) => DropDownSetValue(sender, property, data);
+                        dropDown.Enabled = !ReadOnly;
                         grid.Controls.Add(dropDown);
                     }
                 }
