@@ -17,7 +17,7 @@ namespace Translator.Desktop
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        private static void Main()
         {
             //AppDomain.CurrentDomain.AssemblyResolve += OnResolveAssembly;
             LogManager.Log("App started.");

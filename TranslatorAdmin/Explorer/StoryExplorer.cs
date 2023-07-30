@@ -70,10 +70,10 @@ namespace Translator.Explorer.Window
         private void InitializeTypeFilterButtons()
         {
             //todo finish initializer where it adds a button for each node type to the layout panel
-            var values = Enum.GetValues<NodeType>();
+            NodeType[] values = Enum.GetValues<NodeType>();
             for (int i = 0; i < values.Length; i++)
             {
-                var type = values[i];
+                NodeType type = values[i];
                 var typeButton = new ToggleButton()
                 {
                     Text = type.ToString(),

@@ -24,10 +24,7 @@ namespace Translator.Desktop.Explorer.Graph
         {
             get
             {
-                if (frozen)
-                    return _usingListA;
-                else
-                    return true;
+                return !frozen || _usingListA;
             }
             set
             {

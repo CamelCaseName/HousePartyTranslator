@@ -229,21 +229,15 @@ namespace Translator.Core
         /// </returns>
         public static bool GetAllLineDataTemplate(string fileName, string story, out FileData LineDataList)
         {
-            string command;
-            if (story == "Hints")
-            {
-                command = "SELECT id, category, english"
+            string command = story == "Hints"
+                ? "SELECT id, category, english"
                     + FROM
                     + " WHERE story = @story AND language IS NULL AND deleted = 0"
-                    + " ORDER BY category ASC;";
-            }
-            else
-            {
-                command = "SELECT id, category, english"
+                    + " ORDER BY category ASC;"
+                : "SELECT id, category, english"
                     + FROM
                     + " WHERE filename = @filename AND story = @story AND language IS NULL AND deleted = 0"
                     + " ORDER BY category ASC;";
-            }
             using MySqlConnection connection = new(GetConnString());
             LineDataList = new FileData(story, fileName);
 
@@ -765,7 +759,7 @@ namespace Translator.Core
 
                     _ = builder.Remove(builder.Length - 1, 1);
                     using MySqlCommand cmd = connection.CreateCommand();
-                    cmd.CommandText = builder.ToString() + (" ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved), story = VALUES(story), category = VALUES(category), filename = VALUES(filename)");
+                    cmd.CommandText = builder.ToString() + " ON DUPLICATE KEY UPDATE translation = VALUES(translation), comment = VALUES(comment), approved = VALUES(approved), story = VALUES(story), category = VALUES(category), filename = VALUES(filename)";
                     cmd.Parameters.Clear();
 
                     if (c < updateData.Count)
@@ -819,9 +813,9 @@ namespace Translator.Core
             using MySqlCommand cmd = connection.CreateCommand();
 
             //Save old template
-            _ = GetAllLineDataTemplate(templates.FileName, templates.StoryName, out var oldTemplates);
+            _ = GetAllLineDataTemplate(templates.FileName, templates.StoryName, out FileData? oldTemplates);
 
-            var result = RemoveOldTemplates(templates.FileName, templates.StoryName);
+            bool result = RemoveOldTemplates(templates.FileName, templates.StoryName);
 
             //upload new
             UploadAllTemplates(templates, cmd);
@@ -829,9 +823,9 @@ namespace Translator.Core
             //generate "diff" and unapprove templates where the template changed
             List<string> idsToUnapprove = new();
             FileData diff = new(templates.StoryName, templates.FileName);
-            foreach (var newTemplate in templates)
+            foreach (KeyValuePair<string, LineData> newTemplate in templates)
             {
-                if (!oldTemplates.TryGetValue(newTemplate.Key, out var oldTemplateLine))
+                if (!oldTemplates.TryGetValue(newTemplate.Key, out LineData? oldTemplateLine))
                 {
                     diff.Add(newTemplate.Key, newTemplate.Value);
                     continue;
@@ -853,7 +847,7 @@ namespace Translator.Core
                 + " WHERE story = @story AND filename = @filename AND language IS NOT NULL AND (");
 
             cmd.Parameters.Clear();
-            foreach (var id in idsToUnapprove)
+            foreach (string id in idsToUnapprove)
             {
                 command.Append($"SUBSTR(id, 1, LENGTH(id) - LENGTH(language)) = @id{x} OR");
                 x++;
@@ -865,7 +859,7 @@ namespace Translator.Core
             _ = cmd.Parameters.AddWithValue("@story", templates.StoryName);
             _ = cmd.Parameters.AddWithValue("@fileName", templates.FileName);
             x = 0;
-            foreach (var id in idsToUnapprove)
+            foreach (string id in idsToUnapprove)
             {
                 _ = cmd.Parameters.AddWithValue($"@id{x}", templates.StoryName + templates.FileName + id);
                 x++;
@@ -937,11 +931,10 @@ namespace Translator.Core
                 }
                 catch (MySqlException e)
                 {
-                    int errorCode;
-                    if (e.InnerException != null && e.InnerException.GetType().IsAssignableTo(typeof(MySqlException))) errorCode = ((MySqlException)e.InnerException).Number;
-                    else errorCode = e.Number;
-
-                    if (errorCode == 0 || errorCode == 1042)
+                    int errorCode = e.InnerException != null && e.InnerException.GetType().IsAssignableTo(typeof(MySqlException))
+                        ? ((MySqlException)e.InnerException).Number
+                        : e.Number;
+                    if (errorCode is 0 or 1042)
                     {
                         //0 means offline
                         _ = UI!.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
@@ -994,7 +987,7 @@ namespace Translator.Core
                 }
                 catch (MySqlException e)
                 {
-                    if (e.Number == 0 || e.Number == 1042)
+                    if (e.Number is 0 or 1042)
                     {
                         //0 means offline
                         _ = UI!.WarningOk("You seem to be offline, functionality limited! You can continue, but you should then provide the templates yourself. " +
@@ -1071,18 +1064,12 @@ namespace Translator.Core
             return false;
         }
 
-        static string GetConnString()
+        private static string GetConnString()
         {
             string password = Settings.Default.DbPassword;
-            string returnString;
-            if (password != string.Empty)
-            {
-                returnString = "Server=www.rinderha.cc;Uid=user;Pwd=" + password + ";Database=main;Pooling=True;MinimumPoolSize=10;MaximumPoolSize=150;";
-            }
-            else
-            {
-                returnString = string.Empty;
-            }
+            string returnString = password != string.Empty
+                ? "Server=www.rinderha.cc;Uid=user;Pwd=" + password + ";Database=main;Pooling=True;MinimumPoolSize=10;MaximumPoolSize=150;"
+                : string.Empty;
             return returnString;
         }
 

@@ -38,14 +38,9 @@ namespace Translator.Core
         {
             get
             {
-                if (translationManagers.TryGetValue(TabControl.SelectedTab, out TranslationManager? translationManager))
-                {
-                    return translationManager;
-                }
-                else
-                {
-                    throw new UnreachableException("There should never be no tab/no translationmanager.");
-                }
+                return translationManagers.TryGetValue(TabControl.SelectedTab, out TranslationManager? translationManager)
+                    ? translationManager
+                    : throw new UnreachableException("There should never be no tab/no translationmanager.");
             }
         }
 
@@ -125,7 +120,7 @@ namespace Translator.Core
         /// </summary>
         public static void OpenNewTab()
         {
-            foreach (var file in Utils.SelectFilesFromSystem())
+            foreach (string file in Utils.SelectFilesFromSystem())
             {
                 OpenInNewTab(file);
             }
@@ -277,14 +272,7 @@ namespace Translator.Core
         /// <param name="i">The tab index to switch to</param>
         public static void SwitchToTab(int i)
         {
-            if (i >= 0 && i < TabControl.TabCount)
-            {
-                TabControl.SelectedIndex = i;
-            }
-            else
-            {
-                TabControl.SelectedIndex = 0;
-            }
+            TabControl.SelectedIndex = i >= 0 && i < TabControl.TabCount ? i : 0;
         }
 
         /// <summary>
@@ -422,7 +410,7 @@ namespace Translator.Core
 
         public static void OpenNewFiles()
         {
-            var paths = Utils.SelectFilesFromSystem();
+            string[] paths = Utils.SelectFilesFromSystem();
             if (paths.Length == 1)
             {
                 OpenFile(paths[0]);
@@ -430,7 +418,7 @@ namespace Translator.Core
             else
             {
                 int i = 0;
-                foreach (var path in paths)
+                foreach (string path in paths)
                 {
                     if (i++ == 0)
                         OpenFile(path);
@@ -447,7 +435,7 @@ namespace Translator.Core
         {
             if (Settings.Default.AskForSaveDialog && translationManagers.Count > 0)
             {
-                foreach (var kvp in translationManagers)
+                foreach (KeyValuePair<ITab, TranslationManager> kvp in translationManagers)
                 {
                     if (kvp.Value.ChangesPending)
                     {

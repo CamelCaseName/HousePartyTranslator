@@ -307,8 +307,8 @@ namespace Translator.Desktop.Explorer
         /// <param name="graphY">The returned y coord in graph coordinate space</param>
         public void ScreenToGraph(float screenX, float screenY, out float graphX, out float graphY)
         {
-            graphX = screenX / Scaling + OffsetX;
-            graphY = screenY / Scaling + OffsetY;
+            graphX = (screenX / Scaling) + OffsetX;
+            graphY = (screenY / Scaling) + OffsetY;
         }
 
         private void DisplayNodeInfo(Node node)
@@ -323,9 +323,7 @@ namespace Translator.Desktop.Explorer
 
                 //create info
                 //strip text of all VA performance hints, embedded in []. if user wants it
-                string info;
-                if (Settings.Default.DisplayVoiceActorHints) { info = node.Text.ConstrainLength(); }
-                else { info = node.Text.RemoveVAHints().ConstrainLength(); }
+                string info = Settings.Default.DisplayVoiceActorHints ? node.Text.ConstrainLength() : node.Text.RemoveVAHints().ConstrainLength();
 
                 //create seperator
                 string seperator = "\n";
@@ -342,7 +340,7 @@ namespace Translator.Desktop.Explorer
             }
             else //remove highlight display
             {
-                foreach (var box in ExtendedInfoComponents.Values)
+                foreach (GroupBox box in ExtendedInfoComponents.Values)
                 {
                     box.Visible = false;
                 }
@@ -354,14 +352,14 @@ namespace Translator.Desktop.Explorer
 
         private void DisplayExtendedNodeInfo(Rectangle infoLabelRect, Node node)
         {
-            foreach (var oldBox in ExtendedInfoComponents.Values)
+            foreach (GroupBox oldBox in ExtendedInfoComponents.Values)
             {
                 oldBox.Visible = false;
             }
             if (node.Data == null) return;
 
             //use components if we have them already
-            if (!ExtendedInfoComponents.TryGetValue(node.DataType, out var box))
+            if (!ExtendedInfoComponents.TryGetValue(node.DataType, out GroupBox? box))
             {
                 //create new and cache, then display
                 box = ExtendedInfoUIBuilder.GetDisplayComponentsForType(
@@ -408,8 +406,8 @@ namespace Translator.Desktop.Explorer
                     ColorBrush.Color = color;
                     g.FillEllipse(
                         ColorBrush,
-                        node.Position.X - (Nodesize / 2) * scale,
-                        node.Position.Y - (Nodesize / 2) * scale,
+                        node.Position.X - (Nodesize / 2 * scale),
+                        node.Position.Y - (Nodesize / 2 * scale),
                         Nodesize * scale,
                         Nodesize * scale
                         );
@@ -490,8 +488,8 @@ namespace Translator.Desktop.Explorer
 
         public static Color Rainbow(float progress)
         {
-            float div = (Math.Abs(progress % 1) * 6);
-            int ascending = (int)((div % 1) * 255);
+            float div = Math.Abs(progress % 1) * 6;
+            int ascending = (int)(div % 1 * 255);
             int descending = 255 - ascending;
 
             return (int)div switch
@@ -508,8 +506,8 @@ namespace Translator.Desktop.Explorer
 
         public static Color RainbowEdge(float progress)
         {
-            float div = (Math.Abs(progress % 1) * 6);
-            int ascending = (int)((div % 1) * 255);
+            float div = Math.Abs(progress % 1) * 6;
+            int ascending = (int)(div % 1 * 255);
             int descending = 255 - ascending;
 
             return (int)div switch
@@ -652,7 +650,7 @@ namespace Translator.Desktop.Explorer
                 {
                     if (mouseRightX < node.Position.X + (Nodesize / 2) && mouseLeftX > node.Position.X - (Nodesize / 2))
                     {
-                        if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+                        if (InternalNodesVisible || (node.Type != NodeType.Event && node.Type != NodeType.Criterion))
                         {
                             index = i;
                             return node;

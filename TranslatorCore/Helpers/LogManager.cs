@@ -68,14 +68,13 @@ namespace Translator.Core.Helpers
         /// <param name="level">The level of the logged message</param>
         public static void Log(string message, Level level, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
         {
-            var folders = path.Split('\\');
+            string[] folders = path.Split('\\');
             string file = string.Empty;
-            if (folders[^3] == "HousePartyTranslator")
-                file = folders[^2][10..] + '\\' + folders[^1];
-            else if (folders[^4] == "HousePartyTranslator")
-                file = folders[^3][10..] + '\\' + folders[^2] + '\\' + folders[^1];
-            else
-                file = folders[^4][10..] + '\\' + folders[^3] + '\\' + folders[^2] + '\\' + folders[^1];
+            file = folders[^3] == "HousePartyTranslator"
+                ? folders[^2][10..] + '\\' + folders[^1]
+                : folders[^4] == "HousePartyTranslator"
+                ? folders[^3][10..] + '\\' + folders[^2] + '\\' + folders[^1]
+                : folders[^4][10..] + '\\' + folders[^3] + '\\' + folders[^2] + '\\' + folders[^1];
             string _message = $"[{level}] {DateTime.Now} | {file}:{line} | {message}";
 
             //add the message as lines to our list of all lines

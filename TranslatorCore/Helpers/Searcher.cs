@@ -21,7 +21,7 @@ namespace Translator.Core.Helpers
             if (data.Count == 0) return false;
 
             results = new();
-            var enumerator = data.Values.GetEnumerator();
+            Dictionary<string, LineData>.ValueCollection.Enumerator enumerator = data.Values.GetEnumerator();
             int x = 0;
 
             //case sensitive search
@@ -43,7 +43,7 @@ namespace Translator.Core.Helpers
             while (enumerator.MoveNext())
             {
                 successfull = true;
-                foreach (var searchAlgorithm in algorithms)
+                foreach (SearchImplementation searchAlgorithm in algorithms)
                 {
                     if (searchAlgorithm.Invoke(query, enumerator.Current, searchCulture, regex))
                         continue;
@@ -83,7 +83,7 @@ namespace Translator.Core.Helpers
             Regex? regex = CreateRegex(query, useRegex);
 
             bool successfull = true;
-            foreach (var searchAlgorithm in algorithms)
+            foreach (SearchImplementation searchAlgorithm in algorithms)
             {
                 if (searchAlgorithm.Invoke(query, data, searchCulture, regex))
                     continue;
@@ -103,8 +103,9 @@ namespace Translator.Core.Helpers
             {
                 try
                 {
-                    if (searchCulture == StringComparison.CurrentCultureIgnoreCase) regex = new Regex(query.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase);
-                    else regex = new Regex(query.ToString(), RegexOptions.Compiled);
+                    regex = searchCulture == StringComparison.CurrentCultureIgnoreCase
+                        ? new Regex(query.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase)
+                        : new Regex(query.ToString(), RegexOptions.Compiled);
                 }
                 catch { }
             }
@@ -141,7 +142,7 @@ namespace Translator.Core.Helpers
 
         private static bool ExtractSearchModifiers(ref ReadOnlySpan<char> query)
         {
-            var useRegex = false;
+            bool useRegex = false;
             if (!CheckAndClearEscapedChars(ref query))
             {
                 //we enter specifyer mode
@@ -209,7 +210,7 @@ namespace Translator.Core.Helpers
 
         private static bool RemoveModifiers(ref ReadOnlySpan<char> query)
         {
-            var useRegex = false;
+            bool useRegex = false;
             if (!CheckAndClearEscapedChars(ref query))
             {
                 //we enter specifyer mode
@@ -289,17 +290,9 @@ namespace Translator.Core.Helpers
         {
             if (line.Comments != null && line.Comments.Length > 0)
             {
-                foreach (var comment in line.Comments)
+                foreach (string comment in line.Comments)
                 {
-                    bool result;
-                    if (pattern != null)
-                    {
-                        result = SafeRegexSearch(comment, pattern);
-                    }
-                    else
-                    {
-                        result = comment.AsSpan().Contains(query, comparison);
-                    }
+                    bool result = pattern != null ? SafeRegexSearch(comment, pattern) : comment.AsSpan().Contains(query, comparison);
                     if (result) return true;
                 }
             }
@@ -308,46 +301,21 @@ namespace Translator.Core.Helpers
 
         private static bool SearchTemplate(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            if (line.TemplateString != null)
-            {
-                if (pattern != null)
-                {
-                    return SafeRegexSearch(line.TemplateString, pattern);
-                }
-                else
-                {
-                    return line.TemplateString.AsSpan().Contains(query, comparison);
-                }
-            }
-            return false;
+            return line.TemplateString != null
+&& (pattern != null ? SafeRegexSearch(line.TemplateString, pattern) : line.TemplateString.AsSpan().Contains(query, comparison));
         }
 
         private static bool SearchTranslation(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            if (line.TranslationString != null)
-            {
-                if (pattern != null)
-                {
-                    return SafeRegexSearch(line.TranslationString, pattern);
-                }
-                else
-                {
-                    return line.TranslationString.AsSpan().Contains(query, comparison);
-                }
-            }
-            return false;
+            return line.TranslationString != null
+&& (pattern != null
+                    ? SafeRegexSearch(line.TranslationString, pattern)
+                    : line.TranslationString.AsSpan().Contains(query, comparison));
         }
 
         private static bool SearchID(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            if (pattern != null)
-            {
-                return SafeRegexSearch(line.ID, pattern);
-            }
-            else
-            {
-                return line.ID.AsSpan().Contains(query, comparison);
-            }
+            return pattern != null ? SafeRegexSearch(line.ID, pattern) : line.ID.AsSpan().Contains(query, comparison);
         }
 
         private static bool SearchAll(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
@@ -405,7 +373,7 @@ namespace Translator.Core.Helpers
                 {
                     try
                     {
-                        var match = regex.Match(line.ToString());
+                        Match match = regex.Match(line.ToString());
                         if (match.Success)
                         {
                             position = match.Index;

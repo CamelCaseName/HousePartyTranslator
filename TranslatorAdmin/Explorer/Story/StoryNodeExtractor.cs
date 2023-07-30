@@ -40,7 +40,7 @@ namespace Translator.Desktop.Explorer.Story
                 bgcNode.AddEvents(backgroundChatter.StartEvents ?? new());
 
                 //responses
-                foreach (var response in backgroundChatter.Responses ?? new())
+                foreach (BackgroundChatterResponse response in backgroundChatter.Responses ?? new())
                 {
                     var nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.BGCResponse, "see id", bgcNode) { Data = response, DataType = typeof(Response) };
 
@@ -123,7 +123,7 @@ namespace Translator.Desktop.Explorer.Story
             var nodes = new NodeList();
 
             //add all responses as childs to this dialogue
-            foreach (var response in story.GlobalGoodbyeResponses ?? new List<Response>())
+            foreach (Response response in story.GlobalGoodbyeResponses ?? new List<Response>())
             {
                 var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(Response) };
 
@@ -142,7 +142,7 @@ namespace Translator.Desktop.Explorer.Story
         {
             var nodes = new NodeList();
 
-            foreach (var response in story.GlobalResponses ?? new List<Response>())
+            foreach (Response response in story.GlobalResponses ?? new List<Response>())
             {
                 var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(Response) };
 
@@ -345,7 +345,7 @@ namespace Translator.Desktop.Explorer.Story
                 //add items to list
                 var nodeCriteriaGroup = new Node(group.Id!, NodeType.CriteriaGroup, group.Name + " True if " + group.PassCondition) { Data = group, DataType = typeof(CriteriaGroup) };
 
-                foreach (var criteriaList in group.CriteriaList ?? new List<CriteriaList1>())
+                foreach (CriteriaList1 criteriaList in group.CriteriaList ?? new List<CriteriaList1>())
                 {
                     nodeCriteriaGroup.AddCriteria(criteriaList.CriteriaList ?? new());
                 }

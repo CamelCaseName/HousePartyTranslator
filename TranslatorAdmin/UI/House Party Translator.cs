@@ -141,14 +141,9 @@ namespace Translator.Desktop.UI
             {
                 if (value != null)
                 {
-                    if (value.ParentName == Name)
-                    {
-                        SExplorer = value;
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
-                    }
+                    SExplorer = value.ParentName == Name
+                        ? value
+                        : throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
                 }
             }
         }
@@ -235,14 +230,7 @@ namespace Translator.Desktop.UI
         /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (WindowsKeypressManager.MainKeyPressHandler(ref msg, keyData, CancelTokens))
-            {
-                return true;
-            }
-            else
-            {
-                return base.ProcessCmdKey(ref msg, keyData);
-            }
+            return WindowsKeypressManager.MainKeyPressHandler(ref msg, keyData, CancelTokens) || base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void CloseTab_Click(object? sender, MouseEventArgs? e)
@@ -953,13 +941,12 @@ namespace Translator.Desktop.UI
         protected override void OnDragEnter(DragEventArgs e)
         {
             if (e.Data == null) return;
-            if (e.Data.GetDataPresent(DataFormats.FileDrop)
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop)
                 || e.Data.GetDataPresent(DataFormats.UnicodeText)
                 || e.Data.GetDataPresent(DataFormats.OemText)
-                || e.Data.GetDataPresent(DataFormats.Text))
-                e.Effect = DragDropEffects.All;
-            else
-                e.Effect = DragDropEffects.None;
+                || e.Data.GetDataPresent(DataFormats.Text)
+                ? DragDropEffects.All
+                : DragDropEffects.None;
         }
 
         private void MainTabControl_SelectedIndexChanged(object? sender, EventArgs? e)
@@ -994,7 +981,7 @@ namespace Translator.Desktop.UI
         {
             //check for update and replace if we want one
             ProgressbarWindow.Status.Text = "Checking for an update";
-            _ = Task.Run(() => SoftwareVersionManager.ReplaceFileIfNew());
+            _ = Task.Run(SoftwareVersionManager.ReplaceFileIfNew);
             ProgressbarWindow.PerformStep();
 
             ProgressbarWindow.Status.Text = "Finishing startup";
@@ -1056,12 +1043,12 @@ namespace Translator.Desktop.UI
         private static void CreateNewFile()
         {
             var dialog = new NewFileSelector();
-            var path = SaveAndExportManager.CreateNewFile(dialog);
+            string path = SaveAndExportManager.CreateNewFile(dialog);
             if (path == string.Empty) return;
 
             if (dialog.FileName == string.Empty)
             {
-                foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+                foreach (string file in dialog.files[Utils.ExtractStoryName(path!)])
                 {
                     File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
                 }
@@ -1077,12 +1064,12 @@ namespace Translator.Desktop.UI
         private static void CreateNewFileInNewTab()
         {
             var dialog = new NewFileSelector();
-            var path = SaveAndExportManager.CreateNewFile(dialog);
+            string path = SaveAndExportManager.CreateNewFile(dialog);
             if (path == string.Empty) return;
 
             if (dialog.FileName == string.Empty)
             {
-                foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+                foreach (string file in dialog.files[Utils.ExtractStoryName(path!)])
                 {
                     File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
                 }
@@ -1097,10 +1084,10 @@ namespace Translator.Desktop.UI
         private static void CreateNewFilesForStory()
         {
             var dialog = new NewFileSelector();
-            var result = dialog.ShowDialog();
+            PopupResult result = dialog.ShowDialog();
             if (result != PopupResult.OK) return;
 
-            var path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
+            string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
             if (path == string.Empty || path == null) return;
 
             if (dialog.StoryName == path.Split('\\')[^2])
@@ -1110,7 +1097,7 @@ namespace Translator.Desktop.UI
 
             if (path == string.Empty) return;
 
-            foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+            foreach (string file in dialog.files[Utils.ExtractStoryName(path!)])
             {
                 File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
             }
@@ -1119,7 +1106,7 @@ namespace Translator.Desktop.UI
 
         public void UpdateFileMenuItems()
         {
-            var items = RecentsManager.GetRecents();
+            IMenuItem[] items = RecentsManager.GetRecents();
             int recentsStart;
 
             //find start of recents
@@ -1149,8 +1136,7 @@ namespace Translator.Desktop.UI
                 recentsStart -= 2;
             }
 
-            if (items.Length == 0) FileToolStripMenuItem.DropDownItems[recentsStart + 1].Text = "No Recents";
-            else FileToolStripMenuItem.DropDownItems[recentsStart + 1].Text = "Recents:";
+            FileToolStripMenuItem.DropDownItems[recentsStart + 1].Text = items.Length == 0 ? "No Recents" : "Recents:";
         }
     }
 }

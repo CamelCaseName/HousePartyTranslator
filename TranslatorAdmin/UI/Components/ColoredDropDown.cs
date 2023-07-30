@@ -50,7 +50,7 @@ namespace Translator.Desktop.UI.Components
 
         public void AddIndex(int index)
         {
-            var newArray = new int[coloredIndices.Length + 1];
+            int[] newArray = new int[coloredIndices.Length + 1];
             coloredIndices.CopyTo(newArray, 0);
             newArray[^1] = index;
             coloredIndices = newArray;
@@ -86,8 +86,8 @@ namespace Translator.Desktop.UI.Components
         {
             if (e == null) return;
             base.OnPaint(e);
-            var h = Height;
-            var w = Width;
+            int h = Height;
+            int w = Width;
             e.Graphics.DrawLine(BlackPen, new Point(0, h - 1), new Point(w, h - 1));
             e.Graphics.DrawRectangle(BorderPen, new Rectangle(1, 1, w - 3, h - 4));
             e.Graphics.FillRectangle(BackgroundBrush, new Rectangle(2, 2, w - 5, h - 6));

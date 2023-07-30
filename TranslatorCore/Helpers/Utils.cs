@@ -190,11 +190,7 @@ namespace Translator.Core.Helpers
             saveFileDialog.CheckFileExists = checkFileExists;
             saveFileDialog.CheckPathExists = checkPathExists;
 
-            if (saveFileDialog.ShowDialog() == PopupResult.OK)
-            {
-                return saveFileDialog.FileName;
-            }
-            return string.Empty;
+            return saveFileDialog.ShowDialog() == PopupResult.OK ? saveFileDialog.FileName : string.Empty;
         }
 
         public static string ExtractStoryName(string path)
@@ -205,7 +201,7 @@ namespace Translator.Core.Helpers
             if (!LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
                 throw new LanguageHelper.LanguageException();
 
-            var paths = path.Contains('\\')
+            string[] paths = path.Contains('\\')
                 ? path.Split('\\')
                 : new string[] { path };
 
@@ -215,7 +211,7 @@ namespace Translator.Core.Helpers
                 if (Path.GetExtension(paths[i]) != string.Empty)
                     paths[i] = Path.GetFileNameWithoutExtension(paths[i]);
 
-                var enumerator = storyNames.GetEnumerator();
+                HashSet<string>.Enumerator enumerator = storyNames.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
                     if (string.Compare(paths[i], enumerator.Current, true, CultureInfo.InvariantCulture) == 0)
@@ -243,7 +239,7 @@ namespace Translator.Core.Helpers
             for (int i = paths.Length - 1; i >= 0; i--)
             {
                 //check again more lenient
-                var enumerator = storyNames.GetEnumerator();
+                HashSet<string>.Enumerator enumerator = storyNames.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
                     if (paths[i].Contains(enumerator.Current, StringComparison.InvariantCultureIgnoreCase))
@@ -266,7 +262,7 @@ namespace Translator.Core.Helpers
 
             string maybeFileName = Path.GetFileNameWithoutExtension(path);
 
-            var enumerator = fileNames.GetEnumerator();
+            HashSet<string>.Enumerator enumerator = fileNames.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 if (string.Compare(maybeFileName, enumerator.Current, true, CultureInfo.InvariantCulture) == 0)

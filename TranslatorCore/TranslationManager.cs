@@ -72,14 +72,7 @@ namespace Translator.Core
         {
             get
             {
-                if (language.Length == 0)
-                {
-                    throw new LanguageHelper.LanguageException();
-                }
-                else
-                {
-                    return language;
-                }
+                return language.Length == 0 ? throw new LanguageHelper.LanguageException() : language;
             }
             set
             {
@@ -135,8 +128,7 @@ namespace Translator.Core
         {
             get
             {
-                if (SelectedId == string.Empty) return new();
-                else return TranslationData[SelectedId];
+                return SelectedId == string.Empty ? new() : TranslationData[SelectedId];
             }
         }
         /// <summary>
@@ -213,10 +205,7 @@ namespace Translator.Core
         public string GetTabName()
         {
             float percentage = TabUI.Lines.ApprovedCount / (float)TabUI.Lines.Count;
-            if (ChangesPending)
-                return FileName + $" ({(int)(percentage * 100),000}%)*";
-            else
-                return FileName + $" ({(int)(percentage * 100),000}%)";
+            return FileName + $" ({(int)(percentage * 100),000}" + (ChangesPending ? "%)*" : "%)");
         }
 
         /// <summary>
@@ -370,7 +359,7 @@ namespace Translator.Core
                 {
                     if (faultedTask.Exception == null) return;
                     LogManager.Log(faultedTask.Exception.Message);
-                    foreach (var exception in faultedTask.Exception.InnerExceptions)
+                    foreach (Exception exception in faultedTask.Exception.InnerExceptions)
                     {
                         LogManager.Log(exception.Message);
                         LogManager.Log("    " + exception.StackTrace);
@@ -665,10 +654,9 @@ namespace Translator.Core
 
             if (currentIndex >= 0)
             {
-                if (Settings.Default.DisplayVoiceActorHints)
-                    TabUI.TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine);
-                else
-                    TabUI.TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine).RemoveVAHints();
+                TabUI.TemplateBoxText = Settings.Default.DisplayVoiceActorHints
+                    ? SelectedLine.TemplateString.Replace("\n", Environment.NewLine)
+                    : SelectedLine.TemplateString.Replace("\n", Environment.NewLine).RemoveVAHints();
 
                 selectedNew = true;
 
@@ -853,7 +841,7 @@ namespace Translator.Core
 
                 //create path to file
                 string gameFilePath = "Eek\\House Party\\Mods\\";
-                if (StoryName != "Hints" && StoryName != "UI")
+                if (StoryName is not "Hints" and not "UI")
                 {
                     //combine all paths
                     gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", StoryName, languageAsText, FileName + ".txt");
@@ -889,27 +877,18 @@ namespace Translator.Core
         private void CreateLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation)
         {
             if (lastLine[0] == string.Empty) return;
-            if (IdsToExport.TryGetValue(lastLine[0], out LineData? templateLine))
-                TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation);
-            else
-                TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, string.Empty, lastLine[1] + translation);
+            TranslationData[lastLine[0]] = IdsToExport.TryGetValue(lastLine[0], out LineData? templateLine)
+                ? new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation)
+                : new LineData(lastLine[0], StoryName, FileName, category, string.Empty, lastLine[1] + translation);
         }
 
         private bool CustomStoryTemplateHandle(string story)
         {
-            PopupResult result;
-            if (!Settings.Default.AllowCustomStories)
-            {
-                result = PopupResult.NO;
-            }
-            else if (Settings.Default.IgnoreCustomStoryWarning)
-            {
-                result = PopupResult.YES;
-            }
-            else
-            {
-                result = UI.InfoYesNo($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story. (You can disable this warning in the settings)", "Custom story?");
-            }
+            PopupResult result = !Settings.Default.AllowCustomStories
+                ? PopupResult.NO
+                : Settings.Default.IgnoreCustomStoryWarning
+                    ? PopupResult.YES
+                    : UI.InfoYesNo($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story. (You can disable this warning in the settings)", "Custom story?");
             if (result == PopupResult.YES)
             {
                 //replace by template generation method
@@ -946,11 +925,9 @@ namespace Translator.Core
 
         private FileData GetTemplatesFromUser()
         {
-            if (UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES))
-            {
-                return SaveAndExportManager.GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false);
-            }
-            return new FileData(StoryName, FileName);
+            return UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES)
+                ? SaveAndExportManager.GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false)
+                : new FileData(StoryName, FileName);
         }
 
         /// <summary>

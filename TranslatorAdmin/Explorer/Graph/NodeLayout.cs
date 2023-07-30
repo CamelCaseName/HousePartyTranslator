@@ -137,7 +137,7 @@ namespace Translator.Desktop.Explorer.Graph
         {
             ResetNodeForces();
 
-            float radius = MathF.Sqrt(Internal.Count) + StoryExplorerConstants.IdealLength * 2;
+            float radius = MathF.Sqrt(Internal.Count) + (StoryExplorerConstants.IdealLength * 2);
 
             for (int first = 0; first < Internal.Count; first++)
             {

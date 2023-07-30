@@ -28,8 +28,8 @@ namespace Translator.Desktop.UI
         private void NewFileSelector_Load(object sender, EventArgs e)
         {
             storyDropdown.Items.Clear();
-            var objects = new object[stories.Count];
-            var enumerator = stories.GetEnumerator();
+            object[] objects = new object[stories.Count];
+            HashSet<string>.Enumerator enumerator = stories.GetEnumerator();
             int i = 0;
             while (enumerator.MoveNext())
             {

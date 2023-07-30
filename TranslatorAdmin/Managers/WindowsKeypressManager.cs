@@ -56,81 +56,81 @@ namespace Translator.Desktop.Managers
             switch (keyData)
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
-                case (Keys.Enter):
+                case Keys.Enter:
                     return TabManager.ActiveTranslationManager.SelectNextResultIfApplicable();
 
                 //set selected string as search string and place cursor in search box
-                case (Keys.Control | Keys.F):
+                case Keys.Control | Keys.F:
                     InputHandler.FocusSearch();
                     return true;
 
                 //search, but also with replacing
-                case (Keys.Control | Keys.Shift | Keys.F):
+                case Keys.Control | Keys.Shift | Keys.F:
                     TabManager.UI.ToggleReplaceBar();
                     return true;
 
                 //save current file
-                case (Keys.Control | Keys.S):
+                case Keys.Control | Keys.S:
                     TabManager.ActiveTranslationManager.SaveFile();
                     return true;
 
                 //save current string
-                case (Keys.Control | Keys.Shift | Keys.S):
+                case Keys.Control | Keys.Shift | Keys.S:
                     TabManager.ActiveTranslationManager.SaveCurrentString();
                     return true;
 
                 //saves all open tabs
-                case (Keys.Alt | Keys.Shift | Keys.S):
+                case Keys.Alt | Keys.Shift | Keys.S:
                     _ = TabManager.SaveAllTabs();
                     return true;
 
                 //reload currently loaded file
-                case (Keys.Control | Keys.R):
+                case Keys.Control | Keys.R:
                     TabManager.ActiveTranslationManager.ReloadFile();
                     return true;
 
                 //select string above current selection
-                case (Keys.Control | Keys.Up):
+                case Keys.Control | Keys.Up:
                     InputHandler.MoveLineSelectionUp();
                     return true;
 
                 //select string below current selection
-                case (Keys.Control | Keys.Down):
+                case Keys.Control | Keys.Down:
                     InputHandler.MoveLineSelectionDown();
                     return true;
 
                 //switch tab to the left
-                case (Keys.Alt | Keys.Left):
+                case Keys.Alt | Keys.Left:
                     InputHandler.SelectTabLeft();
                     return true;
 
                 //switch tab to the right
-                case (Keys.Alt | Keys.Right):
+                case Keys.Alt | Keys.Right:
                     InputHandler.SelectTabRight();
                     return true;
 
                 //save translation and move down one
-                case (Keys.Control | Keys.Enter):
+                case Keys.Control | Keys.Enter:
                     InputHandler.SaveAndSelectNewLine();
                     return true;
 
                 //save translation, approve and move down one
-                case (Keys.Control | Keys.Shift | Keys.Enter):
+                case Keys.Control | Keys.Shift | Keys.Enter:
                     InputHandler.SaveAndApproveAndSelectNewLine();
                     return true;
 
                 //save translation and approve
-                case (Keys.Shift | Keys.Enter):
+                case Keys.Shift | Keys.Enter:
                     if (App.MainForm.SearchBox.Focused) TabManager.ActiveTranslationManager.SelectPreviousResultIfApplicable();
                     else InputHandler.SaveAndApproveLine();
                     return true;
 
                 //move cursor to the left, clinging to words
-                case (Keys.Control | Keys.Left):
+                case Keys.Control | Keys.Left:
                     return App.MainForm.MoveCursorInText(true);
 
                 //move cursor to the right, clinging to words
-                case (Keys.Control | Keys.Right):
+                case Keys.Control | Keys.Right:
                     return App.MainForm.MoveCursorInText(false);
 
                 case Keys.Control | Keys.O:

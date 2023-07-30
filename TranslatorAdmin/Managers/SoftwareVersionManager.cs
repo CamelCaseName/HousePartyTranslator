@@ -1,11 +1,15 @@
-﻿using System;
+﻿#if !DEBUG
+using System;
 using System.IO;
+#endif
 using System.Net.Http;
 using System.Runtime.Versioning;
+#if !DEBUG
 using System.Text.Json;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Helpers;
+#endif
 
 namespace Translator.Desktop.Managers
 {

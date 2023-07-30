@@ -49,14 +49,9 @@ internal sealed class ContextProvider
             {
                 string storyPathMinusStory = Directory.GetParent(Settings.StoryPath)?.FullName ?? string.Empty;
 
-                if (IsStory)
-                {
-                    FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.story");
-                }
-                else
-                {
-                    FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
-                }
+                FilePath = IsStory
+                    ? Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.story")
+                    : Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
             }
             else
             {
@@ -84,22 +79,16 @@ internal sealed class ContextProvider
             }
             else
             {
-                OpenFileDialog selectFileDialog;
-
-                if (IsStory)//story file
-                {
-                    selectFileDialog = new OpenFileDialog
+                OpenFileDialog selectFileDialog = IsStory
+                    ? new OpenFileDialog
                     {
                         Title = $"Choose the story file ({StoryName}) for the templates",
                         Filter = AutoFileSelection ? "Story Files (*.story)|*.story" : string.Empty,
                         InitialDirectory = Settings.StoryPath.Length > 0 ? Settings.StoryPath : @"C:\Users\%USER%\Documents",
                         RestoreDirectory = false,
                         FileName = FileName + ".story"
-                    };
-                }
-                else//bgc file
-                {
-                    selectFileDialog = new OpenFileDialog
+                    }
+                    : new OpenFileDialog
                     {
                         Title = $"Choose the character file ({FileName}) for the templates",
                         Filter = AutoFileSelection ? "Character Files (*.character)|*.character" : string.Empty,
@@ -107,8 +96,6 @@ internal sealed class ContextProvider
                         RestoreDirectory = false,
                         FileName = FileName + ".character"
                     };
-                }
-
                 if (selectFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     Settings.StoryPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? string.Empty;
@@ -204,7 +191,7 @@ internal sealed class ContextProvider
             ReadInOldPositions(NodeFilePath);
         }
 
-        if (Directory.GetFiles(StoryFolderPath).Length > 0 && StoryFolderPath.Split("\\")[^1] == StoryName || !AutoFileSelection)
+        if ((Directory.GetFiles(StoryFolderPath).Length > 0 && StoryFolderPath.Split("\\")[^1] == StoryName) || !AutoFileSelection)
         {
             //else create new
             foreach (string item in Directory.GetFiles(StoryFolderPath))
@@ -240,7 +227,7 @@ internal sealed class ContextProvider
     private void ReadInOldPositions(string nodeFilePath)
     {
         oldPositions.Clear();
-        var list = JsonConvert.DeserializeObject<List<PointF>>(File.ReadAllText(nodeFilePath));
+        List<PointF>? list = JsonConvert.DeserializeObject<List<PointF>>(File.ReadAllText(nodeFilePath));
         if (list == null) return;
         for (int i = 0; i < list.Count; i++)
         {
@@ -305,15 +292,15 @@ internal sealed class ContextProvider
             {
                 //modulo of running total with sidelength gives x coords, repeating after sidelength
                 //offset by halfe sidelength to center x
-                int x = runningTotal % sideLength - sideLength / 2;
+                int x = (runningTotal % sideLength) - (sideLength / 2);
                 //running total divided by sidelength gives y coords,
                 //increments after runningtotal increments sidelength times
                 //offset by halfe sidelength to center y
-                int y = runningTotal / sideLength - sideLength / 2;
+                int y = (runningTotal / sideLength) - (sideLength / 2);
                 //set position
                 nodes[i].Position = new Point(
-                    x * step + Random.Next(-(step / 2) + 1, step / 2 - 1),
-                    y * step + Random.Next(-(step / 2) + 1, step / 2 - 1)
+                    (x * step) + Random.Next(-(step / 2) + 1, (step / 2) - 1),
+                    (y * step) + Random.Next(-(step / 2) + 1, (step / 2) - 1)
                     );
                 //increase running total
                 runningTotal++;
@@ -1123,7 +1110,7 @@ internal sealed class ContextProvider
                 {
                     trigger = (EventTrigger)nodes[i].Data!;
                     //link against events
-                    foreach (var _event in trigger.Events!)
+                    foreach (GameEvent _event in trigger.Events!)
                     {
                         result = nodes.Find((Node n) => n.Type == NodeType.Event && n.ID == _event.Id);
                         if (result != null)
@@ -1139,7 +1126,7 @@ internal sealed class ContextProvider
                         }
                     }
                     //link against criteria
-                    foreach (var _criterion in trigger.Critera!)
+                    foreach (Criterion _criterion in trigger.Critera!)
                     {
                         result = nodes.Find((Node n) => n.Type == NodeType.Criterion && n.ID == $"{_criterion.Character}{_criterion.CompareType}{_criterion.Value}");
                         if (result != null)
@@ -1151,10 +1138,9 @@ internal sealed class ContextProvider
                             nodes.Add(Node.CreateCriteriaNode(_criterion, nodes[i]));
                         }
                     }
-                    if (trigger.Critera.Count == 0)
-                        nodes[i].Text = trigger.Name + " " + trigger.Type;
-                    else
-                        nodes[i].Text = trigger.CharacterToReactTo + " " + trigger.Type + " " + trigger.UpdateIteration + " " + trigger.Name;
+                    nodes[i].Text = trigger.Critera.Count == 0
+                        ? trigger.Name + " " + trigger.Type
+                        : trigger.CharacterToReactTo + " " + trigger.Type + " " + trigger.UpdateIteration + " " + trigger.Name;
                 }
                 else if (nodes[i].Type == NodeType.Response && nodes[i].Data != null)
                 {
@@ -1210,7 +1196,7 @@ internal sealed class ContextProvider
     private void RecheckCompareValues(NodeList CompareValuesToCheckAgain)
     {
         Node? result;
-        foreach (var node in CompareValuesToCheckAgain)
+        foreach (Node node in CompareValuesToCheckAgain)
         {
             if (node.DataType == typeof(Criterion))
             {
@@ -1232,17 +1218,17 @@ internal sealed class ContextProvider
     private void MergeDoors(NodeList nodes)
     {
         Node? result;
-        foreach (var door in Doors.ToArray())
+        foreach (Node door in Doors.ToArray())
         {
             result = nodes.Find((Node n) => n.ID == door.ID);
             if (result != null)
             {
-                foreach (var parentNode in door.ParentNodes.ToArray())
+                foreach (Node parentNode in door.ParentNodes.ToArray())
                 {
                     parentNode.AddChildNode(result);
                     parentNode.RemoveChildNode(door);
                 }
-                foreach (var childNode in door.ChildNodes.ToArray())
+                foreach (Node childNode in door.ChildNodes.ToArray())
                 {
                     childNode.AddParentNode(result);
                     childNode.RemoveParentNode(door);
@@ -1291,7 +1277,7 @@ internal sealed class ContextProvider
 
             _nodes = ExpandNodes(_nodes);
 
-            var t = _nodes.Find(n => n.ID == "4cb05ab4-4986-4d52-b3d6-d2119fc792f0");
+            Node? t = _nodes.Find(n => n.ID == "4cb05ab4-4986-4d52-b3d6-d2119fc792f0");
             Console.WriteLine(t);
 
             //clear criteria to free memory, we dont need them anyways

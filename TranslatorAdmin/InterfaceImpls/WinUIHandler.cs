@@ -27,7 +27,7 @@ namespace Translator.Desktop.InterfaceImpls
         Type IUIHandler.InternalFolderDialogType => typeof(WinFolderDialog);
         Type IUIHandler.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
         public string Language { get => App.MainForm?.LanguageBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the language"); App.MainForm.LanguageBox.Text = value; } }
-        public bool ReplaceBarIsVisible => App.MainForm?.ReplaceAllButton.Visible ?? false && App.MainForm.ReplaceButton.Visible && App.MainForm.ReplaceBox.Visible;
+        public bool ReplaceBarIsVisible => App.MainForm?.ReplaceAllButton.Visible ?? (false && App.MainForm.ReplaceButton.Visible && App.MainForm.ReplaceBox.Visible);
         public string ReplaceBarText { get => App.MainForm?.ReplaceBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the ReplaceBarText"); App.MainForm.ReplaceBox.Text = value; } }
 
         public string SearchBarText { get => App.MainForm?.SearchBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the SearchBArText"); App.MainForm.SearchBox.Text = value; } }
@@ -44,8 +44,7 @@ namespace Translator.Desktop.InterfaceImpls
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
         public ITab? CreateNewTab()
         {
-            if (App.MainForm == null) return null;
-            return new WinTab(App.MainForm);
+            return App.MainForm == null ? null : (ITab)new WinTab(App.MainForm);
         }
 
         public PopupResult ErrorOk(string message, string title = "Error") => Msg.ErrorOk(message, title).ToPopupResult();
@@ -149,7 +148,7 @@ namespace Translator.Desktop.InterfaceImpls
 
         public void SetLanguageHighlights(string[] languages)
         {
-            var indices = new int[languages.Length].AsSpan();
+            Span<int> indices = new int[languages.Length].AsSpan();
             int iterator = 0;
             for (int i = 0; i < languages.Length; i++)
             {

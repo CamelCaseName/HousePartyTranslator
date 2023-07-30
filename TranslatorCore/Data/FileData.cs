@@ -35,7 +35,7 @@ namespace Translator.Core.Data
         {
             if (index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
 
-            var enumerator = GetEnumerator();
+            Enumerator enumerator = GetEnumerator();
             int i = 0;
             while (enumerator.MoveNext())
             {

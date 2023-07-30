@@ -40,11 +40,7 @@ namespace Translator.Desktop.UI.Components
             if (sender == null) return;
             if (e.Index < 0) return;
 
-            Font font;
-            if (TabPages[e.Index].Text.Contains('*'))
-                font = new Font(Font, FontStyle.Bold);
-            else
-                font = new Font(Font, FontStyle.Regular);
+            Font font = TabPages[e.Index].Text.Contains('*') ? new Font(Font, FontStyle.Bold) : new Font(Font, FontStyle.Regular);
 
             //backgrounds
             if (e.State == DrawItemState.Selected)

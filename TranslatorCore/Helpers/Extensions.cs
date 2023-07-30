@@ -32,7 +32,7 @@ namespace Translator.Core.Helpers
         public static ReadOnlySpan<char> RemoveVAHints(this ReadOnlySpan<char> span)
         {
             bool inVAHint = false;
-            Span<char> output = new Span<char>(new char[span.Length]);
+            var output = new Span<char>(new char[span.Length]);
             int iterator = 0;
             foreach (char character in span)
             {
@@ -72,7 +72,7 @@ namespace Translator.Core.Helpers
 
             foreach (char c in input.AsSpan())
             {
-                if (c != ' ' && c != '\n' && c != '\r')
+                if (c is not ' ' and not '\n' and not '\r')
                 {
                     if (!inWord) lastWordStart = totalCount;
                     inWord = true;
@@ -258,12 +258,15 @@ namespace Translator.Core.Helpers
         public static ReadOnlySpan<char> RemoveAt(this ReadOnlySpan<char> span, int index, int count)
         {
             if (span.IsEmpty) return span;
-            if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), "The index cannot be negative");
-            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "The count cannot be negative");
-            if (index >= span.Length) throw new ArgumentOutOfRangeException(nameof(index), "The index has to be less than the length of the span");
-            if (index + count >= span.Length) throw new ArgumentOutOfRangeException(nameof(count), "The count added to the index has to be less than the length of the span");
-
-            return string.Concat(span[..index], span[(index + count)..]);
+            return index < 0
+                ? throw new ArgumentOutOfRangeException(nameof(index), "The index cannot be negative")
+                : count < 0
+                ? throw new ArgumentOutOfRangeException(nameof(count), "The count cannot be negative")
+                : index >= span.Length
+                ? throw new ArgumentOutOfRangeException(nameof(index), "The index has to be less than the length of the span")
+                : index + count >= span.Length
+                ? throw new ArgumentOutOfRangeException(nameof(count), "The count added to the index has to be less than the length of the span")
+                : (ReadOnlySpan<char>)string.Concat(span[..index], span[(index + count)..]);
         }
     }
 }

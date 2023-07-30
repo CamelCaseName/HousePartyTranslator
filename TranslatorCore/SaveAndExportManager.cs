@@ -36,7 +36,7 @@ namespace Translator.Core
                 return;
             }
 
-            var sortedLines = InitializeCategories(story, file);
+            List<CategorizedLines> sortedLines = InitializeCategories(story, file);
             SortIntoCategories(ref sortedLines, templates, templates);
 
             WriteCategorizedLinesToDisk(sortedLines, path);
@@ -56,12 +56,12 @@ namespace Translator.Core
             if (story == "Hints")
                 ExportTemplate(Path.Combine(path, "Hints.txt"), story, story, confirmSuccess: false);
             else if (Directory.GetFiles(path).Length > 0)
-                foreach (var file in Directory.GetFiles(path))
+                foreach (string file in Directory.GetFiles(path))
                 {
                     ExportTemplate(file, story, warnOnOverwrite: true, confirmSuccess: false);
                 }
             else if (DataBase.GetFilesForStory(story, out string[] names))
-                foreach (var item in names)
+                foreach (string item in names)
                 {
                     ExportTemplate(Path.Combine(path, item + ".txt"), story, item, confirmSuccess: false);
                 }
@@ -204,7 +204,7 @@ namespace Translator.Core
                 else if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
                     return;
 
-                var categories = InitializeCategories(diff.StoryName, diff.FileName);
+                List<CategorizedLines> categories = InitializeCategories(diff.StoryName, diff.FileName);
                 SortIntoCategories(ref categories, diff, diff);
 
                 WriteCategorizedLinesToDisk(categories, path, true);
@@ -213,20 +213,15 @@ namespace Translator.Core
 
         private static void SortAndWriteMissingLinesToDiskMultipleFiles(string path, string story, Dictionary<string, FileData> lines, Dictionary<string, FileData> templates)
         {
-            foreach (var fileData in templates.Values)
+            foreach (FileData fileData in templates.Values)
             {
                 FileData results = new(story, fileData.FileName);
                 //export templates as hints.txt if we have the hints, no need to get filenames
-                string file;
-                if (story == "Hints")
-                    file = "Hints";
-                else
-                    file = fileData.FileName;
-
+                string file = story == "Hints" ? "Hints" : fileData.FileName;
                 CompareAndAggregateTranslationAndTemplate(lines[file], templates[file], ref results);
 
                 //sort and save
-                var sortedLines = InitializeCategories(story, file);
+                List<CategorizedLines> sortedLines = InitializeCategories(story, file);
                 SortIntoCategories(ref sortedLines, results, results);
 
                 WriteCategorizedLinesToDisk(sortedLines, Path.Combine(path, file + "_missing.txt"));
@@ -236,14 +231,14 @@ namespace Translator.Core
         private static void SortAndWriteMissingLinesToDiskSingleFile(string path, string story, Dictionary<string, FileData> lines, Dictionary<string, FileData> templates)
         {
             StreamWriter writer = new(path);
-            foreach (var fileData in templates.Values)
+            foreach (FileData fileData in templates.Values)
             {
                 FileData results = new(story, fileData.FileName);
 
                 CompareAndAggregateTranslationAndTemplate(lines[fileData.FileName], templates[fileData.FileName], ref results);
 
                 //sort and save
-                var sortedLines = InitializeCategories(story, fileData.FileName);
+                List<CategorizedLines> sortedLines = InitializeCategories(story, fileData.FileName);
                 SortIntoCategories(ref sortedLines, results, results);
 
                 writer.WriteLine("FILE: " + fileData.FileName + ".txt starts here:\n\r");
@@ -258,7 +253,7 @@ namespace Translator.Core
             CompareAndAggregateTranslationAndTemplate(lines, templates, ref results);
 
             //sort and save
-            var sortedLines = InitializeCategories(story, file);
+            List<CategorizedLines> sortedLines = InitializeCategories(story, file);
             SortIntoCategories(ref sortedLines, results, results);
 
             WriteCategorizedLinesToDisk(sortedLines, path);
@@ -266,9 +261,9 @@ namespace Translator.Core
 
         private static void CompareAndAggregateTranslationAndTemplate(FileData lines, FileData templates, ref FileData results)
         {
-            foreach (var lineData in templates.Values)
+            foreach (LineData lineData in templates.Values)
             {
-                lines.TryGetValue(lineData.ID, out var translatedLineData);
+                lines.TryGetValue(lineData.ID, out LineData? translatedLineData);
 
                 if (translatedLineData == null)
                 {
@@ -319,10 +314,10 @@ namespace Translator.Core
                 //create translation and open it
                 string newFiles_dir = Directory.GetParent(Utils.SelectSaveLocation("Select the folder where you want the generated templates to go", path, "template export", string.Empty, false, false))?.FullName
                     ?? SpecialDirectories.MyDocuments;
-                foreach (var file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
+                foreach (string file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
                 {
                     string file = Utils.ExtractFileName(file_path);
-                    if (Path.GetExtension(file_path) != ".character" && Path.GetExtension(file_path) != ".story") continue;
+                    if (Path.GetExtension(file_path) is not ".character" and not ".story") continue;
 
                     //create and upload templates
                     if (TabManager.UI.CreateTemplateFromStory(story, file, file_path, out FileData templates))
@@ -347,7 +342,7 @@ namespace Translator.Core
 
                     if (newFiles_dir != string.Empty)
                     {
-                        var sortedLines = InitializeCategories(story, file);
+                        List<CategorizedLines> sortedLines = InitializeCategories(story, file);
                         SortIntoCategories(ref sortedLines, templates, templates);
                         WriteCategorizedLinesToDisk(sortedLines, Path.Combine(newFiles_dir, file + ".txt"));
                     }
@@ -400,7 +395,7 @@ namespace Translator.Core
                 string newFile = Utils.SelectSaveLocation("Select a file to save the generated templates to", path, file, "txt", false, false);
                 if (newFile != string.Empty)
                 {
-                    var sortedLines = InitializeCategories(story, file);
+                    List<CategorizedLines> sortedLines = InitializeCategories(story, file);
                     SortIntoCategories(ref sortedLines, templates, templates);
 
                     WriteCategorizedLinesToDisk(sortedLines, newFile);
@@ -414,9 +409,8 @@ namespace Translator.Core
         /// </summary>
         public static List<StringCategory> GetCategories(string story, string file)
         {
-            if (file == "all")
-            {
-                return new List<StringCategory>() {
+            return file == "all"
+                ? new List<StringCategory>() {
                             StringCategory.General,
                             StringCategory.Dialogue,
                             StringCategory.Response,
@@ -427,32 +421,24 @@ namespace Translator.Core
                             StringCategory.ItemAction,
                             StringCategory.ItemGroupAction,
                             StringCategory.Achievement,
-                            StringCategory.Neither };
-            }
-            else if (story == "UI" || story == "Hints")
-            {
-                return new List<StringCategory>() { StringCategory.General };
-            }
-            else if (file == story)
-            {
-                return new List<StringCategory>() {
+                            StringCategory.Neither }
+                : story is "UI" or "Hints"
+                    ? new List<StringCategory>() { StringCategory.General }
+                    : file == story
+                                    ? new List<StringCategory>() {
                             StringCategory.General,
                             StringCategory.ItemName,
                             StringCategory.ItemAction,
                             StringCategory.ItemGroupAction,
                             StringCategory.Event,
-                            StringCategory.Achievement };
-            }
-            else
-            {
-                return new List<StringCategory>() {
+                            StringCategory.Achievement }
+                                    : new List<StringCategory>() {
                             StringCategory.General,
                             StringCategory.Dialogue,
                             StringCategory.Response,
                             StringCategory.Quest,
                             StringCategory.Event,
                             StringCategory.BGC};
-            }
         }
 
         internal static List<CategorizedLines> InitializeCategories(string story, string file)
@@ -476,10 +462,7 @@ namespace Translator.Core
                 {
                     if (TempResult != null)
                     {
-                        if (TempResult.TranslationLength > 0)
-                            item.TranslationString = TempResult.TranslationString;
-                        else
-                            item.TranslationString = item.TemplateString.RemoveVAHints();
+                        item.TranslationString = TempResult.TranslationLength > 0 ? TempResult.TranslationString : item.TemplateString.RemoveVAHints();
                     }
                 }
                 else
@@ -534,7 +517,7 @@ namespace Translator.Core
                     //hints have to be sortet a bit different because the numbers can contain a u
                     CategorizedLines.lines.Sort(new GeneralComparer());
                 }
-                else if (CategorizedLines.category == StringCategory.Quest || CategorizedLines.category == StringCategory.Achievement)
+                else if (CategorizedLines.category is StringCategory.Quest or StringCategory.Achievement)
                 {
                     CategorizedLines.lines.Sort((line1, line2) => line2.ID.CompareTo(line1.ID));
                 }
@@ -566,12 +549,12 @@ namespace Translator.Core
 
             //create translation and open it
             FileData templates;
-            foreach (var folder_path in Directory.GetDirectories(Directory.GetParent(path)?.FullName ?? string.Empty))
+            foreach (string folder_path in Directory.GetDirectories(Directory.GetParent(path)?.FullName ?? string.Empty))
             {
                 string story = Utils.ExtractStoryName(folder_path);
-                foreach (var file_path in Directory.GetFiles(folder_path))
+                foreach (string file_path in Directory.GetFiles(folder_path))
                 {
-                    var file = Utils.ExtractFileName(file_path);
+                    string file = Utils.ExtractFileName(file_path);
                     if (Path.GetExtension(file_path) != ".txt") continue;
 
                     //create and upload templates
@@ -662,10 +645,10 @@ namespace Translator.Core
 
         public static string CreateNewFile(INewFileSelector dialog)
         {
-            var result = dialog.ShowDialog();
+            PopupResult result = dialog.ShowDialog();
             if (result != PopupResult.OK || dialog.StoryName == string.Empty) return string.Empty;
 
-            var path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
+            string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
             if (path == string.Empty || path == null) return string.Empty;
 
             if (dialog.StoryName == path.Split('\\')[^2])

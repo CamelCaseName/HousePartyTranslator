@@ -9,7 +9,12 @@ namespace Translator.Desktop.UI.Components
         public int SelectionEnd
         {
             get => SelectionStart + SelectionLength;
-            set { if (SelectionStart < SelectionEnd) SelectionLength = value - SelectionStart; else throw new ArgumentOutOfRangeException(nameof(SelectionEnd), "End has to be after SelectionStart"); }
+            set
+            {
+                SelectionLength = SelectionStart < SelectionEnd
+                ? value - SelectionStart
+                : throw new ArgumentOutOfRangeException(nameof(SelectionEnd), "End has to be after SelectionStart");
+            }
         }
 
         public int HighlightStart { get; set; }

@@ -36,7 +36,7 @@ namespace Translator.Desktop.Explorer.Graph
 
         public void AddRange(IEnumerable<Edge> edgesToAdd)
         {
-            var enumerator = edgesToAdd.GetEnumerator();
+            IEnumerator<Edge> enumerator = edgesToAdd.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 base.Add(enumerator.Current);
