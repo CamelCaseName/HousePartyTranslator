@@ -15,7 +15,7 @@ namespace Translator.Desktop.Explorer.Graph
     [SupportedOSPlatform("windows")]
     internal sealed class NodeProvider
     {
-        private NodeList InternalNodes = new();
+        private readonly NodeList InternalNodes = new();
         private readonly NodeList nodesA = new();
         private readonly NodeList nodesB = new();
         private bool _usingListA = true;
@@ -131,7 +131,7 @@ namespace Translator.Desktop.Explorer.Graph
             if (!frozen)
             {
                 Nodes.Sync();//sync once before we save them finally
-                InternalNodes = Nodes;
+                InternalNodes.AddRange(Nodes); //copy init
                 nodesB.Clear();
                 nodesB.AddRange(nodesA);
                 frozen = true;
@@ -187,6 +187,26 @@ namespace Translator.Desktop.Explorer.Graph
         internal void RemoveFilter(NodeType disallowedType)
         {
             allowedTypes.Remove(disallowedType);
+        }
+
+        internal void ApplyFilters()
+        {
+            NodeList filteredNodes = new();
+            foreach (Node node in InternalNodes)
+            {
+                if (allowedTypes.Contains(node.Type))
+                    filteredNodes.Add(node);
+            }
+            lock (nodesA)
+                lock (nodesB)
+                {
+                    nodesA.Clear();
+                    nodesB.Clear();
+                    nodesA.AddRange(filteredNodes);
+                    nodesB.AddRange(filteredNodes);
+                    nodesA.StrictSync();
+                    nodesB.StrictSync();
+                }
         }
     }
 }

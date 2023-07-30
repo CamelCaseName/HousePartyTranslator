@@ -1,13 +1,29 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
 using System.Drawing;
 
 namespace Translator.Desktop.Explorer.Graph
 {
+    internal sealed class NodeCountChangedArgs : EventArgs
+    {
+        public int Count;
+        public NodeCountChangedArgs(int size) { Count = size; }
+    }
+    internal sealed class EdgeCountChangedArgs : EventArgs
+    {
+        public int Count;
+        public EdgeCountChangedArgs(int size) { Count = size; }
+    }
+
     //a kind of an adjacencylist, but with edges and a direct node access in parallel
     internal sealed class NodeList : List<Node>
     {
         //primarily used for rendering the edges, for graph stuff we use the actual multigraph in the nodes
         public readonly EdgeList Edges = new();
+
+        public event EventHandler<NodeCountChangedArgs>? NodeCountChanged;
+        public event EventHandler<EdgeCountChangedArgs>? EdgeCountChanged;
 
         public new void Add(Node node)
         {
@@ -17,6 +33,10 @@ namespace Translator.Desktop.Explorer.Graph
                 var edge = new Edge(node, Count - 1, node.ChildNodes[c], IndexOf(node.ChildNodes[c]));
                 Edges.Add(edge);
             }
+            if (NodeCountChanged is not null)
+                NodeCountChanged(this, new NodeCountChangedArgs(Count));
+            if (EdgeCountChanged is not null)
+                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
         }
 
         public new bool Remove(Node node)
@@ -25,10 +45,15 @@ namespace Translator.Desktop.Explorer.Graph
             {
                 Edges.Remove(new(node, 0, node.ChildNodes[i], 0));
             }
-            return base.Remove(node);
+            bool res = base.Remove(node);
+            if (NodeCountChanged is not null)
+                NodeCountChanged(this, new NodeCountChangedArgs(Count));
+            if (EdgeCountChanged is not null)
+                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
+            return res;
         }
 
-        //syncs edges to nodes
+        //syncs edges to nodes, including nodes not in the list
         public void Sync()
         {
             Edges.Clear();
@@ -40,6 +65,27 @@ namespace Translator.Desktop.Explorer.Graph
                     Edges.Add(edge);
                 }
             }
+            if (EdgeCountChanged is not null)
+                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
+        }
+
+        //syncs edges to nodes, but exludes all edges that would include nodes not in the list
+        public void StrictSync()
+        {
+            Edges.Clear();
+            for (int x = 0; x < Count; x++)
+            {
+                for (int c = 0; c < this[x].ChildNodes.Count; c++)
+                {
+                    if (Contains(this[x].ChildNodes[c]))
+                    {
+                        var edge = new Edge(this[x], x, this[x].ChildNodes[c], IndexOf(this[x].ChildNodes[c]));
+                        Edges.Add(edge);
+                    }
+                }
+            }
+            if (EdgeCountChanged is not null)
+                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
         }
 
         public new void AddRange(IEnumerable<Node> list)
@@ -61,11 +107,20 @@ namespace Translator.Desktop.Explorer.Graph
                     }
                 }
             }
+            if (NodeCountChanged is not null)
+                NodeCountChanged(this, new NodeCountChangedArgs(Count));
+            if (EdgeCountChanged is not null)
+                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
         }
 
         public new void Clear()
         {
+            Edges.Clear();
             base.Clear();
+            if (NodeCountChanged is not null)
+                NodeCountChanged(this, new NodeCountChangedArgs(Count));
+            if (EdgeCountChanged is not null)
+                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
         }
 
         internal List<PointF> GetPositions()

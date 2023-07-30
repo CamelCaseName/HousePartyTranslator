@@ -284,7 +284,7 @@ namespace Translator.Explorer.Window
             this.NodeSize.Name = "NodeSize";
             this.NodeSize.Size = new System.Drawing.Size(59, 15);
             this.NodeSize.TabIndex = 8;
-            this.NodeSize.Text = "Node Size";
+            this.NodeSize.Text = "Node Count";
             // 
             // SaveStory
             // 
