@@ -99,7 +99,7 @@ namespace Translator.Core
         /// <param name="tab">the first tab to be added to the app</param>
         public static void FinalizeInitializer()
         {
-            if (UI == null || firstTab == null) throw new InvalidOperationException("You cant finalize the initialization if it hasnt completed");
+            if (UI is null || firstTab is null) throw new InvalidOperationException("You cant finalize the initialization if it hasnt completed");
 
             if (!UI.TabControl.TabPages.Contains(firstTab))
             {
@@ -136,7 +136,7 @@ namespace Translator.Core
             {
                 //create new support objects
                 ITab? newTab = UI.CreateNewTab();
-                if (newTab == null) return;
+                if (newTab is null) return;
                 newTab.Text = $"Tab {translationManagers.Count + 1}";
                 //Add tab to form control
                 TabControl.AddTab(newTab);
@@ -229,7 +229,7 @@ namespace Translator.Core
             }
 
             //set search term to the one from the respective TranslationManager
-            if (ActiveTranslationManager != null && UI != null)
+            if (ActiveTranslationManager is not null && UI is not null)
             {
                 if (InGlobalSearch)
                 {
@@ -281,7 +281,7 @@ namespace Translator.Core
         /// <returns>True if we want to search all, performs the search also. False when single tab search is intended.</returns>
         private static bool SearchAll()
         {
-            if (UI == null) return false;
+            if (UI is null) return false;
 
             if (UI.SearchBarText.Length > 0)
             {

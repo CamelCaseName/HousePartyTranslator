@@ -37,7 +37,7 @@ namespace Translator.Desktop.UI.Components
 
         private void DrawTabTitleCards(object? sender, DrawItemEventArgs e)
         {
-            if (sender == null) return;
+            if (sender is null) return;
             if (e.Index < 0) return;
 
             Font font = TabPages[e.Index].Text.Contains('*') ? new Font(Font, FontStyle.Bold) : new Font(Font, FontStyle.Regular);

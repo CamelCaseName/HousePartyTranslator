@@ -139,7 +139,7 @@ namespace Translator.Desktop.UI
             }
             set
             {
-                if (value != null)
+                if (value is not null)
                 {
                     SExplorer = value.ParentName == Name
                         ? value
@@ -158,7 +158,7 @@ namespace Translator.Desktop.UI
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
             InputHandler.SelectedItemChanged(CheckListBoxLeft);
-            if (Explorer != null
+            if (Explorer is not null
                 && Explorer.IsHandleCreated
                 && Explorer.StoryName == TabManager.ActiveTranslationManager.StoryName
                 && Explorer.FileName == TabManager.ActiveTranslationManager.FileName)
@@ -186,7 +186,7 @@ namespace Translator.Desktop.UI
             }
             //ignore exception, really intended
             catch { return false; }
-            if (focused_control == null) return false;
+            if (focused_control is null) return false;
             var textBox = (TextBox)focused_control;
             if (toLeft)
             {
@@ -202,7 +202,7 @@ namespace Translator.Desktop.UI
 
         public void OpeningContextMenu(object? sender, MouseEventArgs? e)
         {
-            if (e == null || ListContextMenu == null)
+            if (e is null || ListContextMenu is null)
                 return;
             WindowsKeypressManager.OpenContextMenu(ListContextMenu, e);
         }
@@ -215,7 +215,7 @@ namespace Translator.Desktop.UI
 
         public void TextContextOpened(object? sender, EventArgs? e)
         {
-            if (sender == null) return;
+            if (sender is null) return;
             if (sender is ITextBox textBox)
             {
                 InputHandler.PrepareTextChanged(textBox);
@@ -253,7 +253,7 @@ namespace Translator.Desktop.UI
 
         internal static StoryExplorer? CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
         {
-            if (TabManager.ActiveTranslationManager == null) return null;
+            if (TabManager.ActiveTranslationManager is null) return null;
 
             //get currently active translation manager
             TranslationManager manager = TabManager.ActiveTranslationManager;
@@ -291,12 +291,12 @@ namespace Translator.Desktop.UI
 
         private void FensterUnhandledExceptionHandler(object? sender, UnhandledExceptionEventArgs? e)
         {
-            if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); }
+            if (e is null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); }
             else
             {
                 LogManager.Log(e.ExceptionObject?.ToString() ?? "ExceptionObject is null", LogManager.Level.Error);
 
-                if (e.ExceptionObject == null) return;
+                if (e.ExceptionObject is null) return;
                 if (e.ExceptionObject is LanguageHelper.LanguageException)
                 {
                     Msg.WarningOk("Please select a language first! (Dropdown in the top menu bar)");
@@ -316,7 +316,7 @@ namespace Translator.Desktop.UI
 
         private void ThreadExceptionHandler(object? sender, ThreadExceptionEventArgs? e)
         {
-            if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
+            if (e is null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
             LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
             if (e.Exception is LanguageHelper.LanguageException)
             {
@@ -917,7 +917,7 @@ namespace Translator.Desktop.UI
 
         protected override void OnDragDrop(DragEventArgs drgevent)
         {
-            if (drgevent.Data == null) return;
+            if (drgevent.Data is null) return;
             if (drgevent.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[]?)drgevent.Data.GetData(DataFormats.FileDrop) ?? Array.Empty<string>();
@@ -940,7 +940,7 @@ namespace Translator.Desktop.UI
 
         protected override void OnDragEnter(DragEventArgs e)
         {
-            if (e.Data == null) return;
+            if (e.Data is null) return;
             e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop)
                 || e.Data.GetDataPresent(DataFormats.UnicodeText)
                 || e.Data.GetDataPresent(DataFormats.OemText)
@@ -1036,7 +1036,7 @@ namespace Translator.Desktop.UI
 
         private void SearchToolStripTextBox_TextChanged(object? sender, EventArgs? e)
         {
-            if (sender == null) return;
+            if (sender is null) return;
             TabManager.Search();
         }
 
@@ -1088,7 +1088,7 @@ namespace Translator.Desktop.UI
             if (result != PopupResult.OK) return;
 
             string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
-            if (path == string.Empty || path == null) return;
+            if (path == string.Empty || path is null) return;
 
             if (dialog.StoryName == path.Split('\\')[^2])
                 path = Path.GetDirectoryName(path);

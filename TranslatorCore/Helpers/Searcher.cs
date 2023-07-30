@@ -288,11 +288,11 @@ namespace Translator.Core.Helpers
 
         private static bool SearchComments(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            if (line.Comments != null && line.Comments.Length > 0)
+            if (line.Comments is not null && line.Comments.Length > 0)
             {
                 foreach (string comment in line.Comments)
                 {
-                    bool result = pattern != null ? SafeRegexSearch(comment, pattern) : comment.AsSpan().Contains(query, comparison);
+                    bool result = pattern is not null ? SafeRegexSearch(comment, pattern) : comment.AsSpan().Contains(query, comparison);
                     if (result) return true;
                 }
             }
@@ -301,21 +301,21 @@ namespace Translator.Core.Helpers
 
         private static bool SearchTemplate(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            return line.TemplateString != null
-&& (pattern != null ? SafeRegexSearch(line.TemplateString, pattern) : line.TemplateString.AsSpan().Contains(query, comparison));
+            return line.TemplateString is not null
+&& (pattern is not null ? SafeRegexSearch(line.TemplateString, pattern) : line.TemplateString.AsSpan().Contains(query, comparison));
         }
 
         private static bool SearchTranslation(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            return line.TranslationString != null
-&& (pattern != null
+            return line.TranslationString is not null
+&& (pattern is not null
                     ? SafeRegexSearch(line.TranslationString, pattern)
                     : line.TranslationString.AsSpan().Contains(query, comparison));
         }
 
         private static bool SearchID(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            return pattern != null ? SafeRegexSearch(line.ID, pattern) : line.ID.AsSpan().Contains(query, comparison);
+            return pattern is not null ? SafeRegexSearch(line.ID, pattern) : line.ID.AsSpan().Contains(query, comparison);
         }
 
         private static bool SearchAll(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
@@ -348,7 +348,7 @@ namespace Translator.Core.Helpers
             position = -1;
             length = -1;
             if (query.IsEmpty) return false;
-            if (line == null) return false;
+            if (line is null) return false;
 
             StringComparison comparison = StringComparison.InvariantCultureIgnoreCase;
 
@@ -369,7 +369,7 @@ namespace Translator.Core.Helpers
             {
                 //run all checks agains all lines
                 Regex? regex = CreateRegex(query, true);
-                if (regex != null)
+                if (regex is not null)
                 {
                     try
                     {

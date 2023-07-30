@@ -96,7 +96,7 @@ namespace Translator.Core
             if (history.Count > 0)
             {
                 ICommand command = history.Pop();
-                if (command != null)
+                if (command is not null)
                 {
                     CausedByHistory = true;
                     command.Undo();
@@ -111,7 +111,7 @@ namespace Translator.Core
             if (future.Count > 0)
             {
                 ICommand command = future.Pop();
-                if (command != null)
+                if (command is not null)
                 {
                     CausedByHistory = true;
                     command.Do();

@@ -15,7 +15,7 @@ namespace Translator.Desktop.Managers
     {
         public static void OpenContextMenu(ContextMenuStrip context, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Right && TabManager.UI != null)
+            if (e.Button == MouseButtons.Right && TabManager.UI is not null)
             {
                 if (TabManager.UI.SelectedTab.Lines.Count > 0)
                 {
@@ -29,7 +29,7 @@ namespace Translator.Desktop.Managers
         public static void SelectedTabChanged()
         {
             //update presence
-            if (TabManager.ActiveTranslationManager != null)
+            if (TabManager.ActiveTranslationManager is not null)
                 DiscordPresenceManager.Update();
         }
 
@@ -52,7 +52,7 @@ namespace Translator.Desktop.Managers
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
         {
-            if (TabManager.UI == null || App.MainForm == null) return false;
+            if (TabManager.UI is null || App.MainForm is null) return false;
             switch (keyData)
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
@@ -180,7 +180,7 @@ namespace Translator.Desktop.Managers
 
         private static void DefaultTextChangePreparation()
         {
-            if (App.MainForm?.ActiveControl == null || App.MainForm == null) return;
+            if (App.MainForm?.ActiveControl is null || App.MainForm is null) return;
             if (App.MainForm.ActiveControl is ITextBox box)
             {
                 InputHandler.PrepareTextChanged(box);

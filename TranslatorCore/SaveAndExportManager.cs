@@ -265,7 +265,7 @@ namespace Translator.Core
             {
                 lines.TryGetValue(lineData.ID, out LineData? translatedLineData);
 
-                if (translatedLineData == null)
+                if (translatedLineData is null)
                 {
                     results.Add(lineData.ID, lineData);
                     continue;
@@ -460,7 +460,7 @@ namespace Translator.Core
                 if (item.ID == string.Empty) continue;
                 if (translationData.TryGetValue(item.ID, out LineData? TempResult))
                 {
-                    if (TempResult != null)
+                    if (TempResult is not null)
                     {
                         item.TranslationString = TempResult.TranslationLength > 0 ? TempResult.TranslationString : item.TemplateString.RemoveVAHints();
                     }
@@ -487,7 +487,7 @@ namespace Translator.Core
             CultureInfo culture = CultureInfo.InvariantCulture;
             bool needDispose = false;
 
-            if (OutputWriter == null)
+            if (OutputWriter is null)
             {
                 if (warnOnOverwrite)
                     if (File.OpenRead(path).Length > 0)
@@ -649,7 +649,7 @@ namespace Translator.Core
             if (result != PopupResult.OK || dialog.StoryName == string.Empty) return string.Empty;
 
             string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
-            if (path == string.Empty || path == null) return string.Empty;
+            if (path == string.Empty || path is null) return string.Empty;
 
             if (dialog.StoryName == path.Split('\\')[^2])
                 path = Path.GetDirectoryName(path);

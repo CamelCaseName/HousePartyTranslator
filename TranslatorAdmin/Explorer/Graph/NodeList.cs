@@ -34,9 +34,9 @@ namespace Translator.Desktop.Explorer.Graph
                 Edges.Add(edge);
             }
             if (NodeCountChanged is not null)
-                NodeCountChanged(this, new NodeCountChangedArgs(Count));
+                NodeCountChanged(this, new(Count));
             if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
+                EdgeCountChanged(this, new(Edges.Count));
         }
 
         public new bool Remove(Node node)
@@ -47,9 +47,9 @@ namespace Translator.Desktop.Explorer.Graph
             }
             bool res = base.Remove(node);
             if (NodeCountChanged is not null)
-                NodeCountChanged(this, new NodeCountChangedArgs(Count));
+                NodeCountChanged(this, new(Count));
             if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
+                EdgeCountChanged(this, new(Edges.Count));
             return res;
         }
 
@@ -66,7 +66,7 @@ namespace Translator.Desktop.Explorer.Graph
                 }
             }
             if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
+                EdgeCountChanged(this, new(Edges.Count));
         }
 
         //syncs edges to nodes, but exludes all edges that would include nodes not in the list
@@ -85,7 +85,7 @@ namespace Translator.Desktop.Explorer.Graph
                 }
             }
             if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
+                EdgeCountChanged(this, new(Edges.Count));
         }
 
         public new void AddRange(IEnumerable<Node> list)
@@ -108,9 +108,9 @@ namespace Translator.Desktop.Explorer.Graph
                 }
             }
             if (NodeCountChanged is not null)
-                NodeCountChanged(this, new NodeCountChangedArgs(Count));
+                NodeCountChanged(this, new(Count));
             if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
+                EdgeCountChanged(this, new(Edges.Count));
         }
 
         public new void Clear()
@@ -118,9 +118,9 @@ namespace Translator.Desktop.Explorer.Graph
             Edges.Clear();
             base.Clear();
             if (NodeCountChanged is not null)
-                NodeCountChanged(this, new NodeCountChangedArgs(Count));
+                NodeCountChanged(this, new(Count));
             if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new EdgeCountChangedArgs(Edges.Count));
+                EdgeCountChanged(this, new(Edges.Count));
         }
 
         internal List<PointF> GetPositions()

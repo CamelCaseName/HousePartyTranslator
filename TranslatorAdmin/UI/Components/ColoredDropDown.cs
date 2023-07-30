@@ -58,7 +58,7 @@ namespace Translator.Desktop.UI.Components
 
         protected override void OnDrawItem(DrawItemEventArgs e)
         {
-            if (e == null) return;
+            if (e is null) return;
             base.OnDrawItem(e);
 
             //true when we hover over the item
@@ -84,7 +84,7 @@ namespace Translator.Desktop.UI.Components
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            if (e == null) return;
+            if (e is null) return;
             base.OnPaint(e);
             int h = Height;
             int w = Width;

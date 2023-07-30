@@ -40,7 +40,7 @@ namespace Translator.Desktop.UI
 
         private void Submit_click(object sender, EventArgs e)
         {
-            if (storyDropdown.SelectedItem == null)
+            if (storyDropdown.SelectedItem is null)
             {
                 CombinedStoryFile = string.Empty;
                 return;

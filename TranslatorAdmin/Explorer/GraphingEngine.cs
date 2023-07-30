@@ -96,7 +96,7 @@ namespace Translator.Desktop.Explorer
             }
             set
             {
-                if (value != null)
+                if (value is not null)
                 {
                     //set new value
                     if (!IsShiftPressed) highlightedNode = value;
@@ -117,7 +117,7 @@ namespace Translator.Desktop.Explorer
             }
             set
             {
-                if (value != null)
+                if (value is not null)
                 {
                     infoNode = value;
                     ClickedNodeChanged(this, new ClickedNodeChangeArgs(value, ClickedNodeTypes.Info));
@@ -132,7 +132,7 @@ namespace Translator.Desktop.Explorer
         //increase drawing speed by switching to direct2d? either custom binding as needed or sharpdx?
         public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
         {
-            if (e == null) return;
+            if (e is null) return;
 
             FrameStartTime = FrameEndTime;
             ++FrameCount;
@@ -356,7 +356,7 @@ namespace Translator.Desktop.Explorer
             {
                 oldBox.Visible = false;
             }
-            if (node.Data == null) return;
+            if (node.Data is null) return;
 
             //use components if we have them already
             if (!ExtendedInfoComponents.TryGetValue(node.DataType, out GroupBox? box))

@@ -90,7 +90,7 @@ namespace Translator.Desktop.Explorer.Graph
                 StartTime = DateTime.Now;
                 LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
                 Started = true;
-                if (opencl != null) opencl.Retry = true;
+                if (opencl is not null) opencl.Retry = true;
                 _ = Task.Run(LayoutCalculation, cancellationToken.Token);
             }
         }

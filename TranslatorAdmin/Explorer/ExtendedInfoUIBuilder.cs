@@ -13,37 +13,37 @@ namespace Translator.Desktop.Explorer
 
         internal static void CheckBoxSetValue(object? sender, PropertyInfo property, object data)
         {
-            if (!ReadOnly && sender != null)
+            if (!ReadOnly && sender is not null)
                 property.SetValue(data, Convert.ToBoolean(((CheckBox)sender).Checked));
         }
 
         internal static void DropDownNullableSetValue(object? sender, PropertyInfo property, object data)
         {
-            if (!ReadOnly && sender != null)
+            if (!ReadOnly && sender is not null)
                 property.SetValue(data, Enum.Parse(property.PropertyType.GenericTypeArguments[0], ((ComboBox)sender).SelectedItem?.ToString() ?? string.Empty));
         }
 
         internal static void DropDownSetValue(object? sender, PropertyInfo property, object data)
         {
-            if (!ReadOnly && sender != null)
+            if (!ReadOnly && sender is not null)
                 property.SetValue(data, Enum.Parse(property.PropertyType, ((ComboBox)sender).SelectedItem?.ToString()!));
         }
 
         internal static void NumericFloatSetValue(object? sender, PropertyInfo property, object data)
         {
-            if (!ReadOnly && sender != null)
+            if (!ReadOnly && sender is not null)
                 property.SetValue(data, (float)Convert.ToDouble(((NumericUpDown)sender).Value));
         }
 
         internal static void NumericIntSetValue(object? sender, PropertyInfo property, object data)
         {
-            if (!ReadOnly && sender != null)
+            if (!ReadOnly && sender is not null)
                 property.SetValue(data, Convert.ToInt32(((NumericUpDown)sender).Value));
         }
 
         internal static void TextBoxSetValue(object? sender, PropertyInfo property, object data)
         {
-            if (!ReadOnly && sender != null)
+            if (!ReadOnly && sender is not null)
                 property.SetValue(data, ((TextBoxBase)sender).Text);
         }
 

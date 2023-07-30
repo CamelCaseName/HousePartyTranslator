@@ -16,7 +16,7 @@ namespace Translator.Desktop.Managers
 
         internal static bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
         {
-            if (TabManager.UI == null)
+            if (TabManager.UI is null)
             {
                 data = new(string.Empty, string.Empty);
                 return false;
@@ -26,7 +26,7 @@ namespace Translator.Desktop.Managers
             data = new(story, filename);
             var explorer = new ContextProvider(new(), story == filename, false, filename, story, path);
             NodeList nodes = explorer.GetTemplateNodes();
-            if (nodes != null)
+            if (nodes is not null)
             {
                 if (story != filename) data.Add("Name", new LineData("Name", story, filename, StringCategory.General, filename, true));
 
@@ -58,12 +58,12 @@ namespace Translator.Desktop.Managers
                         {
                             if (story != filename) continue;
 
-                            if (nodes[i].DataType == typeof(ItemOverride) && nodes[i].Data != null)
+                            if (nodes[i].DataType == typeof(ItemOverride) && nodes[i].Data is not null)
                             {
                                 ItemOverride itemOverride = (ItemOverride)nodes[i].Data!;
                                 data[itemOverride.DisplayName!] = new LineData(itemOverride.DisplayName!, story, filename, nodes[i].Type.CategoryFromNode(), itemOverride.DisplayName!, true);
                             }
-                            else if (nodes[i].DataType == typeof(UseWith) && nodes[i].Data != null)
+                            else if (nodes[i].DataType == typeof(UseWith) && nodes[i].Data is not null)
                             {
                                 UseWith use = (UseWith)nodes[i].Data!;
                                 if (use.CustomCantDoThatMessage != string.Empty)
@@ -78,7 +78,7 @@ namespace Translator.Desktop.Managers
                         }
                         case NodeType.Event:
                         {
-                            if (nodes[i].DataType != typeof(GameEvent) || nodes[i].Data == null) continue;
+                            if (nodes[i].DataType != typeof(GameEvent) || nodes[i].Data is null) continue;
 
                             GameEvent gameEvent = (GameEvent)nodes[i].Data!;
                             if (gameEvent.EventType == StoryEnums.GameEvents.DisplayGameMessage)
@@ -122,11 +122,11 @@ namespace Translator.Desktop.Managers
         /// </summary>
         internal static void SetHighlightedNode(this TranslationManager manager)
         {
-            if (TabManager.UI == null) return;
+            if (TabManager.UI is null) return;
             if (manager.TranslationData.Count > 0)
             {
                 //Highlights the node representign the selected string in the story explorer window
-                if (App.MainForm?.Explorer != null && !App.MainForm.Explorer.IsDisposed)
+                if (App.MainForm?.Explorer is not null && !App.MainForm.Explorer.IsDisposed)
                 {
                     App.MainForm.Invoke(() => App.MainForm.Explorer.Grapher.HighlightedNode = App.MainForm.Explorer?.Provider.Nodes.Find(n => n.ID == manager.SelectedId && n.FileName == manager.FileName) ?? Node.NullNode);
                 }

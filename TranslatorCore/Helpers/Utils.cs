@@ -77,7 +77,7 @@ namespace Translator.Core.Helpers
                         @"C:\Users\%USER%\Documents",
                 /*filename*/preselectedFile ?? string.Empty,
             });
-            if (selectFileDialog == null) { return string.Empty; }
+            if (selectFileDialog is null) { return string.Empty; }
 
             selectFileDialog.MultiSelect = false;
             selectFileDialog.CheckFileExists = checkFileExists;
@@ -114,7 +114,7 @@ namespace Translator.Core.Helpers
                         @"C:\Users\%USER%\Documents",
                 /*filename*/preselectedFile ?? string.Empty
             });
-            if (selectFileDialog == null) { return Array.Empty<string>(); }
+            if (selectFileDialog is null) { return Array.Empty<string>(); }
 
             if (selectFileDialog.ShowDialog() == PopupResult.OK)
             {
@@ -153,12 +153,12 @@ namespace Translator.Core.Helpers
                 /*title*/message,
                 /*selectedPath*/Settings.Default.TemplatePath == string.Empty ? Environment.SpecialFolder.UserProfile.ToString() : Settings.Default.TemplatePath,
             });
-            if (selectFolderDialog == null) { return string.Empty; }
+            if (selectFolderDialog is null) { return string.Empty; }
 
             if (selectFolderDialog.ShowDialog() == PopupResult.OK)
             {
                 string t = selectFolderDialog.SelectedFolderPath;
-                if (t != null)
+                if (t is not null)
                 {
                     Settings.Default.TemplatePath = t;
                     Settings.Default.Save();
@@ -185,7 +185,7 @@ namespace Translator.Core.Helpers
                 /*FileName*/ file,
                 /*InitialDirectory*/ path
             });
-            if (saveFileDialog == null) return string.Empty;
+            if (saveFileDialog is null) return string.Empty;
 
             saveFileDialog.CheckFileExists = checkFileExists;
             saveFileDialog.CheckPathExists = checkPathExists;

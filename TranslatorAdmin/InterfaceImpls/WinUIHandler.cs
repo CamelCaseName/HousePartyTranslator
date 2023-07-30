@@ -44,7 +44,7 @@ namespace Translator.Desktop.InterfaceImpls
         public void ClipboardSetText(string text) => Clipboard.SetText(text);
         public ITab? CreateNewTab()
         {
-            return App.MainForm == null ? null : (ITab)new WinTab(App.MainForm);
+            return App.MainForm is null ? null : (ITab)new WinTab(App.MainForm);
         }
 
         public PopupResult ErrorOk(string message, string title = "Error") => Msg.ErrorOk(message, title).ToPopupResult();
@@ -77,7 +77,7 @@ namespace Translator.Desktop.InterfaceImpls
         }
         public void SetSelectedSearchBarText(int start, int end)
         {
-            if (App.MainForm == null) return;
+            if (App.MainForm is null) return;
             if (start > end) throw new ArgumentOutOfRangeException(nameof(end), "End has to be after start");
             App.MainForm.SearchBox.SelectionStart = start;
             App.MainForm.SearchBox.SelectionLength = end - start;

@@ -164,7 +164,7 @@ namespace Translator.Desktop.Explorer.Story
             //go through all item groups to find events
             foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors ?? new List<ItemGroupBehavior>())
             {
-                if (itemGroupBehaviour == null) continue;
+                if (itemGroupBehaviour is null) continue;
                 //create item group node to add events/criteria to
                 var nodeGroup = new Node(itemGroupBehaviour.Id ?? string.Empty, NodeType.ItemGroupBehaviour, itemGroupBehaviour.Name ?? string.Empty) { Data = itemGroupBehaviour, DataType = typeof(ItemGroupBehavior) };
                 //get actions for item
@@ -198,7 +198,7 @@ namespace Translator.Desktop.Explorer.Story
             //go through all item groups to find events
             foreach (ItemGroup itemGroup in story.ItemGroups ?? new List<ItemGroup>())
             {
-                if (itemGroup == null) continue;
+                if (itemGroup is null) continue;
                 //create item group node to add events/criteria to
                 var nodeGroup = new Node(itemGroup.Id ?? string.Empty, NodeType.ItemGroup, itemGroup.Name ?? string.Empty) { Data = itemGroup, DataType = typeof(ItemGroup) };
                 //get actions for item

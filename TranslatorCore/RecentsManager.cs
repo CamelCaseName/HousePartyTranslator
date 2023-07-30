@@ -127,7 +127,7 @@ namespace Translator.Core
 
         private static void RecentsManager_Click(object? sender, EventArgs? e)
         {
-            if (sender == null || TabManager.ActiveTranslationManager == null) return;
+            if (sender is null || TabManager.ActiveTranslationManager is null) return;
             TabManager.ShowAutoSaveDialog();
             TabManager.ActiveTranslationManager.LoadFileIntoProgram(((IMenuItem)sender).Text);
             if (Settings.Default.AutoLoadRecentIndex) TabManager.SelectLine(recentIndex);

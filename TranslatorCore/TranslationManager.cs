@@ -272,7 +272,7 @@ namespace Translator.Core
             Settings.Default.RecentIndex = TabUI.SelectedLineIndex;
             TabManager.ShowAutoSaveDialog();
             LoadTranslationFile();
-            if (UI == null) return;
+            if (UI is null) return;
             //select recent index
             if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.SelectLineItem(Settings.Default.RecentIndex);
             LogManager.Log($"Reloaded {StoryName}/{FileName}");
@@ -357,7 +357,7 @@ namespace Translator.Core
             {
                 return faultedTask =>
                 {
-                    if (faultedTask.Exception == null) return;
+                    if (faultedTask.Exception is null) return;
                     LogManager.Log(faultedTask.Exception.Message);
                     foreach (Exception exception in faultedTask.Exception.InnerExceptions)
                     {
@@ -961,7 +961,7 @@ namespace Translator.Core
                     TranslationData[key].IsApproved = tempLine.IsApproved;
                 }
 
-                if (TranslationData[key].TemplateString == null) TranslationData[key].TemplateString = string.Empty;
+                if (TranslationData[key].TemplateString is null) TranslationData[key].TemplateString = string.Empty;
 
                 TabUI.Lines.Add(key, TranslationData[key].IsApproved);
 

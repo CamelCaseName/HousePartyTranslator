@@ -931,7 +931,7 @@ namespace Translator.Core
                 }
                 catch (MySqlException e)
                 {
-                    int errorCode = e.InnerException != null && e.InnerException.GetType().IsAssignableTo(typeof(MySqlException))
+                    int errorCode = e.InnerException is not null && e.InnerException.GetType().IsAssignableTo(typeof(MySqlException))
                         ? ((MySqlException)e.InnerException).Number
                         : e.Number;
                     if (errorCode is 0 or 1042)
