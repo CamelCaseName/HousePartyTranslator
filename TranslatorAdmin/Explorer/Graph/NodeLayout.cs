@@ -155,12 +155,15 @@ namespace Translator.Desktop.Explorer.Graph
 
             for (int first = 0; first < list.Count; first++)
             {
+#if DEBUG
                 if (float.IsNaN(list[first].Position.X) || float.IsNaN(list[first].Position.X)) Debugger.Break();
+#endif
                 //Gravity to center
                 Vector2 pos = new(list[first].Position.X, list[first].Position.Y);
+                float length = pos.Length();
 
                 //fix any issues before we divide by pos IdealLength
-                if (pos.Length() == 0)
+                if (length == 0)
                 {
                     pos.X = 0.1f;
                     pos.Y = 0.1f;
@@ -168,7 +171,7 @@ namespace Translator.Desktop.Explorer.Graph
 
                 //can IdealLength ever be absolutely 0?
                 //gravity calculation
-                NodeForces[first] -= pos / pos.Length() * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * StoryExplorerConstants.Gravity;
+                NodeForces[first] -= pos / length * MathF.Pow(MathF.Abs(length - radius), 1.5f) * MathF.Sign(length - radius) * StoryExplorerConstants.Gravity;
 
                 for (int second = first + 1; second < list.Count; second++)
                 {
