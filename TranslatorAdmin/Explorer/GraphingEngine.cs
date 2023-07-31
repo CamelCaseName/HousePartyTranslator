@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
@@ -134,6 +135,7 @@ namespace Translator.Desktop.Explorer
         public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
         {
             if (e is null) return;
+            Graphics g = e.Graphics;
 
             FrameStartTime = FrameEndTime;
             ++FrameCount;
@@ -141,25 +143,28 @@ namespace Translator.Desktop.Explorer
             MinEdgeLength = MathF.Pow(15 / Scaling, 2); // that one works
 
             //disables and reduces unused features
-            e.Graphics.ToLowQuality();
+            g.ToLowQuality();
 
             //update canvas transforms
-            e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
-            e.Graphics.ScaleTransform(Scaling, Scaling);
+            g.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
+            g.ScaleTransform(Scaling, Scaling);
             Xmin = OffsetX - Nodesize;
             Ymin = OffsetY - Nodesize;
-            Xmax = e.Graphics.VisibleClipBounds.Right + Nodesize;
-            Ymax = e.Graphics.VisibleClipBounds.Bottom + Nodesize;
+            Xmax = g.VisibleClipBounds.Right + Nodesize;
+            Ymax = g.VisibleClipBounds.Bottom + Nodesize;
 
-            PaintAllNodes(e.Graphics);
+            PaintAllNodes(g);
 
             //overlay info and highlight
-            DrawHighlightNodeTree(e.Graphics);
-            DrawMovingNodeMarker(e.Graphics);
-            DrawInfoNode(e.Graphics);
-            NodeInfoLabel.Invalidate();
-            NodeInfoLabel.Update();
+            DrawHighlightNodeTree(g);
+            DrawMovingNodeMarker(g);
+            DrawInfoNode(g);
+            NodeInfoLabel.Refresh();
             FrameEndTime = DateTime.Now;
+#if DEBUG
+            if ((FrameEndTime - FrameStartTime).TotalMilliseconds > 33)
+                LogManager.Log("Frame time too long for 30fps! Expected < 33, actual: " + (FrameEndTime - FrameStartTime).TotalMilliseconds);
+#endif
         }
 
         public void Center()
@@ -445,6 +450,7 @@ namespace Translator.Desktop.Explorer
                 //none are visible, why draw?
             }
         }
+
         private void DrawHighlightNodeTree(Graphics g)
         {
             if (HighlightedNode != Node.NullNode)

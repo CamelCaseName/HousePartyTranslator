@@ -77,12 +77,12 @@ namespace Translator.Core.Helpers
                 : folders[^4][10..] + '\\' + folders[^3] + '\\' + folders[^2] + '\\' + folders[^1];
             string _message = $"[{level}] {DateTime.Now} | {file}:{line} | {message}";
 
+#if !(DEBUG || DEBUG_USER)
             //add the message as lines to our list of all lines
             FileLines.AddRange(_message.Split('\n'));
-
-#if DEBUG || DEBUG_USER
+#else
             //Debug.WriteLine(Environment.StackTrace);
-            System.Diagnostics.Debug.WriteLine(_message[1] == '\n' ? _message[..^1] : _message);
+            System.Diagnostics.Debug.WriteLine(_message[^1] == '\n' ? _message[..^1] : _message);
 #endif
         }
 
