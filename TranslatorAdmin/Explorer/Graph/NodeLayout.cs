@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.Versioning;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.OpenCL;
+using Translator.Explorer.Window;
 
 namespace Translator.Desktop.Explorer.Graph
 {
@@ -37,14 +39,11 @@ namespace Translator.Desktop.Explorer.Graph
         private int _layoutcount = 0;
         public int LayoutCount => _layoutcount;
         public bool Finished => LayoutCount > Nodes.Count * (long)Nodes.Count && !RunOverride && Started;
-        public bool Started { get; private set; } = false;
+        public bool Started => started;
+        private bool started = false;
         public NodeList Nodes
         {
             get { return provider.Nodes; }
-        }
-        private NodeList Internal
-        {
-            get { return provider.OtherNodes; }
         }
 
         public NodeLayout(NodeProvider provider, Form parent, CancellationToken cancellation)
@@ -79,6 +78,9 @@ namespace Translator.Desktop.Explorer.Graph
                 opencl.ReleaseOpenCLResources();
                 opencl = null!;
             }
+
+            //if this fails we created a layout with no parent and no window??
+            explorer = App.MainForm.Explorer!;
         }
 
         public void Start()
@@ -89,7 +91,7 @@ namespace Translator.Desktop.Explorer.Graph
                 _ = outsideToken.Register(cancellationToken.Cancel);
                 StartTime = DateTime.Now;
                 LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
-                Started = true;
+                started = true;
                 if (opencl is not null) opencl.Retry = true;
                 _ = Task.Run(LayoutCalculation, cancellationToken.Token);
             }
@@ -100,15 +102,28 @@ namespace Translator.Desktop.Explorer.Graph
             DateTime end = DateTime.Now;
             LogManager.Log($"\tnode layout ended, calculated {LayoutCount} layouts in {(end - StartTime).TotalSeconds:F2} seconds -> {LayoutCount / (end - StartTime).TotalSeconds:F2} ups");
             cancellationToken.Cancel();
-            Started = false;
+            started = false;
             _layoutcount = 0;
         }
 
         public void CalculateForceDirectedLayout(CancellationToken token)
         {
             //save all forces here
-            NodeForces = new(Nodes.Count);
-            Nodes.ForEach(n => NodeForces.Add(new Vector2()));
+            if (NodeForces.Count != Nodes.Count)
+            {
+                NodeForces = new(Nodes.Count);
+                for (int i = 0; i < NodeForces.Count; i++)
+                {
+                    NodeForces.Add(default);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < NodeForces.Count; i++)
+                {
+                    NodeForces[i] = default;
+                }
+            }
 
             while (!token.IsCancellationRequested && !Finished)
             {
@@ -117,6 +132,7 @@ namespace Translator.Desktop.Explorer.Graph
                 //calculate
                 CalculatePositions();
 
+                //its not faster to clean out this access chain!
                 //we got to wait before we change nodes, so like a reverse lock?
                 while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
                 //switch to other list once done
@@ -137,13 +153,13 @@ namespace Translator.Desktop.Explorer.Graph
         {
             ResetNodeForces();
 
-            float radius = MathF.Sqrt(Internal.Count) + (StoryExplorerConstants.IdealLength * 2);
+            float radius = MathF.Sqrt(provider.OtherNodes.Count) + (StoryExplorerConstants.IdealLength * 2);
 
-            for (int first = 0; first < Internal.Count; first++)
+            for (int first = 0; first < provider.OtherNodes.Count; first++)
             {
-                if (float.IsNaN(Internal[first].Position.X) || float.IsNaN(Internal[first].Position.X)) Debugger.Break();
+                if (float.IsNaN(provider.OtherNodes[first].Position.X) || float.IsNaN(provider.OtherNodes[first].Position.X)) Debugger.Break();
                 //Gravity to center
-                Vector2 pos = new(Internal[first].Position.X, Internal[first].Position.Y);
+                Vector2 pos = new(provider.OtherNodes[first].Position.X, provider.OtherNodes[first].Position.Y);
 
                 //fix any issues before we divide by pos IdealLength
                 if (pos.Length() == 0)
@@ -156,13 +172,13 @@ namespace Translator.Desktop.Explorer.Graph
                 //gravity calculation
                 NodeForces[first] -= pos / pos.Length() * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * StoryExplorerConstants.Gravity;
 
-                for (int second = first + 1; second < Internal.Count; second++)
+                for (int second = first + 1; second < provider.OtherNodes.Count; second++)
                 {
-                    if (Internal[first].Position != Internal[second].Position)
+                    if (provider.OtherNodes[first].Position != provider.OtherNodes[second].Position)
                     {
                         Vector2 edge = new(
-                                Internal[first].Position.X - Internal[second].Position.X,
-                                Internal[first].Position.Y - Internal[second].Position.Y
+                                provider.OtherNodes[first].Position.X - provider.OtherNodes[second].Position.X,
+                                provider.OtherNodes[first].Position.Y - provider.OtherNodes[second].Position.Y
                                 );
 
                         //Repulsion
@@ -172,53 +188,53 @@ namespace Translator.Desktop.Explorer.Graph
                     else
                     {
                         //move away
-                        Internal[first].Position.X += 10f;
+                        provider.OtherNodes[first].Position.X += 10f;
                     }
                 }
             }
 
-            for (int i = 0; i < Internal.Edges.Count; i++)
+            for (int i = 0; i < provider.OtherNodes.Edges.Count; i++)
             {
                 //Attraction/spring accelleration on edge
                 Vector2 edge = new(
-                        Internal.Edges[i].This.Position.X - Internal.Edges[i].Child.Position.X,
-                        Internal.Edges[i].This.Position.Y - Internal.Edges[i].Child.Position.Y
+                        provider.OtherNodes.Edges[i].This.Position.X - provider.OtherNodes.Edges[i].Child.Position.X,
+                        provider.OtherNodes.Edges[i].This.Position.Y - provider.OtherNodes.Edges[i].Child.Position.Y
                         );
                 //if we have the exact same pos but it hasnt been moved by the general +10f in the nbody sim, we have a selfreference and can ignore it
                 if (edge.X == 0 && edge.Y == 0) continue;
 
                 Vector2 attractionVec = edge / edge.Length() * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
 
-                NodeForces[Internal.Edges[i].ThisIndex] -= attractionVec / Internal.Edges[i].This.Mass;
-                NodeForces[Internal.Edges[i].ChildIndex] += attractionVec / Internal.Edges[i].Child.Mass;
+                NodeForces[provider.OtherNodes.Edges[i].ThisIndex] -= attractionVec / provider.OtherNodes.Edges[i].This.Mass;
+                NodeForces[provider.OtherNodes.Edges[i].ChildIndex] += attractionVec / provider.OtherNodes.Edges[i].Child.Mass;
             }
 
             //apply accelleration to nodes
-            for (int i = 0; i < Internal.Count; i++)
+            for (int i = 0; i < provider.OtherNodes.Count; i++)
             {
-                if (!Internal[i].IsPositionLocked)
+                if (!provider.OtherNodes[i].IsPositionLocked)
                 {
-                    Internal[i].Position.X += NodeForces[i].X;
-                    Internal[i].Position.Y += NodeForces[i].Y;
+                    provider.OtherNodes[i].Position.X += NodeForces[i].X;
+                    provider.OtherNodes[i].Position.Y += NodeForces[i].Y;
                 }
             }
         }
 
         private void ResetNodeForces()
         {
-            if (Internal.Count != NodeForces.Count)
+            if (provider.OtherNodes.Count != NodeForces.Count)
             {
                 NodeForces.Clear();
-                for (int i = 0; i < Internal.Count; i++)
+                for (int i = 0; i < provider.OtherNodes.Count; i++)
                 {
-                    NodeForces.Add(Vector2.Zero);
+                    NodeForces.Add(default);
                 }
             }
             else
             {
-                for (int i = 0; i < Internal.Count; i++)
+                for (int i = 0; i < provider.OtherNodes.Count; i++)
                 {
-                    NodeForces[i] = Vector2.Zero;
+                    NodeForces[i] = default;
                 }
             }
         }
