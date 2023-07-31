@@ -78,9 +78,6 @@ namespace Translator.Desktop.Explorer.Graph
                 opencl.ReleaseOpenCLResources();
                 opencl = null!;
             }
-
-            //if this fails we created a layout with no parent and no window??
-            explorer = App.MainForm.Explorer!;
         }
 
         public void Start()
@@ -152,14 +149,15 @@ namespace Translator.Desktop.Explorer.Graph
         private void CalculatePositions()
         {
             ResetNodeForces();
+            NodeList list = provider.OtherNodes;
 
-            float radius = MathF.Sqrt(provider.OtherNodes.Count) + (StoryExplorerConstants.IdealLength * 2);
+            float radius = MathF.Sqrt(list.Count) + (StoryExplorerConstants.IdealLength * 2);
 
-            for (int first = 0; first < provider.OtherNodes.Count; first++)
+            for (int first = 0; first < list.Count; first++)
             {
-                if (float.IsNaN(provider.OtherNodes[first].Position.X) || float.IsNaN(provider.OtherNodes[first].Position.X)) Debugger.Break();
+                if (float.IsNaN(list[first].Position.X) || float.IsNaN(list[first].Position.X)) Debugger.Break();
                 //Gravity to center
-                Vector2 pos = new(provider.OtherNodes[first].Position.X, provider.OtherNodes[first].Position.Y);
+                Vector2 pos = new(list[first].Position.X, list[first].Position.Y);
 
                 //fix any issues before we divide by pos IdealLength
                 if (pos.Length() == 0)
@@ -172,13 +170,13 @@ namespace Translator.Desktop.Explorer.Graph
                 //gravity calculation
                 NodeForces[first] -= pos / pos.Length() * MathF.Pow(MathF.Abs(pos.Length() - radius), 1.5f) * MathF.Sign(pos.Length() - radius) * StoryExplorerConstants.Gravity;
 
-                for (int second = first + 1; second < provider.OtherNodes.Count; second++)
+                for (int second = first + 1; second < list.Count; second++)
                 {
-                    if (provider.OtherNodes[first].Position != provider.OtherNodes[second].Position)
+                    if (list[first].Position != list[second].Position)
                     {
                         Vector2 edge = new(
-                                provider.OtherNodes[first].Position.X - provider.OtherNodes[second].Position.X,
-                                provider.OtherNodes[first].Position.Y - provider.OtherNodes[second].Position.Y
+                                list[first].Position.X - list[second].Position.X,
+                                list[first].Position.Y - list[second].Position.Y
                                 );
 
                         //Repulsion
@@ -188,34 +186,34 @@ namespace Translator.Desktop.Explorer.Graph
                     else
                     {
                         //move away
-                        provider.OtherNodes[first].Position.X += 10f;
+                        list[first].Position.X += 10f;
                     }
                 }
             }
 
-            for (int i = 0; i < provider.OtherNodes.Edges.Count; i++)
+            for (int i = 0; i < list.Edges.Count; i++)
             {
                 //Attraction/spring accelleration on edge
                 Vector2 edge = new(
-                        provider.OtherNodes.Edges[i].This.Position.X - provider.OtherNodes.Edges[i].Child.Position.X,
-                        provider.OtherNodes.Edges[i].This.Position.Y - provider.OtherNodes.Edges[i].Child.Position.Y
+                        list.Edges[i].This.Position.X - list.Edges[i].Child.Position.X,
+                        list.Edges[i].This.Position.Y - list.Edges[i].Child.Position.Y
                         );
                 //if we have the exact same pos but it hasnt been moved by the general +10f in the nbody sim, we have a selfreference and can ignore it
                 if (edge.X == 0 && edge.Y == 0) continue;
 
                 Vector2 attractionVec = edge / edge.Length() * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
 
-                NodeForces[provider.OtherNodes.Edges[i].ThisIndex] -= attractionVec / provider.OtherNodes.Edges[i].This.Mass;
-                NodeForces[provider.OtherNodes.Edges[i].ChildIndex] += attractionVec / provider.OtherNodes.Edges[i].Child.Mass;
+                NodeForces[list.Edges[i].ThisIndex] -= attractionVec / list.Edges[i].This.Mass;
+                NodeForces[list.Edges[i].ChildIndex] += attractionVec / list.Edges[i].Child.Mass;
             }
 
             //apply accelleration to nodes
-            for (int i = 0; i < provider.OtherNodes.Count; i++)
+            for (int i = 0; i < list.Count; i++)
             {
-                if (!provider.OtherNodes[i].IsPositionLocked)
+                if (!list[i].IsPositionLocked)
                 {
-                    provider.OtherNodes[i].Position.X += NodeForces[i].X;
-                    provider.OtherNodes[i].Position.Y += NodeForces[i].Y;
+                    list[i].Position.X += NodeForces[i].X;
+                    list[i].Position.Y += NodeForces[i].Y;
                 }
             }
         }
