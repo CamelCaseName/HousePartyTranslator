@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
@@ -36,7 +37,7 @@ namespace Translator.Desktop.Explorer
         private static float Ymax = 0;
         private static float Xmin = 0;
         private static float Ymin = 0;
-        private static float MaxEdgeLength = 0;
+        private static float MinEdgeLength = 0;
 
         private readonly StoryExplorer Explorer;
         private readonly Label NodeInfoLabel;
@@ -137,7 +138,7 @@ namespace Translator.Desktop.Explorer
             FrameStartTime = FrameEndTime;
             ++FrameCount;
             //set up values for this paint cycle
-            MaxEdgeLength = 15 / Scaling; // that one works
+            MinEdgeLength = MathF.Pow(15 / Scaling, 2); // that one works
 
             //disables and reduces unused features
             e.Graphics.ToLowQuality();
@@ -285,10 +286,15 @@ namespace Translator.Desktop.Explorer
         {
             if (!Provider.Frozen) return;
             DrewNodes = false;
+            Node node;
             //go on displaying graph
             for (int i = 0; i < Provider.Nodes.Count; i++)
             {
-                DrawColouredNode(g, Provider.Nodes[i]);
+                node = Provider.Nodes[i];
+                if (node.Position.X <= Xmax && node.Position.Y <= Ymax && node.Position.X >= Xmin && node.Position.Y >= Ymin)
+                {
+                    DrawColouredNode(g, node);
+                }
             }
             int maxEdges = Math.Min(Provider.Nodes.Edges.Count, Settings.MaxEdgeCount);
             for (int i = 0; i < maxEdges; i++)
@@ -399,19 +405,16 @@ namespace Translator.Desktop.Explorer
         private void DrawColouredNode(Graphics g, Node node, Color color, float scale = 1.0f)
         {
             //dont draw node if it is too far away
-            if (node.Position.X <= Xmax && node.Position.Y <= Ymax && node.Position.X >= Xmin && node.Position.Y >= Ymin)
+            if (InternalNodesVisible || (node.Type != NodeType.Event && node.Type != NodeType.Criterion))
             {
-                if (InternalNodesVisible || (node.Type != NodeType.Event && node.Type != NodeType.Criterion))
-                {
-                    ColorBrush.Color = color;
-                    g.FillEllipse(
-                        ColorBrush,
-                        node.Position.X - (Nodesize / 2 * scale),
-                        node.Position.Y - (Nodesize / 2 * scale),
-                        Nodesize * scale,
-                        Nodesize * scale
-                        );
-                }
+                ColorBrush.Color = color;
+                g.FillEllipse(
+                    ColorBrush,
+                    node.Position.X - (Nodesize / 2 * scale),
+                    node.Position.Y - (Nodesize / 2 * scale),
+                    Nodesize * scale,
+                    Nodesize * scale
+                    );
             }
         }
 
@@ -425,49 +428,23 @@ namespace Translator.Desktop.Explorer
             if (InternalNodesVisible || (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion))
             {
                 float x1 = node1.Position.X;
-                float x2 = node1.Position.Y;
-                float y1 = node2.Position.X;
+                float y1 = node1.Position.Y;
+                float x2 = node2.Position.X;
                 float y2 = node2.Position.Y;
-                //dont draw node if it is too far away
-                //todo issue in culling check
                 //sort out lines that would be too small on screen and ones where none of the ends are visible
-                if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > MaxEdgeLength &&
-                    ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
-                    (x2 <= Xmax && y2 <= Ymax && x1 >= Xmin && y2 >= Ymin)))
+                if (MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2) > MinEdgeLength &&
+                    ((x1 < Xmax && x1 > Xmin && y1 < Ymax && y1 > Ymin) ||
+                    (x2 < Xmax && x2 > Xmin && y2 < Ymax && y2 > Ymin)))
                 {
                     //any is visible
                     ColorPen.Color = color;
                     ColorPen.Width = width;
                     //todo adjust edge offsets to only touch the nodes in future (if only for small graphs so we dont compromise performance)?
-                    g.DrawLine(
-                        ColorPen,
-                        node1.Position.X,
-                        node1.Position.Y,
-                        node2.Position.X,
-                        node2.Position.Y
-                        );
+                    g.DrawLine(ColorPen, x1, y1, x2, y2);
                 }
                 //none are visible, why draw?
             }
         }
-
-        internal void DrawEdges(Graphics g, NodeList nodes)
-        {
-            DrawEdges(g, nodes, Settings.DefaultEdgeColor);
-        }
-
-        internal void DrawEdges(Graphics g, NodeList nodes, Color color)
-        {
-            ColorPen.Color = color;
-            PointF[] points = PointPool.Rent(nodes.Edges.Count);
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                points[i] = nodes[i].Position;
-            }
-            g.DrawLines(ColorPen, points);
-            PointPool.Return(points);
-        }
-
         private void DrawHighlightNodeTree(Graphics g)
         {
             if (HighlightedNode != Node.NullNode)

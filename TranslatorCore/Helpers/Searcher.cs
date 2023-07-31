@@ -348,7 +348,7 @@ namespace Translator.Core.Helpers
             position = -1;
             length = -1;
             if (query.IsEmpty) return false;
-            if (line is null) return false;
+            if (line is "") return false;
 
             StringComparison comparison = StringComparison.InvariantCultureIgnoreCase;
 
