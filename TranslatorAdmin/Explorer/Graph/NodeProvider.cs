@@ -121,6 +121,7 @@ namespace Translator.Desktop.Explorer.Graph
                 nodesB.Clear();
                 nodesB.AddRange(nodesA);
                 frozen = true;
+                ApplyDefaultFilter();
             }
         }
 
@@ -183,7 +184,7 @@ namespace Translator.Desktop.Explorer.Graph
                 if (allowedTypes.Contains(node.Type))
                     filteredNodes.Add(node);
             }
-            
+
             nodesA.Clear();
             nodesB.Clear();
             nodesA.AddRange(filteredNodes);
@@ -191,7 +192,6 @@ namespace Translator.Desktop.Explorer.Graph
             nodesA.StrictSync();
             nodesB.StrictSync();
         }
-        //todo: add default for node type filter
         //todo: use the filter set for a file
 
         internal void ResetFilters()
@@ -202,6 +202,22 @@ namespace Translator.Desktop.Explorer.Graph
             nodesB.AddRange(InternalNodes);
             nodesA.Sync();
             nodesB.Sync();
+        }
+
+        internal void ApplyDefaultFilter()
+        {
+            AddFilter(NodeType.Dialogue);
+            AddFilter(NodeType.BGC);
+            AddFilter(NodeType.Item);
+            AddFilter(NodeType.AlternateText);
+            AddFilter(NodeType.Achievement);
+            AddFilter(NodeType.BGCResponse);
+            AddFilter(NodeType.ItemAction);
+            AddFilter(NodeType.ItemGroupInteraction);
+            AddFilter(NodeType.Quest);
+            AddFilter(NodeType.Response);
+            AddFilter(NodeType.Event);
+            ApplyFilters();
         }
     }
 }

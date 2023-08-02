@@ -237,6 +237,7 @@ namespace Translator.Explorer.Window
             // TextNodesOnly
             // 
             TextNodesOnly.AutoSize = true;
+            TextNodesOnly.Checked = true;
             TextNodesOnly.Location = new System.Drawing.Point(12, 103);
             TextNodesOnly.Name = "TextNodesOnly";
             TextNodesOnly.Size = new System.Drawing.Size(108, 19);

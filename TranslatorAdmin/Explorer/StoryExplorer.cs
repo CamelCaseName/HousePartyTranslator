@@ -215,24 +215,15 @@ namespace Translator.Explorer.Window
         {
             if (TextNodesOnly.Checked)
             {
-                Provider.AddFilter(NodeType.Dialogue);
-                Provider.AddFilter(NodeType.BGC);
-                Provider.AddFilter(NodeType.Item);
-                Provider.AddFilter(NodeType.AlternateText);
-                Provider.AddFilter(NodeType.Achievement);
-                Provider.AddFilter(NodeType.BGCResponse);
-                Provider.AddFilter(NodeType.ItemAction);
-                Provider.AddFilter(NodeType.ItemGroupInteraction);
-                Provider.AddFilter(NodeType.Quest);
-                Provider.AddFilter(NodeType.Response);
-                Provider.AddFilter(NodeType.Event);
-                Provider.ApplyFilters();
+                Provider.ApplyDefaultFilter();
             }
             else
             {
                 Provider.ResetFilters();
             }
         }
+
+
 
         private void ShowExtendedInfo_CheckedChanged(object sender, EventArgs e)
         {

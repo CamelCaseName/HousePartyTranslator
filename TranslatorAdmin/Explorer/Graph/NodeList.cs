@@ -10,6 +10,7 @@ namespace Translator.Desktop.Explorer.Graph
         public int Count;
         public NodeCountChangedArgs(int size) { Count = size; }
     }
+
     internal sealed class EdgeCountChangedArgs : EventArgs
     {
         public int Count;

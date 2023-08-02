@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.OpenCL;
+using Translator.Helpers;
 
 namespace Translator.Desktop.Explorer.Graph
 {
@@ -94,7 +95,10 @@ namespace Translator.Desktop.Explorer.Graph
                 _ = Task.Run(LayoutCalculation, cancellationToken.Token).ContinueWith((result) =>
                 {
                     if (result.Exception is not null)
+                    {
                         LogManager.Log(result.Exception, LogManager.Level.Error);
+                        Msg.WarningOk("Calculation failed and has been stopped. Xou can try and restart the calculations. See the log for more info.");
+                    }
                 });
             }
         }
