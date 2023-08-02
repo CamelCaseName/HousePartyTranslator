@@ -281,7 +281,7 @@ namespace Translator.Desktop.UI
                 }).ContinueWith((result) =>
                 {
                     if (result.Exception is not null)
-                        LogManager.Log(result.Exception!.Message, LogManager.Level.Error);
+                        LogManager.Log(result.Exception, LogManager.Level.Error);
                 });
                 if (!explorer.IsDisposed) explorer.Show();
                 return explorer;
