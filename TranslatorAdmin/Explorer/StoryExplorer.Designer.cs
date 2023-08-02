@@ -201,6 +201,7 @@ namespace Translator.Explorer.Window
             // 
             // MoveDownButton
             // 
+            MoveDownButton.BackColor = System.Drawing.SystemColors.ButtonFace;
             MoveDownButton.ForeColor = System.Drawing.SystemColors.MenuText;
             MoveDownButton.Location = new System.Drawing.Point(105, 153);
             MoveDownButton.Name = "MoveDownButton";
@@ -219,7 +220,7 @@ namespace Translator.Explorer.Window
             MoveUpButton.Size = new System.Drawing.Size(79, 23);
             MoveUpButton.TabIndex = 11;
             MoveUpButton.Text = "Parent node";
-            MoveUpButton.UseVisualStyleBackColor = false;
+            MoveUpButton.UseVisualStyleBackColor = true;
             MoveUpButton.Click += MoveUpButton_Click;
             // 
             // ShowExtendedInfo

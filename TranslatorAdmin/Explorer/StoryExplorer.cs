@@ -78,12 +78,13 @@ namespace Translator.Explorer.Window
                 {
                     Anchor = AnchorStyles.Top,
                     AutoSize = true,
-                    BackColor = Color.FromKnownColor(KnownColor.ButtonFace),
+                    BackColor = SystemColors.ButtonFace,
+                    ForeColor = SystemColors.MenuText,
                     Enabled = false,
-                    ForeColor = Utils.darkText,
                     Margin = Padding.Empty,
                     Name = type.ToString() + "Button",
-                    Text = type.ToString()
+                    Text = type.ToString(),
+                    UseVisualStyleBackColor = true
                 };
                 typeButton.Click += (object? sender, EventArgs e) =>
                 {
