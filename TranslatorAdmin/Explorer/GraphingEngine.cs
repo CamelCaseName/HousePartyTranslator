@@ -102,11 +102,13 @@ namespace Translator.Desktop.Explorer
                 {
                     //set new value
                     if (!IsShiftPressed) highlightedNode = value;
+                    Explorer.SetNextButtonStates(value.ParentNodes.Count > 0, value.ChildNodes.Count > 0);
                     ClickedNodeChanged(this, new ClickedNodeChangeArgs(value, ClickedNodeTypes.Highlight));
                 }
                 else
                 {
                     highlightedNode = Node.NullNode;
+                    Explorer.SetNextButtonStates(false, false);
                 }
             }
         }

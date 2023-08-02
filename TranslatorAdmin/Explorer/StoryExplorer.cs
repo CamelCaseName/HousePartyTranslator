@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
@@ -69,22 +70,26 @@ namespace Translator.Explorer.Window
 
         private void InitializeTypeFilterButtons()
         {
-            //todo finish initializer where it adds a button for each node type to the layout panel
             NodeType[] values = Enum.GetValues<NodeType>();
             for (int i = 0; i < values.Length; i++)
             {
                 NodeType type = values[i];
                 var typeButton = new ToggleButton()
                 {
-                    Text = type.ToString(),
+                    Anchor = AnchorStyles.Top,
                     AutoSize = true,
+                    BackColor = Color.FromKnownColor(KnownColor.ButtonFace),
+                    Enabled = false,
                     ForeColor = Utils.darkText,
-                    BackColor = Color.FromKnownColor(KnownColor.ButtonFace)
+                    Margin = Padding.Empty,
+                    Name = type.ToString() + "Button",
+                    Text = type.ToString()
                 };
                 typeButton.Click += (object? sender, EventArgs e) =>
                 {
                     if (typeButton.IsChecked) Provider.AddFilter(type);
                     else Provider.RemoveFilter(type);
+                    Provider.ApplyFilters();
                 };
                 NodeTypeButtonsLayout.Controls.Add(typeButton);
             }
@@ -207,7 +212,18 @@ namespace Translator.Explorer.Window
 
         private void TextNodesOnly_CheckedChanged(object sender, EventArgs e)
         {
-
+            Provider.AddFilter(NodeType.Dialogue);
+            Provider.AddFilter(NodeType.BGC);
+            Provider.AddFilter(NodeType.Item);
+            Provider.AddFilter(NodeType.AlternateText);
+            Provider.AddFilter(NodeType.Achievement);
+            Provider.AddFilter(NodeType.BGCResponse);
+            Provider.AddFilter(NodeType.ItemAction);
+            Provider.AddFilter(NodeType.ItemGroupInteraction);
+            Provider.AddFilter(NodeType.Quest);
+            Provider.AddFilter(NodeType.Response);
+            Provider.AddFilter(NodeType.Event);
+            Provider.ApplyFilters();
         }
 
         private void ShowExtendedInfo_CheckedChanged(object sender, EventArgs e)
@@ -228,6 +244,32 @@ namespace Translator.Explorer.Window
         private void CenterButton_Click(object sender, EventArgs e)
         {
             Grapher.Center();
+        }
+
+        internal void SetNextButtonStates(bool parentAvailable, bool ChildAvailable)
+        {
+            MoveUpButton.Enabled = parentAvailable;
+            MoveDownButton.Enabled = ChildAvailable;
+        }
+
+        internal void SetTypesAvailable(List<NodeType> availableTypes)
+        {
+            for (int i = 0; i < NodeTypeButtonsLayout.Controls.Count; i++)
+            {
+                NodeTypeButtonsLayout.Controls[i].Enabled = false;
+            }
+            for (int i = 0; i < availableTypes.Count; i++)
+            {
+                Control? button = NodeTypeButtonsLayout.Controls[availableTypes[i].ToString() + "Button"];
+                if (button is null)
+                {
+                    LogManager.Log("Type " + availableTypes[i].ToString() + "not found in UI, may be new?", LogManager.Level.Warning);
+                }
+                else
+                {
+                    button.Enabled = true;
+                }
+            }
         }
     }
 }
