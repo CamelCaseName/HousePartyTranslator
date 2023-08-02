@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 
 namespace Translator.Desktop.Explorer.Graph
 {
@@ -26,100 +27,126 @@ namespace Translator.Desktop.Explorer.Graph
 
         public new void Add(Node node)
         {
-            base.Add(node);
-            for (int c = 0; c < node.ChildNodes.Count; c++)
-            {
-                var edge = new Edge(node, Count - 1, node.ChildNodes[c], IndexOf(node.ChildNodes[c]));
-                Edges.Add(edge);
-            }
-            if (NodeCountChanged is not null)
-                NodeCountChanged(this, new(Count));
-            if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new(Edges.Count));
+            lock (this)
+                lock (Edges)
+                {
+                    base.Add(node);
+                    for (int c = 0; c < node.ChildNodes.Count; c++)
+                    {
+                        var edge = new Edge(node, Count - 1, node.ChildNodes[c], IndexOf(node.ChildNodes[c]));
+                        Edges.Add(edge);
+                    }
+                    if (NodeCountChanged is not null)
+                        NodeCountChanged(this, new(Count));
+                    if (EdgeCountChanged is not null)
+                        EdgeCountChanged(this, new(Edges.Count));
+                }
         }
 
         public new bool Remove(Node node)
         {
-            for (int i = 0; i < node.ChildNodes.Count; i++)
-            {
-                Edges.Remove(new(node, 0, node.ChildNodes[i], 0));
-            }
-            bool res = base.Remove(node);
-            if (NodeCountChanged is not null)
-                NodeCountChanged(this, new(Count));
-            if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new(Edges.Count));
-            return res;
+            lock (this)
+                lock (Edges)
+                {
+                    for (int i = 0; i < node.ChildNodes.Count; i++)
+                    {
+                        Edges.Remove(new(node, 0, node.ChildNodes[i], 0));
+                    }
+                    bool res = base.Remove(node);
+                    if (NodeCountChanged is not null)
+                        NodeCountChanged(this, new(Count));
+                    if (EdgeCountChanged is not null)
+                        EdgeCountChanged(this, new(Edges.Count));
+                    return res;
+                }
         }
 
         //syncs edges to nodes, including nodes not in the list
         public void Sync()
         {
-            Edges.Clear();
-            for (int x = 0; x < Count; x++)
-            {
-                for (int c = 0; c < this[x].ChildNodes.Count; c++)
+            lock (this)
+                lock (Edges)
                 {
-                    var edge = new Edge(this[x], x, this[x].ChildNodes[c], IndexOf(this[x].ChildNodes[c]));
-                    Edges.Add(edge);
+                    Edges.Clear();
+                    for (int x = 0; x < Count; x++)
+                    {
+                        for (int c = 0; c < this[x].ChildNodes.Count; c++)
+                        {
+                            var edge = new Edge(this[x], x, this[x].ChildNodes[c], IndexOf(this[x].ChildNodes[c]));
+                            Edges.Add(edge);
+                        }
+                    }
+                    if (EdgeCountChanged is not null)
+                        EdgeCountChanged(this, new(Edges.Count));
                 }
-            }
-            if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new(Edges.Count));
         }
 
         //syncs edges to nodes, but exludes all edges that would include nodes not in the list
         public void StrictSync()
         {
-            Edges.Clear();
-            for (int x = 0; x < Count; x++)
-            {
-                for (int c = 0; c < this[x].ChildNodes.Count; c++)
+            lock (this)
+                lock (Edges)
                 {
-                    if (Contains(this[x].ChildNodes[c]))
+                    Edges.Clear();
+                    for (int x = 0; x < Count; x++)
                     {
-                        var edge = new Edge(this[x], x, this[x].ChildNodes[c], IndexOf(this[x].ChildNodes[c]));
-                        Edges.Add(edge);
+                        for (int c = 0; c < this[x].ChildNodes.Count; c++)
+                        {
+                            if (Contains(this[x].ChildNodes[c]))
+                            {
+                                var edge = new Edge(this[x], x, this[x].ChildNodes[c], IndexOf(this[x].ChildNodes[c]));
+                                Edges.Add(edge);
+                            }
+                        }
                     }
+                    if (EdgeCountChanged is not null)
+                        EdgeCountChanged(this, new(Edges.Count));
                 }
-            }
-            if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new(Edges.Count));
         }
 
         public new void AddRange(IEnumerable<Node> list)
         {
-            base.AddRange(list);
-            if (list is NodeList realList)
-            {
-                Edges.AddRange(realList.Edges);
-            }
-            else
-            {
-                using IEnumerator<Node> en = list.GetEnumerator();
-                while (en.MoveNext())
-                {
-                    for (int i = 0; i < en.Current.ChildNodes.Count; i++)
+            lock (this)
+                lock (Edges)
+                    lock (list)
                     {
-                        var edge = new Edge(en.Current, IndexOf(en.Current), en.Current.ChildNodes[i], IndexOf(en.Current.ChildNodes[i]));
-                        Edges.Add(edge);
+                        base.AddRange(list);
+                        if (list is NodeList realList)
+                        {
+                            lock (realList.Edges)
+                                Edges.AddRange(realList.Edges);
+                        }
+                        else
+                        {
+                            using IEnumerator<Node> en = list.GetEnumerator();
+                            while (en.MoveNext())
+                            {
+                                for (int i = 0; i < en.Current.ChildNodes.Count; i++)
+                                {
+                                    var edge = new Edge(en.Current, IndexOf(en.Current), en.Current.ChildNodes[i], IndexOf(en.Current.ChildNodes[i]));
+                                    Edges.Add(edge);
+                                }
+                            }
+                        }
+                        if (NodeCountChanged is not null)
+                            NodeCountChanged(this, new(Count));
+                        if (EdgeCountChanged is not null)
+                            EdgeCountChanged(this, new(Edges.Count));
                     }
-                }
-            }
-            if (NodeCountChanged is not null)
-                NodeCountChanged(this, new(Count));
-            if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new(Edges.Count));
         }
 
         public new void Clear()
         {
-            Edges.Clear();
-            base.Clear();
-            if (NodeCountChanged is not null)
-                NodeCountChanged(this, new(Count));
-            if (EdgeCountChanged is not null)
-                EdgeCountChanged(this, new(Edges.Count));
+            lock (this)
+                lock (Edges)
+                {
+                    Edges.Clear();
+                    base.Clear();
+                    if (NodeCountChanged is not null)
+                        NodeCountChanged(this, new(Count));
+                    if (EdgeCountChanged is not null)
+                        EdgeCountChanged(this, new(Edges.Count));
+                }
         }
 
         internal List<PointF> GetPositions()
@@ -140,6 +167,19 @@ namespace Translator.Desktop.Explorer.Graph
                 this[i].Position = positions[i];
             }
             return true;
+        }
+
+        public new Node this[int index]
+        {
+            get
+            {
+                if (Count > 0) return base[index];
+                else return Node.NullNode;
+            }
+            set
+            {
+                base[index] = value;
+            }
         }
     }
 }

@@ -16,38 +16,55 @@ namespace Translator.Desktop.Explorer.Graph
 
         public new bool Add(Edge e)
         {
-            if (base.Add(e))
-            {
-                _edges.Add(e);
-                return true;
-            }
-            return false;
+            lock (this)
+                lock (_edges)
+                {
+                    if (base.Add(e))
+                    {
+                        _edges.Add(e);
+                        return true;
+                    }
+                    return false;
+                }
         }
 
         public new bool Remove(Edge e)
         {
-            if (base.Remove(e))
-            {
-                _edges.Remove(e);
-                return true;
-            }
-            return false;
+            lock (this)
+                lock (_edges)
+                {
+                    if (base.Remove(e))
+                    {
+                        _edges.Remove(e);
+                        return true;
+                    }
+                    return false;
+                }
         }
 
         public void AddRange(IEnumerable<Edge> edgesToAdd)
         {
-            IEnumerator<Edge> enumerator = edgesToAdd.GetEnumerator();
-            while (enumerator.MoveNext())
-            {
-                base.Add(enumerator.Current);
-            }
-            _edges.AddRange(edgesToAdd);
+            lock (this)
+                lock (_edges)
+                    lock (edgesToAdd)
+                    {
+                        IEnumerator<Edge> enumerator = edgesToAdd.GetEnumerator();
+                        while (enumerator.MoveNext())
+                        {
+                            base.Add(enumerator.Current);
+                        }
+                        _edges.AddRange(edgesToAdd);
+                    }
         }
 
         public new void Clear()
         {
-            _edges.Clear();
-            base.Clear();
+            lock (this)
+                lock (_edges)
+                {
+                    _edges.Clear();
+                    base.Clear();
+                }
         }
     }
 }
