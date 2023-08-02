@@ -61,6 +61,11 @@ namespace Translator.Core.Helpers
             Log(message, Level.Info, line, path);
         }
 
+        public static void Log(object message, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
+        {
+            Log(message.ToString() ?? "message was null", Level.Info, line, path);
+        }
+
         /// <summary>
         /// A Method for adding a string with timestamp at the end of the log
         /// </summary>
@@ -84,6 +89,11 @@ namespace Translator.Core.Helpers
             //Debug.WriteLine(Environment.StackTrace);
             System.Diagnostics.Debug.WriteLine(_message[^1] == '\n' ? _message[..^1] : _message);
 #endif
+        }
+
+        public static void Log(object message, Level level, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
+        {
+            Log(message.ToString() ?? "message was null", level, line, path);
         }
 
         /// <summary>
