@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.Versioning;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.OpenCL;
-using Translator.Explorer.Window;
 
 namespace Translator.Desktop.Explorer.Graph
 {
@@ -29,6 +27,9 @@ namespace Translator.Desktop.Explorer.Graph
         private List<Vector2> NodeForces = new();
         private DateTime StartTime = DateTime.MinValue;
         private DateTime FrameStartTime = DateTime.MinValue;
+#if DEBUG
+        private DateTime DrawStartTime = DateTime.MinValue;
+#endif
         private DateTime FrameEndTime = DateTime.MinValue;
         public bool RunOverride = false;
         private CancellationTokenSource cancellationToken = new();
@@ -90,7 +91,11 @@ namespace Translator.Desktop.Explorer.Graph
                 LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
                 started = true;
                 if (opencl is not null) opencl.Retry = true;
-                _ = Task.Run(LayoutCalculation, cancellationToken.Token);
+                _ = Task.Run(LayoutCalculation, cancellationToken.Token).ContinueWith((result) =>
+                {
+                    if (result.Exception is not null)
+                        LogManager.Log(result.Exception!.Message, LogManager.Level.Error);
+                });
             }
         }
 
@@ -128,7 +133,9 @@ namespace Translator.Desktop.Explorer.Graph
 
                 //calculate
                 CalculatePositions();
-
+#if DEBUG
+                DrawStartTime = DateTime.Now;
+#endif
                 //its not faster to clean out this access chain!
                 //we got to wait before we change nodes, so like a reverse lock?
                 while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
@@ -138,7 +145,11 @@ namespace Translator.Desktop.Explorer.Graph
 
                 //approx 40fps max as more is uneccesary and feels weird (25ms gives ~50fps, 30 gives about 45fps)
                 FrameEndTime = DateTime.Now;
-                if ((FrameEndTime - FrameStartTime).TotalMilliseconds < 30) Thread.Sleep((int)(30 - (FrameEndTime - FrameStartTime).TotalMilliseconds));
+                TimeSpan frametime = FrameEndTime - FrameStartTime;
+#if DEBUG
+                LogManager.Log($"Total: {frametime.TotalMilliseconds} Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds} %-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");
+#endif
+                if (frametime.TotalMilliseconds < 30) Thread.Sleep((int)(30 - frametime.TotalMilliseconds));
 
                 App.MainForm?.Explorer?.Invalidate();
             }
@@ -148,8 +159,9 @@ namespace Translator.Desktop.Explorer.Graph
 
         private void CalculatePositions()
         {
-            ResetNodeForces();
             NodeList list = provider.OtherNodes;
+            if (list.Count == 0) return;
+            ResetNodeForces();
 
             float radius = MathF.Sqrt(list.Count) + (StoryExplorerConstants.IdealLength * 2);
 

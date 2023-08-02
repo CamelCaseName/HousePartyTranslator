@@ -278,6 +278,10 @@ namespace Translator.Desktop.UI
                     explorer.Initialize(openAll == DialogResult.No);
 
                     manager.SetHighlightedNode();
+                }).ContinueWith((result) =>
+                {
+                    if (result.Exception is not null)
+                        LogManager.Log(result.Exception!.Message, LogManager.Level.Error);
                 });
                 if (!explorer.IsDisposed) explorer.Show();
                 return explorer;
