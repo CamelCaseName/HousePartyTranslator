@@ -43,7 +43,6 @@ namespace Translator.Desktop.Explorer
         private readonly StoryExplorer Explorer;
         private readonly Label NodeInfoLabel;
 
-        private readonly ArrayPool<PointF> PointPool = ArrayPool<PointF>.Shared;
         private readonly Dictionary<Type, GroupBox> ExtendedInfoComponents = new();
 
         private float OffsetX;

@@ -150,13 +150,12 @@ namespace Translator.Desktop.Explorer.Graph
                 provider.UsingListA = !provider.UsingListA;
                 ++_layoutcount;
 
-                //approx 40fps max as more is uneccesary and feels weird (25ms gives ~50fps, 30 gives about 45fps)
                 FrameEndTime = DateTime.Now;
                 TimeSpan frametime = FrameEndTime - FrameStartTime;
 #if DEBUG
-                LogManager.Log($"Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms %-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");
+                LogManager.Log($"Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms calculation part of frame-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");
 #endif
-                if (frametime.TotalMilliseconds < 33) Thread.Sleep((int)(33 - frametime.TotalMilliseconds));
+                if (frametime.TotalMilliseconds < 30) Thread.Sleep((int)(30 - frametime.TotalMilliseconds));
 
                 App.MainForm.Explorer.Invalidate();
             }
