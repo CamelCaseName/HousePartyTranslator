@@ -94,7 +94,7 @@ namespace Translator.Desktop.Explorer.Graph
                 _ = Task.Run(LayoutCalculation, cancellationToken.Token).ContinueWith((result) =>
                 {
                     if (result.Exception is not null)
-                        LogManager.Log(result.Exception!.Message, LogManager.Level.Error);
+                        LogManager.Log(result.Exception, LogManager.Level.Error);
                 });
             }
         }

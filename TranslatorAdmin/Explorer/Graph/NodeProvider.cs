@@ -63,63 +63,49 @@ namespace Translator.Desktop.Explorer.Graph
                 //only recalculate when necessary 
                 if (nodesA.Edges.Count != nodesB.Edges.Count)
                 {
-                    lock (nodesB.Edges)
-                        lock (nodesA.Edges)
-                        {
-                            if (UsingListA)
-                            {
-                                //changed edges is in a
-                                nodesA.Sync();
-                            }
-                            else
-                            {
-                                //changed edges is in b, will be copied later
-                                nodesB.Sync();
-                            }
-                        }
+                    if (UsingListA)
+                    {
+                        //changed edges is in a
+                        nodesA.Sync();
+                    }
+                    else
+                    {
+                        //changed edges is in b, will be copied later
+                        nodesB.Sync();
+                    }
                 }
 
-                lock (nodesB)
-                    lock (nodesA)
-                    {
-                        MovingNodePositionOverridden = true;
-                        if (UsingListA)
-                        {
-                            //changed amount is in a
-                            nodesB.Clear();
-                            nodesB.AddRange(nodesA);
-                        }
-                        else
-                        {
-                            //changed amount is in b
-                            nodesA.Clear();
-                            nodesA.AddRange(nodesB);
-                        }
-                    }
-
-
+                MovingNodePositionOverridden = true;
+                if (UsingListA)
+                {
+                    //changed amount is in a
+                    nodesB.Clear();
+                    nodesB.AddRange(nodesA);
+                }
+                else
+                {
+                    //changed amount is in b
+                    nodesA.Clear();
+                    nodesA.AddRange(nodesB);
+                }
             }
 
             if (nodesA.Edges.Count == nodesB.Edges.Count) return;
 
-            lock (nodesB.Edges)
-                lock (nodesA.Edges)
-                {
-                    if (UsingListA)
-                    {
-                        //changed edges is in a
-                        if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
-                        nodesB.Edges.Clear();
-                        nodesB.Edges.AddRange(nodesA.Edges);
-                    }
-                    else
-                    {
-                        //changed edges is in b
-                        if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
-                        nodesA.Edges.Clear();
-                        nodesA.Edges.AddRange(nodesB.Edges);
-                    }
-                }
+            if (UsingListA)
+            {
+                //changed edges is in a
+                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
+                nodesB.Edges.Clear();
+                nodesB.Edges.AddRange(nodesA.Edges);
+            }
+            else
+            {
+                //changed edges is in b
+                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
+                nodesA.Edges.Clear();
+                nodesA.Edges.AddRange(nodesB.Edges);
+            }
         }
 
         public NodeProvider()
@@ -197,16 +183,25 @@ namespace Translator.Desktop.Explorer.Graph
                 if (allowedTypes.Contains(node.Type))
                     filteredNodes.Add(node);
             }
-            lock (nodesA)
-                lock (nodesB)
-                {
-                    nodesA.Clear();
-                    nodesB.Clear();
-                    nodesA.AddRange(filteredNodes);
-                    nodesB.AddRange(filteredNodes);
-                    nodesA.StrictSync();
-                    nodesB.StrictSync();
-                }
+            
+            nodesA.Clear();
+            nodesB.Clear();
+            nodesA.AddRange(filteredNodes);
+            nodesB.AddRange(filteredNodes);
+            nodesA.StrictSync();
+            nodesB.StrictSync();
+        }
+        //todo: add default for node type filter
+        //todo: use the filter set for a file
+
+        internal void ResetFilters()
+        {
+            nodesA.Clear();
+            nodesB.Clear();
+            nodesA.AddRange(InternalNodes);
+            nodesB.AddRange(InternalNodes);
+            nodesA.Sync();
+            nodesB.Sync();
         }
     }
 }
