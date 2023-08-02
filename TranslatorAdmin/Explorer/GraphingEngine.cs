@@ -80,7 +80,11 @@ namespace Translator.Desktop.Explorer
 
 
             ColorBrush = new SolidBrush(Settings.DefaultNodeColor);
-            ColorPen = new Pen(Settings.DefaultEdgeColor, 2f) { EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor, StartCap = System.Drawing.Drawing2D.LineCap.Round };
+            ColorPen = new Pen(Settings.DefaultEdgeColor, 2f)
+            {
+                CustomEndCap = new System.Drawing.Drawing2D.AdjustableArrowCap(Nodesize / 3, Nodesize / 4),
+                StartCap = System.Drawing.Drawing2D.LineCap.Round
+            };
 
             ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
             ClickedNodeChanged += new ClickedNodeChangedHandler(DisplayNodeInfoHandler);
