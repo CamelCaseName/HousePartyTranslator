@@ -114,6 +114,9 @@ namespace Translator.Desktop.Explorer.Graph
 
         public void CalculateForceDirectedLayout(CancellationToken token)
         {
+            if (App.MainForm is null) return;
+            if (App.MainForm.Explorer is null) return;
+
             //save all forces here
             if (NodeForces.Count != Nodes.Count)
             {
@@ -142,7 +145,7 @@ namespace Translator.Desktop.Explorer.Graph
 #endif
                 //its not faster to clean out this access chain!
                 //we got to wait before we change nodes, so like a reverse lock?
-                while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
+                while (!App.MainForm!.Explorer.Grapher.DrewNodes) ;
                 //switch to other list once done
                 provider.UsingListA = !provider.UsingListA;
                 ++_layoutcount;
@@ -151,13 +154,13 @@ namespace Translator.Desktop.Explorer.Graph
                 FrameEndTime = DateTime.Now;
                 TimeSpan frametime = FrameEndTime - FrameStartTime;
 #if DEBUG
-                LogManager.Log($"Total: {frametime.TotalMilliseconds} Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds} %-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");
+                LogManager.Log($"Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms %-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");
 #endif
-                if (frametime.TotalMilliseconds < 30) Thread.Sleep((int)(30 - frametime.TotalMilliseconds));
+                if (frametime.TotalMilliseconds < 33) Thread.Sleep((int)(33 - frametime.TotalMilliseconds));
 
-                App.MainForm?.Explorer?.Invalidate();
+                App.MainForm.Explorer.Invalidate();
             }
-            App.MainForm?.Explorer?.ShowStoppedInfoLabel();
+            App.MainForm.Explorer.Invoke(App.MainForm.Explorer.ShowStoppedInfoLabel);
             Stop();
         }
 

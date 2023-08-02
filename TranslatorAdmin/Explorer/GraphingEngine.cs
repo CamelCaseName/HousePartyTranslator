@@ -139,7 +139,7 @@ namespace Translator.Desktop.Explorer
             if (e is null) return;
             Graphics g = e.Graphics;
 
-            FrameStartTime = FrameEndTime;
+            FrameStartTime = DateTime.Now;
             ++FrameCount;
             //set up values for this paint cycle
             MinEdgeLength = MathF.Pow(15 / Scaling, 2); // that one works
@@ -165,7 +165,7 @@ namespace Translator.Desktop.Explorer
             FrameEndTime = DateTime.Now;
 #if DEBUG
             if ((FrameEndTime - FrameStartTime).TotalMilliseconds > 33)
-                LogManager.Log("Frame time too long for 30fps! Expected < 33, actual: " + (FrameEndTime - FrameStartTime).TotalMilliseconds);
+                LogManager.Log("draw time too long for 30fps! Expected < 33, actual: " + (FrameEndTime - FrameStartTime).TotalMilliseconds);
 #endif
         }
 

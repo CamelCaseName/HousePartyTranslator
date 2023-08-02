@@ -121,7 +121,6 @@ namespace Translator.Desktop.Explorer.Graph
                 nodesB.Clear();
                 nodesB.AddRange(nodesA);
                 frozen = true;
-                ApplyDefaultFilter();
             }
         }
 
@@ -192,7 +191,6 @@ namespace Translator.Desktop.Explorer.Graph
             nodesA.StrictSync();
             nodesB.StrictSync();
         }
-        //todo: use the filter set for a file
 
         internal void ResetFilters()
         {

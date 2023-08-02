@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
@@ -26,6 +27,17 @@ namespace Translator.Explorer.Window
         public const string Version = "1.2.3.1";
         public const string Title = "StoryExplorer v" + Version;
         private readonly CancellationToken token;
+        private readonly NodeType[] defaulTypes = {
+            NodeType.ItemAction,
+            NodeType.Achievement,
+            NodeType.BGC,
+            NodeType.Dialogue,
+            NodeType.AlternateText,
+            NodeType.Event,
+            NodeType.Item,
+            NodeType.Quest,
+            NodeType.Response,
+            NodeType.ItemGroupBehaviour };
         public NodeLayout? Layouter { get; private set; }
         internal GraphingEngine Grapher { get { return engine; } }
         internal NodeProvider Provider { get; }
@@ -84,7 +96,7 @@ namespace Translator.Explorer.Window
                     Margin = Padding.Empty,
                     Name = type.ToString() + "Button",
                     Text = type.ToString(),
-                    UseVisualStyleBackColor = true
+                    UseVisualStyleBackColor = true,
                 };
                 typeButton.Click += (object? sender, EventArgs e) =>
                 {
@@ -122,6 +134,7 @@ namespace Translator.Explorer.Window
 
             Provider.FreezeNodesAsInitial();
             Layouter = new(Provider, this, token);
+            SetTypesAvailable(Provider.Nodes.Types.Keys);
             Layouter.Start();
             Grapher.StartTime = DateTime.Now;
             Grapher.Center();
@@ -223,8 +236,6 @@ namespace Translator.Explorer.Window
             }
         }
 
-
-
         private void ShowExtendedInfo_CheckedChanged(object sender, EventArgs e)
         {
             GraphingEngine.ShowExtendedInfo = ShowExtendedInfo.Checked;
@@ -251,22 +262,26 @@ namespace Translator.Explorer.Window
             MoveDownButton.Enabled = ChildAvailable;
         }
 
-        internal void SetTypesAvailable(List<NodeType> availableTypes)
+        internal void SetTypesAvailable(IEnumerable<NodeType> availableTypes)
         {
             for (int i = 0; i < NodeTypeButtonsLayout.Controls.Count; i++)
             {
                 NodeTypeButtonsLayout.Controls[i].Enabled = false;
             }
-            for (int i = 0; i < availableTypes.Count; i++)
+            //cache so we can filter while acessing old types
+            var enumerator = new List<NodeType>(availableTypes).GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                Control? button = NodeTypeButtonsLayout.Controls[availableTypes[i].ToString() + "Button"];
-                if (button is null)
+                Control? button = (ToggleButton?)NodeTypeButtonsLayout.Controls[enumerator.Current.ToString() + "Button"];
+                if (button is ToggleButton toggleButton)
                 {
-                    LogManager.Log("Type " + availableTypes[i].ToString() + "not found in UI, may be new?", LogManager.Level.Warning);
+                    toggleButton.Enabled = true;
+                    if (defaulTypes.Contains(enumerator.Current))
+                        toggleButton.SimulateClick();
                 }
                 else
                 {
-                    button.Enabled = true;
+                    LogManager.Log("Type " + enumerator.Current.ToString() + "not found in UI, may be new?", LogManager.Level.Warning);
                 }
             }
         }
