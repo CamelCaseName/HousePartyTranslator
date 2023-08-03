@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
-using System.Xml.Linq;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
@@ -57,6 +55,8 @@ namespace Translator.Desktop.Explorer
         private bool MovingANode = false;
         private HashSet<Node> NodesHighlighted = new();
         private Cursor priorCursor = Cursors.Default;
+        private readonly AdjustableArrowCap defaultArrowCap = new(Nodesize / 3, Nodesize / 4);
+        private readonly AdjustableArrowCap smallArrowCap = new(Nodesize / 6, Nodesize / 8);
 
         private float Scaling = 0.3f;
         private float StartPanOffsetX = 0f;
@@ -82,8 +82,8 @@ namespace Translator.Desktop.Explorer
             ColorBrush = new SolidBrush(Settings.DefaultNodeColor);
             ColorPen = new Pen(Settings.DefaultEdgeColor, 2f)
             {
-                CustomEndCap = new System.Drawing.Drawing2D.AdjustableArrowCap(Nodesize / 3, Nodesize / 4),
-                StartCap = System.Drawing.Drawing2D.LineCap.Round
+                CustomEndCap = defaultArrowCap,
+                StartCap = LineCap.Round
             };
 
             ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
@@ -142,7 +142,7 @@ namespace Translator.Desktop.Explorer
             if (e is null) return;
             Graphics g = e.Graphics;
 
-            FrameStartTime = DateTime.Now;
+            FrameStartTime = DateTime.UtcNow;
             ++FrameCount;
             //set up values for this paint cycle
             MinEdgeLength = MathF.Pow(15 / Scaling, 2); // that one works
@@ -158,6 +158,11 @@ namespace Translator.Desktop.Explorer
             Xmax = g.VisibleClipBounds.Right + Nodesize;
             Ymax = g.VisibleClipBounds.Bottom + Nodesize;
 
+            if (Scaling < 0.1)
+                ColorPen.CustomEndCap = smallArrowCap;
+            else
+                ColorPen.CustomEndCap = defaultArrowCap;
+
             PaintAllNodes(g);
 
             //overlay info and highlight
@@ -165,7 +170,7 @@ namespace Translator.Desktop.Explorer
             DrawMovingNodeMarker(g);
             DrawInfoNode(g);
             NodeInfoLabel.Refresh();
-            FrameEndTime = DateTime.Now;
+            FrameEndTime = DateTime.UtcNow;
 #if DEBUG
             if ((FrameEndTime - FrameStartTime).TotalMilliseconds > 33)
                 LogManager.Log("draw time too long for 30fps! Expected < 33, actual: " + (FrameEndTime - FrameStartTime).TotalMilliseconds);
@@ -183,8 +188,8 @@ namespace Translator.Desktop.Explorer
         public void CenterOnNode(Node node)
         {
             //todo implement corectly
-            OffsetX = node.Position.X + OffsetX;
-            OffsetY = node.Position.Y + OffsetY;
+            OffsetX += (OffsetX - node.Position.X) / 2;
+            OffsetY += (OffsetY - node.Position.Y) / 2;
         }
 
         private void DrawMovingNodeMarker(Graphics g)

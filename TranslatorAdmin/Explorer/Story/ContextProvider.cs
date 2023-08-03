@@ -395,7 +395,7 @@ internal sealed class ContextProvider
 
     private void InterlinkNodes(NodeList nodes)
     {
-        DateTime start = DateTime.Now;
+        DateTime start = DateTime.UtcNow;
         LogManager.Log("\tstarting to link up nodes");
         //lists to save new stuff in
         NodeList Socials = new();
@@ -1190,7 +1190,7 @@ internal sealed class ContextProvider
             nodes[i].CalculateMass();
         }
 
-        LogManager.Log($"\tnode interlinking done in {(DateTime.Now - start).TotalSeconds:F2}s");
+        LogManager.Log($"\tnode interlinking done in {(DateTime.UtcNow - start).TotalSeconds:F2}s");
     }
 
     private void RecheckCompareValues(NodeList CompareValuesToCheckAgain)

@@ -550,7 +550,7 @@ internal sealed unsafe class OpenCLManager
                 FrameRenderedCallback?.Invoke();
 
                 //approx 60fps max as more is uneccesary and feels weird
-                FrameEndTime = DateTime.Now;
+                FrameEndTime = DateTime.UtcNow;
                 if ((FrameEndTime - FrameStartTime).TotalMilliseconds < 30)
                     Thread.Sleep((int)(30 - (FrameEndTime - FrameStartTime).TotalMilliseconds));
 

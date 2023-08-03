@@ -88,7 +88,7 @@ namespace Translator.Desktop.Explorer.Graph
             {
                 cancellationToken = new();
                 _ = outsideToken.Register(cancellationToken.Cancel);
-                StartTime = DateTime.Now;
+                StartTime = DateTime.UtcNow;
                 LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
                 started = true;
                 if (opencl is not null) opencl.Retry = true;
@@ -105,7 +105,7 @@ namespace Translator.Desktop.Explorer.Graph
 
         public void Stop()
         {
-            DateTime end = DateTime.Now;
+            DateTime end = DateTime.UtcNow;
             LogManager.Log($"\tnode layout ended, calculated {LayoutCount} layouts in {(end - StartTime).TotalSeconds:F2} seconds -> {LayoutCount / (end - StartTime).TotalSeconds:F2} ups");
             cancellationToken.Cancel();
             started = false;
@@ -141,7 +141,7 @@ namespace Translator.Desktop.Explorer.Graph
                 //calculate
                 CalculatePositions();
 #if DEBUG
-                DrawStartTime = DateTime.Now;
+                DrawStartTime = DateTime.UtcNow;
 #endif
                 //its not faster to clean out this access chain!
                 //we got to wait before we change nodes, so like a reverse lock?
@@ -150,7 +150,7 @@ namespace Translator.Desktop.Explorer.Graph
                 provider.UsingListA = !provider.UsingListA;
                 ++_layoutcount;
 
-                FrameEndTime = DateTime.Now;
+                FrameEndTime = DateTime.UtcNow;
                 TimeSpan frametime = FrameEndTime - FrameStartTime;
 #if DEBUG
                 LogManager.Log($"Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms calculation part of frame-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");

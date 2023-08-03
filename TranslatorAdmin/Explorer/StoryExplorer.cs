@@ -136,7 +136,7 @@ namespace Translator.Explorer.Window
             Layouter = new(Provider, this, token);
             SetTypesAvailable(Provider.Nodes.Types.Keys);
             Layouter.Start();
-            Grapher.StartTime = DateTime.Now;
+            Grapher.StartTime = DateTime.UtcNow;
             Grapher.Center();
             Invalidate();
         }
