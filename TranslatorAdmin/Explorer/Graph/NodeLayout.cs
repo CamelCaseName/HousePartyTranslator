@@ -96,6 +96,8 @@ namespace Translator.Desktop.Explorer.Graph
                 {
                     if (result.Exception is not null)
                     {
+                        //filter out object disposed as that happens when we close the window
+                        if (result.Exception.InnerException is ObjectDisposedException) return;
                         LogManager.Log(result.Exception, LogManager.Level.Error);
                         Msg.WarningOk("Calculation failed and has been stopped. You can try and restart the calculations. See the log for more info.");
                     }
@@ -137,7 +139,7 @@ namespace Translator.Desktop.Explorer.Graph
 
             while (!token.IsCancellationRequested && !Finished)
             {
-                FrameStartTime = FrameEndTime;
+                FrameStartTime = DateTime.UtcNow;
 
                 //calculate
                 CalculatePositions();
@@ -154,7 +156,7 @@ namespace Translator.Desktop.Explorer.Graph
                 FrameEndTime = DateTime.UtcNow;
                 TimeSpan frametime = FrameEndTime - FrameStartTime;
 #if DEBUG
-                LogManager.Log($"Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms calculation part of frame-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");
+                LogManager.Log($"Nodes: {NodeForces.Count} Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms calculation part of frame-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");
 #endif
                 if (frametime.TotalMilliseconds < 30) Thread.Sleep((int)(30 - frametime.TotalMilliseconds));
 
