@@ -27,17 +27,6 @@ namespace Translator.Explorer.Window
         public const string Version = "1.2.3.1";
         public const string Title = "StoryExplorer v" + Version;
         private readonly CancellationToken token;
-        private readonly NodeType[] defaulTypes = {
-            NodeType.ItemAction,
-            NodeType.Achievement,
-            NodeType.BGC,
-            NodeType.Dialogue,
-            NodeType.AlternateText,
-            NodeType.Event,
-            NodeType.Item,
-            NodeType.Quest,
-            NodeType.Response,
-            NodeType.ItemGroupBehaviour };
         public NodeLayout? Layouter { get; private set; }
         internal GraphingEngine Grapher { get { return engine; } }
         internal NodeProvider Provider { get; }
@@ -268,6 +257,9 @@ namespace Translator.Explorer.Window
             {
                 NodeTypeButtonsLayout.Controls[i].Enabled = false;
             }
+
+            Provider.TextOnlyEvents = true;
+
             //cache so we can filter while acessing old types
             var enumerator = new List<NodeType>(availableTypes).GetEnumerator();
             while (enumerator.MoveNext())
@@ -276,7 +268,7 @@ namespace Translator.Explorer.Window
                 if (button is ToggleButton toggleButton)
                 {
                     toggleButton.Enabled = true;
-                    if (defaulTypes.Contains(enumerator.Current))
+                    if (Provider.defaulTypes.Contains(enumerator.Current))
                         toggleButton.SimulateClick();
                 }
                 else
@@ -284,6 +276,8 @@ namespace Translator.Explorer.Window
                     LogManager.Log("Type " + enumerator.Current.ToString() + "not found in UI, may be new?", LogManager.Level.Warning);
                 }
             }
+
+            Provider.TextOnlyEvents = false;
         }
     }
 }
