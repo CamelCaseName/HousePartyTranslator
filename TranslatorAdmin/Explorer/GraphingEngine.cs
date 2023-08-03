@@ -17,7 +17,6 @@ namespace Translator.Desktop.Explorer
     [SupportedOSPlatform("Windows")]
     internal sealed class GraphingEngine
     {
-        private static float Nodesize => StoryExplorerConstants.Nodesize;
         public const float ColorFactor = 0.7f;
         public bool DrewNodes = false;
         public bool InternalNodesVisible = true;
@@ -55,8 +54,8 @@ namespace Translator.Desktop.Explorer
         private bool MovingANode = false;
         private HashSet<Node> NodesHighlighted = new();
         private Cursor priorCursor = Cursors.Default;
-        private readonly AdjustableArrowCap defaultArrowCap = new(Nodesize / 3, Nodesize / 4);
-        private readonly AdjustableArrowCap smallArrowCap = new(Nodesize / 6, Nodesize / 8);
+        private readonly AdjustableArrowCap defaultArrowCap = new(StoryExplorerConstants.Nodesize / 3, StoryExplorerConstants.Nodesize / 4);
+        private readonly AdjustableArrowCap smallArrowCap = new(StoryExplorerConstants.Nodesize / 6, StoryExplorerConstants.Nodesize / 8);
 
         private float Scaling = 0.3f;
         private float StartPanOffsetX = 0f;
@@ -155,10 +154,10 @@ namespace Translator.Desktop.Explorer
             //update canvas transforms
             g.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
             g.ScaleTransform(Scaling, Scaling);
-            Xmin = OffsetX - Nodesize;
-            Ymin = OffsetY - Nodesize;
-            Xmax = g.VisibleClipBounds.Right + Nodesize;
-            Ymax = g.VisibleClipBounds.Bottom + Nodesize;
+            Xmin = OffsetX - StoryExplorerConstants.Nodesize;
+            Ymin = OffsetY - StoryExplorerConstants.Nodesize;
+            Xmax = g.VisibleClipBounds.Right + StoryExplorerConstants.Nodesize;
+            Ymax = g.VisibleClipBounds.Bottom + StoryExplorerConstants.Nodesize;
 
             if (Scaling < 0.1)
                 ColorPen.CustomEndCap = smallArrowCap;
@@ -427,10 +426,10 @@ namespace Translator.Desktop.Explorer
                 ColorBrush.Color = color;
                 g.FillEllipse(
                     ColorBrush,
-                    node.Position.X - (Nodesize / 2 * scale),
-                    node.Position.Y - (Nodesize / 2 * scale),
-                    Nodesize * scale,
-                    Nodesize * scale
+                    node.Position.X - (StoryExplorerConstants.Nodesize / 2 * scale),
+                    node.Position.Y - (StoryExplorerConstants.Nodesize / 2 * scale),
+                    StoryExplorerConstants.Nodesize * scale,
+                    StoryExplorerConstants.Nodesize * scale
                     );
             }
         }
@@ -637,9 +636,9 @@ namespace Translator.Desktop.Explorer
             for (int i = 0; i < Provider.Nodes.Count; i++)
             {
                 node = Provider.Nodes[i];
-                if (mouseLowerY > node.Position.Y - (Nodesize / 2) && mouseUpperY < node.Position.Y + (Nodesize / 2))
+                if (mouseLowerY > node.Position.Y - (StoryExplorerConstants.Nodesize / 2) && mouseUpperY < node.Position.Y + (StoryExplorerConstants.Nodesize / 2))
                 {
-                    if (mouseRightX < node.Position.X + (Nodesize / 2) && mouseLeftX > node.Position.X - (Nodesize / 2))
+                    if (mouseRightX < node.Position.X + (StoryExplorerConstants.Nodesize / 2) && mouseLeftX > node.Position.X - (StoryExplorerConstants.Nodesize / 2))
                     {
                         if (InternalNodesVisible || (node.Type != NodeType.Event && node.Type != NodeType.Criterion))
                         {
