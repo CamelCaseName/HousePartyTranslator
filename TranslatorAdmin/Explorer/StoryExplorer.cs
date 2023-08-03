@@ -197,11 +197,11 @@ namespace Translator.Explorer.Window
         private void MenuShowButton_Click(object sender, EventArgs e)
         {
             MenuVisible = !MenuVisible;
-            SettingsBox.Visible = MenuVisible;
+            MenuBox.Visible = MenuVisible;
             MenuShowButton.Text = MenuVisible ? "Hide Menu" : "Show Menu";
-            SettingsBox.Update();
+            MenuBox.Update();
             MenuShowButton.Update();
-            SettingsBox.Invalidate();
+            MenuBox.Invalidate();
             MenuShowButton.Invalidate();
         }
 
