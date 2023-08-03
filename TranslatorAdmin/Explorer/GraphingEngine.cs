@@ -107,6 +107,7 @@ namespace Translator.Desktop.Explorer
                     if (!IsShiftPressed) highlightedNode = value;
                     Explorer.SetNextButtonStates(value.ParentNodes.Count > 0, value.ChildNodes.Count > 0);
                     ClickedNodeChanged(this, new ClickedNodeChangeArgs(value, ClickedNodeTypes.Highlight));
+                    Center();
                 }
                 else
                 {
@@ -188,8 +189,8 @@ namespace Translator.Desktop.Explorer
         public void CenterOnNode(Node node)
         {
             //todo implement corectly
-            OffsetX += (OffsetX - node.Position.X) / 2;
-            OffsetY += (OffsetY - node.Position.Y) / 2;
+            OffsetX = node.Position.X - ((Xmax - OffsetX) / 2);
+            OffsetY = node.Position.Y - ((Ymax - OffsetY) / 2);
         }
 
         private void DrawMovingNodeMarker(Graphics g)

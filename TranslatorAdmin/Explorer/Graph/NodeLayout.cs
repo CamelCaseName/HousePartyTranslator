@@ -97,7 +97,7 @@ namespace Translator.Desktop.Explorer.Graph
                     if (result.Exception is not null)
                     {
                         LogManager.Log(result.Exception, LogManager.Level.Error);
-                        Msg.WarningOk("Calculation failed and has been stopped. Xou can try and restart the calculations. See the log for more info.");
+                        Msg.WarningOk("Calculation failed and has been stopped. You can try and restart the calculations. See the log for more info.");
                     }
                 });
             }
@@ -159,7 +159,8 @@ namespace Translator.Desktop.Explorer.Graph
 
                 App.MainForm.Explorer.Invalidate();
             }
-            App.MainForm.Explorer.Invoke(App.MainForm.Explorer.ShowStoppedInfoLabel);
+            if (!App.MainForm.Explorer.Disposing && !App.MainForm.IsDisposed)
+                App.MainForm.Explorer.Invoke(App.MainForm.Explorer.ShowStoppedInfoLabel);
             Stop();
         }
 
