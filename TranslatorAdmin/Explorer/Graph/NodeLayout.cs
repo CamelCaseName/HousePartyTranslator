@@ -156,7 +156,7 @@ namespace Translator.Desktop.Explorer.Graph
                 FrameEndTime = DateTime.UtcNow;
                 TimeSpan frametime = FrameEndTime - FrameStartTime;
 #if DEBUG
-                LogManager.Log($"Nodes: {NodeForces.Count} Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms calculation part of frame-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");
+                LogManager.Log($"Nodes: {NodeForces.Count}N{Nodes.Edges.Count}E Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms");
 #endif
                 if (frametime.TotalMilliseconds < 30) Thread.Sleep((int)(30 - frametime.TotalMilliseconds));
 
