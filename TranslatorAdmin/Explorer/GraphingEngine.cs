@@ -104,10 +104,11 @@ namespace Translator.Desktop.Explorer
                 if (value is not null)
                 {
                     //set new value
-                    if (!IsShiftPressed) highlightedNode = value;
+                    highlightedNode = value;
+                    if (Provider.Nodes.Count != NodesHighlighted.Count) NodesHighlighted = new(Provider.Nodes.Count);
                     Explorer.SetNextButtonStates(value.ParentNodes.Count > 0, value.ChildNodes.Count > 0);
-                    ClickedNodeChanged(this, new ClickedNodeChangeArgs(value, ClickedNodeTypes.Highlight));
                     Center();
+                    ClickedNodeChanged(this, new ClickedNodeChangeArgs(value, ClickedNodeTypes.Highlight));
                 }
                 else
                 {
@@ -612,13 +613,9 @@ namespace Translator.Desktop.Explorer
         {
             if (e.ClickType == ClickedNodeTypes.Highlight)
             {
-                //tell translationmanager to update us or not when selected
-                WinTranslationManager.UpdateStoryExplorerSelection = !IsShiftPressed;
-                //select line in translation manager
-                TabManager.ActiveTranslationManager.SelectLine(e.ChangedNode.ID);
+                //select line in translation manager (only if we want to)
+                if (!IsShiftPressed) TabManager.ActiveTranslationManager.SelectLine(e.ChangedNode.ID);
                 //put info up
-                highlightedNode = e.ChangedNode;
-                if (Provider.Nodes.Count != NodesHighlighted.Count) NodesHighlighted = new(Provider.Nodes.Count);
                 Explorer.Invoke(() => DisplayNodeInfo(e.ChangedNode));
             }
         }

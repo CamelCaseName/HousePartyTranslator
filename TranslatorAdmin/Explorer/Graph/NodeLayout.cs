@@ -116,6 +116,7 @@ namespace Translator.Desktop.Explorer.Graph
         {
             if (App.MainForm is null) return;
             if (App.MainForm.Explorer is null) return;
+            var explorer = App.MainForm.Explorer;
 
             //save all forces here
             if (NodeForces.Count != Nodes.Count)
@@ -145,7 +146,7 @@ namespace Translator.Desktop.Explorer.Graph
 #endif
                 //its not faster to clean out this access chain!
                 //we got to wait before we change nodes, so like a reverse lock?
-                while (!App.MainForm!.Explorer.Grapher.DrewNodes) ;
+                while (!explorer.Grapher.DrewNodes) ;
                 //switch to other list once done
                 provider.UsingListA = !provider.UsingListA;
                 ++_layoutcount;
@@ -157,10 +158,10 @@ namespace Translator.Desktop.Explorer.Graph
 #endif
                 if (frametime.TotalMilliseconds < 30) Thread.Sleep((int)(30 - frametime.TotalMilliseconds));
 
-                App.MainForm.Explorer.Invalidate();
+                explorer.Invalidate();
             }
-            if (!App.MainForm.Explorer.Disposing && !App.MainForm.IsDisposed)
-                App.MainForm.Explorer.Invoke(App.MainForm.Explorer.ShowStoppedInfoLabel);
+            if (!explorer.Disposing && !explorer.IsDisposed && explorer.IsHandleCreated)
+                explorer.Invoke(explorer.ShowStoppedInfoLabel);
             Stop();
         }
 
