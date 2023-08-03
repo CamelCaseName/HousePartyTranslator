@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Threading.Tasks;
 using System.Timers;
 using Translator.Core.Data;
-using Translator.Core.DefaultImpls;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
-using static System.Net.Mime.MediaTypeNames;
 
 //TODO add tests
 
@@ -75,14 +72,7 @@ namespace Translator.Core
         {
             get
             {
-                if (language.Length == 0)
-                {
-                    throw new LanguageHelper.LanguageException();
-                }
-                else
-                {
-                    return language;
-                }
+                return language.Length == 0 ? throw new LanguageHelper.LanguageException() : language;
             }
             set
             {
@@ -138,8 +128,7 @@ namespace Translator.Core
         {
             get
             {
-                if (SelectedId == string.Empty) return new();
-                else return TranslationData[SelectedId];
+                return SelectedId == string.Empty ? new() : TranslationData[SelectedId];
             }
         }
         /// <summary>
@@ -216,10 +205,7 @@ namespace Translator.Core
         public string GetTabName()
         {
             float percentage = TabUI.Lines.ApprovedCount / (float)TabUI.Lines.Count;
-            if (ChangesPending)
-                return FileName + $" ({(int)(percentage * 100),000}%)*";
-            else
-                return FileName + $" ({(int)(percentage * 100),000}%)";
+            return FileName + $" ({(int)(percentage * 100),000}" + (ChangesPending ? "%)*" : "%)");
         }
 
         /// <summary>
@@ -286,7 +272,7 @@ namespace Translator.Core
             Settings.Default.RecentIndex = TabUI.SelectedLineIndex;
             TabManager.ShowAutoSaveDialog();
             LoadTranslationFile();
-            if (UI == null) return;
+            if (UI is null) return;
             //select recent index
             if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count) TabUI.SelectLineItem(Settings.Default.RecentIndex);
             LogManager.Log($"Reloaded {StoryName}/{FileName}");
@@ -337,7 +323,7 @@ namespace Translator.Core
                 UI.SignalUserEndWait();
                 return;
             }
-            if (doOnlineUpdate && DataBase.IsOnline) _ = Task.Run(RemoteUpdate).ContinueWith(RemoteUpdateExceptionHandler(), TaskContinuationOptions.OnlyOnFaulted);
+            if (doOnlineUpdate) _ = Task.Run(RemoteUpdate).ContinueWith(RemoteUpdateExceptionHandler(), TaskContinuationOptions.OnlyOnFaulted);
 
             List<CategorizedLines> CategorizedStrings = SaveAndExportManager.InitializeCategories(StoryName, FileName);
 
@@ -362,7 +348,7 @@ namespace Translator.Core
             void RemoteUpdate()
             {
                 UI.SignalUserWait();
-                if (!DataBase.UpdateTranslations(TranslationData, Language) || !DataBase.IsOnline) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+                if (!DataBase.UpdateTranslations(TranslationData, Language)) _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
                 else LogManager.Log("Successfully saved the file remotely");
                 UI.SignalUserEndWait();
             }
@@ -371,9 +357,9 @@ namespace Translator.Core
             {
                 return faultedTask =>
                 {
-                    if (faultedTask.Exception == null) return;
+                    if (faultedTask.Exception is null) return;
                     LogManager.Log(faultedTask.Exception.Message);
-                    foreach (var exception in faultedTask.Exception.InnerExceptions)
+                    foreach (Exception exception in faultedTask.Exception.InnerExceptions)
                     {
                         LogManager.Log(exception.Message);
                         LogManager.Log("    " + exception.StackTrace);
@@ -649,6 +635,8 @@ namespace Translator.Core
                     //update recents
                     RecentsManager.SetMostRecent(SourceFilePath);
                     UI.UpdateRecentFileList();
+                    //update search so it makes sense
+                    Search();
                 }
             }
             else
@@ -666,10 +654,9 @@ namespace Translator.Core
 
             if (currentIndex >= 0)
             {
-                if (Settings.Default.DisplayVoiceActorHints)
-                    TabUI.TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine);
-                else
-                    TabUI.TemplateBoxText = SelectedLine.TemplateString.Replace("\n", Environment.NewLine).RemoveVAHints();
+                TabUI.TemplateBoxText = Settings.Default.DisplayVoiceActorHints
+                    ? SelectedLine.TemplateString.Replace("\n", Environment.NewLine)
+                    : SelectedLine.TemplateString.Replace("\n", Environment.NewLine).RemoveVAHints();
 
                 selectedNew = true;
 
@@ -714,13 +701,14 @@ namespace Translator.Core
         /// <param name="replacement">The string to replace all search matches with</param>
         internal void ReplaceAll(string replacement)
         {
+            if (TabUI.Lines.SearchResults.Count == 0) return;
             //save old lines for history
             FileData old = new(TranslationData, StoryName, FileName);
 
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
                 if (TabUI.Lines.SearchResults[i] < 0) continue;
-                TranslationData[TabUI.Lines[i].Text].TranslationString = TranslationData[TabUI.Lines[i].Text].TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
+                TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].Text].TranslationString = Replacer.Replace(TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].Text].TranslationString, replacement, SearchQuery).ToString();
             }
 
             History.AddAction(new AllTranslationsChanged(this, old, TranslationData));
@@ -743,7 +731,7 @@ namespace Translator.Core
         {
             if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineIndex))
             {
-                string temp = SelectedLine.TranslationString.ReplaceImpl(replacement, CleanedSearchQuery);
+                string temp = Replacer.Replace(SelectedLine.TranslationString, replacement, SearchQuery).ToString();
                 History.AddAction(new TranslationChanged(this, SelectedId, SelectedLine.TranslationString, temp));
                 SelectedLine.TranslationString = temp;
 
@@ -853,7 +841,7 @@ namespace Translator.Core
 
                 //create path to file
                 string gameFilePath = "Eek\\House Party\\Mods\\";
-                if (StoryName != "Hints" && StoryName != "UI")
+                if (StoryName is not "Hints" and not "UI")
                 {
                     //combine all paths
                     gameFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), gameFilePath, "Languages", StoryName, languageAsText, FileName + ".txt");
@@ -889,27 +877,18 @@ namespace Translator.Core
         private void CreateLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation)
         {
             if (lastLine[0] == string.Empty) return;
-            if (IdsToExport.TryGetValue(lastLine[0], out LineData? templateLine))
-                TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation);
-            else
-                TranslationData[lastLine[0]] = new LineData(lastLine[0], StoryName, FileName, category, string.Empty, lastLine[1] + translation);
+            TranslationData[lastLine[0]] = IdsToExport.TryGetValue(lastLine[0], out LineData? templateLine)
+                ? new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation)
+                : new LineData(lastLine[0], StoryName, FileName, category, string.Empty, lastLine[1] + translation);
         }
 
         private bool CustomStoryTemplateHandle(string story)
         {
-            PopupResult result;
-            if (!Settings.Default.AllowCustomStories)
-            {
-                result = PopupResult.NO;
-            }
-            else if (Settings.Default.IgnoreCustomStoryWarning)
-            {
-                result = PopupResult.YES;
-            }
-            else
-            {
-                result = UI.InfoYesNo($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story. (You can disable this warning in the settings)", "Custom story?");
-            }
+            PopupResult result = !Settings.Default.AllowCustomStories
+                ? PopupResult.NO
+                : Settings.Default.IgnoreCustomStoryWarning
+                    ? PopupResult.YES
+                    : UI.InfoYesNo($"Detected {story} as the story to use, if this is a custom story you want to translate, you can do so. Choose yes if you want to do that. If not, select no and we will assume this is the Original Story. (You can disable this warning in the settings)", "Custom story?");
             if (result == PopupResult.YES)
             {
                 //replace by template generation method
@@ -946,11 +925,9 @@ namespace Translator.Core
 
         private FileData GetTemplatesFromUser()
         {
-            if (UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES))
-            {
-                return SaveAndExportManager.GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false);
-            }
-            return new FileData(StoryName, FileName);
+            return UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES)
+                ? SaveAndExportManager.GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false)
+                : new FileData(StoryName, FileName);
         }
 
         /// <summary>
@@ -984,7 +961,7 @@ namespace Translator.Core
                     TranslationData[key].IsApproved = tempLine.IsApproved;
                 }
 
-                if (TranslationData[key].TemplateString == null) TranslationData[key].TemplateString = string.Empty;
+                if (TranslationData[key].TemplateString is null) TranslationData[key].TemplateString = string.Empty;
 
                 TabUI.Lines.Add(key, TranslationData[key].IsApproved);
 

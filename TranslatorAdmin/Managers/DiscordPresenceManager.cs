@@ -9,21 +9,14 @@ using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 namespace Translator.Desktop.Managers
 {
     [SupportedOSPlatform("Windows")]
-    public sealed class DiscordPresenceManager
+    public static class DiscordPresenceManager
     {
-        public DiscordRPC? DiscordPresenceClient;
-        private string Character = string.Empty;
-        private string Story = string.Empty;
-        private string ImageKey = Characters.CharacterEnum.rule34.ToString();
+        private static DiscordRPC? DiscordPresenceClient;
+        private static string Character = string.Empty;
+        private static string Story = string.Empty;
+        private static string ImageKey = Characters.CharacterEnum.rule34.ToString();
 
-        public DiscordPresenceManager()
-        {
-            //init first
-            if (DataBase.IsOnline) Initialize();
-
-        }
-
-        private void UpdatePresence()
+        private static void UpdatePresence()
         {
             if (DataBase.IsOnline)
             {
@@ -37,19 +30,22 @@ namespace Translator.Desktop.Managers
                         {
                             LargeImageKey = ImageKey,
                             LargeImageText = Character
+                        },
+                        Timestamps = new Timestamps()
+                        {
+                            Start = System.DateTime.Now
                         }
                     });
                     _ = DiscordPresenceClient?.UpdateStartTime();
-                    Update();
                 }
                 catch
                 {
-                    LogManager.Log("Couldn't update presence.");
+                    LogManager.Log("Couldn't update presence.", LogManager.Level.Warning);
                 }
             }
         }
 
-        private void SetImageKey()
+        private static void SetImageKey()
         {
             //try and get the corresponding image key
             if (Characters.CharacterDict.TryGetValue(Character, out Characters.CharacterEnum value))
@@ -63,7 +59,7 @@ namespace Translator.Desktop.Managers
             }
         }
 
-        public void Update(string story, string character)
+        public static void Update()
         {
             if (DataBase.IsOnline)
             {
@@ -73,12 +69,16 @@ namespace Translator.Desktop.Managers
                     {
                         Initialize();
                     }
-                    Story = story;
-                    Character = character;
+                    if (Story != TabManager.ActiveTranslationManager.StoryName || Character != TabManager.ActiveTranslationManager.FileName)
+                    {
+                        Story = TabManager.ActiveTranslationManager.StoryName;
+                        Character = TabManager.ActiveTranslationManager.FileName;
 
-                    SetImageKey();
+                        SetImageKey();
 
-                    UpdatePresence();
+                        UpdatePresence();
+                    }
+                    _ = DiscordPresenceClient?.Invoke();
                 }
                 else
                 {
@@ -87,18 +87,10 @@ namespace Translator.Desktop.Managers
             }
         }
 
-        public void Update()
-        {
-            if (Settings.EnableDiscordRP && DataBase.IsOnline)
-            {
-                _ = DiscordPresenceClient?.Invoke();
-            }
-        }
-
         /// <summary>
         /// Call before everything else
         /// </summary>
-        private void Initialize()
+        private static void Initialize()
         {
             DiscordPresenceClient = new DiscordRPC("940326430703771688")
             {
@@ -124,7 +116,7 @@ namespace Translator.Desktop.Managers
             _ = DiscordPresenceClient?.UpdateStartTime();
         }
 
-        public void DeInitialize()
+        public static void DeInitialize()
         {
             //Deinit to prevent a c++ side memory leak
             DiscordPresenceClient?.Dispose();

@@ -15,15 +15,26 @@ namespace Translator.Desktop.Explorer.Graph
     [SupportedOSPlatform("windows")]
     internal sealed class NodeProvider
     {
-        private NodeList InternalNodes = new();
+        private readonly NodeList InternalNodes = new();
         private readonly NodeList nodesA = new();
         private readonly NodeList nodesB = new();
         private bool _usingListA = true;
-        public bool UsingListA { get { if (frozen) return _usingListA; else return true; } set { if (frozen) _usingListA = value; } }
+        private readonly List<NodeType> allowedTypes = new();
+        public bool UsingListA
+        {
+            get
+            {
+                return !frozen || _usingListA;
+            }
+            set
+            {
+                if (frozen)
+                    _usingListA = value;
+            }
+        }
         private bool frozen = false;
-        private (int lockedNodeIndex, float movedNodePos_X, float movedNodePos_Y) _movingNodeInfo = (-1, 0.0f, 0.0f);
-
-        public (int lockedNodeIndex, float movedNodePos_X, float movedNodePos_Y) MovingNodeInfo => _movingNodeInfo;
+        private NodeMovementInfo _movingNodeInfo = (-1, 0.0f, 0.0f);
+        public NodeMovementInfo MovingNodeInfo => _movingNodeInfo;
 
         public NodeList Nodes
         {
@@ -52,63 +63,49 @@ namespace Translator.Desktop.Explorer.Graph
                 //only recalculate when necessary 
                 if (nodesA.Edges.Count != nodesB.Edges.Count)
                 {
-                    lock (nodesB.Edges)
-                        lock (nodesA.Edges)
-                        {
-                            if (UsingListA)
-                            {
-                                //changed edges is in a
-                                nodesA.Sync();
-                            }
-                            else
-                            {
-                                //changed edges is in b, will be copied later
-                                nodesB.Sync();
-                            }
-                        }
+                    if (UsingListA)
+                    {
+                        //changed edges is in a
+                        nodesA.Sync();
+                    }
+                    else
+                    {
+                        //changed edges is in b, will be copied later
+                        nodesB.Sync();
+                    }
                 }
 
-                lock (nodesB)
-                    lock (nodesA)
-                    {
-                        MovingNodePositionOverridden = true;
-                        if (UsingListA)
-                        {
-                            //changed amount is in a
-                            nodesB.Clear();
-                            nodesB.AddRange(nodesA);
-                        }
-                        else
-                        {
-                            //changed amount is in b
-                            nodesA.Clear();
-                            nodesA.AddRange(nodesB);
-                        }
-                    }
-
-
+                MovingNodePositionOverridden = true;
+                if (UsingListA)
+                {
+                    //changed amount is in a
+                    nodesB.Clear();
+                    nodesB.AddRange(nodesA);
+                }
+                else
+                {
+                    //changed amount is in b
+                    nodesA.Clear();
+                    nodesA.AddRange(nodesB);
+                }
             }
 
             if (nodesA.Edges.Count == nodesB.Edges.Count) return;
 
-            lock (nodesB.Edges)
-                lock (nodesA.Edges)
-                {
-                    if (UsingListA)
-                    {
-                        //changed edges is in a
-                        if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
-                        nodesB.Edges.Clear();
-                        nodesB.Edges.AddRange(nodesA.Edges);
-                    }
-                    else
-                    {
-                        //changed edges is in b
-                        if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
-                        nodesA.Edges.Clear();
-                        nodesA.Edges.AddRange(nodesB.Edges);
-                    }
-                }
+            if (UsingListA)
+            {
+                //changed edges is in a
+                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
+                nodesB.Edges.Clear();
+                nodesB.Edges.AddRange(nodesA.Edges);
+            }
+            else
+            {
+                //changed edges is in b
+                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
+                nodesA.Edges.Clear();
+                nodesA.Edges.AddRange(nodesB.Edges);
+            }
         }
 
         public NodeProvider()
@@ -120,7 +117,7 @@ namespace Translator.Desktop.Explorer.Graph
             if (!frozen)
             {
                 Nodes.Sync();//sync once before we save them finally
-                InternalNodes = Nodes;
+                InternalNodes.AddRange(Nodes); //copy init
                 nodesB.Clear();
                 nodesB.AddRange(nodesA);
                 frozen = true;
@@ -138,9 +135,9 @@ namespace Translator.Desktop.Explorer.Graph
         {
             if (index >= 0)
             {
-                _movingNodeInfo.lockedNodeIndex = index;
-                _movingNodeInfo.movedNodePos_X = Nodes[index].Position.X;
-                _movingNodeInfo.movedNodePos_Y = Nodes[index].Position.Y;
+                _movingNodeInfo.Index = index;
+                _movingNodeInfo.PosX = Nodes[index].Position.X;
+                _movingNodeInfo.PosY = Nodes[index].Position.Y;
                 MovingNodePositionOverrideEnded = false;
                 MovingNodePositionOverridden = true;
             }
@@ -148,8 +145,8 @@ namespace Translator.Desktop.Explorer.Graph
 
         internal void UpdatePositionChange(float x, float y)
         {
-            _movingNodeInfo.movedNodePos_X = x;
-            _movingNodeInfo.movedNodePos_Y = y;
+            _movingNodeInfo.PosX = x;
+            _movingNodeInfo.PosY = y;
         }
 
         internal void EndPositionChange()
@@ -167,19 +164,58 @@ namespace Translator.Desktop.Explorer.Graph
             return Nodes.GetPositions();
         }
 
-        internal void SetFilter(NodeType[] disabledTypes)
+        internal void AddFilter(NodeType allowedType)
         {
-
+            if (!allowedTypes.Contains(allowedType))
+                allowedTypes.Add(allowedType);
         }
 
-        internal void AddFilter(NodeType disabledType)
+        internal void RemoveFilter(NodeType disallowedType)
         {
-
+            allowedTypes.Remove(disallowedType);
         }
 
-        internal void RemoveFilter(NodeType allowedType)
+        internal void ApplyFilters()
         {
+            NodeList filteredNodes = new();
+            foreach (Node node in InternalNodes)
+            {
+                if (allowedTypes.Contains(node.Type))
+                    filteredNodes.Add(node);
+            }
 
+            nodesA.Clear();
+            nodesB.Clear();
+            nodesA.AddRange(filteredNodes);
+            nodesB.AddRange(filteredNodes);
+            nodesA.StrictSync();
+            nodesB.StrictSync();
+        }
+
+        internal void ResetFilters()
+        {
+            nodesA.Clear();
+            nodesB.Clear();
+            nodesA.AddRange(InternalNodes);
+            nodesB.AddRange(InternalNodes);
+            nodesA.Sync();
+            nodesB.Sync();
+        }
+
+        internal void ApplyDefaultFilter()
+        {
+            AddFilter(NodeType.Dialogue);
+            AddFilter(NodeType.BGC);
+            AddFilter(NodeType.Item);
+            AddFilter(NodeType.AlternateText);
+            AddFilter(NodeType.Achievement);
+            AddFilter(NodeType.BGCResponse);
+            AddFilter(NodeType.ItemAction);
+            AddFilter(NodeType.ItemGroupInteraction);
+            AddFilter(NodeType.Quest);
+            AddFilter(NodeType.Response);
+            AddFilter(NodeType.Event);
+            ApplyFilters();
         }
     }
 }

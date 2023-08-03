@@ -7,7 +7,6 @@ using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.InterfaceImpls;
-using Translator.Desktop.UI;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -418,14 +417,7 @@ namespace Translator.Desktop.UI.Components
             int ProgressValue = (int)(Approved / (float)Total * 100);
             if (ProgressValue != ProgressbarTranslated.Value)
             {
-                if (ProgressValue > 0 && ProgressValue <= 100)
-                {
-                    ProgressbarTranslated.Value = ProgressValue;
-                }
-                else
-                {
-                    ProgressbarTranslated.Value = 0;
-                }
+                ProgressbarTranslated.Value = ProgressValue is > 0 and <= 100 ? ProgressValue : 0;
                 ProgressbarTranslated.Update();
             }
         }

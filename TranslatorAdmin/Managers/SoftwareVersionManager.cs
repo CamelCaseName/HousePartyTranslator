@@ -1,18 +1,22 @@
-﻿using System;
+﻿#if !DEBUG
+using System;
 using System.IO;
+#endif
 using System.Net.Http;
 using System.Runtime.Versioning;
+#if !DEBUG
 using System.Text.Json;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Helpers;
+#endif
 
 namespace Translator.Desktop.Managers
 {
     [SupportedOSPlatform("Windows")]
     internal static class SoftwareVersionManager
     {
-        public const string LocalVersion = "0.7.4.3";
+        public const string LocalVersion = "0.7.4.4";
         public static string? LatestGithubVersion = "0.0.0.0";
         public static bool UpdatePending = false;
         private static readonly HttpClient client = new();
@@ -43,7 +47,7 @@ namespace Translator.Desktop.Managers
             return;
 #pragma warning restore CS1998
 #else
-            if (App.MainForm?.UI == null) return;
+            if (App.MainForm?.UI is null) return;
             try
             {
                 //get data from github about the packages 
@@ -66,7 +70,7 @@ namespace Translator.Desktop.Managers
 
                 if (Msg.InfoYesNoB("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response?.Body, "Update - " + response?.Name))
                 {
-                    if (response == null || response?.Assets?.Count < 1) throw new NullReferenceException();
+                    if (response is null || response?.Assets?.Count < 1) throw new NullReferenceException();
 
                     LogManager.Log("Self update started");
 

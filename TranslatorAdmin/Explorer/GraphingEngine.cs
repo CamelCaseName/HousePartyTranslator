@@ -1,8 +1,7 @@
-﻿using Org.BouncyCastle.Asn1.Crmf;
-using System;
-using System.Buffers;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core;
@@ -37,12 +36,11 @@ namespace Translator.Desktop.Explorer
         private static float Ymax = 0;
         private static float Xmin = 0;
         private static float Ymin = 0;
-        private static float MaxEdgeLength = 0;
+        private static float MinEdgeLength = 0;
 
         private readonly StoryExplorer Explorer;
         private readonly Label NodeInfoLabel;
 
-        private readonly ArrayPool<PointF> PointPool = ArrayPool<PointF>.Shared;
         private readonly Dictionary<Type, GroupBox> ExtendedInfoComponents = new();
 
         private float OffsetX;
@@ -57,6 +55,8 @@ namespace Translator.Desktop.Explorer
         private bool MovingANode = false;
         private HashSet<Node> NodesHighlighted = new();
         private Cursor priorCursor = Cursors.Default;
+        private readonly AdjustableArrowCap defaultArrowCap = new(Nodesize / 3, Nodesize / 4);
+        private readonly AdjustableArrowCap smallArrowCap = new(Nodesize / 6, Nodesize / 8);
 
         private float Scaling = 0.3f;
         private float StartPanOffsetX = 0f;
@@ -80,7 +80,11 @@ namespace Translator.Desktop.Explorer
 
 
             ColorBrush = new SolidBrush(Settings.DefaultNodeColor);
-            ColorPen = new Pen(Settings.DefaultEdgeColor, 2f) { EndCap = System.Drawing.Drawing2D.LineCap.ArrowAnchor, StartCap = System.Drawing.Drawing2D.LineCap.Round };
+            ColorPen = new Pen(Settings.DefaultEdgeColor, 2f)
+            {
+                CustomEndCap = defaultArrowCap,
+                StartCap = LineCap.Round
+            };
 
             ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
             ClickedNodeChanged += new ClickedNodeChangedHandler(DisplayNodeInfoHandler);
@@ -97,15 +101,17 @@ namespace Translator.Desktop.Explorer
             }
             set
             {
-                if (value != null)
+                if (value is not null)
                 {
                     //set new value
                     if (!IsShiftPressed) highlightedNode = value;
+                    Explorer.SetNextButtonStates(value.ParentNodes.Count > 0, value.ChildNodes.Count > 0);
                     ClickedNodeChanged(this, new ClickedNodeChangeArgs(value, ClickedNodeTypes.Highlight));
                 }
                 else
                 {
                     highlightedNode = Node.NullNode;
+                    Explorer.SetNextButtonStates(false, false);
                 }
             }
         }
@@ -118,7 +124,7 @@ namespace Translator.Desktop.Explorer
             }
             set
             {
-                if (value != null)
+                if (value is not null)
                 {
                     infoNode = value;
                     ClickedNodeChanged(this, new ClickedNodeChangeArgs(value, ClickedNodeTypes.Info));
@@ -133,33 +139,42 @@ namespace Translator.Desktop.Explorer
         //increase drawing speed by switching to direct2d? either custom binding as needed or sharpdx?
         public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
         {
-            if (e == null) return;
+            if (e is null) return;
+            Graphics g = e.Graphics;
 
-            FrameStartTime = FrameEndTime;
+            FrameStartTime = DateTime.UtcNow;
             ++FrameCount;
             //set up values for this paint cycle
-            MaxEdgeLength = 15 / Scaling; // that one works
+            MinEdgeLength = MathF.Pow(15 / Scaling, 2); // that one works
 
             //disables and reduces unused features
-            e.Graphics.ToLowQuality();
+            g.ToLowQuality();
 
             //update canvas transforms
-            e.Graphics.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
-            e.Graphics.ScaleTransform(Scaling, Scaling);
+            g.TranslateTransform(-OffsetX * Scaling, -OffsetY * Scaling);
+            g.ScaleTransform(Scaling, Scaling);
             Xmin = OffsetX - Nodesize;
             Ymin = OffsetY - Nodesize;
-            Xmax = e.Graphics.VisibleClipBounds.Right + Nodesize;
-            Ymax = e.Graphics.VisibleClipBounds.Bottom + Nodesize;
+            Xmax = g.VisibleClipBounds.Right + Nodesize;
+            Ymax = g.VisibleClipBounds.Bottom + Nodesize;
 
-            PaintAllNodes(e.Graphics);
+            if (Scaling < 0.1)
+                ColorPen.CustomEndCap = smallArrowCap;
+            else
+                ColorPen.CustomEndCap = defaultArrowCap;
+
+            PaintAllNodes(g);
 
             //overlay info and highlight
-            DrawHighlightNodeTree(e.Graphics);
-            DrawMovingNodeMarker(e.Graphics);
-            DrawInfoNode(e.Graphics);
-            NodeInfoLabel.Invalidate();
-            NodeInfoLabel.Update();
-            FrameEndTime = DateTime.Now;
+            DrawHighlightNodeTree(g);
+            DrawMovingNodeMarker(g);
+            DrawInfoNode(g);
+            NodeInfoLabel.Refresh();
+            FrameEndTime = DateTime.UtcNow;
+#if DEBUG
+            if ((FrameEndTime - FrameStartTime).TotalMilliseconds > 33)
+                LogManager.Log("draw time too long for 30fps! Expected < 33, actual: " + (FrameEndTime - FrameStartTime).TotalMilliseconds);
+#endif
         }
 
         public void Center()
@@ -173,8 +188,8 @@ namespace Translator.Desktop.Explorer
         public void CenterOnNode(Node node)
         {
             //todo implement corectly
-            OffsetX = node.Position.X + OffsetX;
-            OffsetY = node.Position.Y + OffsetY;
+            OffsetX += (OffsetX - node.Position.X) / 2;
+            OffsetY += (OffsetY - node.Position.Y) / 2;
         }
 
         private void DrawMovingNodeMarker(Graphics g)
@@ -286,10 +301,15 @@ namespace Translator.Desktop.Explorer
         {
             if (!Provider.Frozen) return;
             DrewNodes = false;
+            Node node;
             //go on displaying graph
             for (int i = 0; i < Provider.Nodes.Count; i++)
             {
-                DrawColouredNode(g, Provider.Nodes[i]);
+                node = Provider.Nodes[i];
+                if (node.Position.X <= Xmax && node.Position.Y <= Ymax && node.Position.X >= Xmin && node.Position.Y >= Ymin)
+                {
+                    DrawColouredNode(g, node);
+                }
             }
             int maxEdges = Math.Min(Provider.Nodes.Edges.Count, Settings.MaxEdgeCount);
             for (int i = 0; i < maxEdges; i++)
@@ -308,8 +328,8 @@ namespace Translator.Desktop.Explorer
         /// <param name="graphY">The returned y coord in graph coordinate space</param>
         public void ScreenToGraph(float screenX, float screenY, out float graphX, out float graphY)
         {
-            graphX = screenX / Scaling + OffsetX;
-            graphY = screenY / Scaling + OffsetY;
+            graphX = (screenX / Scaling) + OffsetX;
+            graphY = (screenY / Scaling) + OffsetY;
         }
 
         private void DisplayNodeInfo(Node node)
@@ -324,9 +344,7 @@ namespace Translator.Desktop.Explorer
 
                 //create info
                 //strip text of all VA performance hints, embedded in []. if user wants it
-                string info;
-                if (Settings.Default.DisplayVoiceActorHints) { info = node.Text.ConstrainLength(); }
-                else { info = node.Text.RemoveVAHints().ConstrainLength(); }
+                string info = Settings.Default.DisplayVoiceActorHints ? node.Text.ConstrainLength() : node.Text.RemoveVAHints().ConstrainLength();
 
                 //create seperator
                 string seperator = "\n";
@@ -343,7 +361,7 @@ namespace Translator.Desktop.Explorer
             }
             else //remove highlight display
             {
-                foreach (var box in ExtendedInfoComponents.Values)
+                foreach (GroupBox box in ExtendedInfoComponents.Values)
                 {
                     box.Visible = false;
                 }
@@ -355,17 +373,17 @@ namespace Translator.Desktop.Explorer
 
         private void DisplayExtendedNodeInfo(Rectangle infoLabelRect, Node node)
         {
-            foreach (var oldBox in ExtendedInfoComponents.Values)
+            foreach (GroupBox oldBox in ExtendedInfoComponents.Values)
             {
                 oldBox.Visible = false;
             }
-            if (node.Data == null) return;
+            if (node.Data is null) return;
 
             //use components if we have them already
-            if (!ExtendedInfoComponents.TryGetValue(node.DataType, out var box))
+            if (!ExtendedInfoComponents.TryGetValue(node.DataType, out GroupBox? box))
             {
                 //create new and cache, then display
-                box = FilterUIBuilder.GetDisplayComponentsForType(
+                box = ExtendedInfoUIBuilder.GetDisplayComponentsForType(
                     node.Data,
                     node.DataType,
                     new Size(Math.Clamp(NodeInfoLabel.ClientRectangle.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10));
@@ -374,12 +392,12 @@ namespace Translator.Desktop.Explorer
             }
             else
             {
-                FilterUIBuilder.FillDisplayComponents(box, node.Data);
+                ExtendedInfoUIBuilder.FillDisplayComponents(box, node.Data);
             }
             box.Location = new Point(infoLabelRect.Left, infoLabelRect.Bottom + 5);
             box.MaximumSize = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), Explorer.ClientRectangle.Height - Explorer.Grapher.NodeInfoLabel.Height - 10);
             box.Size = new Size(Math.Clamp(infoLabelRect.Width, 340, 900), 10);
-            FilterUIBuilder.SetEditableStates(box);
+            ExtendedInfoUIBuilder.SetEditableStates(box);
             box.BringToFront();
             box.Visible = true;
         }
@@ -402,19 +420,16 @@ namespace Translator.Desktop.Explorer
         private void DrawColouredNode(Graphics g, Node node, Color color, float scale = 1.0f)
         {
             //dont draw node if it is too far away
-            if (node.Position.X <= Xmax && node.Position.Y <= Ymax && node.Position.X >= Xmin && node.Position.Y >= Ymin)
+            if (InternalNodesVisible || (node.Type != NodeType.Event && node.Type != NodeType.Criterion))
             {
-                if (InternalNodesVisible || (node.Type != NodeType.Event && node.Type != NodeType.Criterion))
-                {
-                    ColorBrush.Color = color;
-                    g.FillEllipse(
-                        ColorBrush,
-                        node.Position.X - (Nodesize / 2) * scale,
-                        node.Position.Y - (Nodesize / 2) * scale,
-                        Nodesize * scale,
-                        Nodesize * scale
-                        );
-                }
+                ColorBrush.Color = color;
+                g.FillEllipse(
+                    ColorBrush,
+                    node.Position.X - (Nodesize / 2 * scale),
+                    node.Position.Y - (Nodesize / 2 * scale),
+                    Nodesize * scale,
+                    Nodesize * scale
+                    );
             }
         }
 
@@ -428,47 +443,22 @@ namespace Translator.Desktop.Explorer
             if (InternalNodesVisible || (node1.Type != NodeType.Event && node1.Type != NodeType.Criterion && node2.Type != NodeType.Event && node2.Type != NodeType.Criterion))
             {
                 float x1 = node1.Position.X;
-                float x2 = node1.Position.Y;
-                float y1 = node2.Position.X;
+                float y1 = node1.Position.Y;
+                float x2 = node2.Position.X;
                 float y2 = node2.Position.Y;
-                //dont draw node if it is too far away
-                //todo issue in culling check
                 //sort out lines that would be too small on screen and ones where none of the ends are visible
-                if (MathF.Sqrt(MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2)) > MaxEdgeLength &&
-                    ((x1 <= Xmax && y1 <= Ymax && x1 >= Xmin && y1 >= Ymin) ||
-                    (x2 <= Xmax && y2 <= Ymax && x1 >= Xmin && y2 >= Ymin)))
+                if (MathF.Pow(x1 - x2, 2) + MathF.Pow(y1 - y2, 2) > MinEdgeLength &&
+                    ((x1 < Xmax && x1 > Xmin && y1 < Ymax && y1 > Ymin) ||
+                    (x2 < Xmax && x2 > Xmin && y2 < Ymax && y2 > Ymin)))
                 {
                     //any is visible
                     ColorPen.Color = color;
                     ColorPen.Width = width;
                     //todo adjust edge offsets to only touch the nodes in future (if only for small graphs so we dont compromise performance)?
-                    g.DrawLine(
-                        ColorPen,
-                        node1.Position.X,
-                        node1.Position.Y,
-                        node2.Position.X,
-                        node2.Position.Y
-                        );
+                    g.DrawLine(ColorPen, x1, y1, x2, y2);
                 }
                 //none are visible, why draw?
             }
-        }
-
-        internal void DrawEdges(Graphics g, NodeList nodes)
-        {
-            DrawEdges(g, nodes, Settings.DefaultEdgeColor);
-        }
-
-        internal void DrawEdges(Graphics g, NodeList nodes, Color color)
-        {
-            ColorPen.Color = color;
-            PointF[] points = PointPool.Rent(nodes.Edges.Count);
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                points[i] = nodes[i].Position;
-            }
-            g.DrawLines(ColorPen, points);
-            PointPool.Return(points);
         }
 
         private void DrawHighlightNodeTree(Graphics g)
@@ -491,8 +481,8 @@ namespace Translator.Desktop.Explorer
 
         public static Color Rainbow(float progress)
         {
-            float div = (Math.Abs(progress % 1) * 6);
-            int ascending = (int)((div % 1) * 255);
+            float div = Math.Abs(progress % 1) * 6;
+            int ascending = (int)(div % 1 * 255);
             int descending = 255 - ascending;
 
             return (int)div switch
@@ -509,8 +499,8 @@ namespace Translator.Desktop.Explorer
 
         public static Color RainbowEdge(float progress)
         {
-            float div = (Math.Abs(progress % 1) * 6);
-            int ascending = (int)((div % 1) * 255);
+            float div = Math.Abs(progress % 1) * 6;
+            int ascending = (int)(div % 1 * 255);
             int descending = 255 - ascending;
 
             return (int)div switch
@@ -653,7 +643,7 @@ namespace Translator.Desktop.Explorer
                 {
                     if (mouseRightX < node.Position.X + (Nodesize / 2) && mouseLeftX > node.Position.X - (Nodesize / 2))
                     {
-                        if (InternalNodesVisible || node.Type != NodeType.Event && node.Type != NodeType.Criterion)
+                        if (InternalNodesVisible || (node.Type != NodeType.Event && node.Type != NodeType.Criterion))
                         {
                             index = i;
                             return node;

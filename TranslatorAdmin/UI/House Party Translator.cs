@@ -26,7 +26,6 @@ namespace Translator.Desktop.UI
     {
         private StoryExplorer? SExplorer;
         private readonly ContextMenuStrip? ListContextMenu;
-        private DiscordPresenceManager? PresenceManager;
 #nullable disable
         public MenuStrip MainMenu;
         internal readonly WinTabController TabControl = new()
@@ -61,6 +60,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem editToolStripMenuItem;
         private WinMenuItem exitToolStripMenuItem;
         private WinMenuItem fileToolStripMenuItem;
+        private WinMenuItem templateToolStripMenuItem;
         private ColoredToolStripDropDown languageToolStripComboBox;
         private WinMenuItem openAllToolStripMenuItem;
         private WinMenuItem openInNewTabToolStripMenuItem;
@@ -139,16 +139,11 @@ namespace Translator.Desktop.UI
             }
             set
             {
-                if (value != null)
+                if (value is not null)
                 {
-                    if (value.ParentName == Name)
-                    {
-                        SExplorer = value;
-                    }
-                    else
-                    {
-                        throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
-                    }
+                    SExplorer = value.ParentName == Name
+                        ? value
+                        : throw new UnauthorizedAccessException("You must only write to this object from within the Explorer class");
                 }
             }
         }
@@ -163,7 +158,7 @@ namespace Translator.Desktop.UI
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
             InputHandler.SelectedItemChanged(CheckListBoxLeft);
-            if (Explorer != null
+            if (Explorer is not null
                 && Explorer.IsHandleCreated
                 && Explorer.StoryName == TabManager.ActiveTranslationManager.StoryName
                 && Explorer.FileName == TabManager.ActiveTranslationManager.FileName)
@@ -172,8 +167,8 @@ namespace Translator.Desktop.UI
 
         public void Comments_TextChanged(object? sender, EventArgs? e)
         {
+            InputHandler.TextChangedCallback(TabControl.SelectedTab.Comments, CheckListBoxLeft.SelectedIndex);
             TabManager.ActiveTranslationManager.UpdateComments();
-            InputHandler.TextChangedCallback(TabManager.SelectedTab.Comments, CheckListBoxLeft.SelectedIndex);
         }
 
         /// <summary>
@@ -191,7 +186,7 @@ namespace Translator.Desktop.UI
             }
             //ignore exception, really intended
             catch { return false; }
-            if (focused_control == null) return false;
+            if (focused_control is null) return false;
             var textBox = (TextBox)focused_control;
             if (toLeft)
             {
@@ -207,24 +202,20 @@ namespace Translator.Desktop.UI
 
         public void OpeningContextMenu(object? sender, MouseEventArgs? e)
         {
-            if (e == null || ListContextMenu == null)
+            if (e is null || ListContextMenu is null)
                 return;
             WindowsKeypressManager.OpenContextMenu(ListContextMenu, e);
         }
 
         public void TextBoxRight_TextChanged(object? sender, EventArgs? e)
         {
-            if (sender == null) return;
-            if (sender.GetType().IsAssignableFrom(typeof(ITextBox)))
-            {
-                InputHandler.TextChangedCallback((ITextBox)sender, CheckListBoxLeft.SelectedIndex);
-            }
+            InputHandler.TextChangedCallback(TabControl.SelectedTab.Translation, CheckListBoxLeft.SelectedIndex);
             TabManager.ActiveTranslationManager.UpdateTranslationString();
         }
 
         public void TextContextOpened(object? sender, EventArgs? e)
         {
-            if (sender == null) return;
+            if (sender is null) return;
             if (sender is ITextBox textBox)
             {
                 InputHandler.PrepareTextChanged(textBox);
@@ -239,14 +230,7 @@ namespace Translator.Desktop.UI
         /// <returns></returns>
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if (WindowsKeypressManager.MainKeyPressHandler(ref msg, keyData, CancelTokens))
-            {
-                return true;
-            }
-            else
-            {
-                return base.ProcessCmdKey(ref msg, keyData);
-            }
+            return WindowsKeypressManager.MainKeyPressHandler(ref msg, keyData, CancelTokens) || base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void CloseTab_Click(object? sender, MouseEventArgs? e)
@@ -269,7 +253,7 @@ namespace Translator.Desktop.UI
 
         internal static StoryExplorer? CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
         {
-            if (TabManager.ActiveTranslationManager == null) return null;
+            if (TabManager.ActiveTranslationManager is null) return null;
 
             //get currently active translation manager
             TranslationManager manager = TabManager.ActiveTranslationManager;
@@ -294,6 +278,10 @@ namespace Translator.Desktop.UI
                     explorer.Initialize(openAll == DialogResult.No);
 
                     manager.SetHighlightedNode();
+                }).ContinueWith((result) =>
+                {
+                    if (result.Exception is not null)
+                        LogManager.Log(result.Exception, LogManager.Level.Error);
                 });
                 if (!explorer.IsDisposed) explorer.Show();
                 return explorer;
@@ -307,12 +295,12 @@ namespace Translator.Desktop.UI
 
         private void FensterUnhandledExceptionHandler(object? sender, UnhandledExceptionEventArgs? e)
         {
-            if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); }
+            if (e is null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); }
             else
             {
                 LogManager.Log(e.ExceptionObject?.ToString() ?? "ExceptionObject is null", LogManager.Level.Error);
 
-                if (e.ExceptionObject == null) return;
+                if (e.ExceptionObject is null) return;
                 if (e.ExceptionObject is LanguageHelper.LanguageException)
                 {
                     Msg.WarningOk("Please select a language first! (Dropdown in the top menu bar)");
@@ -332,7 +320,7 @@ namespace Translator.Desktop.UI
 
         private void ThreadExceptionHandler(object? sender, ThreadExceptionEventArgs? e)
         {
-            if (e == null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
+            if (e is null) { LogManager.Log("No eventargs on unhandled exception", LogManager.Level.Error); return; }
             LogManager.Log(e.Exception.ToString(), LogManager.Level.Error);
             if (e.Exception is LanguageHelper.LanguageException)
             {
@@ -528,7 +516,11 @@ namespace Translator.Desktop.UI
                 Text = "&Open",
                 ToolTipText = "Opens a dialog to select a file"
             };
-            openToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.OpenNewFiles();
+            openToolStripMenuItem.Click += (object? sender, EventArgs e) =>
+            {
+                TabManager.OpenNewFiles();
+                DiscordPresenceManager.Update();
+            };
 
             // newFileToolStripMenuItem
             newFileToolStripMenuItem = new WinMenuItem()
@@ -783,7 +775,7 @@ namespace Translator.Desktop.UI
                 Size = new Size(61, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
-                Text = "Se&ttings",
+                Text = "Settin&gs",
                 ToolTipText = "Opens a list of all settings for the translator, see the github for reference."
             };
             settingsToolStripMenuItem.Click += (object? sender, EventArgs e) => WindowsKeypressManager.ShowSettings();
@@ -793,7 +785,7 @@ namespace Translator.Desktop.UI
             {
                 BackColor = menu,
                 Name = nameof(editToolStripMenuItem),
-                Size = new Size(37, 23),
+                Size = new Size(35, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
                 Text = "&Edit",
@@ -808,17 +800,8 @@ namespace Translator.Desktop.UI
                 new WinMenuSeperator(),
                 replaceToolStripMenuItem,
                 new WinMenuSeperator(),
-                generateTemplateForFile,
-                generateTemplateForCompleteStory,
-                createTemplateForFile,
-                createTemplateForCompleteStory,
-                exportTemplates,
-                new WinMenuSeperator(),
                 ReloadFileMenuItem,
                 new WinMenuSeperator(),
-                ExportAllMissingLinesFolder,
-                ExportAllMissingLinesFile,
-                ExportMissingLinesCurrentFile,
                 overrideCloudSaveToolStripMenuItem
             });
 
@@ -827,7 +810,7 @@ namespace Translator.Desktop.UI
             {
                 BackColor = menu,
                 Name = nameof(fileToolStripMenuItem),
-                Size = new Size(37, 23),
+                Size = new Size(35, 23),
                 AutoSize = false,
                 Margin = new Padding(1),
                 Text = "&File",
@@ -851,6 +834,29 @@ namespace Translator.Desktop.UI
                 exitToolStripMenuItem
             });
 
+            // templateToolStripMenuItem
+            templateToolStripMenuItem = new WinMenuItem()
+            {
+                BackColor = menu,
+                Name = nameof(templateToolStripMenuItem),
+                Size = new Size(60, 23),
+                AutoSize = false,
+                Margin = new Padding(1),
+                Text = "&Template",
+                ToolTipText = "All relevant controls for generating or exporting templates"
+            };
+            templateToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+                generateTemplateForFile,
+                generateTemplateForCompleteStory,
+                createTemplateForFile,
+                createTemplateForCompleteStory,
+                exportTemplates,
+                new WinMenuSeperator(),
+                ExportAllMissingLinesFolder,
+                ExportAllMissingLinesFile,
+                ExportMissingLinesCurrentFile,
+            });
+
             // MainMenu
             MainMenu = new MenuStrip()
             {
@@ -869,6 +875,7 @@ namespace Translator.Desktop.UI
             MainMenu.Items.AddRange(new ToolStripItem[] {
                 fileToolStripMenuItem,
                 editToolStripMenuItem,
+                templateToolStripMenuItem,
                 saveCurrentStringToolStripMenuItem,
                 searchToolStripTextBox,
                 ToolStripMenuReplaceBox,
@@ -914,7 +921,7 @@ namespace Translator.Desktop.UI
 
         protected override void OnDragDrop(DragEventArgs drgevent)
         {
-            if (drgevent.Data == null) return;
+            if (drgevent.Data is null) return;
             if (drgevent.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[]?)drgevent.Data.GetData(DataFormats.FileDrop) ?? Array.Empty<string>();
@@ -937,20 +944,19 @@ namespace Translator.Desktop.UI
 
         protected override void OnDragEnter(DragEventArgs e)
         {
-            if (e.Data == null) return;
-            if (e.Data.GetDataPresent(DataFormats.FileDrop)
+            if (e.Data is null) return;
+            e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop)
                 || e.Data.GetDataPresent(DataFormats.UnicodeText)
                 || e.Data.GetDataPresent(DataFormats.OemText)
-                || e.Data.GetDataPresent(DataFormats.Text))
-                e.Effect = DragDropEffects.All;
-            else
-                e.Effect = DragDropEffects.None;
+                || e.Data.GetDataPresent(DataFormats.Text)
+                ? DragDropEffects.All
+                : DragDropEffects.None;
         }
 
         private void MainTabControl_SelectedIndexChanged(object? sender, EventArgs? e)
         {
             TabManager.OnSwitchTabs();
-            WindowsKeypressManager.SelectedTabChanged(PresenceManager);
+            WindowsKeypressManager.SelectedTabChanged();
         }
 
         private void OnFormClosing(object? sender, FormClosingEventArgs? e)
@@ -959,7 +965,7 @@ namespace Translator.Desktop.UI
             LogManager.SaveLogFile();
 
             //prevent discord from getting angry
-            PresenceManager?.DeInitialize();
+            DiscordPresenceManager.DeInitialize();
 
             RecentsManager.SaveRecents();
 
@@ -979,7 +985,7 @@ namespace Translator.Desktop.UI
         {
             //check for update and replace if we want one
             ProgressbarWindow.Status.Text = "Checking for an update";
-            _ = Task.Run(() => SoftwareVersionManager.ReplaceFileIfNew());
+            _ = Task.Run(SoftwareVersionManager.ReplaceFileIfNew);
             ProgressbarWindow.PerformStep();
 
             ProgressbarWindow.Status.Text = "Finishing startup";
@@ -990,9 +996,7 @@ namespace Translator.Desktop.UI
 
             LogManager.Log("Application initializing...");
             ProgressbarWindow.Status.Text = "Starting discord worker";
-            PresenceManager = new DiscordPresenceManager();
 
-            WinTranslationManager.DiscordPresence = PresenceManager;
             ProgressbarWindow.PerformStep();
 
             ProgressbarWindow.Status.Text = "Loading recents";
@@ -1001,11 +1005,13 @@ namespace Translator.Desktop.UI
             RecentsManager.OpenMostRecent();
 
             //start timer to update presence
-            PresenceTimer.Elapsed += (sender_, args) => { PresenceManager.Update(); };
+            PresenceTimer.Elapsed += (sender_, args) =>
+            {
+                Invoke(DiscordPresenceManager.Update);
+            };
             PresenceTimer.Start();
 
-            PresenceManager.Update(TabManager.ActiveTranslationManager.StoryName ?? "None", TabManager.ActiveTranslationManager.FileName ?? "None");
-
+            DiscordPresenceManager.Update();
             //done
             ProgressbarWindow.PerformStep();
             LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{(DataBase.IsOnline ? DataBase.DBVersion : "*offline*")} story version:{Settings.Default.FileVersion}");
@@ -1015,7 +1021,6 @@ namespace Translator.Desktop.UI
                 overrideCloudSaveToolStripMenuItem.Enabled = false;
 
             ProgressbarWindow.Hide();
-
         }
 
         private void SearchAllToolStripMenuItem_click(object? sender, EventArgs? e)
@@ -1035,19 +1040,19 @@ namespace Translator.Desktop.UI
 
         private void SearchToolStripTextBox_TextChanged(object? sender, EventArgs? e)
         {
-            if (sender == null) return;
+            if (sender is null) return;
             TabManager.Search();
         }
 
         private static void CreateNewFile()
         {
             var dialog = new NewFileSelector();
-            var path = SaveAndExportManager.CreateNewFile(dialog);
+            string path = SaveAndExportManager.CreateNewFile(dialog);
             if (path == string.Empty) return;
 
             if (dialog.FileName == string.Empty)
             {
-                foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+                foreach (string file in dialog.files[Utils.ExtractStoryName(path!)])
                 {
                     File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
                 }
@@ -1056,18 +1061,19 @@ namespace Translator.Desktop.UI
             else
             {
                 TabManager.OpenFile(path);
+                DiscordPresenceManager.Update();
             }
         }
 
         private static void CreateNewFileInNewTab()
         {
             var dialog = new NewFileSelector();
-            var path = SaveAndExportManager.CreateNewFile(dialog);
+            string path = SaveAndExportManager.CreateNewFile(dialog);
             if (path == string.Empty) return;
 
             if (dialog.FileName == string.Empty)
             {
-                foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+                foreach (string file in dialog.files[Utils.ExtractStoryName(path!)])
                 {
                     File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
                 }
@@ -1082,11 +1088,11 @@ namespace Translator.Desktop.UI
         private static void CreateNewFilesForStory()
         {
             var dialog = new NewFileSelector();
-            var result = dialog.ShowDialog();
+            PopupResult result = dialog.ShowDialog();
             if (result != PopupResult.OK) return;
 
-            var path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
-            if (path == string.Empty || path == null) return;
+            string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
+            if (path == string.Empty || path is null) return;
 
             if (dialog.StoryName == path.Split('\\')[^2])
                 path = Path.GetDirectoryName(path);
@@ -1095,7 +1101,7 @@ namespace Translator.Desktop.UI
 
             if (path == string.Empty) return;
 
-            foreach (var file in dialog.files[Utils.ExtractStoryName(path!)])
+            foreach (string file in dialog.files[Utils.ExtractStoryName(path!)])
             {
                 File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
             }
@@ -1104,7 +1110,7 @@ namespace Translator.Desktop.UI
 
         public void UpdateFileMenuItems()
         {
-            var items = RecentsManager.GetRecents();
+            IMenuItem[] items = RecentsManager.GetRecents();
             int recentsStart;
 
             //find start of recents
@@ -1134,8 +1140,7 @@ namespace Translator.Desktop.UI
                 recentsStart -= 2;
             }
 
-            if (items.Length == 0) FileToolStripMenuItem.DropDownItems[recentsStart + 1].Text = "No Recents";
-            else FileToolStripMenuItem.DropDownItems[recentsStart + 1].Text = "Recents:";
+            FileToolStripMenuItem.DropDownItems[recentsStart + 1].Text = items.Length == 0 ? "No Recents" : "Recents:";
         }
     }
 }

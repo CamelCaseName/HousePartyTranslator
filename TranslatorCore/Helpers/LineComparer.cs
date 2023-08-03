@@ -20,7 +20,7 @@ namespace Translator.Core.Helpers
         /// </returns>
         public int Compare(LineData? line1, LineData? line2)
         {
-            if (line1 == null || line2 == null)
+            if (line1 is null || line2 is null)
             {
                 return CompareNullables(line1, line2);
             }
@@ -63,7 +63,7 @@ namespace Translator.Core.Helpers
         /// </returns>
         public int Compare(LineData? line1, LineData? line2)
         {
-            if (line1 == null || line2 == null)
+            if (line1 is null || line2 is null)
             {
                 return CompareNullables(line1, line2);
             }

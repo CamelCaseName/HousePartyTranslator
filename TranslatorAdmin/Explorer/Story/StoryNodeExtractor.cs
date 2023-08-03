@@ -40,7 +40,7 @@ namespace Translator.Desktop.Explorer.Story
                 bgcNode.AddEvents(backgroundChatter.StartEvents ?? new());
 
                 //responses
-                foreach (var response in backgroundChatter.Responses ?? new())
+                foreach (BackgroundChatterResponse response in backgroundChatter.Responses ?? new())
                 {
                     var nodeResponse = new Node($"{response.CharacterName}{response.ChatterId}", NodeType.BGCResponse, "see id", bgcNode) { Data = response, DataType = typeof(Response) };
 
@@ -123,7 +123,7 @@ namespace Translator.Desktop.Explorer.Story
             var nodes = new NodeList();
 
             //add all responses as childs to this dialogue
-            foreach (var response in story.GlobalGoodbyeResponses ?? new List<Response>())
+            foreach (Response response in story.GlobalGoodbyeResponses ?? new List<Response>())
             {
                 var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(Response) };
 
@@ -142,7 +142,7 @@ namespace Translator.Desktop.Explorer.Story
         {
             var nodes = new NodeList();
 
-            foreach (var response in story.GlobalResponses ?? new List<Response>())
+            foreach (Response response in story.GlobalResponses ?? new List<Response>())
             {
                 var nodeResponse = new Node(response.Id ?? string.Empty, NodeType.Response, response.Text ?? string.Empty) { Data = response, DataType = typeof(Response) };
 
@@ -164,7 +164,7 @@ namespace Translator.Desktop.Explorer.Story
             //go through all item groups to find events
             foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors ?? new List<ItemGroupBehavior>())
             {
-                if (itemGroupBehaviour == null) continue;
+                if (itemGroupBehaviour is null) continue;
                 //create item group node to add events/criteria to
                 var nodeGroup = new Node(itemGroupBehaviour.Id ?? string.Empty, NodeType.ItemGroupBehaviour, itemGroupBehaviour.Name ?? string.Empty) { Data = itemGroupBehaviour, DataType = typeof(ItemGroupBehavior) };
                 //get actions for item
@@ -198,7 +198,7 @@ namespace Translator.Desktop.Explorer.Story
             //go through all item groups to find events
             foreach (ItemGroup itemGroup in story.ItemGroups ?? new List<ItemGroup>())
             {
-                if (itemGroup == null) continue;
+                if (itemGroup is null) continue;
                 //create item group node to add events/criteria to
                 var nodeGroup = new Node(itemGroup.Id ?? string.Empty, NodeType.ItemGroup, itemGroup.Name ?? string.Empty) { Data = itemGroup, DataType = typeof(ItemGroup) };
                 //get actions for item
@@ -345,7 +345,7 @@ namespace Translator.Desktop.Explorer.Story
                 //add items to list
                 var nodeCriteriaGroup = new Node(group.Id!, NodeType.CriteriaGroup, group.Name + " True if " + group.PassCondition) { Data = group, DataType = typeof(CriteriaGroup) };
 
-                foreach (var criteriaList in group.CriteriaList ?? new List<CriteriaList1>())
+                foreach (CriteriaList1 criteriaList in group.CriteriaList ?? new List<CriteriaList1>())
                 {
                     nodeCriteriaGroup.AddCriteria(criteriaList.CriteriaList ?? new());
                 }

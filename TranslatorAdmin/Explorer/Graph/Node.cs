@@ -127,7 +127,7 @@ namespace Translator.Desktop.Explorer.Graph
 
         public void AddCriteria(List<Criterion> criteria)
         {
-            foreach (var criterion in criteria)
+            foreach (Criterion criterion in criteria)
             {
                 Node tempNode = CreateCriteriaNode(criterion, this);
                 tempNode.Data = criterion;
@@ -142,7 +142,7 @@ namespace Translator.Desktop.Explorer.Graph
 
         public void AddEvents(List<GameEvent> events)
         {
-            foreach (var _event in events)
+            foreach (GameEvent _event in events)
             {
                 var nodeEvent = new Node(_event.Id ?? "none", NodeType.Event, _event.Value ?? "none", this) { FileName = FileName, Data = _event, DataType = typeof(GameEvent) };
 

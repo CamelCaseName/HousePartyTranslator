@@ -1,15 +1,16 @@
-﻿using Translator.Core.Helpers;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using System.Threading;
+using System.Windows.Forms;
+using Translator.Core.Helpers;
 using Translator.Desktop;
 using Translator.Desktop.Explorer;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.Story;
-using Translator.Desktop.InterfaceImpls;
-using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 using Translator.Desktop.UI.Components;
-using System.Windows.Forms;
-using System.Threading;
-using System;
-using System.Drawing;
+using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 
 namespace Translator.Explorer.Window
 {
@@ -26,6 +27,17 @@ namespace Translator.Explorer.Window
         public const string Version = "1.2.3.1";
         public const string Title = "StoryExplorer v" + Version;
         private readonly CancellationToken token;
+        private readonly NodeType[] defaulTypes = {
+            NodeType.ItemAction,
+            NodeType.Achievement,
+            NodeType.BGC,
+            NodeType.Dialogue,
+            NodeType.AlternateText,
+            NodeType.Event,
+            NodeType.Item,
+            NodeType.Quest,
+            NodeType.Response,
+            NodeType.ItemGroupBehaviour };
         public NodeLayout? Layouter { get; private set; }
         internal GraphingEngine Grapher { get { return engine; } }
         internal NodeProvider Provider { get; }
@@ -70,22 +82,27 @@ namespace Translator.Explorer.Window
 
         private void InitializeTypeFilterButtons()
         {
-            //todo finish initializer where it adds a button for each node type to the layout panel
-            var values = Enum.GetValues<NodeType>();
+            NodeType[] values = Enum.GetValues<NodeType>();
             for (int i = 0; i < values.Length; i++)
             {
-                var type = values[i];
+                NodeType type = values[i];
                 var typeButton = new ToggleButton()
                 {
-                    Text = Enum.GetName(type),
+                    Anchor = AnchorStyles.Top,
                     AutoSize = true,
-                    ForeColor = Utils.darkText,
-                    BackColor = Color.FromKnownColor(KnownColor.ButtonFace)
+                    BackColor = SystemColors.ButtonFace,
+                    ForeColor = SystemColors.MenuText,
+                    Enabled = false,
+                    Margin = Padding.Empty,
+                    Name = type.ToString() + "Button",
+                    Text = type.ToString(),
+                    UseVisualStyleBackColor = true,
                 };
                 typeButton.Click += (object? sender, EventArgs e) =>
                 {
                     if (typeButton.IsChecked) Provider.AddFilter(type);
                     else Provider.RemoveFilter(type);
+                    Provider.ApplyFilters();
                 };
                 NodeTypeButtonsLayout.Controls.Add(typeButton);
             }
@@ -117,8 +134,9 @@ namespace Translator.Explorer.Window
 
             Provider.FreezeNodesAsInitial();
             Layouter = new(Provider, this, token);
+            SetTypesAvailable(Provider.Nodes.Types.Keys);
             Layouter.Start();
-            Grapher.StartTime = DateTime.Now;
+            Grapher.StartTime = DateTime.UtcNow;
             Grapher.Center();
             Invalidate();
         }
@@ -208,7 +226,14 @@ namespace Translator.Explorer.Window
 
         private void TextNodesOnly_CheckedChanged(object sender, EventArgs e)
         {
-
+            if (TextNodesOnly.Checked)
+            {
+                Provider.ApplyDefaultFilter();
+            }
+            else
+            {
+                Provider.ResetFilters();
+            }
         }
 
         private void ShowExtendedInfo_CheckedChanged(object sender, EventArgs e)
@@ -229,6 +254,36 @@ namespace Translator.Explorer.Window
         private void CenterButton_Click(object sender, EventArgs e)
         {
             Grapher.Center();
+        }
+
+        internal void SetNextButtonStates(bool parentAvailable, bool ChildAvailable)
+        {
+            MoveUpButton.Enabled = parentAvailable;
+            MoveDownButton.Enabled = ChildAvailable;
+        }
+
+        internal void SetTypesAvailable(IEnumerable<NodeType> availableTypes)
+        {
+            for (int i = 0; i < NodeTypeButtonsLayout.Controls.Count; i++)
+            {
+                NodeTypeButtonsLayout.Controls[i].Enabled = false;
+            }
+            //cache so we can filter while acessing old types
+            var enumerator = new List<NodeType>(availableTypes).GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                Control? button = (ToggleButton?)NodeTypeButtonsLayout.Controls[enumerator.Current.ToString() + "Button"];
+                if (button is ToggleButton toggleButton)
+                {
+                    toggleButton.Enabled = true;
+                    if (defaulTypes.Contains(enumerator.Current))
+                        toggleButton.SimulateClick();
+                }
+                else
+                {
+                    LogManager.Log("Type " + enumerator.Current.ToString() + "not found in UI, may be new?", LogManager.Level.Warning);
+                }
+            }
         }
     }
 }

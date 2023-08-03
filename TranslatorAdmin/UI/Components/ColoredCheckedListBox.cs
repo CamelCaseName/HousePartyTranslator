@@ -65,7 +65,7 @@ namespace Translator.Desktop.UI.Components
         protected override void WndProc(ref Message m)
         {
             // Filter WM_LBUTTONDBLCLK and MW_LBUTTONDOWN
-            if (m.Msg != Winutils.WM_LBUTTONDBLCLK && m.Msg != Winutils.WM_LBUTTONDOWN)
+            if (m.Msg is not Winutils.WM_LBUTTONDBLCLK and not Winutils.WM_LBUTTONDOWN)
             {
                 base.WndProc(ref m);
             }

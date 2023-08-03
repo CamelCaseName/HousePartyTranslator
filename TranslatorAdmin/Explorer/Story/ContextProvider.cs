@@ -1,7 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Drawing;
 using System.IO;
 using System.Runtime.Versioning;
@@ -10,7 +9,6 @@ using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Explorer.JSONItems;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static Translator.Desktop.Explorer.JSONItems.StoryEnums;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 
@@ -51,14 +49,9 @@ internal sealed class ContextProvider
             {
                 string storyPathMinusStory = Directory.GetParent(Settings.StoryPath)?.FullName ?? string.Empty;
 
-                if (IsStory)
-                {
-                    FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.story");
-                }
-                else
-                {
-                    FilePath = Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
-                }
+                FilePath = IsStory
+                    ? Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.story")
+                    : Path.Combine(storyPathMinusStory, StoryName, $"{FileName}.character");
             }
             else
             {
@@ -86,22 +79,16 @@ internal sealed class ContextProvider
             }
             else
             {
-                OpenFileDialog selectFileDialog;
-
-                if (IsStory)//story file
-                {
-                    selectFileDialog = new OpenFileDialog
+                OpenFileDialog selectFileDialog = IsStory
+                    ? new OpenFileDialog
                     {
                         Title = $"Choose the story file ({StoryName}) for the templates",
                         Filter = AutoFileSelection ? "Story Files (*.story)|*.story" : string.Empty,
                         InitialDirectory = Settings.StoryPath.Length > 0 ? Settings.StoryPath : @"C:\Users\%USER%\Documents",
                         RestoreDirectory = false,
                         FileName = FileName + ".story"
-                    };
-                }
-                else//bgc file
-                {
-                    selectFileDialog = new OpenFileDialog
+                    }
+                    : new OpenFileDialog
                     {
                         Title = $"Choose the character file ({FileName}) for the templates",
                         Filter = AutoFileSelection ? "Character Files (*.character)|*.character" : string.Empty,
@@ -109,8 +96,6 @@ internal sealed class ContextProvider
                         RestoreDirectory = false,
                         FileName = FileName + ".character"
                     };
-                }
-
                 if (selectFileDialog.ShowDialog() == DialogResult.OK)
                 {
                     Settings.StoryPath = Path.GetDirectoryName(selectFileDialog.FileName) ?? string.Empty;
@@ -206,7 +191,7 @@ internal sealed class ContextProvider
             ReadInOldPositions(NodeFilePath);
         }
 
-        if (Directory.GetFiles(StoryFolderPath).Length > 0 && StoryFolderPath.Split("\\")[^1] == StoryName || !AutoFileSelection)
+        if ((Directory.GetFiles(StoryFolderPath).Length > 0 && StoryFolderPath.Split("\\")[^1] == StoryName) || !AutoFileSelection)
         {
             //else create new
             foreach (string item in Directory.GetFiles(StoryFolderPath))
@@ -242,8 +227,8 @@ internal sealed class ContextProvider
     private void ReadInOldPositions(string nodeFilePath)
     {
         oldPositions.Clear();
-        var list = JsonConvert.DeserializeObject<List<PointF>>(File.ReadAllText(nodeFilePath));
-        if (list == null) return;
+        List<PointF>? list = JsonConvert.DeserializeObject<List<PointF>>(File.ReadAllText(nodeFilePath));
+        if (list is null) return;
         for (int i = 0; i < list.Count; i++)
         {
             //ugly but that way they cant end up on the same position, layout sovles this offset anyways
@@ -307,15 +292,15 @@ internal sealed class ContextProvider
             {
                 //modulo of running total with sidelength gives x coords, repeating after sidelength
                 //offset by halfe sidelength to center x
-                int x = runningTotal % sideLength - sideLength / 2;
+                int x = (runningTotal % sideLength) - (sideLength / 2);
                 //running total divided by sidelength gives y coords,
                 //increments after runningtotal increments sidelength times
                 //offset by halfe sidelength to center y
-                int y = runningTotal / sideLength - sideLength / 2;
+                int y = (runningTotal / sideLength) - (sideLength / 2);
                 //set position
                 nodes[i].Position = new Point(
-                    x * step + Random.Next(-(step / 2) + 1, step / 2 - 1),
-                    y * step + Random.Next(-(step / 2) + 1, step / 2 - 1)
+                    (x * step) + Random.Next(-(step / 2) + 1, (step / 2) - 1),
+                    (y * step) + Random.Next(-(step / 2) + 1, (step / 2) - 1)
                     );
                 //increase running total
                 runningTotal++;
@@ -380,7 +365,7 @@ internal sealed class ContextProvider
     private NodeList DissectCharacter(CharacterStory story)
     {
         NodeList _nodes = new();
-        if (story != null && !GotCancelled)
+        if (story is not null && !GotCancelled)
         {
             CriteriaInFile = new NodeList();
             //get all relevant items from the json
@@ -410,7 +395,7 @@ internal sealed class ContextProvider
 
     private void InterlinkNodes(NodeList nodes)
     {
-        DateTime start = DateTime.Now;
+        DateTime start = DateTime.UtcNow;
         LogManager.Log("\tstarting to link up nodes");
         //lists to save new stuff in
         NodeList Socials = new();
@@ -433,7 +418,7 @@ internal sealed class ContextProvider
             for (int i = 0; i < count; i++)
             {
                 //link all useful criteria and add influencing values as parents
-                if (nodes[i].Type == NodeType.Criterion && nodes[i].Data != null)
+                if (nodes[i].Type == NodeType.Criterion && nodes[i].Data is not null)
                 {
                     //node is dialogue so data should contain the criteria itself!
                     criterion = (Criterion)nodes[i].Data!;
@@ -442,7 +427,7 @@ internal sealed class ContextProvider
                         case CompareTypes.Clothing:
                         {
                             result = Clothing.Find((Node n) => n.Type == NodeType.Clothing && n.FileName == criterion.Character && n.ID == criterion.Option + criterion.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -459,7 +444,7 @@ internal sealed class ContextProvider
                         case CompareTypes.CompareValues:
                         {
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                             }
@@ -468,7 +453,7 @@ internal sealed class ContextProvider
                                 CompareValuesToCheckAgain.Add(nodes[i]);
                             }
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key2);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                             }
@@ -481,7 +466,7 @@ internal sealed class ContextProvider
                         case CompareTypes.CriteriaGroup:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.CriteriaGroup && n.ID == criterion.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -491,7 +476,7 @@ internal sealed class ContextProvider
                         case CompareTypes.CutScene:
                         {
                             result = Values.Find((Node n) => n.Type == NodeType.Cutscene && n.ID == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                             }
@@ -507,7 +492,7 @@ internal sealed class ContextProvider
                         case CompareTypes.Dialogue:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Dialogue && n.FileName == criterion.Character && n.ID == criterion.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 //dialogue influences this criteria
                                 nodes[i].AddParentNode(result);
@@ -525,7 +510,7 @@ internal sealed class ContextProvider
                         case CompareTypes.Door:
                         {
                             result = Doors.Find((Node n) => n.Type == NodeType.Door && n.ID == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -542,7 +527,7 @@ internal sealed class ContextProvider
                         case CompareTypes.Item:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -559,7 +544,7 @@ internal sealed class ContextProvider
                         case CompareTypes.IsCurrentlyBeingUsed:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -576,7 +561,7 @@ internal sealed class ContextProvider
                         case CompareTypes.IsCurrentlyUsing:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -593,7 +578,7 @@ internal sealed class ContextProvider
                         case CompareTypes.ItemFromItemGroup:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.ItemGroup && n.Text == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -610,7 +595,7 @@ internal sealed class ContextProvider
                         case CompareTypes.Personality:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Personality && n.FileName == criterion.Character && n.ID == ((PersonalityTraits)int.Parse(criterion.Key!)).ToString());
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -628,7 +613,7 @@ internal sealed class ContextProvider
                         {
                             //find/add inventory item
                             result = InventoryItems.Find((Node n) => n.Type == NodeType.Inventory && n.ID == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -642,7 +627,7 @@ internal sealed class ContextProvider
                             }
                             //find normal item if it exists
                             result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                             }
@@ -653,7 +638,7 @@ internal sealed class ContextProvider
                             if (criterion.PoseOption != PoseOptions.CurrentPose) break;
 
                             result = Poses.Find((Node n) => n.Type == NodeType.Pose && n.ID == criterion.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -670,7 +655,7 @@ internal sealed class ContextProvider
                         case CompareTypes.Property:
                         {
                             result = Properties.Find((Node n) => n.Type == NodeType.Property && n.ID == criterion.Character + "Property" + criterion.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -687,7 +672,7 @@ internal sealed class ContextProvider
                         case CompareTypes.Quest:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Quest && n.ID == criterion.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -697,7 +682,7 @@ internal sealed class ContextProvider
                         case CompareTypes.Social:
                         {
                             result = Socials.Find((Node n) => n.Type == NodeType.Social && n.ID == criterion.Character + criterion.SocialStatus + criterion.Character2);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -714,7 +699,7 @@ internal sealed class ContextProvider
                         case CompareTypes.State:
                         {
                             result = States.Find((Node n) => n.Type == NodeType.State && n.FileName == criterion.Character && n.Text.AsSpan()[..2].Contains(criterion.Value!.AsSpan(), StringComparison.InvariantCulture));
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -731,7 +716,7 @@ internal sealed class ContextProvider
                         case CompareTypes.Value:
                         {
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key && FileName == criterion.Character);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 if (!result.Text.Contains(GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value))
                                     result.Text += GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value + ", ";
@@ -751,7 +736,7 @@ internal sealed class ContextProvider
                             break;
                     }
                 }
-                else if (nodes[i].Type == NodeType.Event && nodes[i].Data != null)
+                else if (nodes[i].Type == NodeType.Event && nodes[i].Data is not null)
                 {
                     gameEvent = (GameEvent)nodes[i].Data!;
                     switch (gameEvent.EventType)
@@ -759,7 +744,7 @@ internal sealed class ContextProvider
                         case GameEvents.Clothing:
                         {
                             result = Clothing.Find((Node n) => n.Type == NodeType.Clothing && n.FileName == gameEvent.Character && n.ID == gameEvent.Option + gameEvent.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -776,7 +761,7 @@ internal sealed class ContextProvider
                         case GameEvents.CombineValue:
                         {
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -788,7 +773,7 @@ internal sealed class ContextProvider
                                 nodes[i].AddChildNode(value);
                             }
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Value && FileName == gameEvent.Character2);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                             }
@@ -805,7 +790,7 @@ internal sealed class ContextProvider
                         case GameEvents.CutScene:
                         {
                             result = Values.Find((Node n) => n.Type == NodeType.Cutscene && n.ID == gameEvent.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -822,7 +807,7 @@ internal sealed class ContextProvider
                         case GameEvents.Dialogue:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Dialogue && n.FileName == gameEvent.Character && n.ID == gameEvent.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 //dialogue influences this criteria
                                 nodes[i].AddChildNode(result);
@@ -840,7 +825,7 @@ internal sealed class ContextProvider
                         case GameEvents.Door:
                         {
                             result = Doors.Find((Node n) => n.Type == NodeType.Door && n.ID == gameEvent.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -857,7 +842,7 @@ internal sealed class ContextProvider
                         case GameEvents.EventTriggers:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Event && n.Text == gameEvent.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 //stop 0 step cyclic self reference as it is not allowed
                                 if (nodes[i] != result)
@@ -876,7 +861,7 @@ internal sealed class ContextProvider
                         case GameEvents.Item:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == gameEvent.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -893,7 +878,7 @@ internal sealed class ContextProvider
                         case GameEvents.ItemFromItemGroup:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == gameEvent.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -910,7 +895,7 @@ internal sealed class ContextProvider
                         case GameEvents.Personality:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Personality && n.FileName == gameEvent.Character && n.ID == ((PersonalityTraits)gameEvent.Option).ToString());
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -927,7 +912,7 @@ internal sealed class ContextProvider
                         case GameEvents.Property:
                         {
                             result = Properties.Find((Node n) => n.Type == NodeType.Property && n.ID == gameEvent.Character + "Property" + gameEvent.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -944,7 +929,7 @@ internal sealed class ContextProvider
                         case GameEvents.MatchValue:
                         {
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -956,7 +941,7 @@ internal sealed class ContextProvider
                                 nodes[i].AddChildNode(value);
                             }
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Value && FileName == gameEvent.Character2);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                             }
@@ -973,7 +958,7 @@ internal sealed class ContextProvider
                         case GameEvents.ModifyValue:
                         {
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -990,7 +975,7 @@ internal sealed class ContextProvider
                         case GameEvents.Player:
                         {                                //find/add inventory item
                             result = InventoryItems.Find((Node n) => n.Type == NodeType.Inventory && n.ID == gameEvent.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddParentNode(result);
                                 break;
@@ -1003,7 +988,7 @@ internal sealed class ContextProvider
                                 nodes[i].AddParentNode(item);
                             }
                             result = nodes.Find((Node n) => n.Type == NodeType.Item && n.ID == gameEvent.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -1013,7 +998,7 @@ internal sealed class ContextProvider
                         case GameEvents.Pose:
                         {
                             result = Poses.Find((Node n) => n.Type == NodeType.Pose && n.ID == gameEvent.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -1030,7 +1015,7 @@ internal sealed class ContextProvider
                         case GameEvents.Quest:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.Quest && n.ID == gameEvent.Key);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -1047,7 +1032,7 @@ internal sealed class ContextProvider
                         case GameEvents.RandomizeIntValue:
                         {
                             result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -1069,7 +1054,7 @@ internal sealed class ContextProvider
                         case GameEvents.Social:
                         {
                             result = Socials.Find((Node n) => n.Type == NodeType.Social && n.ID == gameEvent.Character + ((SocialStatuses)gameEvent.Option).ToString() + gameEvent.Character2);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -1086,7 +1071,7 @@ internal sealed class ContextProvider
                         case GameEvents.State:
                         {
                             result = States.Find((Node n) => n.Type == NodeType.State && n.FileName == gameEvent.Character && n.Text.AsSpan()[..2].Contains(gameEvent.Value!.AsSpan(), StringComparison.InvariantCulture));
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -1103,7 +1088,7 @@ internal sealed class ContextProvider
                         case GameEvents.TriggerBGC:
                         {
                             result = nodes.Find((Node n) => n.Type == NodeType.BGC && n.ID == "BGC" + gameEvent.Value);
-                            if (result != null)
+                            if (result is not null)
                             {
                                 nodes[i].AddChildNode(result);
                             }
@@ -1121,14 +1106,14 @@ internal sealed class ContextProvider
                             break;
                     }
                 }
-                else if (nodes[i].Type == NodeType.EventTrigger && nodes[i].Data != null)
+                else if (nodes[i].Type == NodeType.EventTrigger && nodes[i].Data is not null)
                 {
                     trigger = (EventTrigger)nodes[i].Data!;
                     //link against events
-                    foreach (var _event in trigger.Events!)
+                    foreach (GameEvent _event in trigger.Events!)
                     {
                         result = nodes.Find((Node n) => n.Type == NodeType.Event && n.ID == _event.Id);
-                        if (result != null)
+                        if (result is not null)
                         {
                             nodes[i].AddChildNode(result);
                         }
@@ -1141,10 +1126,10 @@ internal sealed class ContextProvider
                         }
                     }
                     //link against criteria
-                    foreach (var _criterion in trigger.Critera!)
+                    foreach (Criterion _criterion in trigger.Critera!)
                     {
                         result = nodes.Find((Node n) => n.Type == NodeType.Criterion && n.ID == $"{_criterion.Character}{_criterion.CompareType}{_criterion.Value}");
-                        if (result != null)
+                        if (result is not null)
                         {
                             nodes[i].AddParentNode(result);
                         }
@@ -1153,18 +1138,17 @@ internal sealed class ContextProvider
                             nodes.Add(Node.CreateCriteriaNode(_criterion, nodes[i]));
                         }
                     }
-                    if (trigger.Critera.Count == 0)
-                        nodes[i].Text = trigger.Name + " " + trigger.Type;
-                    else
-                        nodes[i].Text = trigger.CharacterToReactTo + " " + trigger.Type + " " + trigger.UpdateIteration + " " + trigger.Name;
+                    nodes[i].Text = trigger.Critera.Count == 0
+                        ? trigger.Name + " " + trigger.Type
+                        : trigger.CharacterToReactTo + " " + trigger.Type + " " + trigger.UpdateIteration + " " + trigger.Name;
                 }
-                else if (nodes[i].Type == NodeType.Response && nodes[i].Data != null)
+                else if (nodes[i].Type == NodeType.Response && nodes[i].Data is not null)
                 {
                     Response response = (Response)nodes[i].Data!;
                     if (response.Next == 0) continue;
                     result = nodes.Find((Node n) => n.Type == NodeType.Dialogue && n.ID == response.Next.ToString());
 
-                    if (result != null)
+                    if (result is not null)
                     {
                         nodes[i].AddChildNode(result);
                     }
@@ -1206,24 +1190,24 @@ internal sealed class ContextProvider
             nodes[i].CalculateMass();
         }
 
-        LogManager.Log($"\tnode interlinking done in {(DateTime.Now - start).TotalSeconds:F2}s");
+        LogManager.Log($"\tnode interlinking done in {(DateTime.UtcNow - start).TotalSeconds:F2}s");
     }
 
     private void RecheckCompareValues(NodeList CompareValuesToCheckAgain)
     {
         Node? result;
-        foreach (var node in CompareValuesToCheckAgain)
+        foreach (Node node in CompareValuesToCheckAgain)
         {
             if (node.DataType == typeof(Criterion))
             {
                 Criterion criterion = (Criterion)node.Data!;
                 result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key);
-                if (result != null)
+                if (result is not null)
                 {
                     node.AddParentNode(result);
                 }
                 result = Values.Find((Node n) => n.Type == NodeType.Value && n.ID == criterion.Key2);
-                if (result != null)
+                if (result is not null)
                 {
                     node.AddParentNode(result);
                 }
@@ -1234,17 +1218,17 @@ internal sealed class ContextProvider
     private void MergeDoors(NodeList nodes)
     {
         Node? result;
-        foreach (var door in Doors.ToArray())
+        foreach (Node door in Doors.ToArray())
         {
             result = nodes.Find((Node n) => n.ID == door.ID);
-            if (result != null)
+            if (result is not null)
             {
-                foreach (var parentNode in door.ParentNodes.ToArray())
+                foreach (Node parentNode in door.ParentNodes.ToArray())
                 {
                     parentNode.AddChildNode(result);
                     parentNode.RemoveChildNode(door);
                 }
-                foreach (var childNode in door.ChildNodes.ToArray())
+                foreach (Node childNode in door.ChildNodes.ToArray())
                 {
                     childNode.AddParentNode(result);
                     childNode.RemoveParentNode(door);
@@ -1270,7 +1254,7 @@ internal sealed class ContextProvider
     {
         if (AlternateStoryName == string.Empty) AlternateStoryName = StoryName;
         NodeList _nodes = new();
-        if (story != null && !GotCancelled)
+        if (story is not null && !GotCancelled)
         {
             CriteriaInFile = new NodeList();
 
@@ -1293,7 +1277,7 @@ internal sealed class ContextProvider
 
             _nodes = ExpandNodes(_nodes);
 
-            var t = _nodes.Find(n => n.ID == "4cb05ab4-4986-4d52-b3d6-d2119fc792f0");
+            Node? t = _nodes.Find(n => n.ID == "4cb05ab4-4986-4d52-b3d6-d2119fc792f0");
             Console.WriteLine(t);
 
             //clear criteria to free memory, we dont need them anyways

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using System.Text.RegularExpressions;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 
@@ -9,7 +8,7 @@ namespace Translator.Core.Helpers
     public static class Extensions
     {
         public static readonly char[] trimmers = { '\0', ' ', '\t', '\n', '\r', (char)160 };
-        
+
         /// <summary>
         /// Returns whether a story is official or not
         /// </summary>
@@ -18,30 +17,6 @@ namespace Translator.Core.Helpers
         public static bool IsOfficialStory(this string storyName)
         {
             return Array.IndexOf(Utils.OfficialStories, Utils.ExtractStoryName(storyName)) >= 0;
-        }
-
-        /// <summary>
-        /// Replaces all matches in the given string and returns it
-        /// </summary>
-        /// <param name="input">The string to work on</param>
-        /// <param name="replacement">The replacement for all matches</param>
-        /// <param name="search">the pattern to search for</param>
-        /// <returns>the replaced string</returns>
-        public static string ReplaceImpl(this string input, string replacement, string search)
-        {
-            return ReplaceRegex(input, replacement, Regex.Escape(search));
-        }
-
-        /// <summary>
-        /// Replaces all regex rule matches inte given string and returns it
-        /// </summary>
-        /// <param name="input">The string to work on</param>
-        /// <param name="replacement">The replacement for all matches</param>
-        /// <param name="regexRules">The regex to match</param>
-        /// <returns></returns>
-        public static string ReplaceRegex(this string input, string replacement, string regexRules)
-        {
-            return Regex.Replace(input, regexRules, replacement, RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Multiline, new TimeSpan(0, 0, 10));
         }
 
         /// <summary>
@@ -57,7 +32,7 @@ namespace Translator.Core.Helpers
         public static ReadOnlySpan<char> RemoveVAHints(this ReadOnlySpan<char> span)
         {
             bool inVAHint = false;
-            Span<char> output = new Span<char>(new char[span.Length]);
+            var output = new Span<char>(new char[span.Length]);
             int iterator = 0;
             foreach (char character in span)
             {
@@ -97,7 +72,7 @@ namespace Translator.Core.Helpers
 
             foreach (char c in input.AsSpan())
             {
-                if (c != ' ' && c != '\n' && c != '\r')
+                if (c is not ' ' and not '\n' and not '\r')
                 {
                     if (!inWord) lastWordStart = totalCount;
                     inWord = true;
@@ -270,7 +245,7 @@ namespace Translator.Core.Helpers
         {
             return Utils.GetStringFromCategory(category);
         }
-        
+
         public static int DigitCount(this int num)
         {
             int numToWorkOn = num;
@@ -283,12 +258,15 @@ namespace Translator.Core.Helpers
         public static ReadOnlySpan<char> RemoveAt(this ReadOnlySpan<char> span, int index, int count)
         {
             if (span.IsEmpty) return span;
-            if (index < 0) throw new ArgumentOutOfRangeException(nameof(index), "The index cannot be negative");
-            if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "The count cannot be negative");
-            if (index >= span.Length) throw new ArgumentOutOfRangeException(nameof(index), "The index has to be less than the length of the span");
-            if (index + count >= span.Length) throw new ArgumentOutOfRangeException(nameof(count), "The count added to the index has to be less than the length of the span");
-
-            return string.Concat(span[..index], span[(index + count)..]);
+            return index < 0
+                ? throw new ArgumentOutOfRangeException(nameof(index), "The index cannot be negative")
+                : count < 0
+                ? throw new ArgumentOutOfRangeException(nameof(count), "The count cannot be negative")
+                : index >= span.Length
+                ? throw new ArgumentOutOfRangeException(nameof(index), "The index has to be less than the length of the span")
+                : index + count >= span.Length
+                ? throw new ArgumentOutOfRangeException(nameof(count), "The count added to the index has to be less than the length of the span")
+                : (ReadOnlySpan<char>)string.Concat(span[..index], span[(index + count)..]);
         }
     }
 }

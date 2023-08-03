@@ -20,13 +20,13 @@ namespace Translator.Desktop.Helpers
         public int X
         {
             get { return Left; }
-            set { Right -= (Left - value); Left = value; }
+            set { Right -= Left - value; Left = value; }
         }
 
         public int Y
         {
             get { return Top; }
-            set { Bottom -= (Top - value); Top = value; }
+            set { Bottom -= Top - value; Top = value; }
         }
 
         public int Height

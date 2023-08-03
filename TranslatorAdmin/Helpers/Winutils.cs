@@ -1,5 +1,5 @@
-﻿using System.Runtime.InteropServices;
-using System;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
 namespace Translator.Desktop.Helpers

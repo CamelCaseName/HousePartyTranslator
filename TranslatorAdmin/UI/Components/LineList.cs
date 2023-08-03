@@ -37,7 +37,7 @@ namespace Translator.Desktop.UI.Components
 
         public List<string> TranslationSimilarToTemplate => SimilarStringsToEnglish;
 
-        List<int> ILineList.SearchResults => SearchResults;  
+        List<int> ILineList.SearchResults => SearchResults;
 
         List<int> ILineList.TranslationSimilarToTemplate { get; } = new();
 

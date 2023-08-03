@@ -50,7 +50,7 @@ namespace Translator.Web.Areas.Identity
         private async Task<bool> ValidateSecurityStampAsync(UserManager<TUser> userManager, ClaimsPrincipal principal)
         {
             TUser? user = await userManager.GetUserAsync(principal);
-            if (user == null)
+            if (user is null)
             {
                 return false;
             }

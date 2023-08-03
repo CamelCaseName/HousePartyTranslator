@@ -77,8 +77,8 @@ namespace Translator.Core
             if (text == lastChangedTextBox
                 && lastText != lastChangedTextBox?.Text
                 && lastIndex == selectedIndex
-                && lastChangedTextBox != null
-                && lastText != null)
+                && lastChangedTextBox is not null
+                && lastText is not null)
             {
                 History.AddAction(new TextChanged(
                     lastChangedTextBox,

@@ -28,5 +28,7 @@ namespace Translator.Desktop.UI.Components
         }
 
         public bool IsChecked => isToggled;
+
+        public void SimulateClick() => OnClick(new System.EventArgs());
     }
 }

@@ -30,7 +30,12 @@ namespace Translator.Desktop.UI.Components
         public int SelectionEnd
         {
             get => base.SelectionStart + base.SelectionLength;
-            set { if (SelectionStart <= SelectionEnd) base.SelectionLength = value - SelectionStart; else throw new ArgumentOutOfRangeException(nameof(SelectionEnd), "End has to be after SelectionStart"); }
+            set
+            {
+                base.SelectionLength = SelectionStart <= SelectionEnd
+                ? value - SelectionStart
+                : throw new ArgumentOutOfRangeException(nameof(SelectionEnd), "End has to be after SelectionStart");
+            }
         }
 
         public new int SelectionStart { get => base.SelectionStart; set => base.SelectionStart = value; }
@@ -58,7 +63,7 @@ namespace Translator.Desktop.UI.Components
         protected override void WndProc(ref Message m)
         {
             base.WndProc(ref m);
-            if ((m.Msg == Winutils.WM_PAINT || m.Msg == Winutils.WM_MOUSEMOVE) && IsHandleCreated)
+            if ((m.Msg == Winutils.WM_PAINT || (m.Msg == Winutils.WM_MOUSEMOVE && customDrawNeeded)) && IsHandleCreated)
                 //we have a paint message, send to own handler. only if we have a gdi handle
                 OnPaint(new PaintEventArgs(Graphics.FromHwnd(m.HWnd), ClientRectangle));
         }

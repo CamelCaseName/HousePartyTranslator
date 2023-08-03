@@ -28,10 +28,10 @@ namespace Translator.Desktop.UI
         private void NewFileSelector_Load(object sender, EventArgs e)
         {
             storyDropdown.Items.Clear();
-            var objects = new object[stories.Count];
-            var enumerator = stories.GetEnumerator();
+            object[] objects = new object[stories.Count];
+            HashSet<string>.Enumerator enumerator = stories.GetEnumerator();
             int i = 0;
-            while(enumerator.MoveNext())
+            while (enumerator.MoveNext())
             {
                 objects[i++] = enumerator.Current;
             }
@@ -40,7 +40,7 @@ namespace Translator.Desktop.UI
 
         private void Submit_click(object sender, EventArgs e)
         {
-            if (storyDropdown.SelectedItem == null)
+            if (storyDropdown.SelectedItem is null)
             {
                 CombinedStoryFile = string.Empty;
                 return;

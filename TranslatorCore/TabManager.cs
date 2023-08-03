@@ -38,14 +38,9 @@ namespace Translator.Core
         {
             get
             {
-                if (translationManagers.TryGetValue(TabControl.SelectedTab, out TranslationManager? translationManager))
-                {
-                    return translationManager;
-                }
-                else
-                {
-                    throw new UnreachableException("There should never be no tab/no translationmanager.");
-                }
+                return translationManagers.TryGetValue(TabControl.SelectedTab, out TranslationManager? translationManager)
+                    ? translationManager
+                    : throw new UnreachableException("There should never be no tab/no translationmanager.");
             }
         }
 
@@ -104,7 +99,7 @@ namespace Translator.Core
         /// <param name="tab">the first tab to be added to the app</param>
         public static void FinalizeInitializer()
         {
-            if (UI == null || firstTab == null) throw new InvalidOperationException("You cant finalize the initialization if it hasnt completed");
+            if (UI is null || firstTab is null) throw new InvalidOperationException("You cant finalize the initialization if it hasnt completed");
 
             if (!UI.TabControl.TabPages.Contains(firstTab))
             {
@@ -125,7 +120,7 @@ namespace Translator.Core
         /// </summary>
         public static void OpenNewTab()
         {
-            foreach (var file in Utils.SelectFilesFromSystem())
+            foreach (string file in Utils.SelectFilesFromSystem())
             {
                 OpenInNewTab(file);
             }
@@ -141,7 +136,7 @@ namespace Translator.Core
             {
                 //create new support objects
                 ITab? newTab = UI.CreateNewTab();
-                if (newTab == null) return;
+                if (newTab is null) return;
                 newTab.Text = $"Tab {translationManagers.Count + 1}";
                 //Add tab to form control
                 TabControl.AddTab(newTab);
@@ -234,7 +229,7 @@ namespace Translator.Core
             }
 
             //set search term to the one from the respective TranslationManager
-            if (ActiveTranslationManager != null && UI != null)
+            if (ActiveTranslationManager is not null && UI is not null)
             {
                 if (InGlobalSearch)
                 {
@@ -277,14 +272,7 @@ namespace Translator.Core
         /// <param name="i">The tab index to switch to</param>
         public static void SwitchToTab(int i)
         {
-            if (i >= 0 && i < TabControl.TabCount)
-            {
-                TabControl.SelectedIndex = i;
-            }
-            else
-            {
-                TabControl.SelectedIndex = 0;
-            }
+            TabControl.SelectedIndex = i >= 0 && i < TabControl.TabCount ? i : 0;
         }
 
         /// <summary>
@@ -293,7 +281,7 @@ namespace Translator.Core
         /// <returns>True if we want to search all, performs the search also. False when single tab search is intended.</returns>
         private static bool SearchAll()
         {
-            if (UI == null) return false;
+            if (UI is null) return false;
 
             if (UI.SearchBarText.Length > 0)
             {
@@ -422,7 +410,7 @@ namespace Translator.Core
 
         public static void OpenNewFiles()
         {
-            var paths = Utils.SelectFilesFromSystem();
+            string[] paths = Utils.SelectFilesFromSystem();
             if (paths.Length == 1)
             {
                 OpenFile(paths[0]);
@@ -430,7 +418,7 @@ namespace Translator.Core
             else
             {
                 int i = 0;
-                foreach (var path in paths)
+                foreach (string path in paths)
                 {
                     if (i++ == 0)
                         OpenFile(path);
@@ -447,7 +435,7 @@ namespace Translator.Core
         {
             if (Settings.Default.AskForSaveDialog && translationManagers.Count > 0)
             {
-                foreach (var kvp in translationManagers)
+                foreach (KeyValuePair<ITab, TranslationManager> kvp in translationManagers)
                 {
                     if (kvp.Value.ChangesPending)
                     {

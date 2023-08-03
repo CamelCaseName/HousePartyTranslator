@@ -63,15 +63,7 @@ namespace Translator.Core.Data
 
         public override string ToString()
         {
-            string value;
-            if (TranslationString != null && TranslationString != string.Empty)
-            {
-                value = ID + "|" + TranslationString;
-            }
-            else
-            {
-                value = ID + "|" + TemplateString;
-            }
+            string value = TranslationString is not null && TranslationString != string.Empty ? ID + "|" + TranslationString : ID + "|" + TemplateString;
             return value;
         }
     }

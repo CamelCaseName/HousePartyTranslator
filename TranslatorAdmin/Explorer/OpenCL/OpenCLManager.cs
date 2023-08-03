@@ -327,7 +327,7 @@ internal sealed unsafe class OpenCLManager
         //create and fill buffers on cpu side
         SetUpNodePositionBuffer();
         ClearNodeNewPositionBuffer();
-        var parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.Attraction, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.Gravity };
+        float[] parameters = new float[4] { StoryExplorerConstants.IdealLength, StoryExplorerConstants.Attraction, StoryExplorerConstants.Repulsion / 2, StoryExplorerConstants.Gravity };
         NodeCount = nodePosBuffer1.Length / 4;
 
         //calculate work size for local stuff
@@ -470,9 +470,7 @@ internal sealed unsafe class OpenCLManager
         err = _cl.EnqueueNdrangeKernel(_commandQueue, _edge_kernel, 1, 0, edgeGlobalSize, localSize, 0, null, null);
         if (err != 0) return err;
         err = _cl.Finish(_commandQueue);
-        if (err != 0) return err;
-
-        return 0;
+        return err != 0 ? err : 0;
     }
 
     private int GetMaxWorkItemDimension()
@@ -552,7 +550,7 @@ internal sealed unsafe class OpenCLManager
                 FrameRenderedCallback?.Invoke();
 
                 //approx 60fps max as more is uneccesary and feels weird
-                FrameEndTime = DateTime.Now;
+                FrameEndTime = DateTime.UtcNow;
                 if ((FrameEndTime - FrameStartTime).TotalMilliseconds < 30)
                     Thread.Sleep((int)(30 - (FrameEndTime - FrameStartTime).TotalMilliseconds));
 
@@ -621,8 +619,8 @@ internal sealed unsafe class OpenCLManager
     {
         NodeChildIndices.Clear();
         NodeThisIndices.Clear();
-        var localWorkGroupItemsThis = new int[localWorkGroupSize];
-        var localWorkGroupItemsChild = new int[localWorkGroupSize];
+        int[] localWorkGroupItemsThis = new int[localWorkGroupSize];
+        int[] localWorkGroupItemsChild = new int[localWorkGroupSize];
         for (int x = 0; x < localWorkGroupSize; x++)
         {
             localWorkGroupItemsChild[x] = -1;

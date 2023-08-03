@@ -1,15 +1,10 @@
-﻿using Google.Protobuf;
-using Org.BouncyCastle.Asn1.Mozilla;
-using Org.BouncyCastle.Utilities.Collections;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 
@@ -82,7 +77,7 @@ namespace Translator.Core.Helpers
                         @"C:\Users\%USER%\Documents",
                 /*filename*/preselectedFile ?? string.Empty,
             });
-            if (selectFileDialog == null) { return string.Empty; }
+            if (selectFileDialog is null) { return string.Empty; }
 
             selectFileDialog.MultiSelect = false;
             selectFileDialog.CheckFileExists = checkFileExists;
@@ -119,7 +114,7 @@ namespace Translator.Core.Helpers
                         @"C:\Users\%USER%\Documents",
                 /*filename*/preselectedFile ?? string.Empty
             });
-            if (selectFileDialog == null) { return Array.Empty<string>(); }
+            if (selectFileDialog is null) { return Array.Empty<string>(); }
 
             if (selectFileDialog.ShowDialog() == PopupResult.OK)
             {
@@ -158,12 +153,12 @@ namespace Translator.Core.Helpers
                 /*title*/message,
                 /*selectedPath*/Settings.Default.TemplatePath == string.Empty ? Environment.SpecialFolder.UserProfile.ToString() : Settings.Default.TemplatePath,
             });
-            if (selectFolderDialog == null) { return string.Empty; }
+            if (selectFolderDialog is null) { return string.Empty; }
 
             if (selectFolderDialog.ShowDialog() == PopupResult.OK)
             {
                 string t = selectFolderDialog.SelectedFolderPath;
-                if (t != null)
+                if (t is not null)
                 {
                     Settings.Default.TemplatePath = t;
                     Settings.Default.Save();
@@ -190,16 +185,12 @@ namespace Translator.Core.Helpers
                 /*FileName*/ file,
                 /*InitialDirectory*/ path
             });
-            if (saveFileDialog == null) return string.Empty;
+            if (saveFileDialog is null) return string.Empty;
 
             saveFileDialog.CheckFileExists = checkFileExists;
             saveFileDialog.CheckPathExists = checkPathExists;
 
-            if (saveFileDialog.ShowDialog() == PopupResult.OK)
-            {
-                return saveFileDialog.FileName;
-            }
-            return string.Empty;
+            return saveFileDialog.ShowDialog() == PopupResult.OK ? saveFileDialog.FileName : string.Empty;
         }
 
         public static string ExtractStoryName(string path)
@@ -210,7 +201,7 @@ namespace Translator.Core.Helpers
             if (!LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
                 throw new LanguageHelper.LanguageException();
 
-            var paths = path.Contains('\\')
+            string[] paths = path.Contains('\\')
                 ? path.Split('\\')
                 : new string[] { path };
 
@@ -220,7 +211,7 @@ namespace Translator.Core.Helpers
                 if (Path.GetExtension(paths[i]) != string.Empty)
                     paths[i] = Path.GetFileNameWithoutExtension(paths[i]);
 
-                var enumerator = storyNames.GetEnumerator();
+                HashSet<string>.Enumerator enumerator = storyNames.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
                     if (string.Compare(paths[i], enumerator.Current, true, CultureInfo.InvariantCulture) == 0)
@@ -248,7 +239,7 @@ namespace Translator.Core.Helpers
             for (int i = paths.Length - 1; i >= 0; i--)
             {
                 //check again more lenient
-                var enumerator = storyNames.GetEnumerator();
+                HashSet<string>.Enumerator enumerator = storyNames.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
                     if (paths[i].Contains(enumerator.Current, StringComparison.InvariantCultureIgnoreCase))
@@ -271,7 +262,7 @@ namespace Translator.Core.Helpers
 
             string maybeFileName = Path.GetFileNameWithoutExtension(path);
 
-            var enumerator = fileNames.GetEnumerator();
+            HashSet<string>.Enumerator enumerator = fileNames.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 if (string.Compare(maybeFileName, enumerator.Current, true, CultureInfo.InvariantCulture) == 0)

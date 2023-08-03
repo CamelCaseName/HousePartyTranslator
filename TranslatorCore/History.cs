@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Translator.Core.Data;
-using Translator.Core.DefaultImpls;
 using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
@@ -97,7 +96,7 @@ namespace Translator.Core
             if (history.Count > 0)
             {
                 ICommand command = history.Pop();
-                if (command != null)
+                if (command is not null)
                 {
                     CausedByHistory = true;
                     command.Undo();
@@ -112,7 +111,7 @@ namespace Translator.Core
             if (future.Count > 0)
             {
                 ICommand command = future.Pop();
-                if (command != null)
+                if (command is not null)
                 {
                     CausedByHistory = true;
                     command.Do();
@@ -152,8 +151,8 @@ namespace Translator.Core
 
     public sealed class TextAdded : ICommand
     {
-        readonly ITextBox TextBox;
-        readonly string AddedText;
+        private readonly ITextBox TextBox;
+        private readonly string AddedText;
 
         public TextAdded(ITextBox textBox, string addedText, string fileName, string storyName)
         {
@@ -179,8 +178,8 @@ namespace Translator.Core
 
     public sealed class TextRemoved : ICommand
     {
-        readonly ITextBox TextBox;
-        readonly string RemovedText;
+        private readonly ITextBox TextBox;
+        private readonly string RemovedText;
 
         public TextRemoved(ITextBox textBox, string removedText, string fileName, string storyName)
         {
@@ -206,9 +205,9 @@ namespace Translator.Core
 
     public sealed class TextChanged : ICommand
     {
-        readonly ITextBox TextBox;
-        readonly string oldText;
-        readonly string newText;
+        private readonly ITextBox TextBox;
+        private readonly string oldText;
+        private readonly string newText;
 
         public TextChanged(ITextBox textBox, string oldText, string newText, string fileName, string storyName)
         {
@@ -236,10 +235,10 @@ namespace Translator.Core
     }
 
     public sealed class ApprovedChanged<ILineItem> : ICommand
-        
+
     {
-        readonly int index;
-        readonly ILineList ListBox;
+        private readonly int index;
+        private readonly ILineList ListBox;
         public ApprovedChanged(int selectedIndex, ILineList listBox, string fileName, string storyName)
         {
             index = selectedIndex;
@@ -264,9 +263,9 @@ namespace Translator.Core
 
     public sealed class SelectedLineChanged : ICommand
     {
-        readonly int oldIndex;
-        readonly int newIndex;
-        readonly ILineList ListBox;
+        private readonly int oldIndex;
+        private readonly int newIndex;
+        private readonly ILineList ListBox;
         public SelectedLineChanged(ILineList listBox, int oldIndex, int newIndex, string fileName, string storyName)
         {
             this.oldIndex = oldIndex;
@@ -292,10 +291,10 @@ namespace Translator.Core
 
     public sealed class TranslationChanged : ICommand
     {
-        readonly TranslationManager manager;
-        readonly string id;
-        readonly string oldText;
-        readonly string newText;
+        private readonly TranslationManager manager;
+        private readonly string id;
+        private readonly string oldText;
+        private readonly string newText;
 
         public TranslationChanged(TranslationManager manager, string id, string oldText, string newText)
         {
@@ -323,7 +322,7 @@ namespace Translator.Core
 
     public sealed class SelectedTabChanged : ICommand
     {
-        readonly int oldTabIndex, newTabIndex;
+        private readonly int oldTabIndex, newTabIndex;
 
         public SelectedTabChanged(int oldTabIndex, int newTabIndex)
         {
@@ -347,9 +346,9 @@ namespace Translator.Core
 
     public sealed class AllTranslationsChanged : ICommand
     {
-        readonly FileData oldTranslations, newTranslations;
-        readonly TranslationManager manager;
-        readonly string language;
+        private readonly FileData oldTranslations, newTranslations;
+        private readonly TranslationManager manager;
+        private readonly string language;
 
         public AllTranslationsChanged(TranslationManager manager, FileData oldTranslations, FileData newTranslations)
         {

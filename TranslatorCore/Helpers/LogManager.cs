@@ -61,6 +61,11 @@ namespace Translator.Core.Helpers
             Log(message, Level.Info, line, path);
         }
 
+        public static void Log(object message, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
+        {
+            Log(message.ToString() ?? "message was null", Level.Info, line, path);
+        }
+
         /// <summary>
         /// A Method for adding a string with timestamp at the end of the log
         /// </summary>
@@ -68,23 +73,27 @@ namespace Translator.Core.Helpers
         /// <param name="level">The level of the logged message</param>
         public static void Log(string message, Level level, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
         {
-            var folders = path.Split('\\');
+            string[] folders = path.Split('\\');
             string file = string.Empty;
-            if (folders[^3] == "HousePartyTranslator")
-                file = folders[^2][10..] + '\\' + folders[^1];
-            else if (folders[^4] == "HousePartyTranslator")
-                file = folders[^3][10..] + '\\' + folders[^2] + '\\' + folders[^1];
-            else
-                file = folders[^4][10..] + '\\' + folders[^3] + '\\' + folders[^2] + '\\' + folders[^1];
+            file = folders[^3] == "HousePartyTranslator"
+                ? folders[^2][10..] + '\\' + folders[^1]
+                : folders[^4] == "HousePartyTranslator"
+                ? folders[^3][10..] + '\\' + folders[^2] + '\\' + folders[^1]
+                : folders[^4][10..] + '\\' + folders[^3] + '\\' + folders[^2] + '\\' + folders[^1];
             string _message = $"[{level}] {DateTime.Now} | {file}:{line} | {message}";
 
+#if !(DEBUG || DEBUG_USER)
             //add the message as lines to our list of all lines
             FileLines.AddRange(_message.Split('\n'));
-
-#if DEBUG || DEBUG_USER
+#else
             //Debug.WriteLine(Environment.StackTrace);
-            System.Diagnostics.Debug.WriteLine(_message[1] == '\n' ? _message[..^1] : _message);
+            System.Diagnostics.Debug.WriteLine(_message[^1] == '\n' ? _message[..^1] : _message);
 #endif
+        }
+
+        public static void Log(object message, Level level, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
+        {
+            Log(message.ToString() ?? "message was null", level, line, path);
         }
 
         /// <summary>

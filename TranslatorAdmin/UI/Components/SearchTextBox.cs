@@ -11,6 +11,7 @@ namespace Translator.Desktop.UI.Components
         internal SearchTextBox()
         {
             PlaceholderColor = SystemColors.GrayText;
+            KeyDown += (s, e) => InvalidateCounter();
         }
 
         public int TotalSearchResults
