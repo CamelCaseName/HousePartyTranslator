@@ -22,7 +22,7 @@ namespace Translator.Explorer.Window
         private readonly string parentName;
         public readonly string FileName;
         public readonly string StoryName;
-        private bool SettingsVisible = false;
+        private bool MenuVisible = false;
         private bool inInitialization = true;
         public const string Version = "1.2.3.1";
         public const string Title = "StoryExplorer v" + Version;
@@ -196,9 +196,9 @@ namespace Translator.Explorer.Window
 
         private void MenuShowButton_Click(object sender, EventArgs e)
         {
-            SettingsVisible = !SettingsVisible;
-            SettingsBox.Visible = SettingsVisible;
-            MenuShowButton.Text = SettingsVisible ? "Hide Settings" : "Show Settings";
+            MenuVisible = !MenuVisible;
+            SettingsBox.Visible = MenuVisible;
+            MenuShowButton.Text = MenuVisible ? "Hide Menu" : "Show Menu";
             SettingsBox.Update();
             MenuShowButton.Update();
             SettingsBox.Invalidate();

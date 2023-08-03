@@ -150,7 +150,7 @@ namespace Translator.Explorer.Window
             MenuShowButton.Name = "MenuShowButton";
             MenuShowButton.Size = new System.Drawing.Size(89, 23);
             MenuShowButton.TabIndex = 8;
-            MenuShowButton.Text = "Show Settings";
+            MenuShowButton.Text = "Show Menu";
             MenuShowButton.UseVisualStyleBackColor = true;
             MenuShowButton.Click += MenuShowButton_Click;
             // 
