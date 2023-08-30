@@ -24,7 +24,7 @@ namespace Translator.Explorer.Window
         public readonly string StoryName;
         private bool MenuVisible = false;
         private bool inInitialization = true;
-        public const string Version = "1.2.3.1";
+        public const string Version = "1.2.4.0";
         public const string Title = "StoryExplorer v" + Version;
         private readonly CancellationToken token;
         public NodeLayout? Layouter { get; private set; }

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using static Translator.Desktop.Explorer.JSONItems.StoryEnums;
 
+//todo update file format to 1.3 version of the game
+
 namespace Translator.Desktop.Explorer.JSONItems
 {
     internal sealed class Criterion

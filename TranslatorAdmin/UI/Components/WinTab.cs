@@ -13,48 +13,27 @@ namespace Translator.Desktop.UI.Components
     [SupportedOSPlatform("Windows")]
     public class WinTab : TabPage, ITab
     {
-        public readonly NoAnimationBar ProgressbarTranslated = new();
-
+        private readonly NoAnimationBar ProgressbarTranslated = new();
         private readonly CheckBox ApprovedBox = new();
-
         private readonly Label CharacterCountLabel = new();
-
         private readonly LineList CheckListBoxLeft = new();
-
         private readonly GroupBox CommentGroup = new();
-
         private readonly WinTextBox CommentTextBox = new();
-
         private readonly WinMenuItem CopyAllContextMenuButton = new();
-
         private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
-
         private readonly WinMenuItem CopyFileNameContextMenuButton = new();
-
         private readonly WinMenuItem CopyIdContextMenuButton = new();
-
         private readonly WinMenuItem CopyStoryNameContextMenuButton = new();
-
         private readonly WinMenuItem CopyTemplateContextMenuButton = new();
-
         private readonly WinMenuItem CopyTranslationContextMenuButton = new();
-
         private readonly Label LinesTranslated = new();
-
         private readonly ContextMenuStrip ListContextMenu = new();
-
         private readonly TableLayoutPanel mainTableLayoutPanel = new();
-
         private readonly Panel panel1 = new();
-
         private readonly Panel panel2 = new();
-
         private readonly Label SelectedFile = new();
-
         private readonly WinTextBox TemplateTextBox = new();
-
         private readonly Button TranslateThis = new();
-
         private readonly WinTextBox TranslationTextBox = new();
 
         //todo add progress bar to tab title
