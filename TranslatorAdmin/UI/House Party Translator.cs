@@ -74,6 +74,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem ReloadFileMenuItem;
         private WinMenuItem AutoTranslateUnapproved;
         private WinMenuItem AutoTranslateUntranslated;
+        private WinMenuItem AutoTranslateAbort;
         private WinMenuItem ExportAllMissingLinesFolder;
         private WinMenuItem ExportAllMissingLinesFile;
         private WinMenuItem ExportMissingLinesCurrentFile;
@@ -505,7 +506,7 @@ namespace Translator.Desktop.UI
                 Name = nameof(AutoTranslateUnapproved),
                 Size = new Size(236, 22),
                 Text = "Automatically translate all una&pproved lines",
-                ToolTipText = "Reloads the currently selected file"
+                ToolTipText = "Translates all unapproved lines with Libretranslate"
             };
             AutoTranslateUnapproved.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.RequestAutomaticTranslationForAllUnapproved();
 
@@ -516,9 +517,20 @@ namespace Translator.Desktop.UI
                 Name = nameof(AutoTranslateUntranslated),
                 Size = new Size(236, 22),
                 Text = "Automatically &translate all untranslated lines",
-                ToolTipText = "Reloads the currently selected file"
+                ToolTipText = "Translates all untranslated lines with Libretranslate"
             };
             AutoTranslateUntranslated.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.RequestAutomaticTranslationForAllUntranslated();
+
+            // AutoTranslateAbort
+            AutoTranslateAbort = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(AutoTranslateAbort),
+                Size = new Size(236, 22),
+                Text = "Abort all automati&c translations",
+                ToolTipText = "Aborts all running automatic translations"
+            };
+            AutoTranslateAbort.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.AbortAllAutomaticTranslations();
 
             // replaceToolStripMenuItem
             replaceToolStripMenuItem = new WinMenuItem()
@@ -828,6 +840,7 @@ namespace Translator.Desktop.UI
                 AutoTranslateUntranslated,
                 new WinMenuSeperator(),
                 ReloadFileMenuItem,
+                AutoTranslateAbort,
                 new WinMenuSeperator(),
                 overrideCloudSaveToolStripMenuItem
             });

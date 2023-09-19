@@ -1,4 +1,6 @@
 ﻿using LibreTranslate.Net;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Translator.Core.Data;
 
 namespace Translator.Core.Helpers
@@ -16,6 +18,7 @@ namespace Translator.Core.Helpers
     public static class AutoTranslation
     {
         private static readonly LibreTranslate.Net.LibreTranslate Translator = new("https://translate.rinderha.cc");
+        private static readonly List<Task<string>> tasks = new();
 
         /// <summary>
         /// Starts a webrequest to https://translate.rinderha.cc" to translate the template for the current line into the given langauge if possible
@@ -73,28 +76,48 @@ namespace Translator.Core.Helpers
             }
         }
 
+        /// <summary>
+        /// Aborts all running translation tasks
+        /// </summary>
+        public static void AbortAllrunningTranslations()
+        {
+            //todo wait on the merge in the libretranslate package so we can inject a cancellationtoken into it
+            foreach (var task in tasks)
+            {
+                //task.
+            }
+            tasks.Clear();
+        }
         private static async void AutoTranslationImpl(LineData data, LanguageCode langCodeTemplate, LanguageCode langCodeTranslation, TranslationCompletedCallback OnCompletion)
         {
             try
             {
                 string result = string.Empty;
-                System.Threading.Tasks.Task<string> task = Translator.TranslateAsync(new Translate()
+                Task<string> task = Translator.TranslateAsync(new Translate()
                 {
                     ApiKey = string.Empty,
                     Source = langCodeTemplate,
                     Target = langCodeTranslation,
                     Text = data.TemplateString
                 });
+                tasks.Add(task);
                 result = await task;
-                if(result == null)
+                if (result == null)
+                {
+                    tasks.Remove(task);
                     OnCompletion(false, data);
+                }
                 else if (result.Length > 0)
                 {
+                    tasks.Remove(task);
                     data.TranslationString = result;
                     OnCompletion(true, data);
                 }
                 else
+                {
+                    tasks.Remove(task);
                     OnCompletion(false, data);
+                }
             }
             catch
             {

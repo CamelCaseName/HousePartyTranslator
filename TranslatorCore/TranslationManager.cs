@@ -41,6 +41,7 @@ namespace Translator.Core
         private bool triedFixingOnce = false;
         private int returnedTasks = 0;
         private bool multiTranslationRunning = false;
+        private bool abortedAutoTranslation = false;
 
         static TranslationManager()
         {
@@ -277,7 +278,10 @@ namespace Translator.Core
         public void RequestAutomaticTranslation()
         {
             if (SelectedId != string.Empty)
+            {
                 AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+                abortedAutoTranslation = false;
+            }
         }
 
         /// <summary>
@@ -291,6 +295,7 @@ namespace Translator.Core
                 return;
             }
             multiTranslationRunning = true;
+            abortedAutoTranslation = false;
             int NumberOfUnapprovedLines = TabUI.LineCount - TabUI.Lines.ApprovedCount;
             List<LineData> replaced;
             if (NumberOfUnapprovedLines < 0)
@@ -319,12 +324,14 @@ namespace Translator.Core
             void WaitOnAutomaticTranslationsToFinish(int NumberOfUnapprovedLines, List<LineData> replaced)
             {
                 //wait on all translations to end
-                while (returnedTasks < NumberOfUnapprovedLines) ;
+                while (returnedTasks < NumberOfUnapprovedLines && !abortedAutoTranslation) ;
+                if (abortedAutoTranslation) return;
 
                 //add changes to history
                 var oldData = TranslationData;
                 foreach (var translated in replaced)
                 {
+                    if (abortedAutoTranslation) return;
                     if (!TranslationData[translated.ID].IsApproved)
                         TranslationData[translated.ID] = translated;
                 }
@@ -347,6 +354,7 @@ namespace Translator.Core
                 return;
             }
             multiTranslationRunning = true;
+            abortedAutoTranslation = false;
             int NumberOfUntranslatedLines = TabUI.TranslationsSimilarToTemplate.Count;
             List<LineData> replaced;
             if (NumberOfUntranslatedLines < 0)
@@ -375,12 +383,14 @@ namespace Translator.Core
             void WaitOnAutomaticTranslationsToFinish(int NumberOfUntranslatedLines, List<LineData> replaced)
             {
                 //wait on all translations to end
-                while (returnedTasks < NumberOfUntranslatedLines) ;
+                while (returnedTasks < NumberOfUntranslatedLines && !abortedAutoTranslation) ;
+                if (abortedAutoTranslation) return;
 
                 var oldData = TranslationData;
                 foreach (var translated in replaced)
                 {
-                    if (!TranslationData[translated.ID].IsApproved)
+                    if (abortedAutoTranslation) return;
+                    if (TranslationData[translated.ID].ShouldBeMarkedSimilarToEnglish)
                         TranslationData[translated.ID] = translated;
                 }
                 ChangesPending = true;
@@ -389,6 +399,15 @@ namespace Translator.Core
                 UI.InfoOk($"{replaced.Count} lines out of {NumberOfUntranslatedLines} untranslated lines were automatically replaced");
                 multiTranslationRunning = false;
             }
+        }
+
+        public void AbortAllAutomaticTranslations()
+        {
+            multiTranslationRunning = false;
+            abortedAutoTranslation = true;
+            AutoTranslation.AbortAllrunningTranslations();
+            LogManager.Log("Automatic translatiosn were aborted!");
+            UI.SignalUserEndWait();
         }
 
         /// <summary>
@@ -916,6 +935,7 @@ namespace Translator.Core
 
         private void AutoTranslationCallback(bool successfull, LineData data)
         {
+            if (abortedAutoTranslation) return;
             if (successfull)
             {
                 TranslationData[data.ID] = data;
@@ -937,11 +957,15 @@ namespace Translator.Core
         {
             //todo change this so it shows as a placeholder type of text
             if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
+            {
                 AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
+                abortedAutoTranslation = false;
+            }
         }
 
         private void ConvenienceTranslationCallback(bool successfull, LineData data)
         {
+            if (abortedAutoTranslation) return;
             if (successfull && TranslationData[data.ID].TranslationString == data.TemplateString && TranslationData[data.ID].TranslationString.Length == 0)
             {
                 TranslationData[data.ID] = data;
