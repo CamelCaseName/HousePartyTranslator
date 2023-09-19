@@ -25,19 +25,19 @@ namespace Translator.Core
         private static string language = Settings.Default.Language;
         private static bool StaticUIInitialized = false;
         private static IUIHandler UI = null!;
+        private readonly List<string> SearchQueries = new() { string.Empty };
         private readonly ITab TabUI;
         private bool _changesPending = false;
         private int currentSearchQuery = 0;
         private string fileName = string.Empty;
         private bool isSaveAs = false;
-        private readonly List<string> SearchQueries = new() { string.Empty };
+        private bool SearchNeedsCleanup = false;
         private int searchTabIndex = 0;
         private bool selectedNew = false;
         private int SelectedResultIndex = 0;
         private string sourceFilePath = string.Empty;
         private string storyName = string.Empty;
         private bool triedFixingOnce = false;
-        private bool SearchNeedsCleanup = false;
 
         static TranslationManager()
         {
@@ -192,22 +192,6 @@ namespace Translator.Core
             }
         }
 
-        private void UpdateApprovedAndTabName()
-        {
-            TabUI.SetApprovedCount(
-                TabUI.Lines.ApprovedCount,
-                TabUI.Lines.Count,
-                $"Approved: {TabUI.Lines.ApprovedCount} / {TabUI.Lines.Count} {(int)(TabUI.Lines.ApprovedCount / (float)TabUI.Lines.Count * 100)}%");
-            TabUI.UpdateTranslationProgressIndicator();
-            TabUI.Text = GetTabName();
-        }
-
-        public string GetTabName()
-        {
-            float percentage = TabUI.Lines.ApprovedCount / (float)TabUI.Lines.Count;
-            return FileName + $" ({(int)(percentage * 100),000}" + (ChangesPending ? "%)*" : "%)");
-        }
-
         /// <summary>
         /// Approves the string in the db, if possible. Also updates UI.
         /// </summary>
@@ -233,6 +217,11 @@ namespace Translator.Core
             }
         }
 
+        public void ExportMissinglinesForCurrentFile()
+        {
+            SaveAndExportManager.ExportMissingLinesForFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: FileName + "_missing.txt", createPrompt: true, checkFileExists: false), StoryName, FileName);
+        }
+
         public void ExportMissingLinesForCurrentStory(bool folder)
         {
             if (folder)
@@ -241,9 +230,10 @@ namespace Translator.Core
                 SaveAndExportManager.ExportAllMissinglinesForStoryIntoFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: "all_missing.txt", createPrompt: true, checkFileExists: false), StoryName);
         }
 
-        public void ExportMissinglinesForCurrentFile()
+        public string GetTabName()
         {
-            SaveAndExportManager.ExportMissingLinesForFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: FileName + "_missing.txt", createPrompt: true, checkFileExists: false), StoryName, FileName);
+            float percentage = TabUI.Lines.ApprovedCount / (float)TabUI.Lines.Count;
+            return FileName + $" ({(int)(percentage * 100),000}" + (ChangesPending ? "%)*" : "%)");
         }
 
         public void OverrideCloudSave()
@@ -285,6 +275,30 @@ namespace Translator.Core
         {
             if (SelectedId != string.Empty)
                 AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+        }
+
+        /// <summary>
+        /// sets all unapproved translations to an automatic translation of the template
+        /// </summary>
+        public void RequestAutomaticTranslationForAllUnapproved()
+        {
+            foreach (var line in TranslationData.Values)
+            {
+                if (!line.IsApproved)
+                    AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+            }
+        }
+
+        /// <summary>
+        /// sets all unapproved translations to an automatic translation of the template
+        /// </summary>
+        public void RequestAutomaticTranslationForAllUntranslated()
+        {
+            foreach (var line in TranslationData.Values)
+            {
+                if (!line.IsTranslated)
+                    AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+            }
         }
 
         /// <summary>
@@ -574,41 +588,6 @@ namespace Translator.Core
             SearchUpdateSingle();
         }
 
-        private void SearchUpdateSingle()
-        {
-            int index = TabUI.SelectedLineIndex;
-            if (Searcher.Search(SearchQuery, SelectedLine))
-            {
-                if (!TabUI.Lines.SearchResults.Contains(index))
-                    TabUI.Lines.SearchResults.Add(index);
-
-                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
-                UpdateHighlightPositions(index);
-            }
-            else if (TabUI.Lines.SearchResults.Remove(index))
-            {
-                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
-                DisableHighlights();
-            }
-        }
-
-        private void UpdateCharacterCountLabel()
-        {
-            if (SelectedLine.TranslationLength <= SelectedLine.TemplateLength * 1.1f)
-            {
-                TabUI.SetCharacterLabelColor(Color.LawnGreen);
-            }//if bigger by no more than 30 percent
-            else if (SelectedLine.TranslationLength <= SelectedLine.TemplateLength * 1.3f)
-            {
-                TabUI.SetCharacterLabelColor(Color.DarkOrange);
-            }
-            else
-            {
-                TabUI.SetCharacterLabelColor(Color.Red);
-            }
-            TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
-        }
-
         /// <summary>
         /// Loads a file into the program and calls all UI routines
         /// </summary>
@@ -787,14 +766,71 @@ namespace Translator.Core
             }
         }
 
+        /// <summary>
+        /// Loads the strings and does some work around to ensure smooth sailing.
+        /// </summary>
+        private void AddLinesToUIAndIntegrateOnline(bool localTakesPriority = false)
+        {
+            int currentIndex = 0;
+            UI.SignalUserWait();
+            TabUI.Lines.FreezeLayout();
+
+            FileData onlineLines = new(StoryName, FileName);
+            if (DataBase.IsOnline) _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
+
+            foreach (string key in TranslationData.Keys)
+            {
+                if (onlineLines.TryGetValue(key, out LineData? tempLine))
+                {
+                    TranslationData[key].Category = tempLine.Category;
+                    if (DataBase.IsOnline) TranslationData[key].Comments = tempLine.Comments;
+                    TranslationData[key].FileName = tempLine.FileName;
+                    TranslationData[key].ID = key;
+                    TranslationData[key].IsTemplate = false;
+                    TranslationData[key].IsTranslated = tempLine.IsTranslated;
+                    TranslationData[key].Story = tempLine.Story;
+                    if (!localTakesPriority
+                        && DataBase.IsOnline
+                        && tempLine.TranslationLength > 0)
+                        TranslationData[key].TranslationString = tempLine.TranslationString;
+                    else if (!DataBase.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
+                    TranslationData[key].IsApproved = tempLine.IsApproved;
+                }
+
+                if (TranslationData[key].TemplateString is null) TranslationData[key].TemplateString = string.Empty;
+
+                TabUI.Lines.Add(key, TranslationData[key].IsApproved);
+
+                //colour string if similar to the english one
+                if (!TranslationData[key].IsTranslated && !TranslationData[key].IsApproved)
+                {
+                    TabUI.SimilarStringsToEnglish.Add(key);
+                }
+
+                //increase index to aid colouring
+                currentIndex++;
+            }
+
+            TabUI.Lines.UnFreezeLayout();
+
+            //reload once so the order of lines is correct after we fixed an empty or broken file
+            if (triedFixingOnce)
+            {
+                triedFixingOnce = false;
+                ReloadFile();
+            }
+
+            UI.SignalUserEndWait();
+        }
+
         private void AutoTranslationCallback(bool successfull, LineData data)
         {
             if (successfull)
             {
                 TranslationData[data.ID] = data;
-                ReloadTranslationTextbox();
+                if (data.ID == SelectedId) ReloadTranslationTextbox();
             }
-            else
+            else if (Settings.Default.AutoTranslate)
             {
                 if (UI.WarningYesNo("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", PopupResult.YES))
                 {
@@ -808,6 +844,7 @@ namespace Translator.Core
         /// </summary>
         private void ConvenienceAutomaticTranslation()
         {
+            //change this so it shows as a placeholder type of text
             if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
                 AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
         }
@@ -923,68 +960,18 @@ namespace Translator.Core
             return false;
         }
 
+        private void DisableHighlights()
+        {
+            TabUI.Template.ShowHighlight = false;
+            TabUI.Translation.ShowHighlight = false;
+            TabUI.Comments.ShowHighlight = false;
+        }
+
         private FileData GetTemplatesFromUser()
         {
             return UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES)
                 ? SaveAndExportManager.GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false)
                 : new FileData(StoryName, FileName);
-        }
-
-        /// <summary>
-        /// Loads the strings and does some work around to ensure smooth sailing.
-        /// </summary>
-        private void AddLinesToUIAndIntegrateOnline(bool localTakesPriority = false)
-        {
-            int currentIndex = 0;
-            UI.SignalUserWait();
-            TabUI.Lines.FreezeLayout();
-
-            FileData onlineLines = new(StoryName, FileName);
-            if (DataBase.IsOnline) _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
-
-            foreach (string key in TranslationData.Keys)
-            {
-                if (onlineLines.TryGetValue(key, out LineData? tempLine))
-                {
-                    TranslationData[key].Category = tempLine.Category;
-                    if (DataBase.IsOnline) TranslationData[key].Comments = tempLine.Comments;
-                    TranslationData[key].FileName = tempLine.FileName;
-                    TranslationData[key].ID = key;
-                    TranslationData[key].IsTemplate = false;
-                    TranslationData[key].IsTranslated = tempLine.IsTranslated;
-                    TranslationData[key].Story = tempLine.Story;
-                    if (!localTakesPriority
-                        && DataBase.IsOnline
-                        && tempLine.TranslationLength > 0)
-                        TranslationData[key].TranslationString = tempLine.TranslationString;
-                    else if (!DataBase.IsOnline) TranslationData[key].TemplateString = tempLine.TemplateString;
-                    TranslationData[key].IsApproved = tempLine.IsApproved;
-                }
-
-                if (TranslationData[key].TemplateString is null) TranslationData[key].TemplateString = string.Empty;
-
-                TabUI.Lines.Add(key, TranslationData[key].IsApproved);
-
-                //colour string if similar to the english one
-                if (!TranslationData[key].IsTranslated && !TranslationData[key].IsApproved)
-                {
-                    TabUI.SimilarStringsToEnglish.Add(key);
-                }
-
-                //increase index to aid colouring
-                currentIndex++;
-            }
-
-            TabUI.Lines.UnFreezeLayout();
-
-            //reload once so the order of lines is correct after we fixed an empty or broken file
-            if (triedFixingOnce)
-            {
-                triedFixingOnce = false;
-                ReloadFile();
-            }
-
-            UI.SignalUserEndWait();
         }
 
         private bool IsSearchFocused() => !TabUI.IsTranslationBoxFocused && !TabUI.IsCommentBoxFocused;
@@ -1116,6 +1103,24 @@ namespace Translator.Core
             SaveFile();
         }
 
+        private void SearchUpdateSingle()
+        {
+            int index = TabUI.SelectedLineIndex;
+            if (Searcher.Search(SearchQuery, SelectedLine))
+            {
+                if (!TabUI.Lines.SearchResults.Contains(index))
+                    TabUI.Lines.SearchResults.Add(index);
+
+                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+                UpdateHighlightPositions(index);
+            }
+            else if (TabUI.Lines.SearchResults.Remove(index))
+            {
+                UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+                DisableHighlights();
+            }
+        }
+
         private void SelectLine(int i)
         {
             TabUI.SelectLineItem(i);
@@ -1215,28 +1220,32 @@ namespace Translator.Core
             }
         }
 
-        private void UpdateSearchAndSearchHighlight()
+        private void UpdateApprovedAndTabName()
         {
-            TabUI.UpdateSearchResultDisplay();
-            //renew search result if possible
-            int t = TabUI.Lines.SearchResults.IndexOf(TabUI.SelectedLineIndex);
-            if (t >= 0)
+            TabUI.SetApprovedCount(
+                TabUI.Lines.ApprovedCount,
+                TabUI.Lines.Count,
+                $"Approved: {TabUI.Lines.ApprovedCount} / {TabUI.Lines.Count} {(int)(TabUI.Lines.ApprovedCount / (float)TabUI.Lines.Count * 100)}%");
+            TabUI.UpdateTranslationProgressIndicator();
+            TabUI.Text = GetTabName();
+        }
+
+        private void UpdateCharacterCountLabel()
+        {
+            if (SelectedLine.TranslationLength <= SelectedLine.TemplateLength * 1.1f)
             {
-                UpdateHighlightPositions(t);
+                TabUI.SetCharacterLabelColor(Color.LawnGreen);
+            }//if bigger by no more than 30 percent
+            else if (SelectedLine.TranslationLength <= SelectedLine.TemplateLength * 1.3f)
+            {
+                TabUI.SetCharacterLabelColor(Color.DarkOrange);
             }
             else
             {
-                DisableHighlights();
+                TabUI.SetCharacterLabelColor(Color.Red);
             }
+            TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
         }
-
-        private void DisableHighlights()
-        {
-            TabUI.Template.ShowHighlight = false;
-            TabUI.Translation.ShowHighlight = false;
-            TabUI.Comments.ShowHighlight = false;
-        }
-
         private void UpdateHighlightPositions(int indexOfSelectedSearchResult)
         {
             if (SelectedResultIndex > 0) SelectedResultIndex = indexOfSelectedSearchResult;
@@ -1290,6 +1299,21 @@ namespace Translator.Core
             else
             {
                 TabUI.Comments.ShowHighlight = false;
+            }
+        }
+
+        private void UpdateSearchAndSearchHighlight()
+        {
+            TabUI.UpdateSearchResultDisplay();
+            //renew search result if possible
+            int t = TabUI.Lines.SearchResults.IndexOf(TabUI.SelectedLineIndex);
+            if (t >= 0)
+            {
+                UpdateHighlightPositions(t);
+            }
+            else
+            {
+                DisableHighlights();
             }
         }
     }
