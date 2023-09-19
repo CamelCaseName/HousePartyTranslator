@@ -38,6 +38,8 @@ namespace Translator.Core
         private string sourceFilePath = string.Empty;
         private string storyName = string.Empty;
         private bool triedFixingOnce = false;
+        private int returnedTasks = 0;
+        private bool multiTranslationRunning = false;
 
         static TranslationManager()
         {
@@ -282,10 +284,52 @@ namespace Translator.Core
         /// </summary>
         public void RequestAutomaticTranslationForAllUnapproved()
         {
+            if (multiTranslationRunning)
+            {
+                UI.WarningOk("There is already a multi line translation running, please wait on it to finish");
+                return;
+            }
+            multiTranslationRunning = true;
+            int NumberOfUnapprovedLines = TabUI.LineCount - TabUI.Lines.ApprovedCount;
+            List<LineData> replaced;
+            if (NumberOfUnapprovedLines < 0)
+                replaced = new();
+            else
+                replaced = new(NumberOfUnapprovedLines);
+            returnedTasks = 0;
+
+            UI.SignalUserWait();
+            LogManager.Log($"Starting automatic translation for {NumberOfUnapprovedLines} unapproved lines");
             foreach (var line in TranslationData.Values)
             {
                 if (!line.IsApproved)
-                    AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+                    AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
+                    {
+                        if (successfull)
+                            replaced.Add(data);
+                        addReturned();
+                    });
+            }
+            //seperate updates from ui thread
+            Task.Factory.StartNew(() => WaitOnAutomaticTranslationsToFinish(NumberOfUnapprovedLines, replaced));
+
+            //methods only used by this here, so embedded :D
+            void addReturned() => returnedTasks++;
+            void WaitOnAutomaticTranslationsToFinish(int NumberOfUnapprovedLines, List<LineData> replaced)
+            {
+                //wait on all translations to end
+                while (returnedTasks < NumberOfUnapprovedLines) ;
+
+                //add changes to history
+                var oldData = TranslationData;
+                foreach (var translated in replaced)
+                {
+                    TranslationData[translated.ID] = translated;
+                }
+                History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
+                UI.SignalUserEndWait();
+                UI.InfoOk($"{replaced.Count} lines out of {NumberOfUnapprovedLines} unapproved lines were automatically replaced");
+                multiTranslationRunning = false;
             }
         }
 
@@ -294,10 +338,51 @@ namespace Translator.Core
         /// </summary>
         public void RequestAutomaticTranslationForAllUntranslated()
         {
+            if (multiTranslationRunning)
+            {
+                UI.WarningOk("There is already a multi line translation running, please wait on it to finish");
+                return;
+            }
+            multiTranslationRunning = true;
+            int NumberOfUntranslatedLines = TabUI.Lines.TranslationSimilarToTemplate.Count;
+            List<LineData> replaced;
+            if (NumberOfUntranslatedLines < 0)
+                replaced = new();
+            else
+                replaced = new(NumberOfUntranslatedLines);
+            returnedTasks = 0;
+
+            UI.SignalUserWait();
+            LogManager.Log($"Starting automatic translation for {NumberOfUntranslatedLines} untranslated lines");
             foreach (var line in TranslationData.Values)
             {
                 if (!line.IsTranslated)
-                    AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+                    AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
+                    {
+                        if (successfull)
+                            replaced.Add(data);
+                        addReturned();
+                    });
+            }
+            //seperate updates from ui thread
+            Task.Factory.StartNew(() => WaitOnAutomaticTranslationsToFinish(NumberOfUntranslatedLines, replaced));
+
+            //methods only used by this here, so embedded :D
+            void addReturned() => returnedTasks++;
+            void WaitOnAutomaticTranslationsToFinish(int NumberOfUntranslatedLines, List<LineData> replaced)
+            {
+                //wait on all translations to end
+                while (returnedTasks < NumberOfUntranslatedLines) ;
+
+                var oldData = TranslationData;
+                foreach (var translated in replaced)
+                {
+                    TranslationData[translated.ID] = translated;
+                }
+                History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
+                UI.SignalUserEndWait();
+                UI.InfoOk($"{replaced.Count} lines out of {NumberOfUntranslatedLines} untranslated lines were automatically replaced");
+                multiTranslationRunning = false;
             }
         }
 
@@ -1246,6 +1331,7 @@ namespace Translator.Core
             }
             TabUI.UpdateCharacterCounts(SelectedLine.TemplateLength, SelectedLine.TranslationLength);
         }
+
         private void UpdateHighlightPositions(int indexOfSelectedSearchResult)
         {
             if (SelectedResultIndex > 0) SelectedResultIndex = indexOfSelectedSearchResult;

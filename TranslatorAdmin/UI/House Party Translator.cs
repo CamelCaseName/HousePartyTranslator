@@ -21,6 +21,7 @@ namespace Translator.Desktop.UI
     /// <summary>
     /// The main class which handles the UI for the House Party Translator Window
     /// </summary>
+    [DesignerCategory("")]
     [SupportedOSPlatform("windows")]
     public sealed class Fenster : Form
     {
@@ -71,6 +72,8 @@ namespace Translator.Desktop.UI
         private WinMenuItem overrideCloudSaveToolStripMenuItem;
         private WinMenuItem Recents;
         private WinMenuItem ReloadFileMenuItem;
+        private WinMenuItem AutoTranslateUnapproved;
+        private WinMenuItem AutoTranslateUntranslated;
         private WinMenuItem ExportAllMissingLinesFolder;
         private WinMenuItem ExportAllMissingLinesFile;
         private WinMenuItem ExportMissingLinesCurrentFile;
@@ -495,6 +498,28 @@ namespace Translator.Desktop.UI
             };
             ReloadFileMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ReloadFile();
 
+            // AutoTranslateUnapproved
+            AutoTranslateUnapproved = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(AutoTranslateUnapproved),
+                Size = new Size(236, 22),
+                Text = "Automatically translate all una&pproved lines",
+                ToolTipText = "Reloads the currently selected file"
+            };
+            AutoTranslateUnapproved.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.RequestAutomaticTranslationForAllUnapproved();
+
+            // AutoTranslateUntranslated
+            AutoTranslateUntranslated = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(AutoTranslateUntranslated),
+                Size = new Size(236, 22),
+                Text = "Automatically &translate all untranslated lines",
+                ToolTipText = "Reloads the currently selected file"
+            };
+            AutoTranslateUntranslated.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.RequestAutomaticTranslationForAllUntranslated();
+
             // replaceToolStripMenuItem
             replaceToolStripMenuItem = new WinMenuItem()
             {
@@ -799,6 +824,8 @@ namespace Translator.Desktop.UI
                 searchAllToolStripMenuItem,
                 new WinMenuSeperator(),
                 replaceToolStripMenuItem,
+                AutoTranslateUnapproved,
+                AutoTranslateUntranslated,
                 new WinMenuSeperator(),
                 ReloadFileMenuItem,
                 new WinMenuSeperator(),

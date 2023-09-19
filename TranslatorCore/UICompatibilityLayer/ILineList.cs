@@ -10,6 +10,7 @@ namespace Translator.Core.UICompatibilityLayer
         List<int> SearchResults { get; }
         int SelectedIndex { get; set; }
         ILineItem SelectedLineItem { get; set; }
+        //untranslated lines go here
         List<int> TranslationSimilarToTemplate { get; }
 
         void Add(string iD, bool lineIsApproved);

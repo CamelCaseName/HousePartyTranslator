@@ -8,7 +8,7 @@ namespace Translator.Core.Helpers
     /// </summary>
     /// <param name="successfull">true if the translation succeeded</param>
     /// <param name="data">the updated LineData</param>
-    public delegate void TranslationCopmpletedCallback(bool successfull, LineData data);
+    public delegate void TranslationCompletedCallback(bool successfull, LineData data);
 
     /// <summary>
     /// Provides a simple automatic translation interface
@@ -23,7 +23,7 @@ namespace Translator.Core.Helpers
         /// <param name="data">the LineData to work on, provides template and translation in return</param>
         /// <param name="language">the language to translate to, in 2 letter code</param>
         /// <param name="OnCompletion">callback to return the completed translation back to the program</param>
-        public static void AutoTranslationAsync(LineData data, string language, TranslationCopmpletedCallback OnCompletion)
+        public static void AutoTranslationAsync(LineData data, string language, TranslationCompletedCallback OnCompletion)
         {
             LanguageCode code = LanguageCode.AutoDetect;
             try
@@ -47,7 +47,7 @@ namespace Translator.Core.Helpers
         /// <param name="targetLanguage">the language to translate to, in 2 letter code</param>
         /// <param name="templateLanguage">the language to translate from, in 2 letter code</param>
         /// <param name="OnCompletion">callback to return the completed translation back to the program</param>
-        public static void AutoTranslationAsync(LineData data, string targetLanguage, string templateLanguage, TranslationCopmpletedCallback OnCompletion)
+        public static void AutoTranslationAsync(LineData data, string targetLanguage, string templateLanguage, TranslationCompletedCallback OnCompletion)
         {
             LanguageCode codeTo;
             LanguageCode codeFrom = LanguageCode.AutoDetect;
@@ -73,7 +73,7 @@ namespace Translator.Core.Helpers
             }
         }
 
-        private static async void AutoTranslationImpl(LineData data, LanguageCode langCodeTemplate, LanguageCode langCodeTranslation, TranslationCopmpletedCallback OnCompletion)
+        private static async void AutoTranslationImpl(LineData data, LanguageCode langCodeTemplate, LanguageCode langCodeTranslation, TranslationCompletedCallback OnCompletion)
         {
             try
             {
@@ -86,11 +86,15 @@ namespace Translator.Core.Helpers
                     Text = data.TemplateString
                 });
                 result = await task;
-                if (result.Length > 0)
+                if(result == null)
+                    OnCompletion(false, data);
+                else if (result.Length > 0)
                 {
                     data.TranslationString = result;
                     OnCompletion(true, data);
                 }
+                else
+                    OnCompletion(false, data);
             }
             catch
             {
