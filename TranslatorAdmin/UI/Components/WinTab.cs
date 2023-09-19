@@ -362,7 +362,7 @@ namespace Translator.Desktop.UI.Components
         public ILineItem SelectedLineItem => (ILineItem)(Lines.SelectedItem ?? new WinLineItem());
         public string SelectedTemplateBoxText => TemplateTextBox.SelectedText;
         public string SelectedTranslationBoxText => TranslationTextBox.SelectedText;
-        public List<string> SimilarStringsToEnglish => Lines.SimilarStringsToEnglish;
+        public List<string> TranslationsSimilarToTemplate => Lines.SimilarStringsToEnglish;
         public int SingleProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
         public ITextBox Template => TemplateTextBox;
         public string TemplateBoxText { get => TemplateTextBox.Text; set => TemplateTextBox.Text = value; }
@@ -383,7 +383,6 @@ namespace Translator.Desktop.UI.Components
         internal Fenster MainForm { get; init; }
         private static int Number { get; set; } = 0;
         public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
-        public ILineItem AtIndex(int index) => CheckListBoxLeft[index];
         public void ClearLines() => CheckListBoxLeft.Clear();
         public void FocusCommentBox() => CommentTextBox.Focus();
         public void FocusTranslationBox() => TranslationTextBox.Focus();

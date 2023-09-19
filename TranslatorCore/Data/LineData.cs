@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Translator.Core.Helpers;
 
 namespace Translator.Core.Data
@@ -66,5 +67,9 @@ namespace Translator.Core.Data
             string value = TranslationString is not null && TranslationString != string.Empty ? ID + "|" + TranslationString : ID + "|" + TemplateString;
             return value;
         }
+
+        public bool ShouldBeMarkedSimilarToEnglish =>
+            !IsTranslated && !IsApproved
+            || (TranslationString == TemplateString && !Utils.OfficialFileNames.Contains(TemplateString));
     }
 }

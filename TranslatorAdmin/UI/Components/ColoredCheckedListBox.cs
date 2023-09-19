@@ -45,16 +45,15 @@ namespace Translator.Desktop.UI.Components
                     e.State,
                     e.ForeColor, //colour yellow if it is part of the search, else colour normally
                     e.Index > -1 ?
-
-                            SearchResults.Contains(e.Index) ?
-                                Color.DarkOrange :
+                        SearchResults.Contains(e.Index) ?
+                            Color.DarkOrange :
+                            CheckedIndices.Contains(e.Index) ?
+                                Color.FromArgb(80, 130, 80) :
                                 SimilarStringsToEnglish.Contains(Items[e.Index].ToString() ?? string.Empty) ?
                                     Color.FromArgb(130, 80, 130) :
-                                    CheckedIndices.Contains(e.Index) ?
-                                        Color.FromArgb(80, 130, 80) :
-                                        Color.FromArgb(130, 80, 80)
-                         :
-                        e.BackColor
+                                    Color.FromArgb(130, 80, 80)
+                            :
+                            e.BackColor
                 );
             base.OnDrawItem(e2);
         }

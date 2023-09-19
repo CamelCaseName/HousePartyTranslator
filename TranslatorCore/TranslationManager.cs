@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Translator.Core.Data;
@@ -190,7 +191,7 @@ namespace Translator.Core
                 //inverse checked state at the selected index
                 if (Index >= 0) TabUI.Lines.SetApprovalState(Index, TabUI.ApprovedButtonChecked);
                 UpdateApprovedAndTabName();
-                Search();
+                UpdateSearchForCurrentEditedLine();
             }
         }
 
@@ -324,8 +325,10 @@ namespace Translator.Core
                 var oldData = TranslationData;
                 foreach (var translated in replaced)
                 {
-                    TranslationData[translated.ID] = translated;
+                    if (!TranslationData[translated.ID].IsApproved)
+                        TranslationData[translated.ID] = translated;
                 }
+                ChangesPending = true;
                 History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
                 UI.SignalUserEndWait();
                 UI.InfoOk($"{replaced.Count} lines out of {NumberOfUnapprovedLines} unapproved lines were automatically replaced");
@@ -344,7 +347,7 @@ namespace Translator.Core
                 return;
             }
             multiTranslationRunning = true;
-            int NumberOfUntranslatedLines = TabUI.Lines.TranslationSimilarToTemplate.Count;
+            int NumberOfUntranslatedLines = TabUI.TranslationsSimilarToTemplate.Count;
             List<LineData> replaced;
             if (NumberOfUntranslatedLines < 0)
                 replaced = new();
@@ -377,8 +380,10 @@ namespace Translator.Core
                 var oldData = TranslationData;
                 foreach (var translated in replaced)
                 {
-                    TranslationData[translated.ID] = translated;
+                    if (!TranslationData[translated.ID].IsApproved)
+                        TranslationData[translated.ID] = translated;
                 }
+                ChangesPending = true;
                 History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
                 UI.SignalUserEndWait();
                 UI.InfoOk($"{replaced.Count} lines out of {NumberOfUntranslatedLines} untranslated lines were automatically replaced");
@@ -400,8 +405,6 @@ namespace Translator.Core
 
                 //update translation in the DataBase
                 _ = DataBase.UpdateTranslation(SelectedLine, Language);
-
-                if (TabUI.SimilarStringsToEnglish.Contains(SelectedId)) _ = TabUI.SimilarStringsToEnglish.Remove(SelectedId);
 
                 UI.SignalUserEndWait();
             }
@@ -670,7 +673,8 @@ namespace Translator.Core
             UpdateCharacterCountLabel();
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
-            SearchUpdateSingle();
+            if (ChangesPending) _ = TabUI.TranslationsSimilarToTemplate.Remove(SelectedId);
+            UpdateSearchForCurrentEditedLine();
         }
 
         /// <summary>
@@ -729,9 +733,6 @@ namespace Translator.Core
 
                 //translate if useful and possible
                 ConvenienceAutomaticTranslation();
-
-                //mark text if similar to english (not translated yet)
-                MarkSimilarLine();
 
                 TabUI.CommentBoxTextArr = SelectedLine.Comments;
 
@@ -853,6 +854,7 @@ namespace Translator.Core
 
         /// <summary>
         /// Loads the strings and does some work around to ensure smooth sailing.
+        /// pupulates the states of the lines read in from the file
         /// </summary>
         private void AddLinesToUIAndIntegrateOnline(bool localTakesPriority = false)
         {
@@ -887,10 +889,7 @@ namespace Translator.Core
                 TabUI.Lines.Add(key, TranslationData[key].IsApproved);
 
                 //colour string if similar to the english one
-                if (!TranslationData[key].IsTranslated && !TranslationData[key].IsApproved)
-                {
-                    TabUI.SimilarStringsToEnglish.Add(key);
-                }
+                MarkLineSimilarIfApplicable(key);
 
                 //increase index to aid colouring
                 currentIndex++;
@@ -906,6 +905,13 @@ namespace Translator.Core
             }
 
             UI.SignalUserEndWait();
+        }
+
+        public void MarkLineSimilarIfApplicable(string key)
+        {
+            if (TranslationData.ContainsKey(key))
+                if (TranslationData[key].ShouldBeMarkedSimilarToEnglish)
+                    TabUI.TranslationsSimilarToTemplate.Add(key);
         }
 
         private void AutoTranslationCallback(bool successfull, LineData data)
@@ -929,7 +935,7 @@ namespace Translator.Core
         /// </summary>
         private void ConvenienceAutomaticTranslation()
         {
-            //change this so it shows as a placeholder type of text
+            //todo change this so it shows as a placeholder type of text
             if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
                 AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
         }
@@ -996,6 +1002,7 @@ namespace Translator.Core
             }
         }
 
+        //Creates the actual linedata objects from the file
         private void CreateLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation)
         {
             if (lastLine[0] == string.Empty) return;
@@ -1101,18 +1108,6 @@ namespace Translator.Core
             }
         }
 
-        private void MarkSimilarLine()
-        {
-            if (TabUI.TranslationBoxText == TabUI.TemplateBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved)
-            {
-                TabUI.SimilarStringsToEnglish.Add(SelectedId);
-            }
-            else
-            {
-                _ = TabUI.SimilarStringsToEnglish.Remove(SelectedId);
-            }
-        }
-
         /// <summary>
         /// loads all the strings from the selected file into a list of LineData elements.
         /// </summary>
@@ -1177,7 +1172,7 @@ namespace Translator.Core
             Settings.Default.RecentIndex = TabUI.SelectedLineIndex;
             TranslationData.Clear();
             TabUI.Lines.Clear();
-            TabUI.SimilarStringsToEnglish.Clear();
+            TabUI.TranslationsSimilarToTemplate.Clear();
             SelectedResultIndex = 0;
             TabManager.UpdateSelectedTabTitle("Tab");
             TabUI.SetApprovedCount(1, 1, "empty tab");
@@ -1188,7 +1183,7 @@ namespace Translator.Core
             SaveFile();
         }
 
-        private void SearchUpdateSingle()
+        private void UpdateSearchForCurrentEditedLine()
         {
             int index = TabUI.SelectedLineIndex;
             if (Searcher.Search(SearchQuery, SelectedLine))
