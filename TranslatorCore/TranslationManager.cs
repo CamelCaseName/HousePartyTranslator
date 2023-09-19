@@ -302,7 +302,7 @@ namespace Translator.Core
             LogManager.Log($"Starting automatic translation for {NumberOfUnapprovedLines} unapproved lines");
             foreach (var line in TranslationData.Values)
             {
-                if (!line.IsApproved)
+                if (!line.IsApproved && line.TranslationString != line.TemplateString)
                     AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
                     {
                         if (successfull)
@@ -356,7 +356,7 @@ namespace Translator.Core
             LogManager.Log($"Starting automatic translation for {NumberOfUntranslatedLines} untranslated lines");
             foreach (var line in TranslationData.Values)
             {
-                if (!line.IsTranslated)
+                if (!line.IsTranslated && line.TranslationString != line.TemplateString)
                     AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
                     {
                         if (successfull)
