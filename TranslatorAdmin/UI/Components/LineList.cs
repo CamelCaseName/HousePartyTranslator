@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.InterfaceImpls;
 
 namespace Translator.Desktop.UI.Components
 {
+    [SupportedOSPlatform("windows")]
     public class LineList : ColoredCheckedListBox, ILineList
     {
         protected override void WndProc(ref Message m) => base.WndProc(ref m);

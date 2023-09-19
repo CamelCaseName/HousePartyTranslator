@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Desktop.Helpers;
 
@@ -10,6 +11,7 @@ namespace Translator.Desktop.UI.Components
     /// Borrowed from https://stackoverflow.com/questions/2130934/how-change-the-color-of-selecteditem-in-checkedlistbox-in-windowsforms
     /// Creates a coloured Rectangle in each element, depending on checked state.
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public class ColoredCheckedListBox : CheckedListBox
     {
         /// <summary>
