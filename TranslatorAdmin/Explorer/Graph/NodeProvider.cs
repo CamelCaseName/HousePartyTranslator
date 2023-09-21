@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.Versioning;
+using Translator.Desktop.Explorer.JSONItems;
 
 namespace Translator.Desktop.Explorer.Graph
 {
@@ -35,6 +37,19 @@ namespace Translator.Desktop.Explorer.Graph
         private bool frozen = false;
         private NodeMovementInfo _movingNodeInfo = (-1, 0.0f, 0.0f);
         public NodeMovementInfo MovingNodeInfo => _movingNodeInfo;
+        public readonly NodeType[] defaulTypes = {
+            NodeType.ItemAction,
+            NodeType.Achievement,
+            NodeType.BGC,
+            NodeType.Dialogue,
+            NodeType.AlternateText,
+            NodeType.Event,
+            NodeType.Item,
+            NodeType.Quest,
+            NodeType.Response,
+            NodeType.ItemGroupBehaviour };
+        public bool TextOnlyEvents = false;
+        private string[] _filenames = Array.Empty<string>();
 
         public NodeList Nodes
         {
@@ -112,6 +127,11 @@ namespace Translator.Desktop.Explorer.Graph
         {
         }
 
+        public void SetFileNames(string[] files)
+        {
+            _filenames = files;
+        }
+
         public void FreezeNodesAsInitial()
         {
             if (!frozen)
@@ -180,6 +200,31 @@ namespace Translator.Desktop.Explorer.Graph
             NodeList filteredNodes = new();
             foreach (Node node in InternalNodes)
             {
+                if (TextOnlyEvents)
+                {
+                    if (node.Type == NodeType.Event)
+                    {
+                        if (node.DataType != typeof(GameEvent) || node.Data is null) continue;
+
+                        GameEvent gameEvent = (GameEvent)node.Data!;
+                        if (gameEvent.EventType == StoryEnums.GameEvents.DisplayGameMessage)
+                        {
+                            filteredNodes.Add(node);
+                        }
+                        else if (gameEvent.EventType == StoryEnums.GameEvents.Item)
+                        {
+                            if (gameEvent.Option == 2)
+                                filteredNodes.Add(node);
+                        }
+                        continue;
+                    }
+                    if (node.Type == NodeType.Dialogue && TextOnlyEvents)
+                    {
+                        if (_filenames.Contains(node.FileName))
+                            filteredNodes.Add(node);
+                        else continue;
+                    }
+                }
                 if (allowedTypes.Contains(node.Type))
                     filteredNodes.Add(node);
             }
@@ -204,18 +249,13 @@ namespace Translator.Desktop.Explorer.Graph
 
         internal void ApplyDefaultFilter()
         {
-            AddFilter(NodeType.Dialogue);
-            AddFilter(NodeType.BGC);
-            AddFilter(NodeType.Item);
-            AddFilter(NodeType.AlternateText);
-            AddFilter(NodeType.Achievement);
-            AddFilter(NodeType.BGCResponse);
-            AddFilter(NodeType.ItemAction);
-            AddFilter(NodeType.ItemGroupInteraction);
-            AddFilter(NodeType.Quest);
-            AddFilter(NodeType.Response);
-            AddFilter(NodeType.Event);
+            TextOnlyEvents = true;
+            foreach (var type in defaulTypes)
+            {
+                AddFilter(type);
+            }
             ApplyFilters();
+            TextOnlyEvents = false;
         }
     }
 }

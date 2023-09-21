@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Drawing;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Desktop.Helpers;
 
@@ -10,6 +13,7 @@ namespace Translator.Desktop.UI.Components
     /// Borrowed from https://stackoverflow.com/questions/2130934/how-change-the-color-of-selecteditem-in-checkedlistbox-in-windowsforms
     /// Creates a coloured Rectangle in each element, depending on checked state.
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public class ColoredCheckedListBox : CheckedListBox
     {
         /// <summary>
@@ -20,7 +24,7 @@ namespace Translator.Desktop.UI.Components
         /// <summary>
         /// list containing all indices that are duplicates fo the english string
         /// </summary>
-        public List<string> SimilarStringsToEnglish = new();
+        public ObservableCollection<string> SimilarStringsToEnglish = new();
 
         /// <summary>
         /// Use double buffering, removes flicker
@@ -43,16 +47,15 @@ namespace Translator.Desktop.UI.Components
                     e.State,
                     e.ForeColor, //colour yellow if it is part of the search, else colour normally
                     e.Index > -1 ?
-
-                            SearchResults.Contains(e.Index) ?
-                                Color.DarkOrange :
+                        SearchResults.Contains(e.Index) ?
+                            Color.DarkOrange :
+                            CheckedIndices.Contains(e.Index) ?
+                                Color.FromArgb(80, 130, 80) :
                                 SimilarStringsToEnglish.Contains(Items[e.Index].ToString() ?? string.Empty) ?
                                     Color.FromArgb(130, 80, 130) :
-                                    CheckedIndices.Contains(e.Index) ?
-                                        Color.FromArgb(80, 130, 80) :
-                                        Color.FromArgb(130, 80, 80)
-                         :
-                        e.BackColor
+                                    Color.FromArgb(130, 80, 80)
+                            :
+                            e.BackColor
                 );
             base.OnDrawItem(e2);
         }

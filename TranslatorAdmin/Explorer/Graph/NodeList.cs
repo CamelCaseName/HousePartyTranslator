@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Translator.Core.Helpers;
 
 namespace Translator.Desktop.Explorer.Graph
 {
@@ -79,6 +80,9 @@ namespace Translator.Desktop.Explorer.Graph
         //syncs edges to nodes, including nodes not in the list
         public void Sync()
         {
+#if DEBUG
+            var start = DateTime.UtcNow;
+#endif
             lock (this)
                 lock (Edges)
                 {
@@ -94,11 +98,17 @@ namespace Translator.Desktop.Explorer.Graph
                     if (EdgeCountChanged is not null)
                         EdgeCountChanged(this, new(Edges.Count));
                 }
+#if DEBUG
+            LogManager.Log($"Sync on {Count} nodes, {Edges.Count} edges took {(DateTime.UtcNow - start).Milliseconds}ms");
+#endif
         }
 
         //syncs edges to nodes, but exludes all edges that would include nodes not in the list
         public void StrictSync()
         {
+#if DEBUG
+            var start = DateTime.UtcNow;
+#endif
             lock (this)
                 lock (Edges)
                 {
@@ -107,16 +117,37 @@ namespace Translator.Desktop.Explorer.Graph
                     {
                         for (int c = 0; c < this[x].ChildNodes.Count; c++)
                         {
-                            if (Contains(this[x].ChildNodes[c]))
-                            {
-                                var edge = new Edge(this[x], x, this[x].ChildNodes[c], IndexOf(this[x].ChildNodes[c]));
-                                Edges.Add(edge);
-                            }
+                            TryCreateEdge(this[x], this[x].ChildNodes[c], x);
                         }
                     }
                     if (EdgeCountChanged is not null)
                         EdgeCountChanged(this, new(Edges.Count));
                 }
+#if DEBUG
+            LogManager.Log($"StrictSync on {Count} nodes, {Edges.Count} edges took {(DateTime.UtcNow - start).Milliseconds}ms");
+#endif
+        }
+
+        private void TryCreateEdge(Node root, Node child, int x, int depth = 3)
+        {
+            //values for depth over 3 break the thing, so this has to suffice
+            //to stop infinite cycles that might arise, but should not
+            if (depth == 0 || root == child) return;
+
+            //Add edge if we have the node as is
+            int c = IndexOf(child);
+            if (c >= 0)
+            {
+                Edges.Add(new Edge(root, x, child, c));
+            }
+            else
+            {
+                //try and create an edge to the childs of the child if possible
+                foreach (var childsChild in child.ChildNodes)
+                {
+                    TryCreateEdge(root, childsChild, x, depth - 1);
+                }
+            }
         }
 
         public new void AddRange(IEnumerable<Node> list)

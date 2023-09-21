@@ -22,22 +22,11 @@ namespace Translator.Explorer.Window
         private readonly string parentName;
         public readonly string FileName;
         public readonly string StoryName;
-        private bool SettingsVisible = false;
+        private bool MenuVisible = false;
         private bool inInitialization = true;
-        public const string Version = "1.2.3.1";
+        public const string Version = "1.2.4.0";
         public const string Title = "StoryExplorer v" + Version;
         private readonly CancellationToken token;
-        private readonly NodeType[] defaulTypes = {
-            NodeType.ItemAction,
-            NodeType.Achievement,
-            NodeType.BGC,
-            NodeType.Dialogue,
-            NodeType.AlternateText,
-            NodeType.Event,
-            NodeType.Item,
-            NodeType.Quest,
-            NodeType.Response,
-            NodeType.ItemGroupBehaviour };
         public NodeLayout? Layouter { get; private set; }
         internal GraphingEngine Grapher { get { return engine; } }
         internal NodeProvider Provider { get; }
@@ -207,12 +196,12 @@ namespace Translator.Explorer.Window
 
         private void MenuShowButton_Click(object sender, EventArgs e)
         {
-            SettingsVisible = !SettingsVisible;
-            SettingsBox.Visible = SettingsVisible;
-            MenuShowButton.Text = SettingsVisible ? "Hide Settings" : "Show Settings";
-            SettingsBox.Update();
+            MenuVisible = !MenuVisible;
+            MenuBox.Visible = MenuVisible;
+            MenuShowButton.Text = MenuVisible ? "Hide Menu" : "Show Menu";
+            MenuBox.Update();
             MenuShowButton.Update();
-            SettingsBox.Invalidate();
+            MenuBox.Invalidate();
             MenuShowButton.Invalidate();
         }
 
@@ -268,6 +257,9 @@ namespace Translator.Explorer.Window
             {
                 NodeTypeButtonsLayout.Controls[i].Enabled = false;
             }
+
+            Provider.TextOnlyEvents = true;
+
             //cache so we can filter while acessing old types
             var enumerator = new List<NodeType>(availableTypes).GetEnumerator();
             while (enumerator.MoveNext())
@@ -276,7 +268,7 @@ namespace Translator.Explorer.Window
                 if (button is ToggleButton toggleButton)
                 {
                     toggleButton.Enabled = true;
-                    if (defaulTypes.Contains(enumerator.Current))
+                    if (Provider.defaulTypes.Contains(enumerator.Current))
                         toggleButton.SimulateClick();
                 }
                 else
@@ -284,6 +276,8 @@ namespace Translator.Explorer.Window
                     LogManager.Log("Type " + enumerator.Current.ToString() + "not found in UI, may be new?", LogManager.Level.Warning);
                 }
             }
+
+            Provider.TextOnlyEvents = false;
         }
     }
 }

@@ -211,7 +211,7 @@ namespace Translator.Core
                 }
                 else
                 {
-                    _ = UI!.WarningOk("No templates approved so far", "Potential issue");
+                    _ = UI!.WarningOk("No translations approved so far", "Potential issue");
                 }
                 reader.Close();
             }

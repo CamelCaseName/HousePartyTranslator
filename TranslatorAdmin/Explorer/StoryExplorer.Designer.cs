@@ -39,7 +39,7 @@ namespace Translator.Explorer.Window
             EdgeLength = new Label();
             NodeCalculations = new Label();
             MenuShowButton = new Button();
-            SettingsBox = new GroupBox();
+            MenuBox = new GroupBox();
             NodeTypeButtonsLayout = new FlowLayoutPanel();
             NodeFilterLabel = new Label();
             MoveDownButton = new Button();
@@ -52,7 +52,7 @@ namespace Translator.Explorer.Window
             CenterButton = new Button();
             ((System.ComponentModel.ISupportInitialize)ColoringDepth).BeginInit();
             ((System.ComponentModel.ISupportInitialize)IdealLength).BeginInit();
-            SettingsBox.SuspendLayout();
+            MenuBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)NodeSizeField).BeginInit();
             SuspendLayout();
             // 
@@ -150,33 +150,33 @@ namespace Translator.Explorer.Window
             MenuShowButton.Name = "MenuShowButton";
             MenuShowButton.Size = new System.Drawing.Size(89, 23);
             MenuShowButton.TabIndex = 8;
-            MenuShowButton.Text = "Show Settings";
+            MenuShowButton.Text = "Show Menu";
             MenuShowButton.UseVisualStyleBackColor = true;
             MenuShowButton.Click += MenuShowButton_Click;
             // 
-            // SettingsBox
+            // MenuBox
             // 
-            SettingsBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            SettingsBox.Controls.Add(NodeTypeButtonsLayout);
-            SettingsBox.Controls.Add(NodeFilterLabel);
-            SettingsBox.Controls.Add(MoveDownButton);
-            SettingsBox.Controls.Add(MoveUpButton);
-            SettingsBox.Controls.Add(ShowExtendedInfo);
-            SettingsBox.Controls.Add(TextNodesOnly);
-            SettingsBox.Controls.Add(NodeSizeField);
-            SettingsBox.Controls.Add(NodeSize);
-            SettingsBox.Controls.Add(IdealLength);
-            SettingsBox.Controls.Add(ColoringDepth);
-            SettingsBox.Controls.Add(ColorDepth);
-            SettingsBox.Controls.Add(EdgeLength);
-            SettingsBox.ForeColor = System.Drawing.SystemColors.MenuBar;
-            SettingsBox.Location = new System.Drawing.Point(770, 41);
-            SettingsBox.Name = "SettingsBox";
-            SettingsBox.Size = new System.Drawing.Size(202, 464);
-            SettingsBox.TabIndex = 10;
-            SettingsBox.TabStop = false;
-            SettingsBox.Text = "Settings";
-            SettingsBox.Visible = false;
+            MenuBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            MenuBox.Controls.Add(NodeTypeButtonsLayout);
+            MenuBox.Controls.Add(NodeFilterLabel);
+            MenuBox.Controls.Add(MoveDownButton);
+            MenuBox.Controls.Add(MoveUpButton);
+            MenuBox.Controls.Add(ShowExtendedInfo);
+            MenuBox.Controls.Add(TextNodesOnly);
+            MenuBox.Controls.Add(NodeSizeField);
+            MenuBox.Controls.Add(NodeSize);
+            MenuBox.Controls.Add(IdealLength);
+            MenuBox.Controls.Add(ColoringDepth);
+            MenuBox.Controls.Add(ColorDepth);
+            MenuBox.Controls.Add(EdgeLength);
+            MenuBox.ForeColor = System.Drawing.SystemColors.MenuBar;
+            MenuBox.Location = new System.Drawing.Point(770, 41);
+            MenuBox.Name = "MenuBox";
+            MenuBox.Size = new System.Drawing.Size(202, 464);
+            MenuBox.TabIndex = 10;
+            MenuBox.TabStop = false;
+            MenuBox.Text = "Menu";
+            MenuBox.Visible = false;
             // 
             // NodeTypeButtonsLayout
             // 
@@ -264,7 +264,7 @@ namespace Translator.Explorer.Window
             NodeSize.Name = "NodeSize";
             NodeSize.Size = new System.Drawing.Size(72, 15);
             NodeSize.TabIndex = 8;
-            NodeSize.Text = "Node Count";
+            NodeSize.Text = "Node Size";
             // 
             // SaveStory
             // 
@@ -295,7 +295,7 @@ namespace Translator.Explorer.Window
             ClientSize = new System.Drawing.Size(984, 561);
             Controls.Add(CenterButton);
             Controls.Add(SaveStory);
-            Controls.Add(SettingsBox);
+            Controls.Add(MenuBox);
             Controls.Add(MenuShowButton);
             Controls.Add(NodeCalculations);
             Controls.Add(Stop);
@@ -314,8 +314,8 @@ namespace Translator.Explorer.Window
             MouseWheel += HandleMouseEvents;
             ((System.ComponentModel.ISupportInitialize)ColoringDepth).EndInit();
             ((System.ComponentModel.ISupportInitialize)IdealLength).EndInit();
-            SettingsBox.ResumeLayout(false);
-            SettingsBox.PerformLayout();
+            MenuBox.ResumeLayout(false);
+            MenuBox.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)NodeSizeField).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -332,7 +332,7 @@ namespace Translator.Explorer.Window
         private Label EdgeLength;
         private Label NodeCalculations;
         private Button MenuShowButton;
-        private GroupBox SettingsBox;
+        private GroupBox MenuBox;
         private NumericUpDown NodeSizeField;
         private Label NodeSize;
         private CheckBox ShowExtendedInfo;

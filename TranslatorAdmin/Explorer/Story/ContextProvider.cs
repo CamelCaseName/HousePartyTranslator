@@ -142,6 +142,8 @@ internal sealed class ContextProvider
                 Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
             }
 
+            provider.SetFileNames(new string[] { FileName });
+
             //even link for single file, should be able to link most suff so it stays readable
             InterlinkNodes(Nodes);
 
@@ -193,6 +195,7 @@ internal sealed class ContextProvider
 
         if ((Directory.GetFiles(StoryFolderPath).Length > 0 && StoryFolderPath.Split("\\")[^1] == StoryName) || !AutoFileSelection)
         {
+            List<string> files = new();
             //else create new
             foreach (string item in Directory.GetFiles(StoryFolderPath))
             {
@@ -204,13 +207,16 @@ internal sealed class ContextProvider
                                 File.ReadAllText(item)) ?? new(),
                             Utils.ExtractFileName(item)));
                 }
-
                 else
+                {
                     Nodes.AddRange(
                         DissectCharacter(
                             JsonConvert.DeserializeObject<CharacterStory>(
                                 File.ReadAllText(item)) ?? new()));
+                }
+                files.Add(Utils.ExtractFileName(item));
             }
+            provider.SetFileNames(files.ToArray());
             //read in all first, dumbass me
             InterlinkNodes(Nodes);
 

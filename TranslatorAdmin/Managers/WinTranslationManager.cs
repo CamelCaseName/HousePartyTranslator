@@ -12,8 +12,6 @@ namespace Translator.Desktop.Managers
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
     public static class WinTranslationManager
     {
-        public static bool UpdateStoryExplorerSelection { get; internal set; } = true;
-
         internal static bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
         {
             if (TabManager.UI is null)

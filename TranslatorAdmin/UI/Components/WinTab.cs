@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
@@ -13,48 +14,27 @@ namespace Translator.Desktop.UI.Components
     [SupportedOSPlatform("Windows")]
     public class WinTab : TabPage, ITab
     {
-        public readonly NoAnimationBar ProgressbarTranslated = new();
-
+        private readonly NoAnimationBar ProgressbarTranslated = new();
         private readonly CheckBox ApprovedBox = new();
-
         private readonly Label CharacterCountLabel = new();
-
         private readonly LineList CheckListBoxLeft = new();
-
         private readonly GroupBox CommentGroup = new();
-
         private readonly WinTextBox CommentTextBox = new();
-
         private readonly WinMenuItem CopyAllContextMenuButton = new();
-
         private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
-
         private readonly WinMenuItem CopyFileNameContextMenuButton = new();
-
         private readonly WinMenuItem CopyIdContextMenuButton = new();
-
         private readonly WinMenuItem CopyStoryNameContextMenuButton = new();
-
         private readonly WinMenuItem CopyTemplateContextMenuButton = new();
-
         private readonly WinMenuItem CopyTranslationContextMenuButton = new();
-
         private readonly Label LinesTranslated = new();
-
         private readonly ContextMenuStrip ListContextMenu = new();
-
         private readonly TableLayoutPanel mainTableLayoutPanel = new();
-
         private readonly Panel panel1 = new();
-
         private readonly Panel panel2 = new();
-
         private readonly Label SelectedFile = new();
-
         private readonly WinTextBox TemplateTextBox = new();
-
         private readonly Button TranslateThis = new();
-
         private readonly WinTextBox TranslationTextBox = new();
 
         //todo add progress bar to tab title
@@ -383,7 +363,7 @@ namespace Translator.Desktop.UI.Components
         public ILineItem SelectedLineItem => (ILineItem)(Lines.SelectedItem ?? new WinLineItem());
         public string SelectedTemplateBoxText => TemplateTextBox.SelectedText;
         public string SelectedTranslationBoxText => TranslationTextBox.SelectedText;
-        public List<string> SimilarStringsToEnglish => Lines.SimilarStringsToEnglish;
+        public IList<string> TranslationsSimilarToTemplate => Lines.SimilarStringsToEnglish;
         public int SingleProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
         public ITextBox Template => TemplateTextBox;
         public string TemplateBoxText { get => TemplateTextBox.Text; set => TemplateTextBox.Text = value; }
@@ -391,12 +371,15 @@ namespace Translator.Desktop.UI.Components
         {
             get
             {
-                return base.Text;
+                return Invoke(() => base.Text);
             }
             set
             {
-                base.Text = value;
-                Update();
+                Invoke(() =>
+                {
+                    base.Text = value;
+                    Update();
+                });
             }
         }
         public ITextBox Translation => TranslationTextBox;
@@ -404,7 +387,6 @@ namespace Translator.Desktop.UI.Components
         internal Fenster MainForm { get; init; }
         private static int Number { get; set; } = 0;
         public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
-        public ILineItem AtIndex(int index) => CheckListBoxLeft[index];
         public void ClearLines() => CheckListBoxLeft.Clear();
         public void FocusCommentBox() => CommentTextBox.Focus();
         public void FocusTranslationBox() => TranslationTextBox.Focus();

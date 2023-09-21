@@ -7,6 +7,7 @@ namespace Translator.Core
         private static ITextBox? lastChangedTextBox;
         private static string? lastText;
         private static int lastIndex = Settings.Default.RecentIndex;
+        private static int lastIndexForTextChanges = Settings.Default.RecentIndex;
 
         public static void SaveAndApproveAndSelectNewLine()
         {
@@ -76,7 +77,7 @@ namespace Translator.Core
         {
             if (text == lastChangedTextBox
                 && lastText != lastChangedTextBox?.Text
-                && lastIndex == selectedIndex
+                && lastIndexForTextChanges == selectedIndex
                 && lastChangedTextBox is not null
                 && lastText is not null)
             {
@@ -87,16 +88,25 @@ namespace Translator.Core
                     TabManager.ActiveTranslationManager.FileName,
                     TabManager.ActiveTranslationManager.StoryName));
             }
+            else
+            {
+                //we selected a new line and dont need to add a history item
+                lastIndexForTextChanges = selectedIndex;
+            }
         }
 
         public static void SelectedItemChanged(ILineList listBox)
         {
-            if (lastIndex >= 0 && listBox.SelectedIndex >= 0)
+            if (lastIndex >= 0)
             {
-                if (History.Peek().FileName == TabManager.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
-                    History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
-                else
-                    History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
+                TabManager.ActiveTranslationManager.UpdateSimilarityMarking(listBox[lastIndex].ToString()!);
+                if (listBox.SelectedIndex >= 0)
+                {
+                    if (History.Peek().FileName == TabManager.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
+                        History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
+                    else
+                        History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
+                }
             }
             lastIndex = listBox.SelectedIndex;
             TabManager.ActiveTranslationManager.PopulateTextBoxes();

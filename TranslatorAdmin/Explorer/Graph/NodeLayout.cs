@@ -96,8 +96,10 @@ namespace Translator.Desktop.Explorer.Graph
                 {
                     if (result.Exception is not null)
                     {
+                        //filter out object disposed as that happens when we close the window
+                        if (result.Exception.InnerException is ObjectDisposedException) return;
                         LogManager.Log(result.Exception, LogManager.Level.Error);
-                        Msg.WarningOk("Calculation failed and has been stopped. Xou can try and restart the calculations. See the log for more info.");
+                        Msg.WarningOk("Calculation failed and has been stopped. You can try and restart the calculations. See the log for more info.");
                     }
                 });
             }
@@ -116,6 +118,7 @@ namespace Translator.Desktop.Explorer.Graph
         {
             if (App.MainForm is null) return;
             if (App.MainForm.Explorer is null) return;
+            var explorer = App.MainForm.Explorer;
 
             //save all forces here
             if (NodeForces.Count != Nodes.Count)
@@ -136,7 +139,7 @@ namespace Translator.Desktop.Explorer.Graph
 
             while (!token.IsCancellationRequested && !Finished)
             {
-                FrameStartTime = FrameEndTime;
+                FrameStartTime = DateTime.UtcNow;
 
                 //calculate
                 CalculatePositions();
@@ -145,7 +148,7 @@ namespace Translator.Desktop.Explorer.Graph
 #endif
                 //its not faster to clean out this access chain!
                 //we got to wait before we change nodes, so like a reverse lock?
-                while (!App.MainForm!.Explorer.Grapher.DrewNodes) ;
+                while (!explorer.Grapher.DrewNodes) ;
                 //switch to other list once done
                 provider.UsingListA = !provider.UsingListA;
                 ++_layoutcount;
@@ -153,13 +156,14 @@ namespace Translator.Desktop.Explorer.Graph
                 FrameEndTime = DateTime.UtcNow;
                 TimeSpan frametime = FrameEndTime - FrameStartTime;
 #if DEBUG
-                LogManager.Log($"Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms calculation part of frame-> {(DrawStartTime - FrameStartTime).TotalMilliseconds / frametime.TotalMilliseconds * 100:000}%");
+                LogManager.Log($"Nodes: {NodeForces.Count}N{Nodes.Edges.Count}E Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms");
 #endif
                 if (frametime.TotalMilliseconds < 30) Thread.Sleep((int)(30 - frametime.TotalMilliseconds));
 
-                App.MainForm.Explorer.Invalidate();
+                explorer.Invalidate();
             }
-            App.MainForm.Explorer.Invoke(App.MainForm.Explorer.ShowStoppedInfoLabel);
+            if (!explorer.Disposing && !explorer.IsDisposed && explorer.IsHandleCreated)
+                explorer.Invoke(explorer.ShowStoppedInfoLabel);
             Stop();
         }
 

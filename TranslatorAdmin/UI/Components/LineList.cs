@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
+using Translator.Core;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.InterfaceImpls;
 
 namespace Translator.Desktop.UI.Components
 {
+    [SupportedOSPlatform("windows")]
     public class LineList : ColoredCheckedListBox, ILineList
     {
         protected override void WndProc(ref Message m) => base.WndProc(ref m);
@@ -21,32 +25,12 @@ namespace Translator.Desktop.UI.Components
             {
                 _ = Items.Add(items[i]);
             }
-            ((ILineList)this).SelectedLineItem = items.Count > 0 ? items[0] : new WinLineItem();
             SelectedIndex = items.Count > 0 ? 0 : -1;
         }
 
-        public LineList(List<WinLineItem> items, WinLineItem selectedLineItem, int selectedIndex) : this(items)
-        {
-            ((ILineList)this).SelectedLineItem = selectedLineItem;
-            SelectedIndex = selectedIndex;
-        }
-
-        public WinLineItem this[int index] { get { return (WinLineItem)Items[index]; } set { Items[index] = value; } }
-
-        ILineItem ILineList.SelectedLineItem { get; set; } = new WinLineItem();
-
-        public List<string> TranslationSimilarToTemplate => SimilarStringsToEnglish;
-
         List<int> ILineList.SearchResults => SearchResults;
 
-        List<int> ILineList.TranslationSimilarToTemplate { get; } = new();
-
         ILineItem ILineList.this[int index] { get => (WinLineItem)Items[index]; set => Items[index] = value; }
-
-        void ILineList.AddLineItem(ILineItem item)
-        {
-            _ = Items.Add(item);
-        }
 
         public void ApproveItem(int index)
         {
@@ -54,6 +38,7 @@ namespace Translator.Desktop.UI.Components
             {
                 ((WinLineItem)Items[index]).Approve();
                 SetItemChecked(index, true);
+                _ = SimilarStringsToEnglish.Remove(((WinLineItem)Items[index]).ToString());
             }
             catch
             {
@@ -78,29 +63,14 @@ namespace Translator.Desktop.UI.Components
             }
         }
 
-        public void RemoveLineItem(ILineItem item)
-        {
-            Items.Remove(item);
-        }
-
-        public void SelectIndex(int index)
-        {
-            try
-            {
-                ((ILineList)this).SelectedLineItem = (WinLineItem)Items[index];
-            }
-            catch
-            {
-                throw new IndexOutOfRangeException("Given index was too big for the array");
-            }
-        }
-
         public void SetApprovalState(int index, bool isApproved)
         {
             try
             {
                 ((WinLineItem)Items[index]).IsApproved = isApproved;
                 SetItemChecked(index, isApproved);
+                if (!isApproved)
+                    TabManager.ActiveTranslationManager.UpdateSimilarityMarking(Items[index].ToString()!);
             }
             catch
             {
@@ -114,6 +84,7 @@ namespace Translator.Desktop.UI.Components
             {
                 ((WinLineItem)Items[index]).Unapprove();
                 SetItemChecked(index, false);
+                TabManager.ActiveTranslationManager.UpdateSimilarityMarking(Items[index].ToString()!);
             }
             catch
             {
@@ -132,8 +103,25 @@ namespace Translator.Desktop.UI.Components
             base.OnItemCheck(ice);
         }
 
-        public void FreezeLayout() => SuspendLayout();
+        public void FreezeLayout()
+        {
+            SuspendLayout();
+            SimilarStringsToEnglish.CollectionChanged -= UpdateOnCountChange;
+        }
 
-        public void UnFreezeLayout() => ResumeLayout();
+        public void UnFreezeLayout()
+        {
+            ResumeLayout();
+            SimilarStringsToEnglish.CollectionChanged += UpdateOnCountChange;
+        }
+
+        private void UpdateOnCountChange(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            Invoke(() =>
+            {
+                Invalidate();
+                Update();
+            });
+        }
     }
 }
