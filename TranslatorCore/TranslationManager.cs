@@ -8,6 +8,7 @@ using System.Timers;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 //TODO add tests
 
@@ -940,6 +941,7 @@ namespace Translator.Core
             {
                 TranslationData[data.ID] = data;
                 if (data.ID == SelectedId) ReloadTranslationTextbox();
+                else MarkLineSimilarIfApplicable(data.ID);
             }
             else if (Settings.Default.AutoTranslate)
             {
