@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 
 namespace Translator.Core.UICompatibilityLayer
@@ -12,7 +13,7 @@ namespace Translator.Core.UICompatibilityLayer
         /// <summary>
         /// Contains the ids of strings similar to the original template
         /// </summary>
-        List<string> TranslationsSimilarToTemplate { get; }
+        IList<string> TranslationsSimilarToTemplate { get; }
 
         void Dispose();
 

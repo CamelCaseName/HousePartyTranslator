@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
@@ -362,7 +363,7 @@ namespace Translator.Desktop.UI.Components
         public ILineItem SelectedLineItem => (ILineItem)(Lines.SelectedItem ?? new WinLineItem());
         public string SelectedTemplateBoxText => TemplateTextBox.SelectedText;
         public string SelectedTranslationBoxText => TranslationTextBox.SelectedText;
-        public List<string> TranslationsSimilarToTemplate => Lines.SimilarStringsToEnglish;
+        public IList<string> TranslationsSimilarToTemplate => Lines.SimilarStringsToEnglish;
         public int SingleProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
         public ITextBox Template => TemplateTextBox;
         public string TemplateBoxText { get => TemplateTextBox.Text; set => TemplateTextBox.Text = value; }
@@ -370,12 +371,15 @@ namespace Translator.Desktop.UI.Components
         {
             get
             {
-                return base.Text;
+                return Invoke(() => base.Text);
             }
             set
             {
-                base.Text = value;
-                Update();
+                Invoke(() =>
+                {
+                    base.Text = value;
+                    Update();
+                });
             }
         }
         public ITextBox Translation => TranslationTextBox;

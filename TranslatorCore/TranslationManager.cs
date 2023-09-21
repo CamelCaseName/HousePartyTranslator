@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Timers;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 //TODO add tests
 
@@ -40,7 +38,7 @@ namespace Translator.Core
         private string sourceFilePath = string.Empty;
         private string storyName = string.Empty;
         private bool triedFixingOnce = false;
-        private int returnedTasks = 0;
+        private static int returnedTasks = 0;
         private bool multiTranslationRunning = false;
         private bool abortedAutoTranslation = false;
 
@@ -309,7 +307,7 @@ namespace Translator.Core
             LogManager.Log($"Starting automatic translation for {NumberOfUnapprovedLines} unapproved lines");
             foreach (var line in TranslationData.Values)
             {
-                if (!line.IsApproved && line.TranslationString != line.TemplateString)
+                if (!line.IsApproved && line.TranslationString == line.TemplateString)
                     AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
                     {
                         if (successfull)
@@ -338,6 +336,7 @@ namespace Translator.Core
                 }
                 ChangesPending = true;
                 History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
+                TabUI.TranslationsSimilarToTemplate.Clear();
                 UI.SignalUserEndWait();
                 UI.InfoOk($"{replaced.Count} lines out of {NumberOfUnapprovedLines} unapproved lines were automatically replaced");
                 multiTranslationRunning = false;
@@ -368,7 +367,7 @@ namespace Translator.Core
             LogManager.Log($"Starting automatic translation for {NumberOfUntranslatedLines} untranslated lines");
             foreach (var line in TranslationData.Values)
             {
-                if (!line.IsTranslated && line.TranslationString != line.TemplateString)
+                if (!line.IsTranslated && line.TranslationString == line.TemplateString)
                     AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
                     {
                         if (successfull)
@@ -396,6 +395,7 @@ namespace Translator.Core
                 }
                 ChangesPending = true;
                 History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
+                TabUI.TranslationsSimilarToTemplate.Clear();
                 UI.SignalUserEndWait();
                 UI.InfoOk($"{replaced.Count} lines out of {NumberOfUntranslatedLines} untranslated lines were automatically replaced");
                 multiTranslationRunning = false;
@@ -909,7 +909,7 @@ namespace Translator.Core
                 TabUI.Lines.Add(key, TranslationData[key].IsApproved);
 
                 //colour string if similar to the english one
-                MarkLineSimilarIfApplicable(key);
+                UpdateSimilarityMarking(key);
 
                 //increase index to aid colouring
                 currentIndex++;
@@ -927,11 +927,21 @@ namespace Translator.Core
             UI.SignalUserEndWait();
         }
 
-        public void MarkLineSimilarIfApplicable(string key)
+        public void UpdateSimilarityMarking(string key)
         {
             if (TranslationData.ContainsKey(key))
+            {
                 if (TranslationData[key].ShouldBeMarkedSimilarToEnglish)
+                {
+                    TranslationData[key].IsTranslated = false;
                     TabUI.TranslationsSimilarToTemplate.Add(key);
+                }
+                else
+                {
+                    TranslationData[key].IsTranslated = true;
+                    _ = TabUI.TranslationsSimilarToTemplate.Remove(key);
+                }
+            }
         }
 
         private void AutoTranslationCallback(bool successfull, LineData data)
@@ -941,7 +951,7 @@ namespace Translator.Core
             {
                 TranslationData[data.ID] = data;
                 if (data.ID == SelectedId) ReloadTranslationTextbox();
-                else MarkLineSimilarIfApplicable(data.ID);
+                UpdateSimilarityMarking(data.ID);
             }
             else if (Settings.Default.AutoTranslate)
             {
@@ -958,20 +968,25 @@ namespace Translator.Core
         private void ConvenienceAutomaticTranslation()
         {
             //todo change this so it shows as a placeholder type of text
-            if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
-            {
-                AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
-                abortedAutoTranslation = false;
-            }
+            if (!multiTranslationRunning)
+                if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
+                {
+                    AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
+                    abortedAutoTranslation = false;
+                }
         }
 
         private void ConvenienceTranslationCallback(bool successfull, LineData data)
         {
             if (abortedAutoTranslation) return;
-            if (successfull && TranslationData[data.ID].TranslationString == data.TemplateString && TranslationData[data.ID].TranslationString.Length == 0)
+            if (successfull)
             {
-                TranslationData[data.ID] = data;
-                ReloadTranslationTextbox();
+                if (TranslationData[data.ID].TranslationString == data.TemplateString || TranslationData[data.ID].TranslationString.Length == 0)
+                {
+                    TranslationData[data.ID] = data;
+                    ReloadTranslationTextbox();
+                    UpdateSimilarityMarking(data.ID);
+                }
             }
             else
             {

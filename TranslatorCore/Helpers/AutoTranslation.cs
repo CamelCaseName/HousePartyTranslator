@@ -111,6 +111,7 @@ namespace Translator.Core.Helpers
                 {
                     tasks.Remove(task);
                     data.TranslationString = result;
+                    data.IsTranslated = true;
                     OnCompletion(true, data);
                 }
                 else

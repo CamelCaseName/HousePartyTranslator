@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Drawing;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
@@ -22,7 +24,7 @@ namespace Translator.Desktop.UI.Components
         /// <summary>
         /// list containing all indices that are duplicates fo the english string
         /// </summary>
-        public List<string> SimilarStringsToEnglish = new();
+        public ObservableCollection<string> SimilarStringsToEnglish = new();
 
         /// <summary>
         /// Use double buffering, removes flicker

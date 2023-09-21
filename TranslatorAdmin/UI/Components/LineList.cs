@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core;
@@ -69,7 +70,7 @@ namespace Translator.Desktop.UI.Components
                 ((WinLineItem)Items[index]).IsApproved = isApproved;
                 SetItemChecked(index, isApproved);
                 if (!isApproved)
-                    TabManager.ActiveTranslationManager.MarkLineSimilarIfApplicable(Items[index].ToString()!);
+                    TabManager.ActiveTranslationManager.UpdateSimilarityMarking(Items[index].ToString()!);
             }
             catch
             {
@@ -83,7 +84,7 @@ namespace Translator.Desktop.UI.Components
             {
                 ((WinLineItem)Items[index]).Unapprove();
                 SetItemChecked(index, false);
-                TabManager.ActiveTranslationManager.MarkLineSimilarIfApplicable(Items[index].ToString()!);
+                TabManager.ActiveTranslationManager.UpdateSimilarityMarking(Items[index].ToString()!);
             }
             catch
             {
@@ -102,8 +103,25 @@ namespace Translator.Desktop.UI.Components
             base.OnItemCheck(ice);
         }
 
-        public void FreezeLayout() => SuspendLayout();
+        public void FreezeLayout()
+        {
+            SuspendLayout();
+            SimilarStringsToEnglish.CollectionChanged -= UpdateOnCountChange;
+        }
 
-        public void UnFreezeLayout() => ResumeLayout();
+        public void UnFreezeLayout()
+        {
+            ResumeLayout();
+            SimilarStringsToEnglish.CollectionChanged += UpdateOnCountChange;
+        }
+
+        private void UpdateOnCountChange(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            Invoke(() =>
+            {
+                Invalidate();
+                Update();
+            });
+        }
     }
 }
