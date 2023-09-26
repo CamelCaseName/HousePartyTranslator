@@ -18,6 +18,7 @@ namespace Translator.Core.Data
         private string _translationString = string.Empty;
         public string[] Comments = Array.Empty<string>();
 
+        //returns the length of the template WITHOUT the voice actor hints
         public int TemplateLength => TemplateString.RemoveVAHints().Length;
         public int TranslationLength => TranslationString.Length;
 
@@ -60,6 +61,20 @@ namespace Translator.Core.Data
             FileName = filename.Trim();
             Category = category;
             TranslationString = translation.Trim();
+        }
+
+        public LineData(LineData selectedLine)
+        {
+            Category = selectedLine.Category;
+            Comments = selectedLine.Comments;
+            FileName = selectedLine.FileName;
+            ID = selectedLine.ID;
+            IsApproved = selectedLine.IsApproved;
+            IsTemplate = selectedLine.IsTemplate;
+            IsTranslated = selectedLine.IsTranslated;
+            Story = selectedLine.Story;
+            TemplateString = selectedLine.TemplateString;
+            _translationString = selectedLine.TranslationString;
         }
 
         public override string ToString()

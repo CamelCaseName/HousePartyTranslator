@@ -99,7 +99,8 @@ namespace Translator.Core
         {
             if (lastIndex >= 0)
             {
-                TabManager.ActiveTranslationManager.UpdateSimilarityMarking(listBox[lastIndex].ToString()!);
+                if (lastIndex < listBox.Count)
+                    TabManager.ActiveTranslationManager.UpdateSimilarityMarking(listBox[lastIndex].ToString()!);
                 if (listBox.SelectedIndex >= 0)
                 {
                     if (History.Peek().FileName == TabManager.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)

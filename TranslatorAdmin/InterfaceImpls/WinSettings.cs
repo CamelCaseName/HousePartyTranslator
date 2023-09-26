@@ -88,12 +88,14 @@ namespace Translator.Desktop.InterfaceImpls
         public bool HighlightLanguages { get => Settings.Default.highlightLanguages; set => Settings.Default.highlightLanguages = value; }
         public bool ExportTranslatedWithMissingLines { get => Settings.Default.exportTranslationInMissingLines; set => Settings.Default.exportTranslationInMissingLines = value; }
         public bool ExportTemplateDiff { get => Settings.Default.exportTemplateDiff; set => Settings.Default.exportTemplateDiff = value; }
+        public static bool CenterNodeOnClick { get => Settings.Default.centerNodeOnClick; set => Settings.Default.centerNodeOnClick = value; }
 
         public void Save()
         {
             Settings.Default.Save();
             LogManager.Log("Settings saved successfully");
         }
+
         internal static void Upgrade() => Settings.Default.Upgrade();
     }
 }

@@ -7,6 +7,7 @@ using System.Timers;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 //TODO add tests
 
@@ -199,21 +200,17 @@ namespace Translator.Core
         /// Approves the string in the db, if possible. Also updates UI.
         /// </summary>
         /// <param name="SelectNewAfter">A bool to determine if a new string should be selected after approval.</param>
-        public void ApproveIfPossible(bool SelectNewAfter)
+        public void ApproveIfPossible()
         {
             int currentIndex = TabUI.SelectedLineIndex;
             if (currentIndex >= 0)
             {
+                //update history
+                History.AddAction(new ApprovedChanged(currentIndex, TabUI.Lines, this, fileName, storyName));
                 //set checkbox state
                 TabUI.ApprovedButtonChecked = TabUI.Lines.GetApprovalState(currentIndex);
                 //set checkbox state
                 SelectedLine.IsApproved = TabUI.ApprovedButtonChecked;
-
-                //move one string down if possible
-                if (SelectNewAfter)
-                {
-                    if (currentIndex < TabUI.Lines.Count - 1) TabUI.SelectLineItem(currentIndex + 1);
-                }
 
                 UpdateApprovedAndTabName();
                 Search();
@@ -278,7 +275,8 @@ namespace Translator.Core
         {
             if (SelectedId != string.Empty)
             {
-                AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+                LogManager.LogDebug("manual autotranslation started for " + SelectedId);
+                AutoTranslation.AutoTranslationAsync(new(SelectedLine), Language, AutoTranslationCallback);
                 abortedAutoTranslation = false;
             }
         }
@@ -332,7 +330,10 @@ namespace Translator.Core
                 {
                     if (abortedAutoTranslation) return;
                     if (!TranslationData[translated.ID].IsApproved)
+                    {
                         TranslationData[translated.ID] = translated;
+                        UpdateSimilarityMarking(translated.ID);
+                    }
                 }
                 ChangesPending = true;
                 History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
@@ -391,7 +392,10 @@ namespace Translator.Core
                 {
                     if (abortedAutoTranslation) return;
                     if (TranslationData[translated.ID].ShouldBeMarkedSimilarToEnglish)
+                    {
                         TranslationData[translated.ID] = translated;
+                        UpdateSimilarityMarking(translated.ID);
+                    }
                 }
                 ChangesPending = true;
                 History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
@@ -927,38 +931,41 @@ namespace Translator.Core
             UI.SignalUserEndWait();
         }
 
-        public void UpdateSimilarityMarking(string key)
+        public void UpdateSimilarityMarking(string id)
         {
-            if (TranslationData.ContainsKey(key))
+            if (!TranslationData.ContainsKey(id)) return;
+
+            if (TranslationData[id].ShouldBeMarkedSimilarToEnglish)
             {
-                if (TranslationData[key].ShouldBeMarkedSimilarToEnglish)
-                {
-                    TranslationData[key].IsTranslated = false;
-                    TabUI.TranslationsSimilarToTemplate.Add(key);
-                }
-                else
-                {
-                    TranslationData[key].IsTranslated = true;
-                    _ = TabUI.TranslationsSimilarToTemplate.Remove(key);
-                }
+                if (!TabUI.TranslationsSimilarToTemplate.Contains(id))
+                    TabUI.TranslationsSimilarToTemplate.Add(id);
+
+                TranslationData[id].IsTranslated = false;
+            }
+            else
+            {
+                TranslationData[id].IsTranslated = true;
+                _ = TabUI.TranslationsSimilarToTemplate.Remove(id);
             }
         }
 
+        //applies the changes back to our linedata object in use
         private void AutoTranslationCallback(bool successfull, LineData data)
         {
             if (abortedAutoTranslation) return;
             if (successfull)
             {
+                History.AddAction(new TranslationChanged(this, data.ID, TranslationData[data.ID].TranslationString, data.TranslationString));
                 TranslationData[data.ID] = data;
-                if (data.ID == SelectedId) ReloadTranslationTextbox();
+                if (data.ID == SelectedId)
+                    ReloadTranslationTextbox();
                 UpdateSimilarityMarking(data.ID);
+                LogManager.LogDebug("manual autotranslation for " + data.ID + " succeeded");
             }
             else if (Settings.Default.AutoTranslate)
             {
                 if (UI.WarningYesNo("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", PopupResult.YES))
-                {
                     Settings.Default.AutoTranslate = false;
-                }
             }
         }
 
@@ -967,15 +974,17 @@ namespace Translator.Core
         /// </summary>
         private void ConvenienceAutomaticTranslation()
         {
-            //todo change this so it shows as a placeholder type of text
+            //todo change this so it shows as a placeholder type of text?
             if (!multiTranslationRunning)
                 if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
                 {
-                    AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
+                    LogManager.LogDebug("running convinience autotranslation for " + SelectedId);
+                    AutoTranslation.AutoTranslationAsync(new(SelectedLine), Language, ConvenienceTranslationCallback);
                     abortedAutoTranslation = false;
                 }
         }
 
+        //applies the changes back to our linedata object in use
         private void ConvenienceTranslationCallback(bool successfull, LineData data)
         {
             if (abortedAutoTranslation) return;
@@ -983,17 +992,18 @@ namespace Translator.Core
             {
                 if (TranslationData[data.ID].TranslationString == data.TemplateString || TranslationData[data.ID].TranslationString.Length == 0)
                 {
+                    History.AddAction(new TranslationChanged(this, data.ID, TranslationData[data.ID].TranslationString, data.TranslationString));
                     TranslationData[data.ID] = data;
-                    ReloadTranslationTextbox();
+                    if (data.ID == SelectedId)
+                        ReloadTranslationTextbox();
                     UpdateSimilarityMarking(data.ID);
+                    LogManager.LogDebug("convinience autotranslation completed for " + data.ID);
                 }
             }
             else
             {
                 if (UI.WarningYesNo("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", PopupResult.YES))
-                {
                     Settings.Default.AutoTranslate = false;
-                }
             }
         }
 
