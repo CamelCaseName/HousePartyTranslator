@@ -180,10 +180,13 @@ namespace Translator.Desktop.Explorer
 
         public void Center()
         {
-            if (highlightedNode != Node.NullNode)
-                CenterOnNode(highlightedNode);
-            else if (infoNode != Node.NullNode)
-                CenterOnNode(infoNode);
+            if (!Settings.CenterNodeOnClick)
+            {
+                if (highlightedNode != Node.NullNode)
+                    CenterOnNode(highlightedNode);
+                else if (infoNode != Node.NullNode)
+                    CenterOnNode(infoNode);
+            }
         }
 
         public void CenterOnNode(Node node)
