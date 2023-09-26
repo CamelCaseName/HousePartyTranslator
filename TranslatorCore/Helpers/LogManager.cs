@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Org.BouncyCastle.Tls;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -56,15 +58,15 @@ namespace Translator.Core.Helpers
         /// A Method for adding a string with timestamp at the end of the log
         /// </summary>
         /// <param name="message">The string to be added.</param>
-        public static void Log(string message, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
-        {
-            Log(message, Level.Info, line, path);
-        }
+        public static void Log(string message, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "") => Log(message, Level.Info, line, path);
 
-        public static void Log(object message, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
-        {
-            Log(message.ToString() ?? "message was null", Level.Info, line, path);
-        }
+        public static void Log(object message, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "") => Log(message.ToString() ?? "message was null", Level.Info, line, path);
+
+        [Conditional("DEBUG")]
+        public static void LogDebug(string message, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "") => Log(message, line, path);
+
+        [Conditional("DEBUG")]
+        public static void LogDebug(object message, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "") => Log(message, line, path);
 
         /// <summary>
         /// A Method for adding a string with timestamp at the end of the log
@@ -73,13 +75,7 @@ namespace Translator.Core.Helpers
         /// <param name="level">The level of the logged message</param>
         public static void Log(string message, Level level, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")
         {
-            string[] folders = path.Split('\\');
-            string file = string.Empty;
-            file = folders[^3] == "HousePartyTranslator"
-                ? folders[^2][10..] + '\\' + folders[^1]
-                : folders[^4] == "HousePartyTranslator"
-                ? folders[^3][10..] + '\\' + folders[^2] + '\\' + folders[^1]
-                : folders[^4][10..] + '\\' + folders[^3] + '\\' + folders[^2] + '\\' + folders[^1];
+            string file = ExtractCSFileNameFromPath(path);
             string _message = $"[{level}] {DateTime.Now} | {file}:{line} | {message}";
 
 #if !(DEBUG || DEBUG_USER)
@@ -87,8 +83,19 @@ namespace Translator.Core.Helpers
             FileLines.AddRange(_message.Split('\n'));
 #else
             //Debug.WriteLine(Environment.StackTrace);
-            System.Diagnostics.Debug.WriteLine(_message[^1] == '\n' ? _message[..^1] : _message);
+            Debug.WriteLine(_message[^1] == '\n' ? _message[..^1] : _message);
 #endif
+        }
+
+        public static string ExtractCSFileNameFromPath(string path)
+        {
+            string[] folders = path.Split('\\');
+            if (folders.Length < 4) throw new ArgumentException("path is not deep enough", nameof(path));
+            return folders[^3] == "HousePartyTranslator"
+                        ? folders[^2][10..] + '\\' + folders[^1]
+                        : folders[^4] == "HousePartyTranslator"
+                        ? folders[^3][10..] + '\\' + folders[^2] + '\\' + folders[^1]
+                        : folders[^4][10..] + '\\' + folders[^3] + '\\' + folders[^2] + '\\' + folders[^1];
         }
 
         public static void Log(object message, Level level, [CallerLineNumber] int line = 0, [CallerFilePath] string path = "")

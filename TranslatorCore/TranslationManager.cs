@@ -7,6 +7,7 @@ using System.Timers;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 //TODO add tests
 
@@ -205,7 +206,7 @@ namespace Translator.Core
             if (currentIndex >= 0)
             {
                 //update history
-                History.AddAction(new ApprovedChanged(currentIndex, TabUI.Lines, fileName, storyName));
+                History.AddAction(new ApprovedChanged(currentIndex, TabUI.Lines, this, fileName, storyName));
                 //set checkbox state
                 TabUI.ApprovedButtonChecked = TabUI.Lines.GetApprovalState(currentIndex);
                 //set checkbox state
@@ -274,7 +275,8 @@ namespace Translator.Core
         {
             if (SelectedId != string.Empty)
             {
-                AutoTranslation.AutoTranslationAsync(SelectedLine, Language, AutoTranslationCallback);
+                LogManager.LogDebug("manual autotranslation started for " + SelectedId);
+                AutoTranslation.AutoTranslationAsync(new(SelectedLine), Language, AutoTranslationCallback);
                 abortedAutoTranslation = false;
             }
         }
@@ -328,7 +330,10 @@ namespace Translator.Core
                 {
                     if (abortedAutoTranslation) return;
                     if (!TranslationData[translated.ID].IsApproved)
+                    {
                         TranslationData[translated.ID] = translated;
+                        UpdateSimilarityMarking(translated.ID);
+                    }
                 }
                 ChangesPending = true;
                 History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
@@ -387,7 +392,10 @@ namespace Translator.Core
                 {
                     if (abortedAutoTranslation) return;
                     if (TranslationData[translated.ID].ShouldBeMarkedSimilarToEnglish)
+                    {
                         TranslationData[translated.ID] = translated;
+                        UpdateSimilarityMarking(translated.ID);
+                    }
                 }
                 ChangesPending = true;
                 History.AddAction(new AllTranslationsChanged(this, oldData, TranslationData));
@@ -923,31 +931,37 @@ namespace Translator.Core
             UI.SignalUserEndWait();
         }
 
-        public void UpdateSimilarityMarking(string key)
+        public void UpdateSimilarityMarking(string id)
         {
-            if (TranslationData.ContainsKey(key))
+            if (TranslationData.ContainsKey(id))
             {
-                if (TranslationData[key].ShouldBeMarkedSimilarToEnglish)
+                if (TranslationData[id].ShouldBeMarkedSimilarToEnglish)
                 {
-                    TranslationData[key].IsTranslated = false;
-                    TabUI.TranslationsSimilarToTemplate.Add(key);
+                    if (!TabUI.TranslationsSimilarToTemplate.Contains(id))
+                    {
+                        TabUI.TranslationsSimilarToTemplate.Add(id);
+                    }
+                    TranslationData[id].IsTranslated = false;
                 }
                 else
                 {
-                    TranslationData[key].IsTranslated = true;
-                    _ = TabUI.TranslationsSimilarToTemplate.Remove(key);
+                    TranslationData[id].IsTranslated = true;
+                    _ = TabUI.TranslationsSimilarToTemplate.Remove(id);
                 }
             }
         }
 
+        //applies the changes back to our linedata object in use
         private void AutoTranslationCallback(bool successfull, LineData data)
         {
             if (abortedAutoTranslation) return;
             if (successfull)
             {
+                History.AddAction(new TranslationChanged(this, data.ID, TranslationData[data.ID].TranslationString, data.TranslationString));
                 TranslationData[data.ID] = data;
                 if (data.ID == SelectedId) ReloadTranslationTextbox();
                 UpdateSimilarityMarking(data.ID);
+                LogManager.LogDebug("manual autotranslation for " + data.ID + " succeeded");
             }
             else if (Settings.Default.AutoTranslate)
             {
@@ -967,11 +981,13 @@ namespace Translator.Core
             if (!multiTranslationRunning)
                 if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
                 {
-                    AutoTranslation.AutoTranslationAsync(SelectedLine, Language, ConvenienceTranslationCallback);
+                    LogManager.LogDebug("running convinience autotranslation for " + SelectedId);
+                    AutoTranslation.AutoTranslationAsync(new(SelectedLine), Language, ConvenienceTranslationCallback);
                     abortedAutoTranslation = false;
                 }
         }
 
+        //applies the changes back to our linedata object in use
         private void ConvenienceTranslationCallback(bool successfull, LineData data)
         {
             if (abortedAutoTranslation) return;
@@ -979,9 +995,11 @@ namespace Translator.Core
             {
                 if (TranslationData[data.ID].TranslationString == data.TemplateString || TranslationData[data.ID].TranslationString.Length == 0)
                 {
+                    History.AddAction(new TranslationChanged(this, data.ID, TranslationData[data.ID].TranslationString, data.TranslationString));
                     TranslationData[data.ID] = data;
-                    ReloadTranslationTextbox();
+                    if (data.ID == SelectedId) ReloadTranslationTextbox();
                     UpdateSimilarityMarking(data.ID);
+                    LogManager.LogDebug("convinience autotranslation completed for " + data.ID);
                 }
             }
             else

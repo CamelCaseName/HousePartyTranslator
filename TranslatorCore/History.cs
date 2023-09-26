@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Translator.Core.Data;
+using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core
@@ -23,8 +24,8 @@ namespace Translator.Core
             if (!CausedByHistory)
             {
 #if TRACE
-                Debug.WriteLine("History action added by " + callerFile + '<' + callerName + ">:" + lineNumber.ToString());
-                Debug.WriteLine("L__" + command.ToString() + $" - {command.StoryName}\\{command.FileName}");
+                LogManager.LogDebug("History action added by " + LogManager.ExtractCSFileNameFromPath(callerFile) + '<' + callerName + ">:" + lineNumber.ToString());
+                LogManager.LogDebug("L__" + command.ToString() + $" - {command.StoryName}\\{command.FileName}");
 #endif
                 history.Push(command);
                 if (history.Count > 110)
@@ -101,6 +102,7 @@ namespace Translator.Core
                     CausedByHistory = true;
                     command.Undo();
                     future.Push(command);
+                    LogManager.LogDebug($"undid {command} - {command.StoryName}\\{command.FileName} | history length now: ({history.Count})");
                     CausedByHistory = false;
                 }
             }
@@ -116,6 +118,7 @@ namespace Translator.Core
                     CausedByHistory = true;
                     command.Do();
                     history.Push(command);
+                    LogManager.LogDebug($"redid {command} - {command.StoryName}\\{command.FileName} | history length now: ({history.Count})");
                     CausedByHistory = false;
                 }
             }
@@ -239,11 +242,13 @@ namespace Translator.Core
     {
         private readonly int index;
         private readonly ILineList ListBox;
-        private bool isApproved;
-        public ApprovedChanged(int selectedIndex, ILineList listBox, string fileName, string storyName)
+        private readonly TranslationManager manager;
+        private readonly bool isApproved;
+        public ApprovedChanged(int selectedIndex, ILineList listBox, TranslationManager manager, string fileName, string storyName)
         {
             index = selectedIndex;
             ListBox = listBox;
+            this.manager = manager;
             FileName = fileName;
             StoryName = storyName;
             isApproved = ListBox.GetApprovalState(selectedIndex);
@@ -255,11 +260,13 @@ namespace Translator.Core
         public void Do()
         {
             ListBox.SetApprovalState(index, isApproved);
+            manager.UpdateSimilarityMarking(ListBox[index].Text);
         }
 
         public void Undo()
         {
             ListBox.SetApprovalState(index, !isApproved);
+            manager.UpdateSimilarityMarking(ListBox[index].Text);
         }
     }
 
@@ -314,11 +321,13 @@ namespace Translator.Core
         public void Do()
         {
             manager.TranslationData[id].TranslationString = newText;
+            manager.UpdateSimilarityMarking(id);
         }
 
         public void Undo()
         {
             manager.TranslationData[id].TranslationString = oldText;
+            manager.UpdateSimilarityMarking(id);
         }
     }
 
@@ -350,14 +359,12 @@ namespace Translator.Core
     {
         private readonly FileData oldTranslations, newTranslations;
         private readonly TranslationManager manager;
-        private readonly string language;
 
         public AllTranslationsChanged(TranslationManager manager, FileData oldTranslations, FileData newTranslations)
         {
             this.oldTranslations = new FileData(oldTranslations, manager.StoryName, manager.FileName);
             this.newTranslations = new FileData(newTranslations, manager.StoryName, manager.FileName);
             this.manager = manager;
-            this.language = TranslationManager.Language;
             FileName = manager.FileName;
             StoryName = manager.StoryName;
         }
@@ -371,9 +378,8 @@ namespace Translator.Core
             foreach (KeyValuePair<string, LineData> item in newTranslations)
             {
                 manager.TranslationData[item.Key] = item.Value;
+                manager.UpdateSimilarityMarking(item.Key);
             }
-            //update translations also on the database
-            _ = DataBase.UpdateTranslations(newTranslations, language);
             manager.ReloadTranslationTextbox();
         }
 
@@ -383,9 +389,8 @@ namespace Translator.Core
             foreach (KeyValuePair<string, LineData> item in oldTranslations)
             {
                 manager.TranslationData[item.Key] = item.Value;
+                manager.UpdateSimilarityMarking(item.Key);
             }
-            //update translations also on the database
-            _ = DataBase.UpdateTranslations(oldTranslations, language);
             manager.ReloadTranslationTextbox();
         }
     }
