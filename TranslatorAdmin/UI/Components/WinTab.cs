@@ -371,15 +371,19 @@ namespace Translator.Desktop.UI.Components
         {
             get
             {
-                return Invoke(() => base.Text);
+                if (IsHandleCreated)
+                    return Invoke(() => base.Text);
+                else
+                    return string.Empty;
             }
             set
             {
-                Invoke(() =>
-                {
-                    base.Text = value;
-                    Update();
-                });
+                if (IsHandleCreated)
+                    Invoke(() =>
+                    {
+                        base.Text = value;
+                        Update();
+                    });
             }
         }
         public ITextBox Translation => TranslationTextBox;
