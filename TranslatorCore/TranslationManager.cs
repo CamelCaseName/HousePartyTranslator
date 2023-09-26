@@ -933,21 +933,19 @@ namespace Translator.Core
 
         public void UpdateSimilarityMarking(string id)
         {
-            if (TranslationData.ContainsKey(id))
+            if (!TranslationData.ContainsKey(id)) return;
+
+            if (TranslationData[id].ShouldBeMarkedSimilarToEnglish)
             {
-                if (TranslationData[id].ShouldBeMarkedSimilarToEnglish)
-                {
-                    if (!TabUI.TranslationsSimilarToTemplate.Contains(id))
-                    {
-                        TabUI.TranslationsSimilarToTemplate.Add(id);
-                    }
-                    TranslationData[id].IsTranslated = false;
-                }
-                else
-                {
-                    TranslationData[id].IsTranslated = true;
-                    _ = TabUI.TranslationsSimilarToTemplate.Remove(id);
-                }
+                if (!TabUI.TranslationsSimilarToTemplate.Contains(id))
+                    TabUI.TranslationsSimilarToTemplate.Add(id);
+
+                TranslationData[id].IsTranslated = false;
+            }
+            else
+            {
+                TranslationData[id].IsTranslated = true;
+                _ = TabUI.TranslationsSimilarToTemplate.Remove(id);
             }
         }
 
@@ -959,16 +957,15 @@ namespace Translator.Core
             {
                 History.AddAction(new TranslationChanged(this, data.ID, TranslationData[data.ID].TranslationString, data.TranslationString));
                 TranslationData[data.ID] = data;
-                if (data.ID == SelectedId) ReloadTranslationTextbox();
+                if (data.ID == SelectedId)
+                    ReloadTranslationTextbox();
                 UpdateSimilarityMarking(data.ID);
                 LogManager.LogDebug("manual autotranslation for " + data.ID + " succeeded");
             }
             else if (Settings.Default.AutoTranslate)
             {
                 if (UI.WarningYesNo("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", PopupResult.YES))
-                {
                     Settings.Default.AutoTranslate = false;
-                }
             }
         }
 
@@ -977,7 +974,7 @@ namespace Translator.Core
         /// </summary>
         private void ConvenienceAutomaticTranslation()
         {
-            //todo change this so it shows as a placeholder type of text
+            //todo change this so it shows as a placeholder type of text?
             if (!multiTranslationRunning)
                 if (TabUI.TemplateBoxText == TabUI.TranslationBoxText && !SelectedLine.IsTranslated && !SelectedLine.IsApproved && SelectedLine.TemplateLength > 0)
                 {
@@ -997,7 +994,8 @@ namespace Translator.Core
                 {
                     History.AddAction(new TranslationChanged(this, data.ID, TranslationData[data.ID].TranslationString, data.TranslationString));
                     TranslationData[data.ID] = data;
-                    if (data.ID == SelectedId) ReloadTranslationTextbox();
+                    if (data.ID == SelectedId)
+                        ReloadTranslationTextbox();
                     UpdateSimilarityMarking(data.ID);
                     LogManager.LogDebug("convinience autotranslation completed for " + data.ID);
                 }
@@ -1005,9 +1003,7 @@ namespace Translator.Core
             else
             {
                 if (UI.WarningYesNo("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", PopupResult.YES))
-                {
                     Settings.Default.AutoTranslate = false;
-                }
             }
         }
 
