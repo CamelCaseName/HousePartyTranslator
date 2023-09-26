@@ -234,17 +234,19 @@ namespace Translator.Core
         }
     }
 
-    public sealed class ApprovedChanged<ILineItem> : ICommand
+    public sealed class ApprovedChanged : ICommand
 
     {
         private readonly int index;
         private readonly ILineList ListBox;
+        private bool isApproved;
         public ApprovedChanged(int selectedIndex, ILineList listBox, string fileName, string storyName)
         {
             index = selectedIndex;
             ListBox = listBox;
             FileName = fileName;
             StoryName = storyName;
+            isApproved = ListBox.GetApprovalState(selectedIndex);
         }
 
         public string FileName { get; set; }
@@ -252,12 +254,12 @@ namespace Translator.Core
 
         public void Do()
         {
-            ListBox.SetApprovalState(index, !ListBox.GetApprovalState(index));
+            ListBox.SetApprovalState(index, isApproved);
         }
 
         public void Undo()
         {
-            ListBox.SetApprovalState(index, !ListBox.GetApprovalState(index));
+            ListBox.SetApprovalState(index, !isApproved);
         }
     }
 

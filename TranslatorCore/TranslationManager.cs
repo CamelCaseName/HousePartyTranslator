@@ -199,21 +199,17 @@ namespace Translator.Core
         /// Approves the string in the db, if possible. Also updates UI.
         /// </summary>
         /// <param name="SelectNewAfter">A bool to determine if a new string should be selected after approval.</param>
-        public void ApproveIfPossible(bool SelectNewAfter)
+        public void ApproveIfPossible()
         {
             int currentIndex = TabUI.SelectedLineIndex;
             if (currentIndex >= 0)
             {
+                //update history
+                History.AddAction(new ApprovedChanged(currentIndex, TabUI.Lines, fileName, storyName));
                 //set checkbox state
                 TabUI.ApprovedButtonChecked = TabUI.Lines.GetApprovalState(currentIndex);
                 //set checkbox state
                 SelectedLine.IsApproved = TabUI.ApprovedButtonChecked;
-
-                //move one string down if possible
-                if (SelectNewAfter)
-                {
-                    if (currentIndex < TabUI.Lines.Count - 1) TabUI.SelectLineItem(currentIndex + 1);
-                }
 
                 UpdateApprovedAndTabName();
                 Search();

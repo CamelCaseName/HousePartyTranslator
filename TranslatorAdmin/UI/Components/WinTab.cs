@@ -239,7 +239,7 @@ namespace Translator.Desktop.UI.Components
             CheckListBoxLeft.Size = new Size(680, 666);
             CheckListBoxLeft.TabIndex = 10;
             CheckListBoxLeft.ThreeDCheckBoxes = true;
-            CheckListBoxLeft.ItemCheck += (sender, e) => TabManager.ActiveTranslationManager.ApproveIfPossible(false);
+            CheckListBoxLeft.ItemCheck += (sender, e) => TabManager.ActiveTranslationManager.ApproveIfPossible();
             CheckListBoxLeft.SelectedIndexChanged += new EventHandler(MainForm.CheckListBoxLeft_SelectedIndexChanged);
             CheckListBoxLeft.ContextMenuStrip = ListContextMenu;
             CheckListBoxLeft.MouseDown += new MouseEventHandler(MainForm.OpeningContextMenu);

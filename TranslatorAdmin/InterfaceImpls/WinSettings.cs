@@ -95,6 +95,7 @@ namespace Translator.Desktop.InterfaceImpls
             Settings.Default.Save();
             LogManager.Log("Settings saved successfully");
         }
+
         internal static void Upgrade() => Settings.Default.Upgrade();
     }
 }
