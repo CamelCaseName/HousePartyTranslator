@@ -1127,16 +1127,16 @@ namespace Translator.Desktop.UI
 
         private static void CreateNewFilesForStory()
         {
-            var dialog = new NewFileSelector();
+            var dialog = new NewFileSelector(true);
             PopupResult result = dialog.ShowDialog();
             if (result != PopupResult.OK) return;
 
             string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
             if (path == string.Empty || path is null) return;
 
-            if (dialog.StoryName == path.Split('\\')[^2])
+            if (dialog.StoryName == path.Split('\\')[^2] && Path.HasExtension(path))
                 path = Path.GetDirectoryName(path);
-            else
+            else if (dialog.StoryName == path.Split('\\')[^1])
                 _ = Directory.CreateDirectory(path);
 
             if (path == string.Empty) return;

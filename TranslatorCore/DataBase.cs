@@ -966,7 +966,7 @@ namespace Translator.Core
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId[(story + fileName).Length..];
-            if (tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length) <= 0) Debugger.Break();
+            if (tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length) < 0) Debugger.Break();
             return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
         }
 

@@ -30,7 +30,7 @@ namespace Translator.Core.Helpers
         private static HashSet<string> fileNames = new();
         private static HashSet<string> storyNames = new();
         private static DateTime namesAcquired = DateTime.MinValue;
-        public static readonly string[] OfficialStories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney" };
+        public static readonly string[] OfficialStories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night With Brittney" };
         public static readonly string[] OfficialFileNames = { "Amala", "Amy", "Arin", "Ashley", "Brittney", "Compubrah", "Dan", "Derek", "Doja Cat", "Frank", "Katherine", "Leah", "Lety", "Liz Katz", "Madison", "Original Story", "Patrick", "Phone Call", "Rachael", "Stephanie", "Vickie", "Hints", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney", "CSCManager", "GeneralMenu", "GraphicsMenu", "InputManager", "MainMenu", "PauseMenu" };
 
         private static IUIHandler? MainUI { get; set; }
