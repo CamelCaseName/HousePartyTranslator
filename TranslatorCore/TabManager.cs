@@ -132,24 +132,23 @@ namespace Translator.Core
         /// <param name="path">path to the file to open</param>
         public static void OpenInNewTab(string path)
         {
-            if (path.Length > 0)
-            {
-                //create new support objects
-                ITab? newTab = UI.CreateNewTab();
-                if (newTab is null) return;
-                newTab.Text = $"Tab {translationManagers.Count + 1}";
-                //Add tab to form control
-                TabControl.AddTab(newTab);
-                //create support dict
-                var t = new TranslationManager(UI, newTab);
-                translationManagers.Add(newTab, t);
+            if (path.Length == 0) return;
 
-                //select new tab
-                TabControl.SelectedTab = newTab;
+            //create new support objects
+            ITab? newTab = UI.CreateNewTab();
+            if (newTab is null) return;
+            newTab.Text = $"Tab {translationManagers.Count + 1}";
+            //Add tab to form control
+            TabControl.AddTab(newTab);
+            //create support dict
+            var t = new TranslationManager(UI, newTab);
+            translationManagers.Add(newTab, t);
 
-                //call startup for new translationmanager
-                t.LoadFileIntoProgram(path);
-            }
+            //select new tab
+            TabControl.SelectedTab = newTab;
+
+            //call startup for new translationmanager
+            t.LoadFileIntoProgram(path);
         }
 
         /// <summary>
@@ -229,16 +228,15 @@ namespace Translator.Core
             }
 
             //set search term to the one from the respective TranslationManager
-            if (ActiveTranslationManager is not null && UI is not null)
+            if (ActiveTranslationManager is null || UI is null) return;
+
+            if (InGlobalSearch)
             {
-                if (InGlobalSearch)
-                {
-                    ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? string.Empty);
-                }
-                else
-                {
-                    UI.SearchBarText = ActiveTranslationManager.SearchQuery;
-                }
+                ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? string.Empty);
+            }
+            else
+            {
+                UI.SearchBarText = ActiveTranslationManager.SearchQuery;
             }
         }
 
@@ -248,22 +246,20 @@ namespace Translator.Core
         /// <returns>True if there are more than one tab and they have been saved</returns>
         public static bool SaveAllTabs()
         {
-            if (TabControl.TabCount >= 1)
+            if (TabControl.TabCount < 1) return false;
+
+            UI.SignalUserWait();
+            int oldSelection = TabControl.SelectedIndex;
+            //save all tabs
+            foreach (ITab tab in TabControl.TabPages)
             {
-                UI.SignalUserWait();
-                int oldSelection = TabControl.SelectedIndex;
-                //save all tabs
-                foreach (ITab tab in TabControl.TabPages)
-                {
-                    if (translationManagers[tab].ChangesPending)
-                        TabControl.SelectedTab = tab;
-                    translationManagers[tab].SaveFile();
-                }
-                TabControl.SelectedIndex = oldSelection;
-                UI.SignalUserEndWait();
-                return true;
+                if (translationManagers[tab].ChangesPending)
+                    TabControl.SelectedTab = tab;
+                translationManagers[tab].SaveFile();
             }
-            return false;
+            TabControl.SelectedIndex = oldSelection;
+            UI.SignalUserEndWait();
+            return true;
         }
 
         /// <summary>
@@ -433,16 +429,15 @@ namespace Translator.Core
         /// </summary>
         public static void ShowAutoSaveDialog()
         {
-            if (Settings.Default.AskForSaveDialog && translationManagers.Count > 0)
+            if (!Settings.Default.AskForSaveDialog || translationManagers.Count <= 0) return;
+
+            foreach (KeyValuePair<ITab, TranslationManager> kvp in translationManagers)
             {
-                foreach (KeyValuePair<ITab, TranslationManager> kvp in translationManagers)
+                if (kvp.Value.ChangesPending)
                 {
-                    if (kvp.Value.ChangesPending)
-                    {
-                        if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
-                            _ = SaveAllTabs();
-                        return;
-                    }
+                    if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
+                        _ = SaveAllTabs();
+                    return;
                 }
             }
         }

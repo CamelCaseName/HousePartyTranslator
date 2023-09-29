@@ -374,10 +374,9 @@ namespace Translator.Core
 
         public void Do()
         {
-            manager.TranslationData.Clear();
+            manager.TranslationData = newTranslations;
             foreach (KeyValuePair<string, LineData> item in newTranslations)
             {
-                manager.TranslationData[item.Key] = item.Value;
                 manager.UpdateSimilarityMarking(item.Key);
             }
             manager.ReloadTranslationTextbox();
@@ -385,10 +384,9 @@ namespace Translator.Core
 
         public void Undo()
         {
-            manager.TranslationData.Clear();
+            manager.TranslationData = oldTranslations;
             foreach (KeyValuePair<string, LineData> item in oldTranslations)
             {
-                manager.TranslationData[item.Key] = item.Value;
                 manager.UpdateSimilarityMarking(item.Key);
             }
             manager.ReloadTranslationTextbox();

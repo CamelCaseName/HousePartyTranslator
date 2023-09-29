@@ -302,6 +302,7 @@ namespace Translator.Core
             returnedTasks = 0;
 
             UI.SignalUserWait();
+            var oldData = new FileData(TranslationData);
             LogManager.Log($"Starting automatic translation for {NumberOfUnapprovedLines} unapproved lines");
             foreach (var line in TranslationData.Values)
             {
@@ -314,18 +315,17 @@ namespace Translator.Core
                     });
             }
             //seperate updates from ui thread
-            Task.Factory.StartNew(() => WaitOnAutomaticTranslationsToFinish(NumberOfUnapprovedLines, replaced));
+            Task.Factory.StartNew(() => WaitOnAutomaticTranslationsToFinish(NumberOfUnapprovedLines, replaced, oldData));
 
             //methods only used by this here, so embedded :D
             void addReturned() => returnedTasks++;
-            void WaitOnAutomaticTranslationsToFinish(int NumberOfUnapprovedLines, List<LineData> replaced)
+            void WaitOnAutomaticTranslationsToFinish(int NumberOfUnapprovedLines, List<LineData> replaced, FileData oldData)
             {
                 //wait on all translations to end
                 while (returnedTasks < NumberOfUnapprovedLines && !abortedAutoTranslation) ;
                 if (abortedAutoTranslation) return;
 
                 //add changes to history
-                var oldData = TranslationData;
                 foreach (var translated in replaced)
                 {
                     if (abortedAutoTranslation) return;
@@ -365,6 +365,7 @@ namespace Translator.Core
             returnedTasks = 0;
 
             UI.SignalUserWait();
+            var oldData = new FileData(TranslationData);
             LogManager.Log($"Starting automatic translation for {NumberOfUntranslatedLines} untranslated lines");
             foreach (var line in TranslationData.Values)
             {
@@ -377,17 +378,16 @@ namespace Translator.Core
                     });
             }
             //seperate updates from ui thread
-            Task.Factory.StartNew(() => WaitOnAutomaticTranslationsToFinish(NumberOfUntranslatedLines, replaced));
+            Task.Factory.StartNew(() => WaitOnAutomaticTranslationsToFinish(NumberOfUntranslatedLines, replaced, oldData));
 
             //methods only used by this here, so embedded :D
             void addReturned() => returnedTasks++;
-            void WaitOnAutomaticTranslationsToFinish(int NumberOfUntranslatedLines, List<LineData> replaced)
+            void WaitOnAutomaticTranslationsToFinish(int NumberOfUntranslatedLines, List<LineData> replaced, FileData oldData)
             {
                 //wait on all translations to end
                 while (returnedTasks < NumberOfUntranslatedLines && !abortedAutoTranslation) ;
                 if (abortedAutoTranslation) return;
 
-                var oldData = TranslationData;
                 foreach (var translated in replaced)
                 {
                     if (abortedAutoTranslation) return;
