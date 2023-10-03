@@ -130,6 +130,30 @@ namespace Translator.Core
             future.Clear();
             CausedByHistory = false;
         }
+
+        //returns the latest 5 entries in the history
+        public static List<ICommand> GetLastFiveActions()
+        {
+            List<ICommand> actions = new();
+            var enumerator = history.GetEnumerator();
+            while (enumerator.MoveNext() && actions.Count < 5)
+            {
+                actions.Add(enumerator.Current);
+            }
+            return actions;
+        }
+
+        //returns the newest 5 entries in the future
+        public static List<ICommand> GetNextFiveActions()
+        {
+            List<ICommand> actions = new();
+            var enumerator = future.GetEnumerator();
+            while (enumerator.MoveNext() && actions.Count < 5)
+            {
+                actions.Add(enumerator.Current);
+            }
+            return actions;
+        }
     }
 
     public interface ICommand
