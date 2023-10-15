@@ -128,6 +128,8 @@ namespace Translator.Desktop.UI
 
             //init all form components
             InitializeComponent();
+
+            History.HistoryChanged += (s, e) => UpdateHistoryItems();
         }
 
         public static ProgressWindow ProgressbarWindow { get; private set; }
@@ -440,7 +442,8 @@ namespace Translator.Desktop.UI
                 Name = nameof(undoMenuButton),
                 Size = new Size(236, 22),
                 Text = "&Undo",
-                ToolTipText = "Undoes the latest action"
+                ToolTipText = "Undoes the latest action",
+                Enabled = false
             };
             undoMenuButton.Click += (object? sender, EventArgs e) => History.Undo();
 
@@ -451,7 +454,8 @@ namespace Translator.Desktop.UI
                 Name = nameof(redoMenuButton),
                 Size = new Size(236, 22),
                 Text = "&Redo",
-                ToolTipText = "Redoes the latest undone action"
+                ToolTipText = "Redoes the latest undone action",
+                Enabled = false
             };
             redoMenuButton.Click += (object? sender, EventArgs e) => History.Redo();
 
@@ -1041,7 +1045,7 @@ namespace Translator.Desktop.UI
 
             ProgressbarWindow.Status.Text = "Loading recents";
             //open most recent after db is initialized
-            UpdateFileMenuItems();
+            UpdaterecentFileMenu();
             RecentsManager.OpenMostRecent();
 
             //start timer to update presence
@@ -1148,7 +1152,7 @@ namespace Translator.Desktop.UI
             TabManager.OpenAllTabs(path!);
         }
 
-        public void UpdateFileMenuItems()
+        public void UpdaterecentFileMenu()
         {
             IMenuItem[] items = RecentsManager.GetRecents();
             int recentsStart;
@@ -1181,6 +1185,47 @@ namespace Translator.Desktop.UI
             }
 
             FileToolStripMenuItem.DropDownItems[recentsStart + 1].Text = items.Length == 0 ? "No Recents" : "Recents:";
+        }
+
+        public void UpdateHistoryItems()
+        {
+            undoMenuButton.DropDownItems.Clear();
+            redoMenuButton.DropDownItems.Clear();
+
+            var commands = History.GetLastFiveActions();
+            undoMenuButton.Enabled = commands.Count > 0;
+            int i = 0;
+            foreach (var cmd in commands)
+            {
+                WinMenuItem cmdItem = new()
+                {
+                    Name = cmd.GetType().Name + i,
+                    Size = new Size(236, 22),
+                    Text = "(" + i + ") " + cmd.Description,
+                    ToolTipText = cmd.DetailedDescription,
+                };
+                cmdItem.Click += (s, e) => History.Undo(i + 1);
+                undoMenuButton.DropDownItems.Add(cmdItem);
+                i++;
+            }
+
+            commands = History.GetNextFiveActions();
+            redoMenuButton.Enabled = commands.Count > 0;
+            i = 0;
+            foreach (var cmd in commands)
+            {
+                WinMenuItem cmdItem = new()
+                {
+                    Name = cmd.GetType().Name + i,
+                    Size = new Size(236, 22),
+                    Text = "(" + i + ") " + cmd.Description,
+                    ToolTipText = cmd.DetailedDescription,
+                };
+                cmdItem.Click += (s, e) => History.Redo(i + 1);
+                redoMenuButton.DropDownItems.Add(cmdItem);
+                i++;
+            }
+
         }
     }
 }

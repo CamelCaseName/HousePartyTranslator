@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
@@ -13,6 +14,7 @@ namespace Translator.Core
         private static readonly Stack<ICommand> history = new();
         private static readonly Stack<ICommand> future = new();
         private static bool CausedByHistory = false;
+        public static event EventHandler? HistoryChanged;
 
 #if TRACE
         public static void AddAction(ICommand command, [CallerFilePath] string callerFile = "", [CallerMemberName] string callerName = "", [CallerLineNumber] int lineNumber = 0)
@@ -42,6 +44,8 @@ namespace Translator.Core
                         history.Push(temp.Pop());
                 }
                 future.Clear();
+
+                HistoryChanged?.Invoke(null, null!);
             }
         }
 
@@ -104,14 +108,14 @@ namespace Translator.Core
                     future.Push(command);
                     LogManager.LogDebug($"undid {command} - {command.StoryName}\\{command.FileName} | history length now: ({history.Count})");
                     CausedByHistory = false;
+                    HistoryChanged?.Invoke(null, null!);
                 }
             }
         }
 
         public static void Undo(int count)
         {
-            if (history.Count < count)
-                throw new ArgumentOutOfRangeException(nameof(count), "Cannot undo more items than there are");
+            if (history.Count < count) return;
             for (int i = 0; i < count; i++)
             {
                 Undo();
@@ -130,14 +134,14 @@ namespace Translator.Core
                     history.Push(command);
                     LogManager.LogDebug($"redid {command} - {command.StoryName}\\{command.FileName} | history length now: ({history.Count})");
                     CausedByHistory = false;
+                    HistoryChanged?.Invoke(null, null!);
                 }
             }
         }
 
         public static void Redo(int count)
         {
-            if (future.Count < count)
-                throw new ArgumentOutOfRangeException(nameof(count), "Cannot redo more items than there are");
+            if (future.Count < count) return;
             for (int i = 0; i < count; i++)
             {
                 Redo();
@@ -149,6 +153,7 @@ namespace Translator.Core
             history.Clear();
             future.Clear();
             CausedByHistory = false;
+            HistoryChanged?.Invoke(null, null!);
         }
 
         //returns the latest 5 entries in the history
@@ -178,17 +183,21 @@ namespace Translator.Core
 
     public interface ICommand
     {
-        string FileName { get; set; }
-        string StoryName { get; set; }
+        string FileName { get; }
+        string StoryName { get; }
+        string Description { get; }
+        string DetailedDescription { get; }
         void Do();
         void Undo();
     }
 
-    public sealed class NullCommand : ICommand
+    public record NullCommand : ICommand
     {
         public static NullCommand Instance { get; } = new();
-        public string FileName { get => "none"; set { } }
-        public string StoryName { get => "none"; set { } }
+        public string FileName { get => "none"; }
+        public string StoryName { get => "none"; }
+        public string Description { get => "none"; }
+        public string DetailedDescription { get => "none"; }
 
         public NullCommand() { }
 
@@ -196,7 +205,7 @@ namespace Translator.Core
         public void Undo() { }
     }
 
-    public sealed class TextAdded : ICommand
+    public record TextAdded : ICommand
     {
         private readonly ITextBox TextBox;
         private readonly string AddedText;
@@ -207,10 +216,13 @@ namespace Translator.Core
             AddedText = addedText;
             FileName = fileName;
             StoryName = storyName;
+            DetailedDescription = "Added " + addedText + " in " + storyName + "/" + fileName;
         }
 
-        public string FileName { get; set; }
-        public string StoryName { get; set; }
+        public string FileName { get; }
+        public string StoryName { get; }
+        public string Description { get => "Added Text"; }
+        public string DetailedDescription { get; }
 
         public void Do()
         {
@@ -223,7 +235,7 @@ namespace Translator.Core
         }
     }
 
-    public sealed class TextRemoved : ICommand
+    public record TextRemoved : ICommand
     {
         private readonly ITextBox TextBox;
         private readonly string RemovedText;
@@ -234,10 +246,13 @@ namespace Translator.Core
             RemovedText = removedText;
             FileName = fileName;
             StoryName = storyName;
+            DetailedDescription = "removed " + removedText + " from " + storyName + "/" + fileName;
         }
 
-        public string FileName { get; set; }
-        public string StoryName { get; set; }
+        public string FileName { get; }
+        public string StoryName { get; }
+        public string Description { get => "Removed Text"; }
+        public string DetailedDescription { get; }
 
         public void Do()
         {
@@ -250,7 +265,7 @@ namespace Translator.Core
         }
     }
 
-    public sealed class TextChanged : ICommand
+    public record TextChanged : ICommand
     {
         private readonly ITextBox TextBox;
         private readonly string oldText;
@@ -263,10 +278,13 @@ namespace Translator.Core
             this.newText = newText;
             FileName = fileName;
             StoryName = storyName;
+            DetailedDescription = "changed " + oldText + " to " + newText + " in " + storyName + "/" + fileName;
         }
 
-        public string FileName { get; set; }
-        public string StoryName { get; set; }
+        public string FileName { get; }
+        public string StoryName { get; }
+        public string Description { get => "Changed Text"; }
+        public string DetailedDescription { get; }
 
         public void Do()
         {
@@ -281,7 +299,7 @@ namespace Translator.Core
         }
     }
 
-    public sealed class ApprovedChanged : ICommand
+    public record ApprovedChanged : ICommand
 
     {
         private readonly int index;
@@ -296,10 +314,13 @@ namespace Translator.Core
             FileName = fileName;
             StoryName = storyName;
             isApproved = ListBox.GetApprovalState(selectedIndex);
+            DetailedDescription = (isApproved ? "Approved " : "Unapproved ") + listBox[selectedIndex].ToString() + " in " + storyName + "/" + fileName;
         }
 
-        public string FileName { get; set; }
-        public string StoryName { get; set; }
+        public string FileName { get; }
+        public string StoryName { get; }
+        public string Description { get => "Approval state changed"; }
+        public string DetailedDescription { get; }
 
         public void Do()
         {
@@ -314,7 +335,7 @@ namespace Translator.Core
         }
     }
 
-    public sealed class SelectedLineChanged : ICommand
+    public record SelectedLineChanged : ICommand
     {
         private readonly int oldIndex;
         private readonly int newIndex;
@@ -326,10 +347,13 @@ namespace Translator.Core
             ListBox = listBox;
             FileName = fileName;
             StoryName = storyName;
+            DetailedDescription = "Selected line " + listBox[newIndex].ToString() + " in " + storyName + "/" + fileName;
         }
 
-        public string FileName { get; set; }
-        public string StoryName { get; set; }
+        public string FileName { get; }
+        public string StoryName { get; }
+        public string Description { get => "Selected line changed"; }
+        public string DetailedDescription { get; }
 
         public void Do()
         {
@@ -342,7 +366,7 @@ namespace Translator.Core
         }
     }
 
-    public sealed class TranslationChanged : ICommand
+    public record TranslationChanged : ICommand
     {
         private readonly TranslationManager manager;
         private readonly string id;
@@ -357,10 +381,13 @@ namespace Translator.Core
             this.newText = newText;
             FileName = manager.FileName;
             StoryName = manager.StoryName;
+            DetailedDescription = "Translation changed in line " + id + " in " + manager.StoryName + "/" + manager.FileName + " from " + oldText + " to " + newText;
         }
 
-        public string FileName { get; set; }
-        public string StoryName { get; set; }
+        public string FileName { get; }
+        public string StoryName { get; }
+        public string Description { get => "Translations changed"; }
+        public string DetailedDescription { get; }
 
         public void Do()
         {
@@ -375,18 +402,23 @@ namespace Translator.Core
         }
     }
 
-    public sealed class SelectedTabChanged : ICommand
+    public record SelectedTabChanged : ICommand
     {
         private readonly int oldTabIndex, newTabIndex;
 
-        public SelectedTabChanged(int oldTabIndex, int newTabIndex)
+        public SelectedTabChanged(int oldTabIndex, int newTabIndex, string storyName, string fileName)
         {
             this.oldTabIndex = oldTabIndex;
             this.newTabIndex = newTabIndex;
+            FileName = fileName;
+            StoryName = storyName;
+            DetailedDescription = "Selected tab " + newTabIndex;
         }
 
-        public string FileName { get; set; } = "none";
-        public string StoryName { get; set; } = "none";
+        public string FileName { get; } = "none";
+        public string StoryName { get; } = "none";
+        public string Description { get => "Selected Tab Changed"; }
+        public string DetailedDescription { get; }
 
         public void Do()
         {
@@ -399,7 +431,7 @@ namespace Translator.Core
         }
     }
 
-    public sealed class AllTranslationsChanged : ICommand
+    public record AllTranslationsChanged : ICommand
     {
         private readonly FileData oldTranslations, newTranslations;
         private readonly TranslationManager manager;
@@ -411,10 +443,13 @@ namespace Translator.Core
             this.manager = manager;
             FileName = manager.FileName;
             StoryName = manager.StoryName;
+            DetailedDescription = "All translations changed in " + manager.StoryName + "/" + manager.FileName;
         }
 
-        public string FileName { get; set; }
-        public string StoryName { get; set; }
+        public string FileName { get; }
+        public string StoryName { get; }
+        public string Description { get => "All translations changed"; }
+        public string DetailedDescription { get; }
 
         public void Do()
         {

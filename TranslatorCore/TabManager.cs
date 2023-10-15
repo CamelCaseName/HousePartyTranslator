@@ -223,7 +223,7 @@ namespace Translator.Core
             //update history on tab change
             if (lastIndex != TabControl.SelectedIndex)
             {
-                History.AddAction(new SelectedTabChanged(lastIndex, TabControl.SelectedIndex) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
+                History.AddAction(new SelectedTabChanged(lastIndex, TabControl.SelectedIndex, ActiveTranslationManager.StoryName, ActiveTranslationManager.FileName));
                 lastIndex = TabControl.SelectedIndex;
             }
 
@@ -379,8 +379,8 @@ namespace Translator.Core
                 for (int i = 0; i < TabControl.TabCount; i++)
                 {
                     //save history
-                    if (i != 0) History.AddAction(new SelectedTabChanged(i - 1, i) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
-                    else History.AddAction(new SelectedTabChanged(0, i) { StoryName = ActiveTranslationManager.StoryName, FileName = ActiveTranslationManager.FileName });
+                    if (i != 0) History.AddAction(new SelectedTabChanged(i - 1, i, ActiveTranslationManager.StoryName, ActiveTranslationManager.FileName));
+                    else History.AddAction(new SelectedTabChanged(0, i, ActiveTranslationManager.StoryName, ActiveTranslationManager.FileName));
 
                     translationManagers[TabControl.TabPages[i]].ReplaceAll(UI.ReplaceBarText ?? string.Empty);
                 }

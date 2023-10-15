@@ -167,7 +167,7 @@ namespace Translator.Desktop.InterfaceImpls
 
         public void UpdateRecentFileList()
         {
-            App.MainForm.UpdateFileMenuItems();
+            App.MainForm.UpdaterecentFileMenu();
         }
     }
 }
