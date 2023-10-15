@@ -108,6 +108,16 @@ namespace Translator.Core
             }
         }
 
+        public static void Undo(int count)
+        {
+            if (history.Count < count)
+                throw new ArgumentOutOfRangeException(nameof(count), "Cannot undo more items than there are");
+            for (int i = 0; i < count; i++)
+            {
+                Undo();
+            }
+        }
+
         public static void Redo()
         {
             if (future.Count > 0)
@@ -121,6 +131,16 @@ namespace Translator.Core
                     LogManager.LogDebug($"redid {command} - {command.StoryName}\\{command.FileName} | history length now: ({history.Count})");
                     CausedByHistory = false;
                 }
+            }
+        }
+
+        public static void Redo(int count)
+        {
+            if (future.Count < count)
+                throw new ArgumentOutOfRangeException(nameof(count), "Cannot redo more items than there are");
+            for (int i = 0; i < count; i++)
+            {
+                Redo();
             }
         }
 
