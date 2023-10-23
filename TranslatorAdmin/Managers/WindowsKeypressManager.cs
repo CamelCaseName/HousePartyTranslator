@@ -171,6 +171,10 @@ namespace Translator.Desktop.Managers
                 case Keys.Down:
                     return TabManager.ActiveTranslationManager.TryCycleSearchDown();
 
+                case Keys.Control | Keys.A:
+                    TabManager.ActiveTranslationManager.RequestAutomaticTranslation();
+                    break;
+
                 default:
                     DefaultTextChangePreparation();
                     //return false, we dont consume the keypresses, only save a state to monitor for change
