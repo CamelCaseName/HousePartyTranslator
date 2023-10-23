@@ -691,9 +691,10 @@ namespace Translator.Core
         /// </summary>
         public void UpdateTranslationString()
         {
-            //remove pipe to not break saving/export
-            TabUI.TranslationBoxText = TabUI.TranslationBoxText.Replace('|', ' ');
-            SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace(Environment.NewLine, "\n");
+            //remove pipe to not break saving/export, also remove voice actor hints as we dont want those
+            SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace('|', ' ')
+                                                               .Replace(Environment.NewLine, "\n");
+            TabUI.TranslationBoxText = SelectedLine.TranslationString;
             UpdateCharacterCountLabel();
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
