@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
@@ -47,6 +48,15 @@ namespace Translator.Core.Helpers
                 else if (!inVAHint)
                 {
                     output[iterator++] = character;
+                }
+            }
+
+            if (output.Length > 1)
+            {
+                for (int i = 0; i < output.Length - 1; i++)
+                {
+                    if (output[i] == ' ' && output[i + 1] == ' ')
+                        output = output.RemoveAt(i, 1);
                 }
             }
 
@@ -257,6 +267,11 @@ namespace Translator.Core.Helpers
 
         public static ReadOnlySpan<char> RemoveAt(this ReadOnlySpan<char> span, int index, int count)
         {
+            return span.RemoveAt(index, count);
+        }
+
+        public static Span<char> RemoveAt(this Span<char> span, int index, int count)
+        {
             if (span.IsEmpty) return span;
             return index < 0
                 ? throw new ArgumentOutOfRangeException(nameof(index), "The index cannot be negative")
@@ -266,7 +281,7 @@ namespace Translator.Core.Helpers
                 ? throw new ArgumentOutOfRangeException(nameof(index), "The index has to be less than the length of the span")
                 : index + count >= span.Length
                 ? throw new ArgumentOutOfRangeException(nameof(count), "The count added to the index has to be less than the length of the span")
-                : (ReadOnlySpan<char>)string.Concat(span[..index], span[(index + count)..]);
+                : MemoryMarshal.CreateSpan(ref MemoryMarshal.GetReference((ReadOnlySpan<char>)string.Concat(span[..index], span[(index + count)..])), span.Length - count);
         }
     }
 }

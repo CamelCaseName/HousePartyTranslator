@@ -718,7 +718,7 @@ namespace Translator.Core
             _ = cmd.Parameters.AddWithValue("@approved", lineData.IsApproved ? 1 : 0);
             _ = cmd.Parameters.AddWithValue("@language", language);
             _ = cmd.Parameters.AddWithValue($"@comment", comment);
-            _ = cmd.Parameters.AddWithValue("@translation", lineData.TranslationString.RemoveVAHints());
+            _ = cmd.Parameters.AddWithValue("@translation", lineData.TranslationString);
             _ = cmd.Parameters.AddWithValue($"@deleted", 0);
 
             return ExecuteOrReOpen(cmd);
@@ -783,7 +783,7 @@ namespace Translator.Core
                             _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
                             _ = cmd.Parameters.AddWithValue($"@language{c}", language);
                             _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
-                            _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
+                            _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString);
                             _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
                             ++c;
                             if (c >= updateData.Count)
