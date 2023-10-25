@@ -173,7 +173,7 @@ namespace Translator.Desktop.Managers
 
                 case Keys.Control | Keys.A:
                     TabManager.ActiveTranslationManager.RequestAutomaticTranslation();
-                    break;
+                    return true;
 
                 default:
                     DefaultTextChangePreparation();
