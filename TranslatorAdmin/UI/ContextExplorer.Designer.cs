@@ -28,12 +28,31 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            Lines = new System.Windows.Forms.TreeView();
+            SuspendLayout();
+            // 
+            // Lines
+            // 
+            Lines.Dock = System.Windows.Forms.DockStyle.Fill;
+            Lines.Location = new System.Drawing.Point(0, 0);
+            Lines.Name = "Lines";
+            Lines.Size = new System.Drawing.Size(800, 450);
+            Lines.TabIndex = 0;
+            // 
+            // ContextExplorer
+            // 
+            AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             ClientSize = new System.Drawing.Size(800, 450);
+            Controls.Add(Lines);
+            Name = "ContextExplorer";
+            ShowIcon = false;
             Text = "ContextExplorer";
+            ResumeLayout(false);
         }
 
         #endregion
+
+        private System.Windows.Forms.TreeView Lines;
     }
 }

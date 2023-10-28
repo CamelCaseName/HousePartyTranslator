@@ -14,7 +14,6 @@ namespace Translator.Desktop.UI.Components
     [SupportedOSPlatform("Windows")]
     public class WinTab : TabPage, ITab
     {
-        private readonly NoAnimationBar ProgressbarTranslated = new();
         private readonly CheckBox ApprovedBox = new();
         private readonly Label CharacterCountLabel = new();
         private readonly LineList CheckListBoxLeft = new();
@@ -32,12 +31,12 @@ namespace Translator.Desktop.UI.Components
         private readonly TableLayoutPanel mainTableLayoutPanel = new();
         private readonly Panel panel1 = new();
         private readonly Panel panel2 = new();
+        private readonly NoAnimationBar ProgressbarTranslated = new();
         private readonly Label SelectedFile = new();
         private readonly WinTextBox TemplateTextBox = new();
         private readonly Button TranslateThis = new();
         private readonly WinTextBox TranslationTextBox = new();
 
-        //todo add progress bar to tab title
         public WinTab() { MainForm = (Fenster)new Form(); }
 
         public WinTab(Fenster fenster)
@@ -363,7 +362,6 @@ namespace Translator.Desktop.UI.Components
         public ILineItem SelectedLineItem => (ILineItem)(Lines.SelectedItem ?? new WinLineItem());
         public string SelectedTemplateBoxText => TemplateTextBox.SelectedText;
         public string SelectedTranslationBoxText => TranslationTextBox.SelectedText;
-        public IList<string> TranslationsSimilarToTemplate => Lines.SimilarStringsToEnglish;
         public int SingleProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
         public ITextBox Template => TemplateTextBox;
         public string TemplateBoxText { get => TemplateTextBox.Text; set => TemplateTextBox.Text = value; }
@@ -388,8 +386,10 @@ namespace Translator.Desktop.UI.Components
         }
         public ITextBox Translation => TranslationTextBox;
         public string TranslationBoxText { get => TranslationTextBox.Text; set => TranslationTextBox.Text = value; }
+        public IList<string> TranslationsSimilarToTemplate => Lines.SimilarStringsToEnglish;
         internal Fenster MainForm { get; init; }
         private static int Number { get; set; } = 0;
+
         public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
         public void ClearLines() => CheckListBoxLeft.Clear();
         public void FocusCommentBox() => CommentTextBox.Focus();

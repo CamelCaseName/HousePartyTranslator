@@ -203,5 +203,10 @@ namespace Translator.Desktop.Explorer.Graph
         {
             return $"{Type} | parents: {ParentNodes.Count} | childs: {ChildNodes.Count} | {ID} | {Text}";
         }
+
+        public string ToOutputFormat()
+        {
+            return $"{ID}|{Text}";
+        }
     }
 }
