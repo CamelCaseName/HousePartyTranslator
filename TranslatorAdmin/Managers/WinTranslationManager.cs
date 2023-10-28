@@ -22,8 +22,8 @@ namespace Translator.Desktop.Managers
 
             TabManager.UI.SignalUserWait();
             data = new(story, filename);
-            var explorer = new ContextProvider(new(), story == filename, false, filename, story, path);
-            NodeList nodes = explorer.GetTemplateNodes();
+            var contextProvider = new ContextProvider(new(), story == filename, false, filename, story, path);
+            NodeList nodes = contextProvider.GetTemplateNodes();
             if (nodes is not null)
             {
                 if (story != filename) data.Add("Name", new LineData("Name", story, filename, StringCategory.General, filename, true));

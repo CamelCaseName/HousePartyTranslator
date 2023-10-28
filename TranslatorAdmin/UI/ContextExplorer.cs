@@ -9,7 +9,7 @@ namespace Translator.Desktop.UI.Components
     internal sealed partial class ContextExplorer : Form
     {
         private readonly string FileName, StoryName;
-        public ContextExplorer(string fileName, string storyName)
+        public ContextExplorer(string storyName, string fileName)
         {
             FileName = fileName;
             StoryName = storyName;

@@ -10,6 +10,8 @@ using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.Explorer.Graph;
+using Translator.Desktop.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Desktop.UI.Components;
@@ -257,9 +259,9 @@ namespace Translator.Desktop.UI
             }
         }
 
-        internal static StoryExplorer? CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
+        internal void CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
         {
-            if (TabManager.ActiveTranslationManager is null) return null;
+            if (TabManager.ActiveTranslationManager is null) return;
 
             //get currently active translation manager
             TranslationManager manager = TabManager.ActiveTranslationManager;
@@ -274,7 +276,7 @@ namespace Translator.Desktop.UI
 
                 if (openAll == DialogResult.Cancel)
                 {
-                    return null;
+                    return;
                 }
                 var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token);
 
@@ -290,12 +292,12 @@ namespace Translator.Desktop.UI
                         LogManager.Log(result.Exception, LogManager.Level.Error);
                 });
                 if (!explorer.IsDisposed) explorer.Show();
-                return explorer;
+                Explorer = explorer;
             }
             catch (OperationCanceledException)
             {
                 LogManager.Log("Explorer closed during creation", LogManager.Level.Warning);
-                return null;
+                return;
             }
         }
 
@@ -793,7 +795,7 @@ namespace Translator.Desktop.UI
                 Text = "&Auto StoryExplorer",
                 ToolTipText = "Starts the StoryExplorer with the currently selected character/story loaded."
             };
-            storyExplorerStripMenuItem.Click += (object? sender, EventArgs e) => Explorer = CreateStoryExplorer(true, CancelTokens);
+            storyExplorerStripMenuItem.Click += (object? sender, EventArgs e) => CreateStoryExplorer(true, CancelTokens);
 
             // customOpenStoryExplorer
             customOpenStoryExplorer = new WinMenuItem()
@@ -806,7 +808,7 @@ namespace Translator.Desktop.UI
                 Text = "Open StoryE&xplorer",
                 ToolTipText = "Opens the StoryExplorer and gives you the choice which file to open."
             };
-            customOpenStoryExplorer.Click += (object? sender, EventArgs e) => Explorer = CreateStoryExplorer(false, CancelTokens);
+            customOpenStoryExplorer.Click += (object? sender, EventArgs e) => CreateStoryExplorer(false, CancelTokens);
 
             // settingsToolStripMenuItem
             settingsToolStripMenuItem = new WinMenuItem()
@@ -1226,6 +1228,32 @@ namespace Translator.Desktop.UI
                 i++;
             }
 
+        }
+
+        internal static void CreateContextExplorer()
+        {
+            string story = TabManager.ActiveTranslationManager.StoryName;
+            string file = TabManager.ActiveTranslationManager.FileName;
+            bool isStory = story == file;
+            var context = new ContextExplorer(story, file);
+
+            string storyPathMinusStory = Directory.GetParent(WinSettings.StoryPath)?.FullName ?? string.Empty;
+            string filepath = isStory
+                ? Path.Combine(storyPathMinusStory, story, $"{file}.story")
+                : Path.Combine(storyPathMinusStory, story, $"{file}.character");
+            var contextProvider = new ContextProvider(
+                new(),
+                isStory,
+                false,
+                file,
+                story,
+                filepath);
+
+            NodeList nodes = contextProvider.GetTemplateNodes();
+            var currentNode = nodes.Find((Node n) => n.ID == TabManager.ActiveTranslationManager.SelectedId);
+            if (currentNode is null) return;
+            context.SetLines(currentNode);
+            context.Show();
         }
     }
 }
