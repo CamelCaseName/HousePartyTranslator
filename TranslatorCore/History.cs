@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;

@@ -7,7 +7,6 @@ using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Desktop.Explorer.Graph;
-using Translator.Desktop.Managers;
 using Translator.Explorer.Window;
 using static Translator.Desktop.Explorer.JSONItems.StoryEnums;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;

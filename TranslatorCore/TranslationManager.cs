@@ -7,7 +7,6 @@ using System.Timers;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 //TODO add tests
 
