@@ -38,6 +38,7 @@ namespace Translator.Desktop.Explorer.JSONItems
             IsCurrentlyUsing = 190,
             IsExplicitGameVersion = 2000,
             IsGameUncensored,
+            IsPackageInstalled,
             IsInFrontOf = 151,
             IsInHouse = 912,
             IsNewGame = 900,

@@ -849,7 +849,7 @@ namespace Translator.Core
             cmd.Parameters.Clear();
             foreach (string id in idsToUnapprove)
             {
-                command.Append($"SUBSTR(id, 1, LENGTH(id) - LENGTH(language)) = @id{x} OR");
+                command.Append($"SUBSTR(id, 1, LENGTH(id) - LENGTH(language)) = @id{x} OR ");
                 x++;
             }
             command.Length -= 3;
