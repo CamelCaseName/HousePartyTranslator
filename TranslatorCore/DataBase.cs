@@ -718,7 +718,7 @@ namespace Translator.Core
             _ = cmd.Parameters.AddWithValue("@approved", lineData.IsApproved ? 1 : 0);
             _ = cmd.Parameters.AddWithValue("@language", language);
             _ = cmd.Parameters.AddWithValue($"@comment", comment);
-            _ = cmd.Parameters.AddWithValue("@translation", lineData.TranslationString.RemoveVAHints());
+            _ = cmd.Parameters.AddWithValue("@translation", lineData.TranslationString);
             _ = cmd.Parameters.AddWithValue($"@deleted", 0);
 
             return ExecuteOrReOpen(cmd);
@@ -783,7 +783,7 @@ namespace Translator.Core
                             _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
                             _ = cmd.Parameters.AddWithValue($"@language{c}", language);
                             _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
-                            _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString.RemoveVAHints());
+                            _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString);
                             _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
                             ++c;
                             if (c >= updateData.Count)
@@ -849,7 +849,7 @@ namespace Translator.Core
             cmd.Parameters.Clear();
             foreach (string id in idsToUnapprove)
             {
-                command.Append($"SUBSTR(id, 1, LENGTH(id) - LENGTH(language)) = @id{x} OR");
+                command.Append($"SUBSTR(id, 1, LENGTH(id) - LENGTH(language)) = @id{x} OR ");
                 x++;
             }
             command.Length -= 3;
@@ -966,7 +966,7 @@ namespace Translator.Core
         {
             if (story == "Hints" && isTemplate) fileName = "English";
             string tempID = DataBaseId[(story + fileName).Length..];
-            if (tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length) <= 0) Debugger.Break();
+            if (tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length) < 0) Debugger.Break();
             return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
         }
 

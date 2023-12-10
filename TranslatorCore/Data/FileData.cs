@@ -14,7 +14,7 @@ namespace Translator.Core.Data
             StoryName = story;
             foreach (KeyValuePair<string, LineData> item in data)
             {
-                Add(item.Key, item.Value);
+                Add(item.Key, new(item.Value));
             }
         }
 
@@ -25,10 +25,14 @@ namespace Translator.Core.Data
             Clear();
         }
 
-        public FileData(FileData old) : base(old)
+        public FileData(FileData old)
         {
             FileName = old.FileName;
             StoryName = old.StoryName;
+            foreach (KeyValuePair<string, LineData> item in old)
+            {
+                Add(item.Key, new(item.Value));
+            }
         }
 
         public KeyValuePair<string, LineData> ElementAt(int index)

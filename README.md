@@ -32,6 +32,7 @@ List of all hotkeys so far
 |ENTER|when performing a search, enter will cycle through the search results|use a '?' at the beginning of your search to perform it in all tabs, this will also then cycle through tabs|
 |ALT + LEFT|cylcle tabs to the left||
 |ALT + RIGHT|cycle tabs to the right||
+|CTRL + A|Automatically translate the current sentence||
 
 ## Settings
 Some explanation for the settings and what they do

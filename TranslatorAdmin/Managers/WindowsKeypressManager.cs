@@ -154,11 +154,11 @@ namespace Translator.Desktop.Managers
                     return true;
 
                 case Keys.Control | Keys.E:
-                    _ = Fenster.CreateStoryExplorer(true, tokenSource);
+                    App.MainForm.CreateStoryExplorer(true, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.T:
-                    _ = Fenster.CreateStoryExplorer(false, tokenSource);
+                    App.MainForm.CreateStoryExplorer(false, tokenSource);
                     return true;
 
                 case Keys.Control | Keys.P:
@@ -170,6 +170,14 @@ namespace Translator.Desktop.Managers
 
                 case Keys.Down:
                     return TabManager.ActiveTranslationManager.TryCycleSearchDown();
+
+                case Keys.Control | Keys.A:
+                    TabManager.ActiveTranslationManager.RequestAutomaticTranslation();
+                    return true;
+
+                case Keys.Control | Keys.K:
+                    Fenster.CreateContextExplorer();
+                    return true;
 
                 default:
                     DefaultTextChangePreparation();

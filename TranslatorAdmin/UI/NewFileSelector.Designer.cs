@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using Google.Protobuf.Reflection;
+using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace Translator.Desktop.UI
@@ -55,6 +57,7 @@ namespace Translator.Desktop.UI
             fileDropdown.Name = "fileDropdown";
             fileDropdown.Size = new Size(369, 23);
             fileDropdown.TabIndex = 1;
+            fileDropdown.SelectedIndexChanged += FileDropdown_SelectedIndexChanged;
             // 
             // cancel
             // 
@@ -70,6 +73,7 @@ namespace Translator.Desktop.UI
             // submit
             // 
             submit.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            submit.Enabled = false;
             submit.Location = new Point(12, 116);
             submit.Name = "submit";
             submit.Size = new Size(75, 23);

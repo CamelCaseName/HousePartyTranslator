@@ -10,7 +10,7 @@ namespace Translator.Desktop.Managers
 {
     //also contains some extensions to ease programming
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    public static class WinTranslationManager
+    internal static class WinTranslationManager
     {
         internal static bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
         {
@@ -22,8 +22,8 @@ namespace Translator.Desktop.Managers
 
             TabManager.UI.SignalUserWait();
             data = new(story, filename);
-            var explorer = new ContextProvider(new(), story == filename, false, filename, story, path);
-            NodeList nodes = explorer.GetTemplateNodes();
+            var contextProvider = new ContextProvider(new(), story == filename, false, filename, story, path);
+            NodeList nodes = contextProvider.GetTemplateNodes();
             if (nodes is not null)
             {
                 if (story != filename) data.Add("Name", new LineData("Name", story, filename, StringCategory.General, filename, true));
@@ -31,80 +31,10 @@ namespace Translator.Desktop.Managers
                 //Add all new lines, but check if they are relevant
                 for (int i = 0; i < nodes.Count; i++)
                 {
-                    //filter out irrelevant nodes
-                    if (nodes[i].ID == string.Empty) continue;
-                    switch (nodes[i].Type)
-                    {
-                        case NodeType.BGCResponse:
-                        case NodeType.CharacterGroup:
-                        case NodeType.Clothing:
-                        case NodeType.CriteriaGroup:
-                        case NodeType.Criterion:
-                        case NodeType.Cutscene:
-                        case NodeType.Door:
-                        case NodeType.EventTrigger:
-                        case NodeType.ItemGroup:
-                        case NodeType.Null:
-                        case NodeType.Personality:
-                        case NodeType.Pose:
-                        case NodeType.Property:
-                        case NodeType.Social:
-                        case NodeType.State:
-                        case NodeType.Value:
-                            continue;
-                        case NodeType.Item:
-                        {
-                            if (story != filename) continue;
-
-                            if (nodes[i].DataType == typeof(ItemOverride) && nodes[i].Data is not null)
-                            {
-                                ItemOverride itemOverride = (ItemOverride)nodes[i].Data!;
-                                data[itemOverride.DisplayName!] = new LineData(itemOverride.DisplayName!, story, filename, nodes[i].Type.CategoryFromNode(), itemOverride.DisplayName!, true);
-                            }
-                            else if (nodes[i].DataType == typeof(UseWith) && nodes[i].Data is not null)
-                            {
-                                UseWith use = (UseWith)nodes[i].Data!;
-                                if (use.CustomCantDoThatMessage != string.Empty)
-                                    //not sure if this can even work but ill try, maybe we need the english version as id?
-                                    data[use.ItemName! + "CustomCantDoThatMessage"] = new LineData(use.ItemName! + "CustomCantDoThatMessage", story, filename, nodes[i].Type.CategoryFromNode(), use.CustomCantDoThatMessage!, true);
-                            }
-                            else if (nodes[i].Text != string.Empty && nodes[i].ID != string.Empty)
-                            {
-                                data[nodes[i].Text] = new LineData(nodes[i].Text, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
-                            }
-                            continue;
-                        }
-                        case NodeType.Event:
-                        {
-                            if (nodes[i].DataType != typeof(GameEvent) || nodes[i].Data is null) continue;
-
-                            GameEvent gameEvent = (GameEvent)nodes[i].Data!;
-                            if (gameEvent.EventType == StoryEnums.GameEvents.DisplayGameMessage)
-                            {
-                                data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), gameEvent.Value!, true);
-                            }
-                            else if (gameEvent.EventType == StoryEnums.GameEvents.Item)
-                            {
-                                if (gameEvent.Option == 2)
-                                    data[gameEvent.Value!] = new LineData(gameEvent.Value!, story, filename, nodes[i].Type.CategoryFromNode(), gameEvent.Value!, true);
-                            }
-                            continue;
-                        }
-                        case NodeType.Achievement:
-                        {
-                            if (nodes[i].ID.Contains("SteamName")) continue;
-
-                            data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
-                            continue;
-                        }
-                        default:
-                        {
-                            data[nodes[i].ID] = new LineData(nodes[i].ID, story, filename, nodes[i].Type.CategoryFromNode(), nodes[i].Text, true);
-                            continue;
-                        }
-                    }
+                    if (TryExtractTemplateText(story, filename, nodes[i], out var template))
+                        if (template is not null)
+                            data[template.ID] = template;
                 }
-
                 TabManager.UI.SignalUserEndWait();
 
                 return true;
@@ -113,6 +43,83 @@ namespace Translator.Desktop.Managers
             _ = Msg.ErrorOk("Something broke, please try again.");
             TabManager.UI.SignalUserEndWait();
             return false;
+        }
+
+        internal static bool TryExtractTemplateText(string story, string filename, Node node, out LineData? template)
+        {
+            template = null;
+            //filter out irrelevant nodes
+            if (node.ID == string.Empty) return false;
+            switch (node.Type)
+            {
+                case NodeType.BGCResponse:
+                case NodeType.CharacterGroup:
+                case NodeType.Clothing:
+                case NodeType.CriteriaGroup:
+                case NodeType.Criterion:
+                case NodeType.Cutscene:
+                case NodeType.Door:
+                case NodeType.EventTrigger:
+                case NodeType.ItemGroup:
+                case NodeType.Null:
+                case NodeType.Personality:
+                case NodeType.Pose:
+                case NodeType.Property:
+                case NodeType.Social:
+                case NodeType.State:
+                case NodeType.Value:
+                    return false;
+                case NodeType.Item:
+                {
+                    if (story != filename) return false;
+
+                    if (node.DataType == typeof(ItemOverride) && node.Data is not null)
+                    {
+                        ItemOverride itemOverride = (ItemOverride)node.Data!;
+                        template = new LineData(itemOverride.DisplayName!, story, filename, node.Type.CategoryFromNode(), itemOverride.DisplayName!, true);
+                    }
+                    else if (node.DataType == typeof(UseWith) && node.Data is not null)
+                    {
+                        UseWith use = (UseWith)node.Data!;
+                        if (use.CustomCantDoThatMessage != string.Empty)
+                            //not sure if this can even work but ill try, maybe we need the english version as id?
+                            template = new LineData(use.ItemName! + "CustomCantDoThatMessage", story, filename, node.Type.CategoryFromNode(), use.CustomCantDoThatMessage!, true);
+                    }
+                    else if (node.Text != string.Empty && node.ID != string.Empty)
+                    {
+                        template = new LineData(node.Text, story, filename, node.Type.CategoryFromNode(), node.Text, true);
+                    }
+                    return true;
+                }
+                case NodeType.Event:
+                {
+                    if (node.DataType != typeof(GameEvent) || node.Data is null) return false;
+
+                    GameEvent gameEvent = (GameEvent)node.Data!;
+                    if (gameEvent.EventType == StoryEnums.GameEvents.DisplayGameMessage)
+                    {
+                        template = new LineData(node.ID, story, filename, node.Type.CategoryFromNode(), gameEvent.Value!, true);
+                    }
+                    else if (gameEvent.EventType == StoryEnums.GameEvents.Item)
+                    {
+                        if (gameEvent.Option == 2)
+                            template = new LineData(gameEvent.Value!, story, filename, node.Type.CategoryFromNode(), gameEvent.Value!, true);
+                    }
+                    return true;
+                }
+                case NodeType.Achievement:
+                {
+                    if (node.ID.Contains("SteamName")) return false;
+
+                    template = new LineData(node.ID, story, filename, node.Type.CategoryFromNode(), node.Text, true);
+                    return true;
+                }
+                default:
+                {
+                    template = new LineData(node.ID, story, filename, node.Type.CategoryFromNode(), node.Text, true);
+                    return true;
+                }
+            }
         }
 
         /// <summary>

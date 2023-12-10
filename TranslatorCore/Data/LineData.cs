@@ -63,18 +63,18 @@ namespace Translator.Core.Data
             TranslationString = translation.Trim();
         }
 
-        public LineData(LineData selectedLine)
+        public LineData(LineData line)
         {
-            Category = selectedLine.Category;
-            Comments = selectedLine.Comments;
-            FileName = selectedLine.FileName;
-            ID = selectedLine.ID;
-            IsApproved = selectedLine.IsApproved;
-            IsTemplate = selectedLine.IsTemplate;
-            IsTranslated = selectedLine.IsTranslated;
-            Story = selectedLine.Story;
-            TemplateString = selectedLine.TemplateString;
-            _translationString = selectedLine.TranslationString;
+            Category = line.Category;
+            Comments = line.Comments;
+            FileName = line.FileName;
+            ID = line.ID;
+            IsApproved = line.IsApproved;
+            IsTemplate = line.IsTemplate;
+            IsTranslated = line.IsTranslated;
+            Story = line.Story;
+            TemplateString = line.TemplateString;
+            _translationString = line.TranslationString;
         }
 
         public override string ToString()

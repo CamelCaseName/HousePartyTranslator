@@ -10,6 +10,8 @@ using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.Explorer.Graph;
+using Translator.Desktop.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Desktop.UI.Components;
@@ -128,6 +130,8 @@ namespace Translator.Desktop.UI
 
             //init all form components
             InitializeComponent();
+
+            History.HistoryChanged += (s, e) => UpdateHistoryItems();
         }
 
         public static ProgressWindow ProgressbarWindow { get; private set; }
@@ -255,9 +259,9 @@ namespace Translator.Desktop.UI
             }
         }
 
-        internal static StoryExplorer? CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
+        internal void CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
         {
-            if (TabManager.ActiveTranslationManager is null) return null;
+            if (TabManager.ActiveTranslationManager is null) return;
 
             //get currently active translation manager
             TranslationManager manager = TabManager.ActiveTranslationManager;
@@ -272,7 +276,7 @@ namespace Translator.Desktop.UI
 
                 if (openAll == DialogResult.Cancel)
                 {
-                    return null;
+                    return;
                 }
                 var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token);
 
@@ -288,12 +292,12 @@ namespace Translator.Desktop.UI
                         LogManager.Log(result.Exception, LogManager.Level.Error);
                 });
                 if (!explorer.IsDisposed) explorer.Show();
-                return explorer;
+                Explorer = explorer;
             }
             catch (OperationCanceledException)
             {
                 LogManager.Log("Explorer closed during creation", LogManager.Level.Warning);
-                return null;
+                return;
             }
         }
 
@@ -440,7 +444,8 @@ namespace Translator.Desktop.UI
                 Name = nameof(undoMenuButton),
                 Size = new Size(236, 22),
                 Text = "&Undo",
-                ToolTipText = "Undoes the latest action"
+                ToolTipText = "Undoes the latest action",
+                Enabled = false
             };
             undoMenuButton.Click += (object? sender, EventArgs e) => History.Undo();
 
@@ -451,7 +456,8 @@ namespace Translator.Desktop.UI
                 Name = nameof(redoMenuButton),
                 Size = new Size(236, 22),
                 Text = "&Redo",
-                ToolTipText = "Redoes the latest undone action"
+                ToolTipText = "Redoes the latest undone action",
+                Enabled = false
             };
             redoMenuButton.Click += (object? sender, EventArgs e) => History.Redo();
 
@@ -789,7 +795,7 @@ namespace Translator.Desktop.UI
                 Text = "&Auto StoryExplorer",
                 ToolTipText = "Starts the StoryExplorer with the currently selected character/story loaded."
             };
-            storyExplorerStripMenuItem.Click += (object? sender, EventArgs e) => Explorer = CreateStoryExplorer(true, CancelTokens);
+            storyExplorerStripMenuItem.Click += (object? sender, EventArgs e) => CreateStoryExplorer(true, CancelTokens);
 
             // customOpenStoryExplorer
             customOpenStoryExplorer = new WinMenuItem()
@@ -802,7 +808,7 @@ namespace Translator.Desktop.UI
                 Text = "Open StoryE&xplorer",
                 ToolTipText = "Opens the StoryExplorer and gives you the choice which file to open."
             };
-            customOpenStoryExplorer.Click += (object? sender, EventArgs e) => Explorer = CreateStoryExplorer(false, CancelTokens);
+            customOpenStoryExplorer.Click += (object? sender, EventArgs e) => CreateStoryExplorer(false, CancelTokens);
 
             // settingsToolStripMenuItem
             settingsToolStripMenuItem = new WinMenuItem()
@@ -1041,7 +1047,7 @@ namespace Translator.Desktop.UI
 
             ProgressbarWindow.Status.Text = "Loading recents";
             //open most recent after db is initialized
-            UpdateFileMenuItems();
+            UpdaterecentFileMenu();
             RecentsManager.OpenMostRecent();
 
             //start timer to update presence
@@ -1127,16 +1133,16 @@ namespace Translator.Desktop.UI
 
         private static void CreateNewFilesForStory()
         {
-            var dialog = new NewFileSelector();
+            var dialog = new NewFileSelector(true);
             PopupResult result = dialog.ShowDialog();
             if (result != PopupResult.OK) return;
 
             string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
             if (path == string.Empty || path is null) return;
 
-            if (dialog.StoryName == path.Split('\\')[^2])
+            if (dialog.StoryName == path.Split('\\')[^2] && Path.HasExtension(path))
                 path = Path.GetDirectoryName(path);
-            else
+            else if (dialog.StoryName == path.Split('\\')[^1])
                 _ = Directory.CreateDirectory(path);
 
             if (path == string.Empty) return;
@@ -1148,7 +1154,7 @@ namespace Translator.Desktop.UI
             TabManager.OpenAllTabs(path!);
         }
 
-        public void UpdateFileMenuItems()
+        public void UpdaterecentFileMenu()
         {
             IMenuItem[] items = RecentsManager.GetRecents();
             int recentsStart;
@@ -1181,6 +1187,73 @@ namespace Translator.Desktop.UI
             }
 
             FileToolStripMenuItem.DropDownItems[recentsStart + 1].Text = items.Length == 0 ? "No Recents" : "Recents:";
+        }
+
+        public void UpdateHistoryItems()
+        {
+            undoMenuButton.DropDownItems.Clear();
+            redoMenuButton.DropDownItems.Clear();
+
+            var commands = History.GetLastFiveActions();
+            undoMenuButton.Enabled = commands.Count > 0;
+            int i = 0;
+            foreach (var cmd in commands)
+            {
+                WinMenuItem cmdItem = new()
+                {
+                    Name = cmd.GetType().Name + i,
+                    Size = new Size(236, 22),
+                    Text = "(" + i + ") " + cmd.Description,
+                    ToolTipText = cmd.DetailedDescription,
+                };
+                cmdItem.Click += (s, e) => History.Undo(i + 1);
+                undoMenuButton.DropDownItems.Add(cmdItem);
+                i++;
+            }
+
+            commands = History.GetNextFiveActions();
+            redoMenuButton.Enabled = commands.Count > 0;
+            i = 0;
+            foreach (var cmd in commands)
+            {
+                WinMenuItem cmdItem = new()
+                {
+                    Name = cmd.GetType().Name + i,
+                    Size = new Size(236, 22),
+                    Text = "(" + i + ") " + cmd.Description,
+                    ToolTipText = cmd.DetailedDescription,
+                };
+                cmdItem.Click += (s, e) => History.Redo(i + 1);
+                redoMenuButton.DropDownItems.Add(cmdItem);
+                i++;
+            }
+
+        }
+
+        internal static void CreateContextExplorer()
+        {
+            string story = TabManager.ActiveTranslationManager.StoryName;
+            string file = TabManager.ActiveTranslationManager.FileName;
+            bool isStory = story == file;
+            var context = new ContextExplorer(story, file);
+
+            string storyPathMinusStory = Directory.GetParent(WinSettings.StoryPath)?.FullName ?? string.Empty;
+            string filepath = isStory
+                ? Path.Combine(storyPathMinusStory, story, $"{file}.story")
+                : Path.Combine(storyPathMinusStory, story, $"{file}.character");
+            var contextProvider = new ContextProvider(
+                new(),
+                isStory,
+                false,
+                file,
+                story,
+                filepath);
+
+            NodeList nodes = contextProvider.GetTemplateNodes();
+            var currentNode = nodes.Find((Node n) => n.ID == TabManager.ActiveTranslationManager.SelectedId);
+            if (currentNode is null) return;
+            context.SetLines(currentNode);
+            context.Show();
         }
     }
 }

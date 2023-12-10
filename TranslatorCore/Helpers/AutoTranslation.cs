@@ -98,7 +98,7 @@ namespace Translator.Core.Helpers
                     ApiKey = string.Empty,
                     Source = langCodeTemplate,
                     Target = langCodeTranslation,
-                    Text = data.TemplateString
+                    Text = data.TemplateString.RemoveVAHints()
                 });
                 tasks.Add(task);
                 result = await task;

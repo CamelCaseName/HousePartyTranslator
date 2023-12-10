@@ -18,11 +18,19 @@ namespace Translator.Desktop.UI
         public string FileName { get; private set; } = string.Empty;
         public readonly HashSet<string> stories;
         public readonly Dictionary<string, List<string>> files;
+        private readonly bool storyOnly;
 
-        public NewFileSelector()
+        public NewFileSelector(bool StoryOnly = false)
         {
             InitializeComponent();
             DataBase.GetAllFilesAndStoriesSorted(out stories, out files);
+            storyOnly = StoryOnly;
+            if (storyOnly)
+            {
+                fileDropdown.Enabled = false;
+                fileDropdown.Visible = false;
+                fileLabel.Visible = false;
+            }
         }
 
         private void NewFileSelector_Load(object sender, EventArgs e)
@@ -59,8 +67,18 @@ namespace Translator.Desktop.UI
 
         private void StoryDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (storyOnly)
+            {
+                submit.Enabled = true;
+                return;
+            }
             fileDropdown.Items.Clear();
             fileDropdown.Items.AddRange(files[storyDropdown.SelectedItem.ToString()!].ToArray());
+        }
+
+        private void FileDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            submit.Enabled = true;
         }
 
         public new PopupResult ShowDialog()
