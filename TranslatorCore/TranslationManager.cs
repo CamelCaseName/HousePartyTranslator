@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Media;
 using System.Threading.Tasks;
 using System.Timers;
 using Translator.Core.Data;
@@ -469,6 +470,7 @@ namespace Translator.Core
             UI.SignalUserEndWait();
             ChangesPending = false;
             LogManager.Log("Successfully saved the file locally");
+            ReloadTranslationTextbox();
 
             void RemoteUpdate()
             {
@@ -691,9 +693,13 @@ namespace Translator.Core
         public void UpdateTranslationString()
         {
             //remove pipe to not break saving/export, also remove voice actor hints as we dont want those
-            SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace('|', ' ')
-                                                               .Replace(Environment.NewLine, "\n");
+            var lengthString = TabUI.TranslationBoxText.Replace('|', ' ').Replace(Environment.NewLine, "\n");
+            int oldLength = lengthString.Length;
+            SelectedLine.TranslationString = lengthString;
             TabUI.TranslationBoxText = SelectedLine.TranslationString;
+            //alert user they typed an illegal character
+            if(oldLength != SelectedLine.TranslationLength) SystemSounds.Beep.Play();
+
             UpdateCharacterCountLabel();
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
@@ -781,7 +787,7 @@ namespace Translator.Core
         {
             //update textbox
             if (SelectedId != string.Empty)
-                TabUI.TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine);
+                TabUI.TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine).RemoveVAHints(true);
         }
 
         /// <summary>

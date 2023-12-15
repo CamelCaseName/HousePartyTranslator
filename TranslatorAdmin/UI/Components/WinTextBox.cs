@@ -53,7 +53,16 @@ namespace Translator.Desktop.UI.Components
         public new string Text
         {
             get => base.Text;
-            set { Invalidate(); customDrawNeeded = true; base.Text = value; }
+            set
+            {
+                Invalidate();
+                customDrawNeeded = true;
+                int selection = SelectionStart - 1;
+                int oldLength = base.Text.Length;
+                base.Text = value;
+                if (selection <= base.Text.Length && selection >= 0 && base.Text.Length != oldLength)
+                    SelectionStart = selection;
+            }
         }
 
         public Color PlaceholderColor { get; set; } = SystemColors.GrayText;

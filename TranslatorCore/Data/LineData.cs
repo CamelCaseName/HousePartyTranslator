@@ -14,7 +14,7 @@ namespace Translator.Core.Data
         public bool IsApproved = false;
         public bool IsTemplate = false;
         public string TemplateString = string.Empty;
-        public string TranslationString { get => _translationString; set => _translationString = value.RemoveVAHints(); }
+        public string TranslationString { get => _translationString; set => _translationString = value.RemoveVAHints(false); }
         private string _translationString = string.Empty;
         public string[] Comments = Array.Empty<string>();
 
