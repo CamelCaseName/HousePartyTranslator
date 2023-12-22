@@ -35,7 +35,7 @@ namespace Translator.Core.Helpers
 
         private static IUIHandler? MainUI { get; set; }
 
-        internal static void Initialize(IUIHandler ui)
+        public static void Initialize(IUIHandler ui)
         {
             MainUI = ui;
             DataBase.GetAllFilesAndStories(out storyNames, out fileNames);

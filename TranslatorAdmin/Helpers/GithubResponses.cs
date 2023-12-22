@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 namespace Translator.Helpers
 {
     // Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-    internal sealed class Author
+    public sealed class Author
     {
         [JsonPropertyName("login")]
         public string? Login { get; set; }
@@ -62,7 +62,7 @@ namespace Translator.Helpers
         public bool SiteAdmin { get; set; }
     }
 
-    internal sealed class Uploader
+    public sealed class Uploader
     {
         [JsonPropertyName("login")]
         public string? Login { get; set; }
@@ -119,7 +119,7 @@ namespace Translator.Helpers
         public bool SiteAdmin { get; set; }
     }
 
-    internal sealed class Asset
+    public sealed class Asset
     {
         [JsonPropertyName("url")]
         public string? Url { get; set; }
@@ -161,7 +161,7 @@ namespace Translator.Helpers
         public string? BrowserDownloadUrl { get; set; }
     }
 
-    internal sealed class GithubResponse
+    public sealed class GithubResponse
     {
         [JsonPropertyName("url")]
         public string? Url { get; set; }

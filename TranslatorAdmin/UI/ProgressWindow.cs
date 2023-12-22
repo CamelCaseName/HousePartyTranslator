@@ -22,7 +22,7 @@ namespace Translator.Desktop.UI
         {
             get;
         }
-        public bool IsInitialized { get; internal set; }
+        public bool IsInitialized { get; public set; }
 
         public void PerformStep()
         {

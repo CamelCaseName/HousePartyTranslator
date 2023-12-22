@@ -1,0 +1,64 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0-windows</TargetFramework>
+		<Nullable>enable</Nullable>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="PInvoke.Windows.Core" Version="0.7.124" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\TranslatorCore\Translator.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="ColoredDropDown.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="ColoredToolStripDropDown.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="NoAnimationBar.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="Properties\Settings.Designer.cs">
+		  <DesignTimeSharedInput>True</DesignTimeSharedInput>
+		  <DependentUpon>Settings.settings</DependentUpon>
+		  <AutoGen>True</AutoGen>
+		</Compile>
+		<Compile Update="SearchTextBox.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="SearchToolStripTextBox.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="ToggleButton.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="WinMenuItem.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="WinMenuSeperator.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="WinTextBox.cs">
+			<SubType>Component</SubType>
+		</Compile>
+		<Compile Update="WinToolStripTextBox.cs">
+			<SubType>Component</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Properties\Settings.settings">
+	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+	    <Generator>SettingsSingleFileGenerator</Generator>
+	  </None>
+	</ItemGroup>
+
+</Project>

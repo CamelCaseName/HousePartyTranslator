@@ -15,7 +15,7 @@ namespace Translator.Desktop.InterfaceImpls
         private int waitCounter = 0;
         public WinUIHandler() { }
 
-        internal WinUIHandler(ITabController control)
+        public WinUIHandler(ITabController control)
         {
             TabControl = (WinTabController)control;
         }
@@ -23,9 +23,9 @@ namespace Translator.Desktop.InterfaceImpls
         public CreateTemplateFromStoryDelegate CreateTemplateFromStory { get => WinTranslationManager.CreateTemplateFromStory; }
         public MenuItems FileMenuItems => App.MainForm?.FileToolStripMenuItem.DropDownItems.ToMenuItems() ?? new MenuItems();
 
-        Type IUIHandler.InternalFileDialogType => typeof(WinFileDialog);
-        Type IUIHandler.InternalFolderDialogType => typeof(WinFolderDialog);
-        Type IUIHandler.InternalSaveFileDialogType => typeof(WinSaveFileDialog);
+        Type IUIHandler.publicFileDialogType => typeof(WinFileDialog);
+        Type IUIHandler.publicFolderDialogType => typeof(WinFolderDialog);
+        Type IUIHandler.publicSaveFileDialogType => typeof(WinSaveFileDialog);
         public string Language { get => App.MainForm?.LanguageBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the language"); App.MainForm.LanguageBox.Text = value; } }
         public bool ReplaceBarIsVisible => App.MainForm?.ReplaceAllButton.Visible ?? (false && App.MainForm.ReplaceButton.Visible && App.MainForm.ReplaceBox.Visible);
         public string ReplaceBarText { get => App.MainForm?.ReplaceBox.Text ?? string.Empty; set { _ = App.MainForm ?? throw new NullReferenceException("MainForm was null when setting the ReplaceBarText"); App.MainForm.ReplaceBox.Text = value; } }
@@ -159,7 +159,7 @@ namespace Translator.Desktop.InterfaceImpls
             App.MainForm?.LanguageBox.DropDown.SetColoredIndices(indices[..iterator].ToArray());
         }
 
-        internal void ClearUserWaitCount()
+        public void ClearUserWaitCount()
         {
             waitCounter = 0;
             Application.UseWaitCursor = false;

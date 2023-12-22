@@ -11,7 +11,7 @@ namespace Translator.Desktop.Managers
     /// Class that handles all keyboard presses and calls the appropiate methods if a hotkey was detected
     /// </summary>
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class WindowsKeypressManager
+    public static class WindowsKeypressManager
     {
         public static void OpenContextMenu(ContextMenuStrip context, MouseEventArgs e)
         {
