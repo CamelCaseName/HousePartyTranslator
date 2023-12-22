@@ -171,7 +171,7 @@ namespace Translator.Desktop.Managers
                 case Keys.Down:
                     return TabManager.ActiveTranslationManager.TryCycleSearchDown();
 
-                case Keys.Control | Keys.A:
+                case Keys.Control | Keys.Q:
                     TabManager.ActiveTranslationManager.RequestAutomaticTranslation();
                     return true;
 
