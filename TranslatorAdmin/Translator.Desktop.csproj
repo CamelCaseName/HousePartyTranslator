@@ -14,6 +14,7 @@
 		<ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<NeutralLanguage>en</NeutralLanguage>
+		<SelfContained>false</SelfContained>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

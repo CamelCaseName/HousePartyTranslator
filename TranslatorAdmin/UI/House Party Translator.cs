@@ -15,6 +15,7 @@ using Translator.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Desktop.UI.Components;
+using Translator.Desktop.Foundation;
 using Translator.Explorer.Window;
 using Translator.Helpers;
 
@@ -278,7 +279,7 @@ namespace Translator.Desktop.UI
                 {
                     return;
                 }
-                var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token);
+                var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, tokenSource.Token, App.MainForm);
 
                 Task.Run(() =>
                 {
@@ -948,7 +949,7 @@ namespace Translator.Desktop.UI
             MinimumSize = new Size(640, 470);
             Name = nameof(Fenster);
             ShowIcon = false;
-            Icon = Properties.Resources.wumpus_smoll;
+            Icon = Translator.Explorer.Properties.Resources.wumpus_smoll;
 #if DEBUG || DEBUG_ADMIN
             Text = "Translator (DEBUG)";
 #else

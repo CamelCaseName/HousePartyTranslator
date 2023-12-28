@@ -1,8 +1,8 @@
 ﻿using Translator.Core;
 using Translator.Core.Data;
-using Translator.Desktop.Explorer.Graph;
-using Translator.Desktop.Explorer.JSONItems;
-using Translator.Desktop.Explorer.Story;
+using Translator.Explorer.Graph;
+using Translator.Explorer.JSONItems;
+using Translator.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Helpers;
 

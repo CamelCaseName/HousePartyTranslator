@@ -79,5 +79,15 @@ namespace Translator.Explorer.Properties {
                 return ((byte[])(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        public static System.Drawing.Icon wumpus_smoll {
+            get {
+                object obj = ResourceManager.GetObject("wumpus_smoll", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }

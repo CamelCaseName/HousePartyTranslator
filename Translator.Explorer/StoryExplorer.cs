@@ -19,6 +19,7 @@ namespace Translator.Explorer.Window
         private readonly ContextProvider Context;
         private readonly GraphingEngine engine;
         private readonly string parentName;
+        private readonly Form ourParent;
         public readonly string FileName;
         public readonly string StoryName;
         private bool MenuVisible = false;
@@ -32,14 +33,23 @@ namespace Translator.Explorer.Window
         public string ParentName { get { return parentName; } }
 
         //todo implement node saving to a story file
-        public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, Form Parent, CancellationToken cancellation)
+        public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, CancellationToken cancellation, Form? Parent = null)
         {
             InitializeComponent();
             InitializeTypeFilterButtons();
             token = cancellation;
 
             //indicate ownership
-            parentName = Parent.Name;
+            if (Parent != null)
+            {
+                parentName = Parent.Name;
+                ourParent = Parent;
+            }
+            else
+            {
+                ourParent = this;
+                parentName = Name;
+            }
 
             //change draw order for this windows from bottom to top to top to bottom to remove flickering
             //use double buffering for that
@@ -100,25 +110,25 @@ namespace Translator.Explorer.Window
         {
             if (singleFile)
             {
-                App.MainForm.Invoke(() => Text = Title + " - waiting");
+                ourParent.Invoke(() => Text = Title + " - waiting");
                 if (!Context.ParseFile() || Context.GotCancelled)
                 {
                     Close();
                 }
-                App.MainForm.Invoke(() => Text = Title + $" - {FileName}");
+                ourParent.Invoke(() => Text = Title + $" - {FileName}");
             }
             else
             {
-                App.MainForm.Invoke(() => Text = Title + " - waiting");
+                ourParent.Invoke(() => Text = Title + " - waiting");
                 //parse story, and not get cancelled xD
                 if (!Context.ParseAllFiles() || Context.GotCancelled)
                 {
                     Close();
                 }
-                App.MainForm.Invoke(() => Text = Title + $" - {StoryName}");
+                ourParent.Invoke(() => Text = Title + $" - {StoryName}");
             }
             inInitialization = false;
-            App.MainForm.Invoke(() => NodeCalculations.Text = "Calculation running");
+            ourParent.Invoke(() => NodeCalculations.Text = "Calculation running");
 
             Provider.FreezeNodesAsInitial();
             Layouter = new(Provider, this, token);

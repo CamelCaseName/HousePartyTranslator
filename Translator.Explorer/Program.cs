@@ -13,7 +13,7 @@ namespace Translator.Explorer
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             ApplicationConfiguration.Initialize();
-            Application.Run(new StoryExplorer(false, true, "", "", null!, new CancellationToken()));
+            Application.Run(new StoryExplorer(false, true, "", "", new CancellationToken()));
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Explorer.Graph;
+using Translator.Explorer.Window;
 
 namespace Translator.Explorer.OpenCL;
 [SupportedOSPlatform("windows")]
@@ -19,7 +20,7 @@ public sealed unsafe class OpenCLManager
     private readonly CL _cl;
     private readonly string NBodyKernelName = "nbody_kernel";
     private readonly string EdgeKernelName = "edge_kernel";
-    private readonly Form parent;
+    private readonly StoryExplorer parent;
     //key is pointer to platform
     private readonly Dictionary<nint, (nint deviceId, string platformName)> Platforms = new();
     private readonly NodeProvider Provider;
@@ -47,7 +48,7 @@ public sealed unsafe class OpenCLManager
     private DateTime FrameStartTime = DateTime.MinValue;
     private DateTime FrameEndTime = DateTime.MinValue;
 
-    public OpenCLManager(Form parent, NodeProvider provider)
+    public OpenCLManager(StoryExplorer parent, NodeProvider provider)
     {
         Provider = provider;
         this.parent = parent;
@@ -276,7 +277,7 @@ public sealed unsafe class OpenCLManager
         }
         //get selection from user
         var selector = new DeviceSelection(deviceNames, Platforms[preselectedPlatform].platformName);
-        var result = (DialogResult)App.MainForm.Explorer?.Invoke(() => selector.ShowDialog(parent))!;
+        var result = parent.Invoke(() => selector.ShowDialog(parent))!;
         if (result == DialogResult.Cancel) return nint.Zero;
 
         //work with it
@@ -540,7 +541,7 @@ public sealed unsafe class OpenCLManager
                 CalculateAndCopy(nodePosResultBuffer);
 
                 //we got to wait before we change nodes, so like a reverse lock?
-                while (!App.MainForm?.Explorer?.Grapher.DrewNodes ?? false) ;
+                while (!parent.Grapher.DrewNodes) ;
                 //switch to other list once done
                 Provider.UsingListA = !Provider.UsingListA;
                 FrameRenderedCallback?.Invoke();
@@ -550,7 +551,7 @@ public sealed unsafe class OpenCLManager
                 if ((FrameEndTime - FrameStartTime).TotalMilliseconds < 30)
                     Thread.Sleep((int)(30 - (FrameEndTime - FrameStartTime).TotalMilliseconds));
 
-                App.MainForm?.Explorer?.Invalidate();
+                parent.Invalidate();
             }
             else if (ResourcesAreAcquired && !Failed)
             {

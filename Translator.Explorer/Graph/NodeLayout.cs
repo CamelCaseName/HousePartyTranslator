@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Explorer.OpenCL;
+using Translator.Explorer.Window;
 using Translator.Helpers;
 
 namespace Translator.Explorer.Graph
@@ -37,6 +38,7 @@ namespace Translator.Explorer.Graph
         private readonly CancellationToken outsideToken;
         private readonly OpenCLManager opencl;
         private readonly NodeProvider provider;
+        private readonly StoryExplorer explorer;
         private readonly Action LayoutCalculation;
         private int _layoutcount = 0;
         public int LayoutCount => _layoutcount;
@@ -48,14 +50,14 @@ namespace Translator.Explorer.Graph
             get { return provider.Nodes; }
         }
 
-        public NodeLayout(NodeProvider provider, Form parent, CancellationToken cancellation)
+        public NodeLayout(NodeProvider provider, StoryExplorer explorer, CancellationToken cancellation)
         {
             outsideToken = cancellation;
+            this.explorer = explorer;
             this.provider = provider;
-
             LayoutCalculation = () => CalculateForceDirectedLayout(cancellationToken.Token);
 
-            opencl = new(parent, provider);
+            opencl = new(explorer, provider);
             //its not worth it for less nodes
             if (Nodes.Count >= 1024)
             {
@@ -114,10 +116,6 @@ namespace Translator.Explorer.Graph
 
         public void CalculateForceDirectedLayout(CancellationToken token)
         {
-            if (App.MainForm is null) return;
-            if (App.MainForm.Explorer is null) return;
-            var explorer = App.MainForm.Explorer;
-
             //save all forces here
             if (NodeForces.Count != Nodes.Count)
             {
