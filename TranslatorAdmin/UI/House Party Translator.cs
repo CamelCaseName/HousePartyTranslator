@@ -18,6 +18,7 @@ using Translator.Desktop.UI.Components;
 using Translator.Desktop.Foundation;
 using Translator.Explorer.Window;
 using Translator.Helpers;
+using Newtonsoft.Json;
 
 namespace Translator.Desktop.UI
 {
@@ -290,10 +291,23 @@ namespace Translator.Desktop.UI
                 }).ContinueWith((result) =>
                 {
                     if (result.Exception is not null)
-                        LogManager.Log(result.Exception, LogManager.Level.Error);
+                    {
+                        if (result.Exception.InnerException is JsonReaderException ex)
+                        {
+                            Msg.ErrorOk("Story file corrupt: " + ex.Message + "\n\n Please select the correct file manually!");
+                        }
+                        else
+                        {
+                            Msg.ErrorOk("Story file corrupt: " + result.Exception.Message + "\n\n Please select the correct file manually!");
+                        }
+                        explorer.Close();
+                    }
                 });
-                if (!explorer.IsDisposed) explorer.Show();
-                Explorer = explorer;
+                if (!explorer.IsDisposed)
+                {
+                    explorer.Show();
+                    Explorer = explorer;
+                }
             }
             catch (OperationCanceledException)
             {

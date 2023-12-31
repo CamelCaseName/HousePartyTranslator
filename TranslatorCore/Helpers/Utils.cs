@@ -52,7 +52,7 @@ namespace Translator.Core.Helpers
             _ = MainUI?.ErrorOk(
                 $"The application encountered a Problem. Probably the database can not be reached :). " +
                 $"Anyways, here is what happened: \n\n{message}\n\n " +
-                $"Oh, and if you click OK the application will try to resume. On the 4th exception it will close :(",
+                $"Oh, and if you click OK the application will try to resume.",
                 $"Something happened");
 
             MainUI?.SignalUserEndWait();

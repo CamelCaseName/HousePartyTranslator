@@ -9,6 +9,7 @@ using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Explorer.Graph;
 using Translator.Explorer.JSONItems;
+using Translator.Helpers;
 using static Translator.Explorer.JSONItems.StoryEnums;
 using Settings = Translator.Desktop.InterfaceImpls.WinSettings;
 
@@ -122,16 +123,30 @@ public sealed class ContextProvider
 
             //read in nodes and set positions later, is faster than the old system
             string fileString = File.ReadAllText(FilePath);
+            fileString = fileString.Replace('', ' ');
             //else create new
-            if (Path.GetExtension(FilePath) == ".story")
+            try
             {
-                while (Nodes.Count != 0) Nodes.Clear();
-                Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
+                if (Path.GetExtension(FilePath) == ".story")
+                {
+                    while (Nodes.Count != 0) Nodes.Clear();
+                    Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
+                }
+                else
+                {
+                    while (Nodes.Count != 0) Nodes.Clear();
+                    Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
+                }
             }
-            else
+            catch (JsonReaderException ex)
             {
-                while (Nodes.Count != 0) Nodes.Clear();
-                Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
+                Msg.ErrorOk("Story file corrupt: " + ex.Message + "\n\n Please select the correct file manually!");
+                return false;
+            }
+            catch (AggregateException ex)
+            {
+                Msg.ErrorOk("Story file corrupt: " + ex.Message + "\n\n Please select the correct file manually!");
+                return false;
             }
 
             provider.SetFileNames(new string[] { FileName });
