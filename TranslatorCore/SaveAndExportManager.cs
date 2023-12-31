@@ -441,7 +441,7 @@ namespace Translator.Core
                             StringCategory.BGC};
         }
 
-        internal static List<CategorizedLines> InitializeCategories(string story, string file)
+        public static List<CategorizedLines> InitializeCategories(string story, string file)
         {
             var CategorizedStrings = new List<CategorizedLines>();
 
@@ -453,7 +453,7 @@ namespace Translator.Core
             return CategorizedStrings;
         }
 
-        internal static void SortIntoCategories(ref List<CategorizedLines> CategorizedStrings, FileData IdsToExport, FileData translationData)
+        public static void SortIntoCategories(ref List<CategorizedLines> CategorizedStrings, FileData IdsToExport, FileData translationData)
         {
             foreach (LineData item in IdsToExport.Values)
             {
@@ -482,7 +482,7 @@ namespace Translator.Core
             }
         }
 
-        internal static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false, bool append = false, StreamWriter? OutputWriter = null)
+        public static void WriteCategorizedLinesToDisk(List<CategorizedLines> CategorizedStrings, string path, bool warnOnOverwrite = false, bool append = false, StreamWriter? OutputWriter = null)
         {
             CultureInfo culture = CultureInfo.InvariantCulture;
             bool needDispose = false;
@@ -534,7 +534,7 @@ namespace Translator.Core
                 OutputWriter.Dispose();
         }
 
-        internal static void GenerateOfficialTemplates()
+        public static void GenerateOfficialTemplates()
         {
             if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select any folder in the folder which contains all Official Stories and UI/Hints.", "Create templates for a official stories") != PopupResult.YES)
                 return;
@@ -586,7 +586,7 @@ namespace Translator.Core
         ///
         /// loads all the strings from the selected file into a list of LineData elements.
         /// </summary>
-        internal static FileData GetTemplateFromFile(string path, string story = "", string fileName = "", bool doIterNumbers = true)
+        public static FileData GetTemplateFromFile(string path, string story = "", string fileName = "", bool doIterNumbers = true)
         {
             if (Utils.ExtractFileName(path) != fileName)
             {

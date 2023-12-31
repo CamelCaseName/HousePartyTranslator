@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Media;
 using System.Threading.Tasks;
 using System.Timers;
 using Translator.Core.Data;
@@ -469,6 +470,7 @@ namespace Translator.Core
             UI.SignalUserEndWait();
             ChangesPending = false;
             LogManager.Log("Successfully saved the file locally");
+            ReloadTranslationTextbox();
 
             void RemoteUpdate()
             {
@@ -691,9 +693,13 @@ namespace Translator.Core
         public void UpdateTranslationString()
         {
             //remove pipe to not break saving/export, also remove voice actor hints as we dont want those
-            SelectedLine.TranslationString = TabUI.TranslationBoxText.Replace('|', ' ')
-                                                               .Replace(Environment.NewLine, "\n");
+            var lengthString = TabUI.TranslationBoxText.Replace('|', ' ').Replace(Environment.NewLine, "\n");
+            int oldLength = lengthString.Length;
+            SelectedLine.TranslationString = lengthString;
             TabUI.TranslationBoxText = SelectedLine.TranslationString;
+            //alert user they typed an illegal character
+            if(oldLength != SelectedLine.TranslationLength) SystemSounds.Beep.Play();
+
             UpdateCharacterCountLabel();
             ChangesPending = !selectedNew || ChangesPending;
             selectedNew = false;
@@ -705,7 +711,7 @@ namespace Translator.Core
         /// Loads a file into the program and calls all UI routines
         /// </summary>
         /// <param name="path">The path to the file to translate</param>
-        internal void LoadFileIntoProgram(string path)
+        public void LoadFileIntoProgram(string path)
         {
             if (path == string.Empty) return;
             if (File.Exists(path))
@@ -740,7 +746,7 @@ namespace Translator.Core
         /// <summary>
         /// Populates the Editor/Template text boxes and does some basic set/reset logic.
         /// </summary>
-        internal void PopulateTextBoxes()
+        public void PopulateTextBoxes()
         {
             int currentIndex = TabUI.SelectedLineIndex;
 
@@ -777,18 +783,18 @@ namespace Translator.Core
             UpdateApprovedAndTabName();
         }
 
-        internal void ReloadTranslationTextbox()
+        public void ReloadTranslationTextbox()
         {
             //update textbox
             if (SelectedId != string.Empty)
-                TabUI.TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine);
+                TabUI.TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine).RemoveVAHints(true);
         }
 
         /// <summary>
         /// Replaces a searched string in all applicable lines by the replacement provided using the invariant culture.
         /// </summary>
         /// <param name="replacement">The string to replace all search matches with</param>
-        internal void ReplaceAll(string replacement)
+        public void ReplaceAll(string replacement)
         {
             if (TabUI.Lines.SearchResults.Count == 0) return;
             //save old lines for history
@@ -816,7 +822,7 @@ namespace Translator.Core
         /// Replaces a searched string in the selected line if it is a search result by the replacement provided using the invariant culture.
         /// </summary>
         /// <param name="replacement">The string to replace all search matches with</param>
-        internal void ReplaceSingle(string replacement)
+        public void ReplaceSingle(string replacement)
         {
             if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineIndex))
             {
@@ -835,7 +841,7 @@ namespace Translator.Core
         /// <summary>
         /// Performs a search through all lines currently loaded.
         /// </summary>
-        internal void Search()
+        public void Search()
         {
             SearchQuery = UI.SearchBarText;
             Search(SearchQuery);
@@ -845,7 +851,7 @@ namespace Translator.Core
         /// Performs a search through all lines currently loaded.
         /// </summary>
         /// <param name="query">The search temr to look for</param>
-        internal void Search(string query)
+        public void Search(string query)
         {
             if (query.Length > 0)
             {

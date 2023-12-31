@@ -10,13 +10,15 @@ using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
-using Translator.Desktop.Explorer.Graph;
-using Translator.Desktop.Explorer.Story;
+using Translator.Explorer.Graph;
+using Translator.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Desktop.UI.Components;
+using Translator.Desktop.Foundation;
 using Translator.Explorer.Window;
 using Translator.Helpers;
+using Newtonsoft.Json;
 
 namespace Translator.Desktop.UI
 {
@@ -31,7 +33,7 @@ namespace Translator.Desktop.UI
         private readonly ContextMenuStrip? ListContextMenu;
 #nullable disable
         public MenuStrip MainMenu;
-        internal readonly WinTabController TabControl = new()
+        public readonly WinTabController TabControl = new()
         {
             Dock = DockStyle.Fill,
             Location = new Point(0, 27),
@@ -41,7 +43,7 @@ namespace Translator.Desktop.UI
             TabIndex = 9
         };
 
-        internal WinUIHandler UI;
+        public WinUIHandler UI;
         private static readonly Color background = Utils.background;
         private static readonly Color backgroundDarker = Utils.backgroundDarker;
         private static readonly Color brightText = Utils.brightText;
@@ -139,7 +141,7 @@ namespace Translator.Desktop.UI
         /// <summary>
         /// Instance of the Story Explorer, but the owner is checked so only the Storyexplorer class itself can instantiate it.
         /// </summary>
-        internal StoryExplorer? Explorer
+        public StoryExplorer? Explorer
         {
             get
             {
@@ -156,12 +158,12 @@ namespace Translator.Desktop.UI
             }
         }
 
-        internal WinMenuItem FileToolStripMenuItem => fileToolStripMenuItem;
-        internal ColoredToolStripDropDown LanguageBox => languageToolStripComboBox;
-        internal WinMenuItem ReplaceAllButton => toolStripReplaceAllButton;
-        internal ToolStripTextBox ReplaceBox => ToolStripMenuReplaceBox;
-        internal WinMenuItem ReplaceButton => toolStripReplaceButton;
-        internal SearchToolStripTextBox SearchBox => searchToolStripTextBox;
+        public WinMenuItem FileToolStripMenuItem => fileToolStripMenuItem;
+        public ColoredToolStripDropDown LanguageBox => languageToolStripComboBox;
+        public WinMenuItem ReplaceAllButton => toolStripReplaceAllButton;
+        public ToolStripTextBox ReplaceBox => ToolStripMenuReplaceBox;
+        public WinMenuItem ReplaceButton => toolStripReplaceButton;
+        public SearchToolStripTextBox SearchBox => searchToolStripTextBox;
 
         public void CheckListBoxLeft_SelectedIndexChanged(object? sender, EventArgs? e)
         {
@@ -259,7 +261,7 @@ namespace Translator.Desktop.UI
             }
         }
 
-        internal void CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
+        public void CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
         {
             if (TabManager.ActiveTranslationManager is null) return;
 
@@ -278,7 +280,7 @@ namespace Translator.Desktop.UI
                 {
                     return;
                 }
-                var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, App.MainForm, tokenSource.Token);
+                var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, tokenSource.Token, App.MainForm);
 
                 Task.Run(() =>
                 {
@@ -289,10 +291,23 @@ namespace Translator.Desktop.UI
                 }).ContinueWith((result) =>
                 {
                     if (result.Exception is not null)
-                        LogManager.Log(result.Exception, LogManager.Level.Error);
+                    {
+                        if (result.Exception.InnerException is JsonReaderException ex)
+                        {
+                            Msg.ErrorOk("Story file corrupt: " + ex.Message + "\n\n Please select the correct file manually!");
+                        }
+                        else
+                        {
+                            Msg.ErrorOk("Story file corrupt: " + result.Exception.Message + "\n\n Please select the correct file manually!");
+                        }
+                        explorer.Close();
+                    }
                 });
-                if (!explorer.IsDisposed) explorer.Show();
-                Explorer = explorer;
+                if (!explorer.IsDisposed)
+                {
+                    explorer.Show();
+                    Explorer = explorer;
+                }
             }
             catch (OperationCanceledException)
             {
@@ -948,7 +963,7 @@ namespace Translator.Desktop.UI
             MinimumSize = new Size(640, 470);
             Name = nameof(Fenster);
             ShowIcon = false;
-            Icon = Properties.Resources.wumpus_smoll;
+            Icon = Translator.Explorer.Properties.Resources.wumpus_smoll;
 #if DEBUG || DEBUG_ADMIN
             Text = "Translator (DEBUG)";
 #else
@@ -1230,7 +1245,7 @@ namespace Translator.Desktop.UI
 
         }
 
-        internal static void CreateContextExplorer()
+        public static void CreateContextExplorer()
         {
             string story = TabManager.ActiveTranslationManager.StoryName;
             string file = TabManager.ActiveTranslationManager.FileName;

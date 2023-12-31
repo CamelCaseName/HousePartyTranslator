@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.Foundation;
 using Translator.Desktop.Helpers;
 using Translator.Desktop.InterfaceImpls;
 

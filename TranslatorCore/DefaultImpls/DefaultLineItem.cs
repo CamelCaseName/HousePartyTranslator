@@ -2,7 +2,7 @@
 
 namespace Translator.Core.DefaultImpls
 {
-    internal class DefaultLineItem : ILineItem
+    public class DefaultLineItem : ILineItem
 
     {
         public bool IsApproved { get => false; set { } }

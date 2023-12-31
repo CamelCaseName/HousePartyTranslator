@@ -1,12 +1,14 @@
 ﻿using System;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
-using Translator.Desktop.Properties;
+using Translator.Desktop.Foundation.Properties;
 
 namespace Translator.Desktop.UI
 {
     /// <summary>
     /// Form with a propertygrid to edit application settings
     /// </summary>
+    [SupportedOSPlatform("windows")]
     public partial class SettingsForm : Form
     {
         /// <summary>

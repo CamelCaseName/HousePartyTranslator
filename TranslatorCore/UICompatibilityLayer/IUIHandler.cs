@@ -80,12 +80,12 @@ namespace Translator.Core.UICompatibilityLayer
         #endregion
 
         #region file access/system access
-        Type? InternalFileDialogType { get; }
-        Type FileDialogType { get => InternalFileDialogType ?? typeof(IFileDialog); }
-        Type? InternalFolderDialogType { get; }
-        Type FolderDialogType { get => InternalFolderDialogType ?? typeof(IFolderDialog); }
-        Type? InternalSaveFileDialogType { get; }
-        Type SaveFileDialogType { get => InternalSaveFileDialogType ?? typeof(ISaveFileDialog); }
+        Type? publicFileDialogType { get; }
+        Type FileDialogType { get => publicFileDialogType ?? typeof(IFileDialog); }
+        Type? publicFolderDialogType { get; }
+        Type FolderDialogType { get => publicFolderDialogType ?? typeof(IFolderDialog); }
+        Type? publicSaveFileDialogType { get; }
+        Type SaveFileDialogType { get => publicSaveFileDialogType ?? typeof(ISaveFileDialog); }
 
         CreateTemplateFromStoryDelegate CreateTemplateFromStory { get; }
 

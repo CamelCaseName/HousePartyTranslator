@@ -343,7 +343,7 @@ namespace Translator.Core.Helpers
             }
         }
 
-        internal static bool TryGetSearchResult(ReadOnlySpan<char> query, ReadOnlySpan<char> line, out int position, out int length)
+        public static bool TryGetSearchResult(ReadOnlySpan<char> query, ReadOnlySpan<char> line, out int position, out int length)
         {
             position = -1;
             length = -1;

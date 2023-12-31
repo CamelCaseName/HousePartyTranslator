@@ -2,7 +2,7 @@
 
 namespace Translator.Core.Helpers
 {
-    internal static class Replacer
+    public static class Replacer
     {
         public static ReadOnlySpan<char> Replace(ReadOnlySpan<char> source, ReadOnlySpan<char> replacement, ReadOnlySpan<char> query)
         {

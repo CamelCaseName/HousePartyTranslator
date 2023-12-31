@@ -1147,7 +1147,7 @@ namespace Translator.Core
             return templates.Count > 0;
         }
 
-        internal static bool GetAllLinesAndTemplateForFile(string story, string file, string language, out FileData lines, out FileData templates)
+        public static bool GetAllLinesAndTemplateForFile(string story, string file, string language, out FileData lines, out FileData templates)
         {
             UI!.SignalUserWait();
             string command = "SELECT id, english, translation, category, translated, approved"

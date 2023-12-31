@@ -386,7 +386,7 @@ namespace Translator.Desktop.UI.Components
         public ITextBox Translation => TranslationTextBox;
         public string TranslationBoxText { get => TranslationTextBox.Text; set => TranslationTextBox.Text = value; }
         public IList<string> TranslationsSimilarToTemplate => Lines.SimilarStringsToEnglish;
-        internal Fenster MainForm { get; init; }
+        public Fenster MainForm { get; init; }
         private static int Number { get; set; } = 0;
 
         public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);

@@ -1,8 +1,8 @@
 ﻿using Translator.Core;
 using Translator.Core.Data;
-using Translator.Desktop.Explorer.Graph;
-using Translator.Desktop.Explorer.JSONItems;
-using Translator.Desktop.Explorer.Story;
+using Translator.Explorer.Graph;
+using Translator.Explorer.JSONItems;
+using Translator.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Helpers;
 
@@ -10,9 +10,9 @@ namespace Translator.Desktop.Managers
 {
     //also contains some extensions to ease programming
     [System.Runtime.Versioning.SupportedOSPlatform("windows")]
-    internal static class WinTranslationManager
+    public static class WinTranslationManager
     {
-        internal static bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
+        public static bool CreateTemplateFromStory(string story, string filename, string path, out FileData data)
         {
             if (TabManager.UI is null)
             {
@@ -45,7 +45,7 @@ namespace Translator.Desktop.Managers
             return false;
         }
 
-        internal static bool TryExtractTemplateText(string story, string filename, Node node, out LineData? template)
+        public static bool TryExtractTemplateText(string story, string filename, Node node, out LineData? template)
         {
             template = null;
             //filter out irrelevant nodes
@@ -125,7 +125,7 @@ namespace Translator.Desktop.Managers
         /// <summary>
         /// Sets the node whose tree gets highlighted to the one representing the currently selected string;
         /// </summary>
-        internal static void SetHighlightedNode(this TranslationManager manager)
+        public static void SetHighlightedNode(this TranslationManager manager)
         {
             if (TabManager.UI is null) return;
             if (manager.TranslationData.Count > 0)

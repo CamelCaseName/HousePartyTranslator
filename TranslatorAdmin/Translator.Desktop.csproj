@@ -14,6 +14,7 @@
 		<ApplicationIcon>Resources\wumpus_smoll.ico</ApplicationIcon>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<NeutralLanguage>en</NeutralLanguage>
+		<SelfContained>false</SelfContained>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -39,20 +40,29 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Content Include="Resources\wumpus_smoll.ico" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="NetDiscordRpc" Version="1.0.2" />
 		<PackageReference Include="SevenZipExtractor" Version="1.0.17" />
-		<PackageReference Include="Silk.NET.OpenCL" Version="2.17.1" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Translator.Desktop.Foundation\Translator.Desktop.Foundation.csproj" />
+		<ProjectReference Include="..\Translator.Explorer\Translator.Explorer.csproj" />
 		<ProjectReference Include="..\TranslatorCore\Translator.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<Compile Update="UI\Components\ColoredCheckedListBox.cs">
+		  <SubType>Component</SubType>
+		</Compile>
+		<Compile Update="UI\Components\LineList.cs">
+		  <SubType>Component</SubType>
+		</Compile>
+		<Compile Update="UI\Components\WinTab.cs">
+		  <SubType>Component</SubType>
+		</Compile>
+		<Compile Update="UI\Components\WinTabController.cs">
+		  <SubType>Component</SubType>
+		</Compile>
 		<Compile Update="UI\House Party Translator.cs" />
 		<Compile Update="UI\PasswordBox.cs" />
 		<Compile Update="UI\ProgressWindow.cs" />
@@ -61,15 +71,7 @@
 			<AutoGen>True</AutoGen>
 			<DependentUpon>Resources.resx</DependentUpon>
 		</Compile>
-		<Compile Update="Properties\Settings.Designer.cs">
-			<DesignTimeSharedInput>True</DesignTimeSharedInput>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>Settings.settings</DependentUpon>
-		</Compile>
 		<Compile Update="UI\SettingsForm.cs" />
-		<Compile Update="Explorer\StoryExplorer.cs" />
-		<Compile Update="UI\Components\ColoredCheckedListBox.cs" />
-		<Compile Update="UI\Components\NoAnimationBar.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -78,13 +80,6 @@
 			<LastGenOutput>Resources.Designer.cs</LastGenOutput>
 			<Generator>PublicResXFileCodeGenerator</Generator>
 		</EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
-		<None Update="Properties\Settings.settings">
-			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
-			<Generator>SettingsSingleFileGenerator</Generator>
-		</None>
 	</ItemGroup>
 
 </Project>

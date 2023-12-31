@@ -1,12 +1,12 @@
 ﻿using System.Runtime.Versioning;
 using System.Windows.Forms;
-using Translator.Desktop.Explorer.Graph;
 using Translator.Desktop.Managers;
+using Translator.Explorer.Graph;
 
 namespace Translator.Desktop.UI.Components
 {
     [SupportedOSPlatform("windows")]
-    internal sealed partial class ContextExplorer : Form
+    public sealed partial class ContextExplorer : Form
     {
         private readonly string FileName, StoryName;
         public ContextExplorer(string storyName, string fileName)
@@ -16,7 +16,7 @@ namespace Translator.Desktop.UI.Components
             InitializeComponent();
         }
 
-        internal void SetLines(Node current)
+        public void SetLines(Node current)
         {
             Lines.Nodes.Clear();
             Lines.Nodes.Add("Text leading up to this dialogue/affecting it: ");
