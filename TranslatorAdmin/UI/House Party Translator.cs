@@ -58,6 +58,7 @@ namespace Translator.Desktop.UI
         private WinMenuItem redoMenuButton;
         private WinMenuItem uploadTemplate;
         private WinMenuItem uploadTemplates;
+        private WinMenuItem uploadAllTemplates;
         private WinMenuItem generateTemplateForFile;
         private WinMenuItem generateTemplateForCompleteStory;
         private WinMenuItem createTemplateForFile;
@@ -441,6 +442,17 @@ namespace Translator.Desktop.UI
                 ToolTipText = "Upload all template files for a story (no official stories)"
             };
             uploadTemplates.Click += (object? sender, EventArgs e) => SaveAndExportManager.UploadTemplates();
+
+            // uploadAllTemplates
+            uploadAllTemplates = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(uploadAllTemplates),
+                Size = new Size(236, 22),
+                Text = "Up&load all official template files",
+                ToolTipText = "Upload all template files for all official stories and UI (only in admin mode)"
+            };
+            uploadAllTemplates.Click += (object? sender, EventArgs e) => SaveAndExportManager.UploadOfficialTemplates();
 
             // generateTemplateForCompleteStory
             generateTemplateForCompleteStory = new WinMenuItem()
@@ -932,6 +944,7 @@ namespace Translator.Desktop.UI
             templateToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
                 uploadTemplate,
                 uploadTemplates,
+                uploadAllTemplates,
                 new WinMenuSeperator(),
                 generateTemplateForFile,
                 generateTemplateForCompleteStory,
@@ -1106,7 +1119,10 @@ namespace Translator.Desktop.UI
 
             //hide override button if not in advanced mode
             if (!Settings.Default.AdvancedModeEnabled)
+            {
                 overrideCloudSaveToolStripMenuItem.Enabled = false;
+                uploadAllTemplates.Enabled = false;
+            }
 
             ProgressbarWindow.Hide();
         }
