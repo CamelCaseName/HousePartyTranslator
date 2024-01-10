@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.IO;
@@ -10,15 +11,13 @@ using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
-using Translator.Explorer.Graph;
-using Translator.Explorer.Story;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Desktop.UI.Components;
-using Translator.Desktop.Foundation;
+using Translator.Explorer.Graph;
+using Translator.Explorer.Story;
 using Translator.Explorer.Window;
 using Translator.Helpers;
-using Newtonsoft.Json;
 
 namespace Translator.Desktop.UI
 {
@@ -57,6 +56,9 @@ namespace Translator.Desktop.UI
         private WinMenuItem customOpenStoryExplorer;
         private WinMenuItem undoMenuButton;
         private WinMenuItem redoMenuButton;
+        private WinMenuItem uploadTemplate;
+        private WinMenuItem uploadTemplates;
+        private WinMenuItem uploadAllTemplates;
         private WinMenuItem generateTemplateForFile;
         private WinMenuItem generateTemplateForCompleteStory;
         private WinMenuItem createTemplateForFile;
@@ -418,6 +420,39 @@ namespace Translator.Desktop.UI
                 ToolTipText = "Exports all missing lines for the currently opened and selected file into a new file"
             };
             ExportMissingLinesCurrentFile.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ExportMissinglinesForCurrentFile();
+
+            // uploadTemplate
+            uploadTemplate = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(uploadTemplate),
+                Size = new Size(236, 22),
+                Text = "&Upload a template file",
+                ToolTipText = "Upload a single template file (no official stories)"
+            };
+            uploadTemplate.Click += (object? sender, EventArgs e) => SaveAndExportManager.UploadTemplate();
+
+            // uploadTemplates
+            uploadTemplates = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(uploadTemplates),
+                Size = new Size(236, 22),
+                Text = "U&pload all template files for a story",
+                ToolTipText = "Upload all template files for a story (no official stories)"
+            };
+            uploadTemplates.Click += (object? sender, EventArgs e) => SaveAndExportManager.UploadTemplates();
+
+            // uploadAllTemplates
+            uploadAllTemplates = new WinMenuItem()
+            {
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(uploadAllTemplates),
+                Size = new Size(236, 22),
+                Text = "Up&load all official template files",
+                ToolTipText = "Upload all template files for all official stories and UI (only in admin mode)"
+            };
+            uploadAllTemplates.Click += (object? sender, EventArgs e) => SaveAndExportManager.UploadOfficialTemplates();
 
             // generateTemplateForCompleteStory
             generateTemplateForCompleteStory = new WinMenuItem()
@@ -907,10 +942,15 @@ namespace Translator.Desktop.UI
                 ToolTipText = "All relevant controls for generating or exporting templates"
             };
             templateToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] {
+                uploadTemplate,
+                uploadTemplates,
+                uploadAllTemplates,
+                new WinMenuSeperator(),
                 generateTemplateForFile,
                 generateTemplateForCompleteStory,
                 createTemplateForFile,
                 createTemplateForCompleteStory,
+                new WinMenuSeperator(),
                 exportTemplates,
                 new WinMenuSeperator(),
                 ExportAllMissingLinesFolder,
@@ -1079,7 +1119,10 @@ namespace Translator.Desktop.UI
 
             //hide override button if not in advanced mode
             if (!Settings.Default.AdvancedModeEnabled)
+            {
                 overrideCloudSaveToolStripMenuItem.Enabled = false;
+                uploadAllTemplates.Enabled = false;
+            }
 
             ProgressbarWindow.Hide();
         }

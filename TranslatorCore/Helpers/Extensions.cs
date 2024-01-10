@@ -25,12 +25,12 @@ namespace Translator.Core.Helpers
         /// </summary>
         /// <param name="input">The string to clean</param>
         /// <returns>The cleaned string</returns>
-        public static string RemoveVAHints(this string input, bool removeDoubleSpace = true)
+        public static string RemoveVAHints(this string input, bool fullTrim = true)
         {
-            return input.AsSpan().RemoveVAHints(removeDoubleSpace).ToString();
+            return input.AsSpan().RemoveVAHints(fullTrim).ToString();
         }
 
-        public static ReadOnlySpan<char> RemoveVAHints(this ReadOnlySpan<char> span, bool removeDoubleSpace = true)
+        public static ReadOnlySpan<char> RemoveVAHints(this ReadOnlySpan<char> span, bool fullTrim = true)
         {
             bool inVAHint = false;
             var output = new Span<char>(new char[span.Length]);
@@ -51,20 +51,21 @@ namespace Translator.Core.Helpers
                 }
             }
 
-            if (removeDoubleSpace && output.Length > 1)
+            if (fullTrim && output.Length > 1)
             {
                 for (int i = 0; i < output.Length - 1; i++)
                 {
                     if (output[i] == ' ' && output[i + 1] == ' ')
                     {
                         int old_i = i;
-                        while (output[++i] == ' ') ;
+                        while (i < output.Length - 1 && output[++i] == ' ') ;
                         output = output.RemoveAt(old_i, i - old_i - 1);
                     }
                 }
             }
 
-            output = output.Trim(trimmers);
+            if (fullTrim)
+                output = output.Trim(trimmers);
 
             return (ReadOnlySpan<char>)output;
         }

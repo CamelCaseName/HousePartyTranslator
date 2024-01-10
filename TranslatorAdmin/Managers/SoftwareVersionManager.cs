@@ -16,13 +16,15 @@ namespace Translator.Desktop.Managers
     [SupportedOSPlatform("Windows")]
     public static class SoftwareVersionManager
     {
-        public const string LocalVersion = "0.7.5.4";
-        public static string? LatestGithubVersion = "0.0.0.0";
-        public static bool UpdatePending = false;
+        public const string LocalVersion = "0.7.5.5";
+        private static string? LatestGithubVersion = "0.0.0.0";
+        private static bool updatePending = false;
         private static readonly HttpClient client = new();
 #if !DEBUG
         private static bool DownloadDone = false;
         const string APIUrl = "https://api.github.com/repos/CamelCaseName/HousePartyTranslator/releases/latest";
+
+        public static bool UpdatePending { get => updatePending; private set => updatePending = value; }
 #endif
 
         /// <summary>

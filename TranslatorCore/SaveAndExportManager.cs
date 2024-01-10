@@ -194,21 +194,18 @@ namespace Translator.Core
 
         public static void SaveTemplateDiff(FileData diff)
         {
-            if (Settings.Default.ExportTemplateDiff)
-            {
-                string path = Utils.SelectSaveLocation("Select where you want to save the template diff to", file: diff.FileName + "_diff", checkFileExists: false);
-                if (path == string.Empty)
-                    return;
-                if (!File.Exists(path))
-                    File.OpenWrite(path).Close();
-                else if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
-                    return;
+            string path = Utils.SelectSaveLocation("Select where you want to save the template diff to", file: diff.FileName + "_diff", checkFileExists: false);
+            if (path == string.Empty)
+                return;
+            if (!File.Exists(path))
+                File.OpenWrite(path).Close();
+            else if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
+                return;
 
-                List<CategorizedLines> categories = InitializeCategories(diff.StoryName, diff.FileName);
-                SortIntoCategories(ref categories, diff, diff);
+            List<CategorizedLines> categories = InitializeCategories(diff.StoryName, diff.FileName);
+            SortIntoCategories(ref categories, diff, diff);
 
-                WriteCategorizedLinesToDisk(categories, path, true);
-            }
+            WriteCategorizedLinesToDisk(categories, path, true);
         }
 
         private static void SortAndWriteMissingLinesToDiskMultipleFiles(string path, string story, Dictionary<string, FileData> lines, Dictionary<string, FileData> templates)
@@ -534,9 +531,9 @@ namespace Translator.Core
                 OutputWriter.Dispose();
         }
 
-        public static void GenerateOfficialTemplates()
+        public static void UploadOfficialTemplates()
         {
-            if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select any folder in the folder which contains all Official Stories and UI/Hints.", "Create templates for a official stories") != PopupResult.YES)
+            if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select any folder in the folder which contains all Official Stories and UI/Hints.", "Upload templates for all official stories") != PopupResult.YES)
                 return;
 
             //set up 
@@ -545,7 +542,7 @@ namespace Translator.Core
 
             TabManager.UI.SignalUserWait();
 
-            LogManager.Log("Creating official templates for version " + Settings.Default.FileVersion);
+            LogManager.Log("Uploading all official templates for version " + Settings.Default.FileVersion);
 
             //create translation and open it
             FileData templates;
@@ -576,8 +573,8 @@ namespace Translator.Core
                 }
             }
             DataBase.UpdateDBVersion();
-            TabManager.UI.InfoOk("Successfully created and uploaded offical templates");
-            LogManager.Log("Successfully created and uploaded offical templates");
+            TabManager.UI.InfoOk("Successfully uploaded all offical templates");
+            LogManager.Log("Successfully uploaded all offical templates");
             TabManager.UI.SignalUserEndWait();
         }
 
@@ -662,6 +659,104 @@ namespace Translator.Core
                 File.OpenWrite(path!).Close();
             }
             return path!;
+        }
+
+        public static void UploadTemplate()
+        {
+            if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select the template file you want to upload.", "Upload template") != PopupResult.YES)
+                return;
+
+            //set up 
+            string path = Utils.SelectFileFromSystem(false, "Select the template file");
+            if (path.Length == 0) return;
+
+            TabManager.UI.SignalUserWait();
+
+            LogManager.Log("Uploading official template for version " + Settings.Default.FileVersion);
+
+            //create translation and open it
+            FileData templates;
+            (string story, string file) = Utils.ExtractFileAndStoryName(path);
+
+            if (!Settings.Default.AdvancedModeEnabled && story.IsOfficialStory())
+            {
+                TabManager.UI.WarningOk("Cannot upload official template!");
+                return;
+            }
+
+            if (Path.GetExtension(path) != ".txt") return;
+
+            //create and upload templates
+            templates = GetTemplateFromFile(path, story, file, false);
+            if (templates.Count > 0)
+            {
+                if (!DataBase.UpdateTemplates(templates))
+                {
+                    _ = TabManager.UI.ErrorOk("New template was not uploaded, please try again.");
+                    TabManager.UI.SignalUserEndWait();
+                    return;
+                }
+                LogManager.Log($"Successfully read and uploaded template for {story}/{file}");
+            }
+            else
+            {
+                _ = TabManager.UI.ErrorOk($"{story}/{file} contained no template");
+                return;
+            }
+            DataBase.UpdateDBVersion();
+            TabManager.UI.InfoOk("Successfully uploaded template");
+            LogManager.Log("Successfully uploaded template");
+            TabManager.UI.SignalUserEndWait();
+        }
+        public static void UploadTemplates()
+        {
+            if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select the folder which contains the template files for the story you want to upload.", "Upload templates for a story") != PopupResult.YES)
+                return;
+
+            //set up 
+            string path = Utils.SelectFolderFromSystem("Select the folder which contains the template files");
+            if (path.Length == 0) return;
+
+            TabManager.UI.SignalUserWait();
+
+            LogManager.Log("Uploading templates for version " + Settings.Default.FileVersion);
+
+            //create translation and open it
+            FileData templates;
+            string story = Utils.ExtractStoryName(path);
+
+            if (!Settings.Default.AdvancedModeEnabled && story.IsOfficialStory())
+            {
+                TabManager.UI.WarningOk("Cannot upload official template!");
+                return;
+            }
+
+            foreach (string file_path in Directory.GetFiles(path))
+            {
+                string file = Utils.ExtractFileName(file_path);
+                if (Path.GetExtension(file_path) != ".txt") continue;
+
+                //create and upload templates
+                templates = GetTemplateFromFile(file_path, story, file, false);
+                if (templates.Count > 0)
+                {
+                    if (!DataBase.UpdateTemplates(templates))
+                    {
+                        _ = TabManager.UI.ErrorOk("New templates were not uploaded, please try again.");
+                        TabManager.UI.SignalUserEndWait();
+                        return;
+                    }
+                    LogManager.Log($"Successfully read and uploaded templates for {story}/{file}");
+                }
+                else
+                {
+                    _ = TabManager.UI.ErrorOk($"{story}/{file} contained no templates, skipping");
+                }
+            }
+            DataBase.UpdateDBVersion();
+            TabManager.UI.InfoOk("Successfully uploaded templates");
+            LogManager.Log("Successfully uploaded templates");
+            TabManager.UI.SignalUserEndWait();
         }
     }
 }

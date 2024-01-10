@@ -65,7 +65,7 @@ namespace Translator.Core
             AutoSaveTimer.Elapsed += SaveFileHandler;
 
             if (!IsUpToDate && Settings.Default.AdvancedModeEnabled)
-                SaveAndExportManager.GenerateOfficialTemplates();
+                SaveAndExportManager.UploadOfficialTemplates();
         }
 
         public static bool IsUpToDate { get; internal set; } = false;
@@ -939,18 +939,17 @@ namespace Translator.Core
 
         public void UpdateSimilarityMarking(string id)
         {
-            if (!TranslationData.ContainsKey(id)) return;
+            if (!TranslationData.TryGetValue(id, out LineData? line)) return;
 
-            if (TranslationData[id].ShouldBeMarkedSimilarToEnglish)
+            if (line.ShouldBeMarkedSimilarToEnglish)
             {
                 if (!TabUI.TranslationsSimilarToTemplate.Contains(id))
                     TabUI.TranslationsSimilarToTemplate.Add(id);
-
-                TranslationData[id].IsTranslated = false;
+                line.IsTranslated = false;
             }
             else
             {
-                TranslationData[id].IsTranslated = true;
+                line.IsTranslated = true;
                 _ = TabUI.TranslationsSimilarToTemplate.Remove(id);
             }
         }

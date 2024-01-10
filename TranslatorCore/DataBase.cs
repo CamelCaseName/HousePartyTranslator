@@ -136,10 +136,10 @@ namespace Translator.Core
                             continue;
 
                         _ = stories.Add(story);
-                        if (!files.ContainsKey(story))
+                        if (!files.TryGetValue(story, out List<string>? value))
                             files.Add(story, new List<string> { file });
                         else
-                            files[story].Add(file);
+                            value.Add(file);
                     }
                 }
                 else
@@ -839,7 +839,10 @@ namespace Translator.Core
             }
             if (idsToUnapprove.Count == 0) return result;
 
-            SaveAndExportManager.SaveTemplateDiff(diff);
+            if (Settings.Default.ExportTemplateDiff)
+            {
+                SaveAndExportManager.SaveTemplateDiff(diff);
+            }
 
             int x = 0;
             var command = new StringBuilder(UPDATE
@@ -1101,10 +1104,11 @@ namespace Translator.Core
                     while (reader.Read())
                     {
                         file = reader.GetString(1);
-                        if (!lines.ContainsKey(file))
+                        if (!lines.TryGetValue(file, out FileData? value))
                         {
+                            value = new FileData(story, file);
                             //add empty filedata if we have a new file in the results
-                            lines.Add(file, new FileData(story, file));
+                            lines.Add(file, value);
                             templates.Add(file, new FileData(story, file));
                         }
                         //if translation is null, we have template
@@ -1123,7 +1127,7 @@ namespace Translator.Core
                         else
                         {
                             id = CleanId(reader.GetString("id"), story, file, false);
-                            lines[file].Add(id, new LineData(
+                            value.Add(id, new LineData(
                                 id,
                                 story,
                                 file,
