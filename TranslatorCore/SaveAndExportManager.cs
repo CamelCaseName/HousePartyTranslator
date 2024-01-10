@@ -663,5 +663,8 @@ namespace Translator.Core
             }
             return path!;
         }
+
+        public static void UploadTemplate() => throw new NotImplementedException();
+        public static void UploadTemplates() => throw new NotImplementedException();
     }
 }
