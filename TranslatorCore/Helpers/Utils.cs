@@ -193,7 +193,7 @@ namespace Translator.Core.Helpers
             return saveFileDialog.ShowDialog() == PopupResult.OK ? saveFileDialog.FileName : string.Empty;
         }
 
-        public static string ExtractStoryName(string path)
+        public static string ExtractStoryName(string path, bool noAsk = false)
         {
             if ((DateTime.Now - namesAcquired).Hours > 1)
                 DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
@@ -235,6 +235,9 @@ namespace Translator.Core.Helpers
             if (string.Compare(maybeStoryName, "Languages", true, CultureInfo.InvariantCulture) == 0) //get folder one more up
                 return "UI";
 
+            if (noAsk)
+                return maybeStoryName;
+
             //check if we have a similar name to the cloud, return that if we have
             for (int i = paths.Length - 1; i >= 0; i--)
             {
@@ -255,7 +258,7 @@ namespace Translator.Core.Helpers
             return maybeStoryName;
         }
 
-        public static string ExtractFileName(string path)
+        public static string ExtractFileName(string path, bool noAsk = false)
         {
             if ((DateTime.Now - namesAcquired).Hours > 1)
                 DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
@@ -268,6 +271,10 @@ namespace Translator.Core.Helpers
                 if (string.Compare(maybeFileName, enumerator.Current, true, CultureInfo.InvariantCulture) == 0)
                     return enumerator.Current;
             }
+
+            if (noAsk)
+                return maybeFileName;
+
             //search again more lenient
             enumerator = fileNames.GetEnumerator();
             while (enumerator.MoveNext())
@@ -284,7 +291,7 @@ namespace Translator.Core.Helpers
             return maybeFileName;
         }
 
-        public static (string story, string file) ExtractFileAndStoryName(string path) => (ExtractStoryName(path), ExtractFileName(path));
+        public static (string story, string file) ExtractFileAndStoryName(string path, bool noAsk = false) => (ExtractStoryName(path, noAsk), ExtractFileName(path, noAsk));
 
         /// <summary>
         /// Gets the current assembly version as a string.
