@@ -23,6 +23,7 @@ namespace Translator.Core.UICompatibilityLayer
         public static ISettings Default { get { return Default ?? throw new NullReferenceException("Default settings were not initialized."); } }
         public bool AdvancedModeEnabled { get; set; }
         public bool AllowCustomStories { get; set; }
+        public bool AllowNewLines { get; set; }
         public bool AlsoSaveToGame { get; set; }
         public bool AskForSaveDialog { get; set; }
         public bool AutoLoadRecent { get; set; }

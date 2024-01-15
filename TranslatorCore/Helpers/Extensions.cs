@@ -67,6 +67,17 @@ namespace Translator.Core.Helpers
             if (fullTrim)
                 output = output.Trim(trimmers);
 
+            if (!Settings.Default.AllowNewLines)
+            {
+                for (int i = 0; i < output.Length - 1; i++)
+                {
+                    if (output[i] == '\n')
+                    {
+                        output = output.RemoveAt(i, 1);
+                    }
+                }
+            }
+
             return (ReadOnlySpan<char>)output;
         }
 

@@ -7,6 +7,7 @@ namespace Translator.Core.DefaultImpls
     {
         public bool AdvancedModeEnabled { get => false; set { } }
         public bool AllowCustomStories { get => false; set { } }
+        public bool AllowNewLines { get => false; set { } }
         public bool AlsoSaveToGame { get => false; set { } }
         public bool AskForSaveDialog { get => false; set { } }
         public bool AutoLoadRecent { get => false; set { } }

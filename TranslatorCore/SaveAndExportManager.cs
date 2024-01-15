@@ -719,6 +719,7 @@ namespace Translator.Core
             LogManager.Log("Successfully uploaded template");
             TabManager.UI.SignalUserEndWait();
         }
+        
         public static void UploadTemplates()
         {
             if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select the folder which contains the template files for the story you want to upload.", "Upload templates for a story") != PopupResult.YES)

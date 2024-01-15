@@ -50,7 +50,7 @@ namespace Translator.Core.Data
             FileName = filename.Trim();
             Category = category;
             TemplateString = english.Trim();
-            TranslationString = translation.Trim();
+            TranslationString = translation.RemoveVAHints(true);
             IsTranslated = translation.Length > 1;
         }
 
@@ -60,7 +60,7 @@ namespace Translator.Core.Data
             Story = story.Trim();
             FileName = filename.Trim();
             Category = category;
-            TranslationString = translation.Trim();
+            TranslationString = translation.RemoveVAHints(true);
         }
 
         public LineData(LineData line)

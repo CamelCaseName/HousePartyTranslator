@@ -693,7 +693,7 @@ namespace Translator.Core
         public void UpdateTranslationString()
         {
             //remove pipe to not break saving/export, also remove voice actor hints as we dont want those
-            var lengthString = TabUI.TranslationBoxText.Replace('|', ' ').Replace(Environment.NewLine, "\n");
+            var lengthString = TabUI.TranslationBoxText.Replace('|', ' ').Replace(Environment.NewLine, " ");
             int oldLength = lengthString.Length;
             SelectedLine.TranslationString = lengthString;
             TabUI.TranslationBoxText = SelectedLine.TranslationString;

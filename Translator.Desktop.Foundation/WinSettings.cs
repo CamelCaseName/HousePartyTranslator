@@ -20,6 +20,7 @@ namespace Translator.Desktop.InterfaceImpls
         }
         public static bool EnableDiscordRP { get => Settings.Default.enableDiscordRP; set => Settings.Default.enableDiscordRP = value; }
         public bool AllowCustomStories { get => Settings.Default.enableCustomStories; set => Settings.Default.enableCustomStories = value; }
+        public bool AllowNewLines { get => Settings.Default.AllowNewlines; set => Settings.Default.AllowNewlines = value; }
         public bool AlsoSaveToGame { get => Settings.Default.alsoSaveToGame; set => Settings.Default.alsoSaveToGame = value; }
         public bool AskForSaveDialog { get => Settings.Default.askForSaveDialog; set => Settings.Default.askForSaveDialog = value; }
         public bool AutoLoadRecent { get => Settings.Default.autoLoadRecent; set => Settings.Default.autoLoadRecent = value; }
