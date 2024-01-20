@@ -1,4 +1,5 @@
-﻿using Translator.Core.UICompatibilityLayer;
+﻿using Translator.Core.Data;
+using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Desktop.InterfaceImpls
 {
@@ -8,6 +9,7 @@ namespace Translator.Desktop.InterfaceImpls
         public bool IsSearchResult { get; set; } = false;
         public bool IsTranslated { get; set; } = false;
         public string Text { get; init; } = string.Empty;
+        public EekStringID ID { get; init; }
 
         public void Approve() => IsApproved = IsTranslated = true;
         public void Unapprove() => IsApproved = false;

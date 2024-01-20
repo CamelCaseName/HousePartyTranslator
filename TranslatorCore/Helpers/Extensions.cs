@@ -51,6 +51,18 @@ namespace Translator.Core.Helpers
                 }
             }
 
+            //already do it here so any new double spaces will be removed 
+            if (!Settings.Default.AllowNewLines)
+            {
+                for (int i = 0; i < output.Length - 1; i++)
+                {
+                    if (output[i] == '\n')
+                    {
+                        output = output.RemoveAt(i, 1);
+                    }
+                }
+            }
+
             if (fullTrim && output.Length > 1)
             {
                 for (int i = 0; i < output.Length - 1; i++)
@@ -66,6 +78,8 @@ namespace Translator.Core.Helpers
 
             if (fullTrim)
                 output = output.Trim(trimmers);
+
+            
 
             return (ReadOnlySpan<char>)output;
         }

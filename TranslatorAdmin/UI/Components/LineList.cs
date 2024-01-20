@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core;
+using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.InterfaceImpls;
 
@@ -16,17 +17,15 @@ namespace Translator.Desktop.UI.Components
         protected override void OnDrawItem(DrawItemEventArgs e) => base.OnDrawItem(e);
         public int Count => Items.Count;
         public int ApprovedCount { get { return CheckedIndices.Count; } }
-        public LineList() : this(new List<WinLineItem>()) { }
-
-        public LineList(List<WinLineItem> items)
+        public LineList()
         {
             Items.Clear();
-            for (int i = 0; i < items.Count; i++)
-            {
-                _ = Items.Add(items[i]);
-            }
-            SelectedIndex = items.Count > 0 ? 0 : -1;
+            iDs.Clear();
+            SelectedIndex = -1;
         }
+
+        private readonly List<EekStringID> iDs = new();
+
 
         List<int> ILineList.SearchResults => SearchResults;
 
@@ -49,6 +48,7 @@ namespace Translator.Desktop.UI.Components
         public void Clear()
         {
             Items.Clear();
+            iDs.Clear();
         }
 
         public bool GetApprovalState(int index)
@@ -70,7 +70,7 @@ namespace Translator.Desktop.UI.Components
                 ((WinLineItem)Items[index]).IsApproved = isApproved;
                 SetItemChecked(index, isApproved);
                 if (!isApproved)
-                    TabManager.ActiveTranslationManager.UpdateSimilarityMarking(Items[index].ToString()!);
+                    TabManager.ActiveTranslationManager.UpdateSimilarityMarking(iDs[index]);
             }
             catch
             {
@@ -84,7 +84,7 @@ namespace Translator.Desktop.UI.Components
             {
                 ((WinLineItem)Items[index]).Unapprove();
                 SetItemChecked(index, false);
-                TabManager.ActiveTranslationManager.UpdateSimilarityMarking(Items[index].ToString()!);
+                TabManager.ActiveTranslationManager.UpdateSimilarityMarking(iDs[index]);
             }
             catch
             {
@@ -92,9 +92,10 @@ namespace Translator.Desktop.UI.Components
             }
         }
 
-        public void Add(string iD, bool lineIsApproved)
+        public void Add(EekStringID iD, bool lineIsApproved)
         {
-            _ = Items.Add(new WinLineItem() { Text = iD, IsApproved = lineIsApproved }, lineIsApproved);
+            _ = Items.Add(new WinLineItem() { Text = iD.ID, IsApproved = lineIsApproved, ID = iD }, lineIsApproved);
+            iDs.Add(iD);
         }
 
         protected override void OnItemCheck(ItemCheckEventArgs ice)

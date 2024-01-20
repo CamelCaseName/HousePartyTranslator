@@ -353,7 +353,7 @@ namespace Translator.Desktop.UI.Components
             {
                 Lines.Clear(); for (int i = 0; i < value.Count; i++)
                 {
-                    Lines.Add(value[i].Text, value[i].IsApproved);
+                    Lines.Add(value[i].ID, value[i].IsApproved);
                 }
             }
         }

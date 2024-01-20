@@ -21,7 +21,7 @@ namespace Translator.Core.Helpers
             if (data.Count == 0) return false;
 
             results = new();
-            Dictionary<string, LineData>.ValueCollection.Enumerator enumerator = data.Values.GetEnumerator();
+            Dictionary<EekStringID, LineData>.ValueCollection.Enumerator enumerator = data.Values.GetEnumerator();
             int x = 0;
 
             //case sensitive search

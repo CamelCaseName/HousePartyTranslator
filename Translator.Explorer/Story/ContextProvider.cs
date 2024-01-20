@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Runtime.Versioning;
-using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.Helpers;
 using Translator.Explorer.Graph;
@@ -319,7 +314,7 @@ public sealed class ContextProvider
         }
     }
 
-    private NodeList ExpandNodes(NodeList nodes)
+    private static NodeList ExpandNodes(NodeList nodes)
     {
         //temporary list so we dont manipulate the list we read from in the for loops
         var listNodes = new NodeList();

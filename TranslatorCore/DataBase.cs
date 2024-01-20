@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Transactions;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
@@ -184,26 +185,26 @@ namespace Translator.Core
                         if (!reader.IsDBNull(0) & !reader.IsDBNull(9))
                         {
                             string id = CleanId(reader.GetString("id"), story, fileName, false);
-                            var _lineData = new LineData()
+                            var _lineData = new LineData(
+                                id,
+                                story,
+                                fileName,
+                                (StringCategory)reader.GetInt32("category"))
                             {
-                                Category = (StringCategory)reader.GetInt32("category"),
                                 Comments = !reader.IsDBNull(7) ? reader.GetString("comment").Split('#') : Array.Empty<string>(),
-                                FileName = fileName,
-                                ID = id,
                                 IsApproved = reader.GetInt32("approved") > 0,
                                 IsTemplate = false,
                                 IsTranslated = reader.GetInt32("translated") > 0,
-                                Story = story,
                                 TemplateString = string.Empty,
                                 TranslationString = reader.GetString("translation").RemoveVAHints()
                             };
-                            if (LineDataList.ContainsKey(id))
+                            if (LineDataList.ContainsKey(_lineData.EekID))
                             {
-                                LineDataList[id] = _lineData;
+                                LineDataList[_lineData.EekID] = _lineData;
                             }
                             else
                             {
-                                LineDataList.Add(id, _lineData);
+                                LineDataList.Add(_lineData.EekID, _lineData);
                             }
                         }
                     }
@@ -258,14 +259,18 @@ namespace Translator.Core
                     while (reader.Read())
                     {
                         if (!reader.IsDBNull(0) && !reader.IsDBNull(2))
-                            LineDataList.Add(CleanId(reader.GetString("id"), story, fileName, true),
+                        {
+                            var eekId = !reader.IsDBNull(1) ? (StringCategory)reader.GetInt32("category") : StringCategory.General;
+                            LineDataList.Add(
+                                new(CleanId(reader.GetString("id"), story, fileName, true), eekId),
                                 new LineData(
                                     CleanId(reader.GetString("id"), story, fileName, true),
                                     story,
                                     fileName,
-                                    !reader.IsDBNull(1) ? (StringCategory)reader.GetInt32("category") : StringCategory.General,
+                                    eekId,
                                     reader.GetString("english").Trim(),
                                     true));
+                        }
                     }
                 }
                 else
@@ -432,16 +437,16 @@ namespace Translator.Core
                 using MySqlDataReader reader = cmd.ExecuteReader();
                 if (reader.HasRows && !reader.IsDBNull(0))
                 {
-                    translation = new LineData()
+                    translation = new LineData(
+                        CleanId(id, story, fileName, false),
+                        story,
+                        fileName,
+                        (StringCategory)reader.GetInt32("category"))
                     {
-                        Category = (StringCategory)reader.GetInt32("category"),
                         Comments = !reader.IsDBNull(7) ? reader.GetString("comment").Split('#') : Array.Empty<string>(),
-                        FileName = fileName,
-                        ID = CleanId(id, story, fileName, false),
                         IsApproved = reader.GetInt32("approved") > 0,
                         IsTemplate = false,
                         IsTranslated = reader.GetInt32("translated") > 0,
-                        Story = story,
                         TemplateString = string.Empty,
                         TranslationString = reader.GetString("translation")
                     };
@@ -823,7 +828,7 @@ namespace Translator.Core
             //generate "diff" and unapprove templates where the template changed
             List<string> idsToUnapprove = new();
             FileData diff = new(templates.StoryName, templates.FileName);
-            foreach (KeyValuePair<string, LineData> newTemplate in templates)
+            foreach (KeyValuePair<EekStringID, LineData> newTemplate in templates)
             {
                 if (!oldTemplates.TryGetValue(newTemplate.Key, out LineData? oldTemplateLine))
                 {
@@ -968,6 +973,8 @@ namespace Translator.Core
         private static string CleanId(string DataBaseId, string story, string fileName, bool isTemplate)
         {
             if (story == "Hints" && isTemplate) fileName = "English";
+            if ((story + fileName).Length >= DataBaseId.Length)
+                Debugger.Break();
             string tempID = DataBaseId[(story + fileName).Length..];
             if (tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length) < 0) Debugger.Break();
             return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
@@ -1040,22 +1047,22 @@ namespace Translator.Core
 
                 bool executedSuccessfully = false;
                 int tries = 0; //reset try count
+                Exception? exx = null;
                 while (!executedSuccessfully && tries < 10)
                 {
-                    Exception? e = null;
                     try
                     {
                         ++tries;
-                        executedSuccessfully = command.ExecuteNonQuery() > 0;
+                        executedSuccessfully = command.ExecuteNonQuery() >= 0;
                     }
                     catch (Exception _e)
                     {
                         if (!executedSuccessfully) System.Threading.Thread.Sleep(500 * tries);
-                        e = _e;
+                        exx = _e;
                     }
-                    if (!executedSuccessfully)
-                        LogManager.Log($"even after executing the {command.CommandText.TrimWithDelim("[...]", 1000)},\n for ten times we got an exception, probably no internet. " + e?.ToString(), LogManager.Level.Error);
                 }
+                if (!executedSuccessfully && exx is not null)
+                    LogManager.Log($"even after executing the {command.CommandText.TrimWithDelim("[...]", 1000)},\n for ten times we got an exception, probably no internet. " + exx?.ToString(), LogManager.Level.Error);
 
                 return executedSuccessfully;
             }
@@ -1111,15 +1118,16 @@ namespace Translator.Core
                             lines.Add(file, value);
                             templates.Add(file, new FileData(story, file));
                         }
+                        var category = (StringCategory)reader.GetInt32("category");
                         //if translation is null, we have template
                         if (reader.IsDBNull(3))
                         {
                             id = CleanId(reader.GetString("id"), story, file, true);
-                            templates[file].Add(id, new LineData(
+                            templates[file].Add(new(id, category), new LineData(
                                 id,
                                 story,
                                 file,
-                                (StringCategory)reader.GetInt32("category"),
+                                category,
                                 reader.GetString("english"),
                                 true));
                         }
@@ -1127,11 +1135,11 @@ namespace Translator.Core
                         else
                         {
                             id = CleanId(reader.GetString("id"), story, file, false);
-                            value.Add(id, new LineData(
+                            value.Add(new(id, category), new LineData(
                                 id,
                                 story,
                                 file,
-                                (StringCategory)reader.GetInt32("category"),
+                                category,
                                 reader.GetString("translation"))
                             {
                                 IsApproved = reader.GetInt32("approved") == 1,
@@ -1178,15 +1186,16 @@ namespace Translator.Core
                     string id = string.Empty;
                     while (reader.Read())
                     {
+                        var category = (StringCategory)reader.GetInt32("category");
                         //if translation is null, we have template
                         if (reader.IsDBNull(2))
                         {
                             id = CleanId(reader.GetString("id"), story, file, true);
-                            templates.Add(id, new LineData(
+                            templates.Add(new(id, category), new LineData(
                                 id,
                                 story,
                                 file,
-                                (StringCategory)reader.GetInt32("category"),
+                                category,
                                 reader.GetString("english"),
                                 true));
                         }
@@ -1194,11 +1203,11 @@ namespace Translator.Core
                         else
                         {
                             id = CleanId(reader.GetString("id"), story, file, false);
-                            lines.Add(id, new LineData(
+                            lines.Add(new(id, category), new LineData(
                                 id,
                                 story,
                                 file,
-                                (StringCategory)reader.GetInt32("category"),
+                                category,
                                 reader.GetString("translation"))
                             {
                                 IsApproved = reader.GetInt32("approved") == 1,
