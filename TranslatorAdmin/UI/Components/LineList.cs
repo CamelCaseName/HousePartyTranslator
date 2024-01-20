@@ -94,7 +94,7 @@ namespace Translator.Desktop.UI.Components
 
         public void Add(EekStringID iD, bool lineIsApproved)
         {
-            _ = Items.Add(new WinLineItem() { Text = iD.ID, IsApproved = lineIsApproved }, lineIsApproved);
+            _ = Items.Add(new WinLineItem() { Text = iD.ID, IsApproved = lineIsApproved, ID = iD }, lineIsApproved);
             iDs.Add(iD);
         }
 

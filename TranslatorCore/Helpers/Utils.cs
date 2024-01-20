@@ -329,9 +329,9 @@ namespace Translator.Core.Helpers
                         return StringCategory.Quest;
                     case "[Item Names]":
                         return StringCategory.ItemName;
-                    case "[Item Action]":
+                    case "[Item Actions]":
                         return StringCategory.ItemAction;
-                    case "[Item Group Action]":
+                    case "[Item Group Actions]":
                         return StringCategory.ItemGroupAction;
                     case "[Achievements]":
                         return StringCategory.Achievement;

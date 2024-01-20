@@ -1061,7 +1061,7 @@ namespace Translator.Core
                         exx = _e;
                     }
                 }
-                if (!executedSuccessfully)
+                if (!executedSuccessfully && exx is not null)
                     LogManager.Log($"even after executing the {command.CommandText.TrimWithDelim("[...]", 1000)},\n for ten times we got an exception, probably no internet. " + exx?.ToString(), LogManager.Level.Error);
 
                 return executedSuccessfully;
