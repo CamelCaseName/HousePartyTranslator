@@ -26,14 +26,14 @@ namespace Translator.Desktop.Managers
             NodeList nodes = contextProvider.GetTemplateNodes();
             if (nodes is not null)
             {
-                if (story != filename) data.Add("Name", new LineData("Name", story, filename, StringCategory.General, filename, true));
+                if (story != filename) data.Add(new("Name", StringCategory.General), new LineData("Name", story, filename, StringCategory.General, filename, true));
 
                 //Add all new lines, but check if they are relevant
                 for (int i = 0; i < nodes.Count; i++)
                 {
                     if (TryExtractTemplateText(story, filename, nodes[i], out var template))
                         if (template is not null)
-                            data[template.ID] = template;
+                            data[template.EekID] = template;
                 }
                 TabManager.UI.SignalUserEndWait();
 

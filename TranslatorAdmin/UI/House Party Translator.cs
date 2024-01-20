@@ -1205,7 +1205,7 @@ namespace Translator.Desktop.UI
 
             if (path == string.Empty) return;
 
-            foreach (string file in dialog.files[Utils.ExtractStoryName(path!)])
+            foreach (string file in dialog.files[dialog.StoryName])
             {
                 File.OpenWrite(Path.Combine(path!, file + ".txt")).Close();
             }

@@ -345,7 +345,7 @@ namespace Translator.Core
                 ActiveTranslationManager.StoryName +
                 "/" + ActiveTranslationManager.FileName +
                 " : " +
-                ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? string.Empty].ToString());
+                ActiveTranslationManager.SelectedLine.ToString());
         }
 
         /// <summary>
@@ -353,7 +353,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyAsOutput()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? string.Empty].ToString() ?? string.Empty);
+            UI.ClipboardSetText(ActiveTranslationManager.SelectedLine.ToString());
         }
 
         /// <summary>
@@ -361,7 +361,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTranslation()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? string.Empty].TranslationString ?? string.Empty);
+            UI.ClipboardSetText(ActiveTranslationManager.SelectedLine.TranslationString ?? string.Empty);
         }
 
         /// <summary>
@@ -369,7 +369,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTemplate()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.TranslationData[ActiveTranslationManager.SelectedId ?? string.Empty].TemplateString ?? string.Empty);
+            UI.ClipboardSetText(ActiveTranslationManager.SelectedLine.TemplateString ?? string.Empty);
         }
 
         public static void ReplaceAll()

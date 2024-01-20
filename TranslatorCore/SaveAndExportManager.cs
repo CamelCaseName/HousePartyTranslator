@@ -270,11 +270,11 @@ namespace Translator.Core
         {
             foreach (LineData lineData in templates.Values)
             {
-                lines.TryGetValue(lineData.ID, out LineData? translatedLineData);
+                lines.TryGetValue(lineData.EekID, out LineData? translatedLineData);
 
                 if (translatedLineData is null)
                 {
-                    results.Add(lineData.ID, lineData);
+                    results.Add(lineData.EekID, lineData);
                     continue;
                 }
                 //skip line if its approved
@@ -286,18 +286,18 @@ namespace Translator.Core
                 //this could happen when just clicking through lines in older versions. 
                 else if (!translatedLineData.IsTranslated)
                 {
-                    results.Add(lineData.ID, lineData);
+                    results.Add(lineData.EekID, lineData);
                 }
                 else if (translatedLineData.IsTranslated)
                 {
                     if (translatedLineData.TranslationString == lineData.TemplateString)
                     {
-                        results.Add(lineData.ID, lineData);
+                        results.Add(lineData.EekID, lineData);
                     }
                     else if (Settings.Default.ExportTranslatedWithMissingLines)
                     {
                         lineData.TemplateString += " @@@TN: " + translatedLineData.TranslationString;
-                        results.Add(lineData.ID, lineData);
+                        results.Add(lineData.EekID, lineData);
                     }
                 }
             }
@@ -465,7 +465,7 @@ namespace Translator.Core
             foreach (LineData item in IdsToExport.Values)
             {
                 if (item.ID == string.Empty) continue;
-                if (translationData.TryGetValue(item.ID, out LineData? TempResult))
+                if (translationData.TryGetValue(item.EekID, out LineData? TempResult))
                 {
                     if (TempResult is not null)
                     {
@@ -619,7 +619,7 @@ namespace Translator.Core
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                    if (lastLine.Length != 0) fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
 
                     //get current line
                     lastLine = line.Split('|');
@@ -638,7 +638,7 @@ namespace Translator.Core
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                        if (lastLine.Length != 0) fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
                         lastLine = Array.Empty<string>();
                         multiLineCollector = string.Empty;
                         currentCategory = tempCategory;
@@ -646,7 +646,7 @@ namespace Translator.Core
                 }
             }
             //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) fileData[doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0]] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1], true);
+            if (lastLine.Length != 0) fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1], true);
 
             return fileData;
         }
@@ -719,7 +719,7 @@ namespace Translator.Core
             LogManager.Log("Successfully uploaded template");
             TabManager.UI.SignalUserEndWait();
         }
-        
+
         public static void UploadTemplates()
         {
             if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select the folder which contains the template files for the story you want to upload.", "Upload templates for a story") != PopupResult.YES)

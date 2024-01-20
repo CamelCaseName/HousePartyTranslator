@@ -323,13 +323,13 @@ namespace Translator.Core
         public void Do()
         {
             ListBox.SetApprovalState(index, isApproved);
-            manager.UpdateSimilarityMarking(ListBox[index].Text);
+            manager.UpdateSimilarityMarking(ListBox[index].ID);
         }
 
         public void Undo()
         {
             ListBox.SetApprovalState(index, !isApproved);
-            manager.UpdateSimilarityMarking(ListBox[index].Text);
+            manager.UpdateSimilarityMarking(ListBox[index].ID);
         }
     }
 
@@ -367,11 +367,11 @@ namespace Translator.Core
     public record TranslationChanged : ICommand
     {
         private readonly TranslationManager manager;
-        private readonly string id;
+        private readonly EekStringID id;
         private readonly string oldText;
         private readonly string newText;
 
-        public TranslationChanged(TranslationManager manager, string id, string oldText, string newText)
+        public TranslationChanged(TranslationManager manager, EekStringID id, string oldText, string newText)
         {
             this.manager = manager;
             this.id = id;
@@ -452,7 +452,7 @@ namespace Translator.Core
         public void Do()
         {
             manager.TranslationData = newTranslations;
-            foreach (KeyValuePair<string, LineData> item in newTranslations)
+            foreach (KeyValuePair<EekStringID, LineData> item in newTranslations)
             {
                 manager.UpdateSimilarityMarking(item.Key);
             }
@@ -462,7 +462,7 @@ namespace Translator.Core
         public void Undo()
         {
             manager.TranslationData = oldTranslations;
-            foreach (KeyValuePair<string, LineData> item in oldTranslations)
+            foreach (KeyValuePair<EekStringID, LineData> item in oldTranslations)
             {
                 manager.UpdateSimilarityMarking(item.Key);
             }

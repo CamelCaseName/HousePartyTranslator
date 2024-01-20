@@ -6,7 +6,6 @@ using System.Windows.Forms;
 using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.UICompatibilityLayer;
-using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Foundation;
 
 namespace Translator.Desktop.UI

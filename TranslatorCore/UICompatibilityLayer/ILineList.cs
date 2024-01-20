@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Translator.Core.Data;
 
 namespace Translator.Core.UICompatibilityLayer
 {
@@ -10,7 +11,7 @@ namespace Translator.Core.UICompatibilityLayer
         List<int> SearchResults { get; }
         int SelectedIndex { get; set; }
 
-        void Add(string iD, bool lineIsApproved);
+        void Add(EekStringID iD, bool lineIsApproved);
         void ApproveItem(int index);
         void Clear();
         void FreezeLayout();

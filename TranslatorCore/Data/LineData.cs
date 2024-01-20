@@ -6,10 +6,11 @@ namespace Translator.Core.Data
 {
     public sealed class LineData
     {
-        public string ID = string.Empty;
-        public string Story = string.Empty;
-        public string FileName = string.Empty;
-        public StringCategory Category = StringCategory.Neither;
+        public readonly string ID = string.Empty;
+        public readonly EekStringID EekID;
+        public readonly string Story = string.Empty;
+        public readonly string FileName = string.Empty;
+        public readonly StringCategory Category = StringCategory.Neither;
         public bool IsTranslated = false;
         public bool IsApproved = false;
         public bool IsTemplate = false;
@@ -30,6 +31,7 @@ namespace Translator.Core.Data
             Story = story.Trim();
             FileName = filename.Trim();
             Category = category;
+            EekID = new(ID, Category);
         }
 
         public LineData(string id, string story, string filename, StringCategory category, string english, bool isTemplate)
@@ -41,6 +43,7 @@ namespace Translator.Core.Data
             FileName = filename.Trim();
             Category = category;
             IsTemplate = isTemplate;
+            EekID = new(ID, Category);
         }
 
         public LineData(string id, string story, string filename, StringCategory category, string english, string translation)
@@ -52,6 +55,7 @@ namespace Translator.Core.Data
             TemplateString = english.Trim();
             TranslationString = translation.RemoveVAHints(true);
             IsTranslated = translation.Length > 1;
+            EekID = new(ID, Category);
         }
 
         public LineData(string id, string story, string filename, StringCategory category, string translation)
@@ -61,6 +65,7 @@ namespace Translator.Core.Data
             FileName = filename.Trim();
             Category = category;
             TranslationString = translation.RemoveVAHints(true);
+            EekID = new(ID, Category);
         }
 
         public LineData(LineData line)
@@ -75,6 +80,7 @@ namespace Translator.Core.Data
             Story = line.Story;
             TemplateString = line.TemplateString;
             _translationString = line.TranslationString;
+            EekID = new(ID, Category);
         }
 
         public override string ToString()

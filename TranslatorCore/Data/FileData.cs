@@ -3,16 +3,18 @@ using System.Collections.Generic;
 
 namespace Translator.Core.Data
 {
-    public sealed class FileData : Dictionary<string, LineData>
+    public record struct EekStringID(string ID, StringCategory Category);
+
+    public sealed class FileData : Dictionary<EekStringID, LineData>
     {
         public readonly string FileName;
         public readonly string StoryName;
 
-        public FileData(Dictionary<string, LineData> data, string story, string file)
+        public FileData(Dictionary<EekStringID, LineData> data, string story, string file)
         {
             FileName = file;
             StoryName = story;
-            foreach (KeyValuePair<string, LineData> item in data)
+            foreach (KeyValuePair<EekStringID, LineData> item in data)
             {
                 Add(item.Key, new(item.Value));
             }
@@ -29,13 +31,13 @@ namespace Translator.Core.Data
         {
             FileName = old.FileName;
             StoryName = old.StoryName;
-            foreach (KeyValuePair<string, LineData> item in old)
+            foreach (KeyValuePair<EekStringID, LineData> item in old)
             {
                 Add(item.Key, new(item.Value));
             }
         }
 
-        public KeyValuePair<string, LineData> ElementAt(int index)
+        public KeyValuePair<EekStringID, LineData> ElementAt(int index)
         {
             if (index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
 
