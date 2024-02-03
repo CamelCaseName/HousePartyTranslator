@@ -44,17 +44,11 @@ namespace Translator.Core
 
         static TranslationManager()
         {
-            if (Settings.Default.AutoSaveInterval > TimeSpan.FromMinutes(1))
-            {
-                AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
-                AutoSaveTimer.Start();
-            }
-            else
-            {
+            if (Settings.Default.AutoSaveInterval <= TimeSpan.FromMinutes(1))
                 Settings.Default.AutoSaveInterval = TimeSpan.FromMinutes(1);
-                AutoSaveTimer.Interval = (int)Settings.Default.AutoSaveInterval.TotalMilliseconds;
-                AutoSaveTimer.Start();
-            }
+
+            AutoSaveTimer.Interval = (int)(Settings.Default.AutoSaveInterval.TotalMilliseconds > 0 ? Settings.Default.AutoSaveInterval.TotalMilliseconds : 6e4);
+            AutoSaveTimer.Start();
         }
 
         public TranslationManager(IUIHandler ui, ITab tab)
@@ -585,7 +579,7 @@ namespace Translator.Core
 
         public bool SelectPreviousResultIfApplicable()
         {
-            if (TabUI.IsCommentBoxFocused || TabUI.IsCommentBoxFocused || CleanedSearchQuery.Length == 0)
+            if (!IsSearchFocused() || CleanedSearchQuery.Length == 0)
                 return false;
 
             if (SelectedResultIndex > TabUI.Lines.SearchResults.Count)

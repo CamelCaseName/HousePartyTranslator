@@ -7,7 +7,7 @@
 	<UseWindowsForms>true</UseWindowsForms>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<StartupObject>Translator.Explorer.Program</StartupObject>
+	<StartupObject>Translator.Explorer.ExplorerStandalone</StartupObject>
 	<IsPublishable>False</IsPublishable>
 	<SelfContained>False</SelfContained>
   </PropertyGroup>

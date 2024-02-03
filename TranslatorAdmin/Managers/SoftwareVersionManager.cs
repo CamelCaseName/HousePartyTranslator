@@ -17,10 +17,10 @@ namespace Translator.Desktop.Managers
     public static class SoftwareVersionManager
     {
         public const string LocalVersion = "0.7.5.8";
-        private static string? LatestGithubVersion = "0.0.0.0";
-        private static bool updatePending = false;
         private static readonly HttpClient client = new();
 #if !DEBUG
+        private static string? LatestGithubVersion = "0.0.0.0";
+        private static bool updatePending = false;
         private static bool DownloadDone = false;
         const string APIUrl = "https://api.github.com/repos/CamelCaseName/HousePartyTranslator/releases/latest";
 
