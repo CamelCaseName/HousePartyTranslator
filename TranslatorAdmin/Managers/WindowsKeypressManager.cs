@@ -121,7 +121,7 @@ namespace Translator.Desktop.Managers
 
                 //save translation and approve
                 case Keys.Shift | Keys.Enter:
-                    if (App.MainForm.SearchBox.Focused) TabManager.ActiveTranslationManager.SelectPreviousResultIfApplicable();
+                    if (!App.MainForm.TabControl.SelectedTab.IsTranslationBoxFocused && !App.MainForm.TabControl.SelectedTab.IsCommentBoxFocused) TabManager.ActiveTranslationManager.SelectPreviousResultIfApplicable();
                     else InputHandler.SaveAndApproveLine();
                     return true;
 
