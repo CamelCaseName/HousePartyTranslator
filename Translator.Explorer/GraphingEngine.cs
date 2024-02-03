@@ -84,8 +84,16 @@ namespace Translator.Explorer
                 StartCap = LineCap.Round
             };
 
-            ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
-            ClickedNodeChanged += new ClickedNodeChangedHandler(DisplayNodeInfoHandler);
+            //dont run if we are in standalone
+            if (Utils.IsInitialized)
+            {
+                ClickedNodeChanged += new ClickedNodeChangedHandler(HighlightClickedNodeHandler);
+                ClickedNodeChanged += new ClickedNodeChangedHandler(DisplayNodeInfoHandler);
+            }
+            else
+            {
+                ClickedNodeChanged += (_, _) => { };
+            }
         }
 
         public delegate void ClickedNodeChangedHandler(object sender, ClickedNodeChangeArgs e);
