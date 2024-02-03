@@ -6,7 +6,6 @@ namespace Translator.Core
     {
         private static ITextBox? lastChangedTextBox;
         private static string? lastText;
-        private static int lastIndex = Settings.Default.RecentIndex;
         private static int lastIndexForTextChanges = Settings.Default.RecentIndex;
 
         public static void SaveAndApproveAndSelectNewLine()
@@ -97,19 +96,6 @@ namespace Translator.Core
 
         public static void SelectedItemChanged(ILineList listBox)
         {
-            if (lastIndex >= 0)
-            {
-                if (lastIndex < listBox.Count)
-                    TabManager.ActiveTranslationManager.UpdateSimilarityMarking(listBox[lastIndex].ID);
-                if (listBox.SelectedIndex >= 0)
-                {
-                    if (History.Peek().FileName == TabManager.ActiveTranslationManager.FileName && History.Peek().StoryName == TabManager.ActiveTranslationManager.StoryName)
-                        History.AddAction(new SelectedLineChanged(listBox, lastIndex, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
-                    else
-                        History.AddAction(new SelectedLineChanged(listBox, 0, listBox.SelectedIndex, TabManager.ActiveTranslationManager.FileName, TabManager.ActiveTranslationManager.StoryName));
-                }
-            }
-            lastIndex = listBox.SelectedIndex;
             TabManager.ActiveTranslationManager.PopulateTextBoxes();
         }
 

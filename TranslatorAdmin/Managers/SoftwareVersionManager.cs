@@ -16,7 +16,7 @@ namespace Translator.Desktop.Managers
     [SupportedOSPlatform("Windows")]
     public static class SoftwareVersionManager
     {
-        public const string LocalVersion = "0.7.5.6";
+        public const string LocalVersion = "0.7.5.8";
         private static string? LatestGithubVersion = "0.0.0.0";
         private static bool updatePending = false;
         private static readonly HttpClient client = new();

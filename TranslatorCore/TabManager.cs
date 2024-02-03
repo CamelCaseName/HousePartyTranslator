@@ -144,11 +144,19 @@ namespace Translator.Core
             var t = new TranslationManager(UI, newTab);
             translationManagers.Add(newTab, t);
 
+            //update search counts and results
+            IsSearchAllFiles();
             //select new tab
             TabControl.SelectedTab = newTab;
 
             //call startup for new translationmanager
             t.LoadFileIntoProgram(path);
+
+            if (InGlobalSearch)
+                t.Search(UI.SearchBarText[1..] ?? string.Empty);
+            else
+                t.Search();
+
         }
 
         /// <summary>
@@ -230,11 +238,7 @@ namespace Translator.Core
             //set search term to the one from the respective TranslationManager
             if (ActiveTranslationManager is null || UI is null) return;
 
-            if (InGlobalSearch)
-            {
-                ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? string.Empty);
-            }
-            else
+            if (!InGlobalSearch)
             {
                 UI.SearchBarText = ActiveTranslationManager.SearchQuery;
             }
@@ -268,33 +272,26 @@ namespace Translator.Core
         /// <param name="i">The tab index to switch to</param>
         public static void SwitchToTab(int i)
         {
-            TabControl.SelectedIndex = i >= 0 && i < TabControl.TabCount ? i : 0;
+            TabControl.SelectedIndex = i >= 0 ? i < TabControl.TabCount ? i : 0 : TabControl.TabCount - 1;
         }
 
         /// <summary>
         /// Call to determine if all tabs should be searched or only the selected one
         /// </summary>
         /// <returns>True if we want to search all, performs the search also. False when single tab search is intended.</returns>
-        private static bool SearchAll()
+        private static bool IsSearchAllFiles()
         {
             if (UI is null) return false;
-
             if (UI.SearchBarText.Length > 0)
             {
                 //global search has to start with the ?
-                if (UI.SearchBarText[0] == '?')
-                {
-                    InGlobalSearch = true;
-                    return true;
-                }
-                else
-                {
-                    InGlobalSearch = false;
-                    return false;
-                }
+                InGlobalSearch = UI.SearchBarText[0] == '?' && UI.SearchBarText.Length > 1;
             }
-            InGlobalSearch = false;
-            return false;
+            else
+            {
+                InGlobalSearch = false;
+            }
+            return InGlobalSearch;
         }
 
         /// <summary>
@@ -302,14 +299,21 @@ namespace Translator.Core
         /// </summary>
         public static void Search()
         {
-            if (!SearchAll())
+            if (IsSearchAllFiles())
             {
-                ActiveTranslationManager.Search();
+                foreach (var translationManager in translationManagers)
+                {
+                    translationManager.Value.Search(UI.SearchBarText[1..] ?? string.Empty);
+                }
+                //turn global search off so we dont switch tabs to none existen once and break counting
+                if (TabCount == 1)
+                    InGlobalSearch = false;
             }
             else
             {
-                ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? string.Empty);
+                ActiveTranslationManager.Search();
             }
+            UpdateSearchResultCount();
         }
 
         /// <summary>
@@ -440,6 +444,34 @@ namespace Translator.Core
                     return;
                 }
             }
+        }
+
+        public static void UpdateSearchResultCount()
+        {
+            int t = 0;
+            foreach (var tab in translationManagers.Keys)
+            {
+                t += tab.Lines.SearchResults.Count;
+            }
+            UI.SearchResultCount = t;
+        }
+
+        public static void UpdateSelectedSearchResult()
+        {
+            int t = 0;
+            foreach (var tab in translationManagers.Keys)
+            {
+                if (tab == SelectedTab)
+                {
+                    t += translationManagers[tab].SelectedResultIndex + 1;
+                    break;
+                }
+                else
+                {
+                    t += tab.Lines.SearchResults.Count;
+                }
+            }
+            UI.SelectedSearchResult = t;
         }
     }
 }
