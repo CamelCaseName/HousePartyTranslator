@@ -26,7 +26,7 @@ namespace Translator.Core
         private static string language = Settings.Default.Language;
         private static bool StaticUIInitialized = false;
         private static IUIHandler UI = null!;
-        private readonly List<string> SearchQueries = new() { string.Empty };
+        private static readonly List<string> SearchQueries = new() { string.Empty };
         private readonly ITab TabUI;
         private bool _changesPending = false;
         private int currentSearchQuery = 0;
@@ -42,6 +42,7 @@ namespace Translator.Core
         private static int returnedTasks = 0;
         private bool multiTranslationRunning = false;
         private bool abortedAutoTranslation = false;
+        private static int lastIndex = Settings.Default.RecentIndex;
 
         static TranslationManager()
         {
@@ -531,7 +532,7 @@ namespace Translator.Core
         /// <returns>True if a new result could be selected</returns>
         public bool SelectNextResultIfApplicable()
         {
-            if (IsSearchFocused() && TabUI.Lines.SearchResults.Count > 0)
+            if (IsSearchFocused() && CleanedSearchQuery.Length > 0)
             {
                 if (SelectedResultIndex < 0) SelectedResultIndex = 0;
                 //loop back to start
@@ -543,12 +544,13 @@ namespace Translator.Core
                     {
                         searchTabIndex = TabManager.SelectedTabIndex;
                         TabManager.SwitchToTab(++searchTabIndex);
-                        SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
+                        Search();
+                        if (TabUI.Lines.SearchResults.Count > 0) SelectLine(TabUI.Lines.SearchResults[0]);
                     }
                     else
                     {
                         //select next index from list of matches
-                        if (SelectedResultIndex < TabUI.LineCount)
+                        if (SelectedResultIndex < TabUI.Lines.SearchResults.Count)
                         {
                             SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
                             ++SelectedResultIndex;
@@ -567,7 +569,8 @@ namespace Translator.Core
                         searchTabIndex = TabManager.SelectedTabIndex;
                         SelectedResultIndex = 1;
                         TabManager.SwitchToTab(++searchTabIndex);
-                        SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
+                        Search();
+                        if (TabUI.Lines.SearchResults.Count > 0) SelectLine(TabUI.Lines.SearchResults[0]);
                         return true;
                     }
                     else
@@ -601,14 +604,15 @@ namespace Translator.Core
                 //loop back to start
                 if (SelectedResultIndex < 1)
                 {
-                    SelectedResultIndex = TabUI.Lines.SearchResults.Count - 1;
                     //loop over to new tab when in global search
                     if (TabManager.InGlobalSearch)
                     {
                         searchTabIndex = TabManager.SelectedTabIndex;
                         TabManager.SwitchToTab(--searchTabIndex);
+                        Search();
                     }
-                    SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
+                    SelectedResultIndex = TabUI.Lines.SearchResults.Count - 1;
+                    if (SelectedResultIndex > 0) SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
                 }
                 else
                 {
@@ -625,7 +629,7 @@ namespace Translator.Core
                         searchTabIndex = TabManager.SelectedTabIndex;
                         SelectedResultIndex = TabUI.Lines.SearchResults.Count - 1;
                         TabManager.SwitchToTab(--searchTabIndex);
-                        SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
+                        if (SelectedResultIndex > 0) SelectLine(TabUI.Lines.SearchResults[SelectedResultIndex]);
                         return true;
                     }
                     else
@@ -652,12 +656,12 @@ namespace Translator.Core
             if (currentSearchQuery > 1)
             {
                 --currentSearchQuery;
-                Search(SearchQueries[currentSearchQuery]);
+                //Search(SearchQueries[currentSearchQuery]);
             }
             else
             {
                 currentSearchQuery = 0;
-                Search(string.Empty);
+                //Search(string.Empty);
             }
             UI.SearchBarText = SearchQueries[currentSearchQuery];
             return true;
@@ -670,12 +674,12 @@ namespace Translator.Core
             if (currentSearchQuery < SearchQueries.Count - 1)
             {
                 ++currentSearchQuery;
-                Search(SearchQueries[currentSearchQuery]);
+                // Search(SearchQueries[currentSearchQuery]);
             }
             else
             {
                 currentSearchQuery = 0;
-                Search(string.Empty);
+                // Search(string.Empty);
             }
             UI.SearchBarText = SearchQueries[currentSearchQuery];
             return true;
@@ -735,6 +739,7 @@ namespace Translator.Core
                     UI.UpdateRecentFileList();
                     //update search so it makes sense
                     Search();
+                    SelectLine(0);
                 }
             }
             else
@@ -748,9 +753,20 @@ namespace Translator.Core
         /// </summary>
         public void PopulateTextBoxes()
         {
-            int currentIndex = TabUI.SelectedLineIndex;
-
-            if (currentIndex >= 0)
+            if (lastIndex >= 0)
+            {
+                if (lastIndex < TabUI.Lines.Count)
+                    UpdateSimilarityMarking(TabUI.Lines[lastIndex].ID);
+                if (TabUI.Lines.SelectedIndex >= 0)
+                {
+                    if (History.Peek().FileName == FileName && History.Peek().StoryName == StoryName)
+                        History.AddAction(new SelectedLineChanged(TabUI.Lines, lastIndex, TabUI.Lines.SelectedIndex, FileName, StoryName));
+                    else
+                        History.AddAction(new SelectedLineChanged(TabUI.Lines, 0, TabUI.Lines.SelectedIndex, FileName, StoryName));
+                }
+            }
+            lastIndex = TabUI.Lines.SelectedIndex;
+            if (TabUI.SelectedLineIndex >= 0)
             {
                 TabUI.TemplateBoxText = Settings.Default.DisplayVoiceActorHints
                     ? SelectedLine.TemplateString.Replace("\n", Environment.NewLine)
@@ -842,9 +858,12 @@ namespace Translator.Core
         /// <summary>
         /// Performs a search through all lines currently loaded.
         /// </summary>
-        public void Search()
+        internal void Search()
         {
-            SearchQuery = UI.SearchBarText;
+            if (TabManager.InGlobalSearch)
+                SearchQuery = UI.SearchBarText[1..];
+            else
+                SearchQuery = UI.SearchBarText;
             Search(SearchQuery);
         }
 
@@ -852,7 +871,7 @@ namespace Translator.Core
         /// Performs a search through all lines currently loaded.
         /// </summary>
         /// <param name="query">The search temr to look for</param>
-        public void Search(string query)
+        internal void Search(string query)
         {
             if (query.Length > 0)
             {
@@ -863,7 +882,12 @@ namespace Translator.Core
 
                     TabUI.Lines.SearchResults.Clear();
                     TabUI.Lines.SearchResults.AddRange(results!);
-                    UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+
+                    if (TabManager.InGlobalSearch)
+                        UI.SearchResultCount += TabUI.Lines.SearchResults.Count;
+                    else
+                        UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
+
                     UpdateSearchAndSearchHighlight();
                     return;
                 }
@@ -873,8 +897,10 @@ namespace Translator.Core
                 }
             }
 
-            UI.SearchResultCount = 0;
-            CleanedSearchQuery = query;
+            if (!TabManager.InGlobalSearch)
+                UI.SearchResultCount = 0;
+            CleanedSearchQuery = string.Empty;
+
             if (SearchNeedsCleanup)
             {
                 TabUI.Lines.SearchResults.Clear();
@@ -1242,12 +1268,15 @@ namespace Translator.Core
 
         private void UpdateSearchForCurrentEditedLine()
         {
+            if (CleanedSearchQuery == string.Empty) return;
+
             int index = TabUI.SelectedLineIndex;
-            if (Searcher.Search(SearchQuery, SelectedLine))
+            if (Searcher.Search(CleanedSearchQuery, SelectedLine))
             {
                 if (!TabUI.Lines.SearchResults.Contains(index))
                     TabUI.Lines.SearchResults.Add(index);
 
+                //todo change up so the count over all files stays
                 UI.SearchResultCount = TabUI.Lines.SearchResults.Count;
                 UpdateHighlightPositions(index);
             }

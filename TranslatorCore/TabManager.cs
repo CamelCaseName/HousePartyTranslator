@@ -149,6 +149,7 @@ namespace Translator.Core
 
             //call startup for new translationmanager
             t.LoadFileIntoProgram(path);
+            t.Search();
         }
 
         /// <summary>
@@ -230,11 +231,7 @@ namespace Translator.Core
             //set search term to the one from the respective TranslationManager
             if (ActiveTranslationManager is null || UI is null) return;
 
-            if (InGlobalSearch)
-            {
-                ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? string.Empty);
-            }
-            else
+            if (!InGlobalSearch)
             {
                 UI.SearchBarText = ActiveTranslationManager.SearchQuery;
             }
@@ -275,10 +272,9 @@ namespace Translator.Core
         /// Call to determine if all tabs should be searched or only the selected one
         /// </summary>
         /// <returns>True if we want to search all, performs the search also. False when single tab search is intended.</returns>
-        private static bool SearchAll()
+        private static bool IsSearchAllFiles()
         {
             if (UI is null) return false;
-
             if (UI.SearchBarText.Length > 0)
             {
                 //global search has to start with the ?
@@ -302,13 +298,17 @@ namespace Translator.Core
         /// </summary>
         public static void Search()
         {
-            if (!SearchAll())
+            if (IsSearchAllFiles())
             {
-                ActiveTranslationManager.Search();
+                UI.SearchResultCount = 0;
+                foreach (var translationManager in translationManagers)
+                {
+                    translationManager.Value.Search(UI.SearchBarText[1..] ?? string.Empty);
+                }
             }
             else
             {
-                ActiveTranslationManager.Search(UI.SearchBarText[1..] ?? string.Empty);
+                ActiveTranslationManager.Search();
             }
         }
 

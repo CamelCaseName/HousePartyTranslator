@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-using System.Runtime.Versioning;
-using System.Windows.Forms;
+﻿using System.Runtime.Versioning;
 
 namespace Translator.Desktop.UI.Components
 {
