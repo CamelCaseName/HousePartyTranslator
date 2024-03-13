@@ -25,10 +25,11 @@ namespace Translator.Core
         private static readonly Timer AutoSaveTimer = new();
         private static string language = Settings.Default.Language;
         private static bool StaticUIInitialized = false;
-        private static IUIHandler UI = null!;
+        internal static IUIHandler UI = null!;
         private static readonly List<string> SearchQueries = new() { string.Empty };
         private readonly ITab TabUI;
         private bool _changesPending = false;
+        private bool triedFixingOnce = false;
         private int currentSearchQuery = 0;
         private string fileName = string.Empty;
         private bool isSaveAs = false;
@@ -36,7 +37,6 @@ namespace Translator.Core
         internal int SelectedResultIndex = -1;
         private string sourceFilePath = string.Empty;
         private string storyName = string.Empty;
-        private bool triedFixingOnce = false;
         private static int returnedTasks = 0;
         private bool multiTranslationRunning = false;
         private bool abortedAutoTranslation = false;
@@ -89,7 +89,7 @@ namespace Translator.Core
         public bool ChangesPending
         {
             get { return _changesPending; }
-            set
+            internal set
             {
                 if (TranslationData.Count > 0)
                 {
@@ -699,7 +699,7 @@ namespace Translator.Core
                 //clear history if we have a new file, we dont need old one anymore
                 if (path != SourceFilePath && FileName != string.Empty && StoryName != string.Empty)
                     History.ClearForFile(FileName, StoryName);
-                ResetTranslationManager();
+                Reset();
 
                 SourceFilePath = path;
                 LoadTranslationFile();
@@ -1048,19 +1048,6 @@ namespace Translator.Core
             }
         }
 
-        //Creates the actual linedata objects from the file
-        private void CreateLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation)
-        {
-            if (lastLine[0] == string.Empty) return;
-            var eekId = new EekStringID(lastLine[0], category);
-            if (IdsToExport.TryGetValue(eekId, out LineData? templateLine))
-                TranslationData[eekId] = new LineData(lastLine[0], StoryName, FileName, category, templateLine.TemplateString, lastLine[1] + translation);
-            else
-            {
-                TranslationData[eekId] = new LineData(lastLine[0], StoryName, FileName, category, string.Empty, lastLine[1] + translation);
-            }
-        }
-
         private bool CustomStoryTemplateHandle(string story)
         {
             PopupResult result = !Settings.Default.AllowCustomStories
@@ -1109,13 +1096,6 @@ namespace Translator.Core
             TabUI.Comments.ShowHighlight = false;
         }
 
-        private FileData GetTemplatesFromUser()
-        {
-            return UI.InfoYesNo("Do you have the translation template from Don/Eek available? If so, we can use those if you hit yes, if you hit no we can generate templates from the game's story files.", "Templates available?", PopupResult.YES)
-                ? SaveAndExportManager.GetTemplateFromFile(Utils.SelectFileFromSystem(false, $"Choose the template for {StoryName}/{FileName}.", FileName + ".txt"), StoryName, FileName, false)
-                : new FileData(StoryName, FileName);
-        }
-
         private bool IsSearchFocused() => !TabUI.IsTranslationBoxFocused && !TabUI.IsCommentBoxFocused;
 
         /// <summary>
@@ -1131,7 +1111,7 @@ namespace Translator.Core
                 //get language text representation
                 StoryName = Utils.ExtractStoryName(SourceFilePath);
                 //actually load all strings into the program
-                ReadStringsTranslationsFromFile();
+                TranslationData = FileReader.GetTranslationsFromFile(this);
 
                 if (TranslationData.Count > 0)
                 {
@@ -1153,71 +1133,16 @@ namespace Translator.Core
                 }
                 else
                 {
-                    ResetTranslationManager();
+                    Reset();
                 }
             }
         }
 
-        /// <summary>
-        /// loads all the strings from the selected file into a list of LineData elements.
-        /// </summary>
-        private void ReadStringsTranslationsFromFile()
-        {
-            FileData templates;
-            if (DataBase.IsOnline)
-            {
-                _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out templates);
-            }
-            else
-            {
-                templates = GetTemplatesFromUser();
-            }
-            List<string> LinesFromFile;
-            try
-            {
-                //read in lines
-                LinesFromFile = new List<string>(File.ReadAllLines(SourceFilePath));
-            }
-            catch (Exception e)
-            {
-                LogManager.Log($"File not found under {SourceFilePath}.\n{e}", LogManager.Level.Warning);
-                _ = UI.InfoOk($"File not found under {SourceFilePath}. Please reopen.", "Invalid path");
-                ResetTranslationManager();
-                return;
-            }
-
-            //if we got lines at all
-            if (LinesFromFile.Count > 0)
-            {
-                SplitReadTranslations(LinesFromFile, templates);
-            }
-            else
-            {
-                TryFixEmptyFile();
-            }
-
-            if (templates.Count != TranslationData.Count)
-            {
-                if (TranslationData.Count == 0)
-                {
-                    TryFixEmptyFile();
-                }
-                else if (DataBase.IsOnline && !Settings.Default.IgnoreMissingLinesWarning)
-                //inform user the issing translations will be added after export. i see no viable way to add them before having them all read in,
-                //and it would take a lot o time to get them all. so just have the user save it once and reload. we might do this automatically, but i don'indexOfSelectedSearchResult know if that is ok to do :)
-                {
-                    _ = UI.InfoOk(
-                    "Some strings are missing from your translation, they will be added with the english version when you first save the file!",
-                    "Some strings missing");
-                    ChangesPending = true;
-                }
-            }
-        }
 
         /// <summary>
         /// Resets the translation manager.
         /// </summary>
-        private void ResetTranslationManager()
+        internal void Reset()
         {
             Settings.Default.RecentIndex = TabUI.SelectedLineIndex;
             TranslationData.Clear();
@@ -1256,100 +1181,6 @@ namespace Translator.Core
         private void SelectLine(int i)
         {
             TabUI.SelectLineItem(i);
-        }
-
-        private void SplitReadTranslations(List<string> LinesFromFile, FileData IdsToImport)
-        {
-            string[] lastLine = Array.Empty<string>();
-            string multiLineCollector = string.Empty;
-            StringCategory category = StringCategory.General;
-            //remove last if empty, breaks line loading for the last
-            while (LinesFromFile.Count > 0)
-            {
-                if (LinesFromFile[^1] == string.Empty)
-                    LinesFromFile.RemoveAt(LinesFromFile.Count - 1);
-                else break;
-            }
-            //load lines and their data and split accordingly
-            foreach (string line in LinesFromFile)
-            {
-                if (line.Contains('|'))
-                {
-                    //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0)
-                    {
-                        multiLineCollector = multiLineCollector.TrimEnd(Extensions.trimmers);
-                        CreateLineInTranslations(lastLine, category, IdsToImport, multiLineCollector);
-                    }
-                    //get current line
-                    lastLine = line.Split('|');
-                    //reset multiline collector
-                    multiLineCollector = string.Empty;
-                }
-                else
-                {
-                    StringCategory tempCategory = line.AsCategory();
-                    if (tempCategory == StringCategory.Neither)
-                    {
-                        //line is part of a multiline, add to collector (we need newline because they get removed by ReadAllLines)
-                        multiLineCollector += "\n" + line;
-                    }
-                    else
-                    {
-                        //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0)
-                        {
-
-                            if (multiLineCollector.Length > 2)
-                            {//write last string with id plus all lines after that minus the last new line char(s)
-                                multiLineCollector = multiLineCollector.TrimEnd(Extensions.trimmers);
-                                CreateLineInTranslations(lastLine, category, IdsToImport, multiLineCollector);
-                            }
-                            else
-                            {//write last line with id if no real line of text is afterwards
-                                CreateLineInTranslations(lastLine, category, IdsToImport, string.Empty);
-                            }
-                        }
-                        //only set new category after we added the last line of the old one
-                        category = tempCategory;
-                        //resetting for next iteration
-                        lastLine = Array.Empty<string>();
-                        multiLineCollector = string.Empty;
-                    }
-                }
-            }
-
-            if (lastLine.Length > 0)
-            {
-                //add last line (dont care about duplicates because the dict)
-                CreateLineInTranslations(lastLine, category, IdsToImport, string.Empty);
-            }
-        }
-
-        private void TryFixEmptyFile()
-        {
-            if (!triedFixingOnce)
-            {
-                triedFixingOnce = true;
-                _ = DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport);
-                foreach (LineData item in IdsToExport.Values)
-                {
-                    TranslationData[item.EekID] = new LineData(
-                        item.ID,
-                        StoryName,
-                        FileName,
-                        item.Category,
-                        TranslationData.TryGetValue(item.EekID, out LineData? tempLineData) ?
-                        (tempLineData?.TranslationLength > 0 ?
-                        tempLineData?.TranslationString ?? item.TemplateString.RemoveVAHints()
-                        : item.TemplateString.RemoveVAHints())
-                        : item.TemplateString.RemoveVAHints()
-                        );
-                }
-                SaveFile(false);
-                TranslationData.Clear();
-                ReadStringsTranslationsFromFile();
-            }
         }
 
         private void UpdateApprovedAndTabName()

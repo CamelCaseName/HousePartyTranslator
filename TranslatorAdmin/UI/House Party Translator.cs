@@ -284,6 +284,7 @@ namespace Translator.Desktop.UI
                 }
                 var explorer = new StoryExplorer(isStory, autoOpen, manager.FileName, manager.StoryName, tokenSource.Token, App.MainForm);
 
+                //todo keep track of all instances and threads/tasks created in it so we can close it
                 Task.Run(() =>
                 {
                     //def answer set to no because true for opening a single one is needed
