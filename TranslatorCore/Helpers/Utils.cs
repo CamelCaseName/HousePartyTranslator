@@ -200,10 +200,8 @@ namespace Translator.Core.Helpers
             if ((DateTime.Now - namesAcquired).Hours > 1 && DataBase.IsOnline)
                 DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
 
-            if (IsInitialized && !LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
+            if (!LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
                 throw new LanguageHelper.LanguageException();
-            else
-                languageAsText = string.Empty;
 
             string[] paths = path.Contains('\\')
                 ? path.Split('\\')

@@ -83,7 +83,11 @@ namespace Translator.Core
 
         }
 
+        //todo implement
         private static FileData ReadCSVLines() => throw new NotImplementedException();
+
+        //todo maybe build into a generic one where you can just specify the file format
+        // also find a way for custom dynamic categories
         private static FileData ReadPythonStringLines() => throw new NotImplementedException();
 
         private static FileData ReadEekLines(List<string> LinesFromFile, FileData IdsToImport)
