@@ -537,9 +537,11 @@ namespace Translator.Core
                 //newline after each category
                 OutputWriter.WriteLine();
             }
-            OutputWriter.Close();
             if (needDispose)
+            {
+                OutputWriter.Close();
                 OutputWriter.Dispose();
+            }
         }
 
         public static void UploadOfficialTemplates()
