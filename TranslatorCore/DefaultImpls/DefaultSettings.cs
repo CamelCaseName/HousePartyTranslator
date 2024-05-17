@@ -44,6 +44,9 @@ namespace Translator.Core.DefaultImpls
 
         public bool ExportTemplateDiff { get => false; set { } }
 
+        public int Translator { get => 0; set { } }
+        public string DeeplApiKey { get => string.Empty; set { } }
+
         public void Save() { }
     }
 }

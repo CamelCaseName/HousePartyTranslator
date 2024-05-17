@@ -58,7 +58,7 @@
 	<ItemGroup>
 	  <None Update="Properties\Settings.settings">
 	    <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-	    <Generator>SettingsSingleFileGenerator</Generator>
+	    <Generator>PublicSettingsSingleFileGenerator</Generator>
 	  </None>
 	</ItemGroup>
 
