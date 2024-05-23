@@ -32,6 +32,7 @@ namespace Translator.Core.Helpers
         private static DateTime namesAcquired = DateTime.MinValue;
         public static readonly string[] OfficialStories = { "UI", "Hints", "Original Story", "A Vickie Vixen Valentine", "Combat Training", "Date Night With Brittney" };
         public static readonly string[] OfficialFileNames = { "Amala", "Amy", "Arin", "Ashley", "Brittney", "Compubrah", "Dan", "Derek", "Doja Cat", "Frank", "Katherine", "Leah", "Lety", "Liz Katz", "Madison", "Original Story", "Patrick", "Phone Call", "Rachael", "Stephanie", "Vickie", "Hints", "A Vickie Vixen Valentine", "Combat Training", "Date Night with Brittney", "Date Night With Brittney", "CSCManager", "GeneralMenu", "GraphicsMenu", "InputManager", "MainMenu", "PauseMenu" };
+        public static bool IsInitialized { get; private set; }
 
         private static IUIHandler? MainUI { get; set; }
 
@@ -39,6 +40,7 @@ namespace Translator.Core.Helpers
         {
             MainUI = ui;
             DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
+            IsInitialized = true;
             namesAcquired = DateTime.Now;
         }
 
@@ -195,7 +197,7 @@ namespace Translator.Core.Helpers
 
         public static string ExtractStoryName(string path, bool noAsk = false)
         {
-            if ((DateTime.Now - namesAcquired).Hours > 1)
+            if ((DateTime.Now - namesAcquired).Hours > 1 && DataBase.IsOnline)
                 DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
 
             if (!LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
@@ -260,7 +262,7 @@ namespace Translator.Core.Helpers
 
         public static string ExtractFileName(string path, bool noAsk = false)
         {
-            if ((DateTime.Now - namesAcquired).Hours > 1)
+            if ((DateTime.Now - namesAcquired).Hours > 1 && DataBase.IsOnline)
                 DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
 
             string maybeFileName = Path.GetFileNameWithoutExtension(path);

@@ -1,7 +1,9 @@
 ﻿using LibreTranslate.Net;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Translator.Core.Data;
+using Translator.Core.UICompatibilityLayer;
 
 namespace Translator.Core.Helpers
 {
@@ -17,8 +19,21 @@ namespace Translator.Core.Helpers
     /// </summary>
     public static class AutoTranslation
     {
-        private static readonly LibreTranslate.Net.LibreTranslate Translator = new("https://translate.rinderha.cc");
-        private static readonly List<Task<string>> tasks = new();
+        private static readonly LibreTranslate.Net.LibreTranslate? Translator;
+        private static readonly DeepL.Translator? DeepLTranslator;
+        private static readonly CancellationTokenSource tokenSource = new();
+
+        static AutoTranslation()
+        {
+            if (Settings.Default.Translator == 0)
+            {
+                Translator = new("https://translate.rinderha.cc");
+            }
+            else if (Settings.Default.Translator == 1)
+            {
+                DeepLTranslator = new(Settings.Default.DeeplApiKey, new() { sendPlatformInfo = false });
+            }
+        }
 
         /// <summary>
         /// Starts a webrequest to https://translate.rinderha.cc" to translate the template for the current line into the given langauge if possible
@@ -60,7 +75,7 @@ namespace Translator.Core.Helpers
             }
             catch
             {
-                codeTo = LanguageCode.AutoDetect;
+                return;
             }
             try
             {
@@ -81,42 +96,86 @@ namespace Translator.Core.Helpers
         /// </summary>
         public static void AbortAllrunningTranslations()
         {
-            //todo wait on the merge in the libretranslate package so we can inject a cancellationtoken into it
-            foreach (var task in tasks)
-            {
-                //task.
-            }
-            tasks.Clear();
+            tokenSource.Cancel();
         }
+
         private static async void AutoTranslationImpl(LineData data, LanguageCode langCodeTemplate, LanguageCode langCodeTranslation, TranslationCompletedCallback OnCompletion)
+        {
+            if (Translator is null)
+            {
+                if (DeepLTranslator is null)
+                {
+                    return;
+                }
+                else
+                {
+                    await DeepLImpl(data, langCodeTemplate, langCodeTranslation, OnCompletion);
+                }
+            }
+            else
+            {
+                await LibreTranslateImpl(data, langCodeTemplate, langCodeTranslation, OnCompletion);
+            }
+        }
+
+        private static async Task DeepLImpl(LineData data, LanguageCode langCodeTemplate, LanguageCode langCodeTranslation, TranslationCompletedCallback OnCompletion)
         {
             try
             {
                 string result = string.Empty;
-                Task<string> task = Translator.TranslateAsync(new Translate()
-                {
-                    ApiKey = string.Empty,
-                    Source = langCodeTemplate,
-                    Target = langCodeTranslation,
-                    Text = data.TemplateString.RemoveVAHints()
-                });
-                tasks.Add(task);
-                result = await task;
+                Task<DeepL.Model.TextResult> task = DeepLTranslator!.TranslateTextAsync(
+                    data.TemplateString.RemoveVAHints(),
+                    langCodeTemplate == LanguageCode.AutoDetect ? string.Empty : langCodeTemplate.ToString(),
+                    langCodeTranslation.ToString(),
+                    cancellationToken: tokenSource.Token
+                    );
+                result = (await task).Text;
                 if (result == null)
                 {
-                    tasks.Remove(task);
                     OnCompletion(false, data);
                 }
                 else if (result.Length > 0)
                 {
-                    tasks.Remove(task);
                     data.TranslationString = result;
                     data.IsTranslated = true;
                     OnCompletion(true, data);
                 }
                 else
                 {
-                    tasks.Remove(task);
+                    OnCompletion(false, data);
+                }
+            }
+            catch
+            {
+                OnCompletion(false, data);
+            }
+        }
+
+        private static async Task LibreTranslateImpl(LineData data, LanguageCode langCodeTemplate, LanguageCode langCodeTranslation, TranslationCompletedCallback OnCompletion)
+        {
+            try
+            {
+                string result = string.Empty;
+                Task<string> task = Translator!.TranslateAsync(new Translate()
+                {
+                    ApiKey = string.Empty,
+                    Source = langCodeTemplate,
+                    Target = langCodeTranslation,
+                    Text = data.TemplateString.RemoveVAHints()
+                });
+                result = await task;
+                if (result == null)
+                {
+                    OnCompletion(false, data);
+                }
+                else if (result.Length > 0)
+                {
+                    data.TranslationString = result;
+                    data.IsTranslated = true;
+                    OnCompletion(true, data);
+                }
+                else
+                {
                     OnCompletion(false, data);
                 }
             }

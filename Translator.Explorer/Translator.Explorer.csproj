@@ -7,9 +7,10 @@
 	<UseWindowsForms>true</UseWindowsForms>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<StartupObject>Translator.Explorer.Program</StartupObject>
+	<StartupObject>Translator.Explorer.ExplorerStandalone</StartupObject>
 	<IsPublishable>False</IsPublishable>
 	<SelfContained>False</SelfContained>
+	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,9 +39,7 @@
 	  <DesignTime>True</DesignTime>
 	  <AutoGen>True</AutoGen>
 	</Compile>
-	<Compile Update="StoryExplorer.cs">
-	  <SubType>Form</SubType>
-	</Compile>
+	<Compile Update="StoryExplorer.cs" />
   </ItemGroup>
 
   <ItemGroup>

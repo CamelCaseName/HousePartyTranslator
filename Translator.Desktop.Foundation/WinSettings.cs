@@ -89,6 +89,8 @@ namespace Translator.Desktop.InterfaceImpls
         public bool ExportTranslatedWithMissingLines { get => Settings.Default.exportTranslationInMissingLines; set => Settings.Default.exportTranslationInMissingLines = value; }
         public bool ExportTemplateDiff { get => Settings.Default.exportTemplateDiff; set => Settings.Default.exportTemplateDiff = value; }
         public static bool CenterNodeOnClick { get => Settings.Default.centerNodeOnClick; set => Settings.Default.centerNodeOnClick = value; }
+        public int Translator { get => Settings.Default.Translator; set => Settings.Default.Translator = value; }
+        public string DeeplApiKey { get => Settings.Default.DeeplApiKey; set => Settings.Default.DeeplApiKey = value; }
 
         public void Save()
         {

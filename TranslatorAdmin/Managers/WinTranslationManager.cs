@@ -1,9 +1,9 @@
 ﻿using Translator.Core;
 using Translator.Core.Data;
+using Translator.Explorer;
 using Translator.Explorer.Graph;
 using Translator.Explorer.JSONItems;
 using Translator.Explorer.Story;
-using Translator.Desktop.InterfaceImpls;
 using Translator.Helpers;
 
 namespace Translator.Desktop.Managers

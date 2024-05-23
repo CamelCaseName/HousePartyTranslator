@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using static Translator.Explorer.JSONItems.StoryEnums;
-
-//todo update file format to 1.3 version of the game
+﻿using static Translator.Explorer.JSONItems.StoryEnums;
 
 namespace Translator.Explorer.JSONItems
 {

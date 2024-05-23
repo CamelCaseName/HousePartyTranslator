@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Threading;
-using System.Windows.Forms;
-using Translator.Core.Helpers;
-using Translator.Desktop;
+﻿using Translator.Core.Helpers;
 using Translator.Desktop.UI.Components;
 using Translator.Explorer.Graph;
 using Translator.Explorer.Story;
@@ -35,6 +28,7 @@ namespace Translator.Explorer.Window
         //todo implement node saving to a story file
         public StoryExplorer(bool IsStory, bool AutoLoad, string FileName, string StoryName, CancellationToken cancellation, Form? Parent = null)
         {
+            Name = Title;
             InitializeComponent();
             InitializeTypeFilterButtons();
             token = cancellation;
@@ -48,7 +42,7 @@ namespace Translator.Explorer.Window
             else
             {
                 ourParent = this;
-                parentName = Name;
+                parentName = Title;
             }
 
             //change draw order for this windows from bottom to top to top to bottom to remove flickering
@@ -110,22 +104,22 @@ namespace Translator.Explorer.Window
         {
             if (singleFile)
             {
-                ourParent.Invoke(() => Text = Title + " - waiting");
+                ourParent.Invoke(() => Text = ParentName + " - waiting");
                 if (!Context.ParseFile() || Context.GotCancelled)
                 {
                     Close();
                 }
-                ourParent.Invoke(() => Text = Title + $" - {FileName}");
+                ourParent.Invoke(() => Text = ParentName + $" - {FileName}");
             }
             else
             {
-                ourParent.Invoke(() => Text = Title + " - waiting");
+                ourParent.Invoke(() => Text = ParentName + " - waiting");
                 //parse story, and not get cancelled xD
                 if (!Context.ParseAllFiles() || Context.GotCancelled)
                 {
                     Close();
                 }
-                ourParent.Invoke(() => Text = Title + $" - {StoryName}");
+                ourParent.Invoke(() => Text = ParentName + $" - {StoryName}");
             }
             inInitialization = false;
             ourParent.Invoke(() => NodeCalculations.Text = "Calculation running");
