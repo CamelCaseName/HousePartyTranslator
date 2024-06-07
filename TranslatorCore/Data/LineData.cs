@@ -14,19 +14,19 @@ namespace Translator.Core.Data
         public bool IsTranslated = false;
         public bool IsApproved = false;
         public bool IsTemplate = false;
-        public string TemplateString = string.Empty;
+        public string Template = string.Empty;
         public bool WasChanged
         {
             get;
             set;
         }
-        public string TranslationString { get => _translationString; set => _translationString = value.RemoveVAHints(false); }
-        private string _translationString = string.Empty;
+        public string Translation { get => _translation; set => _translation = value.RemoveVAHints(false); }
+        private string _translation = string.Empty;
         public string[] Comments = Array.Empty<string>();
 
         //returns the length of the template WITHOUT the voice actor hints
-        public int TemplateLength => TemplateString.RemoveVAHints().Length;
-        public int TranslationLength => TranslationString.Length;
+        public int TemplateLength => Template.RemoveVAHints().Length;
+        public int TranslationLength => Translation.Length;
 
         public LineData() { }
 
@@ -42,7 +42,7 @@ namespace Translator.Core.Data
         public LineData(string id, string story, string filename, StringCategory category, string english, bool isTemplate)
         {
             ID = id.Trim();
-            TemplateString = english.Trim();
+            Template = english.Trim();
             Story = story.Trim();
             IsTranslated = true;
             FileName = filename.Trim();
@@ -57,8 +57,8 @@ namespace Translator.Core.Data
             Story = story.Trim();
             FileName = filename.Trim();
             Category = category;
-            TemplateString = english.Trim();
-            TranslationString = translation.RemoveVAHints(true);
+            Template = english.Trim();
+            Translation = translation.RemoveVAHints(true);
             IsTranslated = translation.Length > 1;
             EekID = new(ID, Category);
         }
@@ -69,7 +69,7 @@ namespace Translator.Core.Data
             Story = story.Trim();
             FileName = filename.Trim();
             Category = category;
-            TranslationString = translation.RemoveVAHints(true);
+            Translation = translation.RemoveVAHints(true);
             EekID = new(ID, Category);
         }
 
@@ -83,19 +83,64 @@ namespace Translator.Core.Data
             IsTemplate = line.IsTemplate;
             IsTranslated = line.IsTranslated;
             Story = line.Story;
-            TemplateString = line.TemplateString;
-            _translationString = line.TranslationString;
+            Template = line.Template;
+            _translation = line.Translation;
+            EekID = new(ID, Category);
+        }
+
+        public LineData(LineData line, string template)
+        {
+            Category = line.Category;
+            Comments = line.Comments;
+            FileName = line.FileName;
+            ID = line.ID;
+            IsApproved = line.IsApproved;
+            IsTemplate = line.IsTemplate;
+            IsTranslated = line.IsTranslated;
+            Story = line.Story;
+            Template = template;
+            _translation = line.Translation;
+            EekID = new(ID, Category);
+        }
+
+        public LineData(LineData line, EekStringID id)
+        {
+            Category = id.Category;
+            Comments = line.Comments;
+            FileName = line.FileName;
+            ID = id.ID;
+            IsApproved = line.IsApproved;
+            IsTemplate = line.IsTemplate;
+            IsTranslated = line.IsTranslated;
+            Story = line.Story;
+            Template = line.Template;
+            _translation = line.Translation;
+            EekID = id;
+        }
+
+        public LineData(LineData line, string translation, bool isTranslated)
+        {
+            Category = line.Category;
+            Comments = line.Comments;
+            FileName = line.FileName;
+            ID = line.ID;
+            IsApproved = line.IsApproved;
+            IsTemplate = line.IsTemplate;
+            IsTranslated = isTranslated;
+            Story = line.Story;
+            Template = line.Template;
+            _translation = translation;
             EekID = new(ID, Category);
         }
 
         public override string ToString()
         {
-            string value = TranslationString is not null && TranslationString != string.Empty ? ID + "|" + TranslationString : ID + "|" + TemplateString;
+            string value = Translation is not null && Translation != string.Empty ? ID + "|" + Translation : ID + "|" + Template;
             return value;
         }
 
         public bool ShouldBeMarkedSimilarToEnglish =>
             !IsTranslated && !IsApproved
-            || (TranslationString == TemplateString && !Utils.OfficialFileNames.Contains(TemplateString));
+            || (Translation == Template && !Utils.OfficialFileNames.Contains(Template));
     }
 }

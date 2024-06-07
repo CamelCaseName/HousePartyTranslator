@@ -311,7 +311,7 @@ namespace Translator.Core
             LogManager.Log($"Starting automatic translation for {NumberOfUnapprovedLines} unapproved lines");
             foreach (var line in TranslationData.Values)
             {
-                if (!line.IsApproved && line.TranslationString == line.TemplateString)
+                if (!line.IsApproved && line.Translation == line.Template)
                     AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
                     {
                         if (successfull)
@@ -377,7 +377,7 @@ namespace Translator.Core
             LogManager.Log($"Starting automatic translation for {NumberOfUntranslatedLines} untranslated lines");
             foreach (var line in TranslationData.Values)
             {
-                if (!line.IsTranslated && line.TranslationString == line.TemplateString)
+                if (!line.IsTranslated && line.Translation == line.Template)
                     AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
                     {
                         if (successfull)
@@ -700,9 +700,9 @@ namespace Translator.Core
             //remove pipe to not break saving/export, also remove voice actor hints as we dont want those
             var lengthString = TabUI.TranslationBoxText.Replace('|', ' ').Replace(Environment.NewLine, " ");
             int oldLength = lengthString.Length;
-            SelectedLine.TranslationString = lengthString;
+            SelectedLine.Translation = lengthString;
             SelectedLine.WasChanged |= !selectedNew;
-            TabUI.TranslationBoxText = SelectedLine.TranslationString;
+            TabUI.TranslationBoxText = SelectedLine.Translation;
             //alert user they typed an illegal character
             if (oldLength != SelectedLine.TranslationLength)
                 SystemSounds.Beep.Play();
@@ -775,13 +775,13 @@ namespace Translator.Core
             if (TabUI.SelectedLineIndex >= 0)
             {
                 TabUI.TemplateBoxText = Settings.Default.DisplayVoiceActorHints
-                    ? SelectedLine.TemplateString.Replace("\n", Environment.NewLine)
-                    : SelectedLine.TemplateString.Replace("\n", Environment.NewLine).RemoveVAHints();
+                    ? SelectedLine.Template.Replace("\n", Environment.NewLine)
+                    : SelectedLine.Template.Replace("\n", Environment.NewLine).RemoveVAHints();
 
                 selectedNew = true;
 
                 //display the string in the editable window
-                TabUI.TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine);
+                TabUI.TranslationBoxText = SelectedLine.Translation.Replace("\n", Environment.NewLine);
 
                 //translate if useful and possible
                 if (Settings.Default.AutoTranslate)
@@ -811,7 +811,7 @@ namespace Translator.Core
         {
             //update textbox
             if (SelectedId != string.Empty)
-                TabUI.TranslationBoxText = SelectedLine.TranslationString.Replace("\n", Environment.NewLine).RemoveVAHints(true);
+                TabUI.TranslationBoxText = SelectedLine.Translation.Replace("\n", Environment.NewLine).RemoveVAHints(true);
         }
 
         /// <summary>
@@ -829,7 +829,7 @@ namespace Translator.Core
             {
                 if (TabUI.Lines.SearchResults[i] < 0)
                     continue;
-                TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].ID].TranslationString = Replacer.Replace(TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].ID].TranslationString, replacement, SearchQuery).ToString();
+                TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].ID].Translation = Replacer.Replace(TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].ID].Translation, replacement, SearchQuery).ToString();
                 TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].ID].WasChanged = true;
             }
 
@@ -853,9 +853,9 @@ namespace Translator.Core
         {
             if (TabUI.Lines.SearchResults.Contains(TabUI.SelectedLineIndex))
             {
-                string temp = Replacer.Replace(SelectedLine.TranslationString, replacement, SearchQuery).ToString();
-                History.AddAction(new TranslationChanged(this, SelectedLine.EekID, SelectedLine.TranslationString, temp));
-                SelectedLine.TranslationString = temp;
+                string temp = Replacer.Replace(SelectedLine.Translation, replacement, SearchQuery).ToString();
+                History.AddAction(new TranslationChanged(this, SelectedLine.EekID, SelectedLine.Translation, temp));
+                SelectedLine.Translation = temp;
                 SelectedLine.WasChanged = true;
 
                 //update search results
@@ -938,17 +938,17 @@ namespace Translator.Core
                         && DataBase.IsOnline
                         && tempLine.TranslationLength > 0)
                     {
-                        TranslationData[key].TranslationString = tempLine.TranslationString;
+                        TranslationData[key].Translation = tempLine.Translation;
                     }
                     else if (!DataBase.IsOnline)
                     {
-                        TranslationData[key].TemplateString = tempLine.TemplateString;
+                        TranslationData[key].Template = tempLine.Template;
                     }
                     TranslationData[key].IsApproved = tempLine.IsApproved;
                 }
 
-                if (TranslationData[key].TemplateString is null)
-                    TranslationData[key].TemplateString = string.Empty;
+                if (TranslationData[key].Template is null)
+                    TranslationData[key].Template = string.Empty;
 
                 TabUI.Lines.Add(key, TranslationData[key].IsApproved);
 
@@ -996,7 +996,7 @@ namespace Translator.Core
                 return;
             if (successfull)
             {
-                History.AddAction(new TranslationChanged(this, data.EekID, TranslationData[data.EekID].TranslationString, data.TranslationString));
+                History.AddAction(new TranslationChanged(this, data.EekID, TranslationData[data.EekID].Translation, data.Translation));
                 TranslationData[data.EekID] = data;
                 if (data.ID == SelectedId)
                     ReloadTranslationTextbox();
@@ -1030,9 +1030,9 @@ namespace Translator.Core
                 return;
             if (successfull)
             {
-                if (TranslationData[data.EekID].TranslationString == data.TemplateString || TranslationData[data.EekID].TranslationString.Length == 0)
+                if (TranslationData[data.EekID].Translation == data.Template || TranslationData[data.EekID].Translation.Length == 0)
                 {
-                    History.AddAction(new TranslationChanged(this, data.EekID, TranslationData[data.EekID].TranslationString, data.TranslationString));
+                    History.AddAction(new TranslationChanged(this, data.EekID, TranslationData[data.EekID].Translation, data.Translation));
 
                     //todo change this so it shows as a placeholder type of text?
                     TranslationData[data.EekID] = data;

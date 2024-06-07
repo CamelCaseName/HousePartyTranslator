@@ -195,8 +195,8 @@ namespace Translator.Core
                                 IsApproved = reader.GetInt32("approved") > 0,
                                 IsTemplate = false,
                                 IsTranslated = reader.GetInt32("translated") > 0,
-                                TemplateString = string.Empty,
-                                TranslationString = reader.GetString("translation")
+                                Template = string.Empty,
+                                Translation = reader.GetString("translation")
                             };
                             if (LineDataList.ContainsKey(_lineData.EekID))
                             {
@@ -447,8 +447,8 @@ namespace Translator.Core
                         IsApproved = reader.GetInt32("approved") > 0,
                         IsTemplate = false,
                         IsTranslated = reader.GetInt32("translated") > 0,
-                        TemplateString = string.Empty,
-                        TranslationString = reader.GetString("translation")
+                        Template = string.Empty,
+                        Translation = reader.GetString("translation")
                     };
                     wasSuccessfull = true;
                 }
@@ -723,7 +723,7 @@ namespace Translator.Core
             _ = cmd.Parameters.AddWithValue("@approved", lineData.IsApproved ? 1 : 0);
             _ = cmd.Parameters.AddWithValue("@language", language);
             _ = cmd.Parameters.AddWithValue($"@comment", comment);
-            _ = cmd.Parameters.AddWithValue("@translation", lineData.TranslationString);
+            _ = cmd.Parameters.AddWithValue("@translation", lineData.Translation);
             _ = cmd.Parameters.AddWithValue($"@deleted", 0);
 
             return ExecuteOrReOpen(cmd);
@@ -788,7 +788,7 @@ namespace Translator.Core
                             _ = cmd.Parameters.AddWithValue($"@approved{c}", item.IsApproved ? 1 : 0);
                             _ = cmd.Parameters.AddWithValue($"@language{c}", language);
                             _ = cmd.Parameters.AddWithValue($"@comment{c}", comment);
-                            _ = cmd.Parameters.AddWithValue($"@translation{c}", item.TranslationString);
+                            _ = cmd.Parameters.AddWithValue($"@translation{c}", item.Translation);
                             _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
                             ++c;
                             if (c >= updateData.Count)
@@ -836,7 +836,7 @@ namespace Translator.Core
                     continue;
                 }
 
-                if (oldTemplateLine.TemplateString != newTemplate.Value.TemplateString)
+                if (oldTemplateLine.Template != newTemplate.Value.Template)
                 {
                     diff.Add(newTemplate.Key, newTemplate.Value);
                     idsToUnapprove.Add(oldTemplateLine.ID);
@@ -912,7 +912,7 @@ namespace Translator.Core
                     _ = cmd.Parameters.AddWithValue($"@story{c}", line.Story);
                     _ = cmd.Parameters.AddWithValue($"@fileName{c}", line.FileName);
                     _ = cmd.Parameters.AddWithValue($"@category{c}", (int)line.Category);
-                    _ = cmd.Parameters.AddWithValue($"@english{c}", line.TemplateString.Trim());
+                    _ = cmd.Parameters.AddWithValue($"@english{c}", line.Template.Trim());
                     _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
                     ++c;
                 }

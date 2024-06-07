@@ -176,9 +176,9 @@ namespace Translator.Core
                         item.Category,
                         translations.TryGetValue(item.EekID, out LineData? tempLineData) ?
                         (tempLineData?.TranslationLength > 0 ?
-                        tempLineData?.TranslationString ?? item.TemplateString.RemoveVAHints()
-                        : item.TemplateString.RemoveVAHints())
-                        : item.TemplateString.RemoveVAHints()
+                        tempLineData?.Translation ?? item.Template.RemoveVAHints()
+                        : item.Template.RemoveVAHints())
+                        : item.Template.RemoveVAHints()
                         );
                 }
                 manager.SaveFile(false);
@@ -200,7 +200,7 @@ namespace Translator.Core
             if (lastLine[0] == string.Empty) return;
             var eekId = new EekStringID(lastLine[0], category);
             if (IdsToExport.TryGetValue(eekId, out LineData? templateLine))
-                TranslationData[eekId] = new LineData(lastLine[0], IdsToExport.StoryName, IdsToExport.FileName, category, templateLine.TemplateString, lastLine[1] + translation);
+                TranslationData[eekId] = new LineData(lastLine[0], IdsToExport.StoryName, IdsToExport.FileName, category, templateLine.Template, lastLine[1] + translation);
             else
             {
                 TranslationData[eekId] = new LineData(lastLine[0], IdsToExport.StoryName, IdsToExport.FileName, category, string.Empty, lastLine[1] + translation);

@@ -124,7 +124,7 @@ namespace Translator.Core.Helpers
             {
                 string result = string.Empty;
                 Task<DeepL.Model.TextResult> task = DeepLTranslator!.TranslateTextAsync(
-                    data.TemplateString.RemoveVAHints(),
+                    data.Template.RemoveVAHints(),
                     langCodeTemplate == LanguageCode.AutoDetect ? string.Empty : langCodeTemplate.ToString(),
                     langCodeTranslation.ToString(),
                     cancellationToken: tokenSource.Token
@@ -136,7 +136,7 @@ namespace Translator.Core.Helpers
                 }
                 else if (result.Length > 0)
                 {
-                    data.TranslationString = result;
+                    data.Translation = result;
                     data.WasChanged = true;
                     data.IsTranslated = true;
                     OnCompletion(true, data);
@@ -162,7 +162,7 @@ namespace Translator.Core.Helpers
                     ApiKey = string.Empty,
                     Source = langCodeTemplate,
                     Target = langCodeTranslation,
-                    Text = data.TemplateString.RemoveVAHints()
+                    Text = data.Template.RemoveVAHints()
                 });
                 result = await task;
                 if (result == null)
@@ -171,7 +171,7 @@ namespace Translator.Core.Helpers
                 }
                 else if (result.Length > 0)
                 {
-                    data.TranslationString = result;
+                    data.Translation = result;
                     data.WasChanged = true;
                     data.IsTranslated = true;
                     OnCompletion(true, data);
