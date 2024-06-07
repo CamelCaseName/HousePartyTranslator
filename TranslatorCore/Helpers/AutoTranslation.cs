@@ -137,6 +137,7 @@ namespace Translator.Core.Helpers
                 else if (result.Length > 0)
                 {
                     data.TranslationString = result;
+                    data.WasChanged = true;
                     data.IsTranslated = true;
                     OnCompletion(true, data);
                 }
@@ -171,6 +172,7 @@ namespace Translator.Core.Helpers
                 else if (result.Length > 0)
                 {
                     data.TranslationString = result;
+                    data.WasChanged = true;
                     data.IsTranslated = true;
                     OnCompletion(true, data);
                 }

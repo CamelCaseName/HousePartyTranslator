@@ -467,7 +467,7 @@ namespace Translator.Core
                 if (item.ID == string.Empty) continue;
                 if (translationData.TryGetValue(item.EekID, out LineData? TempResult))
                 {
-                    if (TempResult is not null)
+                    if (TempResult is not null && TempResult.WasChanged)
                     {
                         item.TranslationString = TempResult.TranslationLength > 0 ? TempResult.TranslationString : item.TemplateString.RemoveVAHints();
                     }

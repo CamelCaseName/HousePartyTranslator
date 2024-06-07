@@ -50,5 +50,13 @@ namespace Translator.Core.Data
             }
             throw new IndexOutOfRangeException(nameof(index));
         }
+
+        public void AcknowledgeChanges()
+        {
+            foreach (var item in Values)
+            {
+                item.WasChanged = false;
+            }
+        }
     }
 }

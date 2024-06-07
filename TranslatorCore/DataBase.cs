@@ -196,7 +196,7 @@ namespace Translator.Core
                                 IsTemplate = false,
                                 IsTranslated = reader.GetInt32("translated") > 0,
                                 TemplateString = string.Empty,
-                                TranslationString = reader.GetString("translation").RemoveVAHints()
+                                TranslationString = reader.GetString("translation")
                             };
                             if (LineDataList.ContainsKey(_lineData.EekID))
                             {
