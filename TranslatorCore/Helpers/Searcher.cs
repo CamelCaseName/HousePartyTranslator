@@ -263,7 +263,7 @@ namespace Translator.Core.Helpers
 
         private static bool FindTemplateTranslationIdentical(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            return line.TemplateString == line.TranslationString;
+            return line.Template == line.Translation;
         }
 
         private static bool SearchUntranslatedOnly(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
@@ -301,16 +301,16 @@ namespace Translator.Core.Helpers
 
         private static bool SearchTemplate(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            return line.TemplateString is not null
-&& (pattern is not null ? SafeRegexSearch(line.TemplateString, pattern) : line.TemplateString.AsSpan().Contains(query, comparison));
+            return line.Template is not null
+&& (pattern is not null ? SafeRegexSearch(line.Template, pattern) : line.Template.AsSpan().Contains(query, comparison));
         }
 
         private static bool SearchTranslation(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)
         {
-            return line.TranslationString is not null
+            return line.Translation is not null
 && (pattern is not null
-                    ? SafeRegexSearch(line.TranslationString, pattern)
-                    : line.TranslationString.AsSpan().Contains(query, comparison));
+                    ? SafeRegexSearch(line.Translation, pattern)
+                    : line.Translation.AsSpan().Contains(query, comparison));
         }
 
         private static bool SearchID(ReadOnlySpan<char> query, LineData line, StringComparison comparison, Regex? pattern)

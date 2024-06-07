@@ -365,7 +365,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTranslation()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.SelectedLine.TranslationString ?? string.Empty);
+            UI.ClipboardSetText(ActiveTranslationManager.SelectedLine.Translation ?? string.Empty);
         }
 
         /// <summary>
@@ -373,7 +373,7 @@ namespace Translator.Core
         /// </summary>
         public static void CopyTemplate()
         {
-            UI.ClipboardSetText(ActiveTranslationManager.SelectedLine.TemplateString ?? string.Empty);
+            UI.ClipboardSetText(ActiveTranslationManager.SelectedLine.Template ?? string.Empty);
         }
 
         public static void ReplaceAll()

@@ -389,13 +389,15 @@ namespace Translator.Core
 
         public void Do()
         {
-            manager.TranslationData[id].TranslationString = newText;
+            manager.TranslationData[id].Translation = newText;
+            manager.TranslationData[id].WasChanged = true;
             manager.UpdateSimilarityMarking(id);
         }
 
         public void Undo()
         {
-            manager.TranslationData[id].TranslationString = oldText;
+            manager.TranslationData[id].Translation = oldText;
+            manager.TranslationData[id].WasChanged = true;
             manager.UpdateSimilarityMarking(id);
         }
     }

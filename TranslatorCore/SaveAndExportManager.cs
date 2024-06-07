@@ -18,13 +18,18 @@ namespace Translator.Core
 
         public static void ExportTemplate(string path, string story = "", string file = "", bool warnOnOverwrite = false, bool confirmSuccess = true)
         {
-            if (path == string.Empty) return;
-            if (!File.Exists(path)) File.OpenWrite(path).Close();
+            if (path == string.Empty)
+                return;
+            if (!File.Exists(path))
+                File.OpenWrite(path).Close();
             else if (warnOnOverwrite)
-                if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO)) return;
+                if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
+                    return;
 
-            if (story == string.Empty) story = Utils.ExtractStoryName(path);
-            if (file == string.Empty) file = Utils.ExtractFileName(path);
+            if (story == string.Empty)
+                story = Utils.ExtractStoryName(path);
+            if (file == string.Empty)
+                file = Utils.ExtractFileName(path);
 
             if (story == "Hints")
                 file = "Hints";
@@ -42,15 +47,19 @@ namespace Translator.Core
 
             WriteCategorizedLinesToDisk(sortedLines, path);
 
-            if (confirmSuccess) TabManager.UI.InfoOk("Template exported to " + path);
+            if (confirmSuccess)
+                TabManager.UI.InfoOk("Template exported to " + path);
             LogManager.Log("    Sucessfully exported the template");
         }
 
         public static void ExportTemplatesForStory(string path, string story = "")
         {
-            if (path == string.Empty) return;
-            if (!Directory.Exists(path)) Directory.CreateDirectory(path);
-            if (story == string.Empty) story = Utils.ExtractStoryName(path);
+            if (path == string.Empty)
+                return;
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
+            if (story == string.Empty)
+                story = Utils.ExtractStoryName(path);
             LogManager.Log("Exporting all templates for " + story + " to " + path);
 
             //export templates as hints.txt if we have the hints, no need to get filenames
@@ -80,8 +89,10 @@ namespace Translator.Core
         public static void ExportTemplatesForStoryOrFile()
         {
             string path = Utils.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false, extension: string.Empty);
-            if (Path.GetExtension(path) != string.Empty) ExportTemplate(path);
-            else ExportTemplatesForStory(path);
+            if (Path.GetExtension(path) != string.Empty)
+                ExportTemplate(path);
+            else
+                ExportTemplatesForStory(path);
         }
 
         public static void ExportAllMissinglinesForStoryIntoFolder(string path, string story = "")
@@ -290,14 +301,14 @@ namespace Translator.Core
                 }
                 else if (translatedLineData.IsTranslated)
                 {
-                    if (translatedLineData.TranslationString == lineData.TemplateString)
+                    if (translatedLineData.Translation == lineData.Template)
                     {
                         results.Add(lineData.EekID, lineData);
                     }
                     else if (Settings.Default.ExportTranslatedWithMissingLines)
                     {
-                        lineData.TemplateString += " @@@TN: " + translatedLineData.TranslationString;
-                        results.Add(lineData.EekID, lineData);
+                        var tempLine = new LineData(lineData, new EekStringID(lineData.ID + "@@@TN", lineData.Category));
+                        results.Add(tempLine.EekID, tempLine);
                     }
                 }
             }
@@ -310,12 +321,14 @@ namespace Translator.Core
             {
                 //set up 
                 string path = Utils.SelectFileFromSystem(false, "Select a file in the folder you want to create templates for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
-                if (path.Length == 0) return;
+                if (path.Length == 0)
+                    return;
 
                 TabManager.UI.SignalUserWait();
                 string story = Utils.ExtractStoryName(path);
 
-                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
+                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled)
+                    SaveOnline = false;
                 LogManager.Log("creating templates for " + story);
 
                 //create translation and open it
@@ -324,7 +337,8 @@ namespace Translator.Core
                 foreach (string file_path in Directory.GetFiles(Directory.GetParent(path)?.FullName ?? string.Empty))
                 {
                     string file = Utils.ExtractFileName(file_path);
-                    if (Path.GetExtension(file_path) is not ".character" and not ".story") continue;
+                    if (Path.GetExtension(file_path) is not ".character" and not ".story")
+                        continue;
 
                     //create and upload templates
                     if (TabManager.UI.CreateTemplateFromStory(story, file, file_path, out FileData templates))
@@ -367,12 +381,14 @@ namespace Translator.Core
             {
                 //set up 
                 string path = Utils.SelectFileFromSystem(false, "Select the file to create the template for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
-                if (path.Length == 0) return;
+                if (path.Length == 0)
+                    return;
 
                 TabManager.UI.SignalUserWait();
                 (string story, string file) = Utils.ExtractFileAndStoryName(path);
 
-                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled) SaveOnline = false;
+                if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled)
+                    SaveOnline = false;
 
                 LogManager.Log("creating template for " + story + "/" + file);
                 //create and upload templates
@@ -464,17 +480,18 @@ namespace Translator.Core
         {
             foreach (LineData item in IdsToExport.Values)
             {
-                if (item.ID == string.Empty) continue;
+                if (item.ID == string.Empty)
+                    continue;
                 if (translationData.TryGetValue(item.EekID, out LineData? TempResult))
                 {
-                    if (TempResult is not null)
+                    if (TempResult is not null && TempResult.WasChanged)
                     {
-                        item.TranslationString = TempResult.TranslationLength > 0 ? TempResult.TranslationString : item.TemplateString.RemoveVAHints();
+                        item.Translation = TempResult.TranslationLength > 0 ? TempResult.Translation : item.Template.RemoveVAHints();
                     }
                 }
                 else
                 {
-                    item.TranslationString = item.TemplateString.RemoveVAHints();
+                    item.Translation = item.Template.RemoveVAHints();
                 }
 
                 int intCategory = CategorizedStrings.FindIndex(predicateCategory => predicateCategory.category == item.Category);
@@ -506,8 +523,10 @@ namespace Translator.Core
             foreach (CategorizedLines CategorizedLines in CategorizedStrings)
             {
                 //write category if it has any lines, else we skip the category
-                if (CategorizedLines.lines.Count > 0) OutputWriter.WriteLine(CategorizedLines.category.AsString());
-                else continue;
+                if (CategorizedLines.lines.Count > 0)
+                    OutputWriter.WriteLine(CategorizedLines.category.AsString());
+                else
+                    continue;
 
                 //sort strings depending on category
                 if (CategorizedLines.category == StringCategory.Dialogue)
@@ -551,7 +570,8 @@ namespace Translator.Core
 
             //set up 
             string path = Utils.SelectTemplateFolderFromSystem();
-            if (path.Length == 0) return;
+            if (path.Length == 0)
+                return;
 
             TabManager.UI.SignalUserWait();
 
@@ -565,7 +585,8 @@ namespace Translator.Core
                 foreach (string file_path in Directory.GetFiles(folder_path))
                 {
                     string file = Utils.ExtractFileName(file_path, true);
-                    if (Path.GetExtension(file_path) != ".txt") continue;
+                    if (Path.GetExtension(file_path) != ".txt")
+                        continue;
 
                     //create and upload templates
                     templates = GetTemplateFromFile(file_path, story, file, false);
@@ -603,8 +624,10 @@ namespace Translator.Core
                 _ = TabManager.UI.WarningOk("The template file must have the same name as the file you want to translate!");
                 return new FileData(story, fileName);
             }
-            if (story == string.Empty) story = Utils.ExtractStoryName(path);
-            if (fileName == string.Empty) fileName = Utils.ExtractFileName(path);
+            if (story == string.Empty)
+                story = Utils.ExtractStoryName(path);
+            if (fileName == string.Empty)
+                fileName = Utils.ExtractFileName(path);
 
             var fileData = new FileData(story, fileName);
             StringCategory currentCategory = StringCategory.General;
@@ -614,14 +637,16 @@ namespace Translator.Core
             //read in lines
             var LinesFromFile = new List<string>(File.ReadAllLines(path));
             //remove last if empty, breaks line loading for the last
-            while (LinesFromFile[^1] == string.Empty) _ = LinesFromFile.Remove(LinesFromFile[^1]);
+            while (LinesFromFile[^1] == string.Empty)
+                _ = LinesFromFile.Remove(LinesFromFile[^1]);
             //load lines and their data and split accordingly
             foreach (string line in LinesFromFile)
             {
                 if (line.Contains('|'))
                 {
                     //if we reach a new id, we can add the old string to the translation manager
-                    if (lastLine.Length != 0) fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                    if (lastLine.Length != 0)
+                        fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
 
                     //get current line
                     lastLine = line.Split('|');
@@ -640,7 +665,8 @@ namespace Translator.Core
                     else
                     {
                         //if we reach a category, we can add the old string to the translation manager
-                        if (lastLine.Length != 0) fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                        if (lastLine.Length != 0)
+                            fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
                         lastLine = Array.Empty<string>();
                         multiLineCollector = string.Empty;
                         currentCategory = tempCategory;
@@ -648,7 +674,8 @@ namespace Translator.Core
                 }
             }
             //add last line (dont care about duplicates because sql will get rid of them)
-            if (lastLine.Length != 0) fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1], true);
+            if (lastLine.Length != 0)
+                fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1], true);
 
             return fileData;
         }
@@ -656,10 +683,12 @@ namespace Translator.Core
         public static string CreateNewFile(INewFileSelector dialog)
         {
             PopupResult result = dialog.ShowDialog();
-            if (result != PopupResult.OK || dialog.StoryName == string.Empty) return string.Empty;
+            if (result != PopupResult.OK || dialog.StoryName == string.Empty)
+                return string.Empty;
 
             string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
-            if (path == string.Empty || path is null) return string.Empty;
+            if (path == string.Empty || path is null)
+                return string.Empty;
 
             if (dialog.StoryName == path.Split('\\')[^2])
                 path = Path.GetDirectoryName(path);
@@ -681,7 +710,8 @@ namespace Translator.Core
 
             //set up 
             string path = Utils.SelectFileFromSystem(false, "Select the template file");
-            if (path.Length == 0) return;
+            if (path.Length == 0)
+                return;
 
             TabManager.UI.SignalUserWait();
 
@@ -697,7 +727,8 @@ namespace Translator.Core
                 return;
             }
 
-            if (Path.GetExtension(path) != ".txt") return;
+            if (Path.GetExtension(path) != ".txt")
+                return;
 
             //create and upload templates
             templates = GetTemplateFromFile(path, story, file, false);
@@ -729,7 +760,8 @@ namespace Translator.Core
 
             //set up 
             string path = Utils.SelectFolderFromSystem("Select the folder which contains the template files");
-            if (path.Length == 0) return;
+            if (path.Length == 0)
+                return;
 
             TabManager.UI.SignalUserWait();
 
@@ -748,7 +780,8 @@ namespace Translator.Core
             foreach (string file_path in Directory.GetFiles(path))
             {
                 string file = Utils.ExtractFileName(file_path);
-                if (Path.GetExtension(file_path) != ".txt") continue;
+                if (Path.GetExtension(file_path) != ".txt")
+                    continue;
 
                 //create and upload templates
                 templates = GetTemplateFromFile(file_path, story, file, false);
