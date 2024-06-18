@@ -1,6 +1,7 @@
 ﻿using Translator.Core.Data;
 using static System.Windows.Forms.TabControl;
 using Translator.Core.UICompatibilityLayer;
+using System.Runtime;
 
 namespace Translator.Desktop.Foundation
 {
@@ -57,6 +58,16 @@ namespace Translator.Desktop.Foundation
                 items[i] = (ToolStripItem)collection[i];
             }
             return new ToolStripItemCollection(owner, items);
+        }
+
+        public static List<X> ToTabList<X>(this TabPageCollection collection) where X : TabPage
+        {
+            var items = new List<X>(collection.Count);
+            for (int i = 0; i < collection.Count; i++)
+            {
+                items.Add((X)collection[i]);
+            }
+            return items;
         }
 
         public static List<ITab> ToTabList(this TabPageCollection collection)

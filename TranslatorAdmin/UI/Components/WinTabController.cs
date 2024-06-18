@@ -1,6 +1,9 @@
 ﻿
+using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
@@ -11,8 +14,21 @@ using Translator.Desktop.InterfaceImpls;
 
 namespace Translator.Desktop.UI.Components
 {
+
     [SupportedOSPlatform("Windows")]
-    public class WinTabController : TabControl, ITabController
+    public class WinTabController : WinTabController<WinTab>, ITabController
+    {
+        ITab ITabController<ITab>.SelectedTab { get => base.SelectedTab; set => base.SelectedTab = (WinTab)value; }
+
+        List<ITab> ITabController<ITab>.TabPages => base.TabPages.Cast<ITab>().ToList();
+
+        public void AddTab(ITab tab) => base.AddTab((WinTab)tab);
+        public bool CloseTab(ITab tab) => base.CloseTab((WinTab)tab);
+    }
+
+
+    [SupportedOSPlatform("Windows")]
+    public class WinTabController<X> : TabControl where X : TabPage
     {
         private readonly SolidBrush background = new(Utils.menu);
         private readonly SolidBrush greyedBackground = new(Utils.background);
@@ -39,8 +55,10 @@ namespace Translator.Desktop.UI.Components
 
         private void DrawTabTitleCards(object? sender, DrawItemEventArgs e)
         {
-            if (sender is null) return;
-            if (e.Index < 0) return;
+            if (sender is null)
+                return;
+            if (e.Index < 0)
+                return;
 
             Font font = TabPages[e.Index].Text.Contains('*') ? new Font(Font, FontStyle.Bold) : new Font(Font, FontStyle.Regular);
 
@@ -68,19 +86,19 @@ namespace Translator.Desktop.UI.Components
         }
 
         public new int SelectedIndex { get => base.SelectedIndex; set => base.SelectedIndex = value; }
-        public new ITab SelectedTab { get => (ITab)base.SelectedTab; set => base.SelectedTab = (TabPage)value; }
+        public new X SelectedTab { get => (X)base.SelectedTab; set => base.SelectedTab = (TabPage)value; }
 
         public new int TabCount => TabPages.Count;
 
-        public new List<ITab> TabPages => base.TabPages.ToTabList();
+        public new List<X> TabPages => base.TabPages.ToTabList<X>();
 
-        public void AddTab(ITab tab)
+        public void AddTab(X tab)
         {
             base.TabPages.Add((TabPage)tab);
             ((TabPage)tab).TextChanged += RedrawClean;
         }
 
-        public bool CloseTab(ITab tab)
+        public bool CloseTab(X tab)
         {
             base.TabPages.Remove((TabPage)tab);
             return true;

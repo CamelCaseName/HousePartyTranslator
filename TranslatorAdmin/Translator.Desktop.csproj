@@ -60,9 +60,7 @@
 		<Compile Update="UI\Components\WinTab.cs">
 		  <SubType>Component</SubType>
 		</Compile>
-		<Compile Update="UI\Components\WinTabController.cs">
-		  <SubType>Component</SubType>
-		</Compile>
+		<Compile Update="UI\Components\WinTabController.cs" />
 		<Compile Update="UI\House Party Translator.cs" />
 		<Compile Update="UI\PasswordBox.cs" />
 		<Compile Update="UI\ProgressWindow.cs" />

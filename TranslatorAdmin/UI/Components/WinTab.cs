@@ -16,8 +16,7 @@ namespace Translator.Desktop.UI.Components
         private readonly CheckBox ApprovedBox = new();
         private readonly Label CharacterCountLabel = new();
         private readonly LineList CheckListBoxLeft = new();
-        private readonly GroupBox CommentGroup = new();
-        private readonly WinTextBox CommentTextBox = new();
+        private readonly LineContext ContextViewer = new();
         private readonly WinMenuItem CopyAllContextMenuButton = new();
         private readonly WinMenuItem CopyAsOutputContextMenuButton = new();
         private readonly WinMenuItem CopyFileNameContextMenuButton = new();
@@ -51,7 +50,7 @@ namespace Translator.Desktop.UI.Components
             TabIndex = 0;
             Text = $"Tab{Number}";
             mainTableLayoutPanel.SuspendLayout();
-            CommentGroup.SuspendLayout();
+            ContextViewer.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
@@ -75,6 +74,7 @@ namespace Translator.Desktop.UI.Components
             TranslationTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
             TranslationTextBox.PlaceholderText = "Translation goes here";
             TranslationTextBox.PlaceholderColor = Utils.darkText;
+            TranslationTextBox.ScrollBars = ScrollBars.Vertical;
 
             // 
             // AutoTranslateThis
@@ -104,23 +104,7 @@ namespace Translator.Desktop.UI.Components
             TemplateTextBox.TabIndex = 9;
             TemplateTextBox.PlaceholderText = "Template will be here";
             TemplateTextBox.PlaceholderColor = Utils.darkText;
-            // 
-            // CommentTextBox
-            // 
-            CommentTextBox.BackColor = Utils.background;
-            CommentTextBox.Dock = DockStyle.Fill;
-            CommentTextBox.Font = new Font("Consolas", 11F);
-            CommentTextBox.ForeColor = Utils.brightText;
-            CommentTextBox.Location = new Point(3, 16);
-            CommentTextBox.Multiline = true;
-            CommentTextBox.Name = "CommentTextBox";
-            CommentTextBox.Size = new Size(672, 105);
-            CommentTextBox.TabIndex = 13;
-            CommentTextBox.TextChanged += new EventHandler(MainForm.Comments_TextChanged);
-            CommentTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
-            CommentTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
-            CommentTextBox.PlaceholderText = "No comments yet";
-            CommentTextBox.PlaceholderColor = Utils.darkText;
+            TemplateTextBox.ScrollBars = ScrollBars.Vertical;
             // 
             // CharacterCountLabel
             // 
@@ -168,12 +152,23 @@ namespace Translator.Desktop.UI.Components
             ApprovedBox.UseVisualStyleBackColor = true;
             ApprovedBox.CheckedChanged += (sender, e) => TabManager.ActiveTranslationManager.ApprovedButtonHandler();
             // 
+            // CommentGroup
+            // 
+            ContextViewer.TopLevel = false;
+            ContextViewer.ControlBox = false;
+            ContextViewer.FormBorderStyle = FormBorderStyle.None;
+            ContextViewer.Dock = DockStyle.Fill;
+            ContextViewer.ForeColor = Utils.brightText;
+            ContextViewer.Name = "ContextWindow";
+            ContextViewer.TabIndex = 11;
+            ContextViewer.TabStop = false;
+            // 
             // mainTableLayoutPanel
             // 
             mainTableLayoutPanel.ColumnCount = 2;
             _ = mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50.07924F));
             _ = mainTableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 49.92076F));
-            mainTableLayoutPanel.Controls.Add(CommentGroup, 1, 3);
+            mainTableLayoutPanel.Controls.Add(ContextViewer, 1, 3);
             mainTableLayoutPanel.Controls.Add(TranslationTextBox, 1, 2);
             mainTableLayoutPanel.Controls.Add(TemplateTextBox, 1, 1);
             mainTableLayoutPanel.Controls.Add(CheckListBoxLeft, 0, 1);
@@ -190,18 +185,6 @@ namespace Translator.Desktop.UI.Components
             _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 19.19156F));
             mainTableLayoutPanel.Size = new Size(1370, 702);
             mainTableLayoutPanel.TabIndex = 18;
-            // 
-            // CommentGroup
-            // 
-            CommentGroup.Controls.Add(CommentTextBox);
-            CommentGroup.Dock = DockStyle.Fill;
-            CommentGroup.ForeColor = Utils.brightText;
-            CommentGroup.Location = new Point(689, 575);
-            CommentGroup.Name = "CommentGroup";
-            CommentGroup.Size = new Size(678, 124);
-            CommentGroup.TabIndex = 11;
-            CommentGroup.TabStop = false;
-            CommentGroup.Text = "Comments";
             // 
             // panel1
             // 
@@ -328,8 +311,8 @@ namespace Translator.Desktop.UI.Components
 
             mainTableLayoutPanel.ResumeLayout();
             mainTableLayoutPanel.PerformLayout();
-            CommentGroup.ResumeLayout();
-            CommentGroup.PerformLayout();
+            ContextViewer.ResumeLayout();
+            ContextViewer.PerformLayout();
             panel1.ResumeLayout();
             panel1.PerformLayout();
             panel2.ResumeLayout();
@@ -338,11 +321,11 @@ namespace Translator.Desktop.UI.Components
         }
         public int AllProgressValue { get => ProgressbarTranslated.SecondValue; set => ProgressbarTranslated.SecondValue = value; }
         public bool ApprovedButtonChecked { get => ApprovedBox.Checked; set => ApprovedBox.Checked = value; }
-        public string CommentBoxText { get => CommentTextBox.Text; set => CommentTextBox.Text = value; }
-        public string[] CommentBoxTextArr { get => CommentTextBox.Lines; set => CommentTextBox.Lines = value; }
-        public ITextBox Comments => CommentTextBox;
+        public string CommentBoxText { get => ContextViewer.CommentTextBox.Text; set => ContextViewer.CommentTextBox.Text = value; }
+        public string[] CommentBoxTextArr { get => ContextViewer.CommentTextBox.Lines; set => ContextViewer.CommentTextBox.Lines = value; }
+        public ITextBox Comments => ContextViewer.CommentTextBox;
         public bool IsApproveButtonFocused => ApprovedBox.Focused;
-        public bool IsCommentBoxFocused => CommentTextBox.Focused;
+        public bool IsCommentBoxFocused => ContextViewer.CommentTextBox.Focused;
         public bool IsTranslationBoxFocused => TranslationTextBox.Focused;
         public int LineCount { get => Lines.Count; }
         public LineList Lines { get => CheckListBoxLeft; }
@@ -391,9 +374,9 @@ namespace Translator.Desktop.UI.Components
 
         public void ApproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, true);
         public void ClearLines() => CheckListBoxLeft.Clear();
-        public void FocusCommentBox() => CommentTextBox.Focus();
+        public void FocusCommentBox() => ContextViewer.CommentTextBox.Focus();
         public void FocusTranslationBox() => TranslationTextBox.Focus();
-        public string SelectedCommentBoxText() => CommentTextBox.SelectedText;
+        public string SelectedCommentBoxText() => ContextViewer.CommentTextBox.SelectedText;
         public void SelectLineItem(int index) => CheckListBoxLeft.SelectedIndex = index;
         public void SelectLineItem(ILineItem item) => CheckListBoxLeft.SelectedItem = item;
         public void SetApprovedCount(int Approved, int Total, string text)
@@ -408,7 +391,7 @@ namespace Translator.Desktop.UI.Components
         }
         public void SetCharacterLabelColor(Color color) => CharacterCountLabel.ForeColor = color;
         public void SetFileInfoText(string info) => SelectedFile.Text = info;
-        public void SetSelectedCommentBoxText(int start, int end) { CommentTextBox.SelectionStart = start; CommentTextBox.SelectionEnd = end; }
+        public void SetSelectedCommentBoxText(int start, int end) { ContextViewer.CommentTextBox.SelectionStart = start; ContextViewer.CommentTextBox.SelectionEnd = end; }
         public void SetSelectedTemplateBoxText(int start, int end) { TemplateTextBox.SelectionStart = start; TemplateTextBox.SelectionEnd = end; }
         public void SetSelectedTranslationBoxText(int start, int end) { TranslationTextBox.SelectionStart = start; TranslationTextBox.SelectionEnd = end; }
         public void UnapproveSelectedLine() => CheckListBoxLeft.SetItemChecked(SelectedLineIndex, false);

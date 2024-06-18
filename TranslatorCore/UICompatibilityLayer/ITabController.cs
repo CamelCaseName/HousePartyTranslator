@@ -2,13 +2,15 @@
 
 namespace Translator.Core.UICompatibilityLayer
 {
-    public interface ITabController
+    public interface ITabController : ITabController<ITab> { }
+
+    public interface ITabController<X> where X : ITab
     {
         int SelectedIndex { get; set; }
-        ITab SelectedTab { get; set; }
+        X SelectedTab { get; set; }
         int TabCount { get; }
-        List<ITab> TabPages { get; }
-        void AddTab(ITab tab);
-        bool CloseTab(ITab tab);
+        List<X> TabPages { get; }
+        void AddTab(X tab);
+        bool CloseTab(X tab);
     }
 }

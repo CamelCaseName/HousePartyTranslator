@@ -16,9 +16,9 @@ namespace Translator.Desktop.InterfaceImpls
         private int waitCounter = 0;
         public WinUIHandler() { }
 
-        public WinUIHandler(ITabController control)
+        public WinUIHandler(WinTabController control)
         {
-            TabControl = (WinTabController)control;
+            TabControl = (ITabController)control;
         }
 
         public CreateTemplateFromStoryDelegate CreateTemplateFromStory { get => WinTranslationManager.CreateTemplateFromStory; }
@@ -35,7 +35,7 @@ namespace Translator.Desktop.InterfaceImpls
         public int SearchResultCount { get => App.MainForm?.SearchBox.TotalSearchResults ?? 0; set { App.MainForm.SearchBox.TotalSearchResults = value; App.MainForm?.SearchBox.Invalidate(); } }
         public int SelectedSearchResult { get => App.MainForm?.SearchBox.CurrentSearchResult ?? 0; set { App.MainForm.SearchBox.CurrentSearchResult = value; App.MainForm?.SearchBox.Invalidate(); } }
         public ITab SelectedTab => TabControl.SelectedTab;
-        public ITabController TabControl { get; } = App.MainForm?.TabControl ?? new();
+        public ITabController TabControl { get; } = (ITabController)(App.MainForm?.TabControl ?? new());
         public int TemplateBoxSelectedTextLength => SelectedTab.SelectedTranslationBoxText.Length;
         public string TemplateBoxText { get => SelectedTab.TranslationBoxText; set => SelectedTab.TranslationBoxText = value; }
         public int TemplateBoxTextLength => SelectedTab.TemplateBoxText.Length;
