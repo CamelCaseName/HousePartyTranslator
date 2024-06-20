@@ -46,7 +46,7 @@ namespace Translator.Desktop.UI.Components
             BorderStyle = BorderStyle.FixedSingle;
             Location = new Point(4, 22);
             Name = $"TabPage{Number}";
-            Padding = new Padding(3);
+            Padding = new Padding(1);
             TabIndex = 0;
             Text = $"Tab{Number}";
             mainTableLayoutPanel.SuspendLayout();
@@ -154,14 +154,14 @@ namespace Translator.Desktop.UI.Components
             // 
             // CommentGroup
             // 
-            ContextViewer.TopLevel = false;
-            ContextViewer.ControlBox = false;
-            ContextViewer.FormBorderStyle = FormBorderStyle.None;
             ContextViewer.Dock = DockStyle.Fill;
             ContextViewer.ForeColor = Utils.brightText;
             ContextViewer.Name = "ContextWindow";
             ContextViewer.TabIndex = 11;
             ContextViewer.TabStop = false;
+            ContextViewer.CommentTextBox.TextChanged += new EventHandler(MainForm.Comments_TextChanged);
+            ContextViewer.CommentTextBox.MouseUp += new MouseEventHandler(MainForm.TextContextOpened);
+            ContextViewer.CommentTextBox.MouseEnter += new EventHandler(MainForm.TextContextOpened);
             // 
             // mainTableLayoutPanel
             // 
@@ -180,9 +180,9 @@ namespace Translator.Desktop.UI.Components
             mainTableLayoutPanel.Name = "mainTableLayoutPanel";
             mainTableLayoutPanel.RowCount = 4;
             _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Absolute, 30F));
-            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 38.94275F));
-            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 41.86569F));
-            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 19.19156F));
+            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 35F));
+            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 35F));
+            _ = mainTableLayoutPanel.RowStyles.Add(new RowStyle(SizeType.Percent, 30F));
             mainTableLayoutPanel.Size = new Size(1370, 702);
             mainTableLayoutPanel.TabIndex = 18;
             // 

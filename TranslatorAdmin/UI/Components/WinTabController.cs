@@ -10,7 +10,6 @@ using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.Foundation;
 using Translator.Desktop.Helpers;
-using Translator.Desktop.InterfaceImpls;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -18,12 +17,12 @@ namespace Translator.Desktop.UI.Components
     [SupportedOSPlatform("Windows")]
     public class WinTabController : WinTabController<WinTab>, ITabController
     {
-        ITab ITabController<ITab>.SelectedTab { get => base.SelectedTab; set => base.SelectedTab = (WinTab)value; }
+        ITab ITabController<ITab>.SelectedTab { get => SelectedTab; set => SelectedTab = (WinTab)value; }
 
-        List<ITab> ITabController<ITab>.TabPages => base.TabPages.Cast<ITab>().ToList();
+        List<ITab> ITabController<ITab>.TabPages => TabPages.Cast<ITab>().ToList();
 
-        public void AddTab(ITab tab) => base.AddTab((WinTab)tab);
-        public bool CloseTab(ITab tab) => base.CloseTab((WinTab)tab);
+        void ITabController<ITab>.AddTab(ITab tab) => AddTab((WinTab)tab);
+        bool ITabController<ITab>.CloseTab(ITab tab) => CloseTab((WinTab)tab);
     }
 
 
@@ -33,8 +32,6 @@ namespace Translator.Desktop.UI.Components
         private readonly SolidBrush background = new(Utils.menu);
         private readonly SolidBrush greyedBackground = new(Utils.background);
         private readonly SolidBrush blackBackground = new(Utils.darkText);
-        private int backgroundRedrawTabCount = 0;
-        private bool redrawNeeded = false;
 
         public WinTabController() : base()
         {
@@ -42,15 +39,6 @@ namespace Translator.Desktop.UI.Components
             DrawItem += DrawTabTitleCards;
             Padding = Point.Empty;
             Margin = System.Windows.Forms.Padding.Empty;
-            Resize += RedrawClean;
-            FontChanged += RedrawClean;
-            Layout += RedrawClean;
-        }
-
-        private void RedrawClean(object? sender, System.EventArgs e)
-        {
-            redrawNeeded = true;
-            Invalidate();
         }
 
         private void DrawTabTitleCards(object? sender, DrawItemEventArgs e)
@@ -86,7 +74,7 @@ namespace Translator.Desktop.UI.Components
         }
 
         public new int SelectedIndex { get => base.SelectedIndex; set => base.SelectedIndex = value; }
-        public new X SelectedTab { get => (X)base.SelectedTab; set => base.SelectedTab = (TabPage)value; }
+        public new X SelectedTab { get => (X)base.SelectedTab; set => base.SelectedTab = value; }
 
         public new int TabCount => TabPages.Count;
 
@@ -94,15 +82,15 @@ namespace Translator.Desktop.UI.Components
 
         public void AddTab(X tab)
         {
-            base.TabPages.Add((TabPage)tab);
-            ((TabPage)tab).TextChanged += RedrawClean;
+            base.TabPages.Add(tab);
         }
 
         public bool CloseTab(X tab)
         {
-            base.TabPages.Remove((TabPage)tab);
+            base.TabPages.Remove(tab);
             return true;
         }
+
 
         protected override void WndProc(ref Message m)
         {
@@ -110,13 +98,9 @@ namespace Translator.Desktop.UI.Components
             {
                 var graphics = Graphics.FromHwnd(m.HWnd);
                 var rect = new RECT(ClientRectangle);
-                //only redraw if we add or remove pages
-                if (TabCount != backgroundRedrawTabCount || redrawNeeded)
-                {
-                    backgroundRedrawTabCount = TabCount;
-                    graphics.Clear(Utils.darkText);
-                    redrawNeeded = false;
-                }
+
+                graphics.Clear(Utils.darkText);
+
                 for (int i = 0; i < TabCount; i++)
                 {
                     DrawTabTitleCards(this, new DrawItemEventArgs(graphics, Font, GetTabRect(i), i, SelectedIndex == i ? DrawItemState.Selected : DrawItemState.Default));
