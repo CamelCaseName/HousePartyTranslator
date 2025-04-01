@@ -11,46 +11,67 @@ namespace Translator.Explorer
         public static void CheckBoxSetValue(object? sender, PropertyInfo property, object data)
         {
             if (!ReadOnly && sender is not null)
+            {
                 property.SetValue(data, Convert.ToBoolean(((CheckBox)sender).Checked));
+            }
         }
 
         public static void DropDownNullableSetValue(object? sender, PropertyInfo property, object data)
         {
             if (!ReadOnly && sender is not null)
+            {
                 property.SetValue(data, Enum.Parse(property.PropertyType.GenericTypeArguments[0], ((ComboBox)sender).SelectedItem?.ToString() ?? string.Empty));
+            }
         }
 
         public static void DropDownSetValue(object? sender, PropertyInfo property, object data)
         {
             if (!ReadOnly && sender is not null)
+            {
                 property.SetValue(data, Enum.Parse(property.PropertyType, ((ComboBox)sender).SelectedItem?.ToString()!));
+            }
         }
 
         public static void NumericFloatSetValue(object? sender, PropertyInfo property, object data)
         {
             if (!ReadOnly && sender is not null)
+            {
                 property.SetValue(data, (float)Convert.ToDouble(((NumericUpDown)sender).Value));
+            }
         }
 
         public static void NumericIntSetValue(object? sender, PropertyInfo property, object data)
         {
             if (!ReadOnly && sender is not null)
+            {
                 property.SetValue(data, Convert.ToInt32(((NumericUpDown)sender).Value));
+            }
         }
 
         public static void TextBoxSetValue(object? sender, PropertyInfo property, object data)
         {
             if (!ReadOnly && sender is not null)
+            {
                 property.SetValue(data, ((TextBoxBase)sender).Text);
+            }
         }
 
         public static void SetEditableStates(GroupBox box)
         {
             foreach (object? control in box.Controls[0].Controls)
             {
-                if (control.GetType() == typeof(ComboBox) || control.GetType() == typeof(CheckBox)) ((Control)control).Enabled = !ReadOnly;
-                else if (control.GetType() == typeof(TextBox)) ((TextBox)control).ReadOnly = ReadOnly;
-                else if (control.GetType() == typeof(NumericUpDown)) ((NumericUpDown)control).ReadOnly = ReadOnly;
+                if (control.GetType() == typeof(ComboBox) || control.GetType() == typeof(CheckBox))
+                {
+                    ((Control)control).Enabled = !ReadOnly;
+                }
+                else if (control.GetType() == typeof(TextBox))
+                {
+                    ((TextBox)control).ReadOnly = ReadOnly;
+                }
+                else if (control.GetType() == typeof(NumericUpDown))
+                {
+                    ((NumericUpDown)control).ReadOnly = ReadOnly;
+                }
             }
         }
 
@@ -64,30 +85,45 @@ namespace Translator.Explorer
                 if (valueType == typeof(string))
                 {
                     Control[] text = box.Controls[0].Controls.Find(property.Name + "TextBox", true);
-                    if (text.Length == 1) text[0].Text = (string?)value ?? string.Empty;
+                    if (text.Length == 1)
+                    {
+                        text[0].Text = (string?)value ?? string.Empty;
+                    }
                 }
                 else if (valueType == typeof(int) || valueType == typeof(float))
                 {
                     Control[] text = box.Controls[0].Controls.Find(property.Name + "Numeric", true);
-                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(NumericUpDown))) ((NumericUpDown)text[0]).Value = Convert.ToDecimal(value);
+                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(NumericUpDown)))
+                    {
+                        ((NumericUpDown)text[0]).Value = Convert.ToDecimal(value);
+                    }
                 }
                 else if (valueType == typeof(bool))
                 {
                     Control[] text = box.Controls[0].Controls.Find(property.Name + "CheckBox", true);
-                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(CheckBox))) ((CheckBox)text[0]).Checked = Convert.ToBoolean(value);
+                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(CheckBox)))
+                    {
+                        ((CheckBox)text[0]).Checked = Convert.ToBoolean(value);
+                    }
                 }
                 else if (valueType.GenericTypeArguments.Length > 0)
                 {
                     if (valueType.GenericTypeArguments[0].IsEnum)
                     {
                         Control[] text = box.Controls[0].Controls.Find(property.Name + "ComboBox", true);
-                        if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(ComboBox))) ((ComboBox)text[0]).SelectedItem = value?.ToString();
+                        if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(ComboBox)))
+                        {
+                            ((ComboBox)text[0]).SelectedItem = value?.ToString();
+                        }
                     }
                 }
                 else if (valueType.IsEnum)
                 {
                     Control[] text = box.Controls[0].Controls.Find(property.Name + "ComboBox", true);
-                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(ComboBox))) ((ComboBox)text[0]).SelectedItem = value?.ToString();
+                    if (text.Length == 1 && text[0].GetType().IsAssignableFrom(typeof(ComboBox)))
+                    {
+                        ((ComboBox)text[0]).SelectedItem = value?.ToString();
+                    }
                 }
             }
         }
@@ -142,8 +178,15 @@ namespace Translator.Explorer
                         var label = new Label() { AutoSize = true, Text = property.Name, Name = property.Name + "Label", Dock = DockStyle.Fill, ForeColor = Utils.brightText };
                         grid.Controls.Add(label);
                         var numeric = new NumericUpDown() { Minimum = int.MinValue, Maximum = int.MaxValue, Value = Convert.ToDecimal(value), Name = property.Name + "Numeric", ReadOnly = ReadOnly, InterceptArrowKeys = true };
-                        if (valueType == typeof(int)) numeric.ValueChanged += (sender, e) => NumericIntSetValue(sender, property, data);
-                        else numeric.ValueChanged += (sender, e) => NumericFloatSetValue(sender, property, data);
+                        if (valueType == typeof(int))
+                        {
+                            numeric.ValueChanged += (sender, e) => NumericIntSetValue(sender, property, data);
+                        }
+                        else
+                        {
+                            numeric.ValueChanged += (sender, e) => NumericFloatSetValue(sender, property, data);
+                        }
+
                         grid.Controls.Add(numeric);
                     }
                     //bool

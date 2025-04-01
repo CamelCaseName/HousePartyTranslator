@@ -31,7 +31,9 @@ namespace Translator.Explorer.Graph
             set
             {
                 if (frozen)
+                {
                     _usingListA = value;
+                }
             }
         }
         private bool frozen = false;
@@ -70,8 +72,15 @@ namespace Translator.Explorer.Graph
 
         private void CheckNodeListSizes()
         {
-            if (nodesA.Count == nodesB.Count && nodesA.Edges.Count == nodesB.Edges.Count) return;
-            if (!frozen) return;
+            if (nodesA.Count == nodesB.Count && nodesA.Edges.Count == nodesB.Edges.Count)
+            {
+                return;
+            }
+
+            if (!frozen)
+            {
+                return;
+            }
 
             if (nodesA.Count != nodesB.Count)
             {
@@ -79,8 +88,10 @@ namespace Translator.Explorer.Graph
                 if (nodesA.Edges.Count != nodesB.Edges.Count)
                 {
                     if (UsingListA)
+                    {
                         //changed edges is in a
                         nodesA.Sync();
+                    }
                     else
                     {
                         //changed edges is in b, will be copied later
@@ -103,19 +114,30 @@ namespace Translator.Explorer.Graph
                 }
             }
 
-            if (nodesA.Edges.Count == nodesB.Edges.Count) return;
+            if (nodesA.Edges.Count == nodesB.Edges.Count)
+            {
+                return;
+            }
 
             if (UsingListA)
             {
                 //changed edges is in a
-                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
+                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1)
+                {
+                    nodesA.Sync();
+                }
+
                 nodesB.Edges.Clear();
                 nodesB.Edges.AddRange(nodesA.Edges);
             }
             else
             {
                 //changed edges is in b
-                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1) nodesA.Sync();
+                if (Math.Abs(nodesA.Edges.Count - nodesB.Edges.Count) > 1)
+                {
+                    nodesA.Sync();
+                }
+
                 nodesA.Edges.Clear();
                 nodesA.Edges.AddRange(nodesB.Edges);
             }
@@ -185,7 +207,9 @@ namespace Translator.Explorer.Graph
         public void AddFilter(NodeType allowedType)
         {
             if (!allowedTypes.Contains(allowedType))
+            {
                 allowedTypes.Add(allowedType);
+            }
         }
 
         public void RemoveFilter(NodeType disallowedType)
@@ -202,27 +226,41 @@ namespace Translator.Explorer.Graph
                 {
                     if (node.Type == NodeType.Event)
                     {
-                        if (node.DataType != typeof(GameEvent) || node.Data is null) continue;
+                        if (node.DataType != typeof(GameEvent) || node.Data is null)
+                        {
+                            continue;
+                        }
 
                         var gameEvent = (GameEvent)node.Data!;
                         if (gameEvent.EventType == StoryEnums.GameEvents.DisplayGameMessage)
+                        {
                             filteredNodes.Add(node);
+                        }
                         else if (gameEvent.EventType == StoryEnums.GameEvents.Item)
                         {
                             if (gameEvent.Option == 2)
+                            {
                                 filteredNodes.Add(node);
+                            }
                         }
                         continue;
                     }
                     if (node.Type == NodeType.Dialogue && TextOnlyEvents)
                     {
                         if (_filenames.Contains(node.FileName))
+                        {
                             filteredNodes.Add(node);
-                        else continue;
+                        }
+                        else
+                        {
+                            continue;
+                        }
                     }
                 }
                 if (allowedTypes.Contains(node.Type))
+                {
                     filteredNodes.Add(node);
+                }
             }
 
             nodesA.Clear();

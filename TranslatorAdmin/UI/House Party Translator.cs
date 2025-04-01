@@ -76,6 +76,8 @@ namespace Translator.Desktop.UI
         private WinMenuItem newFileInNewTabToolStripMenuItem;
         private WinMenuItem newFilesForStoryToolStripMenuItem;
         private WinMenuItem overrideCloudSaveToolStripMenuItem;
+        private WinMenuItem ImportAllCloudSaveToolStripMenuItem;
+        private WinMenuItem ImportSomeCloudSaveToolStripMenuItem;
         private WinMenuItem Recents;
         private WinMenuItem ReloadFileMenuItem;
         private WinMenuItem AutoTranslateUnapproved;
@@ -108,7 +110,11 @@ namespace Translator.Desktop.UI
             ProgressbarWindow.Status.Text = "Creating UI";
             ProgressbarWindow.Text = "Startup";
             ProgressbarWindow.Show();
-            while (!ProgressbarWindow.IsInitialized) ;
+            while (!ProgressbarWindow.IsInitialized)
+            {
+                ;
+            }
+
             ProgressbarWindow.PerformStep();
         }
 
@@ -174,7 +180,9 @@ namespace Translator.Desktop.UI
                 && Explorer.IsHandleCreated
                 && Explorer.StoryName == TabManager.ActiveTranslationManager.StoryName
                 && Explorer.FileName == TabManager.ActiveTranslationManager.FileName)
+            {
                 Explorer.Invoke(TabManager.ActiveTranslationManager.SetHighlightedNode);
+            }
         }
 
         public void Comments_TextChanged(object? sender, EventArgs? e)
@@ -198,7 +206,11 @@ namespace Translator.Desktop.UI
             }
             //ignore exception, really intended
             catch { return false; }
-            if (focused_control is null) return false;
+            if (focused_control is null)
+            {
+                return false;
+            }
+
             var textBox = (TextBox)focused_control;
             if (toLeft)
             {
@@ -215,7 +227,10 @@ namespace Translator.Desktop.UI
         public void OpeningContextMenu(object? sender, MouseEventArgs? e)
         {
             if (e is null || ListContextMenu is null)
+            {
                 return;
+            }
+
             WindowsKeypressManager.OpenContextMenu(ListContextMenu, e);
         }
 
@@ -227,7 +242,11 @@ namespace Translator.Desktop.UI
 
         public void TextContextOpened(object? sender, EventArgs? e)
         {
-            if (sender is null) return;
+            if (sender is null)
+            {
+                return;
+            }
+
             if (sender is ITextBox textBox)
             {
                 InputHandler.PrepareTextChanged(textBox);
@@ -265,7 +284,10 @@ namespace Translator.Desktop.UI
 
         public void CreateStoryExplorer(bool autoOpen, CancellationTokenSource tokenSource)
         {
-            if (TabManager.ActiveTranslationManager is null) return;
+            if (TabManager.ActiveTranslationManager is null)
+            {
+                return;
+            }
 
             //get currently active translation manager
             TranslationManager manager = TabManager.ActiveTranslationManager;
@@ -326,7 +348,11 @@ namespace Translator.Desktop.UI
             {
                 LogManager.Log(e.ExceptionObject?.ToString() ?? "ExceptionObject is null", LogManager.Level.Error);
 
-                if (e.ExceptionObject is null) return;
+                if (e.ExceptionObject is null)
+                {
+                    return;
+                }
+
                 if (e.ExceptionObject is LanguageHelper.LanguageException)
                 {
                     Msg.WarningOk("Please select a language first! (Dropdown in the top menu bar)");
@@ -362,7 +388,10 @@ namespace Translator.Desktop.UI
 
         private void CheckForPassword()
         {
-            if (Settings.Default.DbPassword.Length > 0) return;
+            if (Settings.Default.DbPassword.Length > 0)
+            {
+                return;
+            }
 
             var Passwordbox = new Password();
             DialogResult passwordResult = Passwordbox.ShowDialog(this);
@@ -730,10 +759,37 @@ namespace Translator.Desktop.UI
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(overrideCloudSaveToolStripMenuItem),
                 Size = new Size(236, 22),
+                Enabled = false,
                 Text = "Override &cloud save",
                 ToolTipText = "Overrides the online state with the actual contents of the currently opened file. Only available in the Admin version."
             };
             overrideCloudSaveToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.OverrideCloudSave();
+
+            // ImportallCloudSaveToolStripMenuItem
+            ImportAllCloudSaveToolStripMenuItem = new WinMenuItem()
+            {
+                Image = (Image?)resources.GetObject("saveAsToolStripMenuItem.Image"),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(ImportAllCloudSaveToolStripMenuItem),
+                Size = new Size(236, 22),
+                Enabled = false,
+                Text = "Import all from file",
+                ToolTipText = "Imports all lines from the file you select into the cloud. Only available in the Admin version."
+            };
+            ImportAllCloudSaveToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ImportAllCloudSave();
+
+            // ImportSomeCloudSaveToolStripMenuItem
+            ImportSomeCloudSaveToolStripMenuItem = new WinMenuItem()
+            {
+                Image = (Image?)resources.GetObject("saveAsToolStripMenuItem.Image"),
+                ImageTransparentColor = Color.Magenta,
+                Name = nameof(ImportSomeCloudSaveToolStripMenuItem),
+                Size = new Size(236, 22),
+                Enabled = false,
+                Text = "Import all from file",
+                ToolTipText = "Imports lines from the file you select into the cloud which are not approved in the cloud yet. Only available in the Admin version."
+            };
+            ImportSomeCloudSaveToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ImportUnapprovedCloudSave();
 
             // exitToolStripMenuItem
             exitToolStripMenuItem = new WinMenuItem()
@@ -1023,7 +1079,11 @@ namespace Translator.Desktop.UI
 
         protected override void OnDragDrop(DragEventArgs drgevent)
         {
-            if (drgevent.Data is null) return;
+            if (drgevent.Data is null)
+            {
+                return;
+            }
+
             if (drgevent.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[]?)drgevent.Data.GetData(DataFormats.FileDrop) ?? Array.Empty<string>();
@@ -1038,7 +1098,10 @@ namespace Translator.Desktop.UI
 
             {
                 string? str = (string?)drgevent.Data.GetData(DataFormats.UnicodeText, true);
-                if (string.IsNullOrEmpty(str)) return;
+                if (string.IsNullOrEmpty(str))
+                {
+                    return;
+                }
 
                 TabControl.SelectedTab.Translation.Text += str;
             }
@@ -1046,7 +1109,11 @@ namespace Translator.Desktop.UI
 
         protected override void OnDragEnter(DragEventArgs e)
         {
-            if (e.Data is null) return;
+            if (e.Data is null)
+            {
+                return;
+            }
+
             e.Effect = e.Data.GetDataPresent(DataFormats.FileDrop)
                 || e.Data.GetDataPresent(DataFormats.UnicodeText)
                 || e.Data.GetDataPresent(DataFormats.OemText)
@@ -1145,7 +1212,11 @@ namespace Translator.Desktop.UI
 
         private void SearchToolStripTextBox_TextChanged(object? sender, EventArgs? e)
         {
-            if (sender is null) return;
+            if (sender is null)
+            {
+                return;
+            }
+
             TabManager.Search();
         }
 
@@ -1153,7 +1224,10 @@ namespace Translator.Desktop.UI
         {
             var dialog = new NewFileSelector();
             string path = SaveAndExportManager.CreateNewFile(dialog);
-            if (path == string.Empty) return;
+            if (path == string.Empty)
+            {
+                return;
+            }
 
             if (dialog.FileName == string.Empty)
             {
@@ -1174,7 +1248,10 @@ namespace Translator.Desktop.UI
         {
             var dialog = new NewFileSelector();
             string path = SaveAndExportManager.CreateNewFile(dialog);
-            if (path == string.Empty) return;
+            if (path == string.Empty)
+            {
+                return;
+            }
 
             if (dialog.FileName == string.Empty)
             {
@@ -1194,17 +1271,30 @@ namespace Translator.Desktop.UI
         {
             var dialog = new NewFileSelector(true);
             PopupResult result = dialog.ShowDialog();
-            if (result != PopupResult.OK) return;
+            if (result != PopupResult.OK)
+            {
+                return;
+            }
 
             string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
-            if (path == string.Empty || path is null) return;
+            if (path == string.Empty || path is null)
+            {
+                return;
+            }
 
             if (dialog.StoryName == path.Split('\\')[^2] && Path.HasExtension(path))
+            {
                 path = Path.GetDirectoryName(path);
+            }
             else if (dialog.StoryName == path.Split('\\')[^1])
+            {
                 _ = Directory.CreateDirectory(path);
+            }
 
-            if (path == string.Empty) return;
+            if (path == string.Empty)
+            {
+                return;
+            }
 
             foreach (string file in dialog.files[dialog.StoryName])
             {
@@ -1221,7 +1311,10 @@ namespace Translator.Desktop.UI
             //find start of recents
             for (recentsStart = 4; recentsStart < FileToolStripMenuItem.DropDownItems.Count; recentsStart++)
             {
-                if (FileToolStripMenuItem.DropDownItems[recentsStart] is WinMenuSeperator) break;
+                if (FileToolStripMenuItem.DropDownItems[recentsStart] is WinMenuSeperator)
+                {
+                    break;
+                }
             }
             //update menu
             if (items.Length > 0 && FileToolStripMenuItem.DropDownItems.Count < FileToolStripMenuItem.DropDownItems.Count + 6)
@@ -1239,7 +1332,10 @@ namespace Translator.Desktop.UI
                 }
 
                 if (FileToolStripMenuItem.DropDownItems[recentsStart + items.Length] is not WinMenuSeperator)
+                {
                     FileToolStripMenuItem.DropDownItems.Insert(recentsStart + items.Length, new WinMenuSeperator());
+                }
+
                 RecentsManager.SaveRecents();
                 //for the name update stuff
                 recentsStart -= 2;
@@ -1310,7 +1406,11 @@ namespace Translator.Desktop.UI
 
             NodeList nodes = contextProvider.GetTemplateNodes();
             var currentNode = nodes.Find((Node n) => n.ID == TabManager.ActiveTranslationManager.SelectedId);
-            if (currentNode is null) return;
+            if (currentNode is null)
+            {
+                return;
+            }
+
             context.SetLines(currentNode);
             context.Show();
         }

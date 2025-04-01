@@ -70,16 +70,20 @@ namespace Translator.Core.Helpers
                     if (output[i] == ' ' && output[i + 1] == ' ')
                     {
                         int old_i = i;
-                        while (i < output.Length - 1 && output[++i] == ' ') ;
+                        while (i < output.Length - 1 && output[++i] == ' ')
+                        {
+                            ;
+                        }
+
                         output = output.RemoveAt(old_i, i - old_i - 1);
                     }
                 }
             }
 
             if (fullTrim)
+            {
                 output = output.Trim(trimmers);
-
-            
+            }
 
             return (ReadOnlySpan<char>)output;
         }
@@ -103,7 +107,11 @@ namespace Translator.Core.Helpers
             {
                 if (c is not ' ' and not '\n' and not '\r')
                 {
-                    if (!inWord) lastWordStart = totalCount;
+                    if (!inWord)
+                    {
+                        lastWordStart = totalCount;
+                    }
+
                     inWord = true;
                     currentWordLength++;
                 }
@@ -175,7 +183,10 @@ namespace Translator.Core.Helpers
                         broken = true;
                         break;
                 }
-                if (broken) break;
+                if (broken)
+                {
+                    break;
+                }
             }
             if (oldPos - textBox.SelectionStart < 1 && textBox.SelectionStart > 0)
             {
@@ -221,7 +232,10 @@ namespace Translator.Core.Helpers
                         broken = true;
                         break;
                 }
-                if (broken) break;
+                if (broken)
+                {
+                    break;
+                }
             }
             if (textBox.SelectionStart - oldPos < 1)
             {
@@ -280,7 +294,10 @@ namespace Translator.Core.Helpers
             int numToWorkOn = num;
             int count = 0;
             while ((numToWorkOn /= 10) > 10)
+            {
                 ++count;
+            }
+
             return count;
         }
 
@@ -291,7 +308,11 @@ namespace Translator.Core.Helpers
 
         public static Span<char> RemoveAt(this Span<char> span, int index, int count)
         {
-            if (span.IsEmpty) return span;
+            if (span.IsEmpty)
+            {
+                return span;
+            }
+
             return index < 0
                 ? throw new ArgumentOutOfRangeException(nameof(index), "The index cannot be negative")
                 : count < 0

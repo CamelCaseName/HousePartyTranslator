@@ -133,7 +133,10 @@ namespace Translator.Explorer.Graph
                 tempNode.Data = criterion;
                 tempNode.DataType = typeof(Criterion);
                 if (criterion.CompareType == CompareTypes.PlayerGender)
+                {
                     tempNode.Gender = criterion.Value == "Female" ? Gender.Female : criterion.Value == "Male" ? Gender.Male : Gender.None;
+                }
+
                 AddParentNode(tempNode);
             }
         }
@@ -164,7 +167,10 @@ namespace Translator.Explorer.Graph
         public void CalculateMass()
         {
             Mass = ChildNodes.Count + ParentNodes.Count;
-            if (Mass < 1) Mass = 1;
+            if (Mass < 1)
+            {
+                Mass = 1;
+            }
         }
 
         public void PropagateGender(Gender gender)
@@ -174,7 +180,10 @@ namespace Translator.Explorer.Graph
             {
                 for (int i = 0; i < ChildNodes.Count; i++)
                 {
-                    if (ChildNodes[i].Gender != gender) ChildNodes[i].PropagateGender(gender);
+                    if (ChildNodes[i].Gender != gender)
+                    {
+                        ChildNodes[i].PropagateGender(gender);
+                    }
                 }
             }
         }

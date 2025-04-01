@@ -70,7 +70,9 @@ namespace Translator.Desktop.UI.Components
                 ((WinLineItem)Items[index]).IsApproved = isApproved;
                 SetItemChecked(index, isApproved);
                 if (!isApproved)
+                {
                     TabManager.ActiveTranslationManager.UpdateSimilarityMarking(iDs[index]);
+                }
             }
             catch
             {

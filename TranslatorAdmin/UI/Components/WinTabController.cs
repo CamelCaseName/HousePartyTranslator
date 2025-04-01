@@ -44,9 +44,14 @@ namespace Translator.Desktop.UI.Components
         private void DrawTabTitleCards(object? sender, DrawItemEventArgs e)
         {
             if (sender is null)
+            {
                 return;
+            }
+
             if (e.Index < 0)
+            {
                 return;
+            }
 
             Font font = TabPages[e.Index].Text.Contains('*') ? new Font(Font, FontStyle.Bold) : new Font(Font, FontStyle.Regular);
 
@@ -62,11 +67,17 @@ namespace Translator.Desktop.UI.Components
                 var newBounds = new Rectangle(e.Bounds.X, 4, e.Bounds.Width, 20);
                 //remove larger selection if we are the last or first box
                 if (e.Index == 0)
+                {
                     e.Graphics.FillRectangle(blackBackground, new Rectangle(e.Bounds.X - 2, 0, e.Bounds.Width, 24));
+                }
                 else if (e.Index == TabCount - 1)
+                {
                     e.Graphics.FillRectangle(blackBackground, new Rectangle(e.Bounds.X, 0, e.Bounds.Width + 2, 24));
+                }
                 else
+                {
                     e.Graphics.FillRectangle(blackBackground, new Rectangle(e.Bounds.X, 0, e.Bounds.Width, 24));
+                }
 
                 e.Graphics.FillRectangle(greyedBackground, newBounds);
                 TextRenderer.DrawText(e.Graphics, TabPages[e.Index].Text, font, newBounds, Utils.darkText);

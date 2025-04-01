@@ -49,7 +49,11 @@ namespace Translator.Desktop.Managers
             return;
 #pragma warning restore CS1998
 #else
-            if (App.MainForm?.UI is null) return;
+            if (App.MainForm?.UI is null)
+            {
+                return;
+            }
+
             try
             {
                 //get data from github about the packages 
@@ -65,14 +69,20 @@ namespace Translator.Desktop.Managers
                 }
                 //prepare files
                 (bool successfull, string newFile) = CreateFiles();
-                if (!successfull) return;
+                if (!successfull)
+                {
+                    return;
+                }
 
                 //inform rest of program
                 UpdatePending = true;
 
                 if (Msg.InfoYesNoB("A new version is available to download. Do you want to automatically update this installation?\n\n CHANGELOG:\n" + response?.Body, "Update - " + response?.Name))
                 {
-                    if (response is null || response?.Assets?.Count < 1) throw new NullReferenceException();
+                    if (response is null || response?.Assets?.Count < 1)
+                    {
+                        throw new NullReferenceException();
+                    }
 
                     LogManager.Log("Self update started");
 
@@ -93,8 +103,15 @@ namespace Translator.Desktop.Managers
             //extract version number
             //todo, replace by version string with dots so we can just compare directly !ship with 1.0 so it doesnt break anything!
             LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.0.0";
-            if (githubVersion.Length > 3) LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.0";
-            if (githubVersion.Length > 4) LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.{githubVersion[4]}";
+            if (githubVersion.Length > 3)
+            {
+                LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.0";
+            }
+
+            if (githubVersion.Length > 4)
+            {
+                LatestGithubVersion = $"{githubVersion[0]}.{githubVersion[2]}.{githubVersion[3]}.{githubVersion[4]}";
+            }
 
             //if the version on github has a higher version number
             return Version.Parse(LocalVersion) < Version.Parse(LatestGithubVersion);
@@ -119,7 +136,11 @@ namespace Translator.Desktop.Managers
         {
             //delete old one if it exists
             string oldFile = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath) ?? string.Empty, "prev.exe");
-            if (File.Exists(oldFile)) File.Delete(oldFile);
+            if (File.Exists(oldFile))
+            {
+                File.Delete(oldFile);
+            }
+
             return oldFile;
         }
 
@@ -154,7 +175,10 @@ namespace Translator.Desktop.Managers
         private static bool UpdateFile(string oldFile, string newFile)
         {
             //wait for the download to complete
-            while (!DownloadDone) ;
+            while (!DownloadDone)
+            {
+                ;
+            }
             //move currently running exe out of the way
             File.Move(Application.ExecutablePath, oldFile);
             LogManager.Log("Moved old file away");
@@ -176,7 +200,11 @@ namespace Translator.Desktop.Managers
                 LogManager.Log(e.ToString(), LogManager.Level.Error);
                 //move currently running back because something broke
                 File.Move(oldFile, Application.ExecutablePath);
-                if (File.Exists(oldFile)) File.Delete(oldFile);
+                if (File.Exists(oldFile))
+                {
+                    File.Delete(oldFile);
+                }
+
                 _ = Msg.ErrorOk($"The update failed because the program could not access\n   {Directory.GetCurrentDirectory()}\n or the folder it is in.", "Update failed");
                 return false;
             }

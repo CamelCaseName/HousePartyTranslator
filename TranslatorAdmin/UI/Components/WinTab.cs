@@ -352,18 +352,24 @@ namespace Translator.Desktop.UI.Components
             get
             {
                 if (IsHandleCreated)
+                {
                     return Invoke(() => base.Text);
+                }
                 else
+                {
                     return string.Empty;
+                }
             }
             set
             {
                 if (IsHandleCreated)
+                {
                     Invoke(() =>
                     {
                         base.Text = value;
                         Update();
                     });
+                }
             }
         }
         public ITextBox Translation => TranslationTextBox;

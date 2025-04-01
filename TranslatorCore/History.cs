@@ -33,13 +33,19 @@ namespace Translator.Core
                     //after 110 elements, we remove the oldest 10
                     var temp = new Stack<ICommand>(history.Count);
                     for (int i = 0; i < history.Count; i++)
+                    {
                         temp.Push(history.Pop());
+                    }
 
                     for (int i = 0; i < 10; i++)
+                    {
                         _ = temp.Pop();
+                    }
 
                     for (int i = 0; i < temp.Count; i++)
+                    {
                         history.Push(temp.Pop());
+                    }
                 }
                 future.Clear();
 
@@ -73,7 +79,9 @@ namespace Translator.Core
             {
                 ICommand item = history.Pop();
                 if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged))
+                {
                     temp.Push(item);
+                }
             }
             for (int i = temp.Count; i > 0; --i)
             {
@@ -85,7 +93,9 @@ namespace Translator.Core
             {
                 ICommand item = future.Pop();
                 if (item.StoryName != StoryName || item.FileName != FileName || item.GetType() == typeof(SelectedTabChanged))
+                {
                     temp.Push(item);
+                }
             }
             for (int i = temp.Count; i > 0; --i)
             {
@@ -113,7 +123,11 @@ namespace Translator.Core
 
         public static void Undo(int count)
         {
-            if (history.Count < count) return;
+            if (history.Count < count)
+            {
+                return;
+            }
+
             for (int i = 0; i < count; i++)
             {
                 Undo();
@@ -139,7 +153,11 @@ namespace Translator.Core
 
         public static void Redo(int count)
         {
-            if (future.Count < count) return;
+            if (future.Count < count)
+            {
+                return;
+            }
+
             for (int i = 0; i < count; i++)
             {
                 Redo();
@@ -355,12 +373,18 @@ namespace Translator.Core
 
         public void Do()
         {
-            if (newIndex >= 0 && newIndex < ListBox.Count) ListBox.SelectedIndex = newIndex;
+            if (newIndex >= 0 && newIndex < ListBox.Count)
+            {
+                ListBox.SelectedIndex = newIndex;
+            }
         }
 
         public void Undo()
         {
-            if (newIndex >= 0 && newIndex < ListBox.Count) ListBox.SelectedIndex = oldIndex;
+            if (newIndex >= 0 && newIndex < ListBox.Count)
+            {
+                ListBox.SelectedIndex = oldIndex;
+            }
         }
     }
 

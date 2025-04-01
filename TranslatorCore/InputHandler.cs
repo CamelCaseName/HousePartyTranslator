@@ -11,42 +11,59 @@ namespace Translator.Core
         public static void SaveAndApproveAndSelectNewLine()
         {
             if (TabManager.UI.SelectedTab.Lines.SelectedIndex >= 0)
+            {
                 TabManager.UI.SelectedTab.Lines.ApproveItem(TabManager.UI.SelectedTab.Lines.SelectedIndex);
+            }
             else
+            {
                 TabManager.UI.SelectedTab.Lines.ApproveItem(0);
+            }
+
             if (TabManager.UI.SelectedTab.Lines.SelectedIndex < TabManager.UI.SelectedTab.LineCount - 1)
+            {
                 TabManager.UI.SelectedTab.Lines.SelectedIndex++;
+            }
         }
 
         public static void SaveAndSelectNewLine()
         {
             TabManager.ActiveTranslationManager.SaveCurrentString();
             if (TabManager.UI.SelectedTab.Lines.SelectedIndex < TabManager.UI.SelectedTab.Lines.Count - 1)
+            {
                 TabManager.UI.SelectedTab.Lines.SelectedIndex++;
+            }
         }
 
         public static void SelectTabRight()
         {
             if (TabManager.TabCount > 1)
+            {
                 TabManager.SwitchToTab(TabManager.SelectedTabIndex + 1);
+            }
         }
 
         public static void SelectTabLeft()
         {
             if (TabManager.TabCount > 1)
+            {
                 TabManager.SwitchToTab(TabManager.SelectedTabIndex - 1);
+            }
         }
 
         public static void MoveLineSelectionDown()
         {
             if (TabManager.UI.SelectedTab.Lines.SelectedIndex < TabManager.UI.SelectedTab.LineCount - 1)
+            {
                 TabManager.UI.SelectedTab.Lines.SelectedIndex++;
+            }
         }
 
         public static void MoveLineSelectionUp()
         {
             if (TabManager.UI.SelectedTab.Lines.SelectedIndex > 0)
+            {
                 TabManager.UI.SelectedTab.Lines.SelectedIndex--;
+            }
         }
 
         public static void FocusSearch()
@@ -108,7 +125,9 @@ namespace Translator.Core
         public static void SaveAndApproveLine()
         {
             if (TabManager.UI.SelectedTab.Lines.SelectedIndex >= 0)
+            {
                 TabManager.UI.SelectedTab.Lines.ApproveItem(TabManager.UI.SelectedTab.Lines.SelectedIndex);
+            }
         }
 
         /// <summary>

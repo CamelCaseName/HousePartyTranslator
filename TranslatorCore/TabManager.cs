@@ -76,7 +76,10 @@ namespace Translator.Core
         /// <param name="index">The index to select</param>
         public static void SelectLine(int index)
         {
-            if (index >= 0 && index < SelectedTab.LineCount) SelectedTab.SelectLineItem(index);
+            if (index >= 0 && index < SelectedTab.LineCount)
+            {
+                SelectedTab.SelectLineItem(index);
+            }
         }
 
         /// <summary>
@@ -99,7 +102,10 @@ namespace Translator.Core
         /// <param name="tab">the first tab to be added to the app</param>
         public static void FinalizeInitializer()
         {
-            if (UI is null || firstTab is null) throw new InvalidOperationException("You cant finalize the initialization if it hasnt completed");
+            if (UI is null || firstTab is null)
+            {
+                throw new InvalidOperationException("You cant finalize the initialization if it hasnt completed");
+            }
 
             if (!UI.TabControl.TabPages.Contains(firstTab))
             {
@@ -132,11 +138,18 @@ namespace Translator.Core
         /// <param name="path">path to the file to open</param>
         public static void OpenInNewTab(string path)
         {
-            if (path.Length == 0) return;
+            if (path.Length == 0)
+            {
+                return;
+            }
 
             //create new support objects
             ITab? newTab = UI.CreateNewTab();
-            if (newTab is null) return;
+            if (newTab is null)
+            {
+                return;
+            }
+
             newTab.Text = $"Tab {translationManagers.Count + 1}";
             //Add tab to form control
             TabControl.AddTab(newTab);
@@ -153,10 +166,13 @@ namespace Translator.Core
             t.LoadFileIntoProgram(path);
 
             if (InGlobalSearch)
+            {
                 t.Search(UI.SearchBarText[1..] ?? string.Empty);
+            }
             else
+            {
                 t.Search();
-
+            }
         }
 
         /// <summary>
@@ -164,7 +180,10 @@ namespace Translator.Core
         /// </summary>
         public static void OpenAllTabs(string basePath)
         {
-            if (basePath == string.Empty) return;
+            if (basePath == string.Empty)
+            {
+                return;
+            }
 
             UI.SignalUserWait();
 
@@ -220,7 +239,10 @@ namespace Translator.Core
         /// <param name="title">The string to set the tab text to</param>
         public static void UpdateTabTitle(ITab tab, string title)
         {
-            if (title.Length > 0) tab.Text = title;
+            if (title.Length > 0)
+            {
+                tab.Text = title;
+            }
         }
 
         /// <summary>
@@ -236,7 +258,10 @@ namespace Translator.Core
             }
 
             //set search term to the one from the respective TranslationManager
-            if (ActiveTranslationManager is null || UI is null) return;
+            if (ActiveTranslationManager is null || UI is null)
+            {
+                return;
+            }
 
             if (!InGlobalSearch)
             {
@@ -250,7 +275,10 @@ namespace Translator.Core
         /// <returns>True if there are more than one tab and they have been saved</returns>
         public static bool SaveAllTabs()
         {
-            if (TabControl.TabCount < 1) return false;
+            if (TabControl.TabCount < 1)
+            {
+                return false;
+            }
 
             UI.SignalUserWait();
             int oldSelection = TabControl.SelectedIndex;
@@ -258,7 +286,10 @@ namespace Translator.Core
             foreach (ITab tab in TabControl.TabPages)
             {
                 if (translationManagers[tab].ChangesPending)
+                {
                     TabControl.SelectedTab = tab;
+                }
+
                 translationManagers[tab].SaveFile();
             }
             TabControl.SelectedIndex = oldSelection;
@@ -281,7 +312,11 @@ namespace Translator.Core
         /// <returns>True if we want to search all, performs the search also. False when single tab search is intended.</returns>
         private static bool IsSearchAllFiles()
         {
-            if (UI is null) return false;
+            if (UI is null)
+            {
+                return false;
+            }
+
             if (UI.SearchBarText.Length > 0)
             {
                 //global search has to start with the ?
@@ -307,7 +342,9 @@ namespace Translator.Core
                 }
                 //turn global search off so we dont switch tabs to none existen once and break counting
                 if (TabCount == 1)
+                {
                     InGlobalSearch = false;
+                }
             }
             else
             {
@@ -383,8 +420,14 @@ namespace Translator.Core
                 for (int i = 0; i < TabControl.TabCount; i++)
                 {
                     //save history
-                    if (i != 0) History.AddAction(new SelectedTabChanged(i - 1, i, ActiveTranslationManager.StoryName, ActiveTranslationManager.FileName));
-                    else History.AddAction(new SelectedTabChanged(0, i, ActiveTranslationManager.StoryName, ActiveTranslationManager.FileName));
+                    if (i != 0)
+                    {
+                        History.AddAction(new SelectedTabChanged(i - 1, i, ActiveTranslationManager.StoryName, ActiveTranslationManager.FileName));
+                    }
+                    else
+                    {
+                        History.AddAction(new SelectedTabChanged(0, i, ActiveTranslationManager.StoryName, ActiveTranslationManager.FileName));
+                    }
 
                     translationManagers[TabControl.TabPages[i]].ReplaceAll(UI.ReplaceBarText ?? string.Empty);
                 }
@@ -421,9 +464,13 @@ namespace Translator.Core
                 foreach (string path in paths)
                 {
                     if (i++ == 0)
+                    {
                         OpenFile(path);
+                    }
                     else
+                    {
                         OpenInNewTab(path);
+                    }
                 }
             }
         }
@@ -433,14 +480,20 @@ namespace Translator.Core
         /// </summary>
         public static void ShowAutoSaveDialog()
         {
-            if (!Settings.Default.AskForSaveDialog || translationManagers.Count <= 0) return;
+            if (!Settings.Default.AskForSaveDialog || translationManagers.Count <= 0)
+            {
+                return;
+            }
 
             foreach (KeyValuePair<ITab, TranslationManager> kvp in translationManagers)
             {
                 if (kvp.Value.ChangesPending)
                 {
                     if (UI.WarningYesNo("You may have unsaved changes. Do you want to save all changes?", "Save changes?", PopupResult.YES))
+                    {
                         _ = SaveAllTabs();
+                    }
+
                     return;
                 }
             }

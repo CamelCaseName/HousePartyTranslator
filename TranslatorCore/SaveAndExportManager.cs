@@ -19,20 +19,36 @@ namespace Translator.Core
         public static void ExportTemplate(string path, string story = "", string file = "", bool warnOnOverwrite = false, bool confirmSuccess = true)
         {
             if (path == string.Empty)
+            {
                 return;
+            }
+
             if (!File.Exists(path))
+            {
                 File.OpenWrite(path).Close();
+            }
             else if (warnOnOverwrite)
+            {
                 if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
+                {
                     return;
+                }
+            }
 
             if (story == string.Empty)
+            {
                 story = Utils.ExtractStoryName(path);
+            }
+
             if (file == string.Empty)
+            {
                 file = Utils.ExtractFileName(path);
+            }
 
             if (story == "Hints")
+            {
                 file = "Hints";
+            }
 
             LogManager.Log("Exporting template for " + story + "/" + file + " to " + path);
             if (!DataBase.GetAllLineDataTemplate(file, story, out FileData templates))
@@ -48,33 +64,51 @@ namespace Translator.Core
             WriteCategorizedLinesToDisk(sortedLines, path);
 
             if (confirmSuccess)
+            {
                 TabManager.UI.InfoOk("Template exported to " + path);
+            }
+
             LogManager.Log("    Sucessfully exported the template");
         }
 
         public static void ExportTemplatesForStory(string path, string story = "")
         {
             if (path == string.Empty)
+            {
                 return;
+            }
+
             if (!Directory.Exists(path))
+            {
                 Directory.CreateDirectory(path);
+            }
+
             if (story == string.Empty)
+            {
                 story = Utils.ExtractStoryName(path);
+            }
+
             LogManager.Log("Exporting all templates for " + story + " to " + path);
 
             //export templates as hints.txt if we have the hints, no need to get filenames
             if (story == "Hints")
+            {
                 ExportTemplate(Path.Combine(path, "Hints.txt"), story, story, confirmSuccess: false);
+            }
             else if (Directory.GetFiles(path).Length > 0)
+            {
                 foreach (string file in Directory.GetFiles(path))
                 {
                     ExportTemplate(file, story, warnOnOverwrite: true, confirmSuccess: false);
                 }
+            }
             else if (DataBase.GetFilesForStory(story, out string[] names))
+            {
                 foreach (string item in names)
                 {
                     ExportTemplate(Path.Combine(path, item + ".txt"), story, item, confirmSuccess: false);
                 }
+            }
             else
             {
                 TabManager.UI.WarningOk("No templates found for that story, nothing exported.");
@@ -90,15 +124,22 @@ namespace Translator.Core
         {
             string path = Utils.SelectSaveLocation("Select a file or folder to export the templates to", checkFileExists: false, checkPathExists: false, extension: string.Empty);
             if (Path.GetExtension(path) != string.Empty)
+            {
                 ExportTemplate(path);
+            }
             else
+            {
                 ExportTemplatesForStory(path);
+            }
         }
 
         public static void ExportAllMissinglinesForStoryIntoFolder(string path, string story = "")
         {
             if (path == string.Empty)
+            {
                 return;
+            }
+
             if (Path.GetExtension(path) == string.Empty)
             {
                 if (!Directory.Exists(path))
@@ -108,19 +149,28 @@ namespace Translator.Core
                 else if (Directory.GetFiles(path).Length > 0)
                 {
                     if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
+                    {
                         return;
+                    }
                 }
             }
             else
             {
                 if (!File.Exists(path))
+                {
                     path = Path.GetFileNameWithoutExtension(path);
+                }
                 else if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
+                {
                     return;
+                }
             }
 
             if (story == string.Empty)
+            {
                 story = Utils.ExtractStoryName(path);
+            }
+
             LogManager.Log("Exporting all missing lines for " + story + " to " + path);
 
             if (!DataBase.GetAllLinesAndTemplateForStory(story, TranslationManager.Language, out Dictionary<string, FileData> lines, out Dictionary<string, FileData> templates))
@@ -139,7 +189,10 @@ namespace Translator.Core
         public static void ExportAllMissinglinesForStoryIntoFile(string path, string story = "")
         {
             if (path == string.Empty)
+            {
                 return;
+            }
+
             if (Path.GetExtension(path) == string.Empty)
             {
                 TabManager.UI.WarningOk("Please provide a valid file, " + path + " was not a valid file", "Warning!");
@@ -148,11 +201,15 @@ namespace Translator.Core
             else
             {
                 if (!File.Exists(path))
+                {
                     File.OpenWrite(path).Close();
+                }
             }
 
             if (story == string.Empty)
+            {
                 story = Utils.ExtractStoryName(path);
+            }
 
             LogManager.Log("Exporting all missing lines for " + story + " to " + path);
 
@@ -172,7 +229,10 @@ namespace Translator.Core
         public static void ExportMissingLinesForFile(string path, string story = "", string file = "")
         {
             if (path == string.Empty)
+            {
                 return;
+            }
+
             if (Path.GetExtension(path) == string.Empty)
             {
                 TabManager.UI.WarningOk("Please provide a valid file, " + path + " was not a valid file", "Warning!");
@@ -181,13 +241,20 @@ namespace Translator.Core
             else
             {
                 if (!File.Exists(path))
+                {
                     File.OpenWrite(path).Close();
+                }
             }
 
             if (story == string.Empty)
+            {
                 story = Utils.ExtractStoryName(path);
+            }
+
             if (file == string.Empty)
+            {
                 file = Utils.ExtractFileName(path);
+            }
 
             LogManager.Log("Exporting all missing lines for " + story + "/" + file + " to " + path);
 
@@ -218,10 +285,16 @@ namespace Translator.Core
             }
 
             if (path == string.Empty || path is null)
+            {
                 return;
+            }
             else if (File.Exists(path))
+            {
                 if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + "\n Are you sure?", "Warning!", PopupResult.NO))
+                {
                     return;
+                }
+            }
 
             List<CategorizedLines> categories = InitializeCategories(diff.StoryName, diff.FileName);
             SortIntoCategories(ref categories, diff, diff);
@@ -322,13 +395,18 @@ namespace Translator.Core
                 //set up 
                 string path = Utils.SelectFileFromSystem(false, "Select a file in the folder you want to create templates for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
                 if (path.Length == 0)
+                {
                     return;
+                }
 
                 TabManager.UI.SignalUserWait();
                 string story = Utils.ExtractStoryName(path);
 
                 if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled)
+                {
                     SaveOnline = false;
+                }
+
                 LogManager.Log("creating templates for " + story);
 
                 //create translation and open it
@@ -338,7 +416,9 @@ namespace Translator.Core
                 {
                     string file = Utils.ExtractFileName(file_path);
                     if (Path.GetExtension(file_path) is not ".character" and not ".story")
+                    {
                         continue;
+                    }
 
                     //create and upload templates
                     if (TabManager.UI.CreateTemplateFromStory(story, file, file_path, out FileData templates))
@@ -382,13 +462,17 @@ namespace Translator.Core
                 //set up 
                 string path = Utils.SelectFileFromSystem(false, "Select the file to create the template for", filter: "Character/Story files (*.character;*.story)|*.character;*.story");
                 if (path.Length == 0)
+                {
                     return;
+                }
 
                 TabManager.UI.SignalUserWait();
                 (string story, string file) = Utils.ExtractFileAndStoryName(path);
 
                 if (story.IsOfficialStory() && !Settings.Default.AdvancedModeEnabled)
+                {
                     SaveOnline = false;
+                }
 
                 LogManager.Log("creating template for " + story + "/" + file);
                 //create and upload templates
@@ -481,7 +565,10 @@ namespace Translator.Core
             foreach (LineData item in IdsToExport.Values)
             {
                 if (item.ID == string.Empty)
+                {
                     continue;
+                }
+
                 if (translationData.TryGetValue(item.EekID, out LineData? TempResult))
                 {
                     if (TempResult is not null)
@@ -497,7 +584,9 @@ namespace Translator.Core
                 int intCategory = CategorizedStrings.FindIndex(predicateCategory => predicateCategory.category == item.Category);
 
                 if (intCategory < CategorizedStrings.Count && intCategory >= 0)
+                {
                     CategorizedStrings[intCategory].lines.Add(item);
+                }
                 else
                 {
                     CategorizedStrings.Add((new List<LineData>(), item.Category));
@@ -514,9 +603,16 @@ namespace Translator.Core
             if (OutputWriter is null)
             {
                 if (warnOnOverwrite)
+                {
                     if (File.Exists(path))
+                    {
                         if (TabManager.UI.WarningYesNo("You are about to overwrite " + path + " \nAre you sure?", "Warning", PopupResult.NO))
+                        {
                             return;
+                        }
+                    }
+                }
+
                 OutputWriter = new StreamWriter(path, append, new UTF8Encoding(true));
                 needDispose = true;
             }
@@ -524,9 +620,13 @@ namespace Translator.Core
             {
                 //write category if it has any lines, else we skip the category
                 if (CategorizedLines.lines.Count > 0)
+                {
                     OutputWriter.WriteLine(CategorizedLines.category.AsString());
+                }
                 else
+                {
                     continue;
+                }
 
                 //sort strings depending on category
                 if (CategorizedLines.category == StringCategory.Dialogue)
@@ -566,12 +666,16 @@ namespace Translator.Core
         public static void UploadOfficialTemplates()
         {
             if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select any folder in the folder which contains all Official Stories and UI/Hints.", "Upload templates for all official stories") != PopupResult.YES)
+            {
                 return;
+            }
 
             //set up 
             string path = Utils.SelectTemplateFolderFromSystem();
             if (path.Length == 0)
+            {
                 return;
+            }
 
             TabManager.UI.SignalUserWait();
 
@@ -586,7 +690,9 @@ namespace Translator.Core
                 {
                     string file = Utils.ExtractFileName(file_path, true);
                     if (Path.GetExtension(file_path) != ".txt")
+                    {
                         continue;
+                    }
 
                     //create and upload templates
                     templates = GetTemplateFromFile(file_path, story, file, false);
@@ -625,9 +731,14 @@ namespace Translator.Core
                 return new FileData(story, fileName);
             }
             if (story == string.Empty)
+            {
                 story = Utils.ExtractStoryName(path);
+            }
+
             if (fileName == string.Empty)
+            {
                 fileName = Utils.ExtractFileName(path);
+            }
 
             var fileData = new FileData(story, fileName);
             StringCategory currentCategory = StringCategory.General;
@@ -638,7 +749,9 @@ namespace Translator.Core
             var LinesFromFile = new List<string>(File.ReadAllLines(path));
             //remove last if empty, breaks line loading for the last
             while (LinesFromFile[^1] == string.Empty)
+            {
                 _ = LinesFromFile.Remove(LinesFromFile[^1]);
+            }
             //load lines and their data and split accordingly
             foreach (string line in LinesFromFile)
             {
@@ -646,7 +759,9 @@ namespace Translator.Core
                 {
                     //if we reach a new id, we can add the old string to the translation manager
                     if (lastLine.Length != 0)
+                    {
                         fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                    }
 
                     //get current line
                     lastLine = line.Split('|');
@@ -666,7 +781,10 @@ namespace Translator.Core
                     {
                         //if we reach a category, we can add the old string to the translation manager
                         if (lastLine.Length != 0)
+                        {
                             fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1] + multiLineCollector, true);
+                        }
+
                         lastLine = Array.Empty<string>();
                         multiLineCollector = string.Empty;
                         currentCategory = tempCategory;
@@ -675,7 +793,9 @@ namespace Translator.Core
             }
             //add last line (dont care about duplicates because sql will get rid of them)
             if (lastLine.Length != 0)
+            {
                 fileData[new(doIterNumbers ? (++templateCounter).ToString() : string.Empty + lastLine[0], currentCategory)] = new LineData(lastLine[0], story, fileName, currentCategory, lastLine[1], true);
+            }
 
             return fileData;
         }
@@ -684,16 +804,24 @@ namespace Translator.Core
         {
             PopupResult result = dialog.ShowDialog();
             if (result != PopupResult.OK || dialog.StoryName == string.Empty)
+            {
                 return string.Empty;
+            }
 
             string? path = Utils.SelectSaveLocation("Select a folder to place the file into, missing folders will be created.", file: dialog.StoryName, checkFileExists: false, checkPathExists: false, extension: string.Empty);
             if (path == string.Empty || path is null)
+            {
                 return string.Empty;
+            }
 
             if (dialog.StoryName == path.Split('\\')[^2])
+            {
                 path = Path.GetDirectoryName(path);
+            }
             else
+            {
                 _ = Directory.CreateDirectory(path);
+            }
 
             if (dialog.FileName != string.Empty)
             {
@@ -706,12 +834,16 @@ namespace Translator.Core
         public static void UploadTemplate()
         {
             if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select the template file you want to upload.", "Upload template") != PopupResult.YES)
+            {
                 return;
+            }
 
             //set up 
             string path = Utils.SelectFileFromSystem(false, "Select the template file");
             if (path.Length == 0)
+            {
                 return;
+            }
 
             TabManager.UI.SignalUserWait();
 
@@ -728,7 +860,9 @@ namespace Translator.Core
             }
 
             if (Path.GetExtension(path) != ".txt")
+            {
                 return;
+            }
 
             //create and upload templates
             templates = GetTemplateFromFile(path, story, file, false);
@@ -756,12 +890,16 @@ namespace Translator.Core
         public static void UploadTemplates()
         {
             if (TabManager.UI.InfoYesNoCancel($"You will now be prompted to select the folder which contains the template files for the story you want to upload.", "Upload templates for a story") != PopupResult.YES)
+            {
                 return;
+            }
 
             //set up 
             string path = Utils.SelectFolderFromSystem("Select the folder which contains the template files");
             if (path.Length == 0)
+            {
                 return;
+            }
 
             TabManager.UI.SignalUserWait();
 
@@ -781,7 +919,9 @@ namespace Translator.Core
             {
                 string file = Utils.ExtractFileName(file_path);
                 if (Path.GetExtension(file_path) != ".txt")
+                {
                     continue;
+                }
 
                 //create and upload templates
                 templates = GetTemplateFromFile(file_path, story, file, false);

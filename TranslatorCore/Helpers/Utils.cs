@@ -66,7 +66,10 @@ namespace Translator.Core.Helpers
         /// <returns>The path to the selected file.</returns>
         public static string SelectFileFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "", string filter = "Text files (*.txt)|*.txt", bool checkFileExists = false)
         {
-            if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
+            if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true)
+            {
+                throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
+            }
 
             var selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(IFileDialog), new object?[]
             {
@@ -86,9 +89,13 @@ namespace Translator.Core.Helpers
             if (selectFileDialog.ShowDialog() == PopupResult.OK)
             {
                 if (isTranslation)
+                {
                     Settings.Default.TranslationPath = Path.GetDirectoryName(selectFileDialog.SelectedPath) ?? Settings.Default.TranslationPath;
+                }
                 else
+                {
                     Settings.Default.TemplatePath = Path.GetDirectoryName(selectFileDialog.SelectedPath) ?? Settings.Default.TemplatePath;
+                }
 
                 Settings.Default.Save();
 
@@ -103,7 +110,10 @@ namespace Translator.Core.Helpers
         /// <returns>The path to the selected file.</returns>
         public static string[] SelectFilesFromSystem(bool isTranslation = true, string Title = "", string preselectedFile = "")
         {
-            if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
+            if (!MainUI?.FileDialogType.IsAssignableTo(typeof(IFileDialog)) ?? true)
+            {
+                throw new ArgumentException($"{nameof(MainUI.FileDialogType)} does not inherit {nameof(IFileDialog)}");
+            }
 
             var selectFileDialog = (IFileDialog?)Activator.CreateInstance(MainUI?.FileDialogType ?? typeof(IFileDialog), new object?[]
             {
@@ -121,9 +131,13 @@ namespace Translator.Core.Helpers
             if (selectFileDialog.ShowDialog() == PopupResult.OK)
             {
                 if (isTranslation)
+                {
                     Settings.Default.TranslationPath = Path.GetDirectoryName(selectFileDialog.SelectedPath) ?? Settings.Default.TranslationPath;
+                }
                 else
+                {
                     Settings.Default.TemplatePath = Path.GetDirectoryName(selectFileDialog.SelectedPath) ?? Settings.Default.TemplatePath;
+                }
 
                 Settings.Default.Save();
 
@@ -148,7 +162,10 @@ namespace Translator.Core.Helpers
         /// <returns>The folder path selected.</returns>
         public static string SelectFolderFromSystem(string message)
         {
-            if (!MainUI?.FolderDialogType.IsAssignableTo(typeof(IFolderDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.FolderDialogType)} does not inherit {nameof(IFolderDialog)}");
+            if (!MainUI?.FolderDialogType.IsAssignableTo(typeof(IFolderDialog)) ?? true)
+            {
+                throw new ArgumentException($"{nameof(MainUI.FolderDialogType)} does not inherit {nameof(IFolderDialog)}");
+            }
 
             var selectFolderDialog = (IFolderDialog?)Activator.CreateInstance(MainUI?.FolderDialogType ?? typeof(IFileDialog), new object?[]
             {
@@ -176,7 +193,10 @@ namespace Translator.Core.Helpers
         /// <returns>The path to the file to save to.</returns>
         public static string SelectSaveLocation(string message = "", string path = "", string file = "", string extension = "txt", bool checkFileExists = true, bool checkPathExists = true, bool createPrompt = false)
         {
-            if (!MainUI?.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog)) ?? true) throw new ArgumentException($"{nameof(MainUI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
+            if (!MainUI?.SaveFileDialogType.IsAssignableTo(typeof(ISaveFileDialog)) ?? true)
+            {
+                throw new ArgumentException($"{nameof(MainUI.SaveFileDialogType)} does not inherit {nameof(ISaveFileDialog)}");
+            }
 
             var saveFileDialog = (ISaveFileDialog?)Activator.CreateInstance(MainUI?.SaveFileDialogType ?? typeof(ISaveFileDialog), new object?[]
             {
@@ -187,7 +207,10 @@ namespace Translator.Core.Helpers
                 /*FileName*/ file,
                 /*InitialDirectory*/ path
             });
-            if (saveFileDialog is null) return string.Empty;
+            if (saveFileDialog is null)
+            {
+                return string.Empty;
+            }
 
             saveFileDialog.CheckFileExists = checkFileExists;
             saveFileDialog.CheckPathExists = checkPathExists;
@@ -198,10 +221,14 @@ namespace Translator.Core.Helpers
         public static string ExtractStoryName(string path, bool noAsk = false)
         {
             if ((DateTime.Now - namesAcquired).Hours > 1 && DataBase.IsOnline)
+            {
                 DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
+            }
 
             if (!LanguageHelper.Languages.TryGetValue(TranslationManager.Language, out string? languageAsText))
+            {
                 throw new LanguageHelper.LanguageException();
+            }
 
             string[] paths = path.Contains('\\')
                 ? path.Split('\\')
@@ -211,13 +238,17 @@ namespace Translator.Core.Helpers
             for (int i = paths.Length - 1; i >= 0; i--)
             {
                 if (Path.GetExtension(paths[i]) != string.Empty)
+                {
                     paths[i] = Path.GetFileNameWithoutExtension(paths[i]);
+                }
 
                 HashSet<string>.Enumerator enumerator = storyNames.GetEnumerator();
                 while (enumerator.MoveNext())
                 {
                     if (string.Compare(paths[i], enumerator.Current, true, CultureInfo.InvariantCulture) == 0)
+                    {
                         return enumerator.Current;
+                    }
                 }
             }
 
@@ -228,17 +259,23 @@ namespace Translator.Core.Helpers
             //check if we are in the games documents
             if (string.Compare(maybeStoryName, languageAsText, true, CultureInfo.InvariantCulture) == 0 ||
                 string.Compare(maybeStoryName, string.Concat(languageAsText, " new"), true, CultureInfo.InvariantCulture) == 0)
+            {
                 //get folder one more up
                 maybeStoryName = paths.Length > 1
                     ? paths[^3]
                     : paths[0];
+            }
 
             //also can return instantly, we are in the folder which has the languages in it
             if (string.Compare(maybeStoryName, "Languages", true, CultureInfo.InvariantCulture) == 0) //get folder one more up
+            {
                 return "UI";
+            }
 
             if (noAsk)
+            {
                 return maybeStoryName;
+            }
 
             //check if we have a similar name to the cloud, return that if we have
             for (int i = paths.Length - 1; i >= 0; i--)
@@ -248,11 +285,20 @@ namespace Translator.Core.Helpers
                 while (enumerator.MoveNext())
                 {
                     if (paths[i].Contains(enumerator.Current, StringComparison.InvariantCultureIgnoreCase))
+                    {
                         if (MainUI!.InfoYesNo($"Is this the correct story, as it appeared in the templates: {enumerator.Current}?", "Correct story?", PopupResult.YES))
+                        {
                             return enumerator.Current;
+                        }
+                    }
+
                     if (enumerator.Current.Contains(paths[i], StringComparison.InvariantCultureIgnoreCase))
+                    {
                         if (MainUI!.InfoYesNo($"Is this the correct story, as it appeared in the templates: {enumerator.Current}?", "Correct story?", PopupResult.YES))
+                        {
                             return enumerator.Current;
+                        }
+                    }
                 }
             }
 
@@ -263,7 +309,9 @@ namespace Translator.Core.Helpers
         public static string ExtractFileName(string path, bool noAsk = false)
         {
             if ((DateTime.Now - namesAcquired).Hours > 1 && DataBase.IsOnline)
+            {
                 DataBase.GetAllFilesAndStories(out storyNames, out fileNames);
+            }
 
             string maybeFileName = Path.GetFileNameWithoutExtension(path);
 
@@ -271,22 +319,35 @@ namespace Translator.Core.Helpers
             while (enumerator.MoveNext())
             {
                 if (string.Compare(maybeFileName, enumerator.Current, true, CultureInfo.InvariantCulture) == 0)
+                {
                     return enumerator.Current;
+                }
             }
 
             if (noAsk)
+            {
                 return maybeFileName;
+            }
 
             //search again more lenient
             enumerator = fileNames.GetEnumerator();
             while (enumerator.MoveNext())
             {
                 if (maybeFileName.Contains(enumerator.Current, StringComparison.InvariantCultureIgnoreCase))
+                {
                     if (MainUI!.InfoYesNo($"Is this the correct filename, as it appeared in the templates: {enumerator.Current}?", "Correct file?", PopupResult.YES))
+                    {
                         return enumerator.Current;
+                    }
+                }
+
                 if (enumerator.Current.Contains(maybeFileName, StringComparison.InvariantCultureIgnoreCase))
+                {
                     if (MainUI!.InfoYesNo($"Is this the correct filename, as it appeared in the templates: {enumerator.Current}?", "Correct file?", PopupResult.YES))
+                    {
                         return enumerator.Current;
+                    }
+                }
             }
 
             //we have no known filename, we can just continue and ask if its a custom story

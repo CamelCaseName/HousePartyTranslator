@@ -20,7 +20,11 @@ namespace Translator.Desktop.Managers
                 if (TabManager.UI.SelectedTab.Lines.Count > 0)
                 {
                     TabManager.UI.SelectedTab.Lines.SelectedIndex = ((LineList)TabManager.UI.SelectedTab.Lines).IndexFromPoint(e.Location);
-                    if (TabManager.UI.SelectedTab.Lines.SelectedIndex <= 0) TabManager.UI.SelectedTab.Lines.SelectedIndex = 0;
+                    if (TabManager.UI.SelectedTab.Lines.SelectedIndex <= 0)
+                    {
+                        TabManager.UI.SelectedTab.Lines.SelectedIndex = 0;
+                    }
+
                     context.Show();
                 }
             }
@@ -30,13 +34,18 @@ namespace Translator.Desktop.Managers
         {
             //update presence
             if (TabManager.ActiveTranslationManager is not null)
+            {
                 DiscordPresenceManager.Update();
+            }
         }
 
         public static void ShowSettings()
         {
             var settings = new SettingsForm();
-            if (!settings.IsDisposed) settings.Show();
+            if (!settings.IsDisposed)
+            {
+                settings.Show();
+            }
         }
 
         /// <summary>
@@ -52,7 +61,11 @@ namespace Translator.Desktop.Managers
 #pragma warning restore IDE0060 // Remove unused parameter
 #pragma warning restore IDE0079 // Remove unnecessary suppression
         {
-            if (TabManager.UI is null || App.MainForm is null) return false;
+            if (TabManager.UI is null || App.MainForm is null)
+            {
+                return false;
+            }
+
             switch (keyData)
             {
                 //handle enter as jumping to first search result if searched something, and focus is not on text editor.
@@ -121,8 +134,15 @@ namespace Translator.Desktop.Managers
 
                 //save translation and approve
                 case Keys.Shift | Keys.Enter:
-                    if (!App.MainForm.TabControl.SelectedTab.IsTranslationBoxFocused && !App.MainForm.TabControl.SelectedTab.IsCommentBoxFocused) TabManager.ActiveTranslationManager.SelectPreviousResultIfApplicable();
-                    else InputHandler.SaveAndApproveLine();
+                    if (!App.MainForm.TabControl.SelectedTab.IsTranslationBoxFocused && !App.MainForm.TabControl.SelectedTab.IsCommentBoxFocused)
+                    {
+                        TabManager.ActiveTranslationManager.SelectPreviousResultIfApplicable();
+                    }
+                    else
+                    {
+                        InputHandler.SaveAndApproveLine();
+                    }
+
                     return true;
 
                 //move cursor to the left, clinging to words
@@ -188,7 +208,11 @@ namespace Translator.Desktop.Managers
 
         private static void DefaultTextChangePreparation()
         {
-            if (App.MainForm?.ActiveControl is null || App.MainForm is null) return;
+            if (App.MainForm?.ActiveControl is null || App.MainForm is null)
+            {
+                return;
+            }
+
             if (App.MainForm.ActiveControl is ITextBox box)
             {
                 InputHandler.PrepareTextChanged(box);

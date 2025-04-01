@@ -61,7 +61,9 @@ namespace Translator.Desktop.UI.Components
                 int oldLength = base.Text.Length;
                 base.Text = value;
                 if (selection <= base.Text.Length && selection >= 0 && base.Text.Length != oldLength)
+                {
                     SelectionStart = selection;
+                }
             }
         }
 
@@ -73,8 +75,10 @@ namespace Translator.Desktop.UI.Components
         {
             base.WndProc(ref m);
             if ((m.Msg == Winutils.WM_PAINT || (m.Msg == Winutils.WM_MOUSEMOVE && customDrawNeeded)) && IsHandleCreated)
+            {
                 //we have a paint message, send to own handler. only if we have a gdi handle
                 OnPaint(new PaintEventArgs(Graphics.FromHwnd(m.HWnd), ClientRectangle));
+            }
         }
 
         public void OnPaintOffset(PaintEventArgs e, Point offset)
@@ -134,9 +138,13 @@ namespace Translator.Desktop.UI.Components
                 //find length of search term in the current line
                 currentHighlightLength = Text.AsSpan()[newStartPos..HighlightEnd].IndexOfAny(" ,.-".AsSpan());
                 if (currentHighlightLength < 0)
+                {
                     currentHighlightLength = HighlightEnd - newStartPos;
+                }
                 else
+                {
                     ++currentHighlightLength;//so that we also contain the other character
+                }
 
                 Point highlightLocation = GetPositionFromCharIndex(newStartPos);
                 //adjust offset
@@ -163,7 +171,11 @@ namespace Translator.Desktop.UI.Components
         {
             flags = TextFormatFlags.NoPadding | TextFormatFlags.Top |
                                                 TextFormatFlags.EndEllipsis;
-            if (point.IsEmpty) point = ClientRectangle.Location;
+            if (point.IsEmpty)
+            {
+                point = ClientRectangle.Location;
+            }
+
             if (RightToLeft == RightToLeft.Yes)
             {
                 flags |= TextFormatFlags.RightToLeft;

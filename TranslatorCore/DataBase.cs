@@ -62,13 +62,17 @@ namespace Translator.Core
                         {
                             story = reader.GetString(0);
                             if (story != string.Empty)
+                            {
                                 _ = stories.Add(story);
+                            }
                         }
                         if (!reader.IsDBNull(1))
                         {
                             file = reader.GetString(1);
                             if (file != string.Empty)
+                            {
                                 _ = files.Add(file);
+                            }
                         }
                     }
                 }
@@ -128,19 +132,27 @@ namespace Translator.Core
                     while (reader.Read())
                     {
                         if (reader.IsDBNull(0) || reader.IsDBNull(1))
+                        {
                             continue;
+                        }
 
                         story = reader.GetString(0);
                         file = reader.GetString(1);
 
                         if (file == string.Empty || story == string.Empty)
+                        {
                             continue;
+                        }
 
                         _ = stories.Add(story);
                         if (!files.TryGetValue(story, out List<string>? value))
+                        {
                             files.Add(story, new List<string> { file });
+                        }
                         else
+                        {
                             value.Add(file);
+                        }
                     }
                 }
                 else
@@ -249,7 +261,10 @@ namespace Translator.Core
                 cmd.Parameters.Clear();
 
                 if (story != "Hints")
+                {
                     _ = cmd.Parameters.AddWithValue("@filename", fileName);
+                }
+
                 _ = cmd.Parameters.AddWithValue("@story", story);
 
                 using MySqlDataReader reader = cmd.ExecuteReader();
@@ -312,7 +327,9 @@ namespace Translator.Core
                         {
                             file = reader.GetString(0);
                             if (file != string.Empty)
+                            {
                                 files.Add(file);
+                            }
                         }
                     }
                 }
@@ -358,7 +375,9 @@ namespace Translator.Core
                         {
                             lang = reader.GetString(0);
                             if (lang != string.Empty)
+                            {
                                 _languages.Add(lang);
+                            }
                         }
                     }
                 }
@@ -403,7 +422,9 @@ namespace Translator.Core
                         {
                             lang = reader.GetString(0);
                             if (lang != string.Empty)
+                            {
                                 _languages.Add(lang);
+                            }
                         }
                     }
                 }
@@ -494,7 +515,9 @@ namespace Translator.Core
                         {
                             story = reader.GetString(0);
                             if (story != string.Empty)
+                            {
                                 stories.Add(story);
+                            }
                         }
                     }
                 }
@@ -538,7 +561,9 @@ namespace Translator.Core
                         {
                             story = reader.GetString(0);
                             if (story != string.Empty)
+                            {
                                 stories.Add(story);
+                            }
                         }
                     }
                 }
@@ -574,7 +599,11 @@ namespace Translator.Core
             else
             {
                 using MySqlConnection connection = new(GetConnString());
-                if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+                if (connection.State != System.Data.ConnectionState.Open)
+                {
+                    connection.Open();
+                }
+
                 using var cmd = new MySqlCommand(string.Empty, connection);
                 _ = CheckOrReopenConnection(connection);
                 //Console.WriteLine("DB opened");
@@ -759,7 +788,10 @@ namespace Translator.Core
                         _ = builder.Append($"(@id{v}, @story{v}, @filename{v}, @category{v}, @translated{v}, @approved{v}, @language{v}, @comment{v}, @translation{v}, @deleted{v}),");
 
                         v++;
-                        if (v >= updateData.Values.Count) break;
+                        if (v >= updateData.Values.Count)
+                        {
+                            break;
+                        }
                     }
 
                     _ = builder.Remove(builder.Length - 1, 1);
@@ -777,7 +809,9 @@ namespace Translator.Core
                             for (int j = 0; j < item.Comments?.Length; j++)
                             {
                                 if (item.Comments[j].Length > 1)
+                                {
                                     comment += item.Comments[j] + "#";
+                                }
                             }
 
                             _ = cmd.Parameters.AddWithValue($"@id{c}", storyName + fileName + item.ID + language);
@@ -792,7 +826,9 @@ namespace Translator.Core
                             _ = cmd.Parameters.AddWithValue($"@deleted{c}", 0);
                             ++c;
                             if (c >= updateData.Count)
+                            {
                                 break;
+                            }
                         }
 
                         _ = ExecuteOrReOpen(cmd);
@@ -842,7 +878,10 @@ namespace Translator.Core
                     idsToUnapprove.Add(oldTemplateLine.ID);
                 }
             }
-            if (idsToUnapprove.Count == 0) return result;
+            if (idsToUnapprove.Count == 0)
+            {
+                return result;
+            }
 
             if (Settings.Default.ExportTemplateDiff)
             {
@@ -890,13 +929,20 @@ namespace Translator.Core
                 int v = c;
                 for (int j = 0; j < 400; j++)
                 {
-                    if (v >= lines.Values.Count) break;
+                    if (v >= lines.Values.Count)
+                    {
+                        break;
+                    }
+
                     _ = builder.Append($"(@id{v}, @story{v}, @fileName{v}, @category{v}, @english{v}, @deleted{v}),");
                     v++;
                 }
 
                 //we can exit if we sent everything, this an occurr if the story has exactly a multiple of 400 entries
-                if (v == c) break;
+                if (v == c)
+                {
+                    break;
+                }
 
                 _ = builder.Remove(builder.Length - 1, 1);
 
@@ -906,7 +952,11 @@ namespace Translator.Core
                 //insert all the parameters
                 for (int k = 0; k < 400; k++)
                 {
-                    if (c >= lines.Values.Count) break;
+                    if (c >= lines.Values.Count)
+                    {
+                        break;
+                    }
+
                     LineData line = lines.Values.ElementAt(c);
                     _ = cmd.Parameters.AddWithValue($"@id{c}", line.Story + line.FileName + line.ID + "template");
                     _ = cmd.Parameters.AddWithValue($"@story{c}", line.Story);
@@ -928,7 +978,10 @@ namespace Translator.Core
         private static bool CheckOrReopenConnection(MySqlConnection connection)
         {
             //end early
-            if (connection.State == System.Data.ConnectionState.Open) return IsOnline = true;
+            if (connection.State == System.Data.ConnectionState.Open)
+            {
+                return IsOnline = true;
+            }
             //if we are still offline
             if (connection.State != System.Data.ConnectionState.Open)
             {
@@ -961,22 +1014,40 @@ namespace Translator.Core
                 while (connection.State != System.Data.ConnectionState.Open && tries < 10)
                 {
                     ++tries;
-                    if (connection.State == System.Data.ConnectionState.Open) return IsOnline = true;
+                    if (connection.State == System.Data.ConnectionState.Open)
+                    {
+                        return IsOnline = true;
+                    }
+
                     connection.Open();
                     System.Threading.Thread.Sleep(100 * tries);
                 }
                 return IsOnline = connection.State == System.Data.ConnectionState.Open;
             }
-            else return IsOnline = true;
+            else
+            {
+                return IsOnline = true;
+            }
         }
 
         private static string CleanId(string DataBaseId, string story, string fileName, bool isTemplate)
         {
-            if (story == "Hints" && isTemplate) fileName = "English";
+            if (story == "Hints" && isTemplate)
+            {
+                fileName = "English";
+            }
+
             if ((story + fileName).Length >= DataBaseId.Length)
+            {
                 Debugger.Break();
+            }
+
             string tempID = DataBaseId[(story + fileName).Length..];
-            if (tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length) < 0) Debugger.Break();
+            if (tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length) < 0)
+            {
+                Debugger.Break();
+            }
+
             return tempID.Remove(tempID.Length - (isTemplate ? 8 : TranslationManager.Language.Length));
         }
 
@@ -992,7 +1063,11 @@ namespace Translator.Core
             {
                 try
                 {
-                    if (connection.State != System.Data.ConnectionState.Open) connection.Open();
+                    if (connection.State != System.Data.ConnectionState.Open)
+                    {
+                        connection.Open();
+                    }
+
                     ValidPassword = CheckOrReopenConnection(connection);
                 }
                 catch (MySqlException e)
@@ -1057,12 +1132,18 @@ namespace Translator.Core
                     }
                     catch (Exception _e)
                     {
-                        if (!executedSuccessfully) System.Threading.Thread.Sleep(500 * tries);
+                        if (!executedSuccessfully)
+                        {
+                            System.Threading.Thread.Sleep(500 * tries);
+                        }
+
                         exx = _e;
                     }
                 }
                 if (!executedSuccessfully && exx is not null)
+                {
                     LogManager.Log($"even after executing the {command.CommandText.TrimWithDelim("[...]", 1000)},\n for ten times we got an exception, probably no internet. " + exx?.ToString(), LogManager.Level.Error);
+                }
 
                 return executedSuccessfully;
             }

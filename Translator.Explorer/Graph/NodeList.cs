@@ -41,14 +41,23 @@ namespace Translator.Explorer.Graph
                         }
 
                         if (!Types.ContainsKey(node.Type))
+                        {
                             Types.Add(node.Type, 1);
+                        }
                         else
+                        {
                             Types[node.Type] = Types[node.Type] + 1;
+                        }
 
                         if (NodeCountChanged is not null)
+                        {
                             NodeCountChanged(this, new(Count));
+                        }
+
                         if (EdgeCountChanged is not null)
+                        {
                             EdgeCountChanged(this, new(Edges.Count));
+                        }
                     }
         }
 
@@ -59,19 +68,30 @@ namespace Translator.Explorer.Graph
                     lock (Types)
                     {
                         for (int i = 0; i < node.ChildNodes.Count; i++)
+                        {
                             Edges.Remove(new(node, 0, node.ChildNodes[i], 0));
+                        }
 
                         bool res = base.Remove(node);
 
                         if (Types[node.Type] == 1)
+                        {
                             Types.Remove(node.Type);
+                        }
                         else
+                        {
                             Types[node.Type] = Types[node.Type] - 1;
+                        }
 
                         if (NodeCountChanged is not null)
+                        {
                             NodeCountChanged(this, new(Count));
+                        }
+
                         if (EdgeCountChanged is not null)
+                        {
                             EdgeCountChanged(this, new(Edges.Count));
+                        }
 
                         return res;
                     }
@@ -96,7 +116,9 @@ namespace Translator.Explorer.Graph
                         }
                     }
                     if (EdgeCountChanged is not null)
+                    {
                         EdgeCountChanged(this, new(Edges.Count));
+                    }
                 }
 #if DEBUG
             LogManager.Log($"Sync on {Count} nodes, {Edges.Count} edges took {(DateTime.UtcNow - start).Milliseconds}ms");
@@ -121,7 +143,9 @@ namespace Translator.Explorer.Graph
                         }
                     }
                     if (EdgeCountChanged is not null)
+                    {
                         EdgeCountChanged(this, new(Edges.Count));
+                    }
                 }
 #if DEBUG
             LogManager.Log($"StrictSync on {Count} nodes, {Edges.Count} edges took {(DateTime.UtcNow - start).Milliseconds}ms");
@@ -132,12 +156,17 @@ namespace Translator.Explorer.Graph
         {
             //values for depth over 3 break the thing, so this has to suffice
             //to stop infinite cycles that might arise, but should not
-            if (depth == 0 || root == child) return;
+            if (depth == 0 || root == child)
+            {
+                return;
+            }
 
             //Add edge if we have the node as is
             int c = IndexOf(child);
             if (c >= 0)
+            {
                 Edges.Add(new Edge(root, x, child, c));
+            }
             else
             {
                 //try and create an edge to the childs of the child if possible
@@ -161,13 +190,19 @@ namespace Translator.Explorer.Graph
                                 foreach (KeyValuePair<NodeType, int> kvp in realList.Types)
                                 {
                                     if (!Types.ContainsKey(kvp.Key))
+                                    {
                                         Types.Add(kvp.Key, kvp.Value);
+                                    }
                                     else
+                                    {
                                         Types[kvp.Key] = Types[kvp.Key] + kvp.Value;
+                                    }
                                 }
 
                                 lock (realList.Edges)
+                                {
                                     Edges.AddRange(realList.Edges);
+                                }
                             }
                             else
                             {
@@ -175,9 +210,13 @@ namespace Translator.Explorer.Graph
                                 while (en.MoveNext())
                                 {
                                     if (!Types.ContainsKey(en.Current.Type))
+                                    {
                                         Types.Add(en.Current.Type, 1);
+                                    }
                                     else
+                                    {
                                         Types[en.Current.Type] = Types[en.Current.Type] + 1;
+                                    }
 
                                     for (int i = 0; i < en.Current.ChildNodes.Count; i++)
                                     {
@@ -187,9 +226,14 @@ namespace Translator.Explorer.Graph
                                 }
                             }
                             if (NodeCountChanged is not null)
+                            {
                                 NodeCountChanged(this, new(Count));
+                            }
+
                             if (EdgeCountChanged is not null)
+                            {
                                 EdgeCountChanged(this, new(Edges.Count));
+                            }
                         }
         }
 
@@ -202,9 +246,14 @@ namespace Translator.Explorer.Graph
                     base.Clear();
                     Types.Clear();
                     if (NodeCountChanged is not null)
+                    {
                         NodeCountChanged(this, new(Count));
+                    }
+
                     if (EdgeCountChanged is not null)
+                    {
                         EdgeCountChanged(this, new(Edges.Count));
+                    }
                 }
         }
 
@@ -220,7 +269,11 @@ namespace Translator.Explorer.Graph
 
         public bool SetPositions(List<PointF> positions)
         {
-            if (positions.Count != Count) return false;
+            if (positions.Count != Count)
+            {
+                return false;
+            }
+
             for (int i = 0; i < Count; i++)
             {
                 this[i].Position = positions[i];
@@ -232,8 +285,14 @@ namespace Translator.Explorer.Graph
         {
             get
             {
-                if (Count > 0 && index >= 0) return base[index];
-                else return Node.NullNode;
+                if (Count > 0 && index >= 0)
+                {
+                    return base[index];
+                }
+                else
+                {
+                    return Node.NullNode;
+                }
             }
             set
             {

@@ -111,7 +111,11 @@ namespace Translator.Explorer
                 {
                     //set new value
                     highlightedNode = value;
-                    if (Provider.Nodes.Count != NodesHighlighted.Count) NodesHighlighted = new(Provider.Nodes.Count);
+                    if (Provider.Nodes.Count != NodesHighlighted.Count)
+                    {
+                        NodesHighlighted = new(Provider.Nodes.Count);
+                    }
+
                     Explorer.SetNextButtonStates(value.ParentNodes.Count > 0, value.ChildNodes.Count > 0);
                     Center();
                     ClickedNodeChanged(this, new ClickedNodeChangeArgs(value, ClickedNodeTypes.Highlight));
@@ -147,7 +151,11 @@ namespace Translator.Explorer
         //increase drawing speed by switching to direct2d? either custom binding as needed or sharpdx?
         public void DrawNodesPaintHandler(object? sender, PaintEventArgs? e)
         {
-            if (e is null) return;
+            if (e is null)
+            {
+                return;
+            }
+
             Graphics g = e.Graphics;
 
             FrameStartTime = DateTime.UtcNow;
@@ -167,9 +175,13 @@ namespace Translator.Explorer
             Ymax = g.VisibleClipBounds.Bottom + StoryExplorerConstants.Nodesize;
 
             if (Scaling < 0.1)
+            {
                 ColorPen.CustomEndCap = smallArrowCap;
+            }
             else
+            {
                 ColorPen.CustomEndCap = defaultArrowCap;
+            }
 
             PaintAllNodes(g);
 
@@ -181,7 +193,9 @@ namespace Translator.Explorer
             FrameEndTime = DateTime.UtcNow;
 #if DEBUG
             if ((FrameEndTime - FrameStartTime).TotalMilliseconds > 33)
+            {
                 LogManager.Log("draw time too long for 30fps! Expected < 33, actual: " + (FrameEndTime - FrameStartTime).TotalMilliseconds);
+            }
 #endif
         }
 
@@ -190,9 +204,13 @@ namespace Translator.Explorer
             if (!Settings.CenterNodeOnClick)
             {
                 if (highlightedNode != Node.NullNode)
+                {
                     CenterOnNode(highlightedNode);
+                }
                 else if (infoNode != Node.NullNode)
+                {
                     CenterOnNode(infoNode);
+                }
             }
         }
 
@@ -206,7 +224,9 @@ namespace Translator.Explorer
         private void DrawMovingNodeMarker(Graphics g)
         {
             if (movingNode != Node.NullNode)
+            {
                 DrawColouredNode(g, movingNode, Settings.MovingNodeColor, 1.2f);
+            }
         }
 
         public void HandleKeyBoard(object sender, KeyEventArgs e)
@@ -223,7 +243,11 @@ namespace Translator.Explorer
             {
                 case MouseButtons.Left:
                     HandleNodeMovement(e.Location);
-                    if (!IsCtrlPressed) HighlightedNode = GetClickedNode(e.Location, out _);
+                    if (!IsCtrlPressed)
+                    {
+                        HighlightedNode = GetClickedNode(e.Location, out _);
+                    }
+
                     break;
                 case MouseButtons.None:
                     EndPan();
@@ -250,7 +274,10 @@ namespace Translator.Explorer
                 Explorer.Invalidate();
             }
             //also end movement if we dont click but let go of ctrl
-            if (!IsCtrlPressed && MovingANode) EndNodeMovement();
+            if (!IsCtrlPressed && MovingANode)
+            {
+                EndNodeMovement();
+            }
             //save mouse pos for next frame
             ScreenToGraph(e.Location.X, e.Location.Y, out OldMouseMovingPosX, out OldMouseMovingPosY);
         }
@@ -258,9 +285,14 @@ namespace Translator.Explorer
         private void HandleNodeMovement(Point MouseLocation)
         {
             if (!MovingANode && IsCtrlPressed)
+            {
                 BeginMovingNodeMovement(MouseLocation);
+            }
+
             if (IsCtrlPressed && MovingANode && movingNode != Node.NullNode)
+            {
                 UpdateMovingNodeMovement(MouseLocation);
+            }
             else
             {
                 EndNodeMovement();
@@ -271,8 +303,16 @@ namespace Translator.Explorer
         {
             Node node = GetClickedNode(MouseLocation, out int index);
             //set new node if it is new, reset lock if applicable
-            if (movingNode != node) movingNode.IsPositionLocked = false;
-            if (priorCursor != Cursors.SizeAll) priorCursor = Explorer.Cursor;
+            if (movingNode != node)
+            {
+                movingNode.IsPositionLocked = false;
+            }
+
+            if (priorCursor != Cursors.SizeAll)
+            {
+                priorCursor = Explorer.Cursor;
+            }
+
             movingNode = node;
             movingNode.IsPositionLocked = true;
             MovingANode = true;
@@ -304,7 +344,11 @@ namespace Translator.Explorer
 
         public void PaintAllNodes(Graphics g)
         {
-            if (!Provider.Frozen) return;
+            if (!Provider.Frozen)
+            {
+                return;
+            }
+
             DrewNodes = false;
             Node node;
             //go on displaying graph
@@ -312,7 +356,9 @@ namespace Translator.Explorer
             {
                 node = Provider.Nodes[i];
                 if (node.Position.X <= Xmax && node.Position.Y <= Ymax && node.Position.X >= Xmin && node.Position.Y >= Ymin)
+                {
                     DrawColouredNode(g, node);
+                }
             }
             int maxEdges = Math.Min(Provider.Nodes.Edges.Count, Settings.MaxEdgeCount);
             for (int i = 0; i < maxEdges; i++)
@@ -343,7 +389,10 @@ namespace Translator.Explorer
                 NodeInfoLabel.Visible = true;
                 //create header
                 string header = $"{node.FileName}: {node.Type} - {node.ID}".ConstrainLength();
-                if (node.Gender != Gender.None) header += $" - {node.Gender} only".ConstrainLength();
+                if (node.Gender != Gender.None)
+                {
+                    header += $" - {node.Gender} only".ConstrainLength();
+                }
 
                 //create info
                 //strip text of all VA performance hints, embedded in []. if user wants it
@@ -360,7 +409,10 @@ namespace Translator.Explorer
                 NodeInfoLabel.Text = header + seperator + info;
                 NodeInfoLabel.BringToFront();
 
-                if (ShowExtendedInfo) DisplayExtendedNodeInfo(NodeInfoLabel.ClientRectangle, node);
+                if (ShowExtendedInfo)
+                {
+                    DisplayExtendedNodeInfo(NodeInfoLabel.ClientRectangle, node);
+                }
             }
             else //remove highlight display
             {
@@ -380,7 +432,10 @@ namespace Translator.Explorer
             {
                 oldBox.Visible = false;
             }
-            if (node.Data is null) return;
+            if (node.Data is null)
+            {
+                return;
+            }
 
             //use components if we have them already
             if (!ExtendedInfoComponents.TryGetValue(node.DataType, out GroupBox? box))
@@ -521,7 +576,9 @@ namespace Translator.Explorer
         private void DrawInfoNode(Graphics g)
         {
             if (InfoNode != Node.NullNode)
+            {
                 DrawColouredNode(g, InfoNode, Settings.InfoNodeColor);
+            }
         }
 
         private void DrawHighlightNodeSet(Graphics g, Node node, int depth, int maxDepth, Color nodeColor, Color edgeColor)
@@ -530,30 +587,50 @@ namespace Translator.Explorer
 
             //draw node 
             if (depth != 0)
+            {
                 if (Settings.UseRainbowNodeColors)
+                {
                     DrawColouredNode(g, node, nodeColor);
+                }
                 else
+                {
                     DrawColouredNode(g, node, ColorFromNode(node));
+                }
+            }
 
             if (depth++ < maxDepth)
             {
                 for (int i = 0; i < node.ChildNodes.Count; i++)
                 {
                     if (!NodesHighlighted.Contains(node.ChildNodes[i]))
+                    {
                         DrawHighlightNodeSet(g, node.ChildNodes[i], depth, maxDepth, Rainbow((float)depth / 10), RainbowEdge((float)depth / 14));
+                    }
+
                     if (Settings.UseRainbowEdgeColors)
+                    {
                         DrawEdge(g, node, node.ChildNodes[i], edgeColor);
+                    }
                     else
+                    {
                         DrawEdge(g, node, node.ChildNodes[i], Color.LightGray, 2f);
+                    }
                 }
                 for (int i = 0; i < node.ParentNodes.Count; i++)
                 {
                     if (!NodesHighlighted.Contains(node.ParentNodes[i]))
+                    {
                         DrawHighlightNodeSet(g, node.ParentNodes[i], depth, maxDepth, Rainbow((float)depth / 10), RainbowEdge((float)depth / 14));
+                    }
+
                     if (Settings.UseRainbowEdgeColors)
+                    {
                         DrawEdge(g, node.ParentNodes[i], node, edgeColor);
+                    }
                     else
+                    {
                         DrawEdge(g, node.ParentNodes[i], node, Color.LightGray, 2f);
+                    }
                 }
             }
         }
@@ -609,7 +686,10 @@ namespace Translator.Explorer
             if (e.ClickType == ClickedNodeTypes.Highlight)
             {
                 //select line in translation manager (only if we want to)
-                if (!IsShiftPressed) TabManager.ActiveTranslationManager.SelectLine(e.ChangedNode.ID);
+                if (!IsShiftPressed)
+                {
+                    TabManager.ActiveTranslationManager.SelectLine(e.ChangedNode.ID);
+                }
                 //put info up
                 Explorer.Invoke(() => DisplayNodeInfo(e.ChangedNode));
             }
@@ -690,7 +770,9 @@ namespace Translator.Explorer
             //WHEEL_DELTA = 120, as per windows documentation
             //https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.mouseeventargs.delta?view=windowsdesktop-6.0
             if (e.Delta > 0)
+            {
                 Scaling *= 1.2f;
+            }
             else if (e.Delta < 0)
             {
                 Scaling *= 0.8f;
@@ -706,12 +788,18 @@ namespace Translator.Explorer
 
         public void TrySelectNextUp()
         {
-            if (HighlightedNode.ParentNodes.Count > 0) HighlightedNode = HighlightedNode.ParentNodes[0];
+            if (HighlightedNode.ParentNodes.Count > 0)
+            {
+                HighlightedNode = HighlightedNode.ParentNodes[0];
+            }
         }
 
         public void TrySelectNextDown()
         {
-            if (HighlightedNode.ChildNodes.Count > 0) HighlightedNode = HighlightedNode.ChildNodes[0];
+            if (HighlightedNode.ChildNodes.Count > 0)
+            {
+                HighlightedNode = HighlightedNode.ChildNodes[0];
+            }
         }
     }
 }

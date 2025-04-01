@@ -28,11 +28,15 @@ namespace Translator.Core.Helpers
         {
             // Does the folder not exist?
             if (!Directory.Exists(CFGFOLDER_PATH))
+            {
                 _ = Directory.CreateDirectory(CFGFOLDER_PATH); // Create the folder
+            }
 
             // Does log.txt not exist?
             if (!File.Exists(CFGFILE_PATH))
+            {
                 CreateLogFile();
+            }
 
             //get all lines from the log file so far
             FileLines.AddRange(File.ReadAllLines(CFGFILE_PATH));
@@ -89,7 +93,11 @@ namespace Translator.Core.Helpers
         public static string ExtractCSFileNameFromPath(string path)
         {
             string[] folders = path.Split('\\');
-            if (folders.Length < 4) throw new ArgumentException("path is not deep enough", nameof(path));
+            if (folders.Length < 4)
+            {
+                throw new ArgumentException("path is not deep enough", nameof(path));
+            }
+
             return folders[^3] == "HousePartyTranslator"
                         ? folders[^2][10..] + '\\' + folders[^1]
                         : folders[^4] == "HousePartyTranslator"

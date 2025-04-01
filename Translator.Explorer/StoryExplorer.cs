@@ -56,7 +56,10 @@ namespace Translator.Explorer.Window
             ShowExtendedInfo.Checked = GraphingEngine.ShowExtendedInfo;
 
             //if user cancels during file selection
-            if (Context.FileName == "character" || Context.StoryName == "story") Close();
+            if (Context.FileName == "character" || Context.StoryName == "story")
+            {
+                Close();
+            }
 
             this.StoryName = Context.StoryName;
             this.FileName = Context.FileName;
@@ -92,8 +95,15 @@ namespace Translator.Explorer.Window
                 };
                 typeButton.Click += (object? sender, EventArgs e) =>
                 {
-                    if (typeButton.IsChecked) Provider.AddFilter(type);
-                    else Provider.RemoveFilter(type);
+                    if (typeButton.IsChecked)
+                    {
+                        Provider.AddFilter(type);
+                    }
+                    else
+                    {
+                        Provider.RemoveFilter(type);
+                    }
+
                     Provider.ApplyFilters();
                 };
                 NodeTypeButtonsLayout.Controls.Add(typeButton);
@@ -167,7 +177,11 @@ namespace Translator.Explorer.Window
 
         public void Stop_Click(object sender, EventArgs e)
         {
-            if (Layouter?.Started ?? false) Layouter?.Stop();
+            if (Layouter?.Started ?? false)
+            {
+                Layouter?.Stop();
+            }
+
             ShowStoppedInfoLabel();
         }
 
@@ -271,7 +285,9 @@ namespace Translator.Explorer.Window
                 {
                     toggleButton.Enabled = true;
                     if (Provider.defaulTypes.Contains(enumerator.Current))
+                    {
                         toggleButton.SimulateClick();
+                    }
                 }
                 else
                 {

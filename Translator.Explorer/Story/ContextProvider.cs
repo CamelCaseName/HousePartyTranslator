@@ -36,7 +36,9 @@ public sealed class ContextProvider
         AutoFileSelection = AutoSelectFile && FileName != string.Empty && StoryName != string.Empty;
 
         if (path != string.Empty && !AutoSelectFile)
+        {
             FilePath = path;
+        }
         else
         {
             if (Settings.StoryPath != string.Empty && AutoFileSelection)
@@ -54,7 +56,9 @@ public sealed class ContextProvider
         }
 
         if (FilePath.Length > 0)
+        {
             (this.StoryName, this.FileName) = Utils.ExtractFileAndStoryName(FilePath);
+        }
     }
 
     public string FilePath
@@ -66,7 +70,9 @@ public sealed class ContextProvider
         set
         {
             if (File.Exists(value))
+            {
                 _StoryFilePath = value;
+            }
             else
             {
                 OpenFileDialog selectFileDialog = IsStory
@@ -114,7 +120,9 @@ public sealed class ContextProvider
             Settings.StoryPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
             //try to laod the saved nodes
             if (File.Exists(NodeFilePath))
+            {
                 ReadInOldPositions(NodeFilePath);
+            }
 
             //read in nodes and set positions later, is faster than the old system
             string fileString = File.ReadAllText(FilePath);
@@ -124,12 +132,20 @@ public sealed class ContextProvider
             {
                 if (Path.GetExtension(FilePath) == ".story")
                 {
-                    while (Nodes.Count != 0) Nodes.Clear();
+                    while (Nodes.Count != 0)
+                    {
+                        Nodes.Clear();
+                    }
+
                     Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
                 }
                 else
                 {
-                    while (Nodes.Count != 0) Nodes.Clear();
+                    while (Nodes.Count != 0)
+                    {
+                        Nodes.Clear();
+                    }
+
                     Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
                 }
             }
@@ -167,9 +183,13 @@ public sealed class ContextProvider
         if (FileName != string.Empty && StoryName != string.Empty)
         {
             if (FilePath != string.Empty)
+            {
                 StoryFolderPath = Path.GetDirectoryName(FilePath) ?? string.Empty;
+            }
             else if (Settings.StoryPath != string.Empty)
+            {
                 StoryFolderPath = Settings.StoryPath;
+            }
         }
         else
         {
@@ -182,16 +202,23 @@ public sealed class ContextProvider
             };
 
             if (folderBrowser.ShowDialog() == DialogResult.OK)
+            {
                 StoryFolderPath = folderBrowser.SelectedPath;
+            }
         }
 
-        if (!Directory.Exists(StoryFolderPath)) return false;
+        if (!Directory.Exists(StoryFolderPath))
+        {
+            return false;
+        }
 
         NodeFilePath = Path.Combine(LogManager.CFGFOLDER_PATH, $"{StoryName + DataBase.DBVersion}.json");
 
         //try to load the saved nodes
         if (File.Exists(NodeFilePath))
+        {
             ReadInOldPositions(NodeFilePath);
+        }
 
         if (Directory.GetFiles(StoryFolderPath).Length > 0 && StoryFolderPath.Split("\\")[^1] == StoryName || !AutoFileSelection)
         {
@@ -234,24 +261,38 @@ public sealed class ContextProvider
     {
         oldPositions.Clear();
         List<PointF>? list = JsonConvert.DeserializeObject<List<PointF>>(File.ReadAllText(nodeFilePath));
-        if (list is null) return;
+        if (list is null)
+        {
+            return;
+        }
+
         for (int i = 0; i < list.Count; i++)
         {
             //ugly but that way they cant end up on the same position, layout sovles this offset anyways
-            if (float.IsNaN(list[i].X) || float.IsNaN(list[i].Y)) list[i] = new PointF(i, i);
+            if (float.IsNaN(list[i].X) || float.IsNaN(list[i].Y))
+            {
+                list[i] = new PointF(i, i);
+            }
         }
         oldPositions.AddRange(list);
     }
 
     public bool SaveNodes(List<PointF> nodePositions, string path = "")
     {
-        if (path == string.Empty) path = NodeFilePath;
+        if (path == string.Empty)
+        {
+            path = NodeFilePath;
+        }
+
         if (nodePositions.Count > 0)
         {
             File.WriteAllText(path, JsonConvert.SerializeObject(nodePositions));
             return true;
         }
-        else return false;
+        else
+        {
+            return false;
+        }
     }
 
     public NodeList GetTemplateNodes()
@@ -265,12 +306,20 @@ public sealed class ContextProvider
                 //else create new
                 if (IsStory)
                 {
-                    while (Nodes.Count != 0) Nodes.Clear();
+                    while (Nodes.Count != 0)
+                    {
+                        Nodes.Clear();
+                    }
+
                     Nodes.AddRange(DissectStory(JsonConvert.DeserializeObject<MainStory>(fileString) ?? new MainStory()));
                 }
                 else
                 {
-                    while (Nodes.Count != 0) Nodes.Clear();
+                    while (Nodes.Count != 0)
+                    {
+                        Nodes.Clear();
+                    }
+
                     Nodes.AddRange(DissectCharacter(JsonConvert.DeserializeObject<CharacterStory>(fileString) ?? new CharacterStory()));
                 }
             }
@@ -287,7 +336,10 @@ public sealed class ContextProvider
 
     private void SetStartingPositions(NodeList nodes)
     {
-        if (oldPositions.Count == nodes.Count) nodes.SetPositions(oldPositions);
+        if (oldPositions.Count == nodes.Count)
+        {
+            nodes.SetPositions(oldPositions);
+        }
         else
         {
             int step = 40;
@@ -330,7 +382,10 @@ public sealed class ContextProvider
                 //calculate mass for later use
                 node.CalculateMass();
                 //add it to the final list
-                if (!listNodes.Contains(node)) listNodes.Add(node);
+                if (!listNodes.Contains(node))
+                {
+                    listNodes.Add(node);
+                }
             }
             //call method again on all parents if they have not yet been added to the list
             if (node.ParentNodes.Count > 0 && !node.ParentsVisited)
@@ -340,7 +395,10 @@ public sealed class ContextProvider
                 //get combined parent nodes recursively
                 foreach (Node tempNode in ExpandNodes(node.ParentNodes))
                 {
-                    if (!listNodes.Contains(tempNode)) listNodes.Add(tempNode);
+                    if (!listNodes.Contains(tempNode))
+                    {
+                        listNodes.Add(tempNode);
+                    }
                 }
             }
             //as long as there are children we can go further,
@@ -354,14 +412,22 @@ public sealed class ContextProvider
                 //get combined children nodes recuirsively
                 foreach (Node tempNode in ExpandNodes(node.ChildNodes))
                 {
-                    if (!listNodes.Contains(tempNode)) listNodes.Add(tempNode);
+                    if (!listNodes.Contains(tempNode))
+                    {
+                        listNodes.Add(tempNode);
+                    }
                 }
             }
 
             //actually adding the node
             if (node.Type == NodeType.Criterion)//if it is a criterion, else is after this bit
+            {
                 //add it to the list of all nodes because it is not on there yet.
-                if (!listNodes.Contains(node)) listNodes.Add(node);
+                if (!listNodes.Contains(node))
+                {
+                    listNodes.Add(node);
+                }
+            }
         }
         return listNodes;
     }
@@ -449,14 +515,18 @@ public sealed class ContextProvider
                         {
                             result = Values.Find((n) => n.Type == NodeType.Value && n.ID == criterion.Key);
                             if (result is not null)
+                            {
                                 nodes[i].AddParentNode(result);
+                            }
                             else
                             {
                                 CompareValuesToCheckAgain.Add(nodes[i]);
                             }
                             result = Values.Find((n) => n.Type == NodeType.Value && n.ID == criterion.Key2);
                             if (result is not null)
+                            {
                                 nodes[i].AddParentNode(result);
+                            }
                             else
                             {
                                 CompareValuesToCheckAgain.Add(nodes[i]);
@@ -477,7 +547,9 @@ public sealed class ContextProvider
                         {
                             result = Values.Find((n) => n.Type == NodeType.Cutscene && n.ID == criterion.Key);
                             if (result is not null)
+                            {
                                 nodes[i].AddParentNode(result);
+                            }
                             else
                             {
                                 //add cutscene
@@ -626,12 +698,18 @@ public sealed class ContextProvider
                             //find normal item if it exists
                             result = nodes.Find((n) => n.Type == NodeType.Item && n.ID == criterion.Key);
                             if (result is not null)
+                            {
                                 nodes[i].AddParentNode(result);
+                            }
+
                             break;
                         }
                         case CompareTypes.Posing:
                         {
-                            if (criterion.PoseOption != PoseOptions.CurrentPose) break;
+                            if (criterion.PoseOption != PoseOptions.CurrentPose)
+                            {
+                                break;
+                            }
 
                             result = Poses.Find((n) => n.Type == NodeType.Pose && n.ID == criterion.Value);
                             if (result is not null)
@@ -715,7 +793,10 @@ public sealed class ContextProvider
                             if (result is not null)
                             {
                                 if (!result.Text.Contains(GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value))
+                                {
                                     result.Text += GetSymbolsFromValueFormula(criterion.ValueFormula ?? ValueSpecificFormulas.EqualsValue) + criterion.Value + ", ";
+                                }
+
                                 nodes[i].AddParentNode(result);
                                 break;
                             }
@@ -741,7 +822,9 @@ public sealed class ContextProvider
                         {
                             result = Clothing.Find((n) => n.Type == NodeType.Clothing && n.FileName == gameEvent.Character && n.ID == gameEvent.Option + gameEvent.Value);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
@@ -756,7 +839,9 @@ public sealed class ContextProvider
                         {
                             result = Values.Find((n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
@@ -766,7 +851,9 @@ public sealed class ContextProvider
                             }
                             result = Values.Find((n) => n.Type == NodeType.Value && n.ID == gameEvent.Value && FileName == gameEvent.Character2);
                             if (result is not null)
+                            {
                                 nodes[i].AddParentNode(result);
+                            }
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
@@ -781,7 +868,9 @@ public sealed class ContextProvider
                         {
                             result = Values.Find((n) => n.Type == NodeType.Cutscene && n.ID == gameEvent.Key);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //add cutscene
@@ -796,8 +885,10 @@ public sealed class ContextProvider
                         {
                             result = nodes.Find((n) => n.Type == NodeType.Dialogue && n.FileName == gameEvent.Character && n.ID == gameEvent.Value);
                             if (result is not null)
+                            {
                                 //dialogue influences this criteria
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add new personality, should be from someone else
@@ -812,7 +903,9 @@ public sealed class ContextProvider
                         {
                             result = Doors.Find((n) => n.Type == NodeType.Door && n.ID == gameEvent.Key);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add item node, hasnt been referenced yet
@@ -830,7 +923,9 @@ public sealed class ContextProvider
                             {
                                 //stop 0 step cyclic self reference as it is not allowed
                                 if (nodes[i] != result)
+                                {
                                     nodes[i].AddChildNode(result);
+                                }
                             }
                             else
                             {
@@ -846,7 +941,9 @@ public sealed class ContextProvider
                         {
                             result = nodes.Find((n) => n.Type == NodeType.Item && n.ID == gameEvent.Key);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add item node, hasnt been referenced yet
@@ -861,7 +958,9 @@ public sealed class ContextProvider
                         {
                             result = nodes.Find((n) => n.Type == NodeType.Item && n.ID == gameEvent.Key);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add item node, hasnt been referenced yet
@@ -876,7 +975,9 @@ public sealed class ContextProvider
                         {
                             result = nodes.Find((n) => n.Type == NodeType.Personality && n.FileName == gameEvent.Character && n.ID == ((PersonalityTraits)gameEvent.Option).ToString());
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add new personality, should be from someone else
@@ -891,7 +992,9 @@ public sealed class ContextProvider
                         {
                             result = Properties.Find((n) => n.Type == NodeType.Property && n.ID == gameEvent.Character + "Property" + gameEvent.Value);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add property node, hasnt been referenced yet
@@ -906,7 +1009,9 @@ public sealed class ContextProvider
                         {
                             result = Values.Find((n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
@@ -916,7 +1021,9 @@ public sealed class ContextProvider
                             }
                             result = Values.Find((n) => n.Type == NodeType.Value && n.ID == gameEvent.Value && FileName == gameEvent.Character2);
                             if (result is not null)
+                            {
                                 nodes[i].AddParentNode(result);
+                            }
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
@@ -931,7 +1038,9 @@ public sealed class ContextProvider
                         {
                             result = Values.Find((n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
@@ -959,7 +1068,10 @@ public sealed class ContextProvider
                             }
                             result = nodes.Find((n) => n.Type == NodeType.Item && n.ID == gameEvent.Value);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
+
                             nodes[i].Text = ((PlayerActions)gameEvent.Option).ToString() + (gameEvent.Option == 0 ? gameEvent.Option2 == 0 ? " Add " : " Remove " : " ") + gameEvent.Value + "/" + gameEvent.Character;
                             break;
                         }
@@ -967,7 +1079,9 @@ public sealed class ContextProvider
                         {
                             result = Poses.Find((n) => n.Type == NodeType.Pose && n.ID == gameEvent.Value);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add pose node, hasnt been referenced yet
@@ -982,7 +1096,9 @@ public sealed class ContextProvider
                         {
                             result = nodes.Find((n) => n.Type == NodeType.Quest && n.ID == gameEvent.Key);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add property node, hasnt been referenced yet
@@ -997,7 +1113,9 @@ public sealed class ContextProvider
                         {
                             result = Values.Find((n) => n.Type == NodeType.Value && n.ID == gameEvent.Key && FileName == gameEvent.Character);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add value node, hasnt been referenced yet
@@ -1017,7 +1135,9 @@ public sealed class ContextProvider
                         {
                             result = Socials.Find((n) => n.Type == NodeType.Social && n.ID == gameEvent.Character + ((SocialStatuses)gameEvent.Option).ToString() + gameEvent.Character2);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add property node, hasnt been referenced yet
@@ -1032,7 +1152,9 @@ public sealed class ContextProvider
                         {
                             result = States.Find((n) => n.Type == NodeType.State && n.FileName == gameEvent.Character && n.Text.AsSpan()[..2].Contains(gameEvent.Value!.AsSpan(), StringComparison.InvariantCulture));
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add state node, hasnt been referenced yet
@@ -1047,7 +1169,9 @@ public sealed class ContextProvider
                         {
                             result = nodes.Find((n) => n.Type == NodeType.BGC && n.ID == "BGC" + gameEvent.Value);
                             if (result is not null)
+                            {
                                 nodes[i].AddChildNode(result);
+                            }
                             else
                             {
                                 //create and add property node, hasnt been referenced yet
@@ -1070,7 +1194,9 @@ public sealed class ContextProvider
                     {
                         result = nodes.Find((n) => n.Type == NodeType.Event && n.ID == _event.Id);
                         if (result is not null)
+                        {
                             nodes[i].AddChildNode(result);
+                        }
                         else
                         {
                             //create and add event, hasnt been referenced yet, we can not know its id if it doesnt already exist
@@ -1084,7 +1210,9 @@ public sealed class ContextProvider
                     {
                         result = nodes.Find((n) => n.Type == NodeType.Criterion && n.ID == $"{_criterion.Character}{_criterion.CompareType}{_criterion.Value}");
                         if (result is not null)
+                        {
                             nodes[i].AddParentNode(result);
+                        }
                         else
                         {
                             nodes.Add(Node.CreateCriteriaNode(_criterion, nodes[i]));
@@ -1097,11 +1225,17 @@ public sealed class ContextProvider
                 else if (nodes[i].Type == NodeType.Response && nodes[i].Data is not null)
                 {
                     var response = (Response)nodes[i].Data!;
-                    if (response.Next == 0) continue;
+                    if (response.Next == 0)
+                    {
+                        continue;
+                    }
+
                     result = nodes.Find((n) => n.Type == NodeType.Dialogue && n.ID == response.Next.ToString());
 
                     if (result is not null)
+                    {
                         nodes[i].AddChildNode(result);
+                    }
                     else
                     {
                         //create and add event, hasnt been referenced yet, we can not know its id if it doesnt already exist
@@ -1153,10 +1287,15 @@ public sealed class ContextProvider
                 var criterion = (Criterion)node.Data!;
                 result = Values.Find((n) => n.Type == NodeType.Value && n.ID == criterion.Key);
                 if (result is not null)
+                {
                     node.AddParentNode(result);
+                }
+
                 result = Values.Find((n) => n.Type == NodeType.Value && n.ID == criterion.Key2);
                 if (result is not null)
+                {
                     node.AddParentNode(result);
+                }
             }
         }
     }
@@ -1198,7 +1337,11 @@ public sealed class ContextProvider
 
     private NodeList DissectStory(MainStory story, string AlternateStoryName = "")
     {
-        if (AlternateStoryName == string.Empty) AlternateStoryName = StoryName;
+        if (AlternateStoryName == string.Empty)
+        {
+            AlternateStoryName = StoryName;
+        }
+
         NodeList _nodes = new();
         if (story is not null && !GotCancelled)
         {

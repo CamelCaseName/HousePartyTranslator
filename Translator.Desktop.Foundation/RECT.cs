@@ -81,9 +81,14 @@ namespace Translator.Desktop.Helpers
         public override bool Equals(object? obj)
         {
             if (obj is RECT rect)
+            {
                 return Equals(rect);
+            }
             else if (obj is System.Drawing.Rectangle rectangle)
+            {
                 return Equals(new RECT(rectangle));
+            }
+
             return false;
         }
 

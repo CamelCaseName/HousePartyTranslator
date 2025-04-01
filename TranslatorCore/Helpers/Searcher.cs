@@ -17,8 +17,15 @@ namespace Translator.Core.Helpers
         {
             results = null;
             cleanedQuery = ReadOnlySpan<char>.Empty;
-            if (query.IsEmpty) return false;
-            if (data.Count == 0) return false;
+            if (query.IsEmpty)
+            {
+                return false;
+            }
+
+            if (data.Count == 0)
+            {
+                return false;
+            }
 
             results = new();
             Dictionary<EekStringID, LineData>.ValueCollection.Enumerator enumerator = data.Values.GetEnumerator();
@@ -32,7 +39,10 @@ namespace Translator.Core.Helpers
             bool useRegex = ExtractSearchModifiers(ref query);
 
             //we only extracted an specifyer, no query yet
-            if (query.IsEmpty) return false;
+            if (query.IsEmpty)
+            {
+                return false;
+            }
 
             //fix search if we have nothing or only modifiers
             TrySetDefaultAlgorithms();
@@ -46,13 +56,17 @@ namespace Translator.Core.Helpers
                 foreach (SearchImplementation searchAlgorithm in algorithms)
                 {
                     if (searchAlgorithm.Invoke(query, enumerator.Current, searchCulture, regex))
+                    {
                         continue;
+                    }
 
                     successfull = false;
                     break;
                 }
                 if (successfull)
+                {
                     results.Add(x);
+                }
 
                 ++x;
             }
@@ -64,7 +78,10 @@ namespace Translator.Core.Helpers
         public static bool Search(ReadOnlySpan<char> query, LineData data, out ReadOnlySpan<char> cleanedQuery)
         {
             cleanedQuery = ReadOnlySpan<char>.Empty;
-            if (query.IsEmpty) return false;
+            if (query.IsEmpty)
+            {
+                return false;
+            }
 
             //case sensitive search
             query = ExtractCaseSensitivityCulture(query);
@@ -74,7 +91,10 @@ namespace Translator.Core.Helpers
             bool useRegex = ExtractSearchModifiers(ref query);
 
             //we only extracted an specifyer, no query yet
-            if (query.IsEmpty) return false;
+            if (query.IsEmpty)
+            {
+                return false;
+            }
 
             //fix search if we have nothing or only modifiers
             TrySetDefaultAlgorithms();
@@ -86,7 +106,9 @@ namespace Translator.Core.Helpers
             foreach (SearchImplementation searchAlgorithm in algorithms)
             {
                 if (searchAlgorithm.Invoke(query, data, searchCulture, regex))
+                {
                     continue;
+                }
 
                 successfull = false;
                 break;
@@ -238,7 +260,11 @@ namespace Translator.Core.Helpers
 
         private static bool CheckAndClearEscapedChars(ref ReadOnlySpan<char> query)
         {
-            if (query.IsEmpty) return false;
+            if (query.IsEmpty)
+            {
+                return false;
+            }
+
             if (query.Length > 1)
             {
                 if (query[0] == '\\' && (query[1] == '!' || query[1] == '§')) // we have an escaped flag following, so we chop of escaper and continue
@@ -248,8 +274,15 @@ namespace Translator.Core.Helpers
                 }
                 //only check for inline escape when we find one
                 int pos = query.IndexOf('\\');
-                if (pos == -1) return false;
-                if (pos == query.Length - 1) return false;
+                if (pos == -1)
+                {
+                    return false;
+                }
+
+                if (pos == query.Length - 1)
+                {
+                    return false;
+                }
 
                 if (query[pos] == '\\' && (query[pos + 1] == '!' || query[pos + 1] == '§')) // we have an escaped flag following, so we chop of escaper and continue
                 {
@@ -293,7 +326,10 @@ namespace Translator.Core.Helpers
                 foreach (string comment in line.Comments)
                 {
                     bool result = pattern is not null ? SafeRegexSearch(comment, pattern) : comment.AsSpan().Contains(query, comparison);
-                    if (result) return true;
+                    if (result)
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -347,8 +383,15 @@ namespace Translator.Core.Helpers
         {
             position = -1;
             length = -1;
-            if (query.IsEmpty) return false;
-            if (line is "") return false;
+            if (query.IsEmpty)
+            {
+                return false;
+            }
+
+            if (line is "")
+            {
+                return false;
+            }
 
             StringComparison comparison = StringComparison.InvariantCultureIgnoreCase;
 
@@ -363,7 +406,10 @@ namespace Translator.Core.Helpers
             }
 
             //we only extracted an specifyer, no query yet
-            if (query.IsEmpty) return false;
+            if (query.IsEmpty)
+            {
+                return false;
+            }
 
             if (RemoveModifiers(ref query))
             {

@@ -23,10 +23,14 @@ namespace Translator.Desktop.UI.Components
             foreach (var parent in current.ParentNodes)
             {
                 if (!WinTranslationManager.TryExtractTemplateText(StoryName, FileName, parent, out var template))
+                {
                     continue;
+                }
 
                 if (template is null)
+                {
                     continue;
+                }
 
                 Lines.Nodes[0].Nodes.Add(template.ToString());
             }
@@ -35,10 +39,14 @@ namespace Translator.Desktop.UI.Components
             foreach (var child in current.ChildNodes)
             {
                 if (!WinTranslationManager.TryExtractTemplateText(StoryName, FileName, child, out var template))
+                {
                     continue;
+                }
 
                 if (template is null)
+                {
                     continue;
+                }
 
                 Lines.Nodes[2].Nodes.Add(template.ToString());
             }

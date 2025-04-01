@@ -90,7 +90,9 @@ namespace Translator.Explorer.Story
                     nodeResponse.AddEvents(response.ResponseEvents ?? new());
 
                     if (response.Next != 0)
+                    {
                         responseDialogueLinks.Add(new Tuple<Node, int>(nodeResponse, response.Next));
+                    }
 
                     nodeDialogue.AddChildNode(nodeResponse);
                 }
@@ -106,7 +108,10 @@ namespace Translator.Explorer.Story
             foreach (Tuple<Node, int> next in responseDialogueLinks)
             {
                 Node node = nodes.Find(n => n.ID == next.Item2.ToString()) ?? Node.NullNode;
-                if (node == Node.NullNode) continue;
+                if (node == Node.NullNode)
+                {
+                    continue;
+                }
 
                 node.AddParentNode(next.Item1);
             }
@@ -162,7 +167,10 @@ namespace Translator.Explorer.Story
             //go through all item groups to find events
             foreach (ItemGroupBehavior itemGroupBehaviour in story.ItemGroupBehaviors ?? new List<ItemGroupBehavior>())
             {
-                if (itemGroupBehaviour is null) continue;
+                if (itemGroupBehaviour is null)
+                {
+                    continue;
+                }
                 //create item group node to add events/criteria to
                 var nodeGroup = new Node(itemGroupBehaviour.Id ?? string.Empty, NodeType.ItemGroupBehaviour, itemGroupBehaviour.Name ?? string.Empty) { Data = itemGroupBehaviour, DataType = typeof(ItemGroupBehavior) };
                 //get actions for item
@@ -196,7 +204,10 @@ namespace Translator.Explorer.Story
             //go through all item groups to find events
             foreach (ItemGroup itemGroup in story.ItemGroups ?? new List<ItemGroup>())
             {
-                if (itemGroup is null) continue;
+                if (itemGroup is null)
+                {
+                    continue;
+                }
                 //create item group node to add events/criteria to
                 var nodeGroup = new Node(itemGroup.Id ?? string.Empty, NodeType.ItemGroup, itemGroup.Name ?? string.Empty) { Data = itemGroup, DataType = typeof(ItemGroup) };
                 //get actions for item
@@ -297,11 +308,20 @@ namespace Translator.Explorer.Story
                 var nodeQuest = new Node(quest.ID ?? string.Empty, NodeType.Quest, quest.Name ?? string.Empty) { Data = quest, DataType = typeof(Quest) };
 
                 //Add details
-                if (quest.Details?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}Description", NodeType.Quest, quest.Details));
+                if (quest.Details?.Length > 0)
+                {
+                    nodeQuest.AddChildNode(new Node($"{quest.ID}Description", NodeType.Quest, quest.Details));
+                }
                 //Add completed details
-                if (quest.CompletedDetails?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}CompletedDetails", NodeType.Quest, quest.CompletedDetails));
+                if (quest.CompletedDetails?.Length > 0)
+                {
+                    nodeQuest.AddChildNode(new Node($"{quest.ID}CompletedDetails", NodeType.Quest, quest.CompletedDetails));
+                }
                 //Add failed details
-                if (quest.FailedDetails?.Length > 0) nodeQuest.AddChildNode(new Node($"{quest.ID}FailedDetails", NodeType.Quest, quest.FailedDetails));
+                if (quest.FailedDetails?.Length > 0)
+                {
+                    nodeQuest.AddChildNode(new Node($"{quest.ID}FailedDetails", NodeType.Quest, quest.FailedDetails));
+                }
 
                 //Add extended details
 

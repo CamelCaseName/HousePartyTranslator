@@ -45,7 +45,9 @@ namespace Translator.Core
         static TranslationManager()
         {
             if (Settings.Default.AutoSaveInterval <= TimeSpan.FromMinutes(1))
+            {
                 Settings.Default.AutoSaveInterval = TimeSpan.FromMinutes(1);
+            }
 
             AutoSaveTimer.Interval = (int)(Settings.Default.AutoSaveInterval.TotalMilliseconds > 0 ? Settings.Default.AutoSaveInterval.TotalMilliseconds : 6e4);
             AutoSaveTimer.Start();
@@ -59,7 +61,9 @@ namespace Translator.Core
             AutoSaveTimer.Elapsed += SaveFileHandler;
 
             if (!IsUpToDate && Settings.Default.AdvancedModeEnabled)
+            {
                 SaveAndExportManager.UploadOfficialTemplates();
+            }
         }
 
         public static bool IsUpToDate { get; internal set; } = false;
@@ -142,7 +146,9 @@ namespace Translator.Core
             {
                 sourceFilePath = value;
                 if (!isSaveAs)
+                {
                     FileName = Utils.ExtractFileName(value);
+                }
             }
         }
         /// <summary>
@@ -186,7 +192,10 @@ namespace Translator.Core
                 int Index = TabUI.SelectedLineIndex;
                 //inverse checked state at the selected index
                 if (Index >= 0)
+                {
                     TabUI.Lines.SetApprovalState(Index, TabUI.ApprovedButtonChecked);
+                }
+
                 UpdateApprovedAndTabName();
                 UpdateSearchForCurrentEditedLine();
             }
@@ -221,9 +230,13 @@ namespace Translator.Core
         public void ExportMissingLinesForCurrentStory(bool folder)
         {
             if (folder)
+            {
                 SaveAndExportManager.ExportAllMissinglinesForStoryIntoFolder(Utils.SelectFolderFromSystem("Please select where you want to save the missing lines to"), StoryName);
+            }
             else
+            {
                 SaveAndExportManager.ExportAllMissinglinesForStoryIntoFile(Utils.SelectSaveLocation(message: "Please select where you want to save the missing lines to", file: "all_missing.txt", createPrompt: true, checkFileExists: false), StoryName);
+            }
         }
 
         public string GetTabName()
@@ -243,7 +256,9 @@ namespace Translator.Core
                     LoadTranslationFile(true);
                     //select recent index
                     if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count)
+                    {
                         TabUI.Lines.SelectedIndex = Settings.Default.RecentIndex;
+                    }
 
                     foreach (var item in TranslationData.Values)
                     {
@@ -266,10 +281,15 @@ namespace Translator.Core
             TabManager.ShowAutoSaveDialog();
             LoadTranslationFile();
             if (UI is null)
+            {
                 return;
+            }
             //select recent index
             if (Settings.Default.RecentIndex > 0 && Settings.Default.RecentIndex < TranslationData.Count)
+            {
                 TabUI.SelectLineItem(Settings.Default.RecentIndex);
+            }
+
             LogManager.Log($"Reloaded {StoryName}/{FileName}");
         }
 
@@ -301,9 +321,14 @@ namespace Translator.Core
             int NumberOfUnapprovedLines = TabUI.LineCount - TabUI.Lines.ApprovedCount;
             List<LineData> replaced;
             if (NumberOfUnapprovedLines < 0)
+            {
                 replaced = new();
+            }
             else
+            {
                 replaced = new(NumberOfUnapprovedLines);
+            }
+
             returnedTasks = 0;
 
             UI.SignalUserWait();
@@ -312,12 +337,17 @@ namespace Translator.Core
             foreach (var line in TranslationData.Values)
             {
                 if (!line.IsApproved && line.Translation == line.Template)
+                {
                     AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
                     {
                         if (successfull)
+                        {
                             replaced.Add(data);
+                        }
+
                         addReturned();
                     });
+                }
             }
             //seperate updates from ui thread
             Task.Factory.StartNew(() => WaitOnAutomaticTranslationsToFinish(NumberOfUnapprovedLines, replaced, oldData));
@@ -328,15 +358,23 @@ namespace Translator.Core
             {
                 //wait on all translations to end
                 while (returnedTasks < NumberOfUnapprovedLines && !abortedAutoTranslation)
+                {
                     ;
+                }
+
                 if (abortedAutoTranslation)
+                {
                     return;
+                }
 
                 //add changes to history
                 foreach (var translated in replaced)
                 {
                     if (abortedAutoTranslation)
+                    {
                         return;
+                    }
+
                     if (!TranslationData[translated.EekID].IsApproved)
                     {
                         TranslationData[translated.EekID] = translated;
@@ -367,9 +405,14 @@ namespace Translator.Core
             int NumberOfUntranslatedLines = TabUI.TranslationsSimilarToTemplate.Count;
             List<LineData> replaced;
             if (NumberOfUntranslatedLines < 0)
+            {
                 replaced = new();
+            }
             else
+            {
                 replaced = new(NumberOfUntranslatedLines);
+            }
+
             returnedTasks = 0;
 
             UI.SignalUserWait();
@@ -378,12 +421,17 @@ namespace Translator.Core
             foreach (var line in TranslationData.Values)
             {
                 if (!line.IsTranslated && line.Translation == line.Template)
+                {
                     AutoTranslation.AutoTranslationAsync(line, Language, (bool successfull, LineData data) =>
                     {
                         if (successfull)
+                        {
                             replaced.Add(data);
+                        }
+
                         addReturned();
                     });
+                }
             }
             //seperate updates from ui thread
             Task.Factory.StartNew(() => WaitOnAutomaticTranslationsToFinish(NumberOfUntranslatedLines, replaced, oldData));
@@ -394,14 +442,22 @@ namespace Translator.Core
             {
                 //wait on all translations to end
                 while (returnedTasks < NumberOfUntranslatedLines && !abortedAutoTranslation)
+                {
                     ;
+                }
+
                 if (abortedAutoTranslation)
+                {
                     return;
+                }
 
                 foreach (var translated in replaced)
                 {
                     if (abortedAutoTranslation)
+                    {
                         return;
+                    }
+
                     if (TranslationData[translated.EekID].ShouldBeMarkedSimilarToEnglish)
                     {
                         TranslationData[translated.EekID] = translated;
@@ -461,15 +517,21 @@ namespace Translator.Core
                 return;
             }
             if (doOnlineUpdate)
+            {
                 _ = Task.Run(RemoteUpdate).ContinueWith(RemoteUpdateExceptionHandler(), TaskContinuationOptions.OnlyOnFaulted);
+            }
 
             List<CategorizedLines> CategorizedStrings = SaveAndExportManager.InitializeCategories(StoryName, FileName);
 
             //sort online line ids into translations but use local values for translations if applicable
             if (DataBase.GetAllLineDataTemplate(FileName, StoryName, out FileData IdsToExport) && DataBase.IsOnline)
+            {
                 SaveAndExportManager.SortIntoCategories(ref CategorizedStrings, IdsToExport, TranslationData); //export only ids from db
+            }
             else
+            {
                 SaveAndExportManager.SortIntoCategories(ref CategorizedStrings, TranslationData, TranslationData); //eyxport all ids we have
+            }
 
             //save all categorized lines to disk
             SaveAndExportManager.WriteCategorizedLinesToDisk(CategorizedStrings, SourceFilePath);
@@ -488,9 +550,14 @@ namespace Translator.Core
             {
                 UI.SignalUserWait();
                 if (!DataBase.UpdateTranslations(TranslationData, Language))
+                {
                     _ = UI.InfoOk("You seem to be offline, translations are going to be saved locally but not remotely.");
+                }
                 else
+                {
                     LogManager.Log("Successfully saved the file remotely");
+                }
+
                 UI.SignalUserEndWait();
                 TranslationData.AcknowledgeChanges();
             }
@@ -500,7 +567,10 @@ namespace Translator.Core
                 return faultedTask =>
                 {
                     if (faultedTask.Exception is null)
+                    {
                         return;
+                    }
+
                     LogManager.Log(faultedTask.Exception.Message);
                     foreach (Exception exception in faultedTask.Exception.InnerExceptions)
                     {
@@ -538,7 +608,9 @@ namespace Translator.Core
             for (int i = 0; i < TabUI.LineCount; i++)
             {
                 if (TabUI.Lines[i].Text == id)
+                {
                     TabUI.SelectLineItem(i);
+                }
             }
         }
 
@@ -549,10 +621,14 @@ namespace Translator.Core
         public bool SelectNextResultIfApplicable()
         {
             if (!IsSearchFocused() || CleanedSearchQuery.Length == 0)
+            {
                 return false;
+            }
 
             if (SelectedResultIndex < -1)
+            {
                 SelectedResultIndex = -1;
+            }
 
             if (TabUI.Lines.SearchResults.Count == 0 && TabManager.InGlobalSearch)
             {
@@ -604,10 +680,14 @@ namespace Translator.Core
         public bool SelectPreviousResultIfApplicable()
         {
             if (!IsSearchFocused() || CleanedSearchQuery.Length == 0)
+            {
                 return false;
+            }
 
             if (SelectedResultIndex > TabUI.Lines.SearchResults.Count)
+            {
                 SelectedResultIndex = TabUI.Lines.SearchResults.Count;
+            }
 
             if (TabUI.Lines.SearchResults.Count == 0 && TabManager.InGlobalSearch)
             {
@@ -651,7 +731,9 @@ namespace Translator.Core
         public bool TryCycleSearchDown()
         {
             if (!IsSearchFocused())
+            {
                 return false;
+            }
 
             if (currentSearchQuery > 1)
             {
@@ -670,7 +752,9 @@ namespace Translator.Core
         public bool TryCycleSearchUp()
         {
             if (!IsSearchFocused())
+            {
                 return false;
+            }
 
             if (currentSearchQuery < SearchQueries.Count - 1)
             {
@@ -705,13 +789,18 @@ namespace Translator.Core
             TabUI.TranslationBoxText = SelectedLine.Translation;
             //alert user they typed an illegal character
             if (oldLength != SelectedLine.TranslationLength)
+            {
                 SystemSounds.Beep.Play();
+            }
 
             UpdateCharacterCountLabel();
             ChangesPending |= !selectedNew;
             selectedNew = false;
             if (ChangesPending)
+            {
                 _ = TabUI.TranslationsSimilarToTemplate.Remove(SelectedId);
+            }
+
             UpdateSearchForCurrentEditedLine();
         }
 
@@ -722,14 +811,22 @@ namespace Translator.Core
         public void LoadFileIntoProgram(string path)
         {
             if (path == string.Empty)
+            {
                 return;
+            }
+
             if (File.Exists(path))
             {
                 if (TranslationData.Count > 0)
+                {
                     TabManager.ShowAutoSaveDialog();
+                }
                 //clear history if we have a new file, we dont need old one anymore
                 if (path != SourceFilePath && FileName != string.Empty && StoryName != string.Empty)
+                {
                     History.ClearForFile(FileName, StoryName);
+                }
+
                 Reset();
 
                 SourceFilePath = path;
@@ -762,13 +859,20 @@ namespace Translator.Core
             if (lastIndex >= 0)
             {
                 if (lastIndex < TabUI.Lines.Count)
+                {
                     UpdateSimilarityMarking(TabUI.Lines[lastIndex].ID);
+                }
+
                 if (TabUI.Lines.SelectedIndex >= 0)
                 {
                     if (History.Peek().FileName == FileName && History.Peek().StoryName == StoryName)
+                    {
                         History.AddAction(new SelectedLineChanged(TabUI.Lines, lastIndex, TabUI.Lines.SelectedIndex, FileName, StoryName));
+                    }
                     else
+                    {
                         History.AddAction(new SelectedLineChanged(TabUI.Lines, 0, TabUI.Lines.SelectedIndex, FileName, StoryName));
+                    }
                 }
             }
             lastIndex = TabUI.Lines.SelectedIndex;
@@ -785,7 +889,9 @@ namespace Translator.Core
 
                 //translate if useful and possible
                 if (Settings.Default.AutoTranslate)
+                {
                     ConvenienceAutomaticTranslation();
+                }
 
                 TabUI.CommentBoxTextArr = SelectedLine.Comments;
 
@@ -802,7 +908,9 @@ namespace Translator.Core
             else
             {
                 if (TabUI.LineCount > 0)
+                {
                     TabUI.SelectLineItem(0);
+                }
             }
             UpdateApprovedAndTabName();
         }
@@ -811,7 +919,9 @@ namespace Translator.Core
         {
             //update textbox
             if (SelectedId != string.Empty)
+            {
                 TabUI.TranslationBoxText = SelectedLine.Translation.Replace("\n", Environment.NewLine).RemoveVAHints(true);
+            }
         }
 
         /// <summary>
@@ -821,14 +931,19 @@ namespace Translator.Core
         public void ReplaceAll(string replacement)
         {
             if (TabUI.Lines.SearchResults.Count == 0)
+            {
                 return;
+            }
             //save old lines for history
             FileData old = new(TranslationData, StoryName, FileName);
 
             for (int i = 0; i < TabUI.Lines.SearchResults.Count; ++i)
             {
                 if (TabUI.Lines.SearchResults[i] < 0)
+                {
                     continue;
+                }
+
                 TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].ID].Translation = Replacer.Replace(TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].ID].Translation, replacement, SearchQuery).ToString();
                 TranslationData[TabUI.Lines[TabUI.Lines.SearchResults[i]].ID].WasChanged = true;
             }
@@ -872,9 +987,14 @@ namespace Translator.Core
         internal void Search()
         {
             if (TabManager.InGlobalSearch)
+            {
                 SearchQuery = UI.SearchBarText[1..];
+            }
             else
+            {
                 SearchQuery = UI.SearchBarText;
+            }
+
             Search(SearchQuery);
         }
 
@@ -924,14 +1044,19 @@ namespace Translator.Core
 
             FileData onlineLines = new(StoryName, FileName);
             if (DataBase.IsOnline)
+            {
                 _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
+            }
 
             foreach (EekStringID key in TranslationData.Keys)
             {
                 if (onlineLines.TryGetValue(key, out LineData? tempLine))
                 {
                     if (!DataBase.IsOnline)
+                    {
                         tempLine.Comments = TranslationData[key].Comments;
+                    }
+
                     TranslationData[key].IsTemplate = false;
                     TranslationData[key].IsTranslated = tempLine.IsTranslated;
                     if (!localTakesPriority
@@ -948,7 +1073,9 @@ namespace Translator.Core
                 }
 
                 if (TranslationData[key].Template is null)
+                {
                     TranslationData[key].Template = string.Empty;
+                }
 
                 TabUI.Lines.Add(key, TranslationData[key].IsApproved);
 
@@ -974,12 +1101,17 @@ namespace Translator.Core
         public void UpdateSimilarityMarking(EekStringID id)
         {
             if (!TranslationData.TryGetValue(id, out LineData? line))
+            {
                 return;
+            }
 
             if (line.ShouldBeMarkedSimilarToEnglish)
             {
                 if (!TabUI.TranslationsSimilarToTemplate.Contains(id.ID))
+                {
                     TabUI.TranslationsSimilarToTemplate.Add(id.ID);
+                }
+
                 line.IsTranslated = false;
             }
             else
@@ -993,20 +1125,28 @@ namespace Translator.Core
         private void AutoTranslationCallback(bool successfull, LineData data)
         {
             if (abortedAutoTranslation)
+            {
                 return;
+            }
+
             if (successfull)
             {
                 History.AddAction(new TranslationChanged(this, data.EekID, TranslationData[data.EekID].Translation, data.Translation));
                 TranslationData[data.EekID] = data;
                 if (data.ID == SelectedId)
+                {
                     ReloadTranslationTextbox();
+                }
+
                 UpdateSimilarityMarking(data.EekID);
                 LogManager.LogDebug("manual autotranslation for " + data.ID + " succeeded");
             }
             else if (Settings.Default.AutoTranslate)
             {
                 if (UI.WarningYesNo("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", PopupResult.YES))
+                {
                     Settings.Default.AutoTranslate = false;
+                }
             }
         }
 
@@ -1027,7 +1167,10 @@ namespace Translator.Core
         private void ConvenienceTranslationCallback(bool successfull, LineData data)
         {
             if (abortedAutoTranslation)
+            {
                 return;
+            }
+
             if (successfull)
             {
                 if (TranslationData[data.EekID].Translation == data.Template || TranslationData[data.EekID].Translation.Length == 0)
@@ -1037,7 +1180,10 @@ namespace Translator.Core
                     //todo change this so it shows as a placeholder type of text?
                     TranslationData[data.EekID] = data;
                     if (data.ID == SelectedId)
+                    {
                         ReloadTranslationTextbox();
+                    }
+
                     UpdateSimilarityMarking(data.EekID);
                     LogManager.LogDebug("convinience autotranslation completed for " + data.ID);
                 }
@@ -1045,7 +1191,9 @@ namespace Translator.Core
             else
             {
                 if (UI.WarningYesNo("The translator seems to be unavailable. Turn off autotranslation? (needs to be turned back on manually!)", "Turn off autotranslation", PopupResult.YES))
+                {
                     Settings.Default.AutoTranslate = false;
+                }
             }
         }
 
@@ -1115,6 +1263,7 @@ namespace Translator.Core
                     if ((typeResult = UI.InfoYesNoCancel($"You will now be prompted to select the corresponding .story or .character file for the translation you want to do. Is {FileName} a character?", "Custom story?")) != PopupResult.CANCEL)
                     {
                         if (UI.CreateTemplateFromStory(story, fileName, SourceFilePath, out FileData templates))
+                        {
                             if (templates.Count > 0)
                             {
                                 _ = DataBase.UpdateTemplates(templates);
@@ -1122,6 +1271,8 @@ namespace Translator.Core
                                 UI.SignalUserEndWait();
                                 return true;
                             }
+                        }
+
                         _ = UI.ErrorOk("Something broke, please try again.");
                     }
                 }
@@ -1175,7 +1326,9 @@ namespace Translator.Core
                     if (Settings.Default.HighlightLanguages)
                     {
                         if (DataBase.GetLanguagesForStory(StoryName, out string[] languages))
+                        {
                             UI.SetLanguageHighlights(languages);
+                        }
                     }
                 }
                 else
@@ -1207,13 +1360,17 @@ namespace Translator.Core
         private void UpdateSearchForCurrentEditedLine()
         {
             if (CleanedSearchQuery == string.Empty)
+            {
                 return;
+            }
 
             int index = TabUI.SelectedLineIndex;
             if (Searcher.Search(CleanedSearchQuery, SelectedLine))
             {
                 if (!TabUI.Lines.SearchResults.Contains(index))
+                {
                     TabUI.Lines.SearchResults.Add(index);
+                }
 
                 TabManager.UpdateSearchResultCount();
                 UpdateHighlightPositions();
@@ -1264,17 +1421,27 @@ namespace Translator.Core
             {
                 TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(CleanedSearchQuery);
                 if (Settings.Default.ShowTranslationHighlight)
+                {
                     TranslationTextQueryLocation = TabUI.TranslationBoxText.IndexOf(CleanedSearchQuery);
+                }
+
                 if (Settings.Default.ShowCommentHighlight)
+                {
                     CommentsTextQueryLocation = TabUI.CommentBoxText.IndexOf(CleanedSearchQuery);
+                }
             }
             else
             {
                 TemplateTextQueryLocation = TabUI.TemplateBoxText.IndexOf(CleanedSearchQuery, StringComparison.InvariantCultureIgnoreCase);
                 if (Settings.Default.ShowTranslationHighlight)
+                {
                     TranslationTextQueryLocation = TabUI.TranslationBoxText.IndexOf(CleanedSearchQuery, StringComparison.InvariantCultureIgnoreCase);
+                }
+
                 if (Settings.Default.ShowCommentHighlight)
+                {
                     CommentsTextQueryLocation = TabUI.CommentBoxText.IndexOf(CleanedSearchQuery, StringComparison.InvariantCultureIgnoreCase);
+                }
             }
             if (TemplateTextQueryLocation >= 0)
             {
@@ -1325,6 +1492,18 @@ namespace Translator.Core
             }
 
             TabManager.UpdateSearchResultCount();
+        }
+
+        public void ImportAllCloudSave()
+        {
+
+
+        }
+
+        public void ImportUnapprovedCloudSave()
+        {
+
+
         }
     }
 }

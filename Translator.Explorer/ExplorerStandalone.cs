@@ -23,7 +23,9 @@ namespace Translator.Explorer
                        );
 
             if (openAll == DialogResult.Cancel)
+            {
                 return;
+            }
 
             var explorer = new StoryExplorer(false, true, "", "", new CancellationToken());
             explorer.Shown += (_, _) => explorer.Initialize(openAll == DialogResult.No);

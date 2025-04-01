@@ -78,8 +78,16 @@ namespace Translator.Desktop.InterfaceImpls
         }
         public void SetSelectedSearchBarText(int start, int end)
         {
-            if (App.MainForm is null) return;
-            if (start > end) throw new ArgumentOutOfRangeException(nameof(end), "End has to be after start");
+            if (App.MainForm is null)
+            {
+                return;
+            }
+
+            if (start > end)
+            {
+                throw new ArgumentOutOfRangeException(nameof(end), "End has to be after start");
+            }
+
             App.MainForm.SearchBox.SelectionStart = start;
             App.MainForm.SearchBox.SelectionLength = end - start;
         }
@@ -113,8 +121,14 @@ namespace Translator.Desktop.InterfaceImpls
                 SetReplaceMenuVisible();
 
                 //set focus to most needed text box, search first
-                if (SearchBarText.Length > 0) FocusReplaceBar();
-                else FocusSearchBar();
+                if (SearchBarText.Length > 0)
+                {
+                    FocusReplaceBar();
+                }
+                else
+                {
+                    FocusSearchBar();
+                }
             }
             else
             {
@@ -141,9 +155,20 @@ namespace Translator.Desktop.InterfaceImpls
 
         private void SetWaitCursor()
         {
-            if (waitCounter < 0) waitCounter = 0;
-            if (waitCounter > 0 && !Application.UseWaitCursor) Application.UseWaitCursor = true;
-            else if (waitCounter == 0) Application.UseWaitCursor = false;
+            if (waitCounter < 0)
+            {
+                waitCounter = 0;
+            }
+
+            if (waitCounter > 0 && !Application.UseWaitCursor)
+            {
+                Application.UseWaitCursor = true;
+            }
+            else if (waitCounter == 0)
+            {
+                Application.UseWaitCursor = false;
+            }
+
             App.MainForm?.Invalidate();
         }
 
@@ -155,7 +180,9 @@ namespace Translator.Desktop.InterfaceImpls
             {
                 int index = App.MainForm?.LanguageBox.DropDown.Items.IndexOf(languages[i]) ?? -1;
                 if (index >= 0)
+                {
                     indices[iterator++] = index;
+                }
             }
             App.MainForm?.LanguageBox.DropDown.SetColoredIndices(indices[..iterator].ToArray());
         }

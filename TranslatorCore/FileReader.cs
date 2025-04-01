@@ -75,12 +75,17 @@ namespace Translator.Core
             //todo insert setting/toggle for what type of line we have
             var t = true;
             if (t)
+            {
                 return ReadEekLines(LinesFromFile, IdsToImport);
+            }
             else if (t)
+            {
                 return ReadCSVLines();
+            }
             else
+            {
                 return ReadPythonStringLines();
-
+            }
         }
 
         //todo implement
@@ -100,8 +105,13 @@ namespace Translator.Core
             while (LinesFromFile.Count > 0)
             {
                 if (LinesFromFile[^1] == string.Empty)
+                {
                     LinesFromFile.RemoveAt(LinesFromFile.Count - 1);
-                else break;
+                }
+                else
+                {
+                    break;
+                }
             }
             //load lines and their data and split accordingly
             foreach (string line in LinesFromFile)
@@ -197,10 +207,16 @@ namespace Translator.Core
         //Creates the actual linedata objects from the file
         private static void CreateLineInTranslations(string[] lastLine, StringCategory category, FileData IdsToExport, string translation, ref FileData TranslationData)
         {
-            if (lastLine[0] == string.Empty) return;
+            if (lastLine[0] == string.Empty)
+            {
+                return;
+            }
+
             var eekId = new EekStringID(lastLine[0], category);
             if (IdsToExport.TryGetValue(eekId, out LineData? templateLine))
+            {
                 TranslationData[eekId] = new LineData(lastLine[0], IdsToExport.StoryName, IdsToExport.FileName, category, templateLine.Template, lastLine[1] + translation);
+            }
             else
             {
                 TranslationData[eekId] = new LineData(lastLine[0], IdsToExport.StoryName, IdsToExport.FileName, category, string.Empty, lastLine[1] + translation);

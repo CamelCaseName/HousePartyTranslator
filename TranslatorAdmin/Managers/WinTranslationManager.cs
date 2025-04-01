@@ -26,14 +26,21 @@ namespace Translator.Desktop.Managers
             NodeList nodes = contextProvider.GetTemplateNodes();
             if (nodes is not null)
             {
-                if (story != filename) data.Add(new("Name", StringCategory.General), new LineData("Name", story, filename, StringCategory.General, filename, true));
+                if (story != filename)
+                {
+                    data.Add(new("Name", StringCategory.General), new LineData("Name", story, filename, StringCategory.General, filename, true));
+                }
 
                 //Add all new lines, but check if they are relevant
                 for (int i = 0; i < nodes.Count; i++)
                 {
                     if (TryExtractTemplateText(story, filename, nodes[i], out var template))
+                    {
                         if (template is not null)
+                        {
                             data[template.EekID] = template;
+                        }
+                    }
                 }
                 TabManager.UI.SignalUserEndWait();
 
@@ -49,7 +56,11 @@ namespace Translator.Desktop.Managers
         {
             template = null;
             //filter out irrelevant nodes
-            if (node.ID == string.Empty) return false;
+            if (node.ID == string.Empty)
+            {
+                return false;
+            }
+
             switch (node.Type)
             {
                 case NodeType.BGCResponse:
@@ -71,7 +82,10 @@ namespace Translator.Desktop.Managers
                     return false;
                 case NodeType.Item:
                 {
-                    if (story != filename) return false;
+                    if (story != filename)
+                    {
+                        return false;
+                    }
 
                     if (node.DataType == typeof(ItemOverride) && node.Data is not null)
                     {
@@ -82,8 +96,10 @@ namespace Translator.Desktop.Managers
                     {
                         UseWith use = (UseWith)node.Data!;
                         if (use.CustomCantDoThatMessage != string.Empty)
+                        {
                             //not sure if this can even work but ill try, maybe we need the english version as id?
                             template = new LineData(use.ItemName! + "CustomCantDoThatMessage", story, filename, node.Type.CategoryFromNode(), use.CustomCantDoThatMessage!, true);
+                        }
                     }
                     else if (node.Text != string.Empty && node.ID != string.Empty)
                     {
@@ -93,7 +109,10 @@ namespace Translator.Desktop.Managers
                 }
                 case NodeType.Event:
                 {
-                    if (node.DataType != typeof(GameEvent) || node.Data is null) return false;
+                    if (node.DataType != typeof(GameEvent) || node.Data is null)
+                    {
+                        return false;
+                    }
 
                     GameEvent gameEvent = (GameEvent)node.Data!;
                     if (gameEvent.EventType == StoryEnums.GameEvents.DisplayGameMessage)
@@ -103,13 +122,18 @@ namespace Translator.Desktop.Managers
                     else if (gameEvent.EventType == StoryEnums.GameEvents.Item)
                     {
                         if (gameEvent.Option == 2)
+                        {
                             template = new LineData(gameEvent.Value!, story, filename, node.Type.CategoryFromNode(), gameEvent.Value!, true);
+                        }
                     }
                     return true;
                 }
                 case NodeType.Achievement:
                 {
-                    if (node.ID.Contains("SteamName")) return false;
+                    if (node.ID.Contains("SteamName"))
+                    {
+                        return false;
+                    }
 
                     template = new LineData(node.ID, story, filename, node.Type.CategoryFromNode(), node.Text, true);
                     return true;
@@ -127,7 +151,11 @@ namespace Translator.Desktop.Managers
         /// </summary>
         public static void SetHighlightedNode(this TranslationManager manager)
         {
-            if (TabManager.UI is null) return;
+            if (TabManager.UI is null)
+            {
+                return;
+            }
+
             if (manager.TranslationData.Count > 0)
             {
                 //Highlights the node representign the selected string in the story explorer window

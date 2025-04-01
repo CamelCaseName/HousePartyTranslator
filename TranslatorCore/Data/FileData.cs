@@ -39,14 +39,23 @@ namespace Translator.Core.Data
 
         public KeyValuePair<EekStringID, LineData> ElementAt(int index)
         {
-            if (index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+            if (index >= Count)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
 
             Enumerator enumerator = GetEnumerator();
             int i = 0;
             while (enumerator.MoveNext())
             {
-                if (i == index) return enumerator.Current;
-                else ++i;
+                if (i == index)
+                {
+                    return enumerator.Current;
+                }
+                else
+                {
+                    ++i;
+                }
             }
             throw new IndexOutOfRangeException(nameof(index));
         }

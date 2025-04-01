@@ -64,7 +64,9 @@ namespace Translator.Explorer.Graph
                 LogManager.Log("Asking for OpenCL");
                 opencl.SetUpOpenCL();
                 if (opencl.OpenCLDevicePresent && !opencl.Failed)
+                {
                     LayoutCalculation = () => opencl.CalculateLayout(() => ++_layoutcount, cancellationToken.Token);
+                }
                 else
                 {
                     LogManager.Log("Aborted OpenCL device selection");
@@ -91,13 +93,21 @@ namespace Translator.Explorer.Graph
                 StartTime = DateTime.UtcNow;
                 LogManager.Log($"\tnode layout started for {Nodes.Count} nodes");
                 started = true;
-                if (opencl is not null) opencl.Retry = true;
+                if (opencl is not null)
+                {
+                    opencl.Retry = true;
+                }
+
                 _ = Task.Run(LayoutCalculation, cancellationToken.Token).ContinueWith((result) =>
                 {
                     if (result.Exception is not null)
                     {
                         //filter out object disposed as that happens when we close the window
-                        if (result.Exception.InnerException is ObjectDisposedException) return;
+                        if (result.Exception.InnerException is ObjectDisposedException)
+                        {
+                            return;
+                        }
+
                         LogManager.Log(result.Exception, LogManager.Level.Error);
                         Msg.WarningOk("Calculation failed and has been stopped. You can try and restart the calculations. See the log for more info.");
                     }
@@ -144,7 +154,10 @@ namespace Translator.Explorer.Graph
 #endif
                 //its not faster to clean out this access chain!
                 //we got to wait before we change nodes, so like a reverse lock?
-                while (!explorer.Grapher.DrewNodes) ;
+                while (!explorer.Grapher.DrewNodes)
+                {
+                    ;
+                }
                 //switch to other list once done
                 provider.UsingListA = !provider.UsingListA;
                 ++_layoutcount;
@@ -154,19 +167,29 @@ namespace Translator.Explorer.Graph
 #if DEBUG
                 LogManager.Log($"Nodes: {NodeForces.Count}N{Nodes.Edges.Count}E Total: {frametime.TotalMilliseconds:.00}ms Calc: {(DrawStartTime - FrameStartTime).TotalMilliseconds:.00}ms");
 #endif
-                if (frametime.TotalMilliseconds < 30) Thread.Sleep((int)(30 - frametime.TotalMilliseconds));
+                if (frametime.TotalMilliseconds < 30)
+                {
+                    Thread.Sleep((int)(30 - frametime.TotalMilliseconds));
+                }
 
                 explorer.Invalidate();
             }
             if (!explorer.Disposing && !explorer.IsDisposed && explorer.IsHandleCreated)
+            {
                 explorer.Invoke(explorer.ShowStoppedInfoLabel);
+            }
+
             Stop();
         }
 
         private void CalculatePositions()
         {
             NodeList list = provider.OtherNodes;
-            if (list.Count == 0) return;
+            if (list.Count == 0)
+            {
+                return;
+            }
+
             ResetNodeForces();
 
             float radius = MathF.Sqrt(list.Count) + StoryExplorerConstants.IdealLength * 2;
@@ -174,7 +197,10 @@ namespace Translator.Explorer.Graph
             for (int first = 0; first < list.Count; first++)
             {
 #if DEBUG
-                if (float.IsNaN(list[first].Position.X) || float.IsNaN(list[first].Position.X)) Debugger.Break();
+                if (float.IsNaN(list[first].Position.X) || float.IsNaN(list[first].Position.X))
+                {
+                    Debugger.Break();
+                }
 #endif
                 //Gravity to center
                 Vector2 pos = new(list[first].Position.X, list[first].Position.Y);
@@ -220,7 +246,10 @@ namespace Translator.Explorer.Graph
                         list.Edges[i].This.Position.Y - list.Edges[i].Child.Position.Y
                         );
                 //if we have the exact same pos but it hasnt been moved by the general +10f in the nbody sim, we have a selfreference and can ignore it
-                if (edge.X == 0 && edge.Y == 0) continue;
+                if (edge.X == 0 && edge.Y == 0)
+                {
+                    continue;
+                }
 
                 Vector2 attractionVec = edge / edge.Length() * StoryExplorerConstants.Attraction * (edge.Length() - StoryExplorerConstants.IdealLength);
 

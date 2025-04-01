@@ -17,7 +17,10 @@ namespace Translator.Core
         /// <returns>A Collection of ToolStripItems with a length between 0 and 5</returns>
         public static IMenuItem[] GetRecents()
         {
-            if (!MenuItem.IsAssignableTo(typeof(IMenuItem))) return Array.Empty<IMenuItem>();
+            if (!MenuItem.IsAssignableTo(typeof(IMenuItem)))
+            {
+                return Array.Empty<IMenuItem>();
+            }
 
             int count = 0;
             for (int i = 0; i < recents.Count; i++)
@@ -93,8 +96,16 @@ namespace Translator.Core
         {//if we dont ignore recents, keep number near 0 so we dont underflow
             if (--IgnoreNextRecents <= 0 && filepath.Length > 0)
             {
-                if (filepath.Length > 0) recents.Insert(0, filepath);
-                if (recents.Count > 5) recents.RemoveRange(5, recents.Count - 5);
+                if (filepath.Length > 0)
+                {
+                    recents.Insert(0, filepath);
+                }
+
+                if (recents.Count > 5)
+                {
+                    recents.RemoveRange(5, recents.Count - 5);
+                }
+
                 IgnoreNextRecents = 0;
             }
         }
@@ -119,18 +130,31 @@ namespace Translator.Core
                 {
                     IgnoreNextRecents = 1;
                     TabManager.ActiveTranslationManager.LoadFileIntoProgram(recents[0]);
-                    if (Settings.Default.AutoLoadRecentIndex) TabManager.SelectLine(recentIndex);
-                    else TabManager.SelectLine(0);
+                    if (Settings.Default.AutoLoadRecentIndex)
+                    {
+                        TabManager.SelectLine(recentIndex);
+                    }
+                    else
+                    {
+                        TabManager.SelectLine(0);
+                    }
                 }
             }
         }
 
         private static void RecentsManager_Click(object? sender, EventArgs? e)
         {
-            if (sender is null || TabManager.ActiveTranslationManager is null) return;
+            if (sender is null || TabManager.ActiveTranslationManager is null)
+            {
+                return;
+            }
+
             TabManager.ShowAutoSaveDialog();
             TabManager.ActiveTranslationManager.LoadFileIntoProgram(((IMenuItem)sender).Text);
-            if (Settings.Default.AutoLoadRecentIndex) TabManager.SelectLine(recentIndex);
+            if (Settings.Default.AutoLoadRecentIndex)
+            {
+                TabManager.SelectLine(recentIndex);
+            }
         }
     }
 }

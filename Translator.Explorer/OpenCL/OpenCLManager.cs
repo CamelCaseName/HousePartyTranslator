@@ -69,11 +69,17 @@ public sealed unsafe class OpenCLManager
     private int CreateProgram()
     {//get context with selected devices
         _context = _cl.CreateContext(null, 1, _device, null, null, out int err);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //get context with selected devices
         _commandQueue = _cl.CreateCommandQueue(_context, _device, CommandQueueProperties.None, out err);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //build program
         string completeProgram = Kernels.NBodyKernel + Kernels.EdgeKernel;
@@ -82,7 +88,10 @@ public sealed unsafe class OpenCLManager
         fixed (byte* code = codeBytes)
         {
             _nbody_program = _cl.CreateProgramWithSource(_context, 1, in code, null, out err);
-            if (err != 0) return err;
+            if (err != 0)
+            {
+                return err;
+            }
         }
 
         //get build status as it is not in the error
@@ -105,12 +114,18 @@ public sealed unsafe class OpenCLManager
     private int FindOpenCLPlatforms()
     {
         int err = _cl.GetPlatformIDs(0, null, out uint platformCount);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         nint[] _platforms = new nint[platformCount];
 
         err = _cl.GetPlatformIDs(platformCount, _platforms, Array.Empty<uint>());
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //get devices
         //platform id is key
@@ -119,7 +134,11 @@ public sealed unsafe class OpenCLManager
         {
             //get length/size of name
             err = _cl.GetPlatformInfo(_platforms[i], PlatformInfo.Name, 0, null, out nuint NameLength);
-            if (err != 0) return err;
+            if (err != 0)
+            {
+                return err;
+            }
+
             sbyte[] platformName = new sbyte[NameLength + 1];
             //get platform name
             string platformNameString = string.Empty;
@@ -129,21 +148,34 @@ public sealed unsafe class OpenCLManager
                 platformNameString = new(s);
             }
 
-            if (platformNameString.Contains("CPU")) continue;
+            if (platformNameString.Contains("CPU"))
+            {
+                continue;
+            }
 
             //get device count
             err = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, 0, null, out uint deviceCount);
-            if (err != 0) return err;
+            if (err != 0)
+            {
+                return err;
+            }
+
             nint[] _devices = new nint[deviceCount];
             //get devices
             err = _cl.GetDeviceIDs(_platforms[i], DeviceType.Gpu, deviceCount, _devices, Array.Empty<uint>());
-            if (err != 0) return err;
+            if (err != 0)
+            {
+                return err;
+            }
             //find device with most power, opencl compute units
             for (int k = 0; k < deviceCount; k++)
             {
                 nuint maxComputeUnits = 0;
                 err = _cl.GetDeviceInfo(_devices[k], DeviceInfo.MaxWorkGroupSize, (nuint)sizeof(nuint), &maxComputeUnits, out _);
-                if (err != 0) return err;
+                if (err != 0)
+                {
+                    return err;
+                }
 
                 if (maxComputeUnits > maxValue)
                 {
@@ -243,13 +275,25 @@ public sealed unsafe class OpenCLManager
                 _cl.ReleaseCommandQueue(_commandQueue);
             }
             if (_nbody_kernel != nint.Zero)
+            {
                 _cl.ReleaseKernel(_nbody_kernel);
+            }
+
             if (_nbody_program != nint.Zero)
+            {
                 _cl.ReleaseProgram(_nbody_program);
+            }
+
             if (_device != nint.Zero)
+            {
                 _cl.ReleaseDevice(_device);
+            }
+
             if (_context != nint.Zero)
+            {
                 _cl.ReleaseContext(_context);
+            }
+
             ResourcesAreAcquired = false;
         }
         catch (Exception e)
@@ -273,7 +317,10 @@ public sealed unsafe class OpenCLManager
         //get selection from user
         var selector = new DeviceSelection(deviceNames, Platforms[preselectedPlatform].platformName);
         var result = parent.Invoke(() => selector.ShowDialog(parent))!;
-        if (result == DialogResult.Cancel) return nint.Zero;
+        if (result == DialogResult.Cancel)
+        {
+            return nint.Zero;
+        }
 
         //work with it
         SelectedPlatform = platformIds[selector.SelectedDeviceIndex];
@@ -285,14 +332,28 @@ public sealed unsafe class OpenCLManager
         LogManager.Log("Getting available OpenCL platforms");
         //get platform
         int err = FindOpenCLPlatforms();
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //just do the old way if we have no opencl
-        if (Platforms.Count == 0) return -1;
+        if (Platforms.Count == 0)
+        {
+            return -1;
+        }
+
         OpenCLDevicePresent = true;
 
-        if (_device == nint.Zero) _device = SelectDevice();
-        if (_device == nint.Zero) return -1;
+        if (_device == nint.Zero)
+        {
+            _device = SelectDevice();
+        }
+
+        if (_device == nint.Zero)
+        {
+            return -1;
+        }
 
         DeviceName = Platforms[SelectedPlatform].platformName;
         LogManager.Log($"Selected {DeviceName} for use with OpenCL");
@@ -300,12 +361,20 @@ public sealed unsafe class OpenCLManager
 
         //get all resources we need, context kernel and so on
         err = AcquireResources();
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         LogManager.Log("Successfully acquired the resources");
         LogManager.Log("Creating Buffers");
 
         err = SetUpBuffers();
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         LogManager.Log("Successfully created the buffers");
 
         //do the calculation once
@@ -327,14 +396,30 @@ public sealed unsafe class OpenCLManager
 
         //calculate work size for local stuff
         neededLocalSize = (nuint)(Math.Sqrt(NodeCount) + 0.5d);
-        if (neededLocalSize > PreferredLocalWorkSize) neededLocalSize = PreferredLocalWorkSize;
-        else while (neededLocalSize % 4 > 0) ++neededLocalSize;
-        if (neededLocalSize > MaxWorkGroupSize) return -1;
+        if (neededLocalSize > PreferredLocalWorkSize)
+        {
+            neededLocalSize = PreferredLocalWorkSize;
+        }
+        else
+        {
+            while (neededLocalSize % 4 > 0)
+            {
+                ++neededLocalSize;
+            }
+        }
+
+        if (neededLocalSize > MaxWorkGroupSize)
+        {
+            return -1;
+        }
 
         //calculate item count
         neededGlobalNodeSize = (nuint)NodeCount;
         //divisible by 4 for nice boundaries
-        while (neededGlobalNodeSize % neededLocalSize > 0) ++neededGlobalNodeSize;
+        while (neededGlobalNodeSize % neededLocalSize > 0)
+        {
+            ++neededGlobalNodeSize;
+        }
 
         //create edge buffer after size checks
         (int[] this_index_buffer, int[] child_index_buffer) = GetEdgeBuffers((int)neededLocalSize);
@@ -342,14 +427,28 @@ public sealed unsafe class OpenCLManager
         //create buffers on gpu
         // we can quickly swap buffers and start the calculations again if we want
         node_pos_1 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer1.Length * sizeof(float)), nodePosBuffer1.AsSpan(), &err);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         node_pos_2 = _cl.CreateBuffer(_context, MemFlags.ReadWrite | MemFlags.CopyHostPtr, (nuint)(nodePosBuffer2.Length * sizeof(float)), nodePosBuffer2.AsSpan(), &err);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         nint this_index = _cl.CreateBuffer(_context, MemFlags.ReadOnly | MemFlags.CopyHostPtr, (nuint)(this_index_buffer.Length * sizeof(int)), this_index_buffer.AsSpan(), &err);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         nint child_index = _cl.CreateBuffer(_context, MemFlags.ReadOnly | MemFlags.CopyHostPtr, (nuint)(child_index_buffer.Length * sizeof(int)), child_index_buffer.AsSpan(), &err);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //copy data over, set arguments
         //    float4 parameters /*first is edge length, second attraction, third repulsion
@@ -360,11 +459,22 @@ public sealed unsafe class OpenCLManager
         //	  __local float4* node_buffer /*the forces for each node*/
         //
         err = _cl.SetKernelArg<float>(_nbody_kernel, 0, sizeof(float) * 4, parameters.AsSpan());
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         err = _cl.SetKernelArg(_nbody_kernel, 3, sizeof(int), NodeCount);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         err = _cl.SetKernelArg(_nbody_kernel, 4, sizeof(float) * 4 * neededLocalSize, null);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //set arguments (except position) for edge kernel
         //    float4 parameters /*first is edge length, second attraction, third repulsion
@@ -374,9 +484,17 @@ public sealed unsafe class OpenCLManager
         //    __global int* this_index,
         //    __global int* child_index
         err = _cl.SetKernelArg<float>(_edge_kernel, 0, sizeof(float) * 4, parameters.AsSpan());
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         err = _cl.SetKernelArg(_edge_kernel, 3, (nuint)sizeof(nint), this_index);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         err = _cl.SetKernelArg(_edge_kernel, 4, (nuint)sizeof(nint), child_index);
         return err;
     }
@@ -394,7 +512,9 @@ public sealed unsafe class OpenCLManager
             if (index >= 0)
             {
                 if (Provider.MovingNodePositionOverrideEnded)
+                {
                     resultBuffer[index * 4 + 2] = 0.0f;
+                }
                 else
                 {
                     resultBuffer[index * 4] = x;
@@ -405,7 +525,10 @@ public sealed unsafe class OpenCLManager
                 fixed (float* inputBuffer = resultBuffer)
                 {
                     err = _cl.EnqueueWriteBuffer(_commandQueue, node_pos_2, false, 0, (nuint)(resultBuffer.Length * sizeof(float)), inputBuffer, 0, null, null);
-                    if (err != 0) return err;
+                    if (err != 0)
+                    {
+                        return err;
+                    }
                 }
                 Provider.ConsumedNodePositionOverrideEnded();
             }
@@ -413,17 +536,26 @@ public sealed unsafe class OpenCLManager
 
         //enqueue execution, same method as for the loop later
         err = DoKernelCalculation(neededGlobalNodeSize, neededGlobalEdgeSize, neededLocalSize);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         fixed (float* outputBuffer = resultBuffer)
         {
             //finished => take it out of the return channel and run computation again, positions are kept in gpu if nothing changed in node count
             err = _cl.EnqueueReadBuffer(_commandQueue, node_pos_2, false, 0, (nuint)(resultBuffer.Length * sizeof(float)), outputBuffer, 0, null, null);
-            if (err != 0) return err;
+            if (err != 0)
+            {
+                return err;
+            }
 
             //wait on all commands to finish
             err = _cl.Finish(_commandQueue);
-            if (err != 0) return err;
+            if (err != 0)
+            {
+                return err;
+            }
         }
 
         //copy values over to our nodes
@@ -436,31 +568,63 @@ public sealed unsafe class OpenCLManager
         int err;
         //todo fix jittering (only seems to affect nodes with childs)
         err = _cl.SetKernelArg(_nbody_kernel, 1, (nuint)sizeof(nint), node_pos_2);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         err = _cl.SetKernelArg(_nbody_kernel, 2, (nuint)sizeof(nint), node_pos_1);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //enqueue kernel with old positions
         err = _cl.EnqueueNdrangeKernel(_commandQueue, _nbody_kernel, 1, 0, nodeGlobalSize, localSize, 0, null, null);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         err = _cl.Finish(_commandQueue);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //copy new data to other buffer so the deltas add up correctly
         err = _cl.EnqueueCopyBuffer(_commandQueue, node_pos_1, node_pos_2, 0, 0, (nuint)(nodePosBuffer1.Length * sizeof(float)), 0, null, null);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         err = _cl.Finish(_commandQueue);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //edge kernel args
         err = _cl.SetKernelArg(_edge_kernel, 1, (nuint)sizeof(nint), node_pos_1);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         err = _cl.SetKernelArg(_edge_kernel, 2, (nuint)sizeof(nint), node_pos_2);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         //enqueue edge kernel with new positions
         err = _cl.EnqueueNdrangeKernel(_commandQueue, _edge_kernel, 1, 0, edgeGlobalSize, localSize, 0, null, null);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         err = _cl.Finish(_commandQueue);
         return err != 0 ? err : 0;
     }
@@ -470,20 +634,32 @@ public sealed unsafe class OpenCLManager
         int err;
         nuint valueToGet = 0;
         err = _cl.GetDeviceInfo(Platforms[SelectedPlatform].deviceId, DeviceInfo.MaxWorkGroupSize, (nuint)sizeof(nuint), &valueToGet, out _);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         MaxWorkGroupSize = (uint)valueToGet;
         uint[] valuesToGet = new uint[32];
         fixed (uint* value = valuesToGet)
         {
             err = _cl.GetDeviceInfo(Platforms[SelectedPlatform].deviceId, DeviceInfo.MaxWorkItemSizes, (nuint)(sizeof(nuint) * valuesToGet.Length), value, out _);
         }
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         MaxWorkItems = valuesToGet[0];
         fixed (uint* value = valuesToGet)
         {
             err = _cl.GetDeviceInfo(Platforms[SelectedPlatform].deviceId, DeviceInfo.PreferredWorkGroupSizeMultiple, (nuint)(sizeof(nuint) * valuesToGet.Length), value, out _);
         }
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
+
         PreferredLocalWorkSize = valuesToGet[0];
         return 0;
     }
@@ -494,13 +670,22 @@ public sealed unsafe class OpenCLManager
         int err;
         //create contet, program and build it on the selected device
         err = CreateProgram();
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
         //success, we can go on creating the kernel
         _nbody_kernel = _cl.CreateKernel(_nbody_program, NBodyKernelName, out err);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
         //success, we create second kernel
         _edge_kernel = _cl.CreateKernel(_nbody_program, EdgeKernelName, out err);
-        if (err != 0) return err;
+        if (err != 0)
+        {
+            return err;
+        }
 
         ResourcesAreAcquired = true;
 
@@ -536,7 +721,10 @@ public sealed unsafe class OpenCLManager
                 CalculateAndCopy(nodePosResultBuffer);
 
                 //we got to wait before we change nodes, so like a reverse lock?
-                while (!parent.Grapher.DrewNodes) ;
+                while (!parent.Grapher.DrewNodes)
+                {
+                    ;
+                }
                 //switch to other list once done
                 Provider.UsingListA = !Provider.UsingListA;
                 FrameRenderedCallback?.Invoke();
@@ -544,7 +732,9 @@ public sealed unsafe class OpenCLManager
                 //approx 60fps max as more is uneccesary and feels weird
                 FrameEndTime = DateTime.UtcNow;
                 if ((FrameEndTime - FrameStartTime).TotalMilliseconds < 30)
+                {
                     Thread.Sleep((int)(30 - (FrameEndTime - FrameStartTime).TotalMilliseconds));
+                }
 
                 parent.Invalidate();
             }
@@ -553,9 +743,13 @@ public sealed unsafe class OpenCLManager
                 //count changed, we have to redo all the outputBuffer and size control setup
                 int err = SetUpBuffers();
                 if (err != 0)
+                {
                     ReleaseOpenCLResources();
+                }
                 else
+                {
                     CalculateAndCopy(nodePosResultBuffer);
+                }
             }
             else if (Retry)
             {
@@ -563,10 +757,16 @@ public sealed unsafe class OpenCLManager
                 _device = Platforms[SelectedPlatform].deviceId;
                 int err = AcquireResources();
                 if (err != 0)
+                {
                     ReleaseOpenCLResources();
+                }
+
                 err = SetUpBuffers();
                 if (err != 0)
+                {
                     ReleaseOpenCLResources();
+                }
+
                 CalculateAndCopy(nodePosResultBuffer);
             }
         }
@@ -578,7 +778,9 @@ public sealed unsafe class OpenCLManager
     {
         //cache the array so we do less allocations
         if (nodePosBuffer1.Length != Provider.OtherNodes.Count * 4)
+        {
             nodePosBuffer1 = new float[Provider.OtherNodes.Count * 4];
+        }
 
         //set new data
         for (int i = 0; i < Provider.OtherNodes.Count; i++)
@@ -591,7 +793,9 @@ public sealed unsafe class OpenCLManager
 
         //cache the array so we do less allocations
         if (nodePosBuffer2.Length != nodePosBuffer1.Length)
+        {
             nodePosBuffer2 = new float[nodePosBuffer1.Length];
+        }
 
         nodePosBuffer1.CopyTo(nodePosBuffer2, 0);
     }
@@ -599,7 +803,9 @@ public sealed unsafe class OpenCLManager
     public void ClearNodeNewPositionBuffer()
     {
         if (nodePosResultBuffer.Length != nodePosBuffer1.Length)
+        {
             nodePosResultBuffer = new float[nodePosBuffer1.Length];
+        }
 
         for (int i = 0; i < nodePosResultBuffer.Length; i++)
         {
@@ -629,13 +835,18 @@ public sealed unsafe class OpenCLManager
             {
                 //we ran through the complete list without adding, skip it and fill with empty edges
                 if (iterator == old_iterator)
+                {
                     iterator = localWorkGroupSize;
+                }
+
                 i = 0;
                 old_iterator = iterator;
             }
             //break out if we consumed all elemtents
             if (edgePool.Count == 0)
+            {
                 iterator = localWorkGroupSize;
+            }
 
             if (iterator < localWorkGroupSize)
             {
@@ -664,7 +875,10 @@ public sealed unsafe class OpenCLManager
                     localWorkGroupItemsChild[iterator] = -1;
                 }
                 ++iterator;
-                if (edgePool.Count == 0) break;
+                if (edgePool.Count == 0)
+                {
+                    break;
+                }
             }
         }
         neededGlobalEdgeSize = (nuint)NodeChildIndices.Count;
