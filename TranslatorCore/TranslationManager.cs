@@ -267,7 +267,8 @@ namespace Translator.Core
 
                     //update to online
                     SaveFile();
-                    _ = UI.InfoOk("Local version saved to database, reload to see changed version.(CTRL+R)");
+                    _ = UI.InfoOk("Local version saved to database");
+                    ReloadFile();
                 }
             }
         }
@@ -808,7 +809,7 @@ namespace Translator.Core
         /// Loads a file into the program and calls all UI routines
         /// </summary>
         /// <param name="path">The path to the file to translate</param>
-        public void LoadFileIntoProgram(string path)
+        public void LoadFileIntoProgram(string path, bool localTakesPriority = false)
         {
             if (path == string.Empty)
             {
@@ -830,7 +831,7 @@ namespace Translator.Core
                 Reset();
 
                 SourceFilePath = path;
-                LoadTranslationFile();
+                LoadTranslationFile(localTakesPriority);
 
                 if (TranslationData.Count > 0)
                 {
@@ -1043,7 +1044,7 @@ namespace Translator.Core
             TabUI.Lines.FreezeLayout();
 
             FileData onlineLines = new(StoryName, FileName);
-            if (DataBase.IsOnline)
+            if (DataBase.IsOnline && !localTakesPriority)
             {
                 _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
             }
@@ -1059,9 +1060,7 @@ namespace Translator.Core
 
                     TranslationData[key].IsTemplate = false;
                     TranslationData[key].IsTranslated = tempLine.IsTranslated;
-                    if (!localTakesPriority
-                        && DataBase.IsOnline
-                        && tempLine.TranslationLength > 0)
+                    if (!localTakesPriority && DataBase.IsOnline && tempLine.TranslationLength > 0)
                     {
                         TranslationData[key].Translation = tempLine.Translation;
                     }
@@ -1496,14 +1495,97 @@ namespace Translator.Core
 
         public void ImportAllCloudSave()
         {
+            if (Settings.Default.AdvancedModeEnabled)
+            {
+                //show warning
+                if (UI.WarningYesNo("This will override the lines saved online for the opened file with your local verison! It will also approve them all! Please be careful. If you read this and want to continue, please select yes", result: PopupResult.YES))
+                {
+                    //force load local version
+                    LoadFileIntoProgram(Utils.SelectFileFromSystem(true, $"Choose the file you want to upload", checkFileExists: true), true);
+                    //select recent index
+                    TabUI.SelectLineItem(0);
 
+                    foreach (var item in TranslationData.Values)
+                    {
+                        item.WasChanged = true;
+                        item.IsApproved = true;
+                    }
 
+                    //update to online
+                    SaveFile();
+                    _ = UI.InfoOk("Local version imported to database");
+                    ReloadFile();
+                }
+            }
         }
 
         public void ImportUnapprovedCloudSave()
         {
+            if (Settings.Default.AdvancedModeEnabled)
+            {
+                //show warning
+                if (UI.WarningYesNo("This will override the unapproved lines saved online for the opened file with your local verison! It will approve the uploaded ones! Please be careful. If you read this and want to continue, please select yes", result: PopupResult.YES))
+                {
+                    //force load local version
+                    LoadFileIntoProgram(Utils.SelectFileFromSystem(true, $"Choose the file you want to upload", checkFileExists: true), true);
+
+                    UI.SignalUserWait();
+                    TabUI.Lines.FreezeLayout();
+
+                    FileData onlineLines = new(StoryName, FileName);
+                    if (DataBase.IsOnline)
+                    {
+                        _ = DataBase.GetAllLineData(FileName, StoryName, out onlineLines, Language);
+                    }
+
+                    bool missingAtLeastOneLine = false;
+
+                    foreach (var line in onlineLines)
+                    {
+                        //we have the line in the local file, update local string with online version if it is approved
+                        if (TranslationData.TryGetValue(line.Key, out LineData? value))
+                        {
+                            if (line.Value.IsApproved)
+                            {
+                                TranslationData[line.Key] = line.Value;
+                            }
+                            else
+                            {
+                                value.IsApproved = true;
+                            }
+                        }
+                        else
+                        {
+                            //we dont have it in the file yet, add it with the online version
+                            TranslationData.TryAdd(line.Key, line.Value);
+                            missingAtLeastOneLine = true;
+                        }
+                    }
 
 
+                    UI.SignalUserEndWait();
+
+                    //select recent index
+                    TabUI.SelectLineItem(0);
+
+                    foreach (var item in TranslationData.Values)
+                    {
+                        item.WasChanged = true;
+                    }
+
+                    //update to online
+                    SaveFile();
+                    _ = UI.InfoOk("Local version imported to database");
+                    ReloadFile();
+                    if (missingAtLeastOneLine)
+                    {
+                        var setting = Settings.Default.ExportTranslatedWithMissingLines;
+                        Settings.Default.ExportTranslatedWithMissingLines = true;
+                        ExportMissinglinesForCurrentFile();
+                        Settings.Default.ExportTranslatedWithMissingLines = setting;
+                    }
+                }
+            }
         }
     }
 }

@@ -478,6 +478,7 @@ namespace Translator.Desktop.UI
             {
                 ImageTransparentColor = Color.Magenta,
                 Name = nameof(uploadAllTemplates),
+                Enabled = false,
                 Size = new Size(236, 22),
                 Text = "Up&load all official template files",
                 ToolTipText = "Upload all template files for all official stories and UI (only in admin mode)"
@@ -786,7 +787,7 @@ namespace Translator.Desktop.UI
                 Name = nameof(ImportSomeCloudSaveToolStripMenuItem),
                 Size = new Size(236, 22),
                 Enabled = false,
-                Text = "Import all from file",
+                Text = "Import unapproved from file",
                 ToolTipText = "Imports lines from the file you select into the cloud which are not approved in the cloud yet. Only available in the Admin version."
             };
             ImportSomeCloudSaveToolStripMenuItem.Click += (object? sender, EventArgs e) => TabManager.ActiveTranslationManager.ImportUnapprovedCloudSave();
@@ -955,7 +956,9 @@ namespace Translator.Desktop.UI
                 ReloadFileMenuItem,
                 AutoTranslateAbort,
                 new WinMenuSeperator(),
-                overrideCloudSaveToolStripMenuItem
+                overrideCloudSaveToolStripMenuItem,
+                ImportAllCloudSaveToolStripMenuItem,
+                ImportSomeCloudSaveToolStripMenuItem
             });
 
             // fileToolStripMenuItem
@@ -1186,10 +1189,12 @@ namespace Translator.Desktop.UI
             LogManager.Log($"Application initialized with app version:{SoftwareVersionManager.LocalVersion} db version:{(DataBase.IsOnline ? DataBase.DBVersion : "*offline*")} story version:{Settings.Default.FileVersion}");
 
             //hide override button if not in advanced mode
-            if (!Settings.Default.AdvancedModeEnabled)
+            if (Settings.Default.AdvancedModeEnabled)
             {
-                overrideCloudSaveToolStripMenuItem.Enabled = false;
-                uploadAllTemplates.Enabled = false;
+                overrideCloudSaveToolStripMenuItem.Enabled = true;
+                ImportAllCloudSaveToolStripMenuItem.Enabled = true;
+                ImportSomeCloudSaveToolStripMenuItem.Enabled = true;
+                uploadAllTemplates.Enabled = true;
             }
 
             ProgressbarWindow.Hide();

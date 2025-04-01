@@ -340,14 +340,18 @@ namespace Translator.Core
 
         private static void SortAndWriteMissingLinesToDisk(string path, string story, string file, FileData lines, FileData templates)
         {
+            StreamWriter writer = new(path);
             FileData results = new(story, templates.FileName);
             CompareAndAggregateTranslationAndTemplate(lines, templates, ref results);
+
+            writer.WriteLine($"{results.Count} Lines missing{(Settings.Default.ExportTranslatedWithMissingLines ? " or not approved" : "")}\n");
 
             //sort and save
             List<CategorizedLines> sortedLines = InitializeCategories(story, file);
             SortIntoCategories(ref sortedLines, results, results);
 
-            WriteCategorizedLinesToDisk(sortedLines, path);
+            WriteCategorizedLinesToDisk(sortedLines, path, OutputWriter: writer);
+            writer.Dispose();
         }
 
         private static void CompareAndAggregateTranslationAndTemplate(FileData lines, FileData templates, ref FileData results)
@@ -380,7 +384,7 @@ namespace Translator.Core
                     }
                     else if (Settings.Default.ExportTranslatedWithMissingLines)
                     {
-                        var tempLine = new LineData(lineData, new EekStringID(lineData.ID + "@@@TN", lineData.Category));
+                        var tempLine = new LineData(translatedLineData, new EekStringID(translatedLineData.ID + "@@@TN", translatedLineData.Category));
                         results.Add(tempLine.EekID, tempLine);
                     }
                 }
