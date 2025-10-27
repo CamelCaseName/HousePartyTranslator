@@ -1,7 +1,6 @@
 ﻿using Translator.Core.Data;
-using static System.Windows.Forms.TabControl;
 using Translator.Core.UICompatibilityLayer;
-using System.Runtime;
+using static System.Windows.Forms.TabControl;
 
 namespace Translator.Desktop.Foundation
 {

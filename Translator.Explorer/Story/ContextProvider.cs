@@ -1,6 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Org.BouncyCastle.Utilities.Collections;
 using System.Runtime.Versioning;
+using System.Text;
+using System.Text.Unicode;
 using Translator.Core;
+using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Explorer.Graph;
 using Translator.Explorer.JSONItems;
@@ -247,6 +251,117 @@ public sealed class ContextProvider
             //read in all first, dumbass me
             InterlinkNodes(Nodes);
 
+
+            //var femaleNodes = Nodes.Where(n => n.Gender == Gender.Female);
+            //var stream = File.OpenWrite("./FemaleLines.txt");
+            //stream.Position = 0;
+            //var encoding = new UTF8Encoding();
+            //foreach (var node in femaleNodes)
+            //{
+            //    if (TryExtractTemplateText(StoryName, node.FileName, node, out var template))
+            //    {
+            //        if (template is not null)
+            //        {
+            //            stream.Write(encoding.GetBytes($"{node.FileName}|{TabManager.translationManagers.FirstOrDefault(t => t.Value?.FileName == node.FileName).Value?.TranslationData?.FirstOrDefault(line => line.Value?.Template == template.Template).Value?.ToString()}\n"));
+            //        }
+            //    }
+            //}
+
+            //static bool TryExtractTemplateText(string story, string filename, Node node, out LineData? template)
+            //{
+            //    template = null;
+            //    //filter out irrelevant nodes
+            //    if (node.ID == string.Empty)
+            //    {
+            //        return false;
+            //    }
+
+            //    switch (node.Type)
+            //    {
+            //        case NodeType.BGCResponse:
+            //        case NodeType.CharacterGroup:
+            //        case NodeType.Clothing:
+            //        case NodeType.CriteriaGroup:
+            //        case NodeType.Criterion:
+            //        case NodeType.Cutscene:
+            //        case NodeType.Door:
+            //        case NodeType.EventTrigger:
+            //        case NodeType.ItemGroup:
+            //        case NodeType.Null:
+            //        case NodeType.Personality:
+            //        case NodeType.Pose:
+            //        case NodeType.Property:
+            //        case NodeType.Social:
+            //        case NodeType.State:
+            //        case NodeType.Value:
+            //            return false;
+            //        case NodeType.Item:
+            //        {
+            //            if (story != filename)
+            //            {
+            //                return false;
+            //            }
+
+            //            if (node.DataType == typeof(ItemOverride) && node.Data is not null)
+            //            {
+            //                ItemOverride itemOverride = (ItemOverride)node.Data!;
+            //                template = new LineData(itemOverride.DisplayName!, story, filename, node.Type.CategoryFromNode(), itemOverride.DisplayName!, true);
+            //            }
+            //            else if (node.DataType == typeof(UseWith) && node.Data is not null)
+            //            {
+            //                UseWith use = (UseWith)node.Data!;
+            //                if (use.CustomCantDoThatMessage != string.Empty)
+            //                {
+            //                    //not sure if this can even work but ill try, maybe we need the english version as id?
+            //                    template = new LineData(use.ItemName! + "CustomCantDoThatMessage", story, filename, node.Type.CategoryFromNode(), use.CustomCantDoThatMessage!, true);
+            //                }
+            //            }
+            //            else if (node.Text != string.Empty && node.ID != string.Empty)
+            //            {
+            //                template = new LineData(node.Text, story, filename, node.Type.CategoryFromNode(), node.Text, true);
+            //            }
+            //            return true;
+            //        }
+            //        case NodeType.Event:
+            //        {
+            //            if (node.DataType != typeof(GameEvent) || node.Data is null)
+            //            {
+            //                return false;
+            //            }
+
+            //            GameEvent gameEvent = (GameEvent)node.Data!;
+            //            if (gameEvent.EventType == StoryEnums.GameEvents.DisplayGameMessage)
+            //            {
+            //                template = new LineData(node.ID, story, filename, node.Type.CategoryFromNode(), gameEvent.Value!, true);
+            //            }
+            //            else if (gameEvent.EventType == StoryEnums.GameEvents.Item)
+            //            {
+            //                if (gameEvent.Option == 2)
+            //                {
+            //                    template = new LineData(gameEvent.Value!, story, filename, node.Type.CategoryFromNode(), gameEvent.Value!, true);
+            //                }
+            //            }
+            //            return true;
+            //        }
+            //        case NodeType.Achievement:
+            //        {
+            //            if (node.ID.Contains("SteamName"))
+            //            {
+            //                return false;
+            //            }
+
+            //            template = new LineData(node.ID, story, filename, node.Type.CategoryFromNode(), node.Text, true);
+            //            return true;
+            //        }
+            //        default:
+            //        {
+            //            template = new LineData(node.ID, story, filename, node.Type.CategoryFromNode(), node.Text, true);
+            //            return true;
+            //        }
+            //    }
+            //}
+
+
             SetStartingPositions(Nodes);
             LogManager.Log("Created objects and loaded them");
 
@@ -342,6 +457,8 @@ public sealed class ContextProvider
         }
         else
         {
+            //todo set the starting positions in a tree like graph, so start with one node then add all its children there and go on for each children and set the position if applicable,
+            //then go ahead and set the next one and its children only if not already set. that way we can save some time and start in a more ordered layout
             int step = 40;
             int runningTotal = 0;
             //~sidelength of the most square layout we can achieve witrh the number of nodes we have
