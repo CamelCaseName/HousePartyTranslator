@@ -1159,7 +1159,7 @@ namespace Translator.Core
         {
             string password = Settings.Default.DbPassword;
             string returnString = password != string.Empty
-                ? "Server=www.rinderha.cc;Uid=user;Pwd=" + password + ";Database=main;Pooling=True;MinimumPoolSize=10;MaximumPoolSize=150;"
+                ? "Server=www.rinderha.cc;Uid=user;Pwd=" + password + ";Database=main;Pooling=True;port=6769;MinimumPoolSize=10;MaximumPoolSize=150;"
                 : string.Empty;
             return returnString;
         }
