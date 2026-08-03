@@ -10,6 +10,7 @@ using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.Foundation;
 using Translator.Desktop.Helpers;
+using System.ComponentModel;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -84,7 +85,9 @@ namespace Translator.Desktop.UI.Components
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new int SelectedIndex { get => base.SelectedIndex; set => base.SelectedIndex = value; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new X SelectedTab { get => (X)base.SelectedTab; set => base.SelectedTab = value; }
 
         public new int TabCount => TabPages.Count;

@@ -150,6 +150,7 @@ namespace Translator.Desktop.UI
         /// <summary>
         /// Instance of the Story Explorer, but the owner is checked so only the Storyexplorer class itself can instantiate it.
         /// </summary>
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public StoryExplorer? Explorer
         {
             get

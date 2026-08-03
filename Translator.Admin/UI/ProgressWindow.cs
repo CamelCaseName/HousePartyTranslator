@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Translator.Desktop.UI
 {
@@ -22,6 +23,7 @@ namespace Translator.Desktop.UI
         {
             get;
         }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsInitialized { get; internal set; }
 
         public void PerformStep()

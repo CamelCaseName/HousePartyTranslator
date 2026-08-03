@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Windows.Forms;
 using Translator.Core.UICompatibilityLayer;
+using System.ComponentModel;
 
 namespace Translator.Desktop.UI.Components
 {
     public class WinToolStripTextBox : ToolStripTextBox, ITextBox
     {
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int SelectionEnd
         {
             get => SelectionStart + SelectionLength;
@@ -17,8 +19,11 @@ namespace Translator.Desktop.UI.Components
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int HighlightStart { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int HighlightEnd { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ShowHighlight { get; set; }
     }
 }

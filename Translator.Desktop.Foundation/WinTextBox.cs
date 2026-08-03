@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.Helpers;
+using System.ComponentModel;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -27,6 +28,7 @@ namespace Translator.Desktop.UI.Components
             MouseMove += (sender, e) => _ = e.Button == MouseButtons.Left ? customDrawNeeded = true : customDrawNeeded = false;
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int SelectionEnd
         {
             get => base.SelectionStart + base.SelectionLength;
@@ -38,18 +40,23 @@ namespace Translator.Desktop.UI.Components
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new int SelectionStart { get => base.SelectionStart; set => base.SelectionStart = value; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int HighlightStart { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int HighlightEnd { get; set; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ShowHighlight
         {
             get => showHighlight;
             set { Invalidate(); showHighlight = value; customDrawNeeded = true; }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string Text
         {
             get => base.Text;
@@ -67,6 +74,7 @@ namespace Translator.Desktop.UI.Components
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Color PlaceholderColor { get; set; } = SystemColors.GrayText;
 
         public new void Focus() => base.Focus();

@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -21,6 +22,7 @@ namespace Translator.Desktop.UI.Components
             };
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new Color BackColor
         {
             get => BackgroundColor;

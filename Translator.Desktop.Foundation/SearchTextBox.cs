@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -14,6 +15,7 @@ namespace Translator.Desktop.UI.Components
             KeyDown += (s, e) => InvalidateCounter();
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int TotalSearchResults
         {
             get
@@ -38,6 +40,7 @@ namespace Translator.Desktop.UI.Components
         }
         private int _totalSearchResults = 0;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int CurrentSearchResult
         {
             get
@@ -59,6 +62,7 @@ namespace Translator.Desktop.UI.Components
 
         private string _counter = "0/0";
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string Text
         {
             get

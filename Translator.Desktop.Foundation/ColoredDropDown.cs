@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Translator.Core.Helpers;
+using System.ComponentModel;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -11,6 +12,7 @@ namespace Translator.Desktop.UI.Components
     public sealed class ColoredDropDown : ComboBox
     {
         private int[] coloredIndices;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Color SpecialIndexBackColor
         {
             get

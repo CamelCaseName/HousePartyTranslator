@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using Translator.Core.UICompatibilityLayer;
+using System.ComponentModel;
 
 namespace Translator.Desktop.Foundation
 {
@@ -12,6 +13,7 @@ namespace Translator.Desktop.Foundation
 
         public new event EventHandler Click { add => base.Click += value; remove => base.Click -= value; }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new string Text { get => base.Text; set => base.Text = value; }
     }
 }

@@ -8,6 +8,7 @@ using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
 using Translator.Desktop.Foundation;
 using Translator.Desktop.InterfaceImpls;
+using System.ComponentModel;
 
 namespace Translator.Desktop.UI.Components
 {
@@ -320,9 +321,13 @@ namespace Translator.Desktop.UI.Components
             panel2.PerformLayout();
             ResumeLayout();
         }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int AllProgressValue { get => ProgressbarTranslated.SecondValue; set => ProgressbarTranslated.SecondValue = value; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ApprovedButtonChecked { get => ApprovedBox.Checked; set => ApprovedBox.Checked = value; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string CommentBoxText { get => ContextViewer.CommentTextBox.Text; set => ContextViewer.CommentTextBox.Text = value; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string[] CommentBoxTextArr { get => ContextViewer.CommentTextBox.Lines; set => ContextViewer.CommentTextBox.Lines = value; }
         public ITextBox Comments => ContextViewer.CommentTextBox;
         public bool IsApproveButtonFocused => ApprovedBox.Focused;
@@ -345,8 +350,10 @@ namespace Translator.Desktop.UI.Components
         public ILineItem SelectedLineItem => (ILineItem)(Lines.SelectedItem ?? new WinLineItem());
         public string SelectedTemplateBoxText => TemplateTextBox.SelectedText;
         public string SelectedTranslationBoxText => TranslationTextBox.SelectedText;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int SingleProgressValue { get => ProgressbarTranslated.Value; set => ProgressbarTranslated.Value = value; }
         public ITextBox Template => TemplateTextBox;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string TemplateBoxText { get => TemplateTextBox.Text; set => TemplateTextBox.Text = value; }
         string ITab.Text
         {
@@ -374,8 +381,10 @@ namespace Translator.Desktop.UI.Components
             }
         }
         public ITextBox Translation => TranslationTextBox;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string TranslationBoxText { get => TranslationTextBox.Text; set => TranslationTextBox.Text = value; }
         public IList<string> TranslationsSimilarToTemplate => Lines.SimilarStringsToEnglish;
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Fenster MainForm { get; init; }
         private static int Number { get; set; } = 0;
 
