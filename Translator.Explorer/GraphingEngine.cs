@@ -76,7 +76,6 @@ namespace Translator.Explorer
             OffsetX = (float)Explorer.ClientRectangle.X / 2;
             OffsetY = (float)Explorer.ClientRectangle.Y / 2;
 
-
             ColorBrush = new SolidBrush(Settings.DefaultNodeColor);
             ColorPen = new Pen(Settings.DefaultEdgeColor, 2f)
             {

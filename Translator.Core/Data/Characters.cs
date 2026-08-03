@@ -21,7 +21,12 @@ namespace Translator.Core.Data
             {"Phone Call", CharacterEnum.phonecall},
             {"Rachael", CharacterEnum.rachael},
             {"Stephanie", CharacterEnum.stephanie},
-            {"Vickie", CharacterEnum.vickie}
+            {"Vickie", CharacterEnum.vickie},
+            {"Gisella", CharacterEnum.gisella},
+            {"Murray", CharacterEnum.murray},
+            {"Podcast", CharacterEnum.podcast},
+            {"Babs", CharacterEnum.babs},
+            {"Tater", CharacterEnum.tater}
 };
 
         public enum CharacterEnum
@@ -46,7 +51,12 @@ namespace Translator.Core.Data
             rachael,
             rule34,
             stephanie,
-            vickie
+            vickie,
+            gisella,
+            tater,
+            murray,
+            podcast,
+            babs
         }
     }
 }

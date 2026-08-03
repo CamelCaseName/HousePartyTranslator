@@ -2,7 +2,7 @@
 using System.Windows.Forms;
 using Translator.Core.UICompatibilityLayer;
 
-namespace Translator.Desktop.UI.Components
+namespace Translator.Desktop.Foundation
 {
     public class WinMenuItem : ToolStripMenuItem, IMenuItem
     {

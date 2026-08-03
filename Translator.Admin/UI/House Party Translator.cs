@@ -11,6 +11,7 @@ using Translator.Core;
 using Translator.Core.Data;
 using Translator.Core.Helpers;
 using Translator.Core.UICompatibilityLayer;
+using Translator.Desktop.Foundation;
 using Translator.Desktop.InterfaceImpls;
 using Translator.Desktop.Managers;
 using Translator.Desktop.UI.Components;

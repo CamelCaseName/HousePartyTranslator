@@ -251,7 +251,6 @@ public sealed class ContextProvider
             //read in all first, dumbass me
             InterlinkNodes(Nodes);
 
-
             //var femaleNodes = Nodes.Where(n => n.Gender == Gender.Female);
             //var stream = File.OpenWrite("./FemaleLines.txt");
             //stream.Position = 0;
